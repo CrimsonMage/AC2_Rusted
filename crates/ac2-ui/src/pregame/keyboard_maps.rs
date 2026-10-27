@@ -55,6 +55,23 @@ pub struct KeyMapLibrary {
 }
 
 impl KeyMapLibrary {
+    /// Each action's name as the DATs' maps give it (`EnumMapper::GetString(0x4000001d, action)`
+    /// is the saved name in retail; the maps' bindings carry it here). An action no map names
+    /// has none.
+    pub fn action_names(&self) -> HashMap<u32, String> {
+        let mut names = HashMap::new();
+        for map in self.maps.values() {
+            for mapping in &map.mappings {
+                if !mapping.name.is_empty() {
+                    names
+                        .entry(mapping.action)
+                        .or_insert_with(|| mapping.name.clone());
+                }
+            }
+        }
+        names
+    }
+
     /// The maps of a preset, when the DATs hold all three.
     pub fn preset(&self, preset: Preset) -> Option<KeyMapSet> {
         let [main, control, shift] = preset.maps();
@@ -135,18 +152,23 @@ pub fn meta_key_of(meta_mode: u32) -> u32 {
 }
 
 /// `SaveKeyboardList`: the three maps the list's bindings make, named `mydefault`, `mydefaultc`
-/// and `mydefaults`.
-pub fn saved_set(list: &KeyboardList) -> KeyMapSet {
+/// and `mydefaults`. A binding is named by its action (`names`, the action's name); an action no
+/// map names is written by its enum value (`0x........`), which the reader takes back.
+pub fn saved_set(list: &KeyboardList, names: &HashMap<u32, String>) -> KeyMapSet {
     let mut set = KeyMapSet {
         main: named("mydefault"),
         control: named("mydefaultc"),
         shift: named("mydefaults"),
     };
     for (action, binding) in list.bindings() {
+        let name = names
+            .get(&action)
+            .cloned()
+            .unwrap_or_else(|| format!("{action:#010x}"));
         let mapping = ActionMapping {
             action,
             semantic: binding.semantic,
-            name: String::new(),
+            name,
         };
         match map_kind(binding.meta) {
             Some(MapKind::Main) => set.main.mappings.push(mapping),

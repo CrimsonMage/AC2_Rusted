@@ -65,6 +65,15 @@ impl App {
                 if let Some(set) = &outcome.key_maps {
                     state.controls.replace_key_maps(set);
                 }
+                if let Some(set) = &outcome.saved_key_maps {
+                    // `SaveKeyboardList`'s `PFileParser::SaveToFile` of the three maps.
+                    if let Err(error) = ac2_ui::keymap_file::save_set(
+                        &ac2_ui::keymap_file::KeymapFiles::user(),
+                        set,
+                    ) {
+                        eprintln!("ac2: keymap files: {error}");
+                    }
+                }
                 if outcome.quit {
                     self.client.session_mut().log_off(Duration::from_secs(3));
                     event_loop.exit();

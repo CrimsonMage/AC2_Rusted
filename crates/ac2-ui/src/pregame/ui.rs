@@ -65,6 +65,9 @@ pub enum PregameRequest {
     Quit,
     /// The input manager's maps are these (`SaveKeyboardList`'s reload, a restore preset).
     KeyMaps(KeyMapSet),
+    /// The maps were saved from the controls screen: they also go to the keymap files
+    /// (`SaveKeyboardList`'s `PFileParser::SaveToFile`). A restore sends `KeyMaps` alone.
+    SaveKeyMaps(KeyMapSet),
 }
 
 /// The current main framework (`UIFlow::_curUI`).

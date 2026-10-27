@@ -1,0 +1,284 @@
+//! The `.keymap` text: the `PFileParser` tree, `CKeyMap::ToFileNode`'s records and their read
+//! back by `CKeyMap::FromFileNode`'s rules, and the files `Controls::load_with` reads.
+
+use std::collections::HashMap;
+
+use crate::keymap_file::{
+    action_table, format_key_map, format_tree, parse_key_map, parse_tree, read_key_map, save_set,
+    FileNode, KeymapFiles,
+};
+use crate::maps::{ActionMapping, KeyMap};
+use crate::pregame::KeyMapSet;
+
+const JUMP: u32 = 0x4000_0100;
+const FORWARD: u32 = 0x4000_0101;
+const W: u32 = 0x8100_0411;
+const SPACE: u32 = 0x8100_0439;
+
+fn sample() -> KeyMap {
+    KeyMap {
+        name: "mydefault".to_owned(),
+        guid: [1, 0, 0, 0, 2, 0, 3, 0, 4, 5, 6, 7, 8, 9, 10, 11],
+        mappings: vec![
+            ActionMapping {
+                action: FORWARD,
+                semantic: W,
+                name: "Forward".to_owned(),
+            },
+            ActionMapping {
+                action: JUMP,
+                semantic: SPACE,
+                name: "Jump".to_owned(),
+            },
+        ],
+    }
+}
+
+fn actions() -> HashMap<String, u32> {
+    HashMap::from([("Forward".to_owned(), FORWARD), ("Jump".to_owned(), JUMP)])
+}
+
+#[test]
+fn the_tree_reads_names_brackets_and_comments() {
+    let root = parse_tree("# a comment\nVersionHeader [ 1 ] \"\" [ \"my map\" ]\nleaf\n").unwrap();
+    assert_eq!(root.children.len(), 3);
+    assert_eq!(root.children[0].name, "VersionHeader");
+    assert_eq!(root.children[0].children[0].name, "1");
+    assert_eq!(root.children[1].name, "");
+    assert_eq!(root.children[1].children[0].name, "my map");
+    assert!(root.children[2].children.is_empty());
+}
+
+#[test]
+fn an_unclosed_bracket_or_quote_is_an_error() {
+    assert!(parse_tree("name [ a b").is_err());
+    assert!(parse_tree("name ] ").is_err());
+    assert!(parse_tree("\"open").is_err());
+}
+
+#[test]
+fn names_with_delimiters_are_quoted_and_read_back() {
+    let tree = FileNode {
+        name: String::new(),
+        children: vec![FileNode {
+            name: "a b".to_owned(),
+            children: vec![FileNode {
+                name: String::new(),
+                children: vec![FileNode {
+                    name: "x#(y)".to_owned(),
+                    children: Vec::new(),
+                }],
+            }],
+        }],
+    };
+    let text = format_tree(&tree);
+    assert!(text.contains("\"a b\""), "{text}");
+    assert!(text.contains("\"\""), "{text}");
+    assert!(text.contains("\"x#(y)\""), "{text}");
+    assert_eq!(parse_tree(&text).unwrap(), tree);
+}
+
+#[test]
+fn a_key_map_is_saved_in_the_to_file_node_layout() {
+    let text = format_key_map(&sample());
+    let root = parse_tree(&text).unwrap();
+    assert_eq!(root.children[0].name, "VersionHeader");
+    assert_eq!(root.children[0].children[0].name, "1");
+    assert_eq!(root.children[1].children[0].name, "mydefault");
+    // Data1 (little endian bytes 1,0,0,0), Data2, Data3, then eight Data4 bytes.
+    let guid: Vec<&str> = root.children[2]
+        .children
+        .iter()
+        .map(|n| n.name.as_str())
+        .collect();
+    assert_eq!(
+        guid,
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]
+    );
+    assert_eq!(root.children[3].children[0].name, "Forward");
+    assert_eq!(root.children[3].children[1].name, "W");
+}
+
+#[test]
+fn a_saved_key_map_reads_back_equal() {
+    let map = sample();
+    let text = format_key_map(&map);
+    assert_eq!(parse_key_map(&text, &actions()).unwrap(), map);
+}
+
+#[test]
+fn a_binding_with_an_unknown_action_or_key_is_dropped() {
+    let text = "VersionHeader [ 1 ]\n\"\" [ m ]\n\"\" [ 1 2 3 0 0 0 0 0 0 0 0 ]\n\
+                \"\" [ Forward W ]\n\"\" [ Gone W ]\n\"\" [ Jump Nonsense ]\n\"\" [ Jump \"Key 0x81000439\" ]\n";
+    let map = parse_key_map(text, &actions()).unwrap();
+    let bound: Vec<(u32, u32)> = map
+        .mappings
+        .iter()
+        .map(|m| (m.action, m.semantic))
+        .collect();
+    assert_eq!(bound, [(FORWARD, W), (JUMP, SPACE)]);
+}
+
+#[test]
+fn a_malformed_record_fails_the_file() {
+    // A binding with three parts, a GUID short of 11 parts, a bad version.
+    let three = "VersionHeader [ 1 ]\n\"\" [ m ]\n\"\" [ 1 2 3 0 0 0 0 0 0 0 0 ]\n\"\" [ a b c ]\n";
+    assert!(parse_key_map(three, &actions()).is_err());
+    let short = "\"\" [ m ]\n\"\" [ 1 2 3 ]\n";
+    assert!(parse_key_map(short, &actions()).is_err());
+    let version = "VersionHeader [ x ]\n\"\" [ m ]\n\"\" [ 1 2 3 0 0 0 0 0 0 0 0 ]\n";
+    assert!(parse_key_map(version, &actions()).is_err());
+}
+
+#[test]
+fn an_action_no_map_names_is_saved_by_its_enum_value_and_read_back() {
+    let unnamed = KeyMap {
+        name: "mydefault".to_owned(),
+        guid: [0; 16],
+        mappings: vec![ActionMapping {
+            action: 0x4000_0017,
+            semantic: W,
+            name: "0x40000017".to_owned(),
+        }],
+    };
+    let text = format_key_map(&unnamed);
+    assert!(text.contains("0x40000017"), "{text}");
+    assert_eq!(parse_key_map(&text, &actions()).unwrap(), unnamed);
+}
+
+#[test]
+fn the_action_table_names_each_action_once() {
+    let table = action_table([&sample()]);
+    assert_eq!(table.get("Forward"), Some(&FORWARD));
+    assert_eq!(table.get("Jump"), Some(&JUMP));
+}
+
+fn temp_dir(label: &str) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("ac2-keymap-{label}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).unwrap();
+    dir
+}
+
+#[test]
+fn a_saved_set_is_written_and_read_from_its_three_files() {
+    let dir = temp_dir("set");
+    let files = KeymapFiles::in_dir(&dir);
+    let set = KeyMapSet {
+        main: sample(),
+        shift: KeyMap {
+            name: "mydefaults".to_owned(),
+            guid: [0; 16],
+            mappings: Vec::new(),
+        },
+        control: KeyMap {
+            name: "mydefaultc".to_owned(),
+            guid: [0; 16],
+            mappings: Vec::new(),
+        },
+    };
+    save_set(&files, &set).unwrap();
+    let main = read_key_map(&files.main, &actions())
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert_eq!(main, set.main);
+    let shift = read_key_map(&files.shift, &actions())
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert_eq!(shift.name, "mydefaults");
+    // A missing file is not an error: the DAT's map is used.
+    let missing = KeymapFiles::in_dir(&dir.join("none"));
+    assert!(read_key_map(&missing.main, &actions()).unwrap().is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn the_user_files_are_the_three_retail_names() {
+    let files = KeymapFiles::user();
+    for (path, name) in [
+        (&files.main, "Main.keymap"),
+        (&files.shift, "Shift.keymap"),
+        (&files.control, "Control.keymap"),
+    ] {
+        assert!(path.ends_with(name), "{path:?}");
+    }
+}
+
+/// The DATs' maps read back through the file format: each saved binding returns as it was.
+#[test]
+fn the_dat_key_maps_round_trip_through_the_file() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(dataset);
+    let maps: Vec<KeyMap> = [
+        crate::maps::KEYMAP_MAIN,
+        crate::maps::KEYMAP_SHIFT,
+        crate::maps::KEYMAP_CONTROL,
+    ]
+    .into_iter()
+    .map(|enum_value| {
+        (*crate::maps::load_key_map(&store, enum_value)
+            .unwrap()
+            .unwrap())
+        .clone()
+    })
+    .collect();
+    let table = action_table(&maps);
+    for map in &maps {
+        let text = format_key_map(map);
+        let back = parse_key_map(&text, &table).unwrap();
+        assert_eq!(back.name, map.name);
+        assert_eq!(back.guid, map.guid);
+        // Every binding has a name in the DATs and so reads back.
+        assert_eq!(back.mappings, map.mappings, "{}", map.name);
+    }
+}
+
+/// A rebinding in the player's file takes effect at load: `Controls::load_with` pushes it over the
+/// DAT's main map.
+#[test]
+fn a_saved_file_changes_the_controls_it_loads() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(dataset);
+    let dir = temp_dir("controls");
+    let files = KeymapFiles::in_dir(&dir);
+    let main = (*crate::maps::load_key_map(&store, crate::maps::KEYMAP_MAIN)
+        .unwrap()
+        .unwrap())
+    .clone();
+    // Bind the jump action to the B key (a free key in the default map) as well.
+    let mut edited = main.clone();
+    let jump = edited
+        .mappings
+        .iter()
+        .map(|m| m.action)
+        .next()
+        .expect("a bound action");
+    let name = action_table(std::slice::from_ref(&main))
+        .into_iter()
+        .find(|(_, action)| *action == jump)
+        .map(|(name, _)| name)
+        .unwrap_or_default();
+    edited.mappings.push(ActionMapping {
+        action: jump,
+        semantic: crate::pregame::key_names::semantic_from_name("B").unwrap(),
+        name,
+    });
+    std::fs::write(&files.main, format_key_map(&edited)).unwrap();
+    let controls = crate::Controls::load_with(&store, Some(&files))
+        .unwrap()
+        .unwrap();
+    assert_eq!(
+        controls.input.action_from_key(
+            crate::pregame::key_names::semantic_from_name("B").unwrap(),
+            0
+        ),
+        Some(jump)
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -82,6 +82,15 @@ pub enum InputEvent {
     Text { ch: u16 },
 }
 
+/// The input events for OS text: the characters a keyboard press typed (`WM_CHAR`) or an input
+/// method's commit (`CIme::ProcessMessage`'s `WM_IME_CHAR` / `WM_IME_COMPOSITION` result). Text
+/// is taken as UTF-16 units, the width of a retail text element's glyph (`wchar`), so a character
+/// outside the basic plane arrives as its surrogate pair, in order. Text mode takes them
+/// ([`InputManager::event`] drops them otherwise).
+pub fn typed_text(text: &str) -> impl Iterator<Item = InputEvent> + '_ {
+    text.encode_utf16().map(|ch| InputEvent::Text { ch })
+}
+
 /// One action for the handlers (`CallActionHandler`'s arguments).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RawAction {

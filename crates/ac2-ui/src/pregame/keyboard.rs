@@ -249,10 +249,17 @@ impl KeyboardUi {
 
     /// `SaveKeyboardList`: the three maps go to the input manager; nothing is unsaved.
     fn save(&mut self, ctx: &mut Ctx<'_>) {
-        let set = saved_set(&self.model);
+        let names = ctx
+            .keymaps
+            .library
+            .as_ref()
+            .map(|library| library.action_names())
+            .unwrap_or_default();
+        let set = saved_set(&self.model, &names);
         self.model.set_modified(false);
         ctx.keymaps.active = Some(set.clone());
-        ctx.requests.push(PregameRequest::KeyMaps(set));
+        ctx.requests.push(PregameRequest::KeyMaps(set.clone()));
+        ctx.requests.push(PregameRequest::SaveKeyMaps(set));
     }
 
     /// The key hit handler: a key while a row is selected starts a set (`KeyHitHandler`).

@@ -80,8 +80,13 @@ fn save_partitions_the_bindings_by_meta_key() {
         semantic: 0x8100_0413,
         meta: LEFT_CONTROL,
     });
-    let set = saved_set(&list);
+    let names = HashMap::from([
+        (FIRST, "FirstAction".to_owned()),
+        (SECOND, "SecondAction".to_owned()),
+    ]);
+    let set = saved_set(&list, &names);
     assert_eq!(set.main.name, "mydefault");
+    assert_eq!(set.main.mappings[0].name, "FirstAction");
     assert_eq!(set.shift.name, "mydefaults");
     assert_eq!(set.control.name, "mydefaultc");
     let semantics = |map: &KeyMap| map.mappings.iter().map(|m| m.semantic).collect::<Vec<_>>();

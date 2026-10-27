@@ -50,9 +50,14 @@ mod indicators;
 mod ingredient;
 mod ingredient_slots;
 mod input;
+#[cfg(test)]
+mod input_tests;
 mod interpreter;
 mod item_display;
 mod journal_quests;
+pub mod keymap_file;
+#[cfg(test)]
+mod keymap_file_tests;
 pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab, CODE_LIST as QUEST_CODE_LIST};
 #[cfg(test)]
 mod assistance_tests;
@@ -210,7 +215,7 @@ pub use hud::{
 pub use indicators::IndicatorsUi;
 pub use ingredient::{IngredientCommand, IngredientSource, IngredientUi};
 pub use input::{
-    is_ui_action, meta_mode_from_key, InputEvent, InputManager, KeyPress, RawAction,
+    is_ui_action, meta_mode_from_key, typed_text, InputEvent, InputManager, KeyPress, RawAction,
     ACTION_POINTER_X, ACTION_POINTER_Y, DEVICE_KEYBOARD, DEVICE_MOUSE,
 };
 pub use interpreter::{

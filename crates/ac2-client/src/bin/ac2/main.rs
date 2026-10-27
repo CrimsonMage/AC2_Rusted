@@ -46,7 +46,7 @@ use ac2_ui::{Controls, InputEvent, SelectionUi};
 use ac2_weenie::{CharacterChoice, GameplayNotice, OnlineConfig, OnlineSession, SessionEvent};
 use winit::application::ApplicationHandler;
 use winit::event::{
-    DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent,
+    DeviceEvent, DeviceId, ElementState, Ime, MouseButton, MouseScrollDelta, WindowEvent,
 };
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::keyboard::PhysicalKey;
@@ -108,6 +108,8 @@ struct State {
     leave_world: bool,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
+    /// Whether the OS input method is enabled (`CIme`'s active state; see `sync_ime`).
+    ime_allowed: bool,
     grabbed: bool,
 }
 
@@ -136,6 +138,16 @@ impl State {
     fn now(&self) -> (u32, f64) {
         let elapsed = self.started.elapsed();
         (elapsed.as_millis() as u32, elapsed.as_secs_f64())
+    }
+
+    /// `CIme::Activate` / `CIme::Deactivate`: the OS input method is on while the keyboard types
+    /// into a text element (`set_ime_allowed`), so composed text reaches the window.
+    fn sync_ime(&mut self) {
+        let on = self.controls.input.text_mode();
+        if on != self.ime_allowed {
+            self.window.set_ime_allowed(on);
+            self.ime_allowed = on;
+        }
     }
 
     fn input(&mut self, event: InputEvent) {
@@ -439,6 +451,7 @@ impl ApplicationHandler for App {
                 controls
             },
             started: Instant::now(),
+            ime_allowed: false,
             grabbed: false,
         });
     }
@@ -451,6 +464,7 @@ impl ApplicationHandler for App {
         let Some(state) = self.state.as_mut() else {
             return;
         };
+        state.sync_ime();
         match event {
             WindowEvent::CloseRequested => {
                 self.client.session_mut().log_off(Duration::from_secs(3));
@@ -488,10 +502,17 @@ impl ApplicationHandler for App {
                 }
                 if pressed {
                     if let Some(text) = &event.text {
-                        for ch in text.encode_utf16() {
-                            state.input(InputEvent::Text { ch });
+                        for event in ac2_ui::typed_text(text) {
+                            state.input(event);
                         }
                     }
+                }
+            }
+            // `CIme::ProcessMessage`: the OS input method's committed text types like keyboard
+            // text. The composition (preedit) is drawn by the OS and not shown in the entry line.
+            WindowEvent::Ime(Ime::Commit(text)) => {
+                for event in ac2_ui::typed_text(&text) {
+                    state.input(event);
                 }
             }
             WindowEvent::MouseInput {
@@ -561,7 +582,9 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| format!("preferences: {e}"))?;
     let dat_world = DatWorld::new(Arc::clone(&store))?;
     let world = Arc::clone(dat_world.world());
-    let controls = Controls::load(&store)
+    // `gmClient::InitKeymap`: the player's keymap files, else the DATs' maps.
+    let keymap_files = ac2_ui::keymap_file::KeymapFiles::user();
+    let controls = Controls::load_with(&store, Some(&keymap_files))
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no action map")?;
     let mut session = OnlineSession::connect(OnlineConfig {

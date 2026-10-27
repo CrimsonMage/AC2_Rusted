@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1024 done, 351 partial, 793 to do, 79 skipped.
+2247 retail functions: 1027 done, 361 partial, 750 to do, 109 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1940,7 +1940,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmKeyboardUI::FinishSet` · 00413a70 · legions 004138f0 — ac2-ui pregame/keyboard_list.rs finish_set: the selection takes the key, the occupied slot clears; keyboard.rs rebuilds the texts
 - [~] `gmKeyboardUI::StartSet` · 00413d10 · legions 00413b50 — ac2-ui pregame/keyboard_list.rs start_set: the already-mapped conflict on another slot, a free key is set. Not: the second pass over actions without a row (ICIDM 0x54)
 - [~] `gmKeyboardUI::InitializeKeyboardList` · 00414140 · legions 00413f80 — ac2-ui pregame/keyboard_list.rs from_maps and keyboard.rs rebuild_rows: a row per action (action_box_item header, key_box_item slots); the key names from pregame/key_names.rs (authored DIK names). Not: overMapped flags; the map order assumed (main, shift, control)
-- [~] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350 — ac2-ui pregame/keyboard_maps.rs saved_set: the three maps named mydefault, mydefaults, mydefaultc, loaded into the input manager (Controls::replace_key_maps). Not: the keymap files (PreferenceBank 0x40000030-32 paths, not an obvious user config location); the mapping names
+- [~] `gmKeyboardUI::SaveKeyboardList` · 00414510 · legions 00414350 — ac2-ui pregame/keyboard.rs save: the three maps go to Main/Shift/Control.keymap in the user config dir (keymap_file::save_set) and to the input manager. Names: the DAT maps' binding names; an action no map names (5 of 115 described) is saved as its enum value 0x........, not its EnumMapper 0x4000001d name (not decoded)
 - [x] `gmKeyboardUI::RecvNotice_CloseConfirmationDialog` · 004149f0 — ac2-ui pregame/keyboard.rs dialog_outcome: already-mapped (yes finishes), clear all, restore (keyboard_maps presets, sent as PregameRequest::KeyMaps), undo (rebuilt from the active maps), exit (close). The questions' wording is authored here
 - [~] `gmKeyboardUI::gmKeyboardUI` · 00414bb0 · legions 004149f0 — ac2-ui pregame/keyboard.rs KeyboardUi::create and keyboard_maps.rs ActiveKeyMaps: the field, the buttons, the list. Not: the GlobalEventHandler notice 0x436 (no notice table), CKeyMap::LoadSemantics (names are authored)
 - [x] `gmKeyboardUI::Create` · 00414e50 — ac2-ui pregame/keyboard.rs KeyboardUi::create: the field, the buttons, the list from the input manager's maps (keyboard_maps list_of), UpdateButtons; the row templates action_box_item and key_box_item resolved from the layout
@@ -1995,67 +1995,67 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/cimelib/cime.cpp.c` (0/23)
 
 ### MultibyteProcessor
-- [ ] `MultibyteProcessor::MultibyteProcessor` · 004bd3b0 · legions 004b16d0
-- [ ] `MultibyteProcessor::UpdateInternals` · 004bd3c0 · legions 004b16e0
-- [ ] `MultibyteProcessor::GetUnicodeChar` · 004bd420 · legions 004b1740
+- [-] `MultibyteProcessor::MultibyteProcessor` · 004bd3b0 · legions 004b16d0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `MultibyteProcessor::UpdateInternals` · 004bd3c0 · legions 004b16e0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `MultibyteProcessor::GetUnicodeChar` · 004bd420 · legions 004b1740 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### CIme
-- [ ] `CIme::DrawRect` · 004bd4a0
-- [ ] `CIme::SurfaceToClip` · 004bd4f0 · legions 004b1810
-- [ ] `CIme::DrawTriangle` · 004bd5a0 · legions 004b18c0
-- [ ] `CIme::DrawFans` · 004bd6a0
+- [-] `CIme::DrawRect` · 004bd4a0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::SurfaceToClip` · 004bd4f0 · legions 004b1810 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::DrawTriangle` · 004bd5a0 · legions 004b18c0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::DrawFans` · 004bd6a0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### CImeFontWrapper
-- [ ] `CImeFontWrapper::SetPosition` · 004bd740 · legions 004b1a60
-- [ ] `CImeFontWrapper::SetFont` · 004bd760 · legions 004b1a80
+- [-] `CImeFontWrapper::SetPosition` · 004bd740 · legions 004b1a60 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CImeFontWrapper::SetFont` · 004bd760 · legions 004b1a80 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### CIme
-- [ ] `CIme::Deactivate` · 004bd790 · legions 004b1ab0
-- [ ] `CIme::Render` · 004bd810 · legions 004b1b30
-- [ ] `CIme::IsImeEnabled` · 004bd860 · legions 004b1b80
-- [ ] `CIme::IgnoreHotKey` · 004bd870 · legions 004b1b90
-- [ ] `CIme::ProcessMessage` · 004bd880
-- [ ] `CIme::SetCaretPosition` · 004bd890 · legions 004b1bb0
-- [ ] `CIme::ToggleLanguageBar` · 004bd8e0
-- [ ] `CIme::IsSendingKeyMessage` · 004bd8f0 · legions 004b1c10
-- [ ] `CIme::Activate` · 004bd900 · legions 004b1c20
-- [ ] `CIme::SetAppearanceToDefault` · 004bdb70 · legions 004b1e90
-- [ ] `CIme::Init` · 004bdc70 · legions 004b1f90
+- [~] `CIme::Deactivate` · 004bd790 · legions 004b1ab0 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [-] `CIme::Render` · 004bd810 · legions 004b1b30 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::IsImeEnabled` · 004bd860 · legions 004b1b80 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::IgnoreHotKey` · 004bd870 · legions 004b1b90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [~] `CIme::ProcessMessage` · 004bd880 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [-] `CIme::SetCaretPosition` · 004bd890 · legions 004b1bb0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::ToggleLanguageBar` · 004bd8e0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::IsSendingKeyMessage` · 004bd8f0 · legions 004b1c10 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [~] `CIme::Activate` · 004bd900 · legions 004b1c20 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [-] `CIme::SetAppearanceToDefault` · 004bdb70 · legions 004b1e90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CIme::Init` · 004bdc70 · legions 004b1f90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### MultibyteProcessor
-- [ ] `MultibyteProcessor::GetUnicodeString` · 004bdd00 · legions 004b2020
+- [-] `MultibyteProcessor::GetUnicodeString` · 004bdd00 · legions 004b2020 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### CImeFontWrapper
-- [ ] `CImeFontWrapper::GetTextExtent` · 004bddb0 · legions 004b20d0
-- [ ] `CImeFontWrapper::DrawTextA` · 004bde10 · legions 004b2130
+- [-] `CImeFontWrapper::GetTextExtent` · 004bddb0 · legions 004b20d0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+- [-] `CImeFontWrapper::DrawTextA` · 004bde10 · legions 004b2130 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
-## `portal/client/src/cinputmap/cinputmanager.cpp.c` (4/16)
+## `portal/client/src/cinputmap/cinputmanager.cpp.c` (5/16)
 
 ### CInputManager
-- [ ] `CInputManager::CInputManager` · 00599540 · legions 005665e0
+- [~] `CInputManager::CInputManager` · 00599540 · legions 005665e0 — ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
 
 ### NIListIter<NoticeHandler_*>
 - [ ] `NIListIter<NoticeHandler_*>::RemoveCur` · 00599570 · legions 004c0420
 
 ### ICIDM
 - [ ] `ICIDM::PushKeyMap` · 005995e0 · legions 00566610
-- [ ] `ICIDM::GetNameFromKey` · 00599610 · legions 00566640
+- [~] `ICIDM::GetNameFromKey` · 00599610 · legions 00566640 — ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
 
 ### CInputManager
 - [ ] `CInputManager::~CInputManager` · 00599630 · legions 00566660
-- [ ] `CInputManager::AddHandlerToList` · 00599930 · legions 00566960
-- [ ] `CInputManager::RemoveHandlerFromList` · 00599980 · legions 005669b0
-- [ ] `CInputManager::RegisterInputHandler` · 005999d0 · legions 00566a00
-- [ ] `CInputManager::UnregisterInputHandler` · 00599ae0 · legions 00566b10
+- [-] `CInputManager::AddHandlerToList` · 00599930 · legions 00566960 — handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+- [-] `CInputManager::RemoveHandlerFromList` · 00599980 · legions 005669b0 — handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+- [-] `CInputManager::RegisterInputHandler` · 005999d0 · legions 00566a00 — handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+- [-] `CInputManager::UnregisterInputHandler` · 00599ae0 · legions 00566b10 — handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
 - [x] `CInputManager::CallCharacterHandler` · 00599b50 · legions 00566b80 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [x] `CInputManager::CallActionHandler` · 00599b90 · legions 00566bc0 — ac2-ui input.rs
 - [x] `CInputManager::CallMouseLookHandler` · 00599c00 · legions 00566c30 — ac2-ui input.rs
-- [ ] `CInputManager::CallKeyHitHandler` · 00599c40 · legions 00566c70
+- [x] `CInputManager::CallKeyHitHandler` · 00599c40 · legions 00566c70 — ac2-ui controls.rs take_key_presses -> gmKeyboardUI::KeyHitHandler (InputManager::take_key_presses)
 - [ ] `CInputManager::CallFocusSwitchHandler` · 00599c80 · legions 00566cb0
 - [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
-## `portal/client/src/cinputmap/ckeymap.cpp.c` (4/23)
+## `portal/client/src/cinputmap/ckeymap.cpp.c` (6/23)
 
 ### MapGUID
 - [x] `MapGUID::StreamPack` · 00599d60 · legions 00566d90 — ac2-ui maps.rs
@@ -2073,7 +2073,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ActionMapping::operator=` · 00599f10 · legions 00566f20
 
 ### CKeyMap
-- [ ] `CKeyMap::GetNameBySemantic` · 0059a000 · legions 00566fc0
+- [~] `CKeyMap::GetNameBySemantic` · 0059a000 · legions 00566fc0 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 
 ### ActionMapping
 - [x] `ActionMapping::StreamPack` · 0059a1c0 · legions 00567180 — ac2-ui maps.rs
@@ -2081,10 +2081,10 @@ Legend and workflow: [README](README.md).
 ### CKeyMap
 - [ ] `CKeyMap::AddAction` · 0059a210 · legions 005671d0
 - [x] `CKeyMap::StreamPack` · 0059a2b0 · legions 00567270 — ac2-ui maps.rs
-- [ ] `CKeyMap::GetSemanticByName` · 0059a320 · legions 005672e0
-- [ ] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320
+- [~] `CKeyMap::GetSemanticByName` · 0059a320 · legions 005672e0 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+- [~] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 - [ ] `CKeyMap::Destroy` · 0059a680
-- [ ] `CKeyMap::LoadSemantics` · 0059a690 · legions 00567650
+- [-] `CKeyMap::LoadSemantics` · 0059a690 · legions 00567650 — CKeyMap::LoadSemantics: the retail key-name strings are game data; this port authors its own names (ac2-ui key_names.rs)
 
 ### PList<TurbineUserStatus>
 - [ ] `PList<TurbineUserStatus>::Pack` · 0059d4a0 · legions 0056a460
@@ -2096,8 +2096,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CKeyMap::CKeyMap` · 0059d680 · legions 0056a640
 - [ ] `CKeyMap::GetDBOType` · 0059d710
 - [ ] `CKeyMap::~CKeyMap` · 0059d720 · legions 0056a6e0
-- [-] `CKeyMap::FromFileNode` · 0059d820 · legions 0056a7e0 — text source format (admin tools)
-- [-] `CKeyMap::ToFileNode` · 0059de20 · legions 0056ade0 — text source format (admin tools)
+- [x] `CKeyMap::FromFileNode` · 0059d820 · legions 0056a7e0 — ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
+- [x] `CKeyMap::ToFileNode` · 0059de20 · legions 0056ade0 — ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
 - [ ] `CKeyMap::CopyInto` · 0059e140 · legions 0056b100
 - [ ] `CKeyMap::Allocate` · 0059e210
 - [-] `CKeyMap::FromFileNode` · 0059e240 — text source format (admin tools)
@@ -2116,26 +2116,26 @@ Legend and workflow: [README](README.md).
 - [ ] `_STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>::operator++` · 0059e680 · legions 004c7b10
 
 ### CInputManager_WIN32
-- [ ] `CInputManager_WIN32::AcquireAll` · 0059e6c0 · legions 0056b590
-- [ ] `CInputManager_WIN32::UnacquireAll` · 0059e700 · legions 0056b5d0
-- [ ] `CInputManager_WIN32::ReleaseDevices` · 0059e730 · legions 0056b600
-- [ ] `CInputManager_WIN32::SwitchMouseMode` · 0059e770 · legions 0056b640
+- [-] `CInputManager_WIN32::AcquireAll` · 0059e6c0 · legions 0056b590 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+- [-] `CInputManager_WIN32::UnacquireAll` · 0059e700 · legions 0056b5d0 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+- [-] `CInputManager_WIN32::ReleaseDevices` · 0059e730 · legions 0056b600 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+- [-] `CInputManager_WIN32::SwitchMouseMode` · 0059e770 · legions 0056b640 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 - [ ] `CInputManager_WIN32::SetFocus` · 0059e850 · legions 0056b720
-- [ ] `CInputManager_WIN32::GetNameFromKey` · 0059e970 · legions 0056b890
+- [~] `CInputManager_WIN32::GetNameFromKey` · 0059e970 · legions 0056b890 — ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
 
 ### SmartArray<CInputManager_WIN32::InputDevice>
-- [ ] `SmartArray<CInputManager_WIN32::InputDevice>::AddToEnd` · 0059eb80 · legions 0056ba40
+- [-] `SmartArray<CInputManager_WIN32::InputDevice>::AddToEnd` · 0059eb80 · legions 0056ba40 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 
 ### CInputManager_WIN32
-- [ ] `CInputManager_WIN32::Cleanup` · 0059ebe0 · legions 0056baa0
-- [ ] `CInputManager_WIN32::AddDevice` · 0059ec20 · legions 0056bae0
+- [-] `CInputManager_WIN32::Cleanup` · 0059ebe0 · legions 0056baa0 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+- [-] `CInputManager_WIN32::AddDevice` · 0059ec20 · legions 0056bae0 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 - [ ] `CInputManager_WIN32::EnumSuitableDevicesCB` · 0059ee30
 
 ### HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>
 - [ ] `HashTable<CInputManager_WIN32::QualifiedKey,unsigned_long>::operator=` · 0059ef60 · legions 0056bed0
 
 ### CInputManager_WIN32
-- [ ] `CInputManager_WIN32::Init` · 0059f210 · legions 0056bfc0
+- [~] `CInputManager_WIN32::Init` · 0059f210 · legions 0056bfc0 — ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
 - [x] `CInputManager_WIN32::GetInputActionFromKey` · 0059f5d0 · legions 0056c380 — ac2-ui input.rs
 - [x] `CInputManager_WIN32::ReleaseKey` · 0059f690 · legions 0056c440 — ac2-ui input.rs
 - [~] `CInputManager_WIN32::SwitchTextMode` · 0059f750 · legions 0056c500 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -2154,7 +2154,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager_WIN32::ProcessDeviceData` · 005a05e0 · legions 0056d2e0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager_WIN32::PushKeyMap_Internal` · 005a09b0 · legions 0056d6b0 — ac2-ui input.rs
 - [~] `CInputManager_WIN32::GetInput` · 005a0ac0 · legions 0056d7c0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-- [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+- [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs Controls::load_with + keymap_file: reads the player's Main/Shift/Control.keymap, falls back per map to the DAT map (gmClient::InitKeymap order). Not: UpdateVersion's table upgrade of old files
 - [x] `CInputManager_WIN32::PushKeyMap` · 005a0f80 — ac2-ui input.rs
 
 ## `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c` (3/22)

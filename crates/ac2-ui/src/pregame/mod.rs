@@ -18,7 +18,7 @@ mod data_patch;
 mod disconnected;
 mod flow;
 mod intro;
-mod key_names;
+pub(crate) mod key_names;
 mod keyboard;
 mod keyboard_list;
 #[cfg(test)]

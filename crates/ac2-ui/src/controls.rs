@@ -1,7 +1,7 @@
 //! The client's controls as `gmClient` and `CInputManager_WIN32::Init` set them up: the preproc
 //! key map (`0x40000001`, pointer axes, buttons, modifiers, arrows, wheel), then
 //! `gmClient::InitKeymap`'s main, shift (left shift) and control (left control) maps from the
-//! DATs (the `.keymap` files a player saved are not read), the `ActionInterpreter` over the
+//! DATs or the player's `.keymap` files (`keymap_file`), the `ActionInterpreter` over the
 //! action map, and per frame what the movement module and the camera consume.
 
 use ac2_db::{ResourceResult, ResourceStore};
@@ -10,7 +10,10 @@ use ac2_weenie::ActiveAction;
 use crate::camera_ui::{CameraUi, CameraUiEffect, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::input::{InputEvent, InputManager, RawAction, DEVICE_MOUSE};
 use crate::interpreter::{ActionInterpreter, Dispatch};
-use crate::maps::{load_action_map, load_key_map, KEYMAP_CONTROL, KEYMAP_MAIN, KEYMAP_SHIFT};
+use crate::keymap_file::{self, KeymapFiles};
+use crate::maps::{
+    load_action_map, load_key_map, KeyMap, KEYMAP_CONTROL, KEYMAP_MAIN, KEYMAP_SHIFT,
+};
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_KEY_RELEASE};
 use crate::token::{tokenize, MSG_MOUSE_PRESS_TOP};
 
@@ -62,18 +65,43 @@ pub struct Controls {
 impl Controls {
     /// The default controls from the DATs; `None` without the action map.
     pub fn load(store: &ResourceStore) -> ResourceResult<Option<Self>> {
+        Self::load_with(store, None)
+    }
+
+    /// The controls with the player's keymap files: `gmClient::InitKeymap` pushes the main, shift
+    /// and control maps from their files when each loads, and from the DATs when it does not.
+    pub fn load_with(
+        store: &ResourceStore,
+        saved: Option<&KeymapFiles>,
+    ) -> ResourceResult<Option<Self>> {
         let Some(action_map) = load_action_map(store)? else {
             return Ok(None);
         };
         let mut input = InputManager::new();
-        for (map, meta) in [
-            (KEYMAP_PREPROC, 0),
+        if let Some(map) = load_key_map(store, KEYMAP_PREPROC)? {
+            input.push_key_map(&map, 0);
+        }
+        // (enum, meta key) of the main, shift and control maps, in push order.
+        let slots = [
             (KEYMAP_MAIN, 0),
             (KEYMAP_SHIFT, LEFT_SHIFT),
             (KEYMAP_CONTROL, LEFT_CONTROL),
-        ] {
-            if let Some(map) = load_key_map(store, map)? {
-                input.push_key_map(&map, meta);
+        ];
+        let mut dat_maps: Vec<Option<KeyMap>> = Vec::with_capacity(slots.len());
+        for (enum_value, _) in slots {
+            dat_maps.push(load_key_map(store, enum_value)?.map(|map| (*map).clone()));
+        }
+        let actions = keymap_file::action_table(dat_maps.iter().flatten());
+        for (index, (_, meta)) in slots.into_iter().enumerate() {
+            let from_file = match saved {
+                Some(files) => keymap_file::read_key_map(files.path(index), &actions)
+                    .ok()
+                    .flatten()
+                    .and_then(Result::ok),
+                None => None,
+            };
+            if let Some(map) = from_file.as_ref().or(dat_maps[index].as_ref()) {
+                input.push_key_map(map, meta);
             }
         }
         Ok(Some(Self::new(

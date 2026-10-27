@@ -24,6 +24,8 @@ pub struct PregameOutcome {
     pub credit_sounds: Vec<u32>,
     /// The input manager's maps the controls screen saved or restored (`Controls::replace_key_maps`).
     pub key_maps: Option<ac2_ui::pregame::KeyMapSet>,
+    /// The maps the controls screen saved, to write to the keymap files (`ac2_ui::keymap_file`).
+    pub saved_key_maps: Option<ac2_ui::pregame::KeyMapSet>,
 }
 
 /// One session event into the UI.
@@ -91,6 +93,7 @@ pub fn pregame_requests_capturing(
             PregameRequest::CreditSound(did) => outcome.credit_sounds.push(did),
             PregameRequest::Quit => outcome.quit = true,
             PregameRequest::KeyMaps(set) => outcome.key_maps = Some(set),
+            PregameRequest::SaveKeyMaps(set) => outcome.saved_key_maps = Some(set),
         }
     }
     outcome

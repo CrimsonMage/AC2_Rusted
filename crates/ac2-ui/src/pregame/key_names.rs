@@ -19,6 +19,17 @@ pub fn key_name(semantic: u32) -> String {
     format!("Key {semantic:#010x}")
 }
 
+/// The semantic a key name stands for (`CKeyMap::GetSemanticByName`): the inverse of [`key_name`]
+/// over the named keys, and the hex form `key_name` gives an unnamed semantic.
+pub fn semantic_from_name(name: &str) -> Option<u32> {
+    if let Some(hex) = name.strip_prefix("Key 0x") {
+        return u32::from_str_radix(hex, 16).ok();
+    }
+    (0..=0xFF)
+        .map(|code| KEY_BASE | code)
+        .find(|&semantic| key_name(semantic) == name)
+}
+
 /// The DirectInput scan code names.
 fn scan_code_name(code: u32) -> Option<&'static str> {
     let name = match code {

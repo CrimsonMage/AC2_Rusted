@@ -174,7 +174,7 @@ key	status	note
 00413a70	x	ac2-ui pregame/keyboard_list.rs finish_set: the selection takes the key, the occupied slot clears; keyboard.rs rebuilds the texts
 00413d10	~	ac2-ui pregame/keyboard_list.rs start_set: the already-mapped conflict on another slot, a free key is set. Not: the second pass over actions without a row (ICIDM 0x54)
 00414140	~	ac2-ui pregame/keyboard_list.rs from_maps and keyboard.rs rebuild_rows: a row per action (action_box_item header, key_box_item slots); the key names from pregame/key_names.rs (authored DIK names). Not: overMapped flags; the map order assumed (main, shift, control)
-00414510	~	ac2-ui pregame/keyboard_maps.rs saved_set: the three maps named mydefault, mydefaults, mydefaultc, loaded into the input manager (Controls::replace_key_maps). Not: the keymap files (PreferenceBank 0x40000030-32 paths, not an obvious user config location); the mapping names
+00414510	~	ac2-ui pregame/keyboard.rs save: the three maps go to Main/Shift/Control.keymap in the user config dir (keymap_file::save_set) and to the input manager. Names: the DAT maps' binding names; an action no map names (5 of 115 described) is saved as its enum value 0x........, not its EnumMapper 0x4000001d name (not decoded)
 004149f0	x	ac2-ui pregame/keyboard.rs dialog_outcome: already-mapped (yes finishes), clear all, restore (keyboard_maps presets, sent as PregameRequest::KeyMaps), undo (rebuilt from the active maps), exit (close). The questions' wording is authored here
 00414bb0	~	ac2-ui pregame/keyboard.rs KeyboardUi::create and keyboard_maps.rs ActiveKeyMaps: the field, the buttons, the list. Not: the GlobalEventHandler notice 0x436 (no notice table), CKeyMap::LoadSemantics (names are authored)
 00414e50	x	ac2-ui pregame/keyboard.rs KeyboardUi::create: the field, the buttons, the list from the input manager's maps (keyboard_maps list_of), UpdateButtons; the row templates action_box_item and key_box_item resolved from the layout
@@ -2397,6 +2397,29 @@ key	status	note
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 004bc7e0	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
 004bc850	_	book keeper efuns answer 1 for a defined this (CBookKeep::{Add,Remove}ObjectToBeDestroyed need CObjectMaint); the destroy list itself is not kept
+004bd3b0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd3c0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd420	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd4a0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd4f0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd5a0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd6a0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd740	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd760	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd790	~	ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+004bd810	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd860	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd870	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd880	~	ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+004bd890	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd8e0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd8f0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bd900	~	ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+004bdb70	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bdc70	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bdd00	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bddb0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bde10	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 004bfb90	x	
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c4ed0	x	
@@ -4372,19 +4395,41 @@ key	status	note
 005912d0	x	terrain.wgsl: base/alpha stages, shadow-map and cloud-shadow modulate before fog
 005919d0	x	
 00591a40	x	
+00599540	~	ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
+00599610	~	ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
+00599930	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+00599980	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+005999d0	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
+00599ae0	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
 00599b50	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 00599b90	x	ac2-ui input.rs
 00599c00	x	ac2-ui input.rs
+00599c40	x	ac2-ui controls.rs take_key_presses -> gmKeyboardUI::KeyHitHandler (InputManager::take_key_presses)
 00599ce0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 00599d40	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 00599d60	x	ac2-ui maps.rs
 00599e30	x	ac2-ui stack.rs
+0059a000	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
 0059a1c0	x	ac2-ui maps.rs
 0059a2b0	x	ac2-ui maps.rs
+0059a320	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+0059a360	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+0059a690	-	CKeyMap::LoadSemantics: the retail key-name strings are game data; this port authors its own names (ac2-ui key_names.rs)
+0059d820	x	ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
+0059de20	x	ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
 0059e260	x	ac2-ui input.rs
 0059e320	x	ac2-ui input.rs
 0059e470	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 0059e500	x	ac2-ui input.rs / text_edit.rs: typing into text elements
+0059e6c0	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059e700	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059e730	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059e770	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059e970	~	ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
+0059eb80	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059ebe0	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059ec20	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
+0059f210	~	ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
 0059f5d0	x	ac2-ui input.rs
 0059f690	x	ac2-ui input.rs
 0059f750	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -4395,7 +4440,7 @@ key	status	note
 005a05e0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 005a09b0	x	ac2-ui input.rs
 005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-005a0da0	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+005a0da0	~	ac2-ui controls.rs Controls::load_with + keymap_file: reads the player's Main/Shift/Control.keymap, falls back per map to the DAT map (gmClient::InitKeymap order). Not: UpdateVersion's table upgrade of old files
 005a0f80	x	ac2-ui input.rs
 005a1000	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a10f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
