@@ -131,7 +131,8 @@ impl HudView {
                 crate::hud_pets::pet_commands(actions, &mut commands);
             }
             if let Some(panel) = friends.as_mut() {
-                crate::hud_friends::friends_message(panel, tree, message, None, &mut commands);
+                let target = crate::hud_friends::friend_target(frame.selection.as_ref());
+                crate::hud_friends::friends_message(panel, tree, message, target, &mut commands);
             }
             if let Some(panel) = social.as_mut() {
                 // The help page is not modelled: the panel's `OpenHelp` is dropped.

@@ -305,6 +305,8 @@ mod external_container_tests;
 #[cfg(test)]
 mod fellowship_tests;
 #[cfg(test)]
+mod friends_panel_tests;
+#[cfg(test)]
 mod indicators_tests;
 #[cfg(test)]
 mod journal_quests_tests;

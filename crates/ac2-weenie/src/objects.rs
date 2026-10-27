@@ -78,7 +78,21 @@ pub(crate) fn is_newer(old: u16, new: u16) -> bool {
     }
 }
 
+/// The weenie type quality (`CWInterface`'s int 0x14).
+const WEENIE_TYPE: u32 = 0x14;
+/// `CWInterface::IsPlayer`: the weenie type's low five bits are all set.
+const PLAYER_TYPE: i32 = 0x1F;
+
 impl RemoteObject {
+    /// `CWInterface::IsPlayer`: the object's weenie type (int quality 0x14) has all of the
+    /// player bits (`& 0x1F`), as the retail check reads it.
+    pub fn is_player(&self) -> bool {
+        self.qualities
+            .ints
+            .get(&WEENIE_TYPE)
+            .is_some_and(|weenie_type| weenie_type & PLAYER_TYPE == PLAYER_TYPE)
+    }
+
     pub(crate) fn from_create(object: &CreateObject) -> Self {
         Self {
             id: object.id,
@@ -337,6 +351,23 @@ mod tests {
             impulse: false,
             velocity: None,
         }
+    }
+
+    #[test]
+    fn a_player_is_a_weenie_type_with_all_the_player_bits() {
+        let typed = |weenie_type: Option<i32>| {
+            let mut object = object();
+            if let Some(value) = weenie_type {
+                object.qualities.ints.insert(0x14, value);
+            }
+            object.is_player()
+        };
+        assert!(typed(Some(0x1F)));
+        assert!(typed(Some(0x3F)));
+        // A creature (0x4F) is not a player; neither is an object without a weenie type.
+        assert!(!typed(Some(0x4F)));
+        assert!(!typed(Some(0x0F)));
+        assert!(!typed(None));
     }
 
     #[test]

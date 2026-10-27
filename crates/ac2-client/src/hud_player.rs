@@ -379,12 +379,15 @@ impl HudView {
                 typing,
             ));
         }
-        // `gmFriendsUI`: the GUN list and status the client took since the last frame.
+        // `gmFriendsUI`: the GUN list and status the client took since the last frame, then the
+        // add and remove buttons for the game selection (`UpdateButtonStates`, every frame).
         let friend_events = player.client.borrow_mut().take_friend_events();
         if let Some(panel) = friends.as_mut() {
             for event in friend_events {
                 crate::hud_friends::friend_event(panel, tree, event);
             }
+            let target = crate::hud_friends::friend_target(frame.selection.as_ref());
+            panel.set_target(tree, target);
         }
         PassOut {
             commands,

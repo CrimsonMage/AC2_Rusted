@@ -313,6 +313,8 @@ pub struct SelectionFrame {
     pub name: Option<String>,
     /// The server's latest `SelectionInfo` for it (health and vigor for a creature).
     pub info: Option<SelectionInfo>,
+    /// A player other than the local one: `CWInterface::IsPlayer` and not the player's own object.
+    pub other_player: bool,
 }
 
 impl Client {
@@ -837,10 +839,13 @@ impl Client {
     pub(crate) fn selection_frame(&self) -> Option<SelectionFrame> {
         let selection = self.session.progress().selection;
         let id = selection.id?;
+        let object = self.session.objects().get(id);
         Some(SelectionFrame {
             id,
-            name: self.session.objects().get(id).and_then(|o| o.name.clone()),
+            name: object.and_then(|o| o.name.clone()),
             info: selection.info,
+            other_player: Some(id) != self.session.player()
+                && object.is_some_and(|o| o.is_player()),
         })
     }
 

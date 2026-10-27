@@ -76,6 +76,7 @@ fn selecting_an_object_fills_the_frame_selection() {
             id: NPC,
             name: client.session().objects().get(NPC).unwrap().name.clone(),
             info: Some(info),
+            other_player: false,
         })
     );
 

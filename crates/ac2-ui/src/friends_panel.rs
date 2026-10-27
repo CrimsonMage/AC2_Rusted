@@ -73,7 +73,7 @@ pub struct FriendsPanel {
 
 impl FriendsPanel {
     /// `gmFriendsUI::gmFriendsUI`: the page is the one `FriendsPage` element in the social
-    /// layout's roots. The remove button starts ghosted (`UpdateButtonStates`, no selection).
+    /// layout's roots. Both buttons start ghosted (`UpdateButtonStates`: no target, no selection).
     pub fn create(tree: &mut UiTree, layout: &Arc<LayoutDesc>) -> Self {
         let page = tree
             .roots()
@@ -84,8 +84,8 @@ impl FriendsPanel {
         let list = child(tree, "FriendsListBox");
         let add = child(tree, "FriendsAddButton");
         let remove = child(tree, "FriendsRemoveButton");
-        if let Some(remove) = remove {
-            tree.set_bool(remove, BUTTON_GHOSTED, true);
+        for button in [add, remove].into_iter().flatten() {
+            tree.set_bool(button, BUTTON_GHOSTED, true);
         }
         // `gmFriendsUI::gmFriendsUI`: the status items inserted, the first selected (before the
         // page listens to the drop-down, so that selection is not its message).
@@ -148,17 +148,27 @@ impl FriendsPanel {
         self.build(tree);
     }
 
-    /// `gmFriendsUI::UpdateButtonStates`: the add button is enabled for a player who is not a
-    /// friend yet (`target`, the game selection's name, when it is a player), and the remove
-    /// button for a selected friend.
+    /// `gmFriendsUI::UpdateButtonStates`: the add button and the remove button's states for the
+    /// game selection's name `target` (a player's name, see `hud_friends::friend_target`).
     pub fn set_target(&mut self, tree: &mut UiTree, target: Option<&str>) {
-        let addable = target.is_some_and(|name| {
-            !name.is_empty() && !self.model.friends().iter().any(|f| f.name == name)
-        });
+        self.update_add(tree, target);
+        self.update_remove(tree);
+    }
+
+    /// The add button is enabled for a player who is not a friend yet, and only while no list
+    /// row is selected: a selected row (a friend or a marker) keeps it ghosted, as retail's
+    /// `UpdateButtonStates` leaves it.
+    fn update_add(&self, tree: &mut UiTree, target: Option<&str>) {
+        let row_selected = self
+            .list
+            .is_some_and(|list| tree.list_selected_item(list).is_some());
+        let addable = !row_selected
+            && target.is_some_and(|name| {
+                !name.is_empty() && !self.model.friends().iter().any(|f| f.name == name)
+            });
         if let Some(add) = self.add {
             tree.set_bool(add, BUTTON_GHOSTED, !addable);
         }
-        self.update_remove(tree);
     }
 
     /// The panel's messages. A press on a friend row selects it. The add button sends the
@@ -192,6 +202,7 @@ impl FriendsPanel {
             }
         }
         self.sync_selection(tree);
+        self.update_add(tree, target);
         requests
     }
 
