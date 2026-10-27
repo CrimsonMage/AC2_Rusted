@@ -37,6 +37,7 @@ mod examination;
 mod external_container;
 mod fellow_info;
 mod fellowship;
+mod game_dialogs;
 mod hud;
 mod indicators;
 mod ingredient;
@@ -129,6 +130,7 @@ pub use examination::{ExaminationCall, ExaminationItem, ExaminationUi};
 pub use external_container::{ExternalContainerRequest, ExternalContainerUi};
 pub use fellow_info::{vital_text, Fellow, FellowStrings};
 pub use fellowship::{FellowshipData, FellowshipRequest, FellowshipSource, FellowshipUi};
+pub use game_dialogs::{GameplayDialogs, OfferAnswer, ERROR_TEXT_TYPE};
 pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,

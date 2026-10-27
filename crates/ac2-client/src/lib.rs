@@ -40,6 +40,7 @@ mod hud_chat_options;
 mod hud_craft;
 #[cfg(feature = "window")]
 mod hud_death;
+mod hud_game_dialogs;
 #[cfg(feature = "window")]
 mod hud_ingredient;
 #[cfg(feature = "window")]

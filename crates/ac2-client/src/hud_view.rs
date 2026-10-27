@@ -64,6 +64,8 @@ pub(crate) struct HudView {
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// `gmGamePlayUI`'s death dialog (`_deathContext`).
     pub(crate) death: ac2_ui::DeathPanel,
+    /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
+    pub(crate) game_dialogs: ac2_ui::GameplayDialogs,
     /// `gmStackUI`.
     pub(crate) stack: Option<ac2_ui::StackUi>,
     /// `gmExternalContainerUI`.

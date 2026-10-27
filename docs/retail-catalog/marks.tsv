@@ -29,14 +29,21 @@ key	status	note
 00406f50	x	ac2-script reference/native unpack
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
+00407940	~	ac2-ui ERROR_TEXT_TYPE (the chat error type 1, as ECM_Admin::SendNotice_DisplayAdminStringInfo reaches it); the line is not written to the chat and nothing calls it (the play mode is queued with empty text)
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
+004079e0	~	ac2-ui game_dialogs.rs make_please_wait (ID_Wait_PleaseWait, wait type); not called by the HUD: EndSession (logoff) does not raise it yet
 00407a40	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00407bf0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 00407c30	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
 00407c80	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+00407d00	~	ac2-ui game_dialogs.rs recv_close_confirmation (yes respawns, no re-makes the death dialog via DeathPanel); the offer context is never set (RecvNotice_ResurrectionRequestedByOther not ported); ClearResurrectionRequest not sent
 00407d70	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
+00408080	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+004084a0	~	ac2-ui game_dialogs.rs: the wait context is cleared and recv_close_wait_dialog reports the cancel; the QueueUIMode(characterselection) it sends is not wired (the pregame view is separate from the HUD) and no HUD notice closes the wait
+00408640	~	ac2-ui game_dialogs.rs: the wait context is cleared and recv_close_wait_dialog reports the cancel; the QueueUIMode(characterselection) it sends is not wired (the pregame view is separate from the HUD) and no HUD notice closes the wait
+00408860	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
 00408e90	~	LogOffCharacter only; no UI or game-option upload
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
 004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
