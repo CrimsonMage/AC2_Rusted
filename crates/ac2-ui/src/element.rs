@@ -112,6 +112,8 @@ pub struct UiElement {
     pub(crate) tree: Option<Box<crate::tree_view::TreeState>>,
     /// `UIElement_Meter`'s state, for meters.
     pub(crate) meter: Option<Box<crate::meter::MeterState>>,
+    /// `UIElement_Menu`'s state, for menus.
+    pub(crate) menu: Option<Box<crate::menu::MenuState>>,
     /// `m_mouseOver`, `m_mouseOverTop`, `m_mouseVisible` and the buttons pressed on the element
     /// (`m_mouseDownTable`).
     pub(crate) mouse_over: bool,
@@ -386,8 +388,10 @@ impl UiTree {
         }
     }
 
-    /// Frees an element and its descendants (`AddElementToDeleteQueue`).
+    /// Frees an element and its descendants (`AddElementToDeleteQueue`). A menu's popup goes with
+    /// it (`UIElement_Menu::~UIElement_Menu`).
     pub(crate) fn delete(&mut self, index: usize) {
+        self.menu_delete(index);
         let children = std::mem::take(&mut self.el_mut(index).children);
         for child in children {
             self.delete(child);
@@ -433,6 +437,7 @@ impl UiTree {
             text,
             tree: None,
             meter: None,
+            menu: None,
             page: None,
             list: None,
             scrollbar: None,
@@ -464,6 +469,10 @@ impl UiTree {
         self.update_count += 1;
         self.update_internal(index);
         self.set_visible(index, true);
+        // `UIElement_Menu::Initialized`, once the menu's children exist.
+        if self.is_menu(index) {
+            self.menu_initialize(index);
+        }
         Some(index)
     }
 
@@ -471,6 +480,7 @@ impl UiTree {
     pub fn set_visible(&mut self, index: usize, visible: bool) {
         self.el_mut(index).visible = visible;
         self.changed = true;
+        self.menu_visibility(index);
     }
 
     /// Whether anything drawn changed since the last call.
@@ -563,6 +573,7 @@ impl UiTree {
         if changed {
             self.changed = true;
             self.button_attribute(index, id, value);
+            self.menu_attribute(index, id, value);
         }
         self.text_attribute(index, id, &AttributeValue::Bool(value), changed);
     }

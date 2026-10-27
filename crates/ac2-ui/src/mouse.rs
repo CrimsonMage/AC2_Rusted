@@ -218,12 +218,14 @@ impl UiTree {
             self.broadcast(index, MSG_MOUSE_OVER_TOP, i32::from(is_top));
             self.button_update_state(index);
             self.panel_page_mouse_over_top(index, is_top);
+            self.menu_update_state(index);
         }
     }
 
     /// `UIElementManager::MouseDownEvent`.
     fn mouse_down_event(&mut self, action: u32) {
         self.broadcast_global(GLOBAL_MOUSE_DOWN, action);
+        self.menu_global_mouse(GLOBAL_MOUSE_DOWN);
         self.drag_mouse_down(action);
         // A press away from the active element deactivates it.
         if let Some(active) = self.active {
@@ -271,6 +273,7 @@ impl UiTree {
     /// `UIElementManager::MouseUpEvent`.
     fn mouse_up_event(&mut self, action: u32) {
         self.broadcast_global(GLOBAL_MOUSE_UP, action);
+        self.menu_global_mouse(GLOBAL_MOUSE_UP);
         let mut processed = false;
         for root in self.roots.clone() {
             if processed {
@@ -313,6 +316,7 @@ impl UiTree {
         }
         self.dragbar_mouse_down(index, action);
         self.button_mouse_down(index, action, processed);
+        self.menu_mouse_down(index, action, processed);
         self.text_mouse_down(index, action);
         self.panel_page_mouse_down(index, action);
         self.list_mouse_down(index, action, processed);

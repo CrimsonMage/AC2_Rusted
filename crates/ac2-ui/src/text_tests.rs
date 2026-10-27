@@ -12,7 +12,7 @@ use crate::{UiTextData, UiTree};
 
 /// Two rows, 1 bit per pixel: `a` (3 wide, columns 0..=2 inked), `b` (3 wide, 3..=5), a space
 /// (2 wide) and `?` (3 wide, 8..=10).
-fn font() -> Arc<Ac2Font> {
+pub(crate) fn font() -> Arc<Ac2Font> {
     let chars = vec![
         Ac2FontChar {
             width: 3,

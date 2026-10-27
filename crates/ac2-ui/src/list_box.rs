@@ -30,6 +30,8 @@ pub(crate) struct ListBoxState {
     pub multiop: bool,
     /// `m_pSelectedItem` (`list_box_select.rs`).
     pub selected: Option<usize>,
+    /// The menu whose drop-down this list is (`UIElement_Menu`'s listener on `new_selection`).
+    pub menu: Option<usize>,
 }
 
 impl UiTree {

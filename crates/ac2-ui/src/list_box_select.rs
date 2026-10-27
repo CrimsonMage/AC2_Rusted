@@ -65,6 +65,7 @@ impl UiTree {
         if broadcast {
             let data = index.map_or(-1, |i| i as i32);
             self.broadcast(list, MSG_NEW_SELECTION, data);
+            self.menu_list_selection(list);
         }
         self.list_update_layout(list);
     }

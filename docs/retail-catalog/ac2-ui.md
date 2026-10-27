@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 964 done, 371 partial, 833 to do, 79 skipped.
+2247 retail functions: 986 done, 371 partial, 811 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -822,21 +822,21 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (8/15)
 
 ### OptionChoice
-- [~] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 - [-] `OptionChoice::Cast` · 0044dfa0 · legions 0044f170 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
-- [~] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
-- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
-- [~] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [~] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 - [x] `OptionChoice::SetDefault` · 0044e140 · legions 0044f310 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::GetCurrent` · 0044e180 · legions 0044f350 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Changed` · 0044e1c0 · legions 0044f390 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Apply` · 0044e210 · legions 0044f3e0 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Recall` · 0044e260 · legions 0044f430 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Default` · 0044e280 · legions 0044f450 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 - [x] `OptionChoice::Refresh` · 0044e3a0 · legions 0044f570 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Refresh` · 0044e3c0 · legions 0044f590 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 
 ## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (9/16)
 
@@ -1553,7 +1553,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (15/17)
 
 ### gmFellowshipUI
-- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
 - [x] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1563,7 +1563,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmFellowshipUI::RecvNotice_ExpireRecruitment` · 0043c0c0 · legions 0043c910 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::RecvNotice_UpdateLeader` · 0043c0e0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::~gmFellowshipUI` · 0043c130 · legions 0043c980 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-- [~] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — UIElement_Menu not modelled: Create sends the default looting method 1
+- [~] `gmFellowshipUI::HandleCreateButton` · 0043c1d0 · legions 0043ca20 — UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
 - [x] `gmFellowshipUI::SetFellowshipState` · 0043c280 · legions 0043cad0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::RecvNotice_UpdateFellowship` · 0043c3c0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::ListenToMessage` · 0043c4e0 · legions 0043cd30 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1571,12 +1571,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (7/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (8/20)
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 - [x] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-- [~] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 
 ### PStringBase<unsigned_short>
 - [ ] `PStringBase<unsigned_short>::operator==` · 0043a620 · legions 0043ae70
@@ -1587,11 +1587,11 @@ Legend and workflow: [README](README.md).
 - [ ] `TextPredicate::TextPredicate` · 0043a6f0 · legions 0043af40
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 - [x] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-- [~] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
-- [~] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
-- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [x] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070 — ac2-ui friends_panel.rs: FriendsPanel::message on StatusDropDownMenu's new selection -> status_request; ac2-client friends_command sends the GUN flags and the emote
+- [~] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 - [~] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
 
 ### PList<TurbineUserStatus>
@@ -1600,7 +1600,7 @@ Legend and workflow: [README](README.md).
 ### gmFriendsUI
 - [x] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 - [x] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
@@ -3290,31 +3290,31 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBoxMSize::Register` · 005f98a0 · legions 005ba3d0
 - [ ] `UIElement_ListBoxMSize::UpdateLayout` · 005f98c0 · legions 005ba3f0
 
-## `portal/client/src/uielement/types/uielement_menu.cpp.c` (0/22)
+## `portal/client/src/uielement/types/uielement_menu.cpp.c` (21/22)
 
 ### UIElement_Menu
-- [ ] `UIElement_Menu::Create` · 005f5420
-- [ ] `UIElement_Menu::Flush` · 005f5470 · legions 005b5fa0
-- [ ] `UIElement_Menu::GetItem` · 005f5480 · legions 005b5fb0
-- [ ] `UIElement_Menu::GetSelectedItem` · 005f54a0 · legions 005b5fd0
-- [ ] `UIElement_Menu::SetSelectedIndex` · 005f54c0 · legions 005b5ff0
-- [ ] `UIElement_Menu::SetSelectedItem` · 005f54e0 · legions 005b6010
-- [ ] `UIElement_Menu::Register` · 005f5500 · legions 005b6030
-- [ ] `UIElement_Menu::InsertTextItem` · 005f5520 · legions 005b6050
-- [ ] `UIElement_Menu::GetNumItems` · 005f55e0 · legions 005b6110
-- [ ] `UIElement_Menu::GetSelectedIndex` · 005f5600 · legions 005b6130
-- [ ] `UIElement_Menu::Initialized` · 005f5640 · legions 005b6170
-- [ ] `UIElement_Menu::NewSelection` · 005f5760 · legions 005b6290
-- [ ] `UIElement_Menu::UpdateState` · 005f5810 · legions 005b6340
-- [ ] `UIElement_Menu::MouseOverTop` · 005f58a0 · legions 005b63d0
-- [ ] `UIElement_Menu::ListenToMessage` · 005f58c0 · legions 005b63f0
-- [ ] `UIElement_Menu::Open` · 005f58e0 · legions 005b6410
-- [ ] `UIElement_Menu::Close` · 005f5ad0 · legions 005b6600
-- [ ] `UIElement_Menu::~UIElement_Menu` · 005f5b40 · legions 005b6670
-- [ ] `UIElement_Menu::SetVisible` · 005f5bd0 · legions 005b6700
-- [ ] `UIElement_Menu::SetAttribute_Bool` · 005f5c10 · legions 005b6740
-- [ ] `UIElement_Menu::MouseDown` · 005f5c60 · legions 005b6790
-- [ ] `UIElement_Menu::ListenToMessage` · 005f5cf0 · legions 005b6820
+- [x] `UIElement_Menu::Create` · 005f5420 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::Flush` · 005f5470 · legions 005b5fa0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::GetItem` · 005f5480 · legions 005b5fb0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::GetSelectedItem` · 005f54a0 · legions 005b5fd0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::SetSelectedIndex` · 005f54c0 · legions 005b5ff0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::SetSelectedItem` · 005f54e0 · legions 005b6010 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::Register` · 005f5500 · legions 005b6030 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::InsertTextItem` · 005f5520 · legions 005b6050 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::GetNumItems` · 005f55e0 · legions 005b6110 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::GetSelectedIndex` · 005f5600 · legions 005b6130 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::Initialized` · 005f5640 · legions 005b6170 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::NewSelection` · 005f5760 · legions 005b6290 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::UpdateState` · 005f5810 · legions 005b6340 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::MouseOverTop` · 005f58a0 · legions 005b63d0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::ListenToMessage` · 005f58c0 · legions 005b63f0 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::Open` · 005f58e0 · legions 005b6410 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::Close` · 005f5ad0 · legions 005b6600 — ac2-ui menu.rs: UiTree::menu_close
+- [x] `UIElement_Menu::~UIElement_Menu` · 005f5b40 · legions 005b6670 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::SetVisible` · 005f5bd0 · legions 005b6700 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [x] `UIElement_Menu::SetAttribute_Bool` · 005f5c10 · legions 005b6740 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+- [~] `UIElement_Menu::MouseDown` · 005f5c60 · legions 005b6790 — ac2-ui menu.rs: UiTree::menu_mouse_down (left press toggles); m_moving and m_resizing are not modelled (no move or resize)
+- [x] `UIElement_Menu::ListenToMessage` · 005f5cf0 · legions 005b6820 — ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
 
 ## `portal/client/src/uielement/types/uielement_meter.cpp.c` (13/14)
 

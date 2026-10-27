@@ -750,22 +750,22 @@ key	status	note
 0043a200	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043a4b0	-	
 0043a4d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0043a570	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+0043a570	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 0043a5c0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043a5e0	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
-0043a710	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+0043a5e0	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+0043a710	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 0043a7a0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043a820	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
-0043abe0	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
-0043ae30	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+0043a820	x	ac2-ui friends_panel.rs: FriendsPanel::message on StatusDropDownMenu's new selection -> status_request; ac2-client friends_command sends the GUN flags and the emote
+0043abe0	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+0043ae30	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 0043ae90	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
 0043b190	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043b4a0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043b6f0	~	ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+0043b6f0	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
 0043b8d0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043ba00	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043bb90	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043bde0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043bde0	~	UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
 0043bea0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043bef0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043bf40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -775,7 +775,7 @@ key	status	note
 0043c0c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c0e0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c130	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0043c1d0	~	UIElement_Menu not modelled: Create sends the default looting method 1
+0043c1d0	~	UIElement_Menu is ported (ac2-ui menu.rs) but the looting drop-down is not wired: Create still sends the default looting method 1
 0043c280	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c3c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043c4c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1051,22 +1051,22 @@ key	status	note
 0044dea0	x	ac2-ui meter.rs
 0044ded0	x	ac2-ui meter.rs
 0044def0	x	ac2-ui meter.rs
-0044df20	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044df20	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 0044dfa0	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
-0044dfe0	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
-0044e060	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
-0044e090	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044dfe0	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044e060	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044e090	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 0044e140	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e180	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e1c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e210	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e260	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e280	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-0044e2a0	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e2a0	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 0044e370	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
 0044e3a0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e3c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-0044e590	~	the drop-down's labels (ID_Option_ShortcutHeight1..5) and selection values are ported; the UIElement_Menu widget is not (the label shows on DropDownMenu) and the bank's handlers are not modelled
+0044e590	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
 0044e6d0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
 0044e760	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
 0044e7a0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
@@ -4769,6 +4769,29 @@ key	status	note
 005f5320	x	ac2-ui meter.rs
 005f53d0	x	ac2-ui meter.rs
 005f5400	x	ac2-ui meter.rs
+005f5420	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5470	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5480	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f54a0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f54c0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f54e0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5500	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5520	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f55e0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5600	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5640	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5760	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5810	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f58a0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f58c0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f58e0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5ad0	x	ac2-ui menu.rs: UiTree::menu_close
+005f5b40	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5bd0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5c10	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5c60	~	ac2-ui menu.rs: UiTree::menu_mouse_down (left press toggles); m_moving and m_resizing are not modelled (no move or resize)
+005f5cf0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
+005f5d70	-	C++ scalar deleting destructor: the Rust element is freed by UiTree::delete (menu_delete drops the popup)
 005f5d90	x	ac2-ui tree_view.rs
 005f5e20	x	ac2-ui tree_view.rs
 005f61e0	x	ac2-ui tree_view.rs

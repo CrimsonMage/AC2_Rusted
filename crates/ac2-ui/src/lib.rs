@@ -59,6 +59,10 @@ mod items_3d;
 mod items_3d_tests;
 mod journal_time;
 mod layout;
+mod menu;
+#[cfg(test)]
+mod menu_tests;
+pub use menu::MSG_MENU_NEW_SELECTION;
 mod layout_media;
 mod list_box;
 mod list_box_select;
