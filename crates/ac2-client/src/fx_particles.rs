@@ -8,10 +8,12 @@ use ac2_anim::Ac2Transform;
 use ac2_assets::Ac2VisualFxParticles;
 use ac2_core::{DataId, Random};
 
-/// A particle system an object's FX started: the emitter (object) id, the FX, the chosen
-/// `PSDesc`, and the placement and water-plane flag of its node.
+/// A particle system an object's FX started: the handle that names it until it is stopped, the
+/// emitter (object) id, the FX, the chosen `PSDesc`, and the placement and water-plane flag of its
+/// node.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ObjectParticleStart {
+    pub handle: u64,
     pub emitter: u64,
     pub fx: u32,
     pub desc: DataId,
@@ -36,6 +38,7 @@ pub(crate) fn particle_starts(
         .map(|node| {
             let pick = random.roll_dice(0, node.particle_descs.len() as i32 - 1) as usize;
             ObjectParticleStart {
+                handle: 0,
                 emitter,
                 fx,
                 desc: node.particle_descs[pick],

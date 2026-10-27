@@ -37,8 +37,9 @@ struct FxState {
 #[derive(Debug, Default)]
 struct FxSounds {
     states: BTreeMap<u32, FxState>,
-    /// The FX ids whose particle systems started and have not been stopped (`StopFx`).
-    particles: HashSet<u32>,
+    /// The FX ids whose particle systems started and have not been stopped (`StopFx`), with the
+    /// handles of those systems (`DoParticleFX`'s particle ids).
+    particles: HashMap<u32, Vec<u64>>,
 }
 
 /// What one effect call needs besides the FX.
@@ -187,8 +188,12 @@ impl FxSounds {
 pub(crate) struct ClientAudio {
     pub(crate) manager: SoundManager,
     objects: HashMap<u64, FxSounds>,
-    /// The particle systems the objects' FX started this step (`FXManager::DoParticleFX`).
+    /// The particle systems the objects' FX started and have not been taken by the renderer
+    /// (`FXManager::DoParticleFX`), and the handles of those FX stopped or whose objects left.
     pub(crate) object_particles: Vec<ObjectParticleStart>,
+    pub(crate) object_particle_stops: Vec<u64>,
+    /// The last handle handed out (`ObjectParticleStart::handle`).
+    particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
     pub(crate) rain: crate::rain_sounds::RainSounds,
     pub(crate) ambient: crate::client_ambient::ClientAmbient,
@@ -264,6 +269,8 @@ impl Client {
             manager,
             objects: HashMap::new(),
             object_particles: Vec::new(),
+            object_particle_stops: Vec::new(),
+            particle_handles: 0,
             ambient: Default::default(),
             pregame_music: None,
             story_music: None,
@@ -293,12 +300,21 @@ impl Client {
         self.fx_scripts = scripts;
     }
 
-    /// The particle systems the objects' FX started in the last animation step, taken by the
-    /// renderer that starts them on the objects.
+    /// The particle systems the objects' FX started since the renderer last took them, in the
+    /// order they started; the renderer starts them on the objects.
     pub fn take_object_particle_starts(&mut self) -> Vec<ObjectParticleStart> {
         self.audio
             .as_mut()
             .map(|audio| std::mem::take(&mut audio.object_particles))
+            .unwrap_or_default()
+    }
+
+    /// The handles of the particle systems stopped since the renderer last took them (their FX
+    /// stopped, or their object left the world).
+    pub fn take_object_particle_stops(&mut self) -> Vec<u64> {
+        self.audio
+            .as_mut()
+            .map(|audio| std::mem::take(&mut audio.object_particle_stops))
             .unwrap_or_default()
     }
 
@@ -436,7 +452,6 @@ impl Client {
             }
             return;
         };
-        audio.object_particles.clear();
         let mut events = self.remotes.take_animation_events();
         let player = self.player.as_mut().filter(|p| p.in_world);
         let player_id = player.as_ref().map(|p| p.id);
@@ -488,13 +503,17 @@ impl Client {
                         }
                         if let Some(table) = particles {
                             // `FXManager::DoParticleFX`: an FX already running keeps its systems.
-                            if fx.particles.insert(effect) {
-                                audio.object_particles.extend(particle_starts(
-                                    id,
-                                    effect,
-                                    table,
-                                    &mut self.random,
-                                ));
+                            if !fx.particles.contains_key(&effect) {
+                                let mut starts =
+                                    particle_starts(id, effect, table, &mut self.random);
+                                let mut handles = Vec::with_capacity(starts.len());
+                                for start in &mut starts {
+                                    audio.particle_handles += 1;
+                                    start.handle = audio.particle_handles;
+                                    handles.push(start.handle);
+                                }
+                                fx.particles.insert(effect, handles);
+                                audio.object_particles.extend(starts);
                             }
                         }
                     }
@@ -502,7 +521,10 @@ impl Client {
                         if sounds.is_some() {
                             fx.stop_fx(effect, &mut audio.manager);
                         }
-                        fx.particles.remove(&effect);
+                        // `FXManager::StopFX` destroys the FX's particle systems by their ids.
+                        if let Some(handles) = fx.particles.remove(&effect) {
+                            audio.object_particle_stops.extend(handles);
+                        }
                     }
                     _ => {}
                 }
@@ -542,7 +564,12 @@ impl Client {
             .filter(|id| *id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS)
             .collect();
         for id in gone {
-            audio.objects.remove(&id);
+            if let Some(fx) = audio.objects.remove(&id) {
+                // The object's part array goes with it, and so its particle systems.
+                audio
+                    .object_particle_stops
+                    .extend(fx.particles.into_values().flatten());
+            }
             audio.manager.stop_sounds_for_emitter(id);
         }
         let listener = self.scene.current;

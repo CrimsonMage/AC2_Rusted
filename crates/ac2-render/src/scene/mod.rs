@@ -14,14 +14,15 @@ use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use ac2_anim::Ac2Transform;
 use ac2_core::{DataId, Random};
-use ac2_math::{Mat4, Vec3};
+use ac2_math::{Frame, Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
 pub use interiors::{load_block_interiors, BlockInteriors};
 pub use loader::{
-    BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject, ParticleSource,
-    Placement,
+    BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
+    LoadedObjectParticle, ParticleSource, Placement,
 };
 pub use particles::ParticleBatch;
 
@@ -49,6 +50,15 @@ pub struct FramePlacement {
     pub world: Mat4,
     /// A merged frill's normal (`FrillRender::RefreshFrillMesh`).
     pub frill_normal: Option<Vec3>,
+}
+
+/// Where an object stands this frame, for the particle systems it runs: its emitter (the object's
+/// id), its frame and its total scale (`CPartArray::QueueParticleSystems`'s object matrix).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ObjectPlacement {
+    pub emitter: u64,
+    pub frame: Frame,
+    pub scale: Vec3,
 }
 
 /// What one frame draws, in order.
@@ -332,8 +342,23 @@ impl WorldScene {
                     self.object_picks.insert(object.key, Arc::clone(pick));
                 }
             }
+            // The systems take their description; their material arrives as a model below.
+            Loaded::ObjectParticle(_) => {}
         }
         match loaded {
+            Loaded::ObjectParticle(particle) => {
+                let particle = *particle;
+                let mut images = Some(particle.images);
+                for (material, model) in particle.models {
+                    self.note_model(material, model.as_ref());
+                    update.loaded.push(Loaded::Model(
+                        material,
+                        model,
+                        images.take().unwrap_or_default(),
+                    ));
+                }
+                self.particles.object_loaded(particle.handle, particle.desc);
+            }
             // The renderer takes the rain's material like a model.
             Loaded::Rain(rain) => {
                 let rain = *rain;
@@ -392,6 +417,44 @@ impl WorldScene {
     /// The object model `key`'s pick mesh, once loaded.
     pub fn object_pick(&self, key: u64) -> Option<&Arc<crate::selection::PickMesh>> {
         self.object_picks.get(&key)
+    }
+
+    /// Pins the particles' client time (`Timer::local_time`) to `now`, the frame's time, so that
+    /// the systems run on the client's clock rather than the wall clock.
+    pub fn set_clock(&mut self, now: f64) {
+        self.particles.set_clock(now);
+    }
+
+    /// `CPartArray::CreateParticleSystem` for an object FX: a system `handle` run by the object
+    /// `emitter` at `placement` (object space), its description `desc` loading on the loader
+    /// thread. It starts at the scene's clock now and is drawn where the object is placed.
+    pub fn start_object_particle(
+        &mut self,
+        handle: u64,
+        emitter: u64,
+        desc: DataId,
+        placement: Ac2Transform,
+    ) {
+        if self.particles.request_object(handle, emitter, placement) {
+            self.request(Request::ObjectParticle(handle, desc));
+        }
+    }
+
+    /// `CPartArray::DestroyParticleSystem` for an object FX's system (`handle`): it stops
+    /// emitting and runs out its particles at its last place.
+    pub fn stop_object_particle(&mut self, handle: u64) {
+        self.particles.stop_object(handle);
+    }
+
+    /// The object placements of the frame (see [`ObjectPlacement`]); the object systems are
+    /// drawn only where their object is placed.
+    pub fn place_object_particles(&mut self, placements: &[ObjectPlacement]) {
+        self.particles.place_objects(placements);
+    }
+
+    /// How many object particle systems the scene holds (loading, running or running out).
+    pub fn object_particle_systems(&self) -> usize {
+        self.particles.object_systems()
     }
 
     /// The region's lighting at the scene's time of day.

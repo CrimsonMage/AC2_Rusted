@@ -33,6 +33,9 @@ use emitter::Emitter;
 pub(crate) const GRAVITY: Vec3 = Vec3::new(0.0, 0.0, -9.8);
 /// `F_EPSILON`.
 pub(crate) const EPSILON: f32 = 0.0002;
+/// The seconds a system with particles still alive waits once its emitters are done
+/// (`ParticleSystem::GetReadyToDie`'s `10000.0`).
+const RETIRE_WAIT: f64 = 10_000.0;
 
 /// Everything an emitter reads from its system while it runs.
 pub(crate) struct SystemContext<'a> {
@@ -68,6 +71,10 @@ pub struct ParticleSystem {
     disabled: bool,
     /// `ParticleSystem::SetNoFade`: drawn at full strength at any distance.
     no_fade: bool,
+    /// `m_aRenderPositions` is not empty: the system was queued (placed) at least once.
+    placed: bool,
+    /// `m_tTimeWaitingToDie`: when every emitter first stopped discharging.
+    ready_since: Option<f64>,
     rng: Random,
 }
 
@@ -96,6 +103,8 @@ impl ParticleSystem {
             creation_time: now,
             disabled: false,
             no_fade: false,
+            placed: false,
+            ready_since: None,
             rng: seeded(seed),
         };
         let starts: Vec<f64> = system
@@ -152,6 +161,34 @@ impl ParticleSystem {
             emitter.emit_particles(&mut context, now);
             emitter.think(&mut context, now);
         }
+    }
+
+    /// `ParticleSystem::Queue`: places the system at `frame` for an object of `object_scale` (the
+    /// entity scale) and `particle_scale` (`GetParticleScale`), before it thinks and fills.
+    pub fn place(&mut self, frame: Frame, object_scale: Vec3, particle_scale: f32) {
+        self.frame = frame;
+        self.object_scale = object_scale;
+        self.particle_scale = Vec3::splat(particle_scale);
+        self.placed = true;
+    }
+
+    /// Whether the system was queued (placed) at least once.
+    pub fn placed(&self) -> bool {
+        self.placed
+    }
+
+    /// `ParticleSystem::GetReadyToDie`: every emitter has stopped discharging, and no particle is
+    /// left alive (or the system has waited ten thousand seconds for the last ones).
+    pub fn ready_to_die(&mut self, now: f64) -> bool {
+        let all_done = self
+            .emitters
+            .iter()
+            .all(|emitter| emitter.ready_to_die(&self.desc, self.start_time, now));
+        if !all_done {
+            return false;
+        }
+        let since = *self.ready_since.get_or_insert(now);
+        !(self.alive() != 0 && now - since <= RETIRE_WAIT)
     }
 
     /// `RenderAtPosition` came back without drawing: the system waits until it is drawn again.

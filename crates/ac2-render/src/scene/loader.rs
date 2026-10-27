@@ -121,6 +121,18 @@ pub enum Loaded {
     /// A world object's model under its own appearance (`WorldScene::request_object`), with
     /// its total `VisualDesc` scale (`CPhysicsObj::GetTotalScale`'s visual part).
     Object(LoadedObject),
+    /// An object FX's particle system description (`WorldScene::start_object_particle`).
+    ObjectParticle(Box<LoadedObjectParticle>),
+}
+
+/// An object FX particle system's load: its description (`None` when it draws nothing), and its
+/// material's model, sent once with the images it needs.
+#[derive(Debug, Clone)]
+pub struct LoadedObjectParticle {
+    pub handle: u64,
+    pub desc: Option<Arc<Ac2ParticleSystemDesc>>,
+    pub models: Vec<(DataId, Option<ObjectModel>)>,
+    pub images: Images,
 }
 
 /// The rain's loads.
@@ -155,6 +167,8 @@ pub(crate) enum Request {
     Layout(Arc<FarTerrain>),
     Object(u64, DataId, Option<ac2_assets::Ac2VisualDesc>),
     Rain,
+    /// An object FX's particle system: its handle and description.
+    ObjectParticle(u64, DataId),
 }
 
 /// The loader thread and its queues.
@@ -205,18 +219,49 @@ impl Worker {
         models: &mut Vec<(DataId, Option<ObjectModel>)>,
     ) -> Option<ParticleSource> {
         let desc = self.particle_desc(source.particle_desc)?;
-        let store = self.world.resource_store().clone();
-        let material = desc.material?;
+        self.particle_material(&desc, models)
+            .then_some(ParticleSource { source, desc })
+    }
+
+    /// Whether `desc`'s material draws: its model joins `models` the first time the worker sees
+    /// the material (`LoadedBlock::models` and the other loads send each material once).
+    fn particle_material(
+        &mut self,
+        desc: &Ac2ParticleSystemDesc,
+        models: &mut Vec<(DataId, Option<ObjectModel>)>,
+    ) -> bool {
+        let Some(material) = desc.material else {
+            return false;
+        };
         if self.models.insert(material) {
+            let store = self.world.resource_store().clone();
             let model = particle_model(&store, material, &self.settings);
             if model.is_some() {
                 self.drawable.insert(material);
             }
             models.push((material, model));
         }
-        self.drawable
-            .contains(&material)
-            .then_some(ParticleSource { source, desc })
+        self.drawable.contains(&material)
+    }
+
+    /// `CPartArray::CreateParticleSystem`'s description load for an object FX.
+    fn object_particle(&mut self, handle: u64, did: DataId) -> LoadedObjectParticle {
+        let mut models = Vec::new();
+        let desc = self
+            .particle_desc(did)
+            .filter(|desc| self.particle_material(desc, &mut models));
+        let images = self.images(
+            models
+                .iter()
+                .filter_map(|(_, model)| model.as_ref())
+                .flat_map(ObjectModel::texture_keys),
+        );
+        LoadedObjectParticle {
+            handle,
+            desc,
+            models,
+            images,
+        }
     }
 
     /// A particle system description with a material and emitters, decoded once.
@@ -431,6 +476,9 @@ impl Worker {
                 Loaded::Layout
             }
             Request::Rain => Loaded::Rain(Box::new(self.rain())),
+            Request::ObjectParticle(handle, did) => {
+                Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
+            }
             Request::Object(key, visual, local) => {
                 let store = self.world.resource_store().clone();
                 let model = crate::object::load_object_model_with(

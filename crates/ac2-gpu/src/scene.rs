@@ -142,7 +142,8 @@ impl SceneRenderer {
                     );
                 }
                 // `WorldScene` hands the rain's loads on as models; a far layout change has no data.
-                Loaded::Layout | Loaded::Rain(_) => {}
+                // The scene keeps an object FX's system; its material arrives as a model.
+                Loaded::Layout | Loaded::Rain(_) | Loaded::ObjectParticle(_) => {}
                 Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;

@@ -9,8 +9,12 @@ use ac2_anim::{Ac2AnimEvent, Ac2AnimTrigger, Ac2FxScript};
 use ac2_audio::{RecordingSink, SinkCommand};
 use ac2_core::Random;
 use ac2_db::ResourceStore;
+use ac2_math::Vec3;
 use ac2_net::protocol::ObjectAction;
 use ac2_physics::{Frame, PhysicsBody, Position, Quaternion, Vector};
+use ac2_render::scene::{ObjectPlacement, WorldScene};
+use ac2_render::Camera;
+use ac2_world::Ac2WorldSource;
 
 use super::{FxCall, FxSoundData, FxSounds};
 use crate::fx_particles::particle_starts;
@@ -148,4 +152,121 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
             start.desc.raw()
         );
     }
+}
+
+/// A `DoFXScript` starts the footstep FX's particle systems; the scene draws them on the object
+/// where it stands (the batches of the frame), and a system ends once it is stopped and has run
+/// out its particles, or once its emitters have finished and it has no particle left.
+#[test]
+fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("the world opens")
+        .expect("the portal DAT has a world");
+    let data = DatWorld::new(Arc::clone(&store))
+        .expect("world data opens")
+        .body(Some(HUMAN))
+        .expect("the human body loads");
+    let particles = data
+        .fx_particles
+        .clone()
+        .expect("the human has FX particles");
+    let script = Arc::new(Ac2FxScript {
+        effects: vec![Ac2AnimTrigger {
+            fx: STEP_FX,
+            time: 0.0,
+            stop: false,
+            probability: 1.0,
+            intensity: 1.0,
+            intensity_var: 0.0,
+            play: 1,
+        }],
+        impulses: Vec::new(),
+        period: 1.0,
+    });
+    let at = Vec3::new(10.0, 10.0, 1.0);
+    let mut body = PhysicsBody::new(
+        Position::new(
+            0x0299_0109,
+            Frame::new(Vector::new(at.x, at.y, at.z), Quaternion::new(1.0, 0.0, 0.0, 0.0)),
+        ),
+        data.shape.clone(),
+        data.motion.clone(),
+    );
+    body.set_radius(data.radius);
+    body.set_animation(data.animation.clone().expect("the human animates"));
+    let mut random = Random::default();
+    apply(&mut body, &ObjectAction::DoFxScript(SCRIPT));
+    body.resolve_fx_scripts(|id| (id == SCRIPT).then(|| Arc::clone(&script)));
+    body.update_animation(0.5, 1.0, &mut random);
+    let started: Vec<_> = body
+        .take_animation_events()
+        .into_iter()
+        .filter_map(|event| match event {
+            Ac2AnimEvent::StartFx { fx, .. } => Some(fx),
+            _ => None,
+        })
+        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random))
+        .enumerate()
+        .map(|(index, mut start)| {
+            start.handle = index as u64 + 1;
+            start
+        })
+        .collect();
+    assert!(!started.is_empty(), "the footstep FX starts a particle system");
+
+    // The client's frame: the systems start on the scene, and the object is placed where it stands.
+    let mut scene = WorldScene::new(world, 1);
+    scene.set_clock(0.0);
+    for start in &started {
+        scene.start_object_particle(start.handle, start.emitter, start.desc, start.placement);
+    }
+    scene.wait();
+    assert_eq!(scene.object_particle_systems(), started.len());
+    let placements = [ObjectPlacement {
+        emitter: EMITTER,
+        frame: ac2_math::Frame::new(at, ac2_math::Quat::IDENTITY),
+        scale: Vec3::ONE,
+    }];
+    let camera = Camera {
+        eye: at + Vec3::new(0.0, -4.0, 1.0),
+        target: at + Vec3::new(0.0, 0.0, 1.0),
+        fov_y: 1.0,
+        near: 0.1,
+        far: 500.0,
+    };
+    let mut time = 0.0;
+    let mut drawn = false;
+    for _ in 0..400 {
+        time += 0.05;
+        scene.set_clock(time);
+        scene.place_object_particles(&placements);
+        if !scene.frame(&camera, 1.0).particles.is_empty() {
+            drawn = true;
+            break;
+        }
+    }
+    assert!(drawn, "the started system reaches the frame's particle batches");
+    assert!(scene.particles_alive() > 0, "the drawn system has particles");
+
+    // Stopped: the system keeps its last place, runs out its particles, and is gone.
+    for start in &started {
+        scene.stop_object_particle(start.handle);
+    }
+    let mut gone = false;
+    for _ in 0..12_000 {
+        time += 1.0;
+        scene.set_clock(time);
+        scene.place_object_particles(&placements);
+        let frame = scene.frame(&camera, 1.0);
+        if scene.object_particle_systems() == 0 {
+            assert!(frame.particles.is_empty(), "a system that ended draws nothing");
+            gone = true;
+            break;
+        }
+    }
+    assert!(gone, "a stopped system ends once its particles have run out");
 }

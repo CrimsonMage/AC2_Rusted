@@ -424,6 +424,10 @@ impl App {
                 }
             }
         }
+        // The particle systems the objects' FX started and stopped since the last frame.
+        let starts = self.client.take_object_particle_starts();
+        let stops = self.client.take_object_particle_stops();
+        view.set_object_particles(&starts, &stops);
         view.update(&state.gpu, &frame, LOAD_BUDGET);
         // The HUD's sounds play from the client's sound manager on its next frame.
         if let Some(audio) = self.client.audio_mut() {

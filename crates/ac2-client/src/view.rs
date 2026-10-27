@@ -13,14 +13,15 @@ use std::time::Duration;
 
 use ac2_core::DataId;
 use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
-use ac2_math::{Mat4, Quat, Vec3};
+use ac2_math::{Frame, Mat4, Quat, Vec3};
 use ac2_render::object::ObjectPose;
-use ac2_render::scene::WorldScene;
+use ac2_render::scene::{ObjectPlacement, WorldScene};
 use ac2_render::selection::{pick_list, PickCandidate};
 use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
 
+use crate::fx_particles::ObjectParticleStart;
 use crate::frame::ClientFrame;
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
@@ -221,6 +222,42 @@ impl ClientView {
         self.update_doll(gpu, frame, true);
     }
 
+    /// The particle systems the objects' FX started (`FXManager::DoParticleFX`) and stopped
+    /// (`StopFX`, or their object left), in that order: the scene loads each description on its
+    /// loader thread and runs the system where its object stands.
+    pub fn set_object_particles(&mut self, starts: &[ObjectParticleStart], stops: &[u64]) {
+        for start in starts {
+            self.scene.start_object_particle(
+                start.handle,
+                start.emitter,
+                start.desc,
+                start.placement,
+            );
+        }
+        for handle in stops {
+            self.scene.stop_object_particle(*handle);
+        }
+    }
+
+    /// Where each drawn object stands this frame, for the particle systems it runs.
+    fn object_placements(&self, frame: &ClientFrame) -> Vec<ObjectPlacement> {
+        drawn_objects(frame)
+            .iter()
+            .filter_map(|drawn| {
+                let (_, scale) = self.scene.object_rig(model_key(drawn.visual, drawn.appearance))?;
+                let [w, x, y, z] = drawn.rotation;
+                Some(ObjectPlacement {
+                    emitter: drawn.id,
+                    frame: Frame::new(
+                        self.world_point(drawn.cell, drawn.origin),
+                        Quat::from_xyzw(x, y, z, w),
+                    ),
+                    scale: *scale,
+                })
+            })
+            .collect()
+    }
+
     /// Lays out the frame; `false` while there is no camera (before world entry).
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
         self.world_drawn = frame.portal.world_drawn();
@@ -228,6 +265,9 @@ impl ClientView {
         let Some(camera) = self.camera(frame) else {
             return false;
         };
+        self.scene.set_clock(time);
+        let placements = self.object_placements(frame);
+        self.scene.place_object_particles(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
         let objects = drawn_objects(frame)
             .iter()
