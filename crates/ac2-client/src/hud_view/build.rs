@@ -78,6 +78,7 @@ impl HudView {
             allegiance: None,
             fellowship: None,
             mini_fellow: None,
+            journal: None,
             vitals: None,
             effects: None,
             vitae: None,
@@ -144,6 +145,7 @@ impl HudView {
                     allegiance,
                     fellowship,
                     mut mini_fellow,
+                    journal,
                     vitals,
                     effects,
                     indicators,
@@ -189,6 +191,7 @@ impl HudView {
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
+                self.journal = journal;
                 self.vitals = Some(vitals);
                 self.effects = effects;
                 self.vitae = Some(indicators.vitae);

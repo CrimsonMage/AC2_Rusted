@@ -16,7 +16,8 @@ pub struct GmQuestInfo {
     pub description: StringInfo,
     /// `_didIcon`.
     pub icon: u32,
-    /// `_questStatus` (0x10000000: done).
+    /// `_questStatus`: 0x10000000 underway, 0x20000000 failed, 0x30000000 completed
+    /// (`gmQuestInfo::MaxedOut`, `InqExtraText`).
     pub status: u32,
     /// `_uiCurPhase`.
     pub phase: u32,

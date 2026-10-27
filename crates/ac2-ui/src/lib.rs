@@ -46,9 +46,12 @@ mod ingredient_slots;
 mod input;
 mod interpreter;
 mod item_display;
+mod journal_quests;
+pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab};
 mod items_3d;
 #[cfg(test)]
 mod items_3d_tests;
+mod journal_time;
 mod layout;
 mod layout_media;
 mod list_box;
@@ -228,6 +231,8 @@ mod element_tests;
 mod external_container_tests;
 #[cfg(test)]
 mod fellowship_tests;
+#[cfg(test)]
+mod journal_quests_tests;
 #[cfg(test)]
 mod list_box_select_tests;
 #[cfg(test)]

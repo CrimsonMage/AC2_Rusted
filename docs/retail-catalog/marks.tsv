@@ -653,6 +653,10 @@ key	status	note
 0043d770	-	
 0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
+0043dd20	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
+0043ddb0	~	ac2-ui journal_time.rs time_left: the words and thresholds; minute and second fields two digits wide (sprintf format not recovered)
+0043e080	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
+0043e0d0	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 0043e150	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 0043e1c0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
 0043e230	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
@@ -660,6 +664,21 @@ key	status	note
 0043e2c0	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 0043e300	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
 0043e380	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
+0043e3a0	x	ac2-ui journal_quests.rs drop_row
+0043e430	x	ac2-ui journal_quests.rs Rows::do_quest_time (countdown in journal_time.rs)
+0043e520	x	ac2-ui journal_quests.rs QuestDescriptor (Clone, new)
+0043e580	x	ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
+0043e5c0	x	ac2-ui journal_quests.rs Rows::add
+0043e720	x	ac2-ui journal_quests.rs Rows::update
+0043e9d0	x	ac2-ui journal_quests.rs update_pages / lay_out, run from global_loop
+0043eae0	x	ac2-ui journal_quests.rs find_mut
+0043ebd0	x	ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
+0043ecb0	x	ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
+0043ecd0	~	ac2-ui journal_quests.rs show(tree, shown): the updated quest closes; the toolbar does not report the page visibility yet
+0043f000	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+0043f130	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+0043f1e0	~	ac2-ui journal_quests.rs recv_notice_update_quests, all codes; the code 2 list is empty (InqQuestList is not asked of the script yet); the Quest tabs (gmQuestsUI::SetActivePanel) are dropped in ac2-client ui_quests.rs
+0043f570	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
 00440240	x	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): FinishItemDrop is gmCWInterface::MoveItem(item, player, target, fromSlot, 0, quantity)
 004402c0	x	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): StartFind3DTarget asks the pick at the pointer (one search at a time)
 00440320	~	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): Start3DDrag puts the selection's image (first icon layer) on the field's ItemIcon, dragable, ShortcutType 0x40000002 and the item as ShortcutData, and starts the drag; the icon description's layers are not composed. A drag of a world item into the pack is not traced (HandleListBoxDrop for an item with no FromID)
@@ -4372,6 +4391,7 @@ key	status	note
 005f2650	x	ac2-ui list_box_select.rs
 005f26b0	x	ac2-ui list_box.rs
 005f27c0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
+005f28d0	x	ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 005f2930	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f2bc0	x	ac2-ui list_box.rs
 005f3c20	x	ac2-ui list_box.rs
@@ -4602,6 +4622,9 @@ key	status	note
 0060ab10	x	ac2-script glue::quests / ac2-net native::quest
 0060abd0	x	ac2-script glue::quests / ac2-net native::quest
 0060ac50	x	ac2-script glue::quests / ac2-net native::quest
+0060ac60	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
+0060ac80	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
+0060aca0	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
 0060aef0	x	ac2-script glue::quests / ac2-net native::quest
 0060af00	x	ac2-script glue::quests / ac2-net native::quest
 0060b240	x	ac2-script glue::quests / ac2-net native::quest

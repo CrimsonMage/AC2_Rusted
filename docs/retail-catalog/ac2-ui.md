@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 838 done, 287 partial, 1069 to do, 53 skipped.
+2247 retail functions: 852 done, 292 partial, 1050 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -893,13 +893,13 @@ Legend and workflow: [README](README.md).
 - [x] `OptionValue::Refresh` · 0044f750 · legions 00450890 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 - [x] `OptionValue::Refresh` · 0044f780 · legions 004508c0 — character_options.rs / character.rs: the slider's range, value (clamped), default, changed (the 1e-4 squared test), apply, recall, default and refresh (tested)
 
-## `ac2/client/src/ui/gameplay/helper/timedisplay.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/helper/timedisplay.cpp.c` (3/4)
 
 ### TimeDisplay
-- [ ] `TimeDisplay::TimeDisplay` · 0043dd20 · legions 0043e570
-- [ ] `TimeDisplay::ComputeTimeLeft` · 0043ddb0 · legions 0043e600
-- [ ] `TimeDisplay::ListenToMessage` · 0043e080 · legions 0043e8d0
-- [ ] `TimeDisplay::Init` · 0043e0d0 · legions 0043e920
+- [x] `TimeDisplay::TimeDisplay` · 0043dd20 · legions 0043e570 — ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
+- [~] `TimeDisplay::ComputeTimeLeft` · 0043ddb0 · legions 0043e600 — ac2-ui journal_time.rs time_left: the words and thresholds; minute and second fields two digits wide (sprintf format not recovered)
+- [x] `TimeDisplay::ListenToMessage` · 0043e080 · legions 0043e8d0 — ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
+- [x] `TimeDisplay::Init` · 0043e0d0 · legions 0043e920 — ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 
 ## `ac2/client/src/ui/gameplay/helper/vitaldisplay.cpp.c` (7/7)
 
@@ -1394,29 +1394,29 @@ Legend and workflow: [README](README.md).
 - [ ] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0
 - [ ] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client OptionsWindow::answer: the confirmation's yes/no; the quit and logout confirmations are not modelled
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (10/14)
 
 ### gmJournalQuestsUI
-- [ ] `gmJournalQuestsUI::RemoveQuestElement` · 0043e3a0 · legions 0043ec10
-- [ ] `gmJournalQuestsUI::DoQuestTime` · 0043e430 · legions 0043eca0
+- [x] `gmJournalQuestsUI::RemoveQuestElement` · 0043e3a0 · legions 0043ec10 — ac2-ui journal_quests.rs drop_row
+- [x] `gmJournalQuestsUI::DoQuestTime` · 0043e430 · legions 0043eca0 — ac2-ui journal_quests.rs Rows::do_quest_time (countdown in journal_time.rs)
 
 ### gmJournalQuestsUI::QuestDescriptor
-- [ ] `gmJournalQuestsUI::QuestDescriptor::QuestDescriptor` · 0043e520 · legions 0043ed90
+- [x] `gmJournalQuestsUI::QuestDescriptor::QuestDescriptor` · 0043e520 · legions 0043ed90 — ac2-ui journal_quests.rs QuestDescriptor (Clone, new)
 
 ### UIElement_ListBox
-- [ ] `UIElement_ListBox::GetRow` · 0043e580 · legions 0043edf0
+- [x] `UIElement_ListBox::GetRow` · 0043e580 · legions 0043edf0 — ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 
 ### gmJournalQuestsUI
-- [ ] `gmJournalQuestsUI::AddQuestElement` · 0043e5c0 · legions 0043ee30
-- [ ] `gmJournalQuestsUI::UpdateQuestElement` · 0043e720 · legions 0043ef90
-- [ ] `gmJournalQuestsUI::Update` · 0043e9d0 · legions 0043f240
-- [ ] `gmJournalQuestsUI::FindQuestDescriptor` · 0043eae0 · legions 0043f350
-- [ ] `gmJournalQuestsUI::ListenToMessage` · 0043ebd0 · legions 0043f440
-- [ ] `gmJournalQuestsUI::ListenToMessage` · 0043ecb0 · legions 0043f520
-- [ ] `gmJournalQuestsUI::Show` · 0043ecd0 · legions 0043f540
-- [ ] `gmJournalQuestsUI::gmJournalQuestsUI` · 0043f000 · legions 0043f8b0
-- [ ] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0
-- [ ] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0
+- [x] `gmJournalQuestsUI::AddQuestElement` · 0043e5c0 · legions 0043ee30 — ac2-ui journal_quests.rs Rows::add
+- [x] `gmJournalQuestsUI::UpdateQuestElement` · 0043e720 · legions 0043ef90 — ac2-ui journal_quests.rs Rows::update
+- [x] `gmJournalQuestsUI::Update` · 0043e9d0 · legions 0043f240 — ac2-ui journal_quests.rs update_pages / lay_out, run from global_loop
+- [x] `gmJournalQuestsUI::FindQuestDescriptor` · 0043eae0 · legions 0043f350 — ac2-ui journal_quests.rs find_mut
+- [x] `gmJournalQuestsUI::ListenToMessage` · 0043ebd0 · legions 0043f440 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
+- [x] `gmJournalQuestsUI::ListenToMessage` · 0043ecb0 · legions 0043f520 — ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
+- [~] `gmJournalQuestsUI::Show` · 0043ecd0 · legions 0043f540 — ac2-ui journal_quests.rs show(tree, shown): the updated quest closes; the toolbar does not report the page visibility yet
+- [~] `gmJournalQuestsUI::gmJournalQuestsUI` · 0043f000 · legions 0043f8b0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+- [~] `gmJournalQuestsUI::~gmJournalQuestsUI` · 0043f130 · legions 0043f9e0 — ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+- [~] `gmJournalQuestsUI::RecvNotice_UpdateQuests` · 0043f1e0 — ac2-ui journal_quests.rs recv_notice_update_quests, all codes; the code 2 list is empty (InqQuestList is not asked of the script yet); the Quest tabs (gmQuestsUI::SetActivePanel) are dropped in ac2-client ui_quests.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmquestsui.cpp.c` (1/4)
 
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (20/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (21/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3209,7 +3209,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2840 · legions 005b3370
 - [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380
 - [ ] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0
-- [ ] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400
+- [x] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400 — ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 - [~] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::StartDragSelect` · 005f2a50 · legions 005b3580
 - [ ] `UIElement_ListBox::EndDragSelect` · 005f2ac0 · legions 005b35f0

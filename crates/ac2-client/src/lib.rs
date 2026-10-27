@@ -77,10 +77,11 @@ mod target_select;
 mod ui_images;
 #[cfg(feature = "window")]
 mod ui_inventory;
+#[cfg(feature = "window")]
+mod ui_quests;
 pub mod ui_scale;
 #[cfg(feature = "window")]
 pub mod ui_scene;
-#[cfg(feature = "window")]
 mod ui_social;
 #[cfg(feature = "window")]
 mod ui_sources;
