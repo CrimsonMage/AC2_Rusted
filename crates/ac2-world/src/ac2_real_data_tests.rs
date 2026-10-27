@@ -161,3 +161,32 @@ fn ac2_town_block_places_entities_with_visuals() {
         assert!((block_origin[1] - 1.0..block_origin[1] + 161.0).contains(&origin.y));
     }
 }
+
+#[test]
+fn ac2_landblock_vertices_carry_shadow_light_colour_bits() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let source = crate::Ac2WorldSource::open(Arc::new(store))
+        .expect("AC2 vocabulary decodes")
+        .expect("AC2 dataset recognised");
+    let block = source
+        .load_landblock(ac2_core::CellId::new(0x7F7F_0001))
+        .expect("AC2 landblock decodes")
+        .expect("AC2 landblock exists");
+    let side = block.vertex_side();
+    let colours: Vec<u32> = (0..side)
+        .flat_map(|x| (0..side).map(move |y| (x, y)))
+        .map(|(x, y)| {
+            block
+                .vertex_colour(x, y)
+                .expect("every vertex has a colour")
+        })
+        .collect();
+    assert_eq!(colours.len(), 289);
+    // `CLandBlockData::GetColor` reads the colour field of each vertex's cell-info word; the
+    // landblock has vertices lit by at least one shadow-light bit.
+    assert!(colours.iter().all(|c| *c <= 0xFF), "colour fits its field");
+    assert!(colours.iter().any(|c| *c != 0));
+    assert!(block.vertex_colour(side, 0).is_none());
+}

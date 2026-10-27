@@ -58,6 +58,14 @@ impl LandBlockDesc {
             .flatten()
     }
 
+    /// Shadow-light colour bits of vertex (`x`, `y`) (`CLandBlockData::GetColor`).
+    pub fn vertex_colour(&self, x: usize, y: usize) -> Option<u32> {
+        let side = self.vertex_side();
+        (x < side && y < side)
+            .then(|| self.samples.colour(x * side + y))
+            .flatten()
+    }
+
     /// Whether the terrain polygon of `polygon_size` vertex steps at vertex (`vertex_x`,
     /// `vertex_y`) is a landscape hole: any of its vertices has the hole terrain type, which the
     /// original removes from both the render and the physics terrain.

@@ -8385,9 +8385,9 @@ key	status	note
 00583e70	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00583f40	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584040	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-00584090	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
+00584090	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 005841c0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-00584290	~	object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
+00584290	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 005843b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584540	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 005847b0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
@@ -8421,7 +8421,7 @@ key	status	note
 00588050	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 005880a0	_	needs port: UV translate (scrolling texture coordinates)
 005880f0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-00588300	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+00588300	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 00588320	x	
 00588370	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00588410	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
@@ -8445,7 +8445,7 @@ key	status	note
 0058a270	-	SmartArray/STL container internals; Vec replaces
 0058a400	-	SmartArray/STL container internals; Vec replaces
 0058a460	-	SmartArray/STL container internals; Vec replaces
-0058a4d0	~	object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
+0058a4d0	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 0058a870	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 0058aab0	-	SmartArray/STL container internals; Vec replaces
 0058ac60	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -8458,7 +8458,7 @@ key	status	note
 0058b9e0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
 0058bc10	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 0058bce0	x	far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
-0058c8c0	~	per-block near mesh; no cloud-shadow UVs or shared near vertex array
+0058c8c0	~	vertex colour bits kept (ac2-world GetColor field); the near-mesh alpha is only read by the frill shade, not drawn
 0058d700	x	ac2-render object::load_water_model
 0058dcb0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 0058e940	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)

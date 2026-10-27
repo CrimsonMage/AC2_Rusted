@@ -99,3 +99,44 @@ fn a_draw_distance_change_lays_the_far_ring_out_again_on_the_loader_thread() {
     assert_eq!(scene.far_bounds.len(), now);
     assert!(scene.wait().loaded.is_empty());
 }
+
+#[test]
+fn a_frill_takes_the_self_shadow_of_the_terrain_cell_under_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let size = world.block_size();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0xCB, 0x4D));
+    scene.wait();
+    let centre = Vec3::new(203.5 * size, 77.5 * size, 60.0);
+    let camera = Camera {
+        eye: centre,
+        target: centre + Vec3::Y,
+        fov_y: 60_f32.to_radians(),
+        near: 0.5,
+        far: 4000.0,
+    };
+    let frame = scene.frame(&camera, 1.0);
+    let shades: Vec<f32> = frame
+        .placements
+        .iter()
+        .filter(|p| p.frill_normal.is_some())
+        .map(|p| p.frill_shade)
+        .collect();
+    eprintln!("frill shades: {shades:?}");
+    // Each frill's factor is the mean of its terrain cell's four corner alphas: a quarter step.
+    assert!(!shades.is_empty(), "the town has grass frills");
+    assert!(shades
+        .iter()
+        .all(|s| [0.0, 0.25, 0.5, 0.75, 1.0].contains(s)));
+    // Scenery is never shaded.
+    assert!(frame
+        .placements
+        .iter()
+        .filter(|p| p.frill_normal.is_none())
+        .all(|p| p.frill_shade == 1.0));
+}

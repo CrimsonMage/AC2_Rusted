@@ -5,6 +5,8 @@
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
+use super::shadow::{self_shadow_factor, vertex_shadow_alpha};
+
 /// One landblock's terrain heights and polygon diagonals, and its water surface.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TerrainHeights {
@@ -12,6 +14,8 @@ pub struct TerrainHeights {
     spacing: f32,
     side: usize,
     heights: Vec<f32>,
+    /// `CLandBlockData::GetColor` per vertex: the shadow-light bits each vertex is lit by.
+    colours: Vec<u32>,
     /// Per polygon (`px * polygons + py`): split along SW-NE.
     cuts: Vec<bool>,
     /// The block's water surface height, when it has water.
@@ -32,6 +36,10 @@ impl TerrainHeights {
                 (0..polygons).map(move |py| terrain_polygon_cut(block_cell_id, px, py, polygons))
             })
             .collect();
+        let colours = (0..side)
+            .flat_map(|x| (0..side).map(move |y| (x, y)))
+            .map(|(x, y)| landblock.vertex_colour(x, y).unwrap_or(0))
+            .collect();
         Self {
             origin: [
                 ((block_cell_id.raw() >> 24) & 0xFF) as f32 * block_size,
@@ -40,20 +48,45 @@ impl TerrainHeights {
             spacing: block_size / polygons as f32,
             side,
             heights: landblock.height_grid(),
+            colours,
             cuts,
             water,
         }
     }
 
-    /// The terrain height at world `(x, y)`, on the triangle of its polygon; `None` off the
+    /// Position of world `(x, y)` in vertex-grid units from the block's corner; `None` off the
     /// block.
-    pub fn height_at(&self, x: f32, y: f32) -> Option<f32> {
+    fn grid_at(&self, x: f32, y: f32) -> Option<(f32, f32)> {
         let polygons = self.side - 1;
         let gx = (x - self.origin[0]) / self.spacing;
         let gy = (y - self.origin[1]) / self.spacing;
         if !(0.0..=polygons as f32).contains(&gx) || !(0.0..=polygons as f32).contains(&gy) {
             return None;
         }
+        Some((gx, gy))
+    }
+
+    /// The landscape self-shadow factor under world `(x, y)` (`LScapeTerrainMesh::GetShadowColor`
+    /// self term): the polygon's four corner vertices, alpha 255 where lit by `shadow_bit`
+    /// (`UpdateNearTerrain`). Off the block, or with no shadow bit, nothing is shadowed (1.0).
+    pub fn self_shadow(&self, x: f32, y: f32, shadow_bit: Option<u32>) -> f32 {
+        let (Some(bit), Some((gx, gy))) = (shadow_bit, self.grid_at(x, y)) else {
+            return 1.0;
+        };
+        let polygons = self.side - 1;
+        let px = (gx.floor() as usize).min(polygons - 1);
+        let py = (gy.floor() as usize).min(polygons - 1);
+        let alpha = |dx: usize, dy: usize| {
+            vertex_shadow_alpha(self.colours[(px + dx) * self.side + py + dy], bit)
+        };
+        self_shadow_factor([alpha(0, 0), alpha(1, 0), alpha(0, 1), alpha(1, 1)])
+    }
+
+    /// The terrain height at world `(x, y)`, on the triangle of its polygon; `None` off the
+    /// block.
+    pub fn height_at(&self, x: f32, y: f32) -> Option<f32> {
+        let polygons = self.side - 1;
+        let (gx, gy) = self.grid_at(x, y)?;
         let px = (gx.floor() as usize).min(polygons - 1);
         let py = (gy.floor() as usize).min(polygons - 1);
         let (u, v) = (gx - px as f32, gy - py as f32);
@@ -86,6 +119,7 @@ mod tests {
             spacing: 10.0,
             side: 2,
             heights: vec![0.0, 20.0, 10.0, 40.0],
+            colours: vec![0; 4],
             cuts: vec![cut],
             water: None,
         }
@@ -104,5 +138,21 @@ mod tests {
         assert_eq!(field(false).height_at(5.0, 5.0), Some(15.0));
         assert_eq!(field(true).height_at(5.0, 5.0), Some(20.0));
         assert_eq!(field(true).height_at(11.0, 5.0), None);
+    }
+
+    #[test]
+    fn self_shadow_counts_the_polygon_corners_lit_by_the_shadow_bit() {
+        // Vertices (x * side + y): SW lit by bit 0, SE and NW lit by bit 1 only, NE lit by bit 0.
+        let mut f = field(false);
+        f.colours = vec![1, 2, 2, 1];
+        // Bit 0 lights SW and NE: half the corners, so the factor is 0.5.
+        assert_eq!(f.self_shadow(5.0, 5.0, Some(0)), 0.5);
+        // Bit 1 lights SE and NW: also half.
+        assert_eq!(f.self_shadow(5.0, 5.0, Some(1)), 0.5);
+        // Bit 2 lights no corner: black.
+        assert_eq!(f.self_shadow(5.0, 5.0, Some(2)), 0.0);
+        // No shadow bit, or off the block: nothing is shadowed.
+        assert_eq!(f.self_shadow(5.0, 5.0, None), 1.0);
+        assert_eq!(f.self_shadow(11.0, 5.0, Some(0)), 1.0);
     }
 }

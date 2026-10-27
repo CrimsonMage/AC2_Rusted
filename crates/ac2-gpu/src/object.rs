@@ -177,6 +177,9 @@ pub struct ObjectInstance<'a> {
     /// A grass frill merged by `FrillRender`: every vertex takes this world normal and the
     /// landscape shadow colour under its origin (`FrillRenderType::AddPos`).
     pub frill_normal: Option<Vec3>,
+    /// The landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term);
+    /// 1 leaves it unshadowed.
+    pub frill_shade: f32,
     /// The device's point lights for this object (`SceneTool::CacheStaticLights`), at most 4.
     pub point_lights: &'a [PointLight],
     /// The model posed for this draw (`ObjectModel::pose`); `None` draws its default placement.
@@ -191,6 +194,7 @@ impl<'a> ObjectInstance<'a> {
             world,
             tint: [1.0; 4],
             frill_normal: None,
+            frill_shade: 1.0,
             point_lights: &[],
             pose: None,
         }
@@ -729,6 +733,7 @@ impl ObjectRenderer {
                             }
                             if let Some(normal) = instance.frill_normal {
                                 uniform.frill = normal.extend(1.0).to_array();
+                                uniform.frill_shade = [instance.frill_shade, 0.0, 0.0, 0.0];
                             }
                             set_point_lights(&mut uniform, instance.point_lights);
                             if let Some(first) = skin {

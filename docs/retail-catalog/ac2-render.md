@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 109 done, 58 partial, 257 to do, 357 skipped.
+781 retail functions: 113 done, 56 partial, 255 to do, 357 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1004,7 +1004,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (7/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (9/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1045,9 +1045,9 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::CullLandBlocks` · 00583e70 · legions 005535e0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [ ] `LScapeRender::FindReflectionPlane` · 00583f40 · legions 00553680 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [ ] `LScapeRender::GatherVisibleOutsideObjects` · 00584040 · legions 00553780 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-- [ ] `LScapeRender::GetSunLightDirectionBits` · 00584090 · legions 005537d0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
+- [x] `LScapeRender::GetSunLightDirectionBits` · 00584090 · legions 005537d0 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [ ] `LScapeRender::UpdateLighting` · 005841c0 · legions 00553900 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-- [~] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0 — object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
+- [x] `LScapeRender::CalculateShadowColor` · 00584290 · legions 005539d0 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [ ] `LScapeRender::GetTerrainGeometry` · 005843b0 · legions 00553af0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [x] `LScapeRender::RefreshShadowMap` · 00584540 · legions 00553c80 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 - [ ] `LScapeRender::Init` · 005847b0 · legions 00553ee0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
@@ -1070,14 +1070,14 @@ Legend and workflow: [README](README.md).
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 - [~] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 
-## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (6/48)
+## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (8/48)
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::SetVTranslate` · 005880a0 · legions 005577e0 — needs port: UV translate (scrolling texture coordinates)
 
 ### LScapeTerrainMesh
 - [ ] `LScapeTerrainMesh::CreateLocalMemBumpMap` · 005880f0 · legions 00557830 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-- [ ] `LScapeTerrainMesh::SetSelfShadowBit` · 00588300 · legions 00557a30 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+- [x] `LScapeTerrainMesh::SetSelfShadowBit` · 00588300 · legions 00557a30 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [x] `LScapeTerrainMesh::IlluminateVertices` · 00588320 · legions 00557a50
 
 ### LScapeVertex
@@ -1131,7 +1131,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<LScapeFarBlock>::operator=` · 0058a460 · legions 00559b50 — SmartArray/STL container internals; Vec replaces
 
 ### LScapeTerrainMesh
-- [~] `LScapeTerrainMesh::GetShadowColor` · 0058a4d0 · legions 00559bc0 — object.wgsl landscape_shadow: 5x5 shadow-map mean under a frill; the terrain self-shadow factor (vertex specular alpha) is not applied
+- [x] `LScapeTerrainMesh::GetShadowColor` · 0058a4d0 · legions 00559bc0 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [ ] `LScapeTerrainMesh::SetVertexValue` · 0058a870 · legions 00559f60 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 
 ### SmartArray<LayerStage_*>
@@ -1152,7 +1152,7 @@ Legend and workflow: [README](README.md).
 - [~] `LScapeTerrainMesh::BuildNearTerrainMesh` · 0058b9e0 · legions 0055b050 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
 - [-] `LScapeTerrainMesh::~LScapeTerrainMesh` · 0058bc10 · legions 0055b280 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [x] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350 — far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
-- [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — per-block near mesh; no cloud-shadow UVs or shared near vertex array
+- [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — vertex colour bits kept (ac2-world GetColor field); the near-mesh alpha is only read by the frill shade, not drawn
 - [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
 - [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 - [ ] `LScapeTerrainMesh::Init` · 0058e940 · legions 0055dfb0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)

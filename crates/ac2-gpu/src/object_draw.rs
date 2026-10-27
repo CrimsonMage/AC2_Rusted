@@ -24,6 +24,8 @@ pub(crate) struct DrawUniform {
     points: [[f32; 4]; 16],
     /// x: the part's first matrix in the bone buffer, y: 1 when its vertices blend.
     pub(crate) skin: [u32; 4],
+    /// x: the landscape self shadow under a merged frill's origin (1 when unshadowed).
+    pub(crate) frill_shade: [f32; 4],
 }
 
 /// `VSLightState` constants of up to four point lights.
@@ -184,6 +186,7 @@ pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         point_count: [0; 4],
         points: [[0.0; 4]; 16],
         skin: [0; 4],
+        frill_shade: [1.0, 0.0, 0.0, 0.0],
     };
     for (index, stage) in pass.stages.iter().enumerate().take(4) {
         uniform.color_ops[index] = [

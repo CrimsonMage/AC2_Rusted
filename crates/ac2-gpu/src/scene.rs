@@ -459,6 +459,7 @@ fn world_instances<'a>(
         .filter_map(|p| {
             Some(ObjectInstance {
                 frill_normal: p.frill_normal,
+                frill_shade: p.frill_shade,
                 ..ObjectInstance::new(models.get(&p.visual)?, p.world)
             })
         })

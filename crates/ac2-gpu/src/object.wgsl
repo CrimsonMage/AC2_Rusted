@@ -51,6 +51,8 @@ struct Draw {
     points: array<vec4<f32>, 16>,
     // x: the part's first deform matrix in `bones`, y: 1 when its vertices blend.
     skin: vec4<u32>,
+    // x: the landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term).
+    frill_shade: vec4<f32>,
 };
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
@@ -300,7 +302,7 @@ fn vs(input: VsIn) -> VsOut {
         // Merged frill vertices: the frill's up axis, and the landscape shadow colour at the
         // frill's origin (`FrillRenderType::AddPos`).
         basis.normal = normalize(draw.frill.xyz);
-        vertex_color = vec4(landscape_shadow(draw.model[3].xyz), 1.0);
+        vertex_color = vec4(landscape_shadow(draw.model[3].xyz) * draw.frill_shade.x, 1.0);
     }
     basis.tangent_s = normalize((draw.model * vec4(input.tangent_s, 0.0)).xyz);
     basis.tangent_t = normalize((draw.model * vec4(input.tangent_t, 0.0)).xyz);

@@ -19,6 +19,9 @@ const AC2_SIDE_VERTICES: usize = 17;
 const AC2_SAMPLES: usize = AC2_SIDE_VERTICES * AC2_SIDE_VERTICES;
 const TERRAIN_FIELD: usize = 0;
 const ROAD_FIELD: usize = 4;
+/// `CLandBlockData::GetColor`: the colour field of a vertex's cell-info word, whose bits name the
+/// shadow lights a vertex is in (`LScapeTerrainMesh::UpdateNearTerrain`'s vertex alpha).
+const COLOUR_FIELD: usize = 3;
 /// `CLandBlockMesh::ConstructPolygons` and `LScapeTerrainMesh::UpdateNearTerrain` drop every
 /// terrain quad touching a vertex of this terrain type, opening the landscape over cave mouths.
 const AC2_HOLE_TERRAIN: u32 = 0x1E;
@@ -34,6 +37,8 @@ pub struct Ac2TerrainSamples {
     road: Vec<Ac2SurfaceInfo>,
     /// Vertices of the landscape-hole terrain type (`0x1E`), where cave and dungeon mouths open.
     holes: Vec<bool>,
+    /// `CLandBlockData::GetColor` per vertex: the shadow-light bits the vertex is lit by.
+    colours: Vec<u32>,
 }
 
 impl Ac2TerrainSamples {
@@ -49,6 +54,10 @@ impl Ac2TerrainSamples {
 
     pub(crate) fn is_hole(&self, index: usize) -> bool {
         self.holes.get(index).copied().unwrap_or(false)
+    }
+
+    pub(crate) fn colour(&self, index: usize) -> Option<u32> {
+        self.colours.get(index).copied()
     }
 
     pub(crate) fn normal(&self, index: usize) -> Option<[f32; 3]> {
@@ -79,6 +88,7 @@ pub struct Ac2WorldSource {
     /// (offset, mask) of the terrain and road fields of a vertex's cell-info word.
     terrain_field: (u32, u32),
     road_field: (u32, u32),
+    colour_field: (u32, u32),
     region: Option<Arc<crate::RegionDesc>>,
     water: Option<crate::ac2_water::Ac2WaterSource>,
 }
@@ -123,6 +133,7 @@ impl Ac2WorldSource {
             store,
             terrain_field: land.cell_info_field(TERRAIN_FIELD),
             road_field: land.cell_info_field(ROAD_FIELD),
+            colour_field: land.cell_info_field(COLOUR_FIELD),
             terrain,
             surfaces,
             region,
@@ -316,6 +327,7 @@ impl Ac2WorldSource {
             surface: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
             road: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
             holes: vec![false; AC2_SAMPLES],
+            colours: vec![0; AC2_SAMPLES],
         };
         for x in 0..AC2_SIDE_VERTICES {
             for y in 0..AC2_SIDE_VERTICES {
@@ -328,6 +340,7 @@ impl Ac2WorldSource {
                 let terrain = field(word, self.terrain_field);
                 let road = field(word, self.road_field);
                 samples.holes[index] = terrain == AC2_HOLE_TERRAIN;
+                samples.colours[index] = field(word, self.colour_field);
                 let (gx, gy) = (base_x + x as i32, base_y + y as i32);
                 // `CSurfaceDesc::GetVertexInfo` for the terrain's surface type, `GetRoadInfo` for
                 // the road bits; a miss keeps `SurfaceInfo::SetToDefault`.
@@ -434,6 +447,7 @@ mod hole_tests {
             surface: vec![Default::default(); AC2_SAMPLES],
             road: vec![Default::default(); AC2_SAMPLES],
             holes,
+            colours: vec![0; AC2_SAMPLES],
         };
         LandBlockDesc::new(
             QualifiedDataId::new(DataId::new(0x4592_FFFF), 0),

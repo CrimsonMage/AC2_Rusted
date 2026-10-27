@@ -35,7 +35,7 @@ use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
-use crate::terrain::{FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
+use crate::terrain::{shadow_light_bit, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
 use object_lights::ObjectLights;
@@ -53,6 +53,9 @@ pub struct FramePlacement {
     pub world: Mat4,
     /// A merged frill's normal (`FrillRender::RefreshFrillMesh`).
     pub frill_normal: Option<Vec3>,
+    /// A merged frill's landscape self shadow under its origin (`GetShadowColor`'s self term);
+    /// 1 where nothing shadows it.
+    pub frill_shade: f32,
 }
 
 /// Where an object stands this frame, for the particle systems it runs: its emitter (the object's
@@ -545,10 +548,21 @@ impl WorldScene {
                 .flat_map(|key| self.blocks[key].placements.iter())
                 .filter(|p| self.models.contains_key(&p.visual))
         };
-        let frills: Vec<&Placement> = all().filter(|p| p.frill).collect();
+        // Each frill with the block it stands in, for that block's terrain under it.
+        let frills: Vec<(BlockKey, &Placement)> = keys
+            .iter()
+            .flat_map(|key| {
+                self.blocks[key]
+                    .placements
+                    .iter()
+                    .filter(|p| self.models.contains_key(&p.visual))
+                    .map(move |p| (*key, p))
+            })
+            .filter(|(_, p)| p.frill)
+            .collect();
         let candidates: Vec<FrillCandidate> = frills
             .iter()
-            .map(|p| {
+            .map(|(_, p)| {
                 let (indices, vertices) = self.models[&p.visual];
                 FrillCandidate {
                     world: p.world,
@@ -558,17 +572,27 @@ impl WorldScene {
             })
             .collect();
         let chosen = select_frills(&candidates, eye, &self.frill);
+        // The self shadow's light bit this frame (`LScapeRender::UpdateLighting`).
+        let shadow_bit = shadow_light_bit(lighting.light_dir);
         let placements: Vec<FramePlacement> = all()
             .filter(|p| !p.frill)
             .map(|p| FramePlacement {
                 visual: p.visual,
                 world: p.world,
                 frill_normal: None,
+                frill_shade: 1.0,
             })
-            .chain(chosen.iter().map(|&index| FramePlacement {
-                visual: frills[index].visual,
-                world: frills[index].world,
-                frill_normal: Some(frill_normal(&frills[index].world)),
+            .chain(chosen.iter().map(|&index| {
+                let (key, p) = frills[index];
+                let frill_shade = self.heights.get(&key).map_or(1.0, |heights| {
+                    heights.self_shadow(p.world.w_axis.x, p.world.w_axis.y, shadow_bit)
+                });
+                FramePlacement {
+                    visual: p.visual,
+                    world: p.world,
+                    frill_normal: Some(frill_normal(&p.world)),
+                    frill_shade,
+                }
             }))
             .collect();
         let sky_objects = self
