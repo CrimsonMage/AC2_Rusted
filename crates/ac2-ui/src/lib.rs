@@ -77,6 +77,9 @@ mod placement;
 pub mod pregame;
 mod quests_panel;
 pub use quests_panel::QuestsUi;
+mod gameplay_story;
+#[cfg(test)]
+mod gameplay_story_tests;
 mod radar;
 mod reticle;
 mod scene_viewport;
@@ -95,7 +98,10 @@ mod shortcut_states;
 mod skill_tree;
 mod stack;
 mod statusbar;
+pub use gameplay_story::{GameplayStory, StoryEvent, StoryScene};
 mod story;
+#[cfg(test)]
+mod story_layout_tests;
 pub use story::{StoryField, StoryFrame, StoryPlayback, StoryShow, StoryStep};
 #[cfg(test)]
 mod story_tests;

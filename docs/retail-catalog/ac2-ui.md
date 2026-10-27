@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 864 done, 303 partial, 1027 to do, 53 skipped.
+2247 retail functions: 864 done, 308 partial, 1022 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -206,10 +206,10 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Create` · 00408e70
-- [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — LogOffCharacter only; the please-wait (MakePleaseWaitDialog when requested) needs a HUD logoff control, which does not exist (ListenToMessage 0x4100000e/0xffff0005 not ported)
-- [ ] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90
-- [ ] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0
-- [ ] `gmGamePlayUI::CheckPortalScene` · 00409000 · legions 00408d40
+- [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+- [~] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+- [~] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+- [~] `gmGamePlayUI::CheckPortalScene` · 00409000 · legions 00408d40 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 
 ### PList<gmSceneInfo>
 - [ ] `PList<gmSceneInfo>::PList<gmSceneInfo>` · 004090e0 · legions 00408e20
@@ -218,7 +218,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::~gmGamePlayUI` · 00409110 · legions 00408e50
 - [ ] `gmGamePlayUI::Register` · 00409250 · legions 00408f90
 - [~] `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld` · 00409270 — asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
-- [ ] `gmGamePlayUI::RecvNotice_PortalScene` · 00409330
+- [~] `gmGamePlayUI::RecvNotice_PortalScene` · 00409330 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 
 ### PHashTable<unsigned_long,UILocationData>
 - [x] `PHashTable<unsigned_long,UILocationData>::StreamPack` · 004093a0 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
@@ -613,24 +613,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::GetSubtitle` · 0042bf80 · legions 0042bd40
 
 ### gmStoryUI
-- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-- [ ] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0
-- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::~QualifiedDataIDArray` · 0042c660 · legions 0042c420
 
 ### gmStoryUI
-- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
 - [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::QualifiedDataIDArray` · 0042c7a0 · legions 0042c560
 
 ### gmStoryUI
-- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
 
 ## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (14/32)
 

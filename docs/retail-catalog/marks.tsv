@@ -45,8 +45,12 @@ key	status	note
 004084a0	~	ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
 00408640	~	ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
 00408860	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
-00408e90	~	LogOffCharacter only; the please-wait (MakePleaseWaitDialog when requested) needs a HUD logoff control, which does not exist (ListenToMessage 0x4100000e/0xffff0005 not ported)
+00408e90	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+00408f50	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+00408fa0	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
+00409000	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
+00409330	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00409960	x	
 00409990	x	
@@ -398,13 +402,14 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
-0042c030	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-0042c2d0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-0042c5a0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-0042c6b0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-0042c6f0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c030	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+0042c1e0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+0042c2d0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+0042c5a0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+0042c6b0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+0042c6f0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
 0042c780	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
-0042c7f0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c7f0	~	ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
 0042cb60	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 0042cb90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 0042cc90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
