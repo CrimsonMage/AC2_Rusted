@@ -16,7 +16,7 @@ use crate::item_display::InventorySource;
 use crate::mouse::UiMessage;
 use crate::shop::{ShopSource, ShopStackCall};
 use crate::skill_tree::SkillVar;
-use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS};
+use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS};
 use crate::ui_string::{UiString, UiStrings};
 use crate::{build_gameplay_hud, BackpackUi, GameplayHud, ItemSlot};
 
@@ -169,6 +169,39 @@ fn row_of(panel: &ConsignmentUi, sale: u32) -> usize {
         .expect("the sale's row")
 }
 
+/// The buttons the gameplay layout's `Consignment` carries under their retail token names
+/// (`gmShopConsignmentUI::Create`'s `ID_NewButton`, `ID_CollectButton`, `ID_NextButton`,
+/// `ID_PrevButton`, `ID_CloseButton` and `ID_HelpButton`).
+#[test]
+fn the_layout_carries_the_buttons_under_their_retail_names() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    open(&mut hud, &mut panel);
+    let field = panel.field().expect("the consignment's root");
+    for name in [
+        "NewConsignmentButton",
+        "CollectConsignmentButton",
+        "ConsignmentNextButton",
+        "ConsignmentPrevButton",
+        "ConsignmentCloseButton",
+        "ConsignmentHelpButton",
+        "ItemList",
+        "ConsignmentName",
+    ] {
+        assert!(
+            hud.tree.child_recursive(field, tokenize(name)).is_some(),
+            "{name} under Consignment"
+        );
+    }
+    // The page buttons ghost at the list's ends: the first page has no previous page.
+    let prev = hud
+        .tree
+        .child_recursive(field, tokenize("ConsignmentPrevButton"))
+        .unwrap();
+    assert!(hud.tree.bool_attribute(prev, BUTTON_GHOSTED));
+}
+
 #[test]
 fn viewing_the_consignment_lists_its_sales_under_its_name() {
     let Some((mut hud, mut panel)) = setup() else {
@@ -217,7 +250,7 @@ fn selecting_a_sale_asks_for_its_item_and_collect_asks_for_the_sale() {
         &mut hud.tree,
         &mut hud.dialogs,
         &Pack,
-        &release("CollectButton"),
+        &release("CollectConsignmentButton"),
         1.0,
     );
     assert_eq!(
@@ -242,7 +275,7 @@ fn selecting_a_sale_asks_for_its_item_and_collect_asks_for_the_sale() {
         &mut hud.tree,
         &mut hud.dialogs,
         &Pack,
-        &release("CollectButton"),
+        &release("CollectConsignmentButton"),
         1.0,
     );
     assert_eq!(
@@ -264,7 +297,7 @@ fn the_new_button_opens_the_new_sale_dialog_empty() {
         &mut hud.tree,
         &mut hud.dialogs,
         &Pack,
-        &release("NewButton"),
+        &release("NewConsignmentButton"),
         1.0,
     );
     assert_eq!(
@@ -403,7 +436,7 @@ fn the_close_button_leaves_the_consignment() {
         &mut hud.tree,
         &mut hud.dialogs,
         &Pack,
-        &release("ShopCloseButton"),
+        &release("ConsignmentCloseButton"),
         2.0,
     );
     assert_eq!(

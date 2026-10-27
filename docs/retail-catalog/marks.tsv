@@ -432,7 +432,7 @@ key	status	note
 0041ac00	~	ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
 0041ad20	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041ad40	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-0041af80	~	ac2-ui newsale.rs message: the sale slot's mouse-over tooltip and the help page are not modelled
+0041af80	~	newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); the sale slot's mouse-over tooltip and the help page are not modelled
 0041b090	-	C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
 0041b0b0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 0041b240	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
@@ -456,7 +456,7 @@ key	status	note
 0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bff0	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 0041c0f0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-0041c480	~	consignment.rs message: close, new, collect, paging, selection, examination and the drop are modelled; the help page is not
+0041c480	~	consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) is not
 0041c800	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041c820	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041c980	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
@@ -9595,7 +9595,7 @@ key	status	note
 005df350	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
 005df410	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df4a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-005df590	_	needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+005df590	~	subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
 005df660	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df770	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -9606,7 +9606,7 @@ key	status	note
 005dfaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005dfb50	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005dfbd0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-005dfd30	_	needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+005dfd30	~	subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
 005dfde0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005dff30	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e0110	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs

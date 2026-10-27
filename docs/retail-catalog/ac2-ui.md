@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1095 done, 355 partial, 457 to do, 340 skipped.
+2247 retail functions: 1095 done, 357 partial, 455 to do, 340 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -532,7 +532,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 - [x] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close, new, collect, paging, selection, examination and the drop are modelled; the help page is not
+- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) is not
 - [x] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -558,7 +558,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [~] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — ac2-ui newsale.rs message: the sale slot's mouse-over tooltip and the help page are not modelled
+- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); the sale slot's mouse-over tooltip and the help page are not modelled
 
 ## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (17/22)
 
@@ -2473,7 +2473,7 @@ Legend and workflow: [README](README.md).
 - [x] `ElementDesc::GetReferentType` · 005dfaf0 · legions 005a0880 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [-] `ElementDesc::GetPackSize` · 005dfb50 · legions 005a08e0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `ElementDesc::Pack` · 005dfbd0 · legions 005a0960 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-- [ ] `ElementDesc::GetSubDataIDs` · 005dfd30 · legions 005a0ac0 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [~] `ElementDesc::GetSubDataIDs` · 005dfd30 · legions 005a0ac0 — subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
 - [-] `ElementDesc::~ElementDesc` · 005dfde0 · legions 005a0b70 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [x] `ElementDesc::UnPack` · 005dff30 · legions 005a0cc0 — ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 - [-] `ElementDesc::Copy` · 005e0110 · legions 005a0ea0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -2484,7 +2484,7 @@ Legend and workflow: [README](README.md).
 ### LayoutDesc
 - [-] `LayoutDesc::GetPackSize` · 005df410 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `LayoutDesc::Pack` · 005df4a0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-- [ ] `LayoutDesc::GetSubDataIDs` · 005df590 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
+- [~] `LayoutDesc::GetSubDataIDs` · 005df590 — subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
 - [-] `LayoutDesc::~LayoutDesc` · 005df660 · legions 005a03f0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [-] `LayoutDesc::GetDBOType` · 005df770 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [x] `LayoutDesc::GetRootElementDesc` · 005df7a0 · legions 005a0530 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor

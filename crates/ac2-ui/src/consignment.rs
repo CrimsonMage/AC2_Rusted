@@ -3,11 +3,11 @@
 //! It lists the consigned sales (`UpdateSales`: one `Sale` row each, with its item's icon and
 //! description, its cost, and its status: expired, sold or active), pages them (`UpdatePosition`
 //! ghosts the page buttons at either end), and selects a row (`Select`, which asks the player to
-//! select the item). `CollectButton` collects the selected sale (`RequestCollect`), `NewButton`
-//! opens the new-sale dialog empty (`CM_Store::SendNotice_InitNewSale`), and an item dropped on the
-//! list restocks a sale it stacks with (`HandleListBoxDrop`: the stack dialog, then the restock's
-//! confirmation, `RequestRestock`). `ShopCloseButton` leaves the consignment
-//! (`RequestLeaveConsignment`); the server's `UpdateConsignment` replaces the sales, and
+//! select the item). `CollectConsignmentButton` collects the selected sale (`RequestCollect`),
+//! `NewConsignmentButton` opens the new-sale dialog empty (`CM_Store::SendNotice_InitNewSale`), and
+//! an item dropped on the list restocks a sale it stacks with (`HandleListBoxDrop`: the stack
+//! dialog, then the restock's confirmation, `RequestRestock`). `ConsignmentCloseButton` leaves the
+//! consignment (`RequestLeaveConsignment`); the server's `UpdateConsignment` replaces the sales, and
 //! `LeaveConsignment` closes the panel from the server's side.
 //!
 //! The entry points are [`ConsignmentUi::recv_view_consignment`], [`ConsignmentUi::recv_update_consignment`],
@@ -330,17 +330,17 @@ impl ConsignmentUi {
         };
         let top = tree.list_top_row(list);
         let count = self.rows.len() as i32;
-        if let Some(prev) = self.child(tree, "PrevButton") {
+        if let Some(prev) = self.child(tree, "ConsignmentPrevButton") {
             tree.set_bool(prev, BUTTON_GHOSTED, top == 0);
         }
-        if let Some(next) = self.child(tree, "NextButton") {
+        if let Some(next) = self.child(tree, "ConsignmentNextButton") {
             tree.set_bool(next, BUTTON_GHOSTED, count - PAGE <= top);
         }
     }
 
     /// The collect button is ghosted while no sale is selected.
     fn ghost_collect(&self, tree: &mut UiTree) {
-        if let Some(collect) = self.child(tree, "CollectButton") {
+        if let Some(collect) = self.child(tree, "CollectConsignmentButton") {
             tree.set_bool(collect, BUTTON_GHOSTED, self.selected.is_none());
         }
     }
@@ -493,15 +493,15 @@ impl ConsignmentUi {
         }
         let element = message.element_id;
         if message.message == MSG_BUTTON_RELEASE_ON {
-            if element == id("ShopCloseButton") {
+            if element == id("ConsignmentCloseButton") {
                 self.requests.push(ConsignmentRequest::LeaveConsignment);
                 self.show(tree, dialogs, false, now);
-            } else if element == id("NewButton") {
+            } else if element == id("NewConsignmentButton") {
                 self.requests.push(ConsignmentRequest::NewSale {
                     item: INVALID,
                     quantity: 0,
                 });
-            } else if element == id("CollectButton") {
+            } else if element == id("CollectConsignmentButton") {
                 if let Some(row) = self
                     .selected
                     .and_then(|r| self.rows.iter().find(|x| x.element == r))
@@ -516,9 +516,9 @@ impl ConsignmentUi {
                         profits,
                     });
                 }
-            } else if element == id("NextButton") {
+            } else if element == id("ConsignmentNextButton") {
                 self.page(tree, PAGE);
-            } else if element == id("PrevButton") {
+            } else if element == id("ConsignmentPrevButton") {
                 self.page(tree, -PAGE);
             }
             return;
