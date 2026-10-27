@@ -54,6 +54,13 @@ fn table<T>(
 }
 
 impl Qualities {
+    /// A whole qualities record: a DAT `DB_TYPE_QUALITIES` record's packed bytes read as
+    /// `CBaseQualities::UnPack` reads them (the class defaults, `CBaseQualities::InitDefaults`).
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, ProtocolError> {
+        let mut r = Reader::new(bytes);
+        Self::read(&mut r)
+    }
+
     /// Tables are read in `UnPack`'s order (strings before DIDs). Bytes after the last table
     /// are not read (`PackObj::VERIFY_ADDR` only checks the end was not passed).
     pub(crate) fn read(r: &mut Reader<'_>) -> Result<Self, ProtocolError> {

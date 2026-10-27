@@ -353,3 +353,21 @@ fn a_dat_visual_description_is_an_appearance_once_requested() {
         visual.global.appearance.len()
     );
 }
+
+/// Every qualities record of the DATs decodes as a weenie's qualities, and a class's record
+/// is the defaults `CBaseQualities::m_defaults` reads (`DBObj::Get` of the record at its DID).
+#[test]
+fn a_qualities_record_is_the_class_defaults() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let ids: Vec<u32> = dataset
+        .ids_in_range(DatFileKind::Portal, 0x8000_0000, 0x81FF_FFFE)
+        .collect();
+    assert!(!ids.is_empty(), "the DATs hold qualities records");
+    let store = ResourceStore::new(dataset.clone());
+    let data = crate::data::DatScriptData::new(dataset, store);
+    let defaults = crate::vm::ScriptData::class_defaults(&data, ids[0]).expect("the record");
+    assert!(!defaults.ints.is_empty() || !defaults.floats.is_empty());
+    assert!(crate::vm::ScriptData::class_defaults(&data, 0x8000_0000).is_none());
+}

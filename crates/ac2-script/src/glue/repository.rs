@@ -180,6 +180,38 @@ fn remove_value(q: &mut WeenieQualities, k: K, id: u32) -> bool {
     }
 }
 
+/// `CBaseQualities::AdjInt`'s own table: the value the table holds for `id`.
+fn table_value(q: &WeenieQualities, k: K, id: u32) -> Option<V> {
+    match k {
+        K::Int => q.ints.get(&id).map(|v| V::Word(u64::from(*v as u32))),
+        K::Float => q.floats.get(&id).map(|v| V::Word(u64::from(v.to_bits()))),
+        K::LongInt => q.long_ints.get(&id).map(|v| V::Word(*v as u64)),
+        _ => None,
+    }
+}
+
+/// Stores an adjusted value in the table it was read from (`CBaseQualities::AdjInt` never
+/// writes the description).
+fn adj_store(q: &mut WeenieQualities, k: K, id: u32, new: u64) {
+    match k {
+        K::Int => _ = q.ints.insert(id, new as u32 as i32),
+        K::Float => _ = q.floats.insert(id, f32::from_bits(new as u32)),
+        K::LongInt => _ = q.long_ints.insert(id, new as i64),
+        _ => {}
+    }
+}
+
+/// `CBaseQualities::m_defaults` of the object `this` names: the class defaults at its qualities
+/// DID. Without a DID, or without a record, the object has none.
+fn class_defaults(vm: &Vm, this: u32) -> Option<std::sync::Arc<WeenieQualities>> {
+    let id = *vm.owners.get(&this)?;
+    let did = vm.repositories.get(&id)?.did;
+    if did == 0 {
+        return None;
+    }
+    vm.data().class_defaults(did)
+}
+
 /// The argument of kind `k` starting at slot `n` and the slot after it.
 fn arg(vm: &Vm, ctx: &Context, k: K, n: usize) -> (V, usize) {
     if k.wide() {
@@ -295,8 +327,13 @@ fn adjust(vm: &mut Vm, ctx: &mut Context, k: K, truncate: bool) -> InterpStatus 
     } else {
         (None, None, n)
     };
+    let defaults = class_defaults(vm, this);
     let result = owner_qualities(vm, this).map(|q| {
-        let old = get_value(q, k, id);
+        // `CBaseQualities::AdjInt` works on the quality's table only; a quality the table lacks
+        // starts from the class default (`m_defaults`, `InqInt`), and the default's value is the
+        // old value the truncation clamps against.
+        let old =
+            table_value(q, k, id).or_else(|| defaults.as_deref().and_then(|d| get_value(d, k, id)));
         let new = match k {
             K::Float => {
                 let o = old.as_ref().map_or(0.0, |v| match v {
@@ -350,7 +387,7 @@ fn adjust(vm: &mut Vm, ctx: &mut Context, k: K, truncate: bool) -> InterpStatus 
                 u64::from(v as u32)
             }
         };
-        set_value(q, k, id, &V::Word(new));
+        adj_store(q, k, id, new);
         new
     });
     ret(vm, ctx, k, n, V::Word(result.unwrap_or(default)));

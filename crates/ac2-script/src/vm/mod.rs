@@ -99,6 +99,8 @@ pub enum DataRequest {
     EntityDesc(u32),
     /// A `VisualDesc` record (DB type 0x40000021), its appearance.
     VisualDesc(u32),
+    /// The class defaults at a qualities DID (`CBaseQualities::m_defaults`, DB type 0x40000019).
+    ClassDefaults(u32),
 }
 
 /// An entity description's properties in stream order (`PropertyCollection` flattened).
@@ -132,6 +134,13 @@ pub trait ScriptData {
     /// when it is not held or not read yet (a cache-only host records a
     /// [`DataRequest::VisualDesc`]).
     fn visual_desc(&self, _did: u32) -> Option<std::sync::Arc<ac2_weenie::Appearance>> {
+        None
+    }
+
+    /// `CBaseQualities::m_defaults`: `DBObj::Get` of the qualities record at `did` (the class
+    /// defaults of a weenie with that qualities DID), decoded. `None` when the DATs hold none or
+    /// it is not read yet (a cache-only host records a [`DataRequest::ClassDefaults`]).
+    fn class_defaults(&self, _did: u32) -> Option<std::sync::Arc<ac2_weenie::WeenieQualities>> {
         None
     }
 

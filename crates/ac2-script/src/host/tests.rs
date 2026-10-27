@@ -504,6 +504,57 @@ fn repository_remove_clears_the_weenie_description_field() {
     assert_eq!(quantity(&host), (None, 0));
 }
 
+/// A data source holding one class default record (`CBaseQualities::m_defaults`).
+struct OneClassDefault(u32, ac2_weenie::WeenieQualities);
+
+impl crate::vm::ScriptData for OneClassDefault {
+    fn wstate(&self, _did: u32) -> Option<crate::vm::StateRef> {
+        None
+    }
+
+    fn class_defaults(&self, did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        (did == self.0).then(|| Arc::new(self.1.clone()))
+    }
+}
+
+/// `CBaseQualities::AdjInt` on a quality its table lacks starts from the class default
+/// (`m_defaults`, `InqInt`), not from 0; the result is stored in the table. A quality with no
+/// default starts from 0.
+#[test]
+fn adj_on_an_absent_quality_starts_from_the_class_default() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut class = ac2_weenie::WeenieQualities::default();
+    class.ints.insert(0x14, 10);
+    let mut host = ScriptHost::new(
+        Arc::new(program),
+        Box::new(OneClassDefault(0x8000_00AB, class)),
+    );
+    let this = host.vm_mut().new_wstring(Vec::new());
+    host.vm_mut().owners.insert(this, 0x5000_0001);
+    host.set_qualities(
+        0x5000_0001,
+        ac2_weenie::WeenieQualities {
+            did: 0x8000_00AB,
+            ..Default::default()
+        },
+    );
+    // AdjInt(0x14, 5, 0): the default 10 + 5.
+    run_efun(host.vm_mut(), 0x0081_0009, &[0x14, 5, 0], this);
+    // AdjInt(0x15, 4, 0): no default, so 0 + 4.
+    run_efun(host.vm_mut(), 0x0081_0009, &[0x15, 4, 0], this);
+    let q = host.qualities(0x5000_0001).unwrap();
+    assert_eq!(
+        (q.ints.get(&0x14), q.ints.get(&0x15)),
+        (Some(&15), Some(&4))
+    );
+    // The table holds the value now: the next adjustment works on it, not the default.
+    run_efun(host.vm_mut(), 0x0081_0009, &[0x14, 1, 0], this);
+    assert_eq!(
+        host.qualities(0x5000_0001).unwrap().ints.get(&0x14),
+        Some(&16)
+    );
+}
+
 /// A new native packs the reserved-reference bit retail's `ReservedRefTable::AddReference`
 /// sets (0x04000000 on `CreateNativeObject`'s 0x40000100): exact bytes of a packed wpstring.
 #[test]

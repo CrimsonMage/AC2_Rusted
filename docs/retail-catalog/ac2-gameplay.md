@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 163 done, 39 partial, 285 to do, 12 skipped.
+499 retail functions: 170 done, 33 partial, 284 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -568,7 +568,7 @@ Legend and workflow: [README](README.md).
 - [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [x] `CharacterSet::StreamPack` · 006db7f0
 
-## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (0/66)
+## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (1/66)
 
 ### PackObj
 - [ ] `PackObj::VERIFY_ADDR` · 00516990 · legions 005049c0
@@ -577,7 +577,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseQualities::CBaseQualities` · 005169b0 · legions 005049e0
 - [ ] `CBaseQualities::GetDBOType` · 00516a00
 - [ ] `CBaseQualities::CBaseQualities` · 00516a10 · legions 00504a40
-- [ ] `CBaseQualities::InitDefaults` · 00516a50 · legions 00504a80
+- [x] `CBaseQualities::InitDefaults` · 00516a50 · legions 00504a80 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [ ] `CBaseQualities::IsMobile` · 00516aa0 · legions 00504ad0
 - [ ] `CBaseQualities::Allocate` · 00516ac0
 - [ ] `CBaseQualities::Clear` · 00516ad0 · legions 00504b00
@@ -672,7 +672,7 @@ Legend and workflow: [README](README.md).
 - [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [ ] `CBaseQualities::operator=` · 00519840 · legions 005079f0
 
-## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (23/69)
+## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (29/69)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::InqWeenieDescription` · 00519880
@@ -728,15 +728,15 @@ Legend and workflow: [README](README.md).
 - [ ] `CBaseQualities::AllocateStringInfoTable` · 0051ac70 · legions 00508dc0
 - [ ] `CBaseQualities::AllocatePackageIDTable` · 0051acd0 · legions 00508e20
 - [x] `CBaseQualities::SetInt` · 0051ad30 · legions 00508e80
-- [~] `CBaseQualities::AdjInt` · 0051adb0 · legions 00508f00 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::AdjAndTruncateInt` · 0051ae70 · legions 00508fc0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::AdjInt` · 0051adb0 · legions 00508f00 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+- [x] `CBaseQualities::AdjAndTruncateInt` · 0051ae70 · legions 00508fc0 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [x] `CBaseQualities::SetLongInt` · 0051af80 · legions 005090d0 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
-- [~] `CBaseQualities::AdjLongInt` · 0051b000 · legions 00509150 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::AdjAndTruncateLongInt` · 0051b110 · legions 00509260 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::AdjLongInt` · 0051b000 · legions 00509150 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+- [x] `CBaseQualities::AdjAndTruncateLongInt` · 0051b110 · legions 00509260 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [x] `CBaseQualities::SetBool` · 0051b270 · legions 005093c0 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 - [x] `CBaseQualities::SetFloat` · 0051b2f0 · legions 00509440 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
-- [~] `CBaseQualities::AdjFloat` · 0051b370 · legions 005094c0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::AdjAndTruncateFloat` · 0051b430 · legions 00509580 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::AdjFloat` · 0051b370 · legions 005094c0 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+- [x] `CBaseQualities::AdjAndTruncateFloat` · 0051b430 · legions 00509580 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [x] `CBaseQualities::SetTimestamp` · 0051b540 · legions 00509690 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 - [x] `CBaseQualities::SetDataID` · 0051b5c0 · legions 00509710 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 - [x] `CBaseQualities::SetInstanceID` · 0051b640 · legions 00509790 — ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table

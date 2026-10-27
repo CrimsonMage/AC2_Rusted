@@ -69,6 +69,7 @@ struct Resident {
     string_state: Option<CachedResource<ac2_db::StringState>>,
     entities: HashMap<u32, EntityProperties>,
     visuals: HashMap<u32, Arc<ac2_weenie::Appearance>>,
+    defaults: HashMap<u32, Arc<ac2_weenie::WeenieQualities>>,
     absent: HashSet<DataRequest>,
 }
 
@@ -181,10 +182,31 @@ impl DatScriptData {
                 }
                 None => false,
             },
+            DataRequest::ClassDefaults(did) => match self.read_defaults(did) {
+                Some(defaults) => {
+                    self.resident().defaults.insert(did, defaults);
+                    true
+                }
+                None => false,
+            },
         };
         if !found {
             self.resident().absent.insert(request);
         }
+    }
+
+    /// A qualities record's packed body (`DB_TYPE_QUALITIES`, the same layout as the player
+    /// description's `CBaseQualities::UnPack`) as a weenie's qualities, read in full.
+    fn read_defaults(&self, did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        let packed = self
+            .dataset
+            .read_packed(DatFileKind::Portal, did)
+            .ok()
+            .flatten()?;
+        let qualities = ac2_net::protocol::Qualities::from_bytes(&packed).ok()?;
+        Some(Arc::new(ac2_weenie::WeenieQualities::from_unpacked(
+            &qualities,
+        )))
     }
 
     /// `DBObj::Get` of an entity description and its `PropertyCollection` (the MasterProperty
@@ -360,6 +382,19 @@ impl ScriptData for DatScriptData {
             return Some(properties);
         }
         self.miss(DataRequest::EntityDesc(did));
+        None
+    }
+
+    fn class_defaults(&self, did: u32) -> Option<Arc<ac2_weenie::WeenieQualities>> {
+        if let Some(defaults) = self.resident().defaults.get(&did).cloned() {
+            return Some(defaults);
+        }
+        if !self.cache_only() {
+            let defaults = self.read_defaults(did)?;
+            self.resident().defaults.insert(did, Arc::clone(&defaults));
+            return Some(defaults);
+        }
+        self.miss(DataRequest::ClassDefaults(did));
         None
     }
 

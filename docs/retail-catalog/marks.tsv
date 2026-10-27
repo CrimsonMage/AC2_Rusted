@@ -1624,29 +1624,29 @@ key	status	note
 004699f0	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a40	_	net combat.rs: WM_Combat 0x17 request, 0x19 end, 0x28 toggle, 0x1B attack state; combat_7160 (request bytes from the VM, notices, toggle)
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469b10	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
+00469b10	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469bc0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469c10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469c60	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-00469cb0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469d00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469c10	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469c60	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00469cb0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469d40	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469d90	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-00469de0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469e30	_	ac2-script host notices -> ac2_weenie::GameplayNotice
+00469d90	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00469de0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469e30	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-00469ed0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00469f60	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-00469fd0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a020	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-0046a070	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-0046a0d0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a110	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a160	_	ac2-script host notices -> ac2_weenie::GameplayNotice
-0046a1b0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-0046a200	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00469ed0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469f10	~	raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+00469f60	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469fd0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a020	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
+0046a070	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+0046a0d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a110	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a160	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a1b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a200	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a260	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 0046a2d0	_	ac2-script host notices -> ac2_weenie::GameplayNotice
 0046a340	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2308,11 +2308,11 @@ key	status	note
 004b1da0	_	ac2-script reference/native unpack
 004b4720	_	ac2-script native::unpack: the native types Legions WStates hold
 004b4ba0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
-004b4c50	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4c50	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 004b4cf0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
-004b4dd0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
-004b4e60	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
-004b4ee0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4dd0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+004b4e60	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+004b4ee0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 004b4f90	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5010	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5090	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -3013,6 +3013,7 @@ key	status	note
 00515b60	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 005161e0	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
 00516330	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
+00516a50	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 00517fd0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 00518250	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 005185a0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -3054,15 +3055,15 @@ key	status	note
 0051a8b0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 0051a8f0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051ad30	x	
-0051adb0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051ae70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051adb0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+0051ae70	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 0051af80	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
-0051b000	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051b110	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b000	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+0051b110	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 0051b270	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 0051b2f0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
-0051b370	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051b430	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051b370	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+0051b430	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 0051b540	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 0051b5c0	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
 0051b640	x	ac2-weenie qualities.rs WeenieQualities::set: a description field (IsInWeenieDesc) into the description, else the table
@@ -3205,11 +3206,11 @@ key	status	note
 005317f0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
 00531810	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
 00531830	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
-00531850	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
-00531880	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
-005318c0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531850	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+00531880	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
+005318c0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 00531910	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
-00531970	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
+00531970	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 005319b0	~	glue/repository.rs: no class defaults (m_defaults) for Adj and Remove; Remove does not clear a description field
 005319f0	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
 00531a30	x	ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
@@ -6192,33 +6193,33 @@ key	status	note
 00724700	~	Typed as GameplayNotice (ac2-script host/notices_typed.rs) with the argument kinds of each SendNotice signature and its gCM_Store glue; LeaveStore raised on the VM (WM_Store 0x13 path). ConfirmPurchase is raised locally by CStoreSystem 0x3 (PurchaseItem), not by a server message. Not yet run on the VM with a store open.
 007247f0	x	lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 007248b0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724970	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
+00724970	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724ac0	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724be0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00724c70	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-00724d00	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724be0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00724c70	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00724d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724d90	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
-00724e20	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+00724e20	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724eb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724f50	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-00724fe0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+00724f50	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00724fe0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725070	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
-00725100	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
+00725100	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725190	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-007252b0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725340	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007253d0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
-00725490	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725520	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-007255c0	~	ac2-script typed notices (AddPet, PetIsUnderAttack, RemovePet, UpdatePetMode, UpdatePetName) run through the script; AddPet and PetIsUnderAttack reach the pet panel (ac2-ui pets.rs), the other three are no-op stubs in Legions 7160
-00725660	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-007256f0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-00725780	_	ac2-weenie GameplayNotice (plain-data notice raised by the PlayerScript stand-in)
-00725810	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
-007258a0	_	ac2-weenie Progress stand-in: GameplayNotice::ReloadOptions / UpdateSkill / UpdateSkillPanel, set_shortcut (CPlayer 0x87)
+007252b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725340	~	raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+007253d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725490	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725520	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
+007255c0	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00725660	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007256f0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725780	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725810	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007258a0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725950	x	PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
 007259f0	_	ac2-weenie GameplayNotice::UpdateVital / UpdateHeroStatus raised by the vitals stand-in (CPlayer 0x23/0x49/0x198/0x65/0x85); PlayerVitals on ClientFrame
 00725ab0	_	ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
