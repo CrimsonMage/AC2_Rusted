@@ -55,7 +55,7 @@ pub use player_script::{GameplayNotice, PlayerScript, ScriptOutput, NO_SELECTION
 pub use progress::{
     skill_error, Experience, Progress, SelectionState, Shortcuts, Skill, SkillRequest, Skills,
 };
-pub use qualities::WeenieQualities;
+pub use qualities::{DescKind, WeenieQualities};
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{
     CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry, IFUN_ON_STAT_CHANGED,

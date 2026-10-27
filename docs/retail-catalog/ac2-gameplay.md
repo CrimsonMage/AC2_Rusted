@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 151 done, 51 partial, 285 to do, 12 skipped.
+499 retail functions: 163 done, 39 partial, 285 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -672,7 +672,7 @@ Legend and workflow: [README](README.md).
 - [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [ ] `CBaseQualities::operator=` · 00519840 · legions 005079f0
 
-## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (11/69)
+## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (23/69)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::InqWeenieDescription` · 00519880
@@ -684,37 +684,37 @@ Legend and workflow: [README](README.md).
 - [x] `CBaseQualities::IsInWeenieDesc` · 00519a60 · legions 00507c10
 - [ ] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70
 - [ ] `CBaseQualities::DumpWeenieDesc` · 00519af0 · legions 00507ca0
-- [~] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [~] `CBaseQualities::RemoveLongInt` · 00519c70 · legions 00507e20 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::InqLongInt` · 00519ce0 · legions 00507e90 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveBool` · 00519d50 · legions 00507f00 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveBool` · 00519d50 · legions 00507f00 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqBool` · 00519dc0 · legions 00507f70 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
-- [~] `CBaseQualities::RemoveFloat` · 00519e20 · legions 00507fd0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveFloat` · 00519e20 · legions 00507fd0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqFloat` · 00519e90 · legions 00508040 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [~] `CBaseQualities::RemoveTimestamp` · 00519ef0 · legions 005080a0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::InqTimestamp` · 00519f70 · legions 00508120 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveDataID` · 00519fe0 · legions 00508190 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveDataID` · 00519fe0 · legions 00508190 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqDataID` · 0051a050 · legions 00508200 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
-- [~] `CBaseQualities::RemoveInstanceID` · 0051a0b0 · legions 00508260 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveInstanceID` · 0051a0b0 · legions 00508260 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqInstanceID` · 0051a130 · legions 005082e0 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [~] `CBaseQualities::InqString` · 0051a1a0 · legions 00508350 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::InqStringW` · 0051a210 · legions 005083c0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::InqPosition` · 0051a2d0 · legions 00508480 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveStringInfo` · 0051a340 · legions 005084f0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveStringInfo` · 0051a340 · legions 005084f0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqStringInfo` · 0051a3c0 · legions 00508570 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
 - [~] `CBaseQualities::RemovePackageID` · 0051a430 · legions 005085e0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::InqPackageID` · 0051a4a0 · legions 00508650 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveInt` · 0051a650 · legions 005087a0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveInt` · 0051a650 · legions 005087a0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::RemoveLongInt` · 0051a670 · legions 005087c0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveBool` · 0051a690 · legions 005087e0 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveFloat` · 0051a6b0 · legions 00508800 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveBool` · 0051a690 · legions 005087e0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
+- [x] `CBaseQualities::RemoveFloat` · 0051a6b0 · legions 00508800 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::RemoveTimestamp` · 0051a6d0 · legions 00508820 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveDataID` · 0051a6f0 · legions 00508840 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveInstanceID` · 0051a710 · legions 00508860 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveDataID` · 0051a6f0 · legions 00508840 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
+- [x] `CBaseQualities::RemoveInstanceID` · 0051a710 · legions 00508860 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::RemoveString` · 0051a730 · legions 00508880 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [~] `CBaseQualities::RemovePosition` · 0051a7c0 · legions 00508910 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-- [~] `CBaseQualities::RemoveStringInfo` · 0051a8b0 · legions 00508a00 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+- [x] `CBaseQualities::RemoveStringInfo` · 0051a8b0 · legions 00508a00 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::RemovePackageID` · 0051a8f0 · legions 00508a40 — ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 - [ ] `CBaseQualities::AllocateIntTable` · 0051a910 · legions 00508a60
 - [ ] `CBaseQualities::AllocateLongIntTable` · 0051a970 · legions 00508ac0

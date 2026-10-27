@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 520 done, 183 partial, 1178 to do, 23 skipped.
+1904 retail functions: 525 done, 178 partial, 1178 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2387,7 +2387,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_PerformLOS` · 004baff0
 - [ ] `gCWPhysicsObject::Resume_ReleaseBehavior` · 004bb090 · legions 004b02b0
 
-## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (55/90)
+## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (60/90)
 
 ### gCWRepository
 - [~] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
@@ -2426,11 +2426,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWRepository::CallEFun_GetScale` · 004b5d50
 - [x] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60
-- [~] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [x] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-weenie qualities::remove_in_weenie_desc; ac2-script glue repository.rs remove_value
+- [x] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
+- [x] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
+- [x] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
+- [x] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
 - [~] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
 - [~] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)

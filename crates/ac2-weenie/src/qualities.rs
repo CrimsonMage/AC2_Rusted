@@ -219,6 +219,96 @@ impl WeenieQualities {
     }
 }
 
+/// The value kinds a `CBaseQualities::Remove*` can name a description field of.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DescKind {
+    Int,
+    Bool,
+    Float,
+    DataId,
+    InstanceId,
+    StringInfo,
+}
+
+impl WeenieQualities {
+    /// The first step of `CBaseQualities::Remove*`: while the weenie description holds `quality`
+    /// (its data-mask bit set), `gmWeenieDesc::Remove*` clears the field and the bit and answers
+    /// 1, and the quality's table is not touched. `false` leaves the table to answer.
+    pub fn remove_in_weenie_desc(&mut self, quality: u32, kind: DescKind) -> bool {
+        self.weenie
+            .as_mut()
+            .is_some_and(|w| remove_from_weenie_desc(w, quality, kind))
+    }
+}
+
+/// `gmWeenieDesc::Remove*` for one field: its mask bit clears with it. A bool keeps its
+/// `_bitfield` flag (the mask bit alone says it is not set).
+fn remove_from_weenie_desc(w: &mut WeenieDesc, quality: u32, kind: DescKind) -> bool {
+    fn clear<T>(mask: &mut u32, bit: u32, field: &mut Option<T>) -> bool {
+        if *mask & bit == 0 {
+            return false;
+        }
+        *field = None;
+        *mask &= !bit;
+        true
+    }
+    match kind {
+        DescKind::Int => {
+            let (bit, field) = match quality {
+                3 => (0x8000, &mut w.physics_type.0),
+                4 => (0x1_0000, &mut w.physics_type.1),
+                5 => (0x8_0000, &mut w.placement_ethereal.0),
+                6 => (0x10_0000, &mut w.placement_ethereal.1),
+                7 => (0x2_0000, &mut w.movement_ethereal.0),
+                8 => (0x4_0000, &mut w.movement_ethereal.1),
+                0x106 => (0x800, &mut w.quantity),
+                0x226 => (0x20_0000, &mut w.pk_always_true),
+                0x227 => (0x40_0000, &mut w.pk_always_false),
+                0x264 => (0x1000, &mut w.value),
+                0x26A => (0x1000_0000, &mut w.durability_max),
+                0x26B => (0x0800_0000, &mut w.durability_current),
+                2000 => (0x2000, &mut w.faction_type),
+                _ => return false,
+            };
+            clear(&mut w.data_mask, bit, field)
+        }
+        DescKind::Bool => {
+            let mask = match quality {
+                10 => 0x0100_0000,
+                0x117 => 0x4000,
+                0x270 => 0x0080_0000,
+                0x2BE => 0x400,
+                _ => return false,
+            };
+            if w.data_mask & mask == 0 {
+                return false;
+            }
+            w.data_mask &= !mask;
+            true
+        }
+        DescKind::Float => quality == 0x12A && clear(&mut w.data_mask, 0x80, &mut w.scale),
+        DescKind::DataId => quality == 0x101 && clear(&mut w.data_mask, 0x10, &mut w.icon),
+        DescKind::InstanceId => {
+            let (bit, field) = match quality {
+                0x102 => (0x20, &mut w.container),
+                0x105 => (0x40, &mut w.wielder),
+                0x140 => (0x4000_0000, &mut w.killer),
+                0x141 => (0x200, &mut w.originator),
+                0x142 => (0x2000_0000, &mut w.claimant),
+                0x1C4 => (0x100, &mut w.monarch),
+                0x1F9 => (0x0400_0000, &mut w.pet_summoner),
+                _ => return false,
+            };
+            clear(&mut w.data_mask, bit, field)
+        }
+        DescKind::StringInfo => match quality {
+            0x100 => clear(&mut w.data_mask, 4, &mut w.name),
+            0x101 => clear(&mut w.data_mask, 8, &mut w.plural_name),
+            _ => false,
+        },
+    }
+}
+
 /// `gmWeenieDesc::Query*Stat` and `gmWeenieDesc::Set*` together: whether the quality is a
 /// description field, and if so the field set with its data-mask bit.
 fn set_in_weenie_desc(w: &mut WeenieDesc, quality: u32, value: &QualityValue) -> bool {
@@ -336,6 +426,31 @@ mod tests {
         q.set(0x117, &QualityValue::Bool(0));
         assert_eq!(q.weenie.as_ref().unwrap().bitfield, Some(0));
         assert!(q.ints.is_empty() && q.floats.is_empty() && q.bools.is_empty());
+    }
+
+    #[test]
+    fn remove_clears_a_description_field_and_its_mask_bit() {
+        use super::DescKind;
+        let mut q = WeenieQualities::default();
+        q.set(0x106, &QualityValue::Int(5));
+        q.set(0x100, &QualityValue::StringInfo(Box::default()));
+        q.set(0x2BE, &QualityValue::Bool(1));
+        // `gmWeenieDesc::RemoveInt` answers 1 and clears the field and its bit.
+        assert!(q.remove_in_weenie_desc(0x106, DescKind::Int));
+        let w = q.weenie.as_ref().unwrap();
+        assert_eq!((w.quantity, w.data_mask & 0x800), (None, 0));
+        assert_eq!(q.inq_int(0x106), None);
+        // A second remove finds nothing in the description.
+        assert!(!q.remove_in_weenie_desc(0x106, DescKind::Int));
+        // A bool keeps its flag; its mask bit alone says it is not set.
+        assert!(q.remove_in_weenie_desc(0x2BE, DescKind::Bool));
+        assert_eq!(q.inq_bool(0x2BE), None);
+        assert_eq!(q.weenie.as_ref().unwrap().bitfield.unwrap() & 1, 1);
+        assert!(q.remove_in_weenie_desc(0x100, DescKind::StringInfo));
+        assert!(q.weenie.as_ref().unwrap().name.is_none());
+        // Other kinds and ids never match the description.
+        assert!(!q.remove_in_weenie_desc(0x106, DescKind::Float));
+        assert!(!q.remove_in_weenie_desc(0x19, DescKind::Int));
     }
 
     #[test]

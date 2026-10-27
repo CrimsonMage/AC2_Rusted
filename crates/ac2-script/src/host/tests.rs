@@ -456,10 +456,9 @@ fn repository_efuns_write_the_weenie_qualities() {
     assert_eq!(q.ints.get(&0x14), Some(&12));
 }
 
-/// `CBaseQualities::SetInt` / `AdjInt` on a description field (`IsInWeenieDesc`, stype
-/// 0x106 quantity): the value goes into the weenie description, which `InqInt` reads first.
-/// A script that adjusts a stack's quantity or a durability sees the new value, not the
-/// description's old one.
+/// `CBaseQualities::SetInt` on a description field (`IsInWeenieDesc`, stype 0x106 quantity):
+/// the value goes into the weenie description, which `InqInt` reads first. (`AdjInt` works on
+/// the table only, as retail's does.)
 #[test]
 fn repository_efuns_write_description_fields_into_the_description() {
     use ac2_net::protocol::WeenieDesc;
@@ -482,10 +481,27 @@ fn repository_efuns_write_description_fields_into_the_description() {
     assert_eq!(q.inq_int(0x106), Some(3));
     assert_eq!(q.weenie.as_ref().and_then(|w| w.quantity), Some(3));
     assert!(!q.ints.contains_key(&0x106));
-    run_efun(host.vm_mut(), 0x0081_0009, &[0x106, 2, 0], this);
-    let q = host.qualities(0x5000_0002).unwrap();
-    assert_eq!(q.inq_int(0x106), Some(5));
-    assert!(!q.ints.contains_key(&0x106));
+}
+
+/// `gCWRepository::RemoveInt` clears a weenie description field (`CBaseQualities::RemoveInt`
+/// asks `gmWeenieDesc::RemoveInt` first), so the field reads as absent afterwards.
+#[test]
+fn repository_remove_clears_the_weenie_description_field() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let this = host.vm_mut().new_wstring(Vec::new());
+    host.vm_mut().owners.insert(this, 0x5000_0001);
+    host.set_qualities(0x5000_0001, Default::default());
+    // SetInt(0x106 quantity, 7): a description field.
+    run_efun(host.vm_mut(), 0x0081_0006, &[0x106, 7], this);
+    let quantity = |host: &ScriptHost| {
+        let q = host.qualities(0x5000_0001).unwrap();
+        (q.weenie.as_ref().and_then(|w| w.quantity), q.ints.len())
+    };
+    assert_eq!(quantity(&host), (Some(7), 0));
+    // RemoveInt(0x106): the description answers, the field is gone.
+    run_efun(host.vm_mut(), 0x0081_0008, &[0x106, 0], this);
+    assert_eq!(quantity(&host), (None, 0));
 }
 
 /// A new native packs the reserved-reference bit retail's `ReservedRefTable::AddReference`

@@ -10,7 +10,7 @@
 use std::collections::BTreeMap;
 
 use ac2_net::protocol::QualityValue;
-use ac2_weenie::WeenieQualities;
+use ac2_weenie::{DescKind, WeenieQualities};
 
 use super::lists::{write_out, Kind};
 use super::{narrow, word, word64, Call, INT_RESULT};
@@ -120,12 +120,15 @@ fn get_value(q: &WeenieQualities, k: K, id: u32) -> Option<V> {
     }
 }
 
-/// `CWRepository::Set*` -> `CBaseQualities::Set*`: a quality below `0x10000` that is a
-/// description field (`IsInWeenieDesc`) is written into the description, where `Inq*` reads
-/// it first; anything else into its table ([`WeenieQualities::set`]). Package ids have no
-/// [`QualityValue`] and keep their table.
+/// `CBaseQualities::Set*`: a description field goes into the weenie description, anything else
+/// into its table ([`WeenieQualities::set`]). Package ids have no quality value and keep their
+/// own table.
 fn set_value(q: &mut WeenieQualities, k: K, id: u32, v: &V) -> bool {
     let value = match (k, v) {
+        (K::PackageId, V::Word(x)) => {
+            _ = q.package_ids.insert(id, *x as u32);
+            return true;
+        }
         (K::Int, V::Word(x)) => QualityValue::Int(*x as u32 as i32),
         (K::Bool, V::Word(x)) => QualityValue::Bool(*x as u32 as i32),
         (K::Float, V::Word(x)) => QualityValue::Float(f32::from_bits(*x as u32)),
@@ -133,10 +136,6 @@ fn set_value(q: &mut WeenieQualities, k: K, id: u32, v: &V) -> bool {
         (K::LongInt, V::Word(x)) => QualityValue::LongInt(*x as i64),
         (K::InstanceId, V::Word(x)) => QualityValue::InstanceId(*x),
         (K::Timestamp, V::Word(x)) => QualityValue::Timestamp(f64::from_bits(*x)),
-        (K::PackageId, V::Word(x)) => {
-            _ = q.package_ids.insert(id, *x as u32);
-            return true;
-        }
         (K::String, V::Native(NativeObject::WString(s))) => QualityValue::String(narrow(s)),
         (K::Position, V::Native(NativeObject::Position(p))) => QualityValue::Position(*p),
         (K::StringInfo, V::Native(NativeObject::StringInfo(s))) => {
@@ -148,9 +147,23 @@ fn set_value(q: &mut WeenieQualities, k: K, id: u32, v: &V) -> bool {
     true
 }
 
+/// `CBaseQualities::Remove*`: a description field goes first (`gmWeenieDesc::Remove*`), then
+/// the table.
 fn remove_value(q: &mut WeenieQualities, k: K, id: u32) -> bool {
     fn rm<T>(m: &mut BTreeMap<u32, T>, id: u32) -> bool {
         m.remove(&id).is_some()
+    }
+    let desc = match k {
+        K::Int => Some(DescKind::Int),
+        K::Bool => Some(DescKind::Bool),
+        K::Float => Some(DescKind::Float),
+        K::DataId => Some(DescKind::DataId),
+        K::InstanceId => Some(DescKind::InstanceId),
+        K::StringInfo => Some(DescKind::StringInfo),
+        _ => None,
+    };
+    if desc.is_some_and(|kind| q.remove_in_weenie_desc(id, kind)) {
+        return true;
     }
     match k {
         K::Int => rm(&mut q.ints, id),
