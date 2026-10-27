@@ -1011,24 +1011,26 @@ key	status	note
 00446f40	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 004470c0	~	ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
 00447450	~	ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
-00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00447550	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+004475b0	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00447610	x	ac2-ui skill_tree.rs
 00447700	x	ac2-ui skill_tree.rs
-00447890	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-00447930	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-00447d50	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00447760	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+004477c0	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+00447890	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+00447930	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+00447d50	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448040	x	ac2-ui skill_tree.rs
 00448110	x	ac2-ui skill_tree.rs
 00448250	x	ac2-ui skill_tree.rs
 00448310	x	ac2-ui skill_tree.rs
-00448430	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448430	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 004484c0	x	ac2-ui skill_tree.rs
-00448630	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448630	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448810	x	ac2-ui skill_tree.rs
 004488c0	x	ac2-ui skill_tree.rs
 004489c0	x	ac2-ui skill_tree.rs
-00448c70	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00448c70	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448e50	x	ac2-ui skill_tree.rs
 00449110	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004494b0	x	ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected

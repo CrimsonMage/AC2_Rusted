@@ -127,8 +127,6 @@ pub enum SkillRequest {
     Examine { kind: u32, data: u32 },
     /// `gmCWInterface::RequestTrainSkill` (an untrainable skill is trained at once).
     Train(u32),
-    /// `MakeTrainDialog`: confirm, then train.
-    ConfirmTrain(u32),
     /// `RequestRaiseSkill`.
     Raise(u32),
     /// `RequestUntrainSkill`: the untrain dialog was answered yes.
@@ -505,7 +503,10 @@ impl SkillTreeUi {
             ghost(tree, "TrainButton", status.can_train != 0);
             // `ID_Skill_TT_ClickToTrain` only where the skill can be trained.
             if status.can_train == 0 {
-                let text = source.render(id("ID_Skill_TT_ClickToTrain"), &[(id("value"), SkillVar::UInt(0))]);
+                let text = source.render(
+                    id("ID_Skill_TT_ClickToTrain"),
+                    &[(id("value"), SkillVar::UInt(0))],
+                );
                 set_button_tooltip(tree, modify, "TrainButton", text);
             }
         } else {
@@ -773,7 +774,10 @@ fn truncate_text(tree: &mut UiTree, index: usize, ellipsis: &str) {
     let limit = tree.get(index).map_or(0, |e| e.rect().width());
     let mut kept: Vec<char> = text.chars().collect();
     let mut shown = text.clone();
-    while tree.text_line_width(index, &shown).is_some_and(|w| limit + 1 < w) {
+    while tree
+        .text_line_width(index, &shown)
+        .is_some_and(|w| limit + 1 < w)
+    {
         if kept.pop().is_none() {
             break;
         }

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1042 done, 361 partial, 736 to do, 108 skipped.
+2247 retail functions: 1052 done, 353 partial, 734 to do, 108 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1471,30 +1471,30 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — client hud_craft.rs craft_frameworks: CM_Craft UpdateCraftPanel refreshes the panel (craft_ui_7160 registry path)
 - [~] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (11/26)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (21/26)
 
 ### gmSkillTreeUI
-- [~] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-- [~] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+- [x] `gmSkillTreeUI::MakeTrainDialog` · 004475b0 · legions 004480f0 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::MakeLevelText` · 00447610 · legions 00448150 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::SelectNode` · 00447700 · legions 00448240 — ac2-ui skill_tree.rs
-- [ ] `gmSkillTreeUI::Show` · 00447760 · legions 004482a0
-- [ ] `gmSkillTreeUI::RecvNotice_CloseConfirmationDialog` · 004477c0 · legions 00448300
-- [~] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::Show` · 00447760 · legions 004482a0 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+- [x] `gmSkillTreeUI::RecvNotice_CloseConfirmationDialog` · 004477c0 · legions 00448300 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+- [x] `gmSkillTreeUI::SetStringAndTruncate` · 00447890 · legions 004483d0 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 
 ### HashIterator<unsigned_long,BaseList<unsigned_long,11>_>
 - [ ] `HashIterator<unsigned_long,BaseList<unsigned_long,11>_>::operator++` · 004478f0 · legions 0062aa70
 
 ### gmSkillTreeUI
-- [~] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-- [~] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::UpdateSelectedSkillDisplay` · 00447930 · legions 00448450 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
+- [x] `gmSkillTreeUI::RefreshSkillNode` · 00447d50 · legions 00448870 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::FastRefreshSkillNode` · 00448040 · legions 00448bd0 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::HandleElement` · 00448110 · legions 00448ca0 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::RecvNotice_UpdateSkillPanel` · 00448250 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::SelectSkill` · 00448310 · legions 00448eb0 — ac2-ui skill_tree.rs
-- [~] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::MakeUntrainDialog` · 00448430 · legions 00448fd0 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::ClearSelectedInfo` · 004484c0 · legions 00449060 — ac2-ui skill_tree.rs
-- [~] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::ListenToMessage` · 00448630 · legions 00449230 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::InitElements` · 00448810 · legions 004496b0 — ac2-ui skill_tree.rs
 
 ### SkillUINode
@@ -1503,7 +1503,7 @@ Legend and workflow: [README](README.md).
 ### gmSkillTreeUI
 - [x] `gmSkillTreeUI::RecvNotice_UpdateSkill` · 004488c0 — ac2-ui skill_tree.rs
 - [x] `gmSkillTreeUI::AddNode` · 004489c0 · legions 00449550 — ac2-ui skill_tree.rs
-- [~] `gmSkillTreeUI::LoadPanel` · 00448c70 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::LoadPanel` · 00448c70 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 - [x] `gmSkillTreeUI::RecvNotice_ExaminationRequestChanged` · 00448e50 — ac2-ui skill_tree.rs
 
 ### PHashTable<unsigned_long,SkillUINode>

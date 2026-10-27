@@ -201,7 +201,7 @@ fn panel_with_dialogs(
         .find_map(|&r| tree.child_recursive(r, tokenize("SkillField")))
         .unwrap();
     let mut ui = SkillTreeUi::create(&tree, &layout, field);
-    let mut dialogs = DialogFactory::new(Some(dialog_layout));
+    let dialogs = DialogFactory::new(Some(dialog_layout));
     ui.update_skill_panel(&mut tree, source);
     ui.examination_request_changed(&mut tree, source, EXAMINE_PANEL, PANEL);
     ui.examination_request_changed(&mut tree, source, EXAMINE_SKILL, CHILD);
@@ -219,7 +219,9 @@ fn question(tree: &UiTree) -> Option<String> {
 }
 
 fn release(tree: &UiTree, field: usize, name: &str) -> UiMessage {
-    let element = tree.child_recursive(field, tokenize(name)).unwrap();
+    let element = tree
+        .child_recursive(field, tokenize(name))
+        .unwrap_or_else(|| panic!("no {name} under the skill field"));
     UiMessage {
         element_id: tokenize(name),
         element: Some(element),
@@ -244,12 +246,18 @@ fn untrain_and_cancel_ask_by_name_and_only_a_yes_asks_the_player() {
     assert_eq!(kind, DIALOG_CONFIRMATION);
     assert_eq!(
         question(&tree).as_deref(),
-        Some(&*format!("{:08x}[Swords]", tokenize("ID_Skill_UntrainText")))
+        Some(&*format!(
+            "{:08x}[Swords]",
+            tokenize("ID_Skill_UntrainText")
+        ))
     );
     dialogs.answer(&mut tree, context, false);
     ui.dialog_outcomes(&dialogs.take_outcomes());
     assert!(ui.take_requests().is_empty(), "a no asks nothing");
     // Cancelling the untrain asks its own question, and a yes asks the cancel.
+    // The cancel button is in the layout's `untraining` state, which the source's status sets.
+    ui.examination_request_changed(&mut tree, &Untraining, EXAMINE_SKILL, CHILD);
+    ui.examination_request_changed(&mut tree, &Untraining, EXAMINE_SKILL, BASE);
     let cancel = release(&tree, field, "CancelUntrainButton");
     ui.message(&mut tree, &mut dialogs, &Stub, &cancel);
     assert_eq!(
@@ -308,19 +316,26 @@ fn the_buttons_and_nodes_carry_their_tooltips() {
         return;
     };
     let store = Arc::new(ResourceStore::new(dataset));
-    let (mut tree, mut ui, mut dialogs, field) = panel_with_dialogs(&store, &Stub);
+    let (mut tree, mut ui, _dialogs, field) = panel_with_dialogs(&store, &Stub);
     // The untrained child can be trained: its train button says so, the value being 0.
-    let train = tree.child_recursive(field, tokenize("TrainButton")).unwrap();
+    let train = tree
+        .child_recursive(field, tokenize("TrainButton"))
+        .unwrap();
     assert_eq!(
         tree.tooltip_text(train).as_deref(),
         Some(&*format!("{:08x}[0]", tokenize("ID_Skill_TT_ClickToTrain")))
     );
     // The trained base can be raised: the raise button shows the experience to level.
     ui.examination_request_changed(&mut tree, &Stub, EXAMINE_SKILL, BASE);
-    let raise = tree.child_recursive(field, tokenize("RaiseButton")).unwrap();
+    let raise = tree
+        .child_recursive(field, tokenize("RaiseButton"))
+        .unwrap();
     assert_eq!(
         tree.tooltip_text(raise).as_deref(),
-        Some(&*format!("{:08x}[900]", tokenize("ID_Skill_TT_ClickToRaise")))
+        Some(&*format!(
+            "{:08x}[900]",
+            tokenize("ID_Skill_TT_ClickToRaise")
+        ))
     );
     // A trained node's tooltip is its name with the level.
     let skill_tree = tree.child_recursive(field, tokenize("SkillTree")).unwrap();
@@ -328,7 +343,7 @@ fn the_buttons_and_nodes_carry_their_tooltips() {
     assert_eq!(
         tree.tooltip_text(base_item).as_deref(),
         Some(&*format!(
-            "{:08x}[Swords,{:08x}[2]]",
+            "{:08x}[Swords,{:08x}[7,2]]",
             tokenize("ID_Skill_NameLevel"),
             tokenize("ID_Skill_LevelBuffed")
         ))
@@ -339,6 +354,31 @@ fn the_buttons_and_nodes_carry_their_tooltips() {
 
 /// The same skills under names too long for the selected name's field.
 struct LongNames;
+
+/// The base skill being untrained: the status the layout's `untraining` state reads.
+struct Untraining;
+
+impl SkillSource for Untraining {
+    fn panel(&self, panel: u32) -> Option<SkillPanel> {
+        Stub.panel(panel)
+    }
+    fn root_panel_from_race(&self, root: u32) -> Option<u32> {
+        Stub.root_panel_from_race(root)
+    }
+    fn status(&self, skill: u32) -> SkillStatus {
+        let mut status = Stub.status(skill);
+        if skill == BASE {
+            status.untraining = true;
+        }
+        status
+    }
+    fn available(&self) -> (u64, u32, u32) {
+        Stub.available()
+    }
+    fn render(&self, string_id: u32, vars: &[(u32, SkillVar)]) -> String {
+        Stub.render(string_id, vars)
+    }
+}
 
 impl SkillSource for LongNames {
     fn panel(&self, panel: u32) -> Option<SkillPanel> {
@@ -370,7 +410,9 @@ fn a_long_name_is_cut_with_the_ellipsis_to_fit_the_field() {
     };
     let store = Arc::new(ResourceStore::new(dataset));
     let (tree, _ui, _dialogs, field) = panel_with_dialogs(&store, &LongNames);
-    let name = tree.child_recursive(field, tokenize("SelectedName")).unwrap();
+    let name = tree
+        .child_recursive(field, tokenize("SelectedName"))
+        .unwrap();
     let text = tree.get(name).unwrap().text().unwrap();
     let ellipsis = format!("{:08x}[]", tokenize("ID_Ellipsis"));
     assert!(text.ends_with(&ellipsis), "cut text ends with the ellipsis");
