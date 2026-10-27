@@ -769,7 +769,10 @@ key	status	note
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
 00438c30	x	ac2-ui effects.rs
-004391c0	~	ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
+00438ef0	x	ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
+00438f40	x	ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
+00438f80	x	ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
+004391c0	x	ac2-ui effects.rs init: insertion by expiry, removal from the end, selection, pulsed/active meter; EffectUINode selection without a zero guard
 004396b0	x	ac2-ui effects.rs
 00439700	x	ac2-ui effects.rs
 00439710	x	ac2-ui effects.rs
@@ -1281,6 +1284,7 @@ key	status	note
 00450ed0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450f00	~	ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
 00450f30	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+00450f50	x	ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 00450f80	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00450fa0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00450fc0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
@@ -1437,6 +1441,7 @@ key	status	note
 00457610	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
+00457850	x	ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 00457af0	~	ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00457c90	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -2044,6 +2049,23 @@ key	status	note
 00477ee0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00477f50	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00477fd0	x	ac2-script glue::options / examination (Legions layout and efun switch)
+00478050	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004780b0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478110	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478180	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004781e0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478250	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004782c0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478320	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478380	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004783f0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478460	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004784d0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478530	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478590	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004785f0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00478670	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+004786f0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 004787a0	x	ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 00478800	x	ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 00478860	x	ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
@@ -5252,6 +5274,20 @@ key	status	note
 00608150	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00608380	x	ac2-net protocol::native (native objects in script-call PackBuffers)
 00608490	x	ac2-net protocol::native (native objects in script-call PackBuffers)
+00608640	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608800	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+006088a0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608950	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+006089f0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608a90	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608b40	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608bf0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608c80	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608d20	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608dc0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608e50	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+00608ee0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+006090e0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 00609660	x	ac2-net ExaminationRequest: Legions 0x005C9210 layout (+3 words, type 0x4000000D)
 00609700	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00609760	x	ac2-script glue::options / examination (Legions layout and efun switch)

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1407 done, 108 partial, 872 to do, 81 skipped.
+2468 retail functions: 1424 done, 108 partial, 855 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -102,26 +102,26 @@ Legend and workflow: [README](README.md).
 - [x] `gEffectUINode::CallEFun_SetDescription` · 00478af0 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 - [x] `gEffectUINode::CallEFun_SetName` · 00478b50 — ac2-script glue/effect_node.rs: efuns 0x98 SetEID/SetName/SetIcon/SetDescription/SetEnabled/SetDisabled/Set/SetDurationInfo/SetToggled/SetPulsed over ac2-net EffectUiNode
 
-## `ac2/shared/src/interp/glue/gexaminationprofile.cpp.c` (0/17)
+## `ac2/shared/src/interp/glue/gexaminationprofile.cpp.c` (17/17)
 
 ### gExaminationProfile
-- [ ] `gExaminationProfile::CallEFun_AddBool` · 00478050
-- [ ] `gExaminationProfile::CallEFun_AddBreak` · 004780b0
-- [ ] `gExaminationProfile::CallEFun_AddCountdown` · 00478110
-- [ ] `gExaminationProfile::CallEFun_AddEffectID` · 00478180
-- [ ] `gExaminationProfile::CallEFun_AddFloat` · 004781e0
-- [ ] `gExaminationProfile::CallEFun_AddIconDesc` · 00478250
-- [ ] `gExaminationProfile::CallEFun_AddImage` · 004782c0
-- [ ] `gExaminationProfile::CallEFun_AddInt` · 00478320
-- [ ] `gExaminationProfile::CallEFun_AddLongInt` · 00478380
-- [ ] `gExaminationProfile::CallEFun_AddSimpleStringInfo` · 004783f0
-- [ ] `gExaminationProfile::CallEFun_AddStringInfo` · 00478460
-- [ ] `gExaminationProfile::CallEFun_AddTab` · 004784d0
-- [ ] `gExaminationProfile::CallEFun_AddTabs` · 00478530
-- [ ] `gExaminationProfile::CallEFun_SetExaminationRequest` · 00478590
-- [ ] `gExaminationProfile::CallEFun_eq` · 004785f0
-- [ ] `gExaminationProfile::CallEFun_ne` · 00478670
-- [ ] `gExaminationProfile::CallEFun_GetExaminationRequest` · 004786f0
+- [x] `gExaminationProfile::CallEFun_AddBool` · 00478050 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddBreak` · 004780b0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddCountdown` · 00478110 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddEffectID` · 00478180 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddFloat` · 004781e0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddIconDesc` · 00478250 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddImage` · 004782c0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddInt` · 00478320 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddLongInt` · 00478380 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddSimpleStringInfo` · 004783f0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddStringInfo` · 00478460 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddTab` · 004784d0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_AddTabs` · 00478530 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_SetExaminationRequest` · 00478590 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_eq` · 004785f0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_ne` · 00478670 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `gExaminationProfile::CallEFun_GetExaminationRequest` · 004786f0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 
 ## `ac2/shared/src/interp/glue/gexaminationrequest.cpp.c` (12/12)
 

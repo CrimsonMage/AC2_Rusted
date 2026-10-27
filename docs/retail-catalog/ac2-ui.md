@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1065 done, 356 partial, 715 to do, 111 skipped.
+2247 retail functions: 1069 done, 355 partial, 712 to do, 111 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -912,7 +912,7 @@ Legend and workflow: [README](README.md).
 - [x] `VitalDisplay::SetTextState` · 0044dea0 · legions 0044f070 — ac2-ui meter.rs
 - [x] `VitalDisplay::SetMeterState` · 0044ded0 · legions 0044f0a0 — ac2-ui meter.rs
 
-## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (6/10)
+## `ac2/client/src/ui/gameplay/statusbar/gmeffectsui.cpp.c` (10/10)
 
 ### gmEffectsUI
 - [x] `gmEffectsUI::SelectElement` · 00438a20 · legions 00439270 — ac2-ui effects.rs
@@ -920,12 +920,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmEffectsUI::RecvNotice_PulseMissed` · 00438c30 — ac2-ui effects.rs
 
 ### PList<EffectUINode>
-- [ ] `PList<EffectUINode>::Pack` · 00438ef0 · legions 00439740
-- [ ] `PList<EffectUINode>::GetPackSize` · 00438f40
-- [ ] `PList<EffectUINode>::UnPack` · 00438f80
+- [x] `PList<EffectUINode>::Pack` · 00438ef0 · legions 00439740 — ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
+- [x] `PList<EffectUINode>::GetPackSize` · 00438f40 — ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
+- [x] `PList<EffectUINode>::UnPack` · 00438f80 — ac2-net native/gm.rs pack_effect_list / read_effect_list: count then EffectUINode::StreamPack; no retail caller in the index, so no crate packs it yet
 
 ### gmEffectsUI
-- [~] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs; meter thresholds and the f32 stores checked against the x87 code (objdump of 0x439A10); EffectTimeout is the expiry (durationLeft), not the recovered pseudocode's reused slot
+- [x] `gmEffectsUI::Init` · 004391c0 · legions 00439a10 — ac2-ui effects.rs init: insertion by expiry, removal from the end, selection, pulsed/active meter; EffectUINode selection without a zero guard
 - [x] `gmEffectsUI::RecvNotice_ExaminationRequestChanged` · 004396b0 — ac2-ui effects.rs
 - [x] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700 — ac2-ui effects.rs
 - [x] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60 — ac2-ui effects.rs

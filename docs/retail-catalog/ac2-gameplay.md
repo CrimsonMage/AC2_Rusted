@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 170 done, 33 partial, 284 to do, 12 skipped.
+499 retail functions: 184 done, 33 partial, 270 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -204,7 +204,7 @@ Legend and workflow: [README](README.md).
 - [x] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0 — ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
 - [x] `EffectUINode::StreamPack` · 00607f50 · legions 005c8df0 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 
-## `ac2/shared/src/examination/examinationprofile.cpp.c` (2/35)
+## `ac2/shared/src/examination/examinationprofile.cpp.c` (16/35)
 
 ### ExaminationDataNode
 - [ ] `ExaminationDataNode::operator==` · 006081f0 · legions 005c9310
@@ -226,20 +226,20 @@ Legend and workflow: [README](README.md).
 - [x] `ExaminationDataNode::StreamPack` · 00608490 · legions 005c95c0 — ac2-net protocol::native (native objects in script-call PackBuffers)
 
 ### ExaminationProfile
-- [ ] `ExaminationProfile::operator==` · 00608640 · legions 005c9770
-- [ ] `ExaminationProfile::AddBool` · 00608800
-- [ ] `ExaminationProfile::AddCountdown` · 006088a0
-- [ ] `ExaminationProfile::AddFloat` · 00608950
-- [ ] `ExaminationProfile::AddInt` · 006089f0
-- [ ] `ExaminationProfile::AddLongInt` · 00608a90
-- [ ] `ExaminationProfile::AddStringInfo` · 00608b40
-- [ ] `ExaminationProfile::AddImage` · 00608bf0
-- [ ] `ExaminationProfile::AddIconDesc` · 00608c80
-- [ ] `ExaminationProfile::AddEffectID` · 00608d20
-- [ ] `ExaminationProfile::AddTab` · 00608dc0
-- [ ] `ExaminationProfile::AddTabs` · 00608e50
-- [ ] `ExaminationProfile::AddBreak` · 00608ee0
-- [ ] `ExaminationProfile::AddSimpleStringInfo` · 006090e0 · legions 005c9fc0
+- [x] `ExaminationProfile::operator==` · 00608640 · legions 005c9770 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddBool` · 00608800 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddCountdown` · 006088a0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddFloat` · 00608950 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddInt` · 006089f0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddLongInt` · 00608a90 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddStringInfo` · 00608b40 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddImage` · 00608bf0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddIconDesc` · 00608c80 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddEffectID` · 00608d20 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddTab` · 00608dc0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddTabs` · 00608e50 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddBreak` · 00608ee0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
+- [x] `ExaminationProfile::AddSimpleStringInfo` · 006090e0 · legions 005c9fc0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 
 ### PList<ExaminationDataNode>
 - [ ] `PList<ExaminationDataNode>::Pack` · 00609140 · legions 005ca030

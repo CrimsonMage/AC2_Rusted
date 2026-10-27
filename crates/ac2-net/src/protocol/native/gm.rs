@@ -265,6 +265,103 @@ impl EffectUiNode {
     }
 }
 
+/// `PList<EffectUINode>::Pack` (admin 0x00438EF0; Legions 0x00439740): the node count, then
+/// each node's `StreamPack`. Retail writes nothing when the caller's `capacity` is smaller than
+/// the list; either way it returns the size the list needs (`GetPackSize`, 0x00438F40).
+/// The decompile has no direct caller (the list is reached through its vtable), so no crate
+/// packs it yet.
+#[allow(dead_code)]
+pub(crate) fn pack_effect_list(nodes: &[EffectUiNode], out: &mut Writer, capacity: usize) -> usize {
+    let mut needed = Writer::new();
+    needed.u32(nodes.len() as u32);
+    for node in nodes {
+        node.write(&mut needed);
+    }
+    let size = needed.bytes.len();
+    if size <= capacity {
+        out.bytes.extend_from_slice(&needed.bytes);
+    }
+    size
+}
+
+/// `PList<EffectUINode>::UnPack` (admin 0x00438F80): a count, then that many nodes. A short
+/// buffer or a node that fails to decode fails the whole list (retail returns 0 and keeps no
+/// node it had not finished); bytes after the list stay unread for the caller.
+#[allow(dead_code)]
+pub(crate) fn read_effect_list(r: &mut Reader<'_>) -> Result<Vec<EffectUiNode>, ProtocolError> {
+    let n = r.count()?;
+    (0..n).map(|_| EffectUiNode::read(r)).collect()
+}
+
+#[cfg(test)]
+mod effect_list_tests {
+    use super::*;
+
+    fn node(eid: u32, name: &str, duration: f64) -> EffectUiNode {
+        EffectUiNode {
+            eid,
+            flags: 1 | 4,
+            name: name.to_string(),
+            desc: String::new(),
+            icon: 0x0600_1234,
+            duration,
+            time_cast: 10.0,
+        }
+    }
+
+    #[test]
+    fn the_list_packs_its_count_then_each_node_and_unpacks_back() {
+        let nodes = vec![node(0x11, "Haste", 30.0), node(0x22, "", -1.0)];
+        let mut out = Writer::new();
+        let size = pack_effect_list(&nodes, &mut out, usize::MAX);
+        assert_eq!(size, out.bytes.len());
+        assert_eq!(&out.bytes[..4], &2u32.to_le_bytes());
+        // The first node: eid, flags, the name as a wide string, an empty description.
+        assert_eq!(&out.bytes[4..8], &0x11u32.to_le_bytes());
+        assert_eq!(&out.bytes[8..12], &5u32.to_le_bytes());
+        let mut r = Reader::new(&out.bytes);
+        assert_eq!(read_effect_list(&mut r).unwrap(), nodes);
+        r.finish().unwrap();
+    }
+
+    #[test]
+    fn an_empty_list_is_one_zero_word() {
+        let mut out = Writer::new();
+        assert_eq!(pack_effect_list(&[], &mut out, 4), 4);
+        assert_eq!(out.bytes, vec![0, 0, 0, 0]);
+        let mut r = Reader::new(&out.bytes);
+        assert!(read_effect_list(&mut r).unwrap().is_empty());
+    }
+
+    #[test]
+    fn a_list_that_does_not_fit_is_not_written_but_its_size_is_reported() {
+        let nodes = vec![node(1, "x", 1.0)];
+        let mut out = Writer::new();
+        let needed = pack_effect_list(&nodes, &mut out, 3);
+        assert!(out.bytes.is_empty());
+        let mut full = Writer::new();
+        assert_eq!(pack_effect_list(&nodes, &mut full, needed), needed);
+        assert_eq!(full.bytes.len(), needed);
+    }
+
+    #[test]
+    fn a_truncated_list_fails_and_a_short_count_leaves_the_tail() {
+        let nodes = vec![node(1, "x", 1.0), node(2, "y", 2.0)];
+        let mut out = Writer::new();
+        pack_effect_list(&nodes, &mut out, usize::MAX);
+        for end in 0..out.bytes.len() {
+            let mut r = Reader::new(&out.bytes[..end]);
+            assert!(read_effect_list(&mut r).is_err(), "prefix {end}");
+        }
+        // One node counted: the second node's bytes are left over.
+        let mut one = out.bytes.clone();
+        one[..4].copy_from_slice(&1u32.to_le_bytes());
+        let mut r = Reader::new(&one);
+        assert_eq!(read_effect_list(&mut r).unwrap(), nodes[..1].to_vec());
+        assert!(r.finish().is_err());
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::super::NativeObject;

@@ -524,6 +524,150 @@ fn effect_ui_node_glue_edits_the_wire_node() {
 }
 
 #[test]
+fn examination_profile_add_effect_id_inserts_the_effect_node() {
+    use crate::native::ntype;
+    use ac2_net::protocol::{ExaminationValue, NativeObject as Wire};
+    let mut vm = vm();
+    let n = vm.refs.create_native(
+        ntype::EXAMINATION_PROFILE,
+        NativeObject::new_empty(ntype::EXAMINATION_PROFILE),
+    );
+    // AddEffectID(eid, depth, order): slots 2, 3 and 4 (no return value).
+    call(&mut vm, 0x0099_0019, 0, &[0x37, 0x11, 4], n);
+    call(&mut vm, 0x0099_0019, 0, &[0x38, 0x12, 2], n);
+    match vm.native(n) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            Wire::ExaminationProfile(p) => {
+                let effects: Vec<(u32, u32, u32)> = p
+                    .nodes
+                    .iter()
+                    .map(|node| match node.value {
+                        ExaminationValue::Effect(eid) => (node.order, node.appearance, eid),
+                        ref other => panic!("{other:?}"),
+                    })
+                    .collect();
+                assert_eq!(effects, vec![(2, 0x12, 0x38), (4, 0x11, 0x37)]);
+            }
+            other => panic!("{other:?}"),
+        },
+        other => panic!("{other:?}"),
+    }
+}
+
+#[test]
+fn examination_profile_efuns_add_every_node_type_and_compare() {
+    use crate::native::{ntype, StringInfo};
+    use crate::vm::InterpStatus;
+    use ac2_net::protocol::{
+        ExaminationRequest, ExaminationValue, IconLayer, NativeObject as Wire,
+    };
+    let mut vm = vm();
+    let n = vm.refs.create_native(
+        ntype::EXAMINATION_PROFILE,
+        NativeObject::new_empty(ntype::EXAMINATION_PROFILE),
+    );
+    let icon = vm
+        .refs
+        .create_native(ntype::ICON_DESC, NativeObject::IconDesc(vec![(2, 22, 2)]));
+    let info = vm.refs.create_native(
+        ntype::STRING_INFO,
+        NativeObject::StringInfo(StringInfo {
+            string_id: 9,
+            table_id: 0x4000_0026,
+            variables: Vec::new(),
+            literal: None,
+        }),
+    );
+    // Each Add efun takes the value first (a 64-bit value in two slots, high word first), then
+    // the appearance and the order; orders ascend, so the nodes keep this order.
+    let adds: [(u32, &[u32]); 12] = [
+        (0x08, &[0xFFFF_FFFE, 0x11, 1]),
+        (0x05, &[3, 0x12, 2]),
+        (0x07, &[1.5f32.to_bits(), 0x13, 3]),
+        (0x12, &[4]),
+        (0x11, &[0x2222, 5]),
+        (0x13, &[6]),
+        (0x06, &[0x3FF8_0000, 0, 0x14, 7]),
+        (0x15, &[0xFFFF_FFFF, 0xFFFF_FFFF, 0x15, 8]),
+        (0x17, &[3, 9]),
+        (0x0A, &[7, 0x4000_0026, 0x16, 10]),
+        (0x14, &[icon, 11]),
+        (0x09, &[info, 0x17, 12]),
+    ];
+    for (id, args) in adds {
+        let (status, _) = call(&mut vm, 0x0099_0000 | id, 0, args, n);
+        assert_eq!(status, InterpStatus::Success, "efun 0x0099{id:04x}");
+    }
+    let values: Vec<ExaminationValue> = match vm.native(n) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            Wire::ExaminationProfile(p) => {
+                assert_eq!(p.nodes.len(), 12);
+                assert_eq!(
+                    p.nodes.iter().map(|n| n.order).collect::<Vec<_>>(),
+                    (1..=12).collect::<Vec<_>>()
+                );
+                p.nodes.iter().map(|n| n.value.clone()).collect()
+            }
+            other => panic!("{other:?}"),
+        },
+        other => panic!("{other:?}"),
+    };
+    assert_eq!(values[0], ExaminationValue::Int(-2));
+    assert_eq!(values[1], ExaminationValue::Bool(3));
+    assert_eq!(values[2], ExaminationValue::Float(1.5));
+    assert_eq!(values[3], ExaminationValue::Tabs(0));
+    assert_eq!(values[4], ExaminationValue::Image(0x2222));
+    assert_eq!(values[5], ExaminationValue::Break);
+    assert_eq!(values[6], ExaminationValue::Countdown(1.5));
+    assert_eq!(values[7], ExaminationValue::LongInt(-1));
+    assert_eq!(values[8], ExaminationValue::Tabs(3));
+    assert!(
+        matches!(&values[9], ExaminationValue::Text(s) if s.string_id == 7 && s.table_id == 0x4000_0026)
+    );
+    assert_eq!(
+        values[10],
+        ExaminationValue::Icon(vec![IconLayer {
+            layer: 2,
+            image: 22,
+            color: 2
+        }])
+    );
+    assert!(matches!(&values[11], ExaminationValue::Text(s) if s.string_id == 9));
+
+    // `operator==` against an empty profile is false, and its negation true.
+    let empty = vm.refs.create_native(
+        ntype::EXAMINATION_PROFILE,
+        NativeObject::new_empty(ntype::EXAMINATION_PROFILE),
+    );
+    let (_, rets) = call(&mut vm, 0x0099_0001, 1, &[empty], n);
+    assert_eq!(rets[0].0, 0);
+    let (_, rets) = call(&mut vm, 0x0099_0002, 1, &[empty], n);
+    assert_eq!(rets[0].0, 1);
+
+    // SetExaminationRequest copies the request in; GetExaminationRequest returns a copy.
+    let request = vm.refs.create_native(
+        ntype::EXAMINATION_REQUEST,
+        NativeObject::Wire(Box::new(Wire::ExaminationRequest(
+            ExaminationRequest::object(77),
+        ))),
+    );
+    assert_eq!(
+        call(&mut vm, 0x0099_0003, 0, &[request], n).0,
+        InterpStatus::Success
+    );
+    let (status, rets) = call(&mut vm, 0x0099_0004, 1, &[], n);
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(rets[0].1, tag::REF);
+    match vm.native(rets[0].0) {
+        Some(NativeObject::Wire(w)) => match &**w {
+            Wire::ExaminationRequest(r) => assert_eq!(r.iid, 77),
+            other => panic!("{other:?}"),
+        },
+        other => panic!("{other:?}"),
+    }
+}
+
+#[test]
 fn reserved_ids_read_the_type_byte() {
     let mut vm = vm();
     // The 64-bit id: high word first, its low word deeper.

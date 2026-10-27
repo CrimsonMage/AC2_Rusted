@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 574 done, 174 partial, 1133 to do, 23 skipped.
+1904 retail functions: 576 done, 174 partial, 1131 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (101/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (102/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -645,7 +645,7 @@ Legend and workflow: [README](README.md).
 ### ggmCWInterface
 - [x] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
 - [ ] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320
-- [ ] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0
+- [x] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0 — ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
 - [~] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650 — ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 - [x] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (153/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (154/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1027,7 +1027,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
 - [x] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
-- [ ] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090
+- [x] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090 — ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 - [x] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried

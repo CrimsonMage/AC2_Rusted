@@ -153,8 +153,9 @@ pub enum ExaminationValue {
     Int(i32),
     /// 0x40000002 `AddFloat`.
     Float(f32),
-    /// 0x40000003 `AddBool`.
-    Bool(bool),
+    /// 0x40000003 `AddBool`: the int the script passed, unnormalised (retail packs `valBool`'s
+    /// word as is).
+    Bool(u32),
     /// 0x40000004 `AddStringInfo`.
     Text(StringInfo),
     /// 0x40000005 `AddImage`: an image DID (no appearance).
@@ -222,7 +223,7 @@ impl ExaminationDataNode {
             }
             0x4000_0003 => {
                 appearance_then(r)?;
-                ExaminationValue::Bool(r.u32()? != 0)
+                ExaminationValue::Bool(r.u32()?)
             }
             0x4000_0004 => {
                 appearance_then(r)?;
@@ -275,7 +276,7 @@ impl ExaminationDataNode {
                 w.u32(self.appearance).f32(*v);
             }
             ExaminationValue::Bool(v) => {
-                w.u32(self.appearance).u32(u32::from(*v));
+                w.u32(self.appearance).u32(*v);
             }
             ExaminationValue::Text(text) => {
                 w.u32(self.appearance);
@@ -327,6 +328,101 @@ impl ExaminationProfile {
         for node in &self.nodes {
             node.write(w);
         }
+    }
+
+    /// The shared loop of the `ExaminationProfile::Add*` family (admin 0x00608800-0x00608EE0):
+    /// the node goes before the first node whose order is greater than `order` (equal orders
+    /// keep their place), else at the end.
+    fn add_node(&mut self, order: u32, appearance: u32, value: ExaminationValue) {
+        let node = ExaminationDataNode {
+            order,
+            appearance,
+            value,
+        };
+        match self.nodes.iter().position(|n| n.order > order) {
+            Some(at) => self.nodes.insert(at, node),
+            None => self.nodes.push(node),
+        }
+    }
+
+    /// `ExaminationProfile::AddBool` (admin 0x00608800).
+    pub fn add_bool(&mut self, value: u32, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::Bool(value));
+    }
+
+    /// `ExaminationProfile::AddCountdown` (admin 0x006088A0): seconds as a `double`.
+    pub fn add_countdown(&mut self, seconds: f64, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::Countdown(seconds));
+    }
+
+    /// `ExaminationProfile::AddFloat` (admin 0x00608950).
+    pub fn add_float(&mut self, value: f32, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::Float(value));
+    }
+
+    /// `ExaminationProfile::AddInt` (admin 0x006089F0).
+    pub fn add_int(&mut self, value: i32, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::Int(value));
+    }
+
+    /// `ExaminationProfile::AddLongInt` (admin 0x00608A90).
+    pub fn add_long_int(&mut self, value: i64, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::LongInt(value));
+    }
+
+    /// `ExaminationProfile::AddStringInfo` (admin 0x00608B40): a copy of the string info.
+    pub fn add_string_info(&mut self, info: StringInfo, appearance: u32, order: u32) {
+        self.add_node(order, appearance, ExaminationValue::Text(info));
+    }
+
+    /// `ExaminationProfile::AddSimpleStringInfo` (admin 0x006090E0): a string info holding only
+    /// the string id and its table.
+    pub fn add_simple_string_info(
+        &mut self,
+        string_id: u32,
+        table_id: u32,
+        appearance: u32,
+        order: u32,
+    ) {
+        let info = StringInfo {
+            string_id,
+            table_id,
+            literal: None,
+            variables: Vec::new(),
+        };
+        self.add_string_info(info, appearance, order);
+    }
+
+    /// `ExaminationProfile::AddImage` (admin 0x00608BF0): an image DID, with no appearance.
+    pub fn add_image(&mut self, did: u32, order: u32) {
+        self.add_node(order, 0, ExaminationValue::Image(did));
+    }
+
+    /// `ExaminationProfile::AddIconDesc` (admin 0x00608C80): the icon's layers, no appearance.
+    pub fn add_icon_desc(&mut self, layers: Vec<IconLayer>, order: u32) {
+        self.add_node(order, 0, ExaminationValue::Icon(layers));
+    }
+
+    /// `ExaminationProfile::AddTabs` (admin 0x00608E50): a tab count, no appearance.
+    pub fn add_tabs(&mut self, number: u32, order: u32) {
+        self.add_node(order, 0, ExaminationValue::Tabs(number));
+    }
+
+    /// `ExaminationProfile::AddTab` (admin 0x00608DC0): a tab node whose count is the zeroed
+    /// value of `ExaminationDataNode`'s constructor.
+    pub fn add_tab(&mut self, order: u32) {
+        self.add_tabs(0, order);
+    }
+
+    /// `ExaminationProfile::AddBreak` (admin 0x00608EE0): a line break, no value.
+    pub fn add_break(&mut self, order: u32) {
+        self.add_node(order, 0, ExaminationValue::Break);
+    }
+
+    /// `ExaminationProfile::AddEffectID` (admin 0x00608D20): an effect node (type `0x4000000C`)
+    /// with the effect id as its value and `depth` as its appearance.
+    pub fn add_effect_id(&mut self, eid: u32, depth: u32, order: u32) {
+        self.add_node(order, depth, ExaminationValue::Effect(eid));
     }
 }
 
@@ -474,5 +570,88 @@ mod tests {
         expected.extend(words(&[0x4000_0009, 5, 1, 1, 0x4100_0001, 0]));
         expected.extend(words(&[0x4000_0004, 6, 0x13, 4, 0x2300_0001, 0]));
         assert_eq!(bytes, expected);
+    }
+
+    #[test]
+    fn add_effect_id_sorts_by_order_and_packs_the_effect_layout() {
+        let mut profile = ExaminationProfile {
+            request: ExaminationRequest::object(5),
+            nodes: vec![ExaminationDataNode {
+                order: 2,
+                appearance: 0,
+                value: ExaminationValue::Break,
+            }],
+        };
+        profile.add_effect_id(55, 0x11, 1);
+        profile.add_effect_id(77, 0x12, 2);
+        profile.add_effect_id(88, 0x13, 9);
+        let orders: Vec<u32> = profile.nodes.iter().map(|n| n.order).collect();
+        assert_eq!(orders, vec![1, 2, 2, 9]);
+        // Equal orders keep their place: the older node stays first.
+        assert_eq!(profile.nodes[1].value, ExaminationValue::Break);
+        assert_eq!(profile.nodes[2].value, ExaminationValue::Effect(77));
+        let bytes = round_trip(NativeObject::ExaminationProfile(profile));
+        let mut expected = words(&[0x4000_0002, 0, 5, 0, 0x203, 4]);
+        expected.extend(words(&[0x4000_000C, 1, 0x11, 55]));
+        expected.extend(words(&[0x4000_0006, 2]));
+        expected.extend(words(&[0x4000_000C, 2, 0x12, 77]));
+        expected.extend(words(&[0x4000_000C, 9, 0x13, 88]));
+        assert_eq!(bytes, expected);
+    }
+
+    #[test]
+    fn add_methods_pack_the_retail_node_layouts() {
+        let mut profile = ExaminationProfile {
+            request: ExaminationRequest::object(5),
+            nodes: Vec::new(),
+        };
+        profile.add_int(-2, 0x11, 1);
+        // `AddBool` keeps the int as passed, not normalised to 0 or 1.
+        profile.add_bool(2, 0x12, 2);
+        profile.add_float(1.5, 0x13, 3);
+        profile.add_tab(4);
+        profile.add_image(0x2222, 5);
+        profile.add_break(6);
+        profile.add_countdown(1.5, 0x14, 7);
+        profile.add_long_int(-1, 0x15, 8);
+        profile.add_icon_desc(
+            vec![IconLayer {
+                layer: 2,
+                image: 22,
+                color: 2,
+            }],
+            9,
+        );
+        let bytes = round_trip(NativeObject::ExaminationProfile(profile.clone()));
+        let mut expected = words(&[0x4000_0002, 0, 5, 0, 0x203, 9]);
+        expected.extend(words(&[0x4000_0001, 1, 0x11, 0xFFFF_FFFE]));
+        expected.extend(words(&[0x4000_0003, 2, 0x12, 2]));
+        expected.extend(words(&[0x4000_0002, 3, 0x13, 1.5f32.to_bits()]));
+        expected.extend(words(&[0x4000_0007, 4, 0]));
+        expected.extend(words(&[0x4000_0005, 5, 0x2222]));
+        expected.extend(words(&[0x4000_0006, 6]));
+        expected.extend(words(&[0x4000_0008, 7, 0x14, 0, 0x3FF8_0000]));
+        expected.extend(words(&[0x4000_000A, 8, 0x15, 0xFFFF_FFFF, 0xFFFF_FFFF]));
+        expected.extend(words(&[0x4000_0009, 9, 1, 2, 22, 2]));
+        assert_eq!(bytes, expected);
+    }
+
+    #[test]
+    fn add_simple_string_info_holds_only_the_id_and_table() {
+        let mut profile = ExaminationProfile::default();
+        profile.add_simple_string_info(7, 0x4000_0026, 3, 1);
+        assert_eq!(
+            profile.nodes,
+            vec![ExaminationDataNode {
+                order: 1,
+                appearance: 3,
+                value: ExaminationValue::Text(StringInfo {
+                    string_id: 7,
+                    table_id: 0x4000_0026,
+                    literal: None,
+                    variables: Vec::new(),
+                }),
+            }]
+        );
     }
 }
