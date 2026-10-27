@@ -80,7 +80,7 @@ key	status	note
 00407d70	x	ac2-ui death.rs (DeathPanel::take_resurrect: the death dialog's button asks the respawn); death_panel_7160
 00407f70	x	ac2-ui gameplay_keys.rs (child_for_key: keys 0x41000008 toolbar, 0x41000009 statusbar, 0x4100000B radar); ac2-client hud_view.rs gameplay_keys / set_child_shown; gameplay_keys_7160 (each_child_key_toggles_its_child)
 00408020	~	ac2-ui game_dialogs.rs GameplayDialogs::update (queues the mode with the app, sets _endSession); the vtable slot that runs Update is not named, so no frame calls it yet (the HUD's leave path is bin/ac2 back_to_character_selection)
-00408080	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
+00408080	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar; the keypress registrations (GameplayChildInfo: radar 0x4100000B, statusbar 0x41000009, toolbar 0x41000008, the rest 0) are in ac2-ui gameplay_keys.rs
 004084a0	~	ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
 00408500	~	ac2-client hud_game_dialogs.rs game_dialog_notices (LoginFinished -> GameplayDialogs::init closes the please-wait dialog); ac2-ui game_dialogs.rs init. SetupChildren's HUD is built at entry and the notice registrations are implicit in the event flow
@@ -1672,7 +1672,7 @@ key	status	note
 00469b10	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469bc0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469c10	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469c10	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 00469c60	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00469cb0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
@@ -6450,7 +6450,7 @@ key	status	note
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724ac0	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724be0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00724be0	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 00724c70	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 00724d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724d90	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
