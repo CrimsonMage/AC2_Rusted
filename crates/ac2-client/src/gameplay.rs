@@ -216,6 +216,12 @@ pub enum Command {
     /// `gmGamePlayUI::RecvNotice_SaveLocationsChanged`: the windows' locations are saved on the
     /// player (`SetUISaveLocations`) and uploaded (`UploadUISettings`).
     SaveWindowLocations(Vec<SavedWindow>),
+    /// `gmChatWindow`'s opacity slider released: the window's opacity is saved, then the UI
+    /// settings uploaded (`ChatWindow::ListenToMessage` -> `SetWindowOpacity`).
+    SetWindowOpacity {
+        window: u32,
+        opacity: f32,
+    },
     /// `gmCWInterface::SetShowObjectNames` (`gm3DTextUI::ToggleNames`).
     SetShowObjectNames(bool),
     /// `gmCWInterface::SetShortcut`: the shortcut into slot `index` of the bar.
@@ -519,6 +525,9 @@ impl Client {
                     }
                 }
                 Command::SaveWindowLocations(saved) => self.save_window_locations(saved),
+                Command::SetWindowOpacity { window, opacity } => {
+                    self.set_window_opacity(*window, *opacity)
+                }
                 Command::UploadChatOptions => {
                     let ifun = crate::scripts::IFUN_UPLOAD_CHAT_OPTIONS;
                     if self.scripts_own(ifun) {

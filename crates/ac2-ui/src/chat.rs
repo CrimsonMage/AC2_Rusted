@@ -15,7 +15,9 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::chat_window::{ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, TEXT_TYPE_ERROR};
+use crate::chat_window::{
+    ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, MSG_WIDGET_RELEASE, TEXT_TYPE_ERROR,
+};
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
@@ -41,7 +43,7 @@ const WINDOW_KEYS: [u32; 4] = [0x4100_0041, 0x4100_0042, 0x4100_0043, 0x4100_004
 
 /// The chat part of `GameplayOptionsProfile`: per-window filters (keyed 1 to 4) and the font
 /// size, font colour and popup flag of each text type. The default is `Clear`'s.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ChatSettings {
     pub filters: HashMap<u32, u32>,
     pub font_sizes: HashMap<u32, u32>,
@@ -49,6 +51,8 @@ pub struct ChatSettings {
     pub popups: HashMap<u32, bool>,
     /// The text type each window shows (Legions' version-6 table, `FUN_005bfd50`).
     pub window_text_types: HashMap<u32, u32>,
+    /// `GameplayOptionsProfile::InqWindowOpacity`: each window's saved opacity, by window id.
+    pub opacities: HashMap<u32, f32>,
 }
 
 impl Default for ChatSettings {
@@ -61,6 +65,7 @@ impl Default for ChatSettings {
             font_colors: CHAT_TEXT_TYPES.iter().copied().collect(),
             popups: HashMap::from([(crate::chat_window::TEXT_TYPE_BROADCAST, true)]),
             window_text_types: HashMap::new(),
+            opacities: HashMap::new(),
         }
     }
 }
@@ -137,6 +142,8 @@ pub struct ChatUi {
     last_focus: Option<usize>,
     strings: ChatStrings,
     requests: Vec<ChatRequest>,
+    /// The windows whose opacity the player set on release: window id and opacity.
+    opacity_requests: Vec<(u32, f32)>,
 }
 
 impl ChatUi {
@@ -151,6 +158,7 @@ impl ChatUi {
             last_focus: None,
             strings,
             requests: Vec::new(),
+            opacity_requests: Vec::new(),
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
@@ -177,6 +185,12 @@ impl ChatUi {
     /// What the chat asked since the last call.
     pub fn take_requests(&mut self) -> Vec<ChatRequest> {
         std::mem::take(&mut self.requests)
+    }
+
+    /// The windows whose opacity the player set since the last call (`ChatWindow`'s
+    /// `SetWindowOpacity`, sent with `UploadUISettings`).
+    pub fn take_opacity_requests(&mut self) -> Vec<(u32, f32)> {
+        std::mem::take(&mut self.opacity_requests)
     }
 
     /// `gmChatUI::SetActiveWindow`.
@@ -240,6 +254,19 @@ impl ChatUi {
             self.last_focus = Some(i);
         }
         let window = &mut self.windows[i];
+        // `ChatWindow::ListenToMessage`'s opacity slider: the window follows it as it moves; a
+        // release saves the opacity (`SetWindowOpacity`, then `UploadUISettings`).
+        if message.element.is_some() && message.element == window.opacity_slider {
+            let slider = message.element.unwrap_or_default();
+            let opacity = tree
+                .float_attribute(slider, tokenize("y_position"))
+                .unwrap_or(0.0);
+            window.apply_opacity(tree, opacity);
+            if message.message == MSG_WIDGET_RELEASE || message.message == MSG_MOUSE_RELEASE {
+                self.opacity_requests.push((window.window_id, opacity));
+            }
+            return;
+        }
         if message.element_id == window.toggle_button && message.message == MSG_MOUSE_RELEASE {
             let shown = window.shown(tree);
             window.show(tree, !shown);

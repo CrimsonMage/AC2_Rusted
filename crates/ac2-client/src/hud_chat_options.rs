@@ -23,6 +23,7 @@ pub fn ui_chat_settings(settings: &crate::scripts_queries::ChatSettings) -> ac2_
             .map(|(&kind, &popup)| (kind, popup != 0))
             .collect(),
         window_text_types: settings.window_text_types.clone(),
+        opacities: settings.opacities.clone(),
     }
 }
 

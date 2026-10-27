@@ -333,13 +333,15 @@ impl Client {
 /// filter (`GetFilter`), per text type the font size, colour and popup flag
 /// (`GetChatFontSize` / `GetChatFontColor` / `GetChatPopupFlag`), and per window the text
 /// type Legions' fifth table keeps (0x9B0054; absent windows answer 0x10).
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct ChatSettings {
     pub filters: HashMap<u32, u32>,
     pub font_sizes: HashMap<u32, u32>,
     pub font_colors: HashMap<u32, u32>,
     pub popups: HashMap<u32, u32>,
     pub window_text_types: HashMap<u32, u32>,
+    /// `GameplayOptionsProfile::InqWindowOpacity`: each window's opacity (`0x800`, float bits).
+    pub opacities: HashMap<u32, f32>,
 }
 
 fn words(t: &WordTable) -> HashMap<u32, u32> {
@@ -356,6 +358,12 @@ impl Client {
             font_colors: words(&p.chat_font_colors),
             popups: words(&p.chat_popup_flags),
             window_text_types: words(&p.version6_table),
+            opacities: p
+                .window_opacities
+                .pairs
+                .iter()
+                .map(|&(window, bits)| (window, f32::from_bits(bits)))
+                .collect(),
         })
     }
 }

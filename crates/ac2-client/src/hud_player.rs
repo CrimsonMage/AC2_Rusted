@@ -162,6 +162,12 @@ impl HudView {
                 }
             }
         }
+        // The chat windows' opacity sliders released since the last frame.
+        if let Some(chat) = chat.as_mut() {
+            for (window, opacity) in chat.take_opacity_requests() {
+                commands.push(Command::SetWindowOpacity { window, opacity });
+            }
+        }
         // `gmRadarUI::ReloadOptions` (at login, `Init`, and on `RecvNotice_ReloadOptions`).
         let reload_radar = !*player_loaded
             || script_notices

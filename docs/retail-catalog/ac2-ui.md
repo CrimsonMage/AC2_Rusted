@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 954 done, 355 partial, 869 to do, 69 skipped.
+2247 retail functions: 956 done, 355 partial, 867 to do, 69 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -632,7 +632,7 @@ Legend and workflow: [README](README.md).
 ### gmStoryUI
 - [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 
-## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (14/32)
+## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (16/32)
 
 ### ChatWindow
 - [x] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30 — ac2-ui chat.rs / chat_window.rs
@@ -649,7 +649,7 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::ChatInfo::ChatInfo` · 0044b1a0 · legions 0044bdf0 — ac2-ui chat.rs / chat_window.rs
 
 ### ChatWindow
-- [ ] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20
+- [x] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
@@ -687,7 +687,7 @@ Legend and workflow: [README](README.md).
 - [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [ ] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10
+- [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 
 ## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (17/22)

@@ -104,6 +104,15 @@ fn a_window_filter_ticked_on_the_page_reaches_the_players_chat_settings() {
             "colour {text_type:#x}"
         );
     }
+    // The chat options went up to the server (`UploadChatOptions`, `WM_Player` 0x2E).
+    assert!(
+        server
+            .borrow()
+            .script_calls
+            .iter()
+            .any(|c| c.function == 0x8212_002D),
+        "the chat options are uploaded"
+    );
     // The page has nothing left to apply, and the chat windows were told to reload.
     assert!(!page.changed());
     assert!(page.take_reload());

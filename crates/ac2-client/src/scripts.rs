@@ -79,6 +79,7 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_UI_SAVE_LOCATIONS,
     IFUN_INQ_UI_SAVE_LOCATIONS,
     IFUN_UPLOAD_UI_SETTINGS,
+    IFUN_SET_WINDOW_OPACITY,
     // The chat options page's setters and the upload (`gmChatOptionsUI::Apply`).
     IFUN_SET_CHAT_WINDOW_FILTER,
     IFUN_SET_CHAT_FONT_SIZE,
@@ -351,6 +352,9 @@ pub const IFUN_SET_SHORTCUT_HEIGHT: u32 = 0x00B4_0142;
 pub const IFUN_SET_UI_SAVE_LOCATIONS: u32 = 0x00B4_007B;
 /// `ggmCWInterface::CallIFun_InqUISaveLocations(UISaveLocations out)` (Legions 0x0045F7E0).
 pub const IFUN_INQ_UI_SAVE_LOCATIONS: u32 = 0x00B4_007C;
+/// `ggmCWInterface::CallIFun_SetWindowOpacity(windowID, opacity)` (Legions 0x00463E50): the
+/// opacity is a float, passed as its bits in the word slot (tag 4, as the glue pushes it).
+pub const IFUN_SET_WINDOW_OPACITY: u32 = 0x00B4_00DF;
 /// `ggmCWInterface::CallIFun_UploadUISettings` (Legions 0x00464870): the profile to the server
 /// (`WM_Player` 0x32, `UploadUISettings`).
 pub const IFUN_UPLOAD_UI_SETTINGS: u32 = 0x00B4_00DB;

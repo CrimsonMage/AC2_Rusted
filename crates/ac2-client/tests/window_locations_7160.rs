@@ -42,11 +42,13 @@ fn sorted(mut windows: Vec<SavedWindow>) -> Vec<(u32, u32, [u32; 5])> {
         .collect()
 }
 
-#[test]
-fn moved_windows_are_saved_uploaded_and_applied_on_reload() {
-    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
-        return;
-    };
+/// The player in the world with the script VM attached, after the first frames.
+fn in_world() -> Option<(
+    ac2_client::Client,
+    std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
+    Arc<ac2_db::ResourceStore>,
+)> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
     let ui_store = Arc::new(ac2_db::ResourceStore::new(dataset.clone()));
     let store = ac2_db::ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
@@ -71,7 +73,15 @@ fn moved_windows_are_saved_uploaded_and_applied_on_reload() {
         step(&mut client, &server, &idle);
     }
     assert!(client.take_script_problems().is_empty());
+    Some((client, server, ui_store))
+}
 
+#[test]
+fn moved_windows_are_saved_uploaded_and_applied_on_reload() {
+    let Some((mut client, server, ui_store)) = in_world() else {
+        return;
+    };
+    let idle = FrameInput::default();
     // The HUD as the client built it; its windows save their locations.
     let mut hud = build_gameplay_hud(&ui_store, 1024, 768).unwrap();
     let saved = hud.tree.inq_locations();
@@ -159,5 +169,44 @@ fn moved_windows_are_saved_uploaded_and_applied_on_reload() {
         uploads(&server),
         before,
         "a duplicated window saves nothing"
+    );
+}
+
+/// A chat window's opacity, set by its slider's release (`SetWindowOpacity`), is kept by the
+/// profile and the settings go up with it (`UploadUISettings`).
+#[test]
+fn a_window_opacity_is_saved_on_the_profile_and_uploaded() {
+    let Some((mut client, server, _)) = in_world() else {
+        return;
+    };
+    let idle = FrameInput::default();
+    let window = ac2_ui::chat_window_id(1);
+    assert!(client.chat_settings().unwrap().opacities.is_empty());
+    let uploads = |server: &std::rc::Rc<std::cell::RefCell<legions_server_double::State>>| {
+        server
+            .borrow()
+            .script_bytes
+            .iter()
+            .filter(|(f, _)| *f == UPLOAD_UI_SETTINGS)
+            .count()
+    };
+    let before = uploads(&server);
+    client
+        .use_time(&FrameInput {
+            commands: vec![Command::SetWindowOpacity {
+                window,
+                opacity: 0.25,
+            }],
+            ..FrameInput::default()
+        })
+        .unwrap();
+    for _ in 0..4 {
+        step(&mut client, &server, &idle);
+    }
+    assert!(client.take_script_problems().is_empty());
+    assert_eq!(uploads(&server) - before, 1);
+    assert_eq!(
+        client.chat_settings().unwrap().opacities.get(&window),
+        Some(&0.25)
     );
 }

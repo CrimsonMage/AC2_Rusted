@@ -109,3 +109,72 @@ fn a_drag_bar_moves_its_window_and_raises_location_changed() {
     assert!(hud.tree.take_locations_changed());
     assert!(!hud.tree.take_locations_changed(), "taken once");
 }
+
+#[test]
+fn the_opacity_slider_sets_the_window_alpha_and_its_release_asks_to_save() {
+    use crate::chat::{ChatSettings, Modifiers};
+    use crate::chat_window::{chat_window_id, MSG_WIDGET_RELEASE};
+    use crate::mouse::UiMessage;
+    use crate::scrollbar::MSG_NEW_POSITION;
+
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = load(&store);
+    let id = chat_window_id(1);
+    let root = hud
+        .tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| hud.tree.get(r).unwrap().id() == id)
+        .expect("chat window 1 is a root");
+    let slider_id = tokenize("OpacitySliderBar");
+    let slider = hud
+        .tree
+        .child_recursive(root, slider_id)
+        .expect("the window has an opacity slider");
+    let chat = hud.chat.as_mut().expect("the chat");
+    let message = |element: usize, message: u32| UiMessage {
+        element_id: slider_id,
+        element: Some(element),
+        message,
+        data: 0,
+        item: None,
+    };
+
+    // The slider moves: the window follows it live, and nothing is asked to be saved yet.
+    hud.tree.set_float(slider, tokenize("y_position"), 0.25);
+    chat.message(
+        &mut hud.tree,
+        &message(slider, MSG_NEW_POSITION),
+        Modifiers::default(),
+    );
+    assert_eq!(hud.tree.get(root).unwrap().alpha_value, 0.25);
+    assert!(
+        chat.take_opacity_requests().is_empty(),
+        "moving saves nothing"
+    );
+
+    // Released: the opacity is asked to be saved, once.
+    chat.message(
+        &mut hud.tree,
+        &message(slider, MSG_WIDGET_RELEASE),
+        Modifiers::default(),
+    );
+    assert_eq!(chat.take_opacity_requests(), vec![(id, 0.25)]);
+    assert!(chat.take_opacity_requests().is_empty());
+
+    // The reload applies a saved opacity to the window and moves the slider to it.
+    let settings = ChatSettings {
+        opacities: std::collections::HashMap::from([(id, 0.5)]),
+        ..ChatSettings::default()
+    };
+    chat.reload_chat_settings(&mut hud.tree, &settings);
+    assert_eq!(hud.tree.get(root).unwrap().alpha_value, 0.5);
+    assert_eq!(
+        hud.tree.float_attribute(slider, tokenize("y_position")),
+        Some(0.5)
+    );
+}

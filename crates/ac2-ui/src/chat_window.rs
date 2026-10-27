@@ -4,9 +4,13 @@
 //! filter (`m_chatBitfield`); the UI loop writes them to the log (`AllTextToLog`) in the font size
 //! and colour the chat options give that type (`GetChatMessageInfo`).
 //!
-//! Not modelled yet: the opacity slider and saved window opacity, the log scroll bar's scroll
-//! lock, saving the window's location, the move bar's active look (`SetActiveWindow`), selection
-//! in the entry line (`SelectAll` / `Deselect`) and the IME font (`kanjifont`).
+//! The opacity slider (`OpacitySliderBar`) sets the window's alpha as it moves and, on release,
+//! asks for the window's opacity to be saved (`SetWindowOpacity`, then `UploadUISettings`); the
+//! reload applies the saved opacity (`ChatWindow::RecvNotice_ReloadOptions`).
+//!
+//! Not modelled yet: the log scroll bar's scroll lock, the move bar's active look
+//! (`SetActiveWindow`), selection in the entry line (`SelectAll` / `Deselect`) and the IME font
+//! (`kanjifont`).
 
 use std::collections::HashMap;
 
@@ -63,13 +67,28 @@ pub const CHAT_TEXT_TYPES: [(u32, u32); 16] = [
     (TEXT_TYPE_BROADCAST, 9),
 ];
 
+/// `Tokenize("ChatWindowN")`: the window's root element and its id in the profile's opacities
+/// (`ChatWindow`'s `m_rootElement`).
+pub fn chat_window_id(number: u32) -> u32 {
+    tokenize(&format!("ChatWindow{number}"))
+}
+
+/// `Token_Scrollbar_y_position`: the slider's position, which is the opacity.
+const Y_POSITION: u32 = tokenize("y_position");
+/// `Token_ScrollbarMsg_widget_release`.
+pub(crate) const MSG_WIDGET_RELEASE: u32 = tokenize("widget_release");
+
 /// A chat window's elements and state.
 #[derive(Debug, Clone)]
 pub(crate) struct ChatWindow {
     /// `m_windowNumber`, 1 to 4: the key of its filter.
     pub number: u32,
+    /// `m_rootElement`: the window's id (`chat_window_id`).
+    pub window_id: u32,
     /// `m_chatArea`, the window's root.
     pub root: usize,
+    /// `m_opacitySlider`.
+    pub opacity_slider: Option<usize>,
     pub entry: Option<usize>,
     /// `m_textBox`: the log.
     pub log: Option<usize>,
@@ -112,7 +131,9 @@ impl ChatWindow {
         };
         let mut window = Self {
             number,
+            window_id: chat_window_id(number),
             root,
+            opacity_slider: child(tree, "OpacitySliderBar"),
             entry: child(tree, "ChatEntry"),
             log: child(tree, "ChatLog"),
             move_bar: child(tree, "MoveBar"),
@@ -130,6 +151,11 @@ impl ChatWindow {
         };
         window.show(tree, false);
         Some(window)
+    }
+
+    /// `ChatWindow::SetOpacity(m_chatArea, opacity)`: the window's alpha and its children's.
+    pub(crate) fn apply_opacity(&self, tree: &mut UiTree, opacity: f32) {
+        tree.set_alpha_recursive(self.root, opacity);
     }
 
     /// `IsShown`.
@@ -314,6 +340,14 @@ impl ChatWindow {
         }
         if let Some(entry) = self.entry {
             tree.set_font_num_and_color(entry, entry_info.size, entry_info.color);
+        }
+
+        // `ChatWindow::RecvNotice_ReloadOptions`: the saved opacity, if the profile has one.
+        if let Some(&opacity) = settings.opacities.get(&self.window_id) {
+            self.apply_opacity(tree, opacity);
+            if let Some(slider) = self.opacity_slider {
+                tree.set_float(slider, Y_POSITION, opacity);
+            }
         }
     }
 

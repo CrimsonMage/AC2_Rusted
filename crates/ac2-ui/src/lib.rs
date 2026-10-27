@@ -166,7 +166,7 @@ pub use chat::{
     REPLY_STRING_TABLE, STRING_TABLE_GROUP,
 };
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
-pub use chat_window::{ChatMessageInfo, CHAT_TEXT_TYPES};
+pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use compose::{UiPixels, UiSurface};
 pub use consignment::{ConsignmentRequest, ConsignmentSource, ConsignmentUi};
 pub use controls::{ControlFrame, Controls};

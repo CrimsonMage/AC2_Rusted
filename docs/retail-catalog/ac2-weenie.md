@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 310 done, 150 partial, 1431 to do, 13 skipped.
+1904 retail functions: 323 done, 150 partial, 1418 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (91/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (97/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -816,10 +816,10 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetAcceptTradeRequest` · 00461e40 · legions 00462a90 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetAutoTarget` · 00461ef0 · legions 00462b40 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetBypassGoldMeltingConfirmationDlg` · 00461fa0 · legions 00462bf0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-- [ ] `ggmCWInterface::CallIFun_SetChatFontColor` · 00462050 · legions 00462ca0
-- [ ] `ggmCWInterface::CallIFun_SetChatFontSize` · 00462140 · legions 00462d90
-- [ ] `ggmCWInterface::CallIFun_SetChatPopupFlag` · 00462230 · legions 00462e80
-- [ ] `ggmCWInterface::CallIFun_SetChatWindowFilter` · 00462320 · legions 00462f70
+- [x] `ggmCWInterface::CallIFun_SetChatFontColor` · 00462050 · legions 00462ca0 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `ggmCWInterface::CallIFun_SetChatFontSize` · 00462140 · legions 00462d90 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `ggmCWInterface::CallIFun_SetChatPopupFlag` · 00462230 · legions 00462e80 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `ggmCWInterface::CallIFun_SetChatWindowFilter` · 00462320 · legions 00462f70 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_SetDamageTextRangeOther` · 00462410 · legions 00463060 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetExaminationRequest` · 004624c0 · legions 00463110
 - [x] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -839,7 +839,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetShowShortcutNumbers` · 00462fc0 · legions 00463c10 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetUISaveLocations` · 00463070 · legions 00463cc0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [ ] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0
-- [ ] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50
+- [x] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [ ] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40
 - [~] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 - [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
@@ -851,7 +851,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 - [~] `ggmCWInterface::CallIFun_UnEquipItem` · 004638e0 · legions 00464550 — ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
 - [ ] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650
-- [ ] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750
+- [x] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (140/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (147/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1072,12 +1072,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetShowObjectNames` · 00451630 · legions 00452770 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gmCWInterface::SetRadarMask` · 00451660 · legions 004527a0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetRadarMask` · 00451680 · legions 004527c0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-- [ ] `gmCWInterface::SetChatWindowFilter` · 004516b0 · legions 004527f0
-- [ ] `gmCWInterface::SetChatFontSize` · 004516f0 · legions 00452830
-- [ ] `gmCWInterface::SetChatFontColor` · 00451730 · legions 00452870
-- [ ] `gmCWInterface::SetWindowOpacity` · 00451770 · legions 004528f0
-- [ ] `gmCWInterface::SetChatPopupFlag` · 004517b0 · legions 00452930
-- [ ] `gmCWInterface::InqGameplayOptions` · 004517f0 · legions 00452970
+- [x] `gmCWInterface::SetChatWindowFilter` · 004516b0 · legions 004527f0 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `gmCWInterface::SetChatFontSize` · 004516f0 · legions 00452830 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `gmCWInterface::SetChatFontColor` · 00451730 · legions 00452870 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `gmCWInterface::SetWindowOpacity` · 00451770 · legions 004528f0 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `gmCWInterface::SetChatPopupFlag` · 004517b0 · legions 00452930 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
+- [x] `gmCWInterface::InqGameplayOptions` · 004517f0 · legions 00452970 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `gmCWInterface::SetAutoTarget` · 00451820 · legions 004529a0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetAutoTarget` · 00451840 · legions 004529c0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [x] `gmCWInterface::SetAcceptAllegianceRequest` · 00451870 · legions 004529f0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
@@ -1094,7 +1094,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
 - [x] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
-- [ ] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60
+- [x] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `gmCWInterface::UploadUISettings` · 00451b00 · legions 00452c80 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `gmCWInterface::DoFellowshipCreate` · 00451b20 · legions 00452ca0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [x] `gmCWInterface::DoFellowshipDisband` · 00451b50 · legions 00452cd0 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)

@@ -483,6 +483,15 @@ impl UiTree {
         std::mem::take(&mut self.moved)
     }
 
+    /// `ChatWindow::SetOpacity`'s walk: `m_alphaValue` of `index` and every child, recursively.
+    pub(crate) fn set_alpha_recursive(&mut self, index: usize, alpha: f32) {
+        self.el_mut(index).alpha_value = alpha;
+        self.changed = true;
+        for child in self.el(index).children.clone() {
+            self.set_alpha_recursive(child, alpha);
+        }
+    }
+
     /// `UISurfaceObject::SetScreenPosition` of a root's object (no clamping: `UIElement::MoveTo`
     /// keeps roots on the display, this does not).
     pub fn set_object_position(&mut self, root: usize, x: i32, y: i32) {

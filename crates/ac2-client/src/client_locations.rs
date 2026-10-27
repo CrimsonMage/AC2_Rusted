@@ -12,7 +12,8 @@ use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
 use crate::scripts::{
-    IFUN_INQ_UI_SAVE_LOCATIONS, IFUN_SET_UI_SAVE_LOCATIONS, IFUN_UPLOAD_UI_SETTINGS,
+    IFUN_INQ_UI_SAVE_LOCATIONS, IFUN_SET_UI_SAVE_LOCATIONS, IFUN_SET_WINDOW_OPACITY,
+    IFUN_UPLOAD_UI_SETTINGS,
 };
 
 /// The windows of a `UISaveLocations`, in its order (`UISaveLocations::InqUILocationData`'s
@@ -87,6 +88,20 @@ impl Client {
         let mut events = self.script_ifun_args(
             IFUN_SET_UI_SAVE_LOCATIONS,
             &[IFunArg::Native(NativeObject::UiSaveLocations(ui))],
+        );
+        events.extend(self.script_ifun(IFUN_UPLOAD_UI_SETTINGS, &[]));
+        events
+    }
+
+    /// `ChatWindow::ListenToMessage`'s release of the opacity slider: `gmCWInterface::
+    /// SetWindowOpacity(window, opacity)`, then `UploadUISettings`.
+    pub(crate) fn set_window_opacity(&mut self, window: u32, opacity: f32) -> Vec<SessionEvent> {
+        if !self.scripts_own(IFUN_SET_WINDOW_OPACITY) {
+            return Vec::new();
+        }
+        let mut events = self.script_ifun_args(
+            IFUN_SET_WINDOW_OPACITY,
+            &[IFunArg::Int(window), IFunArg::Int(opacity.to_bits())],
         );
         events.extend(self.script_ifun(IFUN_UPLOAD_UI_SETTINGS, &[]));
         events
