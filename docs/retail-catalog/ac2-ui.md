@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1059 done, 347 partial, 730 to do, 111 skipped.
+2247 retail functions: 1062 done, 359 partial, 715 to do, 111 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -3034,14 +3034,14 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (28/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (29/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
 
 ### UIElement_Text
 - [ ] `UIElement_Text::GetScrollbar` · 005ed7d0 · legions 005ae3a0
-- [ ] `UIElement_Text::HandleMouseWheel` · 005ed840 · legions 005ae410
+- [x] `UIElement_Text::HandleMouseWheel` · 005ed840 · legions 005ae410 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [x] `UIElement_Text::CalcJustification` · 005ed8b0 · legions 005ae480 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::IMETurnOn` · 005ed950 · legions 005ae540
 - [~] `UIElement_Text::Activate` · 005ed9a0 · legions 005ae590 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -3050,7 +3050,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::SetAtrb_Editable` · 005edaf0 · legions 005ae6e0 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [x] `UIElement_Text::DetermineMarginValues` · 005edb30 · legions 005ae720 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::SetAtrb_OneLine` · 005edbf0 · legions 005ae7e0
-- [ ] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830
+- [~] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830 — vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
 - [ ] `UIElement_Text::GetPercentageH` · 005edcc0 · legions 005ae8b0
 - [ ] `UIElement_Text::ClampPosition` · 005edd40 · legions 005ae930
 - [ ] `UIElement_Text::MoveUpDown` · 005edd80 · legions 005ae970
@@ -3071,7 +3071,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::Deselect` · 005ee400 · legions 005aeff0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [ ] `UIElement_Text::GetText` · 005ee420 · legions 005af010
 - [x] `UIElement_Text::GetSelectedText` · 005ee490 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
-- [ ] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140
+- [~] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. A bar in another root is not linked (GetScrollbar without unique_msg)
 - [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0
 - [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
@@ -3079,7 +3079,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Create` · 005eed10
 - [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [ ] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70
+- [~] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. A bar in another root is not linked (GetScrollbar without unique_msg)
 
 ### SmartArray<GlyphLine>
 - [ ] `SmartArray<GlyphLine>::operator=` · 005eef60 · legions 005afac0
@@ -3111,7 +3111,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270
 - [ ] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280
 - [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
-- [ ] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0
+- [~] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. A bar in another root is not linked (GetScrollbar without unique_msg)
 - [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600
 - [x] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (21/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (22/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3216,10 +3216,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640
 - [ ] `UIElement_ListBox::EndRollover` · 005f2b60 · legions 005b3690
 - [x] `UIElement_ListBox::ConstrainViewValue` · 005f2bc0 · legions 005b36f0 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760
+- [~] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760 — list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
 - [ ] `UIElement_ListBox::GetPercentageH` · 005f2cc0 · legions 005b37f0
-- [ ] `UIElement_ListBox::HandleMouseWheel` · 005f2d50 · legions 005b3880
-- [ ] `UIElement_ListBox::HandleScrollBarMessage` · 005f2d90 · legions 005b38c0
+- [x] `UIElement_ListBox::HandleMouseWheel` · 005f2d50 · legions 005b3880 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
+- [~] `UIElement_ListBox::HandleScrollBarMessage` · 005f2d90 · legions 005b38c0 — list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
 - [ ] `UIElement_ListBox::HandleScrollbarWidgetRelease` · 005f2f60 · legions 005b3a90
 - [ ] `UIElement_ListBox::~UIElement_ListBox` · 005f3070 · legions 005b3ba0
 - [ ] `UIElement_ListBox::MouseOverTop` · 005f3190 · legions 005b3cc0
@@ -3249,7 +3249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60
 - [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [ ] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0
-- [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
+- [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
 - [ ] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0
 - [ ] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030
 - [ ] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070
@@ -3369,7 +3369,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Resizebar::Create` · 005f83c0
 - [ ] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20
 
-## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (10/28)
+## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (11/28)
 
 ### UIElement_Scrollbar
 - [ ] `UIElement_Scrollbar::SetAttribute_ID` · 005f9a20 · legions 005ba550
@@ -3393,11 +3393,11 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Scrollbar::Global_Loop` · 005fa910 · legions 005bb440
 - [x] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710 — ac2-ui scrollbar.rs
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-- [ ] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850
+- [x] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [x] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900 — ac2-ui scrollbar.rs
 - [~] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Create` · 005fb0a0
-- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: a disabled bar takes nothing; a wheel turn steps or drives (scrollbar_mouse_wheel); left press and drag of the widget; track paging not modelled
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0
 
@@ -3407,14 +3407,14 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::DrawMeBotToTop` · 005f5e30 · legions 005b6960
-- [ ] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980
+- [~] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980 — vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
 - [ ] `UIElement_Tree::GetPercentageH` · 005f5ee0 · legions 005b6a10
 - [ ] `UIElement_Tree::VerticalPageDecrement` · 005f5f70 · legions 005b6aa0
 - [ ] `UIElement_Tree::VerticalPageIncrement` · 005f5fc0 · legions 005b6af0
 - [ ] `UIElement_Tree::HorizontalPageDecrement` · 005f6020 · legions 005b6b50
 - [ ] `UIElement_Tree::HorizontalPageIncrement` · 005f6070 · legions 005b6ba0
-- [ ] `UIElement_Tree::VerticalLineDecrement` · 005f60c0 · legions 005b6bf0
-- [ ] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30
+- [~] `UIElement_Tree::VerticalLineDecrement` · 005f60c0 · legions 005b6bf0 — vertical bar wired (text_scroll.rs / tree_scroll.rs / scrollbar.rs); horizontal bar, widget size (thumb stays its own size), page messages, smooth goal_y_view and the paper-1 scale of the Legions decompile not modelled (range is paper less element height).
+- [~] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30 — vertical bar wired (text_scroll.rs / tree_scroll.rs / scrollbar.rs); horizontal bar, widget size (thumb stays its own size), page messages, smooth goal_y_view and the paper-1 scale of the Legions decompile not modelled (range is paper less element height).
 - [ ] `UIElement_Tree::HorizontalLineDecrement` · 005f6150 · legions 005b6c80
 - [ ] `UIElement_Tree::HorizontalLineIncrement` · 005f6190 · legions 005b6cc0
 - [x] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10 — ac2-ui tree_view.rs
@@ -3422,8 +3422,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::StaticLayoutUpdate` · 005f6450 · legions 005b6f80 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::GridLayoutUpdate` · 005f6500 · legions 005b7030 — ac2-ui tree_view.rs
-- [ ] `UIElement_Tree::UpdateControls` · 005f65f0 · legions 005b7120
-- [ ] `UIElement_Tree::ListenToMessage` · 005f6a50 · legions 005b7580
+- [~] `UIElement_Tree::UpdateControls` · 005f65f0 · legions 005b7120 — tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
+- [~] `UIElement_Tree::ListenToMessage` · 005f6a50 · legions 005b7580 — tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
 - [x] `UIElement_Tree::DrawDone` · 005f6d10 · legions 005b7840 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::GetItem` · 005f6f50 · legions 005b7a80 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::SetAttribute_ID` · 005f6f70 · legions 005b7aa0
@@ -3438,7 +3438,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360
 - [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
-- [ ] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780
+- [~] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780 — tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
 - [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900
 - [ ] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60
 - [ ] `UIElement_Tree::Create` · 005f8000

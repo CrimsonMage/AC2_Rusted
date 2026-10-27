@@ -7,8 +7,9 @@
 //! buttons step one stop when `buttons_interact` is set (`HandleButtonHotclick`,
 //! `HandleMoveSteps`). Every move broadcasts `new_position`.
 //!
-//! Not modelled yet: proportional widgets, the fill children, paging by holding the track,
-//! smooth movement, the mouse wheel and disabling.
+//! The wheel steps a stop-located bar, or moves the lists and texts it drives a line
+//! (`HandleMouseWheel`). A disabled bar takes nothing. Not modelled yet: proportional widgets,
+//! the fill children, paging by holding the track and smooth movement.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -145,6 +146,8 @@ impl UiTree {
         let position = position.clamp(0.0, 1.0);
         self.scrollbar_set_position(index, position);
         self.lists_follow_scrollbar(index);
+        self.texts_follow_scrollbar(index);
+        self.trees_follow_scrollbar(index);
         let root = self.root_of(index);
         self.broadcast(index, MSG_NEW_POSITION, root as i32);
     }
@@ -162,6 +165,8 @@ impl UiTree {
         let changed = self.scrollbar_position(index) != position;
         self.scrollbar_set_position(index, position);
         self.lists_follow_scrollbar(index);
+        self.texts_follow_scrollbar(index);
+        self.trees_follow_scrollbar(index);
         if changed {
             let root = self.root_of(index);
             self.broadcast(index, MSG_NEW_POSITION, root as i32);
@@ -172,19 +177,19 @@ impl UiTree {
     /// `move_to_touched_position`) moves the widget's middle to the pointer, then any left press
     /// starts dragging the widget.
     pub(crate) fn scrollbar_mouse_down(&mut self, index: usize, action: u32) {
+        if !self.is_scrollbar(index) || self.bool_attribute(index, tokenize("disabled")) {
+            return;
+        }
         if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
             self.scrollbar_mouse_wheel(index, action);
             return;
         }
-        if !self.is_scrollbar(index) || !LEFT.contains(&action) {
+        if !LEFT.contains(&action) {
             return;
         }
         let Some(widget) = self.widget(index) else {
             return;
         };
-        if self.bool_attribute(index, tokenize("disabled")) {
-            return;
-        }
         let (px, py) = self.pointer;
         if !self.el(widget).mouse_over {
             if !self.bool_attribute(index, tokenize("move_to_touched_position")) {
@@ -228,6 +233,12 @@ impl UiTree {
         }
         for (list, vertical) in self.lists_bound_to(index) {
             self.list_line_step(list, vertical, if turn_in { -1 } else { 1 });
+        }
+        for text in self.texts_bound_to(index) {
+            self.text_line_step(text, if turn_in { -1 } else { 1 });
+        }
+        for tree in self.trees_bound_to(index) {
+            self.tree_line_step(tree, if turn_in { -1 } else { 1 });
         }
     }
 

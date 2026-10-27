@@ -1,10 +1,13 @@
 //! `UIElement_ListBox`'s scroll bars and keyboard stepping.
 //!
 //! A list names its scroll bars by `vertical_scrollbar` / `horizontal_scrollbar`. A scroll bar's
-//! new position sets the list's view to `position * (paper - 1)` (`ListBox::HandleScrollBarMessage`),
-//! and the list's view sets the bar back to `view / (paper - 1)`, zero for a paper of one pixel or
-//! less (`ListBox::GetPercentageV`, `UpdateControls`); while the scroll bar drives the view the
-//! bar is not written back (the `0x20000` guard). The line steps move the view a row or column of
+//! new position sets the list's view to `position * (paper - height)` (`ListBox::HandleScrollBarMessage`),
+//! and the list's view sets the bar back to `view / (paper - height)`, zero when the paper is no
+//! taller than the list (`ListBox::GetPercentageV`, `UpdateControls`). `height` is the list's own
+//! inclusive box height (`y1 - y0 + 1`), read from the machine code of both functions (admin
+//! 7148 0x005F2D90 and 0x005F2C30, Legions 0x005B38C0 and 0x005B3760): the same range the text and
+//! tree bars use (`text_scroll.rs`). While the scroll bar drives the view the bar is not written
+//! back (the `0x20000` guard). The line steps move the view a row or column of
 //! items (`VerticalLineIncrement` and its partners). A wheel turn
 //! over a list goes to its scroll bar (`ListBox::HandleMouseWheel`).
 //!
@@ -43,6 +46,21 @@ pub fn list_step_for_action(action: u32) -> Option<ListStep> {
     }
 }
 
+/// The list's box extent along the scroll axis: `UiBox::height` or `width`, inclusive.
+fn box_extent(rect: crate::element::UiBox, vertical: bool) -> i32 {
+    if vertical {
+        rect.height()
+    } else {
+        rect.width()
+    }
+}
+
+/// The view's scrollable range: the paper less the list's own box extent, zero when the paper
+/// fits (`ListBox::GetPercentageV`: `m_nPaperHeight - (y1 - y0 + 1)`).
+fn scroll_range(paper: i32, extent: i32) -> i32 {
+    (paper - extent).max(0)
+}
+
 impl UiTree {
     /// The scroll bar a list names in `vertical_scrollbar` (or `horizontal_scrollbar`), in the
     /// list's root.
@@ -68,7 +86,7 @@ impl UiTree {
             let Some(el) = slot.as_ref() else {
                 continue;
             };
-            if el.desc.kind != crate::list_box_select::LIST_BOX || self.root_of(index) != root {
+            if !crate::list_box_select::is_list_kind(el.desc.kind) || self.root_of(index) != root {
                 continue;
             }
             for (name, vertical) in [
@@ -89,15 +107,16 @@ impl UiTree {
     pub(crate) fn lists_follow_scrollbar(&mut self, scrollbar: usize) {
         let position = f64::from(self.scrollbar_position(scrollbar));
         for (list, vertical) in self.lists_bound_to(scrollbar) {
+            let extent = box_extent(self.el(list).rect, vertical);
             let Some(state) = self.el_mut(list).list.as_mut() else {
                 continue;
             };
-            let range = if vertical {
+            let paper = if vertical {
                 state.paper.1
             } else {
                 state.paper.0
-            } - 1;
-            let view = (position * f64::from(range)) as i32;
+            };
+            let view = (position * f64::from(scroll_range(paper, extent))) as i32;
             state.from_scrollbar = true;
             if vertical {
                 self.list_set_view(list, None, Some(view));
@@ -127,15 +146,16 @@ impl UiTree {
             let Some(bar) = bar else {
                 continue;
             };
-            let (range, at) = if vertical {
+            let (paper_extent, at) = if vertical {
                 (paper.1, view.1)
             } else {
                 (paper.0, view.0)
             };
-            let share = if range <= 1 {
+            let range = scroll_range(paper_extent, box_extent(self.el(list).rect, vertical));
+            let share = if range <= 0 {
                 0.0
             } else {
-                (f64::from(at) / f64::from(range - 1)).clamp(0.0, 1.0)
+                (f64::from(at) / f64::from(range)).clamp(0.0, 1.0)
             };
             self.scrollbar_set_position(bar, share as f32);
         }

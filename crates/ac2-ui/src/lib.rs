@@ -159,6 +159,10 @@ mod story_view;
 #[cfg(test)]
 mod story_view_tests;
 pub use story_view::StoryView;
+#[cfg(test)]
+mod scroll_coverage_tests;
+#[cfg(test)]
+mod scroll_wheel_tests;
 mod target_cycle;
 #[cfg(test)]
 mod tests;
@@ -168,10 +172,12 @@ mod text_clip;
 mod text_clipboard;
 mod text_data;
 mod text_edit;
+mod text_scroll;
 mod token;
 mod toolbar;
 mod tooltip;
 mod transition;
+mod tree_scroll;
 mod tree_view;
 mod wheel;
 #[cfg(test)]

@@ -9,7 +9,8 @@
 //! GetChildLines`); `DrawDone` draws them after the items, straight or, with `straight_connect`,
 //! as three segments bent `straight_away_pix` away (`SurfaceWindow::DrawLine`).
 //!
-//! Not modelled yet: the scroll bars and arrow buttons (`UpdateControls`), the selection
+//! The vertical scroll bar and its wheel are in `tree_scroll.rs`. Not modelled yet: the horizontal
+//! bar and arrow buttons (`UpdateControls`), the selection
 //! (`SetSelectedItem`, `MouseDown`) and the static layout's placement (static trees keep the
 //! items where the layout put them).
 
@@ -102,7 +103,7 @@ fn float(tree: &UiTree, index: usize, name: &str) -> Option<f32> {
 }
 
 impl UiTree {
-    fn tree_state(&mut self, tree: usize) -> &mut TreeState {
+    pub(crate) fn tree_state(&mut self, tree: usize) -> &mut TreeState {
         self.el_mut(tree).tree.get_or_insert_with(Default::default)
     }
 
@@ -287,7 +288,7 @@ impl UiTree {
     }
 
     /// `UIElement_Tree::UpdateLayout`.
-    fn tree_update_layout(&mut self, tree: usize) {
+    pub(crate) fn tree_update_layout(&mut self, tree: usize) {
         let horizontal = flag(self, tree, "horizontal");
         let orient = flag(self, tree, "orient_high");
         if flag(self, tree, "grid") {

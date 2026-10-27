@@ -694,7 +694,10 @@ impl ApplicationHandler for App {
                 }
                 let notches = match delta {
                     MouseScrollDelta::LineDelta(_, y) => self.wheel.line_delta(y),
-                    MouseScrollDelta::PixelDelta(p) => self.wheel.pixel_delta(p.y),
+                    // winit reports pixel deltas in physical pixels; the notch is in logical ones.
+                    MouseScrollDelta::PixelDelta(p) => {
+                        self.wheel.pixel_delta(p.y / state.window.scale_factor())
+                    }
                 };
                 // One wheel action per notch, as a detented wheel sends one sample per notch.
                 let step = notches.signum();

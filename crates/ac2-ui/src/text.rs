@@ -14,8 +14,8 @@
 //! Editing lives in `text_edit.rs`: the cursor and selection (`selecting`, `selection`), and an
 //! editable element draws its view scrolled to the cursor (`view.0`).
 //!
-//! Not modelled yet: vertical scrollbars (`UpdateScrollbar`), the Korean and Japanese fallback
-//! fonts (`DetermineFont`), string variables and server string downloads.
+//! The vertical scroll bar is in `text_scroll.rs`. Not modelled yet: the Korean and Japanese
+//! fallback fonts (`DetermineFont`), string variables and server string downloads.
 
 use std::sync::Arc;
 

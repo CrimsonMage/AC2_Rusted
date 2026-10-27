@@ -15,6 +15,7 @@
 
 use crate::chat::Modifiers;
 use crate::element::UiTree;
+use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::tokenize;
 
 /// `UIElement_Text::MoveCursor`'s directions.
@@ -483,6 +484,10 @@ impl UiTree {
     /// places the cursor at the pointer (extending a selection while shift is held), starts a
     /// drag selection (`text_clip.rs`) and activates an editable one.
     pub(crate) fn text_mouse_down(&mut self, index: usize, action: u32) {
+        if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
+            self.text_wheel(index, action);
+            return;
+        }
         if action != LEFT_BUTTON {
             return;
         }

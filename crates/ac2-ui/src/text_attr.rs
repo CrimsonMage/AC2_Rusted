@@ -81,13 +81,16 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Text::SetText`: the element's text replaced, in its current font.
+    /// `UIElement_Text::SetText`: the element's text replaced, in its current font. The
+    /// vertical bar follows the new paper (retail updates it when the glyphs are recalculated,
+    /// `RecalculateGlyphList` -> `UpdateScrollbars`).
     pub fn set_text(&mut self, index: usize, text: &str) {
         let units: Vec<u16> = text.encode_utf16().collect();
         if let Some(state) = self.el_mut(index).text.as_mut() {
             state.clear();
             state.add_text(&units);
             self.changed = true;
+            self.text_update_scrollbar(index);
         }
     }
 

@@ -15,6 +15,14 @@ use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::{tokenize, MOUSE_EVENT_PASSTHROUGH};
 
 pub(crate) const LIST_BOX: u32 = tokenize("listbox");
+/// `UIElement_ListBoxMSize`: a list of items of differing sizes. It takes the list's mouse and
+/// scroll bar handling unchanged (no `MouseDown` or scroll override in the decompile).
+pub(crate) const LIST_BOX_MSIZE: u32 = tokenize("listboxmsize");
+
+/// Whether an element of `kind` is a list box (or one of its sized variants).
+pub(crate) fn is_list_kind(kind: u32) -> bool {
+    kind == LIST_BOX || kind == LIST_BOX_MSIZE
+}
 /// `ListBoxMsg_new_selection`.
 pub const MSG_NEW_SELECTION: u32 = tokenize("new_selection");
 const ITEM_NORMAL_STATE: u32 = tokenize("item_normal_state");
@@ -117,7 +125,7 @@ impl UiTree {
     /// `UIElement_ListBox::MouseDown` after `UIElement::MouseDown`: a left press selects the
     /// item under the pointer (`HandleSelection`) and is taken unless the list passes it on.
     pub(crate) fn list_mouse_down(&mut self, index: usize, action: u32, processed: &mut bool) {
-        if self.el(index).desc.kind != LIST_BOX {
+        if !is_list_kind(self.el(index).desc.kind) {
             return;
         }
         let wheel = matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT);
