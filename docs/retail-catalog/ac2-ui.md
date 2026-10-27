@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 993 done, 364 partial, 811 to do, 79 skipped.
+2247 retail functions: 1005 done, 356 partial, 807 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -313,12 +313,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 - [-] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — no Legions 7160 counterpart: the DVD client's gmIngredientUI::DoClose closes the panel at once, with no close confirmation (admin only)
 
-## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (4/6)
+## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (6/6)
 
 ### gmMiniFellowUI
 - [x] `gmMiniFellowUI::~gmMiniFellowUI` · 00421c50 · legions 00421ac0 — Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
-- [~] `gmMiniFellowUI::LocationApplied` · 00421ca0 · legions 0043eb50 — ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
-- [~] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10 — ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested on the real layout: the button is in the toolbar's FellowshipPage child c4bc4c07, in its fellowship state). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path)
+- [x] `gmMiniFellowUI::LocationApplied` · 00421ca0 · legions 0043eb50 — ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
+- [x] `gmMiniFellowUI::ListenToMessage` · 00421cc0 · legions 00421b10 — ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 - [x] `gmMiniFellowUI::RecvNotice_UpdateFellowship` · 00421d10 · legions 00421b60 — ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
 - [x] `gmMiniFellowUI::RecvNotice_ClearFellowship` · 00421da0 · legions 00421bf0 — ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
 - [x] `gmMiniFellowUI::gmMiniFellowUI` · 00421dd0 · legions 00421c20 — ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
@@ -326,12 +326,12 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (1/6)
 
 ### gmOverviewMapUI
-- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 - [-] `gmOverviewMapUI::~gmOverviewMapUI` · 0043e1c0 · legions 0043ea10 — C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 - [x] `gmOverviewMapUI::ShowMap` · 0043e290 · legions 0043eae0 — ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
-- [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
-- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+- [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 
 ## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (6/18)
 
@@ -937,15 +937,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0 — ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
 - [x] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
 
-## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
+## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (5/6)
 
 ### gmVitalsUI
 - [-] `gmVitalsUI::~gmVitalsUI` · 004397d0 · legions 0043a020
 - [x] `gmVitalsUI::RecvNotice_UpdateVital` · 004398c0 — ac2-ui vitals.rs
-- [~] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [x] `gmVitalsUI::SetTooltip` · 00439930 · legions 0043a180 — ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 - [x] `gmVitalsUI::gmVitalsUI` · 004399a0 · legions 0043a1f0 — ac2-ui vitals.rs
-- [~] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
-- [~] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+- [x] `gmVitalsUI::ListenToMessage` · 00439d30 · legions 0043a580 — ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
+- [x] `gmVitalsUI::RecvNotice_UpdateHeroStatus` · 00439e00 · legions 0043a650 — ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (2/4)
 
@@ -1222,18 +1222,18 @@ Legend and workflow: [README](README.md).
 - [ ] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160
 - [x] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250 — ac2-ui item_display.rs / backpack.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gminventoryui.cpp.c` (0/5)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gminventoryui.cpp.c` (4/5)
 
 ### gmInventoryUI
-- [ ] `gmInventoryUI::Show` · 00434500 · legions 00434cd0
-- [ ] `gmInventoryUI::ListenToMessage` · 00434530 · legions 00434d00
-- [ ] `gmInventoryUI::SetupChildren` · 00434590 · legions 00434d60
+- [x] `gmInventoryUI::Show` · 00434500 · legions 00434cd0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmInventoryUI::ListenToMessage` · 00434530 · legions 00434d00 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmInventoryUI::SetupChildren` · 00434590 · legions 00434d60 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 
 ### gmStatusbarUI
 - [~] `gmStatusbarUI::CleanupChildren` · 00434670 · legions 00434e40 — ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
 
 ### gmInventoryUI
-- [ ] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0
+- [x] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (8/11)
 
@@ -1513,12 +1513,12 @@ Legend and workflow: [README](README.md).
 - [~] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 - [ ] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (0/3)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (3/3)
 
 ### gmSkillUI
-- [~] `gmSkillUI::Show` · 00435000 · legions 004357d0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-- [~] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-- [~] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [x] `gmSkillUI::Show` · 00435000 · legions 004357d0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
 

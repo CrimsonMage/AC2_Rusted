@@ -381,8 +381,8 @@ key	status	note
 00421a90	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 00421bf0	x	ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 00421c50	x	Rust drop and the HUD tree own the panel and its rows; no notice handlers to unregister
-00421ca0	~	ac2-ui mini_fellow.rs location_applied: the shown state re-applied. Not: the saved panel location (no UI location load)
-00421cc0	~	ac2-ui mini_fellow.rs message: FellowshipMiniButton release toggles the panel (tested on the real layout: the button is in the toolbar's FellowshipPage child c4bc4c07, in its fellowship state). Not: FellowMiniPanel location_changed -> SendNotice_SaveLocationsChanged (no UI location save path)
+00421ca0	x	ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
+00421cc0	x	ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 00421d10	x	ac2-ui mini_fellow.rs update_fellowship: panel state fellowship, old list goes, new FellowRows over FellowMiniPanelListBox (mini template, Legions 7160 followed; tested)
 00421da0	x	ac2-ui mini_fellow.rs clear_fellowship: rows removed, then Show(0) on the mini (disassembly of admin 0x421da0 ends in vt+0x20 with shown=0; tested)
 00421dd0	x	ac2-ui mini_fellow.rs MiniFellowUi::create: FellowMiniPanel root from the gameplay layout, hidden; built in hud.rs
@@ -649,7 +649,11 @@ key	status	note
 00434330	x	ac2-ui toolbar.rs
 00434390	x	ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
 004343c0	~	ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
+00434500	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00434530	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00434590	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 00434670	~	ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
+00434700	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 004347e0	~	ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
 00434a20	~	ac2-client client_options.rs models the page's sections (gmClientUI Apply/Recall/Default/Changed) but no UI page is built or wired: the client page (graphics, sound, FX, camera, avatar) is not reachable from the HUD; the character and chat pages are wired (character_options.rs, chat_options.rs)
 00434aa0	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
@@ -661,9 +665,9 @@ key	status	note
 00434d10	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
 00434dd0	~	logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
 00434f70	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
-00435000	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-00435030	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-00435090	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00435000	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00435030	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00435090	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
 004351c0	x	ac2-ui chat.rs / chat_window.rs
 00435280	x	ac2-ui chat.rs / chat_window.rs
 00435320	x	ac2-ui chat.rs / chat_window.rs
@@ -729,11 +733,11 @@ key	status	note
 00439710	x	ac2-ui effects.rs
 004397d0	-	
 004398c0	x	ac2-ui vitals.rs
-00439930	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439930	x	ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 004399a0	x	ac2-ui vitals.rs
 00439d10	-	
-00439d30	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
-00439e00	~	ac2-ui vitals.rs; tooltips (ID_Vital_TT_*) follow the numbers' toggle and the hero status
+00439d30	x	ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
+00439e00	x	ac2-ui mini_fellow.rs, vitals.rs (tooltips per the numbers' toggle and the hero status); window location save and apply are the generic tree mechanism (mini_fellow_tests the_mini_panel_saves_its_location...)
 00439ea0	-	
 00439f30	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00439f40	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -806,12 +810,12 @@ key	status	note
 0043ddb0	~	ac2-ui journal_time.rs time_left: the words and thresholds; minute and second fields two digits wide (sprintf format not recovered)
 0043e080	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 0043e0d0	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
-0043e150	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e150	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 0043e1c0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-0043e230	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e230	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 0043e290	x	ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
-0043e2c0	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
-0043e300	~	ac2-ui overview_map.rs: the OverviewMap root is made with the HUD and hidden (retail makes it on first show and destroys it on hide); the help button is not opened
+0043e2c0	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+0043e300	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
 0043e380	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
 0043e3a0	x	ac2-ui journal_quests.rs drop_row
 0043e430	x	ac2-ui journal_quests.rs Rows::do_quest_time (countdown in journal_time.rs)

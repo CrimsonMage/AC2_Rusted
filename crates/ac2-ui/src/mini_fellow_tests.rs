@@ -201,3 +201,41 @@ fn the_mini_list_shows_names_and_vitals_leader_first() {
     assert!(!panel.is_shown());
     assert!(!tree.get(root).unwrap().visible());
 }
+
+/// `UIFramework::LocationApplied`: the panel's saved location goes with the layout's
+/// `SAVE_LOC` window, and a load applies it again (`UIMainFramework::ApplyLocations`).
+#[test]
+fn the_mini_panel_saves_its_location_and_takes_it_back_on_load() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let panel_id = tokenize("FellowMiniPanel");
+    let root = |tree: &UiTree| {
+        tree.roots()
+            .iter()
+            .copied()
+            .find(|&r| tree.get(r).is_some_and(|e| e.id() == panel_id))
+            .expect("the FellowMiniPanel root")
+    };
+    let saved_entry = |saved: &[crate::SavedWindow]| {
+        saved
+            .iter()
+            .find(|w| w.element == panel_id)
+            .map(|w| w.location)
+    };
+    let moved_to = {
+        let root = root(&hud.tree);
+        hud.tree.move_to(root, 120, 150);
+        hud.tree.inq_locations()
+    };
+    let saved = saved_entry(&moved_to).expect("the mini panel saves its location");
+
+    // A fresh HUD takes the saved location on load.
+    let mut reloaded = build_gameplay_hud(&store, 1024, 768).unwrap();
+    assert!(reloaded.tree.apply_locations(&moved_to));
+    let again = saved_entry(&reloaded.tree.inq_locations()).expect("saved again");
+    assert!((again.x0 - saved.x0).abs() < 1e-6 && (again.y0 - saved.y0).abs() < 1e-6);
+    assert_eq!(again.shown, saved.shown);
+}

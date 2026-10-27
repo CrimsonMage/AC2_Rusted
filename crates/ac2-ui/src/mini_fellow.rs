@@ -6,8 +6,10 @@
 //! are a [`FellowRows`] over the gameplay layout's `FellowMiniPanelTemplate`
 //! (`FellowshipHelper` mode 1): no level, no XP share, health and vigor numbers hidden at first.
 //!
-//! Not modelled yet: the saved panel location (`UIFramework::LocationApplied` loads nothing, and
-//! the location change is not sent, `CM_UI::SendNotice_SaveLocationsChanged`).
+//! The panel's location is the window location mechanism's: a move raises the location change
+//! the client saves (`CM_UI::SendNotice_SaveLocationsChanged`), and a load applies the saved
+//! location before the shown state (`gmMiniFellowUI::LocationApplied`). Not modelled yet: the
+//! per-object notice that removes a member being deleted.
 
 use std::sync::Arc;
 
@@ -62,8 +64,8 @@ impl MiniFellowUi {
         }
     }
 
-    /// `gmMiniFellowUI::LocationApplied`: the framework's location is applied (none saved yet),
-    /// then the shown state is applied again.
+    /// `gmMiniFellowUI::LocationApplied`: the framework's location has been applied by the
+    /// window locations, and the shown state is applied again.
     pub fn location_applied(&mut self, tree: &mut UiTree) {
         self.show(tree, self.shown);
     }
