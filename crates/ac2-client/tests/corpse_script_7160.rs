@@ -93,13 +93,13 @@ fn with_corpse() -> Option<(Client, Rc<RefCell<State>>)> {
 fn listed(client: &Client, id: u64) -> Option<Vec<u64>> {
     let inventory = client.frame().inventory;
     if inventory.pack.id == id {
-        return Some(inventory.pack.items);
+        return Some(inventory.pack.items.to_vec());
     }
     inventory
         .containers
         .iter()
         .find(|c| c.id == id)
-        .map(|c| c.items.clone())
+        .map(|c| c.items.to_vec())
 }
 
 /// The packed argument bytes of every `function` the client sent, in order.

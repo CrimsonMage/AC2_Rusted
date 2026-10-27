@@ -157,7 +157,7 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
     let mut panel: IngredientUi = hud.ingredient.take().expect("the ingredient panel");
     let tree = &mut hud.tree;
-    let inventory = client.frame().inventory.pack.items.clone();
+    let inventory = client.frame().inventory.pack.items.to_vec();
     let source = Known {
         client: RefCell::new(&mut client),
         inventory,

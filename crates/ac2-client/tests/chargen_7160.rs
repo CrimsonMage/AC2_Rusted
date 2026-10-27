@@ -405,7 +405,7 @@ fn created_characters_keep_their_ids_and_appearances_across_sessions() {
     let ada_player = second.client.frame().player.expect("the player");
     assert_eq!(ada_player.id, CREATED + 1, "Ada enters with her own id");
     assert_eq!(
-        ada_player.appearance,
+        *ada_player.appearance,
         Appearance {
             parent: ada_entity,
             ..ada.appearance.clone()
@@ -456,7 +456,7 @@ fn created_characters_keep_their_ids_and_appearances_across_sessions() {
     let player = third.client.frame().player.expect("the player");
     assert_eq!(player.id, CREATED, "Zeda enters with her id");
     assert_eq!(
-        player.appearance,
+        *player.appearance,
         Appearance {
             parent: zeda_entity,
             ..zeda.appearance.clone()

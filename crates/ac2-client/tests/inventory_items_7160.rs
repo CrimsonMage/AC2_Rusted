@@ -62,7 +62,7 @@ fn the_frame_carries_what_the_panels_show() {
     let frame = client.frame();
     let inventory = &frame.inventory;
     assert_eq!(inventory.pack.id, PLAYER);
-    assert_eq!(inventory.pack.packs, [PACK]);
+    assert_eq!(inventory.pack.packs[..], [PACK]);
     assert_eq!(
         (inventory.pack.items.as_slice(), inventory.pack.capacity),
         (&[POTIONS, SWORD][..], 24)
@@ -223,7 +223,7 @@ fn drags_and_drops_refresh_the_frame() {
             quantity: 1,
         },
     );
-    assert_eq!(container(&inv, PLAYER), [SWORD, POTIONS]);
+    assert_eq!(container(&inv, PLAYER)[..], [SWORD, POTIONS]);
     assert!(refreshed(&notices, PLAYER), "{notices:?}");
     // Pack to side pack: the potions after the rations.
     let (inv, notices) = run(
@@ -238,8 +238,8 @@ fn drags_and_drops_refresh_the_frame() {
             quantity: 5,
         },
     );
-    assert_eq!(container(&inv, PLAYER), [SWORD]);
-    assert_eq!(container(&inv, PACK), [RATIONS, POTIONS]);
+    assert_eq!(container(&inv, PLAYER)[..], [SWORD]);
+    assert_eq!(container(&inv, PACK)[..], [RATIONS, POTIONS]);
     assert!(refreshed(&notices, PACK), "{notices:?}");
     // Pack to the primary hand, and back.
     let (inv, notices) = run(
@@ -250,7 +250,7 @@ fn drags_and_drops_refresh_the_frame() {
             location: PRIMARY_HAND,
         },
     );
-    assert_eq!(inv.equipped, [(PRIMARY_HAND, SWORD)]);
+    assert_eq!(inv.equipped[..], [(PRIMARY_HAND, SWORD)]);
     assert!(container(&inv, PLAYER).is_empty());
     assert!(notices
         .iter()
@@ -264,7 +264,7 @@ fn drags_and_drops_refresh_the_frame() {
         },
     );
     assert!(inv.equipped.is_empty());
-    assert_eq!(container(&inv, PLAYER), [SWORD]);
+    assert_eq!(container(&inv, PLAYER)[..], [SWORD]);
     // The money bag: 50 out as a coin stack at the end of the pack, then the rations in.
     assert_eq!(inv.money, 250);
     let (inv, notices) = run(
@@ -304,7 +304,7 @@ fn drags_and_drops_refresh_the_frame() {
         },
     );
     assert_eq!(inv.money, 203);
-    assert_eq!(container(&inv, PACK), [POTIONS]);
+    assert_eq!(container(&inv, PACK)[..], [POTIONS]);
     // More than the player has is refused before sending.
     let (_, _) = run(
         &mut client,

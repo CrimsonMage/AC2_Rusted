@@ -202,10 +202,10 @@ impl Walk {
                 })
                 .collect(),
             // `CPhysicsObj::m_local_vdesc`: the server names the DAT `VisualDesc` it adds to.
-            appearance: Appearance {
+            appearance: Arc::new(Appearance {
                 parent: visual.raw(),
                 ..Appearance::default()
-            },
+            }),
         })
     }
 

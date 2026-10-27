@@ -62,7 +62,7 @@ fn items(session: &OnlineSession, container: u64) -> Vec<u64> {
         .contents(container)
         .unwrap()
         .items
-        .clone()
+        .to_vec()
 }
 
 #[test]
@@ -114,7 +114,10 @@ fn contents_moves_and_equipment_round_trip_through_the_double() {
         location: 0
     }));
     assert_eq!(items(&session, PLAYER), [A, B, C]);
-    assert_eq!(session.inventory().contents(PLAYER).unwrap().packs, [PACK]);
+    assert_eq!(
+        session.inventory().contents(PLAYER).unwrap().packs[..],
+        [PACK]
+    );
     assert_eq!(session.inventory().equipped(), [(0x10, E)]);
 
     // B into the side pack's first slot, A to the second slot of the player's own pack (a

@@ -516,7 +516,7 @@ fn the_creature_dies_and_its_corpse_is_looted() {
         .containers
         .iter()
         .find(|c| c.id == CORPSE)
-        .map(|c| c.items.clone());
+        .map(|c| c.items.to_vec());
     assert_eq!(listed, Some(vec![CORPSE_SKIN, CORPSE_ITEM]));
     // Loot All: both come into the pack.
     run(&mut client, &server, vec![Command::LootAll(CORPSE)]);

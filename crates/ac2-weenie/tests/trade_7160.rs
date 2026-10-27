@@ -154,7 +154,7 @@ fn the_secure_trade_runs_through_the_double() {
         assert_eq!(s.script_world.contents[&PLAYER].1, [ROBE, SHIELD]);
         assert_eq!(s.script_world.contents[&FELLOW].1, [HELM, SWORD]);
     }
-    let items = session.inventory().contents(PLAYER).unwrap().items.clone();
+    let items = session.inventory().contents(PLAYER).unwrap().items.to_vec();
     assert_eq!(items, [ROBE, SHIELD]);
 
     // Declined: the player's offer stands until the partner's side declines.

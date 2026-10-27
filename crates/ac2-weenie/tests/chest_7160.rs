@@ -53,7 +53,7 @@ fn items(session: &OnlineSession, container: u64) -> Vec<u64> {
         .contents(container)
         .unwrap()
         .items
-        .clone()
+        .to_vec()
 }
 
 fn refresh(container: u64) -> GameplayNotice {

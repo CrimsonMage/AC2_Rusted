@@ -3,6 +3,8 @@
 //! `AllegianceDataAdaptor`) and hand the UI with the `CM_Fellowship` / `CM_Allegiance`
 //! notices; [`Social::apply`] keeps the latest of them.
 
+use std::sync::Arc;
+
 use ac2_net::protocol::StringInfo;
 
 use crate::notice::GameplayNotice;
@@ -169,14 +171,15 @@ pub struct AllegianceProfile {
 /// The latest fellowship and allegiance the notices carried.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Social {
-    pub fellowship: Option<FellowshipInfo>,
-    pub allegiance: Option<AllegianceProfile>,
+    /// Shared with the client frame: a change copies the record (`Arc::make_mut`) only while a
+    /// frame still holds the old one.
+    pub fellowship: Option<Arc<FellowshipInfo>>,
+    pub allegiance: Option<Arc<AllegianceProfile>>,
 }
 
 impl Social {
     fn fellow(&mut self, id: u64) -> Option<&mut FellowInfo> {
-        self.fellowship
-            .as_mut()?
+        Arc::make_mut(self.fellowship.as_mut()?)
             .fellows
             .iter_mut()
             .find(|(f, _)| *f == id)
@@ -188,23 +191,23 @@ impl Social {
     pub fn apply(&mut self, notice: &GameplayNotice) {
         use GameplayNotice as N;
         match notice {
-            N::UpdateFellowship(info) => self.fellowship = Some(info.clone()),
+            N::UpdateFellowship(info) => self.fellowship = Some(Arc::new(info.clone())),
             N::ClearFellowship => self.fellowship = None,
             N::UpdateFellow { fellow, info } => {
                 if let Some(f) = self.fellow(*fellow) {
                     *f = info.clone();
                 } else if let Some(fs) = self.fellowship.as_mut() {
-                    fs.fellows.push((*fellow, info.clone()));
+                    Arc::make_mut(fs).fellows.push((*fellow, info.clone()));
                 }
             }
             N::ClearFellow(id) => {
                 if let Some(fs) = self.fellowship.as_mut() {
-                    fs.fellows.retain(|(f, _)| f != id);
+                    Arc::make_mut(fs).fellows.retain(|(f, _)| f != id);
                 }
             }
             N::UpdateLeader(id) => {
                 if let Some(fs) = self.fellowship.as_mut() {
-                    fs.leader = *id;
+                    Arc::make_mut(fs).leader = *id;
                 }
             }
             N::UpdateFellowHealth { fellow, value, pk } => {
@@ -237,7 +240,9 @@ impl Social {
                     f.cell = *cell;
                 }
             }
-            N::UpdateAllegianceProfile(profile) => self.allegiance = Some((**profile).clone()),
+            N::UpdateAllegianceProfile(profile) => {
+                self.allegiance = Some(Arc::new((**profile).clone()))
+            }
             _ => {}
         }
     }

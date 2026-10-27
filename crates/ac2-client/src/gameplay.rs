@@ -6,6 +6,8 @@
 //! [`SessionEvent::Notice`] in the frame's events (`CM_*::SendNotice_*`, which retail's UI
 //! classes listen to).
 
+use std::sync::Arc;
+
 use ac2_net::protocol::{ExaminationRequest, SelectionInfo};
 use ac2_script::host::{IFunArg, OutValue};
 use ac2_ui::SavedWindow;
@@ -257,10 +259,10 @@ pub enum Command {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ProgressFrame {
     pub experience: ac2_weenie::Experience,
-    pub skills: ac2_weenie::Skills,
-    pub shortcuts: ac2_weenie::Shortcuts,
-    pub fellowship: Option<ac2_weenie::FellowshipInfo>,
-    pub allegiance: Option<ac2_weenie::AllegianceProfile>,
+    pub skills: Arc<ac2_weenie::Skills>,
+    pub shortcuts: Arc<ac2_weenie::Shortcuts>,
+    pub fellowship: Option<Arc<ac2_weenie::FellowshipInfo>>,
+    pub allegiance: Option<Arc<ac2_weenie::AllegianceProfile>>,
     /// The player is dead until the respawn (`UpdateDeathState`).
     pub dead: bool,
 }
@@ -270,8 +272,8 @@ pub struct ProgressFrame {
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct ContainerFrame {
     pub id: u64,
-    pub packs: Vec<u64>,
-    pub items: Vec<u64>,
+    pub packs: Arc<Vec<u64>>,
+    pub items: Arc<Vec<u64>>,
     /// `gmCWInterface::GetMaxContainerSize`: how many slots it has.
     pub capacity: i32,
 }
@@ -296,9 +298,9 @@ pub struct InventoryFrame {
     /// Other listed containers: the side packs and opened containers.
     pub containers: Vec<ContainerFrame>,
     /// Equipment location and item.
-    pub equipped: Vec<(u32, u64)>,
+    pub equipped: Arc<Vec<(u32, u64)>>,
     /// The containers open on the player (`gmExternalContainerUI`), in the order they opened.
-    pub open: Vec<u64>,
+    pub open: Arc<Vec<u64>>,
     /// Every listed or equipped item the session knows, in listing order.
     pub items: Vec<ItemFrame>,
     /// The player's money (`gmMoneyBagUI`; `SendNotice_UpdateMoney` says when it changes).
@@ -310,7 +312,7 @@ pub struct InventoryFrame {
 pub struct SelectionFrame {
     pub id: u64,
     /// The weenie's name, when its description carries one.
-    pub name: Option<String>,
+    pub name: Option<Arc<str>>,
     /// The server's latest `SelectionInfo` for it (health and vigor for a creature).
     pub info: Option<SelectionInfo>,
     /// A player other than the local one: `CWInterface::IsPlayer` and not the player's own object.
@@ -784,12 +786,12 @@ impl Client {
             .filter(|(id, _)| *id != player)
             .map(frame)
             .collect();
-        let equipped = inv.equipped().to_vec();
+        let equipped = inv.equipped_shared();
         let tables = self.session.player_script().string_tables();
         let mut items: Vec<ItemFrame> = Vec::new();
         let listed = std::iter::once(&pack)
             .chain(&containers)
-            .flat_map(|c| c.packs.iter().chain(&c.items))
+            .flat_map(|c| c.packs.iter().chain(c.items.iter()))
             .chain(equipped.iter().map(|(_, id)| id));
         for &id in listed {
             let (Some(object), false) = (objects.get(id), items.iter().any(|i| i.id == id)) else {
@@ -807,7 +809,7 @@ impl Client {
             pack,
             containers,
             equipped,
-            open: inv.open_containers().to_vec(),
+            open: inv.open_shared(),
             items,
             money: self.session.money(),
         }

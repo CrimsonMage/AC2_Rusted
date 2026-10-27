@@ -58,7 +58,7 @@ impl InventorySource for ClientPlayer<'_> {
         } else {
             0
         };
-        (found.items.clone(), 0, size)
+        (found.items.to_vec(), 0, size)
     }
 
     fn max_container_size(&self, container: u64) -> u32 {

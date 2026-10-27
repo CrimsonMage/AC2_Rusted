@@ -10,6 +10,8 @@
 //! its experience; `SkillInfo` 0xF, 0x15, 0x1D). A skill's level comes from the
 //! `AdvancementTable` (`SkillSystem` 0x21), which the script VM owns.
 
+use std::sync::Arc;
+
 use ac2_net::protocol::{NativeObject, PackValue, ShortcutInfo, SkillMessage, SkillRepository};
 
 use crate::notice::GameplayNotice;
@@ -173,8 +175,10 @@ impl SelectionState {
 /// Everything the advancement, shortcut, social and selection panels read.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Progress {
-    pub skills: Skills,
-    pub shortcuts: Shortcuts,
+    /// Shared with the client frame: a change copies the list (`Arc::make_mut`) only while a
+    /// frame still holds the old one.
+    pub skills: Arc<Skills>,
+    pub shortcuts: Arc<Shortcuts>,
     pub social: Social,
     pub selection: SelectionState,
     /// The player is dead (`CM_Character::SendNotice_UpdateDeathState`) until the respawn.
@@ -205,13 +209,13 @@ impl Progress {
             }
             // `CAgent` 0x2 (`SkillRepository` 0x13): the skill table, then the panel.
             SkillMessage::SetSkills(skills) => {
-                self.skills.skills = skills;
+                Arc::make_mut(&mut self.skills).skills = skills;
                 Some(vec![self.panel(q)])
             }
             // `CAgent` 0x7 (`SkillRepository` 0x9): one skill added or replaced, then
             // `CPlayer` 0x85 (table 0x80) raises its update.
             SkillMessage::UpdateSkill(skill) => {
-                let list = &mut self.skills.skills;
+                let list = &mut Arc::make_mut(&mut self.skills).skills;
                 match list.binary_search_by_key(&skill.skill, |s| s.skill) {
                     Ok(at) => list[at] = skill,
                     Err(at) => list.insert(at, skill),
@@ -220,7 +224,9 @@ impl Progress {
             }
             // `CAgent` 0x1 (`SkillRepository` 0x14): one skill removed.
             SkillMessage::RemoveSkill(skill) => {
-                self.skills.skills.retain(|s| s.skill != skill);
+                Arc::make_mut(&mut self.skills)
+                    .skills
+                    .retain(|s| s.skill != skill);
                 Some(vec![GameplayNotice::UpdateSkill(skill)])
             }
         }
@@ -231,12 +237,12 @@ impl Progress {
         repository: SkillRepository,
         q: &WeenieQualities,
     ) -> GameplayNotice {
-        self.skills = Skills {
+        self.skills = Arc::new(Skills {
             credits: repository.credits,
             hero_credits: repository.hero_credits,
             untraining: repository.untraining,
             skills: repository.skills,
-        };
+        });
         self.panel(q)
     }
 
@@ -265,17 +271,20 @@ impl Progress {
         let Some(NativeObject::GameplayOptionsProfile(p)) = options.as_native() else {
             return None;
         };
-        self.shortcuts = Shortcuts {
+        self.shortcuts = Arc::new(Shortcuts {
             set: p.which_shortcut_set,
             height: p.shortcut_height,
             slots: p.shortcuts.clone(),
-        };
+        });
         Some(GameplayNotice::ReloadOptions)
     }
 
     /// `GameplayOptionsProfile::SetShortcut`: only an index inside the array takes.
     pub fn set_shortcut(&mut self, index: u32, shortcut: ShortcutInfo) -> bool {
-        match self.shortcuts.slots.get_mut(index as usize) {
+        match Arc::make_mut(&mut self.shortcuts)
+            .slots
+            .get_mut(index as usize)
+        {
             Some(slot) => {
                 *slot = shortcut;
                 true

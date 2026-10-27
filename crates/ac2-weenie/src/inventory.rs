@@ -12,6 +12,7 @@
 //! item. Retired once the script VM runs these packages.
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use ac2_net::protocol::{ContainerContents, Equipment, InvEquipDesc, InvMoveDesc, InvTakeAllDesc};
 
@@ -24,9 +25,9 @@ pub const INVENTORY_REFRESH: u32 = 0x4000_0001;
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct Contents {
     /// The containers it holds (side packs), `Container` slot 19.
-    pub packs: Vec<u64>,
+    pub packs: Arc<Vec<u64>>,
     /// Its items, `Container` slot 15.
-    pub items: Vec<u64>,
+    pub items: Arc<Vec<u64>>,
 }
 
 /// The inventory as the stand-in knows it.
@@ -34,9 +35,9 @@ pub struct Contents {
 pub struct InventoryState {
     contents: BTreeMap<u64, Contents>,
     /// Location and item, in the server's table order (`InqSimpleInvByLocTable`).
-    equipped: Vec<(u32, u64)>,
+    equipped: Arc<Vec<(u32, u64)>>,
     /// The containers open on the player (`CContainer::Open_Done` .. `Close_Done`).
-    open: Vec<u64>,
+    open: Arc<Vec<u64>>,
 }
 
 fn refresh_container(container: u64) -> GameplayNotice {
@@ -70,6 +71,11 @@ impl InventoryState {
         &self.equipped
     }
 
+    /// The equipment list, shared (a frame holds it without a copy).
+    pub fn equipped_shared(&self) -> Arc<Vec<(u32, u64)>> {
+        Arc::clone(&self.equipped)
+    }
+
     /// `InventorySystem` 0x20: where `item` is equipped.
     pub fn location_of(&self, item: u64) -> Option<u32> {
         self.equipped
@@ -83,7 +89,7 @@ impl InventoryState {
         self.contents.iter().find_map(|(id, c)| {
             c.items
                 .iter()
-                .chain(&c.packs)
+                .chain(c.packs.iter())
                 .position(|i| *i == item)
                 .map(|slot| (*id, slot as i32))
         })
@@ -95,8 +101,8 @@ impl InventoryState {
         self.contents.insert(
             container,
             Contents {
-                packs: c.packs,
-                items: c.items,
+                packs: Arc::new(c.packs),
+                items: Arc::new(c.items),
             },
         );
         refresh_container(container)
@@ -107,7 +113,7 @@ impl InventoryState {
     /// old equipment.
     pub fn set_equipment(&mut self, e: &Equipment) -> GameplayNotice {
         if let Ok(locations) = e.locations() {
-            self.equipped = locations;
+            self.equipped = Arc::new(locations);
         }
         refresh_inventory()
     }
@@ -115,6 +121,11 @@ impl InventoryState {
     /// The containers open on the player, in the order they opened.
     pub fn open_containers(&self) -> &[u64] {
         &self.open
+    }
+
+    /// The open containers, shared (a frame holds the list without a copy).
+    pub fn open_shared(&self) -> Arc<Vec<u64>> {
+        Arc::clone(&self.open)
     }
 
     /// `CInventorySystem` 0xF (`WM_Inventory` 0x5D): on success the container's lists
@@ -135,13 +146,13 @@ impl InventoryState {
             self.contents.insert(
                 container,
                 Contents {
-                    packs: packs.unwrap_or_default(),
-                    items,
+                    packs: Arc::new(packs.unwrap_or_default()),
+                    items: Arc::new(items),
                 },
             );
         }
         if !self.open.contains(&container) {
-            self.open.push(container);
+            Arc::make_mut(&mut self.open).push(container);
         }
         vec![
             GameplayNotice::ContainerStateUpdate {
@@ -158,7 +169,7 @@ impl InventoryState {
         if error != 0 {
             return Vec::new();
         }
-        self.open.retain(|c| *c != container);
+        Arc::make_mut(&mut self.open).retain(|c| *c != container);
         self.contents.remove(&container);
         vec![GameplayNotice::ContainerStateUpdate {
             container,
@@ -175,10 +186,10 @@ impl InventoryState {
         let taken = self
             .contents
             .get_mut(&d.container())
-            .map(|c| std::mem::take(&mut c.items))
+            .map(|c| std::mem::take(Arc::make_mut(&mut c.items)))
             .unwrap_or_default();
         if let Some(pack) = self.contents.get_mut(&d.player()) {
-            pack.items.extend(taken);
+            Arc::make_mut(&mut pack.items).extend(taken);
         }
         vec![
             refresh_container(d.container()),
@@ -189,8 +200,8 @@ impl InventoryState {
     fn remove(&mut self, item: u64) -> Option<u64> {
         for (id, c) in &mut self.contents {
             let before = c.items.len() + c.packs.len();
-            c.items.retain(|i| *i != item);
-            c.packs.retain(|i| *i != item);
+            Arc::make_mut(&mut c.items).retain(|i| *i != item);
+            Arc::make_mut(&mut c.packs).retain(|i| *i != item);
             if c.items.len() + c.packs.len() != before {
                 return Some(*id);
             }
@@ -202,7 +213,11 @@ impl InventoryState {
         let Some(c) = self.contents.get_mut(&container) else {
             return false;
         };
-        let list = if is_pack { &mut c.packs } else { &mut c.items };
+        let list = if is_pack {
+            Arc::make_mut(&mut c.packs)
+        } else {
+            Arc::make_mut(&mut c.items)
+        };
         let at = usize::try_from(slot).map_or(list.len(), |s| s.min(list.len()));
         list.insert(at, item);
         true
@@ -240,9 +255,8 @@ impl InventoryState {
         if let Some(from) = self.remove(d.item()) {
             out.push(refresh_container(from));
         }
-        self.equipped
-            .retain(|(loc, i)| *loc != d.location() && *i != d.item());
-        self.equipped.push((d.location(), d.item()));
+        Arc::make_mut(&mut self.equipped).retain(|(loc, i)| *loc != d.location() && *i != d.item());
+        Arc::make_mut(&mut self.equipped).push((d.location(), d.item()));
         out.push(refresh_inventory());
         out
     }
@@ -253,7 +267,7 @@ impl InventoryState {
         if d.status() != 0 {
             return Vec::new();
         }
-        self.equipped.retain(|(_, i)| *i != d.item());
+        Arc::make_mut(&mut self.equipped).retain(|(_, i)| *i != d.item());
         let mut out = vec![refresh_inventory()];
         if self.insert(d.container(), d.item(), d.slot(), false) {
             out.push(refresh_container(d.container()));
@@ -286,14 +300,14 @@ mod tests {
         d.set_actual_target_slot(0);
         let notices = inv.move_done(&d);
         assert_eq!(notices.len(), 2);
-        assert_eq!(inv.contents(1).unwrap().items, [5, 7]);
-        assert_eq!(inv.contents(9).unwrap().items, [6]);
+        assert_eq!(inv.contents(1).unwrap().items[..], [5, 7]);
+        assert_eq!(inv.contents(9).unwrap().items[..], [6]);
         // A failed move changes nothing; a drop only leaves.
         let mut failed = InvMoveDesc::new(5, 1, 0, 0x77, -1, 1);
         failed.set_status(0x2711);
         assert!(inv.move_done(&failed).is_empty());
         inv.move_done(&InvMoveDesc::new(5, 1, 0, 0x77, -1, 1));
-        assert_eq!(inv.contents(1).unwrap().items, [7]);
+        assert_eq!(inv.contents(1).unwrap().items[..], [7]);
         // Equip and take off.
         inv.equip_done(&InvEquipDesc::equip(7, 1, 0x10, 1, 0));
         assert_eq!((inv.location_of(7), inv.locate(7)), (Some(0x10), None));

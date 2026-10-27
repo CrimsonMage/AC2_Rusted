@@ -1,6 +1,8 @@
 //! The session's skill, shortcut and social entry points: the `WM_Skill` answers and the login
 //! options kept in [`Progress`], and the shortcut IFun (`CPlayer` 0x87, `SetShortcut`).
 
+use std::sync::Arc;
+
 use ac2_net::protocol::{unpack_values, NativeObject, PackValue, ScriptCall, ShortcutInfo};
 
 use super::gameplay::player_qualities;
@@ -93,7 +95,7 @@ impl OnlineSession {
     /// `GameplayOptionsProfile::SetWhichShortcutSet`): the bar shows set `set`; a profile
     /// write only, nothing goes to the server.
     pub fn set_shortcut_set(&mut self, set: u32) {
-        self.progress.shortcuts.set = set;
+        Arc::make_mut(&mut self.progress.shortcuts).set = set;
     }
 
     /// A skill panel request (`gmCWInterface::RequestTrainSkill` and kin): its `WM_Skill`

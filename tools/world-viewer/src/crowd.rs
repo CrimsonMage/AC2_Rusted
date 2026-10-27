@@ -2,6 +2,8 @@
 //! race and sex model of the race table. They are remote objects in the frame, idle (no pose,
 //! no motion), so the view draws them through the path it draws the client's remotes by.
 
+use std::sync::Arc;
+
 use ac2_client::{ObjectFrame, PlayerFrame};
 use ac2_physics::{Frame, Heading, Quaternion, Vector};
 use ac2_weenie::Appearance;
@@ -61,10 +63,10 @@ pub fn objects(
                 holder: None,
                 container: None,
                 wielder: None,
-                appearance: Appearance {
+                appearance: Arc::new(Appearance {
                     parent: visual,
                     ..Appearance::default()
-                },
+                }),
                 pose: Vec::new(),
             }
         })
@@ -98,7 +100,7 @@ mod tests {
             velocity: [0.0; 3],
             contact: true,
             pose: Vec::new(),
-            appearance: Appearance::default(),
+            appearance: Arc::default(),
         };
         let crowd = objects(&models, 16, &player, |_| None);
         assert_eq!(crowd.len(), 16);

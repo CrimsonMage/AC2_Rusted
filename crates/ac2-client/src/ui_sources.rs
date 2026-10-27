@@ -417,7 +417,7 @@ impl ClientPlayer<'_> {
         if let Some(worn) = self.client.borrow_mut().equipped_by_location() {
             return worn;
         }
-        self.frame.inventory.equipped.clone()
+        self.frame.inventory.equipped.to_vec()
     }
 
     /// A string of the UI table with one `value` variable.

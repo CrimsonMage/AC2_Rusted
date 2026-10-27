@@ -11,6 +11,7 @@
 //! - `gmNavigationUI::RecvNotice_AddMarker` / `RemoveMarker` / `ClearMarkers`: the map notes.
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use ac2_physics::Position;
 use ac2_script::host::radar::{self, RadarLook, NO_BLIP};
@@ -79,7 +80,7 @@ pub(crate) struct RadarState {
     groove: i8,
     next_groove: f64,
     /// `gmNavigationUI`'s map notes, in arrival order.
-    pub(crate) markers: Vec<MapMarker>,
+    pub(crate) markers: Arc<Vec<MapMarker>>,
 }
 
 impl RadarState {
@@ -112,18 +113,18 @@ impl RadarState {
 
     /// `gmNavigationUI::RecvNotice_AddMarker`: see [`add_map_note`].
     fn add_marker(&mut self, marker: MapMarker) {
-        add_map_note(&mut self.markers, marker);
+        add_map_note(Arc::make_mut(&mut self.markers), marker);
     }
 
     /// `gmNavigationUI::RecvNotice_RemoveMarker` (`FlushMarkerByIID`).
     fn remove_marker(&mut self, kind: u32, id: u64) {
-        self.markers.retain(|m| !(m.kind == kind && m.id == id));
+        Arc::make_mut(&mut self.markers).retain(|m| !(m.kind == kind && m.id == id));
     }
 
     /// `gmNavigationUI::RecvNotice_ClearMarkers` (type 3 is left alone).
     fn clear_markers(&mut self, kind: u32) {
         if kind != HIDDEN_MARKER_TYPE {
-            self.markers.retain(|m| m.kind != kind);
+            Arc::make_mut(&mut self.markers).retain(|m| m.kind != kind);
         }
     }
 }
@@ -163,7 +164,7 @@ impl Client {
                 SessionEvent::ObjectRemoved(id) => self.radar.remove(*id),
                 SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                     self.radar.init();
-                    self.radar.markers.clear();
+                    Arc::make_mut(&mut self.radar.markers).clear();
                 }
                 _ => {}
             }

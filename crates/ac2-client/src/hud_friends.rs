@@ -65,7 +65,7 @@ mod tests {
     fn selection(name: Option<&str>, other_player: bool) -> SelectionFrame {
         SelectionFrame {
             id: 7,
-            name: name.map(str::to_owned),
+            name: name.map(Into::into),
             info: None,
             other_player,
         }

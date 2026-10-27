@@ -29,7 +29,7 @@ fn id(name: &str) -> u32 {
 #[derive(Debug, Clone, PartialEq)]
 pub struct NameLook {
     pub id: u64,
-    pub name: String,
+    pub name: Arc<str>,
     pub color: [f32; 4],
 }
 

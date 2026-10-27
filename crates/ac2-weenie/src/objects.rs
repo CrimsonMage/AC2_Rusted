@@ -1,6 +1,7 @@
 //! The objects the server has created and not destroyed, as plain data for the client.
 
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use ac2_net::protocol::{
     CreateObject, ObjectAction, Position, Qualities, QualityUpdate, ServerPosition,
@@ -23,7 +24,7 @@ pub struct RemoteObject {
     /// starts the object's process from (a later player description may drop the description).
     pub script_package: Option<u32>,
     /// The display name, when the weenie description carries a literal.
-    pub name: Option<String>,
+    pub name: Option<Arc<str>>,
     /// Cell position and orientation; absent for contained or held objects.
     pub position: Option<Position>,
     /// Heading in degrees, from the latest position update.
@@ -44,7 +45,7 @@ pub struct RemoteObject {
     /// world, not to be destroyed).
     pub contained: bool,
     /// `CPhysicsObj::m_local_vdesc`: what the server says the object looks like.
-    pub appearance: Appearance,
+    pub appearance: Arc<Appearance>,
     /// `CPhysicsObj::m_update_times`, by `StampID`: position, teleport, force position,
     /// move-to. `CPhysicsObj::set_description` copies them from the `PhysicsDesc`.
     pub update_times: [u16; 4],
@@ -101,7 +102,12 @@ impl RemoteObject {
             setup: object.visual.root_setup(),
             entity: object.entity_did(),
             script_package: object.weenie.package_id,
-            name: object.weenie.name.as_ref().and_then(|n| n.literal.clone()),
+            name: object
+                .weenie
+                .name
+                .as_ref()
+                .and_then(|n| n.literal.clone())
+                .map(Arc::from),
             position: object.physics.position,
             heading_degrees: None,
             motion: [0.0; 3],
@@ -114,7 +120,7 @@ impl RemoteObject {
                 .map(|(holder, location, _)| (holder, location)),
             orientation: object.physics.orientation_id,
             contained: false,
-            appearance: Appearance::from_delta(&object.visual),
+            appearance: Arc::new(Appearance::from_delta(&object.visual)),
             update_times: object.physics.timestamps,
             qualities: WeenieQualities::from_weenie_desc(object.weenie.clone()),
         }
@@ -213,7 +219,7 @@ impl ObjectTable {
             // `CWPhysicsObject::RecvEvt_UpdateVisualDesc`: `SetLocalVisualDesc(delta)` replaces
             // the local description.
             ObjectAction::UpdateVisualDesc(delta) => {
-                object.appearance = Appearance::from_delta(delta);
+                object.appearance = Arc::new(Appearance::from_delta(delta));
                 object.visual = (object.appearance.parent != 0).then_some(object.appearance.parent);
                 object.setup = delta.root_setup();
             }

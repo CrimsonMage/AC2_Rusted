@@ -1,5 +1,7 @@
 //! The plain-data snapshot of one client frame, for the renderer.
 
+use std::sync::Arc;
+
 use ac2_net::protocol::StringInfo;
 
 /// The player's body as physics left it this frame.
@@ -19,7 +21,7 @@ pub struct PlayerFrame {
     /// without a Setup).
     pub pose: Vec<crate::motion::PartPose>,
     /// The player's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`), as for other objects.
-    pub appearance: ac2_weenie::Appearance,
+    pub appearance: Arc<ac2_weenie::Appearance>,
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or
@@ -30,7 +32,7 @@ pub struct ObjectFrame {
     /// The `VisualDesc` parent DID (its appearance) and the root Setup.
     pub visual: Option<u32>,
     pub setup: Option<u32>,
-    pub name: Option<String>,
+    pub name: Option<Arc<str>>,
     pub cell: u32,
     /// AC axes relative to the cell's landblock.
     pub origin: [f32; 3],
@@ -63,7 +65,7 @@ pub struct ObjectFrame {
     pub wielder: Option<u64>,
     /// `CPhysicsObj::m_local_vdesc`: the server's appearance on top of `visual`'s DAT chain
     /// (Setup, part-group, attachment and appearance-table overrides).
-    pub appearance: ac2_weenie::Appearance,
+    pub appearance: Arc<ac2_weenie::Appearance>,
     /// The root Setup's bones relative to their parents as the animation left them, when its
     /// physics object exists.
     pub pose: Vec<crate::motion::PartPose>,
@@ -184,5 +186,5 @@ pub struct ClientFrame {
     /// The radar (`gmRadarUI`): the blips and the groove.
     pub radar: RadarFrame,
     /// The map notes (`gmNavigationUI`), in arrival order.
-    pub markers: Vec<MapMarker>,
+    pub markers: Arc<Vec<MapMarker>>,
 }
