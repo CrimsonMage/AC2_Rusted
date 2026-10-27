@@ -186,3 +186,42 @@ fn the_buttons_ask_the_script_and_the_arrows_want_a_mode_sent_by_refresh() {
         vec![PetAction::Select(PET)]
     );
 }
+
+/// `gmPetUI::RecvNotice_UpdatePetMode`: a row that wanted its old mode follows the server (its
+/// wanted mode and text move with it); a row that wanted another mode keeps that wanted mode,
+/// so `tick` sends it.
+#[test]
+fn a_pet_mode_notice_moves_a_row_that_was_following_the_server() {
+    let Some(layout) = gameplay() else {
+        return;
+    };
+    let mut tree = UiTree::new(1024, 768);
+    let mut ui = PetUi::create(&mut tree, &layout);
+    let panel = panel_root(&tree);
+    ui.show(&mut tree, true);
+    ui.add_pet(&mut tree, PET, "Rex", AGGRESSIVE);
+    let mode_state = |tree: &UiTree| {
+        let row = tree.list_items(element(tree, panel, "PetPanelListBox"))[0];
+        let mode = tree.child_recursive(row, tokenize("Mode")).unwrap();
+        tree.get(mode).map(|e| e.state())
+    };
+    // The row wants Aggressive, its mode: the server's Defensive is followed, text included.
+    ui.update_pet_mode(&mut tree, PET, DEFENSIVE);
+    assert_eq!(mode_state(&tree), Some(tokenize("Defensive")));
+    assert!(
+        ui.tick(&mut tree, 10.0).is_empty(),
+        "the row follows the server"
+    );
+    // The player steps the row's wanted mode on to Supporting; then the server says
+    // Aggressive. The row does not follow it, so `tick` sends the wanted mode.
+    let next = release(&tree, panel, "NextMode");
+    ui.message(&mut tree, &next, None);
+    ui.update_pet_mode(&mut tree, PET, AGGRESSIVE);
+    assert_eq!(
+        ui.tick(&mut tree, 20.0),
+        [PetAction::Mode {
+            pet: PET,
+            mode: 0x4000_0002
+        }]
+    );
+}

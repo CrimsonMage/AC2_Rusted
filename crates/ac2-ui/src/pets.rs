@@ -4,11 +4,12 @@
 //! the `NextMode` / `PreviousMode` arrows. The four buttons under the panel (`AttackButton`,
 //! `ReturnButton`, `HealButton`, `BuffButton`) act on the selection or the pet.
 //!
-//! Legions 7160 routes only two pet notices to this panel: `CM_Character::SendNotice_AddPet` and
-//! `SendNotice_PetIsUnderAttack` (the notice handler's vtable slots 0x68 and 0x7c). The other
-//! pet notices (`RemovePet`, `UpdatePetMode`, `UpdatePetName`) reach no-op slots there, so the
-//! panel does not change for them. The mode table and the request timer follow the admin 7148
-//! build (`ModeTable` from its static initializer, `gmPetUI::Refresh`'s five-second cycle).
+//! The pet notices reach the panel as `CM_Character::SendNotice_AddPet`, `PetIsUnderAttack` and
+//! `UpdatePetMode` (Legions 7160's `gmPetUI::RecvNotice_UpdatePetMode`, which is the only pet
+//! notice handler the Legions decompile names). `RemovePet` and `UpdatePetName` have no Legions
+//! handler identified, so the panel does not change for them. The mode table and the request
+//! timer follow the admin 7148 build (`ModeTable` from its static initializer,
+//! `gmPetUI::Refresh`'s five-second cycle).
 //!
 //! Not modelled yet: the pet's icon image (`AddImageToState`), the list's height for its rows, the
 //! name edit (`RequestSetPetName` is a command, see `ac2-client`), and removing a pet's row.
@@ -218,6 +219,24 @@ impl PetUi {
         row.last_attacked = now;
         if let Some(name) = tree.child_recursive(row.root, id("Name")) {
             tree.set_state(name, id("unsafe"));
+        }
+    }
+
+    /// `gmPetUI::RecvNotice_UpdatePetMode`: the pet's mode is the server's. A row whose wanted
+    /// mode was its old mode follows the server (`RequestSetPetMode` with the new mode: the
+    /// wanted mode and its text move to it); any other row keeps its wanted mode, and `tick`
+    /// sends the difference. A pet not listed is ignored.
+    pub fn update_pet_mode(&mut self, tree: &mut UiTree, pet: u64, mode: u32) {
+        let Some(row) = self.pets.iter_mut().find(|p| p.id == pet) else {
+            return;
+        };
+        let follows = row.mode == row.next_mode;
+        row.mode = mode;
+        if follows {
+            row.next_mode = mode;
+            if let Some(text) = tree.child_recursive(row.root, id("Mode")) {
+                tree.set_state(text, id(mode_state(mode)));
+            }
         }
     }
 

@@ -7,8 +7,9 @@ use ac2_weenie::GameplayNotice;
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
-/// `gmPetUI`'s notices: `AddPet` lists the pet and `PetIsUnderAttack` marks it unsafe. The other
-/// pet notices reach no-op slots of the panel in Legions 7160 (see `ac2_ui::pets`).
+/// `gmPetUI`'s notices: `AddPet` lists the pet, `PetIsUnderAttack` marks it unsafe and
+/// `UpdatePetMode` takes the server's mode. `RemovePet` and `UpdatePetName` change nothing in
+/// the panel (see `ac2_ui::pets`).
 pub(crate) fn pet_notice(
     panel: &mut PetUi,
     tree: &mut UiTree,
@@ -21,6 +22,7 @@ pub(crate) fn pet_notice(
             pet, name, mode, ..
         } => panel.add_pet(tree, *pet, &player.render_info(name), *mode),
         GameplayNotice::PetIsUnderAttack(pet) => panel.pet_under_attack(tree, *pet, now),
+        GameplayNotice::UpdatePetMode { pet, mode } => panel.update_pet_mode(tree, *pet, *mode),
         _ => {}
     }
 }
