@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 118 done, 14 partial, 232 to do, 421 skipped.
+785 retail functions: 119 done, 14 partial, 231 to do, 421 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (14/62)
@@ -508,7 +508,7 @@ Legend and workflow: [README](README.md).
 - [-] `TGADecoder::readImage` · 00734990 — image import in the preprocessor (admin tools); client reads DAT textures
 - [-] `TGADecoder::Decode` · 007349f0 — image import in the preprocessor (admin tools); client reads DAT textures
 
-## `portal/shared/src/entitydesc/entitydesc.cpp.c` (6/41)
+## `portal/shared/src/entitydesc/entitydesc.cpp.c` (7/41)
 
 ### LM_UVScale
 - [-] `LM_UVScale::GetType` · 00615d90 · legions 005d3ac0 — accessor of a Rust typed field
@@ -554,7 +554,7 @@ Legend and workflow: [README](README.md).
 - [-] `EntityDesc::Destroy` · 00616820 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [ ] `EntityDesc::GetRootPackageID` · 00616960 · legions 005d4540 — needs port: entity description: EntityDesc::GetRootPackageID
 - [x] `EntityDesc::GetTotalProperties` · 006169c0 · legions 005d45a0
-- [ ] `EntityDesc::GetVisualDescID` · 00616a50 · legions 005d4610 — needs port: entity description: EntityDesc::GetVisualDescID
+- [x] `EntityDesc::GetVisualDescID` · 00616a50 · legions 005d4610 — ac2-assets ac2_static_model.rs resolve_ac2_entity_visual: an EntityDesc (0x47) follows its template (m_dataID) to the VisualDesc or CSetup it draws; ac2-client world_data.rs load_body_data resolves FX object DIDs through it on the loader thread (real-data test every_fx_objects_entity_resolves_to_a_drawable_visual)
 - [x] `EntityDesc::InqEntityDescFromDataID` · 00616ac0 · legions 005d4680 — ac2-script/src/glue/entity_desc.rs cites EntityDesc::InqEntityDescFromDataID
 - [-] `EntityDesc::Allocate` · 00616b20 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `EntityDesc::EntityDesc` · 00616b30 · legions 005d46f0 — ctor/dtor of plain data; Rust constructs and drops values

@@ -26,6 +26,7 @@ pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
+mod client_fx_objects;
 mod client_latent;
 mod client_locations;
 mod client_positions;

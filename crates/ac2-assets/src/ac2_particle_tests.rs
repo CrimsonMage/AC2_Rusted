@@ -9,7 +9,10 @@ use ac2_dat::{DatDataset, DatFileKind};
 use ac2_db::{CachedResource, ResourcePackedDecode, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::Ac2FxTable;
-use crate::{resolve_ac2_visual_particles, Ac2ParticleSystemDesc};
+use crate::{
+    resolve_ac2_entity_visual, resolve_ac2_visual_meshes, resolve_ac2_visual_particles,
+    Ac2ParticleSystemDesc,
+};
 
 fn ac2_dataset() -> Option<(Arc<DatDataset>, ResourceStore)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
@@ -229,5 +232,48 @@ fn the_visuals_fx_particles_resolve_per_fx_id() {
     assert!(
         visuals > 100 && ids > 500,
         "{visuals} visuals, {ids} FX ids"
+    );
+}
+
+/// An FX node's object is an `EntityDesc` (`0x47`): `EntityDesc::GetVisualDescID` follows its
+/// template to a `VisualDesc` or `CSetup`, and that visual has meshes to draw. Every object DID
+/// the FX tables name must resolve so.
+#[test]
+fn every_fx_objects_entity_resolves_to_a_drawable_visual() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut objects = BTreeSet::new();
+    for did in portal_ids(&dataset, 0x1E00_0000) {
+        let table = load::<Ac2FxTable>(&store, did);
+        for (_, nodes) in table.entries.iter() {
+            objects.extend(
+                nodes
+                    .iter()
+                    .map(|node| node.object.vdesc)
+                    .filter(|vdesc| *vdesc != 0),
+            );
+        }
+    }
+    let entities: Vec<u32> = objects
+        .iter()
+        .copied()
+        .filter(|vdesc| vdesc >> 24 == 0x47)
+        .collect();
+    assert!(!entities.is_empty(), "FX objects are EntityDescs");
+    for entity in &entities {
+        let visual = resolve_ac2_entity_visual(&store, DataId::new(*entity))
+            .unwrap_or_else(|e| panic!("EntityDesc {entity:08X}: {e}"));
+        assert!(
+            matches!(visual.raw() >> 24, 0x1F | 0x04),
+            "{entity:08X} resolves to {visual:?}, not a visual"
+        );
+        let meshes = resolve_ac2_visual_meshes(&store, visual)
+            .unwrap_or_else(|e| panic!("{entity:08X} meshes: {e}"));
+        assert!(!meshes.is_empty(), "{entity:08X} draws no mesh");
+    }
+    eprintln!(
+        "{} FX object EntityDescs resolve to drawable visuals",
+        entities.len()
     );
 }

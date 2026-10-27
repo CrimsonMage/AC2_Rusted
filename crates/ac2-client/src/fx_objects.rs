@@ -6,10 +6,10 @@
 //! are unhidden, and its colour is restored when the FX asked for it.
 //!
 //! The client creates the objects itself (`CObjectMaint::CreateTemporaryObject`), so they are
-//! [`PendingObject`]s here until the client adds them to its remote objects after the frame's
-//! sound pass (`Client::apply_fx_objects`).
+//! [`PendingObject`]s here until the client adds them to its remote objects each animation step
+//! (`Client::apply_fx_objects`, in `client_fx_objects`). None of this needs a sound device.
 
-use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use ac2_assets::Ac2FxObject;
 
@@ -92,6 +92,8 @@ pub struct FxLooks {
 /// The FX-made objects, colours and hides of every emitter.
 #[derive(Debug, Default)]
 pub(crate) struct FxObjects {
+    /// The objects whose startup FX have run (`CPhysicsObj::InitObjectEnd`), once per object.
+    startup_objects: HashSet<u64>,
     records: HashMap<u64, HashMap<u32, FxRecord>>,
     colours: HashMap<u64, Ramp>,
     hidden: BTreeSet<u64>,
@@ -209,6 +211,23 @@ impl FxObjects {
                 self.teardown(emitter, &record, now);
             }
         }
+    }
+
+    /// Marks `object` as having run its startup FX; `false` when it already had.
+    pub(crate) fn mark_startup(&mut self, object: u64) -> bool {
+        self.startup_objects.insert(object)
+    }
+
+    /// Forgets the startup marks of objects `keep` rejects, so they run again when they return.
+    pub(crate) fn retain_startup(&mut self, keep: impl Fn(u64) -> bool) {
+        self.startup_objects.retain(|id| keep(*id));
+    }
+
+    /// The emitters that have FX records, in id order.
+    pub(crate) fn emitters(&self) -> Vec<u64> {
+        let mut ids: Vec<u64> = self.records.keys().copied().collect();
+        ids.sort_unstable();
+        ids
     }
 
     /// The emitter left the world: its FX stop (`DestroyAllTransientFX`).

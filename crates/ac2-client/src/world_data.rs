@@ -169,6 +169,8 @@ pub(crate) fn load_body_data(
     store: &Arc<ResourceStore>,
     visual: DataId,
 ) -> Result<BodyData, String> {
+    // `ICPhysicsObj::makeObject`: an `EntityDesc` (an FX node's object) draws its template's visual.
+    let visual = ac2_assets::resolve_ac2_entity_visual(store, visual).map_err(|e| e.to_string())?;
     let body = ac2_smartbox::load_body_data(store, visual)?;
     Ok(BodyData {
         shape: body.shape,

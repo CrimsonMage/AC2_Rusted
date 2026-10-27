@@ -8,17 +8,13 @@ use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use ac2_anim::Ac2AnimEvent;
-use ac2_assets::{Ac2FxObject, Ac2FxSoundNode, Ac2VisualFxSounds};
+use ac2_assets::{Ac2FxSoundNode, Ac2VisualFxSounds};
 use ac2_audio::{Channel, Emitter, LoopingMode, PlaySoundData, SoundManager, SoundType};
 use ac2_core::Random;
 use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
 
 use crate::client::Client;
-use crate::fx_objects::FxObjects;
-use crate::fx_particles::{
-    light_starts, particle_starts, startup_light_starts, ObjectLightStart, ObjectParticleStart,
-};
-use crate::remote::Context;
+use crate::fx_particles::{light_starts, particle_starts, ObjectLightStart, ObjectParticleStart};
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -62,7 +58,7 @@ fn node_plays(node: &Ac2FxSoundNode, is_player: bool) -> bool {
 }
 
 /// `FXNode::GetSoundID`: one of the node's sounds (`Random::RollDice`).
-fn sound_id(node: &Ac2FxSoundNode, random: &mut Random) -> u32 {
+pub(crate) fn sound_id(node: &Ac2FxSoundNode, random: &mut Random) -> u32 {
     match node.sounds.len() {
         0 => 0,
         1 => node.sounds[0],
@@ -197,8 +193,6 @@ pub(crate) struct ClientAudio {
     /// (`FXManager::DoParticleFX`), and the handles of those FX stopped or whose objects left.
     pub(crate) object_particles: Vec<ObjectParticleStart>,
     pub(crate) object_particle_stops: Vec<u64>,
-    /// The FX-made objects, colours and hides (`FXManager::DoCreateObjectFX`, `DoColorFX`).
-    pub(crate) fx_objects: FxObjects,
     /// The lights the objects' FX placed and have not been taken (`FXManager::DoLightSourceFX`),
     /// and the objects that left the world (their lights go with them).
     pub(crate) object_lights: Vec<ObjectLightStart>,
@@ -206,8 +200,6 @@ pub(crate) struct ClientAudio {
     /// `Render::m_Prefs.LightSourceEffects`: while off, an FX places no light (its particle
     /// systems still start; `DoLightSourceFX` returns without a light).
     pub(crate) light_effects: bool,
-    /// The objects whose startup FX have run (`CPhysicsObj::InitObjectEnd`), once per object.
-    startup_objects: HashSet<u64>,
     /// The last handle handed out (`ObjectParticleStart::handle`).
     particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
@@ -295,9 +287,7 @@ impl Client {
             object_particle_stops: Vec::new(),
             object_lights: Vec::new(),
             object_lights_gone: Vec::new(),
-            fx_objects: FxObjects::default(),
             light_effects: true,
-            startup_objects: HashSet::new(),
             particle_handles: 0,
             ambient: Default::default(),
             pregame_music: None,
@@ -482,9 +472,10 @@ impl Client {
     }
 
     /// After `CPhysics::UpdateAllAnimation`: each object's started and stopped effects, then
-    /// its `FXManager::UseTime` for the step.
+    /// its `FXManager::UseTime` for the step. The objects' part runs first and needs no sound
+    /// device (`client_fx_objects`); the sound and particle parts run only with one.
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
-        self.start_startup_lights();
+        self.start_startup_fx();
         // The player's events come first: its latent script physics finish on them.
         let player_taken = self.player.as_mut().filter(|p| p.in_world).and_then(|p| {
             let (id, visual) = (p.id, p.visual);
@@ -497,15 +488,6 @@ impl Client {
             let completions = crate::client_latent::completions(player_events);
             self.finish_latent(*id, completions);
         }
-        let Some(audio) = self.audio.as_mut() else {
-            // No sound device: the player's lock events still reach the movement module.
-            if let Some((_, _, player_events)) = &player_taken {
-                if let Some(locked) = lock_change(player_events) {
-                    self.lock_player_actions(locked);
-                }
-            }
-            return;
-        };
         let mut events = self.remotes.take_animation_events();
         if let Some(taken) = player_taken {
             events.push(taken);
@@ -517,200 +499,100 @@ impl Client {
             .filter(|(id, _, _)| Some(*id) == player_id)
             .filter_map(|(_, _, events)| lock_change(events))
             .next_back();
-        for (id, visual, events) in events {
-            let visual_data = self.remotes.body_data(visual);
-            let sounds = visual_data.and_then(|data| data.fx_sounds.as_deref());
-            let particles = visual_data.and_then(|data| data.fx_particles.as_deref());
-            if sounds.is_none() && particles.is_none() {
-                continue;
-            }
-            let is_player = Some(id) == player_id;
-            let fx = audio.objects.entry(id).or_default();
-            for event in events {
-                match event {
-                    Ac2AnimEvent::StartFx {
-                        fx: effect,
-                        intensity,
-                    } => {
-                        if let Some(data) = sounds {
-                            let call = FxCall {
-                                data,
-                                emitter: id,
-                                is_player,
-                                now,
-                            };
-                            fx.do_fx(
-                                effect,
-                                intensity,
-                                &call,
-                                &mut audio.manager,
-                                &mut self.random,
-                            );
-                        }
-                        if let Some(table) = particles {
-                            // `FXManager::DoTargettedFX`: an FX already running keeps its systems
-                            // and lights.
-                            if let Entry::Vacant(slot) = fx.particles.entry(effect) {
-                                let mut starts =
-                                    particle_starts(id, effect, table, &mut self.random);
-                                let mut handles = Vec::with_capacity(starts.len());
-                                for start in &mut starts {
-                                    audio.particle_handles += 1;
-                                    start.handle = audio.particle_handles;
-                                    // `FXManager::DoParticleFX`: only a looping system keeps
-                                    // its handle, so `StopFX` destroys it and no other.
-                                    if start.looping {
-                                        handles.push(start.handle);
+        self.fx_object_events(&events, now);
+        if let Some(audio) = self.audio.as_mut() {
+            for (id, visual, events) in events {
+                let visual_data = self.remotes.body_data(visual);
+                let sounds = visual_data.and_then(|data| data.fx_sounds.as_deref());
+                let particles = visual_data.and_then(|data| data.fx_particles.as_deref());
+                if sounds.is_none() && particles.is_none() {
+                    continue;
+                }
+                let is_player = Some(id) == player_id;
+                let fx = audio.objects.entry(id).or_default();
+                for event in events {
+                    match event {
+                        Ac2AnimEvent::StartFx {
+                            fx: effect,
+                            intensity,
+                        } => {
+                            if let Some(data) = sounds {
+                                let call = FxCall {
+                                    data,
+                                    emitter: id,
+                                    is_player,
+                                    now,
+                                };
+                                fx.do_fx(
+                                    effect,
+                                    intensity,
+                                    &call,
+                                    &mut audio.manager,
+                                    &mut self.random,
+                                );
+                            }
+                            if let Some(table) = particles {
+                                // `FXManager::DoTargettedFX`: an FX already running keeps its
+                                // systems and lights.
+                                if let Entry::Vacant(slot) = fx.particles.entry(effect) {
+                                    let mut starts =
+                                        particle_starts(id, effect, table, &mut self.random);
+                                    let mut handles = Vec::with_capacity(starts.len());
+                                    for start in &mut starts {
+                                        audio.particle_handles += 1;
+                                        start.handle = audio.particle_handles;
+                                        // `FXManager::DoParticleFX`: only a looping system keeps
+                                        // its handle, so `StopFX` destroys it and no other.
+                                        if start.looping {
+                                            handles.push(start.handle);
+                                        }
+                                    }
+                                    slot.insert(handles);
+                                    audio.object_particles.extend(starts);
+                                    if audio.light_effects {
+                                        audio.object_lights.extend(light_starts(id, effect, table));
                                     }
                                 }
-                                slot.insert(handles);
-                                audio.object_particles.extend(starts);
-                                if audio.light_effects {
-                                    audio.object_lights.extend(light_starts(id, effect, table));
-                                }
-                                // `DoTargettedFX`'s object part for a new FX.
-                                let nodes: Vec<Ac2FxObject> = table
-                                    .get(effect)
-                                    .map(|list| list.iter().map(|a| a.object).collect())
-                                    .unwrap_or_default();
-                                audio.fx_objects.start(id, effect, &nodes, now);
                             }
                         }
+                        Ac2AnimEvent::StopFx { fx: effect } => {
+                            // A startup FX runs on until forced (`FXManager::StopFX`'s
+                            // `m_bStartupFX` check, with no force flag from the animation).
+                            if self
+                                .fx_objects
+                                .record(id, effect)
+                                .is_some_and(|r| r.startup)
+                            {
+                                continue;
+                            }
+                            if sounds.is_some() {
+                                fx.stop_fx(effect, &mut audio.manager);
+                            }
+                            // `FXManager::StopFX` destroys the FX's particle systems by their ids.
+                            if let Some(handles) = fx.particles.remove(&effect) {
+                                audio.object_particle_stops.extend(handles);
+                            }
+                        }
+                        _ => {}
                     }
-                    Ac2AnimEvent::StopFx { fx: effect } => {
-                        // A startup FX runs on until forced (`FXManager::StopFX`'s
-                        // `m_bStartupFX` check, with no force flag from the animation).
-                        if audio
-                            .fx_objects
-                            .record(id, effect)
-                            .is_some_and(|r| r.startup)
-                        {
-                            continue;
-                        }
-                        if sounds.is_some() {
-                            fx.stop_fx(effect, &mut audio.manager);
-                        }
-                        // `FXManager::StopFX` destroys the FX's particle systems by their ids.
-                        if let Some(handles) = fx.particles.remove(&effect) {
-                            audio.object_particle_stops.extend(handles);
-                        }
-                        let nodes: Vec<Ac2FxObject> = particles
-                            .and_then(|table| table.get(effect))
-                            .map(|list| list.iter().map(|a| a.object).collect())
-                            .unwrap_or_default();
-                        audio.fx_objects.stop(id, effect, &nodes, now);
-                    }
-                    _ => {}
                 }
-            }
-            if let Some(data) = sounds {
-                let call = FxCall {
-                    data,
-                    emitter: id,
-                    is_player,
-                    now,
-                };
-                fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+                if let Some(data) = sounds {
+                    let call = FxCall {
+                        data,
+                        emitter: id,
+                        is_player,
+                        now,
+                    };
+                    fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+                }
             }
         }
         // `FXManager::UseTime`'s expired FX stop.
-        audio.fx_objects.expire(now);
+        self.fx_objects.expire(now);
         if let Some(locked) = lock {
             self.lock_player_actions(locked);
         }
         self.apply_fx_objects(now);
-    }
-
-    /// The FX objects the sound pass asked for are created at their emitter, and the faded ones
-    /// whose destruction has come are removed (`CObjectMaint`'s pending deletions).
-    fn apply_fx_objects(&mut self, now: f64) {
-        let pending = self
-            .audio
-            .as_mut()
-            .map(|audio| audio.fx_objects.take_pending())
-            .unwrap_or_default();
-        let player_id = self.player.as_ref().map(|p| p.id);
-        let player = self
-            .player
-            .as_ref()
-            .filter(|p| p.body.is_some())
-            .map(|p| p.position());
-        for object in pending {
-            let at = if Some(object.emitter) == player_id {
-                player
-            } else {
-                self.remotes.get(object.emitter).and_then(|r| r.position())
-            };
-            let Some(position) = at else {
-                continue;
-            };
-            let mut cx = Context {
-                session: &mut self.session,
-                terrain: &self.terrain,
-                player,
-            };
-            self.remotes
-                .add_local(object.id, object.visual, position, &mut cx);
-        }
-        let destroyed = self
-            .audio
-            .as_mut()
-            .map(|audio| audio.fx_objects.step(now))
-            .unwrap_or_default();
-        for id in destroyed {
-            if self.remotes.is_local(id) {
-                self.remotes.removed(id);
-            }
-        }
-        self.request_remote_bodies();
-    }
-
-    /// `CPhysicsObj::InitObjectEnd` -> `ApplyStartupFX(rep, object)`: each object whose body
-    /// exists runs its visual's startup FX once, which places their lights (`DoLightSourceFX`,
-    /// gated by `LightSourceEffects`). Startup particle systems start with the shared rep, not here.
-    fn start_startup_lights(&mut self) {
-        let Some(audio) = self.audio.as_mut() else {
-            return;
-        };
-        let player = self
-            .player
-            .as_ref()
-            .filter(|p| p.body.is_some())
-            .map(|p| (p.id, p.visual));
-        for (id, visual) in player.into_iter().chain(self.remotes.bodied()) {
-            if !audio.startup_objects.insert(id) {
-                continue;
-            }
-            let Some(data) = self.remotes.body_data(visual) else {
-                continue;
-            };
-            let Some(table) = data.fx_particles.as_deref() else {
-                continue;
-            };
-            if audio.light_effects {
-                audio.object_lights.extend(startup_light_starts(id, table));
-            }
-            // `DoStartupFX`'s object branch, per startup FX: the sounds of each node play on the
-            // object (`DoSoundFX`), and the nodes that create an object make it (`DoCreateObjectFX`).
-            let sounds = data.fx_sounds.as_deref();
-            for &fx in table.startup() {
-                if let Some(nodes) = sounds.and_then(|s| s.table.get(fx)) {
-                    for node in nodes.iter() {
-                        let sound = sound_id(node, &mut self.random);
-                        if sound != 0 {
-                            let mut play = PlaySoundData::new(sound);
-                            play.emitter = Some(id);
-                            audio.manager.play(&play);
-                        }
-                    }
-                }
-                let objects: Vec<Ac2FxObject> = table
-                    .get(fx)
-                    .map(|list| list.iter().map(|a| a.object).collect())
-                    .unwrap_or_default();
-                audio.fx_objects.start_startup(id, fx, &objects);
-            }
-        }
     }
 
     /// `SoundManager::UseTime` from the render camera: objects that left stop their sounds
@@ -725,9 +607,6 @@ impl Client {
         let player = self.player.as_ref().filter(|p| p.in_world);
         let player_id = player.map(|p| p.id);
         let remotes = &self.remotes;
-        audio
-            .startup_objects
-            .retain(|id| Some(*id) == player_id || remotes.tracks(*id));
         let gone: Vec<u64> = audio
             .objects
             .keys()
@@ -736,7 +615,6 @@ impl Client {
             .filter(|id| *id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS)
             .collect();
         for id in gone {
-            audio.fx_objects.remove_emitter(id, now);
             if let Some(fx) = audio.objects.remove(&id) {
                 // The object's part array goes with it, and so its particle systems and lights.
                 audio

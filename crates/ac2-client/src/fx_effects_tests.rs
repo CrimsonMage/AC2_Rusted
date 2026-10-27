@@ -294,3 +294,41 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
         "a stopped system ends once its particles have run out"
     );
 }
+
+/// An FX-created object (`DoCreateObjectFX`'s `CreateTemporaryObject`) of a real FX table's
+/// `EntityDesc` loads a body with a shape to draw, through the loader's body path.
+#[test]
+fn an_fx_created_entity_object_loads_a_drawable_body() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = DatWorld::new(Arc::clone(&store)).expect("world data opens");
+    let mut entity = None;
+    for did in dataset.ids_in_range(ac2_dat::DatFileKind::Portal, 0x1E00_0000, 0x1EFF_FFFF) {
+        let Some(table) = store
+            .load_cached_packed::<ac2_assets::Ac2FxTable>(ac2_db::TypedResourceRef::new(
+                ac2_dat::DatFileKind::Portal,
+                ac2_core::DataId::new(did),
+                0,
+            ))
+            .expect("an FX table decodes")
+        else {
+            continue;
+        };
+        entity = table
+            .entries
+            .iter()
+            .flat_map(|(_, nodes)| nodes.iter())
+            .map(|node| node.object.vdesc)
+            .find(|vdesc| vdesc >> 24 == 0x47);
+        if entity.is_some() {
+            break;
+        }
+    }
+    let entity = entity.expect("an FX table names an EntityDesc object");
+    let data = world
+        .body(Some(entity))
+        .unwrap_or_else(|e| panic!("EntityDesc {entity:08X} body: {e}"));
+    assert!(data.shape.height > 0.0 || !data.shape.spheres.is_empty());
+}

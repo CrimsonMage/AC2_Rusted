@@ -164,6 +164,8 @@ pub struct Client {
     /// The weenies' script processes, when a script VM is attached.
     pub(crate) scripts: Option<crate::scripts::Scripts>,
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
+    /// The FX-made objects, colours and hides (`FXManager`'s object parts); no sound device needed.
+    pub(crate) fx_objects: crate::fx_objects::FxObjects,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
     pub(crate) radar: crate::client_radar::RadarState,
     /// The GUN list and status events for the friends page (`gmFriendsUI`), in order.
@@ -261,6 +263,7 @@ impl Client {
             remotes: Remotes::default(),
             scripts: None,
             audio: None,
+            fx_objects: crate::fx_objects::FxObjects::default(),
             radar: Default::default(),
             friend_events: Vec::new(),
             portal: PortalSpace::new(),
@@ -770,6 +773,7 @@ impl Client {
                 .update_animation(step, now, wind, &mut self.random, scripts, &looks);
             self.animation_sounds(step, now);
         }
+        self.fx_objects_use_time(now);
         self.audio_use_time(now);
         self.rain_use_time(now);
         Ok(events)

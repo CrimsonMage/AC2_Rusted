@@ -25,6 +25,8 @@ use ac2_anim::{Ac2Setup, Ac2Transform};
 
 const SETUP_PREFIX: u32 = 0x0400_0000;
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
+/// `EntityDesc` (`0x47`), the object an FX node creates.
+const ENTITY_DESC_PREFIX: u32 = 0x4700_0000;
 /// `VisualDesc` parent chains are short; this bounds a malformed cycle.
 const MAX_VISUAL_DESC_DEPTH: usize = 16;
 
@@ -40,6 +42,26 @@ const TA_SELECTMASK: u32 = 0x0F;
 const TA_TEXTURE: u32 = 2;
 const CULLMODE_NONE: u32 = 1;
 const CULLMODE_CCW: u32 = 3;
+
+/// The visual an object DID draws (`EntityDesc::GetVisualDescID`): an `EntityDesc` (`0x47`)
+/// names its template in `m_dataID`, and the chain of templates ends at a `VisualDesc` or a
+/// `CSetup`. Any other DID is its own visual. A chain that does not resolve gives back `did`.
+pub fn resolve_ac2_entity_visual(store: &ResourceStore, did: DataId) -> ResourceResult<DataId> {
+    let mut current = did;
+    for _ in 0..MAX_VISUAL_DESC_DEPTH {
+        if current.raw() & 0xFF00_0000 != ENTITY_DESC_PREFIX {
+            return Ok(current);
+        }
+        let Some(entity) = crate::ac2_ui_scene::load_ac2_entity_desc(store, current)? else {
+            return Ok(did);
+        };
+        let Some(template) = entity.data else {
+            return Ok(did);
+        };
+        current = template;
+    }
+    Ok(did)
+}
 
 /// Resolves an AC2 `VisualDesc` (following its parent chain) or `CSetup` to the Setup it draws.
 pub fn resolve_ac2_visual_setup(
