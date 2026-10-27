@@ -332,6 +332,8 @@ mod dialog_tests;
 #[cfg(test)]
 mod drag_tests;
 #[cfg(test)]
+mod element_names_tests;
+#[cfg(test)]
 mod element_tests;
 #[cfg(test)]
 mod external_container_tests;
