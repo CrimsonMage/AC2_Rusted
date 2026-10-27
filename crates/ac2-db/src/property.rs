@@ -141,8 +141,8 @@ pub fn ac2_property_desc(name: u32) -> Option<Ac2PropertyDesc> {
 
 /// The blocking-mask bits a `PropertyCollection`'s groups set on a physics body
 /// (`CPhysicsObj::ApplyPropertyCollection` -> `ApplyEtherealProperty`): each property of
-/// the ethereal group whose desc is a bool sets bit `data`, when that bit is below 64. The
-/// value is not read: retail's `InqBool` check always succeeds.
+/// the ethereal group whose desc is a bool sets bit `data` when its value is true and that bit
+/// is below 64 (`EtherealPhysicsType::SetBit` sets nothing for a false value).
 pub fn ac2_ethereal_mask(groups: &[Ac2PropertyGroup]) -> u64 {
     ethereal_mask_with(groups, ac2_property_desc)
 }
@@ -155,10 +155,11 @@ pub fn ethereal_mask_with(
     groups
         .iter()
         .flat_map(|group| &group.properties)
-        .filter_map(|property| desc_of(property.name))
-        .filter(|desc| desc.group == ETHEREAL_PROPERTY_GROUP && desc.value_type == TYPE_BOOL)
-        .filter(|desc| desc.data < 64)
-        .fold(0, |mask, desc| mask | (1 << desc.data))
+        .filter_map(|property| desc_of(property.name).map(|desc| (desc, property)))
+        .filter(|(desc, _)| desc.group == ETHEREAL_PROPERTY_GROUP && desc.value_type == TYPE_BOOL)
+        .filter(|(desc, _)| desc.data < 64)
+        .filter(|(_, property)| property.word().is_some_and(|value| value != 0))
+        .fold(0, |mask, (desc, _)| mask | (1 << desc.data))
 }
 
 /// Steps over a `PropertyCollection` embedded in another record (see
