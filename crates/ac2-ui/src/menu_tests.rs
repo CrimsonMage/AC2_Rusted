@@ -105,6 +105,7 @@ fn layout(item_kind: u32) -> Arc<LayoutDesc> {
     );
     let item = element(ITEM, item_kind, rect(0, 0, 79, 19), vec![]);
     Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 200,
