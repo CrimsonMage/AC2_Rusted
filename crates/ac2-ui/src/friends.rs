@@ -17,6 +17,16 @@ pub const FRIEND_ROWS: usize = 15;
 pub enum FriendsRequest {
     /// `RequestGUN_GetFriendsList(userRequested)`.
     GetList { user_requested: bool },
+    /// `RequestGUN_FriendAdd(name)` (`gmFriendsUI::HandleAddButton`).
+    Add(String),
+    /// `RequestGUN_FriendDelete(name)` (`gmFriendsUI::HandleRemoveButton`).
+    Delete(String),
+    /// `RequestGUN_SetLocation(flags, "")` and the status's emote (`gmFriendsUI::HandleStatusChange`:
+    /// `DoEmote` with the table's emote, by its name in the emote table).
+    Status {
+        flags: u32,
+        emote: Option<&'static str>,
+    },
 }
 
 /// The friends panel's state.

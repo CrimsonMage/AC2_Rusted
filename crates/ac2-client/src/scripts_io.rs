@@ -165,6 +165,7 @@ impl Client {
     /// [`Client::take_gun_requests`] for it. Room chat goes to Turbine chat either way.
     pub fn set_gun_service(&mut self, gun: bool) {
         if let Some(scripts) = self.scripts.as_mut() {
+            scripts.gun_service = gun;
             scripts
                 .host
                 .set_chat_services(ac2_script::host::ChatServices {

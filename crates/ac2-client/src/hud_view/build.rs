@@ -77,6 +77,7 @@ impl HudView {
             examination: None,
             allegiance: None,
             fellowship: None,
+            friends: None,
             mini_fellow: None,
             pets: None,
             quests: None,
@@ -149,6 +150,7 @@ impl HudView {
                     examination,
                     allegiance,
                     fellowship,
+                    friends,
                     mut mini_fellow,
                     mut pets,
                     quests,
@@ -205,6 +207,7 @@ impl HudView {
                 self.examination = examination;
                 self.allegiance = allegiance;
                 self.fellowship = fellowship;
+                self.friends = friends;
                 self.quests = quests;
                 self.vitals = Some(vitals);
                 self.effects = effects;

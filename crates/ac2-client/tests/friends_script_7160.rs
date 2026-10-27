@@ -281,20 +281,25 @@ fn friend_start_event_raises_the_script_message_only() {
     assert!(client.take_script_problems().is_empty());
 }
 
-/// Without the GUN service the friend requests are not queued by the script (the VM's own
-/// requests answer 0), and the friends list stays empty.
+/// Without the GUN service the friend requests are not queued (`gmCWInterface::RequestGUN_*`
+/// answer 0 when `TurbineGun::S_pTurbineGun` is NULL): the UI's add, delete, list and status are
+/// refused, and the friends list stays empty.
 #[test]
-fn friend_requests_are_not_queued_without_the_vm() {
+fn friend_requests_are_not_queued_without_the_gun_service() {
     let (mut client, _server) = entered(spawn());
-    client.friend_add(NAME);
+    assert!(!client.friend_add(NAME));
+    assert!(!client.friend_delete(NAME));
+    assert!(!client.friends_list(true));
+    assert!(!client.friend_status(2));
     assert!(client.take_gun_requests().is_empty());
+    assert!(client.take_friend_events().is_empty());
 }
 
-/// The friends panel follows the GUN list and its events: the list fills the rows, a status
-/// updates one row, the selected row's remove goes to the GUN service, a removal leaves the rows,
-/// and an added friend asks for the list again.
+/// The GUN list and status events reach the friends page (`take_friend_events`), in order: the
+/// list fills the page's rows, then a status updates one row. The page's requests go to the GUN
+/// service: a delete, the status's flags and an added friend's list request.
 #[test]
-fn friends_panel_follows_the_list_status_and_results() {
+fn gun_events_reach_the_page_and_its_requests_go_to_gun() {
     let Some((mut client, _server)) = with_gun() else {
         return;
     };
@@ -303,45 +308,39 @@ fn friends_panel_follows_the_list_status_and_results() {
         location: location.to_owned(),
         mode,
     };
-    client.gun_friend_event(FriendEvent::Start(vec![
-        friend("Tomas", "Holtburg", 1),
-        friend("Ilse", "", 0),
-    ]));
-    assert_eq!(
-        client.friends_panel().rows(),
-        [friend("Tomas", "Holtburg", 1), friend("Ilse", "", 0)]
-    );
-
+    let list = vec![friend("Tomas", "Holtburg", 1), friend("Ilse", "", 0)];
+    client.gun_friend_event(FriendEvent::Start(list.clone()));
     client.gun_friend_event(FriendEvent::Status(friend("Tomas", "Yaraq", 2)));
     assert_eq!(
-        client.friends_panel().friends()[0],
-        friend("Tomas", "Yaraq", 2)
+        client.take_friend_events(),
+        vec![
+            FriendEvent::Start(list),
+            FriendEvent::Status(friend("Tomas", "Yaraq", 2)),
+        ]
     );
+    assert!(client.take_friend_events().is_empty(), "taken once");
 
+    // The login's own GUN lists are queued first; the page's requests come after them.
     client.take_gun_requests();
-    client.friend_select(Some(1));
-    client.friend_remove_selected();
+    assert!(client.friend_delete("Ilse"));
+    assert!(client.friend_status(2));
+    assert!(client.friends_list(true));
     assert_eq!(
         client.take_gun_requests(),
-        vec![ChatRequest::FriendDelete("Ilse".to_owned())],
-        "the selected row's delete"
+        vec![
+            ChatRequest::FriendDelete("Ilse".to_owned()),
+            ChatRequest::SetLocation {
+                flags: 2,
+                location: String::new(),
+            },
+            ChatRequest::GetFriendsList {
+                user_requested: true
+            },
+        ],
     );
     client.gun_friend_result(FriendResult::Removed {
         gun: GUN_DONE,
         name: "Ilse".to_owned(),
     });
-    assert_eq!(client.friends_panel().friends().len(), 1, "the row leaves");
-
-    client.take_gun_requests();
-    client.gun_friend_result(FriendResult::Added {
-        gun: GUN_DONE,
-        name: NAME.to_owned(),
-    });
-    assert_eq!(
-        client.take_gun_requests(),
-        vec![ChatRequest::GetFriendsList {
-            user_requested: true
-        }],
-        "an added friend asks for the list again"
-    );
+    assert!(client.take_script_problems().is_empty());
 }

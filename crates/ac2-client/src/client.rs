@@ -163,8 +163,8 @@ pub struct Client {
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
     pub(crate) radar: crate::client_radar::RadarState,
-    /// The friends panel (`gmFriendsUI`), fed by the GUN results and events.
-    pub(crate) friends: ac2_ui::FriendsUi,
+    /// The GUN list and status events for the friends page (`gmFriendsUI`), in order.
+    pub(crate) friend_events: Vec<crate::friends::FriendEvent>,
     /// `SmartBox`'s portal space (`WorldRender::m_PortalSpaceEffect`): the teleport's fade and tunnel.
     pub(crate) portal: PortalSpace,
     /// Between a teleport's start and its end (`SmartBox::HandleTeleport` to the placement).
@@ -244,7 +244,7 @@ impl Client {
             scripts: None,
             audio: None,
             radar: Default::default(),
-            friends: Default::default(),
+            friend_events: Vec::new(),
             portal: PortalSpace::new(),
             teleporting: false,
             story: Default::default(),

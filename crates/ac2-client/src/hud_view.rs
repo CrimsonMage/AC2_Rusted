@@ -45,6 +45,8 @@ pub(crate) struct HudView {
     pub(crate) examination: Option<ac2_ui::ExaminationUi>,
     pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
     pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
+    /// `gmFriendsUI`: the friends page of the social toolbar.
+    pub(crate) friends: Option<ac2_ui::FriendsPanel>,
     /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
     pub(crate) mini_fellow: Option<ac2_ui::MiniFellowUi>,
     /// `gmPetUI`: the pet panel on the HUD.

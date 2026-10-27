@@ -14,6 +14,8 @@ mod character;
 mod character_options;
 mod friends;
 pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
+mod friends_panel;
+pub use friends_panel::{status_request, FriendsPanel, STATUS_TABLE};
 #[cfg(test)]
 mod character_tests;
 mod chat;

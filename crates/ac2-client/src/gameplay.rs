@@ -35,6 +35,8 @@ pub enum Command {
     },
     /// `gmCWInterface::DoEmote`, with the emote the emote table named.
     Emote(u32),
+    /// The friends page's requests (`gmFriendsUI`: add, delete, status, the list).
+    Friends(ac2_ui::FriendsRequest),
     /// `CWInterface::ProcessText`: a line the chat window entered (a `/` command or speech).
     ChatLine(String),
     /// `gmCWInterface::RequestGUN_SendToRoom` (Turbine chat): text to a chat room, with the
@@ -523,6 +525,10 @@ impl Client {
                 Command::Skill(request) => self.skill_command(*request),
                 Command::Emote(emote) => {
                     self.session.emote(*emote);
+                    Vec::new()
+                }
+                Command::Friends(request) => {
+                    self.friends_command(request);
                     Vec::new()
                 }
                 Command::SendToRoom { room, text, flags } => {

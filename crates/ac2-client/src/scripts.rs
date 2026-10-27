@@ -445,6 +445,9 @@ pub(crate) struct Scripts {
     pub(crate) script_notices: Vec<ScriptNotice>,
     /// GUN requests for the GUN service ([`Client::set_gun_service`]).
     pub(crate) gun_requests: Vec<ac2_script::host::ChatRequest>,
+    /// Whether the client has a GUN service (`Client::set_gun_service`); the UI's requests are
+    /// queued only with one.
+    pub(crate) gun_service: bool,
     /// The objects whose physics objects the scripts set no-draw (`SetNoDrawPhysics`).
     pub(crate) no_draw: BTreeSet<u64>,
 }
@@ -479,6 +482,7 @@ impl Client {
             data_pending: 0,
             script_notices: Vec::new(),
             gun_requests: Vec::new(),
+            gun_service: false,
             no_draw: BTreeSet::new(),
         });
         // Objects already known get their processes too.

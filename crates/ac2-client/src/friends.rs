@@ -5,13 +5,16 @@
 //! script's IFuns, which raise the `CM_Friends` notices: `Result_FriendAdd` and `Result_FriendDelete`
 //! take a weenie result and the name; the list comes in the `FriendStart` event (`GUNEvent_FriendStart`,
 //! the Legions path: `CCliFriendsEvent::FriendStart` builds the list), and each status change in
-//! `GUNEvent_FriendStatus`.
+//! `GUNEvent_FriendStatus`. Without a GUN service (`Client::set_gun_service`) the UI's requests
+//! answer 0 and queue nothing, as retail's `RequestGUN_*` do when `TurbineGun` is absent. The
+//! friends page (`ac2_ui::FriendsPanel`, the HUD's `hud_friends`) takes the list and status events
+//! ([`crate::Client::take_friend_events`]) and sends its requests back here.
 
 use ac2_net::protocol::NativeObject as NetNative;
 use ac2_script::host::{ChatRequest, IFunArg};
 use ac2_script::native::NativeObject;
 use ac2_ui::FriendsRequest;
-use ac2_weenie::{FriendInfo, GameplayNotice, SessionEvent};
+use ac2_weenie::{FriendInfo, SessionEvent};
 
 use crate::client::Client;
 use crate::scripts::*;
@@ -73,79 +76,64 @@ pub enum FriendEvent {
 }
 
 impl Client {
-    /// `gmCWInterface::RequestGUN_FriendAdd` (the UI's add): queued for the GUN service.
-    pub fn friend_add(&mut self, name: &str) {
-        self.gun_request(ChatRequest::FriendAdd(name.to_owned()));
+    /// `gmCWInterface::RequestGUN_FriendAdd` (the UI's add): queued for the GUN service. Without
+    /// one retail returns 0 and queues nothing (`TurbineGun::S_pTurbineGun` is NULL). Returns
+    /// whether it was queued.
+    pub fn friend_add(&mut self, name: &str) -> bool {
+        self.gun_request(ChatRequest::FriendAdd(name.to_owned()))
     }
 
-    /// `gmCWInterface::RequestGUN_FriendDelete`: queued for the GUN service.
-    pub fn friend_delete(&mut self, name: &str) {
-        self.gun_request(ChatRequest::FriendDelete(name.to_owned()));
+    /// `gmCWInterface::RequestGUN_FriendDelete`: queued for the GUN service (see
+    /// [`Client::friend_add`]).
+    pub fn friend_delete(&mut self, name: &str) -> bool {
+        self.gun_request(ChatRequest::FriendDelete(name.to_owned()))
     }
 
     /// `gmCWInterface::RequestGUN_GetFriendsList(userRequested)`: queued for the GUN service.
-    pub fn friends_list(&mut self, user_requested: bool) {
-        self.gun_request(ChatRequest::GetFriendsList { user_requested });
+    pub fn friends_list(&mut self, user_requested: bool) -> bool {
+        self.gun_request(ChatRequest::GetFriendsList { user_requested })
+    }
+
+    /// `gmCWInterface::RequestGUN_SetLocation(flags, "")`, the status drop-down's request: queued
+    /// for the GUN service.
+    pub fn friend_status(&mut self, flags: u32) -> bool {
+        self.gun_request(ChatRequest::SetLocation {
+            flags,
+            location: String::new(),
+        })
     }
 
     /// A GUN add or delete result: converted to the weenie result, then the script's
-    /// `Result_FriendAdd` or `Result_FriendDelete` IFun, whose notices come back here.
+    /// `Result_FriendAdd` or `Result_FriendDelete` IFun, whose notices (`FriendAdded`,
+    /// `FriendRemoved`) the friends page takes.
     pub fn gun_friend_result(&mut self, result: FriendResult) -> Vec<SessionEvent> {
         let (function, gun, name) = match result {
             FriendResult::Added { gun, name } => (IFUN_RESULT_FRIEND_ADD, gun, name),
             FriendResult::Removed { gun, name } => (IFUN_RESULT_FRIEND_DELETE, gun, name),
         };
-        let events = self.store_ifun(
+        self.store_ifun(
             function,
             &[
                 IFunArg::Int(weenie_result(gun)),
                 IFunArg::Native(NetNative::WString(name)),
             ],
-        );
-        // The panel follows the notices: an added friend asks for the list again, a removed one
-        // leaves it (`gmFriendsUI::RecvNotice_GUNResult_AddFriend` and `..._RemoveFriend`).
-        for event in &events {
-            match event {
-                SessionEvent::Notice(GameplayNotice::FriendAdded(_)) => {
-                    let FriendsRequest::GetList { user_requested } = self.friends.recv_added();
-                    self.friends_list(user_requested);
-                }
-                SessionEvent::Notice(GameplayNotice::FriendRemoved(name)) => {
-                    self.friends.recv_removed(name);
-                }
-                _ => {}
-            }
-        }
-        events
+        )
     }
 
-    /// The friends panel's state (its rows, selection and visible window).
-    pub fn friends_panel(&self) -> &ac2_ui::FriendsUi {
-        &self.friends
-    }
-
-    /// Selects a friend row in the panel (`UIElement_ListBox::SetSelectedIndex`).
-    pub fn friend_select(&mut self, index: Option<usize>) {
-        self.friends.select(index);
-    }
-
-    /// `gmFriendsUI::HandleRemoveButton`: deletes the selected friend at the GUN service. Nothing
-    /// without a selection.
-    pub fn friend_remove_selected(&mut self) {
-        if let Some(name) = self.friends.remove_request() {
-            self.friend_delete(&name);
-        }
+    /// The GUN list and status events the friends page has not taken yet, in order
+    /// ([`FriendEvent`]: the `FriendStart` list and each `FriendStatus`).
+    pub fn take_friend_events(&mut self) -> Vec<FriendEvent> {
+        std::mem::take(&mut self.friend_events)
     }
 
     /// A GUN event for the list: the script's `GUNEvent_FriendStart` gets the list as an `RList`
     /// of `TurbineUserStatus` natives; `GUNEvent_FriendStatus` gets one status native. The
-    /// notices they raise come back here.
+    /// notices they raise come back here; the list and the status go to the friends page
+    /// ([`Client::take_friend_events`]), since the start body raises no list notice.
     pub fn gun_friend_event(&mut self, event: FriendEvent) -> Vec<SessionEvent> {
         match event {
             FriendEvent::Start(friends) => {
-                // The panel takes the GUN list itself (`BuildUIList`'s input): the script's start
-                // body raises no list notice in Legions.
-                self.friends.recv_list(&friends);
+                self.friend_events.push(FriendEvent::Start(friends.clone()));
                 self.store_ifun(
                     IFUN_GUN_EVENT_FRIEND_START,
                     &[IFunArg::VmList(
@@ -155,7 +143,7 @@ impl Client {
                 )
             }
             FriendEvent::Status(friend) => {
-                self.friends.recv_status(&friend);
+                self.friend_events.push(FriendEvent::Status(friend.clone()));
                 self.store_ifun(
                     IFUN_GUN_EVENT_FRIEND_STATUS,
                     &[IFunArg::Vm(
@@ -167,10 +155,39 @@ impl Client {
         }
     }
 
-    /// Queues a GUN request for the service (no VM needed: the UI's calls are C++).
-    fn gun_request(&mut self, request: ChatRequest) {
-        if let Some(scripts) = self.scripts.as_mut() {
-            scripts.gun_requests.push(request);
+    /// The friends page's requests as the client makes them: the list, add, delete and the status
+    /// (`gmFriendsUI::HandleStatusChange`). The status's emote plays whether or not there is a
+    /// GUN service (the `DoEmote` is not behind the GUN call); it is the game server's emote.
+    pub(crate) fn friends_command(&mut self, request: &FriendsRequest) {
+        match request {
+            FriendsRequest::GetList { user_requested } => {
+                self.friends_list(*user_requested);
+            }
+            FriendsRequest::Add(name) => {
+                self.friend_add(name);
+            }
+            FriendsRequest::Delete(name) => {
+                self.friend_delete(name);
+            }
+            FriendsRequest::Status { flags, emote } => {
+                self.friend_status(*flags);
+                let id = emote.and_then(|word| self.session.chat().commands().emote(word));
+                if let Some(id) = id {
+                    self.session.emote(id);
+                }
+            }
+        }
+    }
+
+    /// Queues a GUN request for the service, as `gmCWInterface::RequestGUN_*` does: nothing
+    /// without a GUN service (`false`, the retail 0), else the request is queued (`true`).
+    fn gun_request(&mut self, request: ChatRequest) -> bool {
+        match self.scripts.as_mut() {
+            Some(scripts) if scripts.gun_service => {
+                scripts.gun_requests.push(request);
+                true
+            }
+            _ => false,
         }
     }
 }

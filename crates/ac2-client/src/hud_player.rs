@@ -90,6 +90,7 @@ impl HudView {
             player_loaded,
             dirty,
             fellowship,
+            friends,
             mini_fellow,
             pets,
             quests,
@@ -283,6 +284,13 @@ impl HudView {
                 typing,
             ));
         }
+        // `gmFriendsUI`: the GUN list and status the client took since the last frame.
+        let friend_events = player.client.borrow_mut().take_friend_events();
+        if let Some(panel) = friends.as_mut() {
+            for event in friend_events {
+                crate::hud_friends::friend_event(panel, tree, event);
+            }
+        }
         for event in events {
             if let Some(dialog) = stack.as_mut() {
                 crate::ui_inventory::stack_event(dialog, tree, event);
@@ -348,6 +356,9 @@ impl HudView {
             }
             if let Some(panel) = pets.as_mut() {
                 crate::hud_pets::pet_notice(panel, tree, &player, frame.server_time, notice);
+            }
+            if let Some(panel) = friends.as_mut() {
+                crate::hud_friends::friends_notice(panel, tree, notice, &mut commands);
             }
             if let Some(panel) = quests.as_mut() {
                 crate::ui_quests::quest_notice(panel, tree, &player, notice);
@@ -516,6 +527,9 @@ impl HudView {
                 let selection = frame.selection.as_ref().map(|s| s.id);
                 let actions = panel.message(tree, message, selection);
                 crate::hud_pets::pet_commands(actions, &mut commands);
+            }
+            if let Some(panel) = friends.as_mut() {
+                crate::hud_friends::friends_message(panel, tree, message, None, &mut commands);
             }
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);

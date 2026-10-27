@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 300 done, 127 partial, 1466 to do, 11 skipped.
+1904 retail functions: 302 done, 150 partial, 1439 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -510,17 +510,17 @@ Legend and workflow: [README](README.md).
 - [ ] `ReferenceTable::DeleteAllUnUsedReferences` · 00454960 · legions 004557c0
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [~] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [x] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_GetIgnoredList` · 00454c10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredAdd` · 00454c90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_IgnoredDelete` · 00454d10 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_SendToRoom` · 00454d90 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_SendToUser` · 00454e20 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_SetLocation` · 00454eb0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `ggmCWInterface::CallEFun_RequestGUN_SetStateFlags` · 00454f30 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `ggmCWInterface::CallEFun_RequestGUN_GetIgnoredList` · 00454c10 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_IgnoredAdd` · 00454c90 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_IgnoredDelete` · 00454d10 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_SendToRoom` · 00454d90 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_SendToUser` · 00454e20 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_SetLocation` · 00454eb0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `ggmCWInterface::CallEFun_RequestGUN_SetStateFlags` · 00454f30 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### VM
 - [ ] `VM::DeleteContext` · 00455000 · legions 00455c70
@@ -804,7 +804,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50
 - [x] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [x] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — not in Legions 7160: the wrapper gmCWInterface::Result_GetFriendsList and its IFun 0xB40042 are absent; the list arrives in GUNEvent_FriendStart
+- [-] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
 - [ ] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (134/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (136/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1014,14 +1014,14 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40
-- [ ] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50
-- [ ] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80
+- [~] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [x] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [x] `gmCWInterface::Result_FriendDelete` · 00450d90 · legions 00451ed0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gmCWInterface::GUNEvent_FriendStatus` · 00450db0 · legions 00451ef0
-- [ ] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
-- [ ] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
-- [ ] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60
+- [x] `gmCWInterface::GUNEvent_FriendStatus` · 00450db0 · legions 00451ef0 — ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
+- [~] `gmCWInterface::Result_IgnoredAdd` · 00450de0 · legions 00451f20 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::Result_IgnoredDelete` · 00450e00 · legions 00451f40 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [~] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -1136,18 +1136,18 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::RequestGUN_FriendAdd` · 004521e0 · legions 00453320 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `gmCWInterface::RequestGUN_FriendDelete` · 00452250 · legions 00453390 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `gmCWInterface::RequestGUN_GetFriendsList` · 004522c0 · legions 00453400 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
-- [ ] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [ ] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [ ] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — ac2-weenie squelch: no TurbineGun in Legions, so the request fails with the squelch-service line
-- [ ] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `gmCWInterface::RequestGUN_IgnoredAdd` · 00452330 · legions 00453470 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::RequestGUN_IgnoredDelete` · 004523a0 · legions 004534e0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::RequestGUN_GetIgnoredList` · 00452410 · legions 00453550 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::RequestGUN_CallCreate` · 00452480 · legions 004535d2 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### GunChatExtraInfo
 - [ ] `GunChatExtraInfo::GunChatExtraInfo` · 00452580 · legions 00453690 — ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 - [ ] `GunChatExtraInfo::~GunChatExtraInfo` · 00452660 · legions 00453770
 
 ### gmCWInterface
-- [ ] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — ac2-weenie OnlineSession::send_to_room: the Turbine chat path (CSendToTurbineRoomByID); the GUN path is dead in Legions
+- [~] `gmCWInterface::RequestGUN_SendToUser` · 00452710 · legions 00453820 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::RequestGUN_SendToRoom` · 004527c0 · legions 004538d0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### CCliFlagsResult
 - [ ] `CCliFlagsResult::CCliFlagsResult` · 004528d0 · legions 004539e0
@@ -1166,15 +1166,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::DumpWeenieDesc` · 00452bf0 · legions 00453d00
 - [ ] `gmCWInterface::GetName` · 00452cd0 · legions 00453de0
 - [ ] `gmCWInterface::GetPluralName` · 00452d50 · legions 00453e60
-- [ ] `gmCWInterface::RequestGUN_SetStateFlags` · 00452dd0 · legions 00453ee0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `gmCWInterface::RequestGUN_SetLocation` · 00452e40 · legions 00453f50 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `gmCWInterface::RequestGUN_SetStateFlags` · 00452dd0 · legions 00453ee0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::RequestGUN_SetLocation` · 00452e40 · legions 00453f50 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::GetSubString` · 00452f50 · legions 00454060
 
 ### gmCWInterface
-- [ ] `gmCWInterface::HearTell` · 004530f0 · legions 00454200
-- [ ] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — ac2-weenie GameplayNotice::HearFromRoom / SendToRoomResult; the CPlayer script's channel formatting is not mirrored
+- [~] `gmCWInterface::HearTell` · 004530f0 · legions 00454200 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [~] `gmCWInterface::GUNEvent_HearFromRoom` · 00453320 · legions 00454430 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 
 ### GunChatExtraInfo
 - [ ] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — ac2-net GunChatExtraInfo
@@ -1193,8 +1193,8 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::ExpandText` · 004539e0 · legions 00454a60
-- [ ] `gmCWInterface::Result_GetFriendsList` · 00453b90
-- [ ] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50
+- [-] `gmCWInterface::Result_GetFriendsList` · 00453b90 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
+- [x] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50 — ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
 - [ ] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 
 ### `anonymous-namespace'::YesNoDialogAwakener

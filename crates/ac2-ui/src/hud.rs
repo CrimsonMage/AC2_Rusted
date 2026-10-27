@@ -34,6 +34,7 @@ use crate::element::UiTree;
 use crate::examination::ExaminationUi;
 use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
+use crate::friends_panel::FriendsPanel;
 use crate::indicators::IndicatorsUi;
 use crate::ingredient::IngredientUi;
 use crate::layout::{load_layout, LayoutDesc};
@@ -113,6 +114,8 @@ pub struct GameplayHud {
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
+    /// `gmFriendsUI`, the friends page of the social toolbar.
+    pub friends: Option<FriendsPanel>,
     /// `gmMiniFellowUI`, the fellowship mini panel (hidden until its button is pressed).
     pub mini_fellow: Option<MiniFellowUi>,
     /// `gmPetUI`: the pet panel.
@@ -257,6 +260,10 @@ pub fn build_gameplay_hud(
     let fellowship = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
+    // `gmFriendsUI::gmFriendsUI` over `FriendsPage`, made with the social page's panels.
+    let friends = layouts[&LAYOUT_TOOLBAR]
+        .as_ref()
+        .map(|toolbar| FriendsPanel::create(&mut tree, toolbar));
     let quests = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| QuestsUi::create(&tree, toolbar));
@@ -327,6 +334,7 @@ pub fn build_gameplay_hud(
         examination,
         allegiance,
         fellowship,
+        friends,
         mini_fellow,
         pets,
         quests,

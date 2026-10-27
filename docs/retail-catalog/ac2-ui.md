@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 898 done, 325 partial, 958 to do, 66 skipped.
+2247 retail functions: 905 done, 333 partial, 943 to do, 66 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1571,12 +1571,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (0/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (7/20)
 
 ### gmFriendsUI
-- [ ] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [ ] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30
+- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [x] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [~] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
 
 ### PStringBase<unsigned_short>
 - [ ] `PStringBase<unsigned_short>::operator==` · 0043a620 · legions 0043ae70
@@ -1587,23 +1587,23 @@ Legend and workflow: [README](README.md).
 - [ ] `TextPredicate::TextPredicate` · 0043a6f0 · legions 0043af40
 
 ### gmFriendsUI
-- [ ] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [ ] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070
-- [ ] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680
-- [ ] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
+- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [x] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [~] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [~] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
 
 ### PList<TurbineUserStatus>
 - [ ] `PList<TurbineUserStatus>::UnPack` · 0043b020
 
 ### gmFriendsUI
-- [ ] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
-- [ ] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40
-- [ ] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
-- [ ] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
+- [x] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [x] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the status drop-down's UIElement_Menu is not ported (no choice read; status_request is the request it sends); add target's name not read from the selection (add ghosted); the GUN mode's away/dnd text not shown; the Legions ListenToMessage's IsMoving reset of the menu not modelled
+- [x] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [x] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
+- [x] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (0/3)
 
