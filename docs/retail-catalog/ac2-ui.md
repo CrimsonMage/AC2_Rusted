@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1063 done, 358 partial, 715 to do, 111 skipped.
+2247 retail functions: 1065 done, 356 partial, 715 to do, 111 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1161,7 +1161,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
 - [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 
-## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (3/16)
+## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (5/16)
 
 ### PlayingSoundContext
 - [ ] `PlayingSoundContext::PlayingSoundContext` · 00421ec0 · legions 006b07e0
@@ -1174,8 +1174,8 @@ Legend and workflow: [README](README.md).
 - [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; KeyStone help is an external window, ShowKeyStone skipped) and the shortcut bar Show is a separate entry
 - [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; ManageChildren tooltips ID_Toolbar_TT_<child> (Hide while shown, Show while hidden) via refresh_tooltips. Not: the child panel contents (each child's framework)
 - [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
-- [~] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ac2-ui toolbar.rs ChildKeyPress/ShowPlugin/ShowKeyStone routing: the 0xffff0003 keystone and plug-in keys (child keys 0x41000001..07 go to ChildKeyPress); KeyStone and plug-in windows are external (skipped, as ShowKeyStone)
-- [~] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ac2-ui toolbar.rs message(): set_show_state runs ManageChildren (sibling hide); the child buttons' tooltips refresh on shown-state change (refresh_tooltips, client tick pass). Dismount press is routed (is_dismount_press); the sale-reminder button press (DisplaySaleReminders) is not wired
+- [x] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ConsignmentsButton release (Legions 0x00422140 element DAT_00a48d50) calls gmCWInterface::DisplaySaleReminders: ac2-ui toolbar.rs is_sale_reminder_press, routed in ac2-client hud_player_message.rs to Command::DisplaySaleReminders (IFun 0xB4013D); toolbar_tests the_consignments_button_release_is_the_sale_reminder_press
+- [x] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ConsignmentsButton release (Legions 0x00422140 element DAT_00a48d50) calls gmCWInterface::DisplaySaleReminders: ac2-ui toolbar.rs is_sale_reminder_press, routed in ac2-client hud_player_message.rs to Command::DisplaySaleReminders (IFun 0xB4013D); toolbar_tests the_consignments_button_release_is_the_sale_reminder_press
 
 ### List<unsigned_long>
 - [ ] `List<unsigned_long>::operator=` · 00422360 · legions 0040d980

@@ -196,6 +196,15 @@ impl ToolbarUi {
             && message.message == MSG_BUTTON_RELEASE_ON
     }
 
+    /// `gmToolbarUI::ListenToMessage`: the consignments button's release is the sale reminder's
+    /// press, which calls `gmCWInterface::DisplaySaleReminders` (no state gate in retail; the
+    /// button is only shown while a sale needs it). True for that message.
+    pub fn is_sale_reminder_press(&self, message: &UiMessage) -> bool {
+        self.consignments.is_some()
+            && message.element_id == tokenize("ConsignmentsButton")
+            && message.message == MSG_BUTTON_RELEASE_ON
+    }
+
     /// Whether the toolbar bar is shown (its `ToolbarField` is visible; `gmToolbarUI::Shown`).
     pub fn bar_shown(&self, tree: &UiTree) -> bool {
         self.field

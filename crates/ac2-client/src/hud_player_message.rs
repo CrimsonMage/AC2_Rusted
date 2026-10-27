@@ -93,6 +93,14 @@ impl HudView {
             {
                 commands.push(Command::Dismount);
             }
+            // `gmToolbarUI::ListenToMessage`: the consignments button's press asks for the sale
+            // reminders (`gmCWInterface::DisplaySaleReminders`).
+            if toolbar
+                .as_ref()
+                .is_some_and(|bar| bar.is_sale_reminder_press(message))
+            {
+                commands.push(Command::DisplaySaleReminders);
+            }
             if let Some(key) = ac2_ui::select_key_of(message) {
                 let mut client = player.client.borrow_mut();
                 let typing = tree.text_mode();
