@@ -159,6 +159,13 @@ mod story_view;
 #[cfg(test)]
 mod story_view_tests;
 pub use story_view::StoryView;
+pub mod help;
+#[cfg(test)]
+mod help_tests;
+pub mod ksml;
+#[cfg(test)]
+mod ksml_tests;
+mod ksml_xml;
 #[cfg(test)]
 mod scroll_coverage_tests;
 #[cfg(test)]

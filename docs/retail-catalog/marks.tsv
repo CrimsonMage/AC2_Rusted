@@ -3746,7 +3746,7 @@ key	status	note
 004be270	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be2b0	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be300	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
-004be3b0	_	needs port: the help pages UI buttons open (KeyStone::OpenHelp(ID_Help_*)); ac2-ui returns the topic id, the page itself is not modelled
+004be3b0	~	help page resolution (ac2-ui help.rs: token to KSML page via string table 0x4100004e) and KSML parsing (ksml.rs); the help window rendering is phase B, not drawn yet
 004be4c0	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be550	-	KeyStone COM help-plugin host (Windows COM, help window); not ported
 004be5e0	-	GUN XML protocol parser (Gaming Zone; CParseXml), not used on the community login path

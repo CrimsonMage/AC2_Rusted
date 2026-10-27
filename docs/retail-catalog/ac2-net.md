@@ -1,6 +1,6 @@
 # ac2-net: Network transport, RPC, crypto, GUN, chat, HTTP
 
-556 retail functions: 229 done, 20 partial, 83 to do, 224 skipped.
+556 retail functions: 229 done, 21 partial, 82 to do, 224 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/gun/clientguninterface.cpp.c` (0/2)
@@ -241,7 +241,7 @@ Legend and workflow: [README](README.md).
 - [-] `KeyStone::OpenPluginManager` · 004be270 · legions 004b2590 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Release` · 004be2b0 · legions 004b25d0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::Cleanup` · 004be300 · legions 004b2620 — KeyStone COM help-plugin host (Windows COM, help window); not ported
-- [ ] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — needs port: the help pages UI buttons open (KeyStone::OpenHelp(ID_Help_*)); ac2-ui returns the topic id, the page itself is not modelled
+- [~] `KeyStone::OpenHelp` · 004be3b0 · legions 004b26d0 — help page resolution (ac2-ui help.rs: token to KSML page via string table 0x4100004e) and KSML parsing (ksml.rs); the help window rendering is phase B, not drawn yet
 - [-] `KeyStone::IsHelpOpen` · 004be4c0 · legions 004b27e0 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 - [-] `KeyStone::IsPluginManagerOpen` · 004be550 · legions 004b2870 — KeyStone COM help-plugin host (Windows COM, help window); not ported
 
