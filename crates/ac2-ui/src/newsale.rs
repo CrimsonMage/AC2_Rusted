@@ -293,10 +293,12 @@ impl NewSaleUi {
         } else {
             "ID_Store_ConsignmentConfirmSellPlural"
         };
+        // `gmShopNewSaleUI::AddSale`'s confirmation variables: `product` (the item's name), `cost`
+        // (the consignment fee) and `price` (the price the player typed), by their tokens.
         let vars = vec![
-            (id("Item"), SkillVar::Text(slot.name)),
-            (id("Fee"), SkillVar::UInt(u64::from(fee))),
-            (id("Price"), SkillVar::UInt(u64::from(self.price))),
+            (id("product"), SkillVar::Text(slot.name)),
+            (id("cost"), SkillVar::UInt(u64::from(fee))),
+            (id("price"), SkillVar::UInt(u64::from(self.price))),
         ];
         let text = s.render_string(&UiString::ui(id(string), vars));
         self.confirm_context = dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false);
