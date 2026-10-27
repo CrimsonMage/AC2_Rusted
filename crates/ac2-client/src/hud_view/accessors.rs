@@ -167,6 +167,13 @@ impl HudView {
         self.hud.as_ref().is_some_and(|(tree, _)| tree.text_mode())
     }
 
+    /// Whether a read-only text holds the copy focus (typed characters reach it, not the game).
+    pub(crate) fn text_copy_focus(&self) -> bool {
+        self.hud
+            .as_ref()
+            .is_some_and(|(tree, _)| tree.text_copy_focus())
+    }
+
     /// The objects with a name plate.
     pub(crate) fn named(&self) -> Vec<u64> {
         self.names.as_ref().map_or(Vec::new(), |n| n.named())

@@ -835,6 +835,11 @@ impl ClientView {
         self.hud.text_mode()
     }
 
+    /// Whether a read-only HUD text holds the copy focus (Ctrl+A / Ctrl+C reach it).
+    pub fn text_copy_focus(&self) -> bool {
+        self.hud.text_copy_focus()
+    }
+
     /// The pointer as the HUD last saw it (`ICIDM` mouse position), in window pixels.
     pub fn pointer(&self) -> (i32, i32) {
         self.hud.pointer()

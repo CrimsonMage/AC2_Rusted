@@ -47,7 +47,9 @@ ac2-gpu = { path = "../ac2-gpu", optional = true }
 winit = { version = "0.30", optional = true }
 wgpu = { version = "30.0.1", default-features = false, optional = true }
 image = { version = "0.25", default-features = false, features = ["jpeg"] }
-arboard = "3.7"
+# `wayland-data-control` serves the clipboard natively on Wayland (without it, copies go
+# through XWayland only).
+arboard = { version = "3.7", features = ["wayland-data-control"] }
 # `puffin` 0.20 with its matching `puffin_http` 0.17 (which depends on puffin 0.20).
 puffin = { version = "0.20", optional = true }
 puffin_http = { version = "0.17", optional = true }

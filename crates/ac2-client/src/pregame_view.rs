@@ -175,6 +175,14 @@ impl PregameView {
         self.ui.as_ref().is_some_and(|ui| ui.tree().text_mode())
     }
 
+    /// Whether a read-only text on the active pregame screen holds the copy focus (Ctrl+A and
+    /// Ctrl+C reach it, as in the world HUD).
+    pub fn text_copy_focus(&self) -> bool {
+        self.ui
+            .as_ref()
+            .is_some_and(|ui| ui.tree().text_copy_focus())
+    }
+
     /// The UI's requests carried out on the session.
     /// The creation capture the program named (`--chargen`).
     pub fn set_capture(&mut self, capture: CharGenCapture) {
