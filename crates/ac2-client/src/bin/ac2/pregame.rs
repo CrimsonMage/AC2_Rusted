@@ -81,13 +81,14 @@ impl App {
         }
         if self.client.frame().in_world {
             // `UseNewMode(Gameplay)`: the world and its HUD replace the pregame screens.
-            let view = ClientView::new(
+            let mut view = ClientView::new(
                 Arc::clone(&self.world),
                 &state.gpu,
                 state.format,
                 self.radius,
                 (state.config.width, state.config.height),
             );
+            view.set_scene_options(self.scene_options);
             state.view = Some(view);
             state.pregame = None;
             return;

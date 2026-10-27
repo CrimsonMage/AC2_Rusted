@@ -116,6 +116,9 @@ struct App {
     world: Arc<ac2_world::Ac2WorldSource>,
     controls: Option<Controls>,
     radius: i32,
+    /// The scene's graphics options from `Preferences.ini` (`SmartBox::InitPreferences`), applied
+    /// to each world view as it is made.
+    scene_options: ac2_render::prefs::SceneOptions,
     state: Option<State>,
     store: Arc<ac2_db::ResourceStore>,
     /// Whether the pregame screens show (no start character).
@@ -600,6 +603,7 @@ fn run(args: Args) -> Result<(), String> {
         world,
         controls: Some(controls),
         radius: args.radius,
+        scene_options: prefs.scene_options(),
         state: None,
         store,
         pregame: args.character.is_none(),

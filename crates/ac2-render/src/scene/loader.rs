@@ -113,6 +113,8 @@ pub enum Loaded {
     /// A visual the frame asked for (sky objects).
     Model(DataId, Option<ObjectModel>, Images),
     Far(LoadedFar),
+    /// A new far layout took effect in the worker (`WorldScene::set_options`); no data.
+    Layout,
     /// The rain's material (`LScapeRender::Init`), and its splash and ripple particle systems
     /// (`WorldRender`'s `m_pRainVaporParticleSystem`, `m_pWaterRipplesParticleSystem`).
     Rain(Box<LoadedRain>),
@@ -144,11 +146,13 @@ pub struct LoadedObject {
     pub images: Images,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub(crate) enum Request {
     Block(BlockKey),
     Model(DataId),
     Far(BlockKey),
+    /// The far layout the following `Far` loads use (queued, so loads already asked keep theirs).
+    Layout(Arc<FarTerrain>),
     Object(u64, DataId, Option<ac2_assets::Ac2VisualDesc>),
     Rain,
 }
@@ -422,6 +426,10 @@ impl Worker {
                 Loaded::Model(visual, model, images)
             }
             Request::Far(center) => Loaded::Far(self.far(center)),
+            Request::Layout(far) => {
+                self.far = far;
+                Loaded::Layout
+            }
             Request::Rain => Loaded::Rain(Box::new(self.rain())),
             Request::Object(key, visual, local) => {
                 let store = self.world.resource_store().clone();

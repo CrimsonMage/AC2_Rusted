@@ -240,3 +240,35 @@ fn a_default_answered_yes_resets_every_section_and_saves() {
         "the default came back"
     );
 }
+
+#[test]
+fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
+    let Some(store) = store() else {
+        return;
+    };
+    let dir = temp_dir("scene");
+    let mut prefs = ClientPrefs::load(dir.join("Preferences.ini"), store).expect("load");
+    assert_eq!(
+        prefs.scene_options(),
+        ac2_render::prefs::SceneOptions::default(),
+        "the scene's defaults until the page changes them"
+    );
+    prefs
+        .bank_mut()
+        .find_mut(0x4000_0043)
+        .expect("LandscapeDrawDistance")
+        .set_choice(0);
+    prefs
+        .bank_mut()
+        .find_mut(0x4000_0044)
+        .expect("LandscapeFrillDistance")
+        .set_choice(1);
+    let outcome = prefs.options_apply();
+    assert!(
+        outcome.verify_render,
+        "a graphics change asks for verification"
+    );
+    let options = prefs.scene_options();
+    assert_eq!(options.far_radius, 0);
+    assert!(options.frill.short_distance);
+}

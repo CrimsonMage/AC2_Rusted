@@ -169,3 +169,44 @@ fn an_out_of_range_level_applies_the_section_without_a_preset() {
     assert!(!apply_quality(&mut bank, 6));
     assert_eq!(landscape_draw_distance(&bank), Some(2));
 }
+
+#[test]
+fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
+    use crate::frill::FrillSettings;
+    use crate::prefs::{scene_options, SceneOptions, LANDSCAPE_FRILL_DISTANCE};
+    use crate::terrain::far_radius_for_draw_distance;
+
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    // The defaults are the scene's own: draw distance 2 (radius 4), the long frill distance.
+    assert_eq!(scene_options(&bank), SceneOptions::default());
+    assert_eq!(SceneOptions::default().far_radius, 4);
+    assert!(!SceneOptions::default().frill.short_distance);
+
+    bank.find_mut(0x4000_0043)
+        .expect("LandscapeDrawDistance")
+        .set_choice(0);
+    assert_eq!(
+        scene_options(&bank).far_radius,
+        0,
+        "the nearest draw distance"
+    );
+    bank.find_mut(0x4000_0043)
+        .expect("LandscapeDrawDistance")
+        .set_choice(4);
+    assert_eq!(
+        scene_options(&bank).far_radius,
+        far_radius_for_draw_distance(4)
+    );
+
+    bank.find_mut(LANDSCAPE_FRILL_DISTANCE)
+        .expect("LandscapeFrillDistance")
+        .set_choice(1);
+    assert_eq!(
+        scene_options(&bank).frill,
+        FrillSettings {
+            short_distance: true,
+            ..FrillSettings::default()
+        }
+    );
+}

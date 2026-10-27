@@ -131,6 +131,12 @@ impl ClientView {
         }
     }
 
+    /// The scene's graphics options (`WorldScene::set_options`): the landscape draw distance and
+    /// the frill distance, as the graphics preferences set them.
+    pub fn set_scene_options(&mut self, options: ac2_render::prefs::SceneOptions) {
+        self.scene.set_options(options);
+    }
+
     /// The target changed size.
     pub fn resize(&mut self, width: u32, height: u32) {
         self.hud.resize(width, height);

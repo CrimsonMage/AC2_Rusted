@@ -29,9 +29,10 @@ use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
 use crate::object::RenderSettings;
 use crate::particles::{CameraBasis, ParticleSystem};
+use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
-use crate::terrain::{far_radius_for_draw_distance, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
+use crate::terrain::{FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
 use particles::SceneParticles;
@@ -103,6 +104,10 @@ pub struct WorldScene {
     evicted: Vec<BlockKey>,
     /// The loaded far mesh's chunk boxes.
     far_bounds: Vec<(Vec3, Vec3)>,
+    /// The far ring's radius in blocks (`LandscapeDrawDistance`) and the frill settings the frame
+    /// selects with (`LandscapeFrillDistance`).
+    far_radius: i32,
+    frill: FrillSettings,
     /// World objects' models requested by key, and the rig and scale of those that loaded.
     requested_objects: HashSet<u64>,
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
@@ -128,9 +133,10 @@ impl WorldScene {
     /// A scene with a near ring of `radius` blocks (retail's is 1) and the far ring of the
     /// default `LandscapeDrawDistance`.
     pub fn new(world: Arc<Ac2WorldSource>, radius: i32) -> Self {
+        let defaults = SceneOptions::default();
         let far = Arc::new(FarTerrain::new(
             radius,
-            far_radius_for_draw_distance(2),
+            defaults.far_radius,
             16,
             world.block_size(),
             &mut Random::default(),
@@ -151,6 +157,8 @@ impl WorldScene {
             outstanding: 0,
             evicted: Vec::new(),
             far_bounds: Vec::new(),
+            far_radius: defaults.far_radius,
+            frill: defaults.frill,
             requested_objects: HashSet::new(),
             object_rigs: HashMap::new(),
             object_picks: HashMap::new(),
@@ -164,6 +172,32 @@ impl WorldScene {
         };
         scene.request(Request::Rain);
         scene
+    }
+
+    /// `WorldScene`'s graphics options (`SmartBox::InitPreferences` and the preference monitors):
+    /// the frill distance applies to the next frame. A changed landscape draw distance lays the far
+    /// ring out again: the new layout is queued to the loader, the far chunks it loads replace the
+    /// old ones, and until then no far chunk is drawn. The near ring and the objects stay.
+    pub fn set_options(&mut self, options: SceneOptions) {
+        self.frill = options.frill;
+        if options.far_radius == self.far_radius {
+            return;
+        }
+        self.far_radius = options.far_radius;
+        let far = Arc::new(FarTerrain::new(
+            self.radius,
+            options.far_radius,
+            16,
+            self.world.block_size(),
+            &mut Random::default(),
+        ));
+        self.far_bounds.clear();
+        self.request(Request::Layout(far));
+        // The loader runs the queued layout before this load, so the load takes the new one.
+        self.far_requested = self.center;
+        if let Some(center) = self.center {
+            self.request(Request::Far(center));
+        }
     }
 
     pub fn world(&self) -> &Arc<Ac2WorldSource> {
@@ -289,7 +323,7 @@ impl WorldScene {
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
-            Loaded::Rain(..) => {}
+            Loaded::Layout | Loaded::Rain(..) => {}
             Loaded::Object(object) => {
                 if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
                     self.object_rigs.insert(object.key, (rig, object.scale));
@@ -423,7 +457,7 @@ impl WorldScene {
                 }
             })
             .collect();
-        let chosen = select_frills(&candidates, eye, &FrillSettings::default());
+        let chosen = select_frills(&candidates, eye, &self.frill);
         let placements: Vec<FramePlacement> = all()
             .filter(|p| !p.frill)
             .map(|p| FramePlacement {

@@ -18,6 +18,9 @@
 
 use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, Value};
 
+use crate::frill::FrillSettings;
+use crate::terrain::far_radius_for_draw_distance;
+
 /// The graphics section (`Preferences` section `0x40000004`, named `Graphics`).
 pub const GRAPHICS_SECTION: u32 = 0x4000_0004;
 /// The avatar's section (`0x4000000D`, the two avatar keys).
@@ -333,6 +336,47 @@ pub fn apply_quality(bank: &mut PreferenceBank, level: u32) -> bool {
     }
     bank.apply(GRAPHICS_SECTION);
     preset.is_some()
+}
+
+/// `ID_Graphics_LandscapeFrillDistance`: choice 1 is the short distance (`FrillRender`'s 0.65).
+pub const LANDSCAPE_FRILL_DISTANCE: u32 = 0x4000_0044;
+
+/// The graphics preferences the scene reads (`WorldScene::set_options`): the far ring's radius
+/// from `LandscapeDrawDistance`, and the frill settings from `LandscapeFrillDistance`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SceneOptions {
+    /// The far radius in blocks (`far_radius_for_draw_distance`).
+    pub far_radius: i32,
+    pub frill: FrillSettings,
+}
+
+impl Default for SceneOptions {
+    /// The scene's own defaults: draw distance 2 (radius 4) and the long frill distance.
+    fn default() -> Self {
+        Self {
+            far_radius: far_radius_for_draw_distance(2),
+            frill: FrillSettings::default(),
+        }
+    }
+}
+
+/// The scene's options as the bank holds them. A preference that is not registered keeps its
+/// default.
+pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
+    let defaults = SceneOptions::default();
+    let far_radius =
+        landscape_draw_distance(bank).map_or(defaults.far_radius, far_radius_for_draw_distance);
+    let short = matches!(
+        bank.find(LANDSCAPE_FRILL_DISTANCE).map(|pref| &pref.value),
+        Some(Value::Int(1))
+    );
+    SceneOptions {
+        far_radius,
+        frill: FrillSettings {
+            short_distance: short,
+            ..defaults.frill
+        },
+    }
 }
 
 /// The renderer's settings as the bank holds them: the landscape's draw distance (the choice

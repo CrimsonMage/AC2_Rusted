@@ -141,8 +141,8 @@ impl SceneRenderer {
                         },
                     );
                 }
-                // `WorldScene` hands the rain's loads on as models.
-                Loaded::Rain(_) => {}
+                // `WorldScene` hands the rain's loads on as models; a far layout change has no data.
+                Loaded::Layout | Loaded::Rain(_) => {}
                 Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;

@@ -166,6 +166,13 @@ impl ClientPrefs {
         ac2_render::prefs::apply_quality(&mut self.bank, level)
     }
 
+    /// The scene's graphics options as the bank holds them now: the draw distance and the frill
+    /// distance (`ac2_render::prefs::scene_options`). After an apply, the caller hands them to the
+    /// view with `ClientView::set_scene_options`.
+    pub fn scene_options(&self) -> ac2_render::prefs::SceneOptions {
+        ac2_render::prefs::scene_options(&self.bank)
+    }
+
     pub fn bank(&self) -> &PreferenceBank {
         &self.bank
     }
