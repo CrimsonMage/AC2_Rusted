@@ -151,6 +151,11 @@ pub enum Command {
     /// `gmShortcutUI::RequestAttackStateChange` (the bar's attack buttons, key 0x41000013):
     /// start attacking the selection, or stop.
     SetAttacking(bool),
+    /// `gmCWInterface::Dismount`: the toolbar's dismount button (the script's IFun).
+    Dismount,
+    /// `gmCWInterface::StopAttacking(target)`: `gmSelectionUI` stops the attack on `target`
+    /// (not selectable any more, or deleted).
+    StopAttacking(u64),
     /// `gmCWInterface::RequestResurrect`: the respawn request (the player's script's IFun
     /// 0xB4006B, which sends `WM_Death` 0x36 and so the server's lifestone teleport).
     RequestResurrect,
@@ -282,6 +287,21 @@ impl Client {
         Vec::new()
     }
 
+    /// A gameplay IFun (`gmCWInterface::*` -> `ggmCWInterface::CallIFun_*`) that only the script
+    /// VM answers: run on the player's script when it owns the call; without the VM there is no
+    /// stand-in for it, so nothing is sent.
+    fn own_ifun(
+        &mut self,
+        function: u32,
+        args: &[ac2_net::protocol::PackValue],
+    ) -> Vec<SessionEvent> {
+        if self.scripts_own(function) {
+            self.script_ifun(function, args)
+        } else {
+            Vec::new()
+        }
+    }
+
     fn request_attack_state(&mut self, attacking: bool) -> Vec<SessionEvent> {
         use crate::scripts::{IFUN_REQUEST_ATTACK_STATE_CHANGE, IFUN_SHOULD_AUTO_TARGET};
         use ac2_script::host::IFunArg;
@@ -381,6 +401,11 @@ impl Client {
                 Command::RequestResurrect => self.request_resurrect(),
                 Command::ClearResurrectionRequest => self.clear_resurrection_request(),
                 Command::Social(request) => self.social_request(request),
+                Command::Dismount => self.own_ifun(crate::scripts::IFUN_DISMOUNT, &[]),
+                Command::StopAttacking(target) => self.own_ifun(
+                    crate::scripts::IFUN_STOP_ATTACKING,
+                    &[ac2_net::protocol::PackValue::LongInt(*target)],
+                ),
                 Command::SetShortcutSet(set) => {
                     self.session.set_shortcut_set(*set);
                     if self.scripts_own(crate::scripts::IFUN_SET_WHICH_SHORTCUT_SET) {

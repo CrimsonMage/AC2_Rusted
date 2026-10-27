@@ -95,9 +95,11 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8212_000C, ToServer, "WM_Player 0x1D", "UploadGameOptions", &[Int, Int, Int, Float]),
     call(0x8212_002D, ToServer, "WM_Player 0x2E", "UploadChatOptions", &[Reference, Reference, Reference, Reference, Reference]),
     call(0x8212_0031, ToServer, "WM_Player 0x32", "UploadUISettings", &[Reference, Reference]),
+    call(0x8212_0033, ToServer, "WM_Player (0x33, not traced)", "gmCWInterface::Dismount (the script's call)", &[]),
     // Combat (`WM_Combat`, package 0x204).
     call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
     call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),
+    call(0x8204_0025, ToServer, "WM_Combat (0x25, not traced)", "gmCWInterface::StopAttacking (the script's call): the target", &[LongInt]),
     call(0x8204_001B, ToClient, "WM_Combat 0x1B", "CPlayer 0x2 (SendNotice_UpdateAttackState)", &[Int]),
     // The special attack (a maneuver's skill used from the shortcut bar): the request is packed
     // in the stub's order (the attack, the maneuver, the target); the answers are packed last

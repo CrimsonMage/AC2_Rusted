@@ -611,6 +611,67 @@ fn the_player_dies_and_respawns_at_a_lifestone() {
     assert!(problems.is_empty(), "{problems:?}");
 }
 
+/// `gmCWInterface::StopAttacking(target)` (IFun 0xB40104) runs on the VM, which sends the script's
+/// `WM_Combat` 0x25 with the target (a long int). The double stops the attack on that target: the
+/// attack state goes down.
+#[test]
+fn stop_attacking_runs_on_the_vm_for_the_target() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    advance(&mut client, &server, 1.0);
+    let before = server.borrow().script_bytes.len();
+    let mut events = events_for(
+        &mut client,
+        &server,
+        vec![Command::StopAttacking(CREATURE_ONE)],
+        1,
+    );
+    events.extend(advance(&mut client, &server, 0.5));
+    let sent = server.borrow().script_bytes[before..].to_vec();
+    // The target packed as the script packs it: the long tag (2), then the id's two words.
+    let target: Vec<u8> = [2u32]
+        .iter()
+        .chain(&[CREATURE_ONE as u32, (CREATURE_ONE >> 32) as u32])
+        .flat_map(|w| w.to_le_bytes())
+        .collect();
+    assert_eq!(sent, vec![(0x8204_0025, target)]);
+    assert_eq!(
+        combat_notices(&notices(events)),
+        vec![GameplayNotice::UpdateAttackState(false)]
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// `gmCWInterface::Dismount` (IFun 0xB400E5) runs on the VM, which sends the script's call with no
+/// arguments (id 0x8212_0033, not traced by name).
+#[test]
+fn dismount_runs_on_the_vm() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    let before = server.borrow().script_bytes.len();
+    events_for(&mut client, &server, vec![Command::Dismount], 1);
+    advance(&mut client, &server, 0.5);
+    let sent = server.borrow().script_bytes[before..].to_vec();
+    assert_eq!(sent, vec![(0x8212_0033, Vec::new())]);
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// `gmCWInterface::CanAutoAttackTarget` (IFun 0xB4000A) runs as a query on the VM and answers an
+/// int back with no problem. The double's creature gets "no" (the script reads qualities the double
+/// does not send; not traced), so the cycling keys keep their own rule for now.
+#[test]
+fn can_auto_attack_target_queries_the_script() {
+    let Some((mut client, _server)) = with_script() else {
+        return;
+    };
+    assert_eq!(client.can_auto_attack_target(CREATURE_ONE), Ok(false));
+    assert!(client.take_script_problems().is_empty());
+}
+
 /// A declined resurrection offer (`gmCWInterface::ClearResurrectionRequest`) runs the player's
 /// script's IFun 0xB400F7 with no problem, as the respawn's IFun 0xB4006B runs.
 #[test]

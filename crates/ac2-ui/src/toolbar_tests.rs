@@ -60,6 +60,31 @@ fn the_mount_state_shows_the_dismount_button_in_its_state() {
     assert!(!hud.tree.get(dismount).unwrap().visible());
 }
 
+/// `gmToolbarUI::ListenToMessage`: the dismount button's release is the dismount press; the
+/// other buttons' releases are not.
+#[test]
+fn the_dismount_button_release_is_the_dismount_press() {
+    use crate::mouse::UiMessage;
+    use crate::token::MSG_BUTTON_RELEASE_ON;
+    let Some(hud) = hud() else {
+        return;
+    };
+    let press = |element_id: &str, message: u32| UiMessage {
+        element_id: tokenize(element_id),
+        element: None,
+        message,
+        data: 0,
+        item: None,
+    };
+    assert!(hud
+        .toolbar
+        .is_dismount_press(&press("DismountButton", MSG_BUTTON_RELEASE_ON)));
+    assert!(!hud.toolbar.is_dismount_press(&press("DismountButton", 0)));
+    assert!(!hud
+        .toolbar
+        .is_dismount_press(&press("ConsignmentsButton", MSG_BUTTON_RELEASE_ON)));
+}
+
 #[test]
 fn showing_the_toolbar_precludes_its_height_from_the_bottom_until_it_hides() {
     let Some(mut hud) = hud() else {

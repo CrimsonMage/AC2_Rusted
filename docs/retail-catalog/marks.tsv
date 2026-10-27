@@ -314,8 +314,8 @@ key	status	note
 00424500	x	ac2-client target_select.rs + hud_player: the notice's key picks through select_target
 00424510	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00424610	x	ac2-ui target_cycle.rs select_key_of/is_select_key; ac2-client hud_player routes the global key press
-00424670	~	ac2-ui selection_notices.rs selectability_notice; ac2-client target_select.rs: clear the selection, auto-target next foe. Not: CWPhysicsObject::LookAtSelection; gmCWInterface::StopAttacking (IFun 0xB40104) not sent
-00424720	~	ac2-ui selection_notices.rs being_deleted; ac2-client target_select.rs via ObjectRemoved: stop attacking (not sent, IFun 0xB40104), auto-target next foe, clear when still selected. Not: LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
+00424670	~	ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
+00424720	~	ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
 004247f0	x	ac2-ui stack.rs
 00424810	x	ac2-ui stack.rs
 004248f0	x	ac2-ui stack.rs
@@ -969,13 +969,15 @@ key	status	note
 0044f940	x	character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 0044f960	-	C++ destructor and scalar deleter: the element is owned by the tree and dropped with it
 0044fa00	~	ItemStats::display_name (gmEntity 0x10B/0x9F/0xAD); plural IsValid against the DAT tables left to the resolver
-0044faa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-0044fac0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-0044fb20	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+0044faa0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+0044fac0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+0044fb20	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 0044fb80	x	ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 0044fbb0	x	ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 0044fbe0	x	client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
+0044fc20	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 0044fc60	x	ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
+0044fca0	~	ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 0044fce0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0044fd20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0044fd60	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -994,7 +996,7 @@ key	status	note
 00450080	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 004500b0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 004500f0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-00450130	_	ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+00450130	~	ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 00450150	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 004501e0	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 00450200	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced; the requests need an open shopper (a server ViewStore), so no store request is byte-verified end to end yet (store_script_7160). RequestSell's three ints are not decoded.
@@ -1026,6 +1028,7 @@ key	status	note
 00450860	_	ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 004508a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004508d0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
+00450900	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00450960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004509a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004509e0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
@@ -1050,9 +1053,10 @@ key	status	note
 00450ea0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450ed0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450f00	~	ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
-00450f30	_	ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
-00450f80	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-00450fa0	_	ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+00450f30	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+00450f80	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+00450fa0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+00450fc0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00451010	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00451050	_	ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
 00451090	x	client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
@@ -1112,6 +1116,7 @@ key	status	note
 00451bd0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bf0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451c50	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
+00451cb0	~	no native caller in the call graph; IFun 0xB400AA not wired
 00451cf0	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d10	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d30	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1123,9 +1128,10 @@ key	status	note
 00451df0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-00451ef0	_	the native StoryManager::DoStoryHook body is not run; client_story.rs makes the call the DoStory hook makes
+00451ef0	x	ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 00451f50	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-00451f70	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00451f70	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
+00451f90	~	no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
 00451fb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00451ff0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004520f0	_	ac2-net GunChatExtraInfo
@@ -1185,6 +1191,7 @@ key	status	note
 00457610	_	ac2-script vm (VM/ReferenceTable/Resolver)
 004576d0	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
+00457af0	~	ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00457c90	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00457d50	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1192,7 +1199,9 @@ key	status	note
 00457ed0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
+004582f0	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00458380	_	net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
+00458500	~	ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 00458b10	~	ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
 00458bf0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
@@ -1215,6 +1224,7 @@ key	status	note
 0045b960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045ba40	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
+0045bd60	~	no native caller in the call graph; IFun 0xB400AA not wired
 0045c4a0	~	frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -1282,8 +1292,10 @@ key	status	note
 00462db0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462e60	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-00463390	_	start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+00463390	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 00463440	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
+00463580	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
+00463660	~	no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
 00463810	~	ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 004638e0	~	ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
 00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions

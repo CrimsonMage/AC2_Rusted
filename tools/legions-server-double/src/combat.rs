@@ -24,6 +24,9 @@ pub use crate::character::MELEE_AUTO_ATTACK;
 /// `WM_Combat` 0x16 (start attacking: the target, a long int) and 0x14 (stop).
 const ATTACK: u32 = 0x8204_0008;
 const STOP_ATTACKING: u32 = 0x8204_0010;
+/// `WM_Combat` 0x25 (the script's `gmCWInterface::StopAttacking(target)`, a long int): the stop
+/// for one target. The double treats it as the stop when the attack is on that target.
+const STOP_ATTACKING_TARGET: u32 = 0x8204_0025;
 /// `Health` and its max, the qualities the vitals read (`CPlayer` 0x85's table 4).
 pub const HEALTH: u32 = 0x102;
 pub const HEALTH_MAX: u32 = 0x107;
@@ -146,6 +149,14 @@ impl State {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
             }
             (STOP_ATTACKING, []) => self.stop_attack(),
+            (STOP_ATTACKING_TARGET, [ac2_net::protocol::PackValue::LongInt(target)])
+                if self
+                    .fight
+                    .attack
+                    .is_some_and(|(attacked, _)| attacked == *target) =>
+            {
+                self.stop_attack()
+            }
             _ => {}
         }
     }

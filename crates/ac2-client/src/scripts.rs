@@ -44,6 +44,10 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_WHICH_SHORTCUT_SET,
     IFUN_SET_SHOW_RADAR_COORDS,
     IFUN_SET_SHOW_OBJECT_NAMES,
+    // The combat IFuns the gameplay UI calls with no stand-in (`gmCWInterface::Dismount`,
+    // `StopAttacking`).
+    IFUN_DISMOUNT,
+    IFUN_STOP_ATTACKING,
     // The options page's setters and the upload (`gmCharacterUI::Apply`).
     IFUN_SET_AUTO_TARGET,
     IFUN_SET_ACCEPT_ALLEGIANCE,
@@ -182,6 +186,12 @@ pub const IFUN_SET_WHICH_SHORTCUT_SET: u32 = 0x00B4_0071;
 pub const IFUN_SET_SHOW_RADAR_COORDS: u32 = 0x00B4_007D;
 /// `gmCWInterface::SetShowObjectNames` (`ggmCWInterface::CallIFun_SetShowObjectNames`).
 pub const IFUN_SET_SHOW_OBJECT_NAMES: u32 = 0x00B4_00CE;
+/// `gmCWInterface::Dismount` (`ggmCWInterface::CallIFun_Dismount`: no arguments; the toolbar's
+/// dismount button).
+pub const IFUN_DISMOUNT: u32 = 0x00B4_00E5;
+/// `gmCWInterface::StopAttacking(target)` (`ggmCWInterface::CallIFun_StopAttacking`: the
+/// `InstanceID`). `gmSelectionUI` calls it when the target is no longer selectable or is deleted.
+pub const IFUN_STOP_ATTACKING: u32 = 0x00B4_0104;
 
 /// `gmCWInterface::AcceptTrade`'s IFun (`ggmCWInterface::CallIFun_AcceptTrade`: no
 /// arguments; `WM_Trade` stub 0x45 sends 0x35 with the instance packed).

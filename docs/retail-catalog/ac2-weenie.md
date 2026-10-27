@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 255 done, 98 partial, 1540 to do, 11 skipped.
+1904 retail functions: 267 done, 108 partial, 1518 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (69/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (71/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -647,7 +647,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320
 - [ ] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0
 - [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580
-- [ ] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650
+- [~] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650 — ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 - [x] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_CanSkillBeTrainedByEnum` · 00457d50 · legions 004588b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -657,10 +657,10 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [~] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [ ] `ggmCWInterface::CallIFun_DeclineVassal` · 00458240 · legions 00458da0
-- [ ] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40
+- [x] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [ ] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0 — net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
 - [ ] `ggmCWInterface::CallIFun_DoAssistedTell` · 00458410 · legions 00459060
-- [ ] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150
+- [~] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipCreate` · 004585e0 · legions 00459230
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipDisband` · 00458710 · legions 00459360
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipDismiss` · 004587a0 · legions 004593f0
@@ -725,7 +725,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [~] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 - [ ] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0
-- [ ] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0
+- [~] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0 — no native caller in the call graph; IFun 0xB400AA not wired
 - [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70
 - [ ] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10
 - [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0
@@ -841,11 +841,11 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0
 - [ ] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50
 - [ ] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40
-- [ ] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
+- [~] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 - [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140
-- [ ] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0
-- [ ] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0
+- [x] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
+- [~] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0 — no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
 - [ ] `ggmCWInterface::CallIFun_StopExamination` · 004636f0 · legions 00464360
 - [ ] `ggmCWInterface::CallIFun_SwearAllegiance` · 00463780 · legions 004643f0
 - [~] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (108/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (118/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -923,15 +923,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqName` · 0044f9e0 · legions 00450b20
 - [~] `gmCWInterface::GetPotentiallyPluralizedName` · 0044fa00 · legions 00450b40 — ItemStats::display_name (gmEntity 0x10B/0x9F/0xAD); plural IsValid against the DAT tables left to the resolver
 - [ ] `gmCWInterface::GetPhysObjID` · 0044fa70 · legions 00450bb0
-- [ ] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [ ] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
+- [x] `gmCWInterface::SetSelection` · 0044faa0 · legions 00450be0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+- [x] `gmCWInterface::GetSelection` · 0044fac0 · legions 00450c00 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+- [x] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0 — ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 - [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
 - [x] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
-- [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
+- [x] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
-- [ ] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0
+- [~] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0 — ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 - [x] `gmCWInterface::InqCraftSkillAdaptor` · 0044fce0 · legions 00450e20 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `gmCWInterface::InqCraftSkillList` · 0044fd20 · legions 00450e60 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 - [x] `gmCWInterface::InqCraftSkillLevel` · 0044fd60 · legions 00450ea0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -950,7 +950,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [ ] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote(id): the WM_Communication emote call; the emote-table name lookup (CPlayer 0x15B) is not ported
+- [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
 - [~] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [ ] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0
 - [ ] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0
@@ -995,7 +995,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-weenie Experience::available_xp (Agent 0x7), Skills::credits / hero_credits (Agent 0x2C/0xBE)
 - [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [ ] `gmCWInterface::Dismount` · 00450900 · legions 00451a40
+- [x] `gmCWInterface::Dismount` · 00450900 · legions 00451a40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [ ] `gmCWInterface::InqRootPanelFromRace` · 00450920 · legions 00451a60
 - [x] `gmCWInterface::IsSkillTrainedByEnum` · 00450960 · legions 00451aa0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::IsSkillBeingUntrainedByEnum` · 004509a0 · legions 00451ae0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1026,11 +1026,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
-- [ ] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie OnlineSession::examine (stand-in for CPlayer 0xE6)
+- [x] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [ ] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090
-- [ ] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [ ] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
-- [ ] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100
+- [x] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+- [x] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
+- [x] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130
 - [x] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170
@@ -1106,7 +1106,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsFellowshipMember` · 00451c10 · legions 00452d90
 - [x] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10
-- [ ] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30
+- [~] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30 — no native caller in the call graph; IFun 0xB400AA not wired
 - [x] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::SwearAllegiance` · 00451d10 · legions 00452e90 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::BreakAllegiance` · 00451d30 · legions 00452eb0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1120,10 +1120,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [ ] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0
 - [ ] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030
-- [ ] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — the native StoryManager::DoStoryHook body is not run; client_story.rs makes the call the DoStory hook makes
+- [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [ ] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — start: CCombatSystem 0x2 is reached only from CPlayer 0xD, which no WM_* forwarder calls; end/toggle ride the VM glue, the native IFun is not traced
-- [ ] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110
+- [~] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
+- [~] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110 — no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
 - [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [x] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0

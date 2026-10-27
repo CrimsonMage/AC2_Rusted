@@ -148,9 +148,8 @@ fn object_removed(
     run(client, frame, &actions, typing)
 }
 
-/// Carries out a notice's actions in order, the selection as each leaves it. `StopAttacking`
-/// (`gmCWInterface::StopAttacking`, IFun 0xB40104) is not sent yet: the stand-in has no
-/// per-target stop, so the attack is left to the server.
+/// Carries out a notice's actions in order, the selection as each leaves it. `StopAttacking` is
+/// `gmCWInterface::StopAttacking` (IFun 0xB40104) on the script VM.
 fn run(
     client: &mut Client,
     frame: &ClientFrame,
@@ -167,7 +166,7 @@ fn run(
                 out.push(Command::Select(id));
                 snapshot.selection = id;
             }
-            SelectionAction::StopAttacking(_) => {}
+            SelectionAction::StopAttacking(target) => out.push(Command::StopAttacking(target)),
             SelectionAction::Key(key) => {
                 for command in key_commands(client, frame, key, &snapshot, typing) {
                     if let Command::Select(id) = command {
@@ -192,28 +191,33 @@ fn run(
 fn candidates(client: &mut Client, frame: &ClientFrame) -> Vec<Candidate> {
     let fellowship = frame.progress.fellowship.as_ref();
     let fellow = |id: u64| fellowship.is_some_and(|f| f.fellows.iter().any(|(m, _)| *m == id));
-    let objects = client.session().objects();
-    frame
-        .radar
-        .blips
-        .iter()
-        .filter(|b| b.in_range)
-        .filter_map(|blip| {
-            let qualities = &objects.get(blip.id)?.qualities;
-            let kind = qualities.inq_int(0x14).unwrap_or(0) as u32;
-            let owner = qualities.inq_instance_id(0x1F9);
-            let is_fellow = fellow(blip.id);
-            Some(Candidate {
-                id: blip.id,
-                kind,
-                selectable: qualities.inq_bool(0x270).unwrap_or(0) != 0,
-                owner,
-                fellow: is_fellow,
-                owner_fellow: owner.is_some_and(&fellow),
-                // `CanAutoAttackTarget` is not modelled: a creature that is not a fellow.
-                can_attack: kind & 0x4F == 0x4F && !is_fellow,
-                offset: blip.offset,
+    let out: Vec<Candidate> = {
+        let objects = client.session().objects();
+        frame
+            .radar
+            .blips
+            .iter()
+            .filter(|b| b.in_range)
+            .filter_map(|blip| {
+                let qualities = &objects.get(blip.id)?.qualities;
+                let kind = qualities.inq_int(0x14).unwrap_or(0) as u32;
+                let owner = qualities.inq_instance_id(0x1F9);
+                let is_fellow = fellow(blip.id);
+                Some(Candidate {
+                    id: blip.id,
+                    kind,
+                    selectable: qualities.inq_bool(0x270).unwrap_or(0) != 0,
+                    owner,
+                    fellow: is_fellow,
+                    owner_fellow: owner.is_some_and(&fellow),
+                    // `CanAutoAttackTarget` (`Client::can_auto_attack_target`) is not asked here
+                    // yet: the script answered no for a creature of the double. Until that is
+                    // traced, a creature that is not a fellow.
+                    can_attack: kind & 0x4F == 0x4F && !is_fellow,
+                    offset: blip.offset,
+                })
             })
-        })
-        .collect()
+            .collect()
+    };
+    out
 }

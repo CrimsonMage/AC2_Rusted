@@ -174,6 +174,14 @@ impl ToolbarUi {
         button_state(tree, self.dismount, "dismount", on_mount);
     }
 
+    /// `gmToolbarUI::ListenToMessage`: the dismount button's release (`DismountButton`,
+    /// `mouse_release_on`) calls `gmCWInterface::Dismount`. True for that message.
+    pub fn is_dismount_press(&self, message: &UiMessage) -> bool {
+        self.dismount.is_some()
+            && message.element_id == tokenize("DismountButton")
+            && message.message == MSG_BUTTON_RELEASE_ON
+    }
+
     /// `gmToolbarUI::Show`'s part: the toolbar field shows or hides, and the bottom preclude the
     /// reticle keeps is its `PrecludeHeight` when it shows (0 when it hides).
     pub fn show_bar(&self, tree: &mut UiTree, shown: bool) -> i32 {

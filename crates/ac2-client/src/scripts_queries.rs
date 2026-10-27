@@ -24,6 +24,9 @@ pub mod ifun {
     /// `ggmCWInterface::CallIFun_ClearResurrectionRequest` (`gmCWInterface::ClearResurrectionRequest`):
     /// no arguments; the resurrection offer is declined.
     pub const CLEAR_RESURRECTION_REQUEST: u32 = 0x00B4_00F7;
+    /// `ggmCWInterface::CallIFun_CanAutoAttackTarget` (`gmCWInterface::CanAutoAttackTarget`): the
+    /// target's `InstanceID`, an int back.
+    pub const CAN_AUTO_ATTACK_TARGET: u32 = 0x00B4_000A;
     pub const INQ_ROOT_PANEL_FROM_RACE: u32 = 0x00B4_0020;
     pub const CAN_SKILL_BE_TRAINED_BY_ENUM: u32 = 0x00B4_0023;
     pub const CAN_SKILL_BE_UNTRAINED_BY_ENUM: u32 = 0x00B4_0024;
@@ -138,6 +141,17 @@ impl Client {
     /// `gmCWInterface::IsHeroSkillByEnum`.
     pub fn is_hero_skill(&mut self, skill: u32) -> Result<bool, String> {
         Ok(self.query_word(ifun::IS_HERO_SKILL_BY_ENUM, skill)? != 0)
+    }
+
+    /// `gmCWInterface::CanAutoAttackTarget(target)` (`gmSelectionUI::Select` asks it for each
+    /// candidate of the cycling keys): whether the script lets the player auto-attack `target`.
+    pub fn can_auto_attack_target(&mut self, target: u64) -> Result<bool, String> {
+        let result = self.query(
+            ifun::CAN_AUTO_ATTACK_TARGET,
+            &[IFunArg::Long(target)],
+            IFunReturn::Word,
+        )?;
+        Ok(result.retval != 0)
     }
 
     /// `gmCWInterface::GetSkillCredits`: the player's skill credits.

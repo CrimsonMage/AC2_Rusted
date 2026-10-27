@@ -478,8 +478,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmSelectionUI::RecvNotice_Select` · 00424500 — ac2-client target_select.rs + hud_player: the notice's key picks through select_target
 - [~] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [x] `gmSelectionUI::ListenToMessage` · 00424610 · legions 004243e0 — ac2-ui target_cycle.rs select_key_of/is_select_key; ac2-client hud_player routes the global key press
-- [~] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs selectability_notice; ac2-client target_select.rs: clear the selection, auto-target next foe. Not: CWPhysicsObject::LookAtSelection; gmCWInterface::StopAttacking (IFun 0xB40104) not sent
-- [~] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs being_deleted; ac2-client target_select.rs via ObjectRemoved: stop attacking (not sent, IFun 0xB40104), auto-target next foe, clear when still selected. Not: LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
+- [~] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
+- [~] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
 
 ## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (0/11)
 

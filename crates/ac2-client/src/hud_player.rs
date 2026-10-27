@@ -467,6 +467,13 @@ impl HudView {
         }
         for message in &messages {
             // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
+            // `gmToolbarUI::ListenToMessage`: the dismount button calls `gmCWInterface::Dismount`.
+            if toolbar
+                .as_ref()
+                .is_some_and(|bar| bar.is_dismount_press(message))
+            {
+                commands.push(Command::Dismount);
+            }
             if let Some(key) = ac2_ui::select_key_of(message) {
                 let mut client = player.client.borrow_mut();
                 let typing = tree.text_mode();
