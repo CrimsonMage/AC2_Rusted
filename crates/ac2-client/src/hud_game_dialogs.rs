@@ -1,8 +1,9 @@
 //! `gmGamePlayUI`'s message boxes and the resurrection offer's confirmation in the HUD. The frame's
 //! `DisplayMessage` notices raise a message box ([`ac2_ui::GameplayDialogs::display_message`]);
 //! the dialogs' answers close the box's context, and the offer's answers respawn or clear the
-//! offer and make the death dialog again ([`ac2_ui::DeathPanel`]). The panel is kept by the HUD
-//! as `game_dialogs`.
+//! offer and make the death dialog again ([`ac2_ui::DeathPanel`]). A script's yes/no question
+//! (`gmCWInterface::PopupYesNoDialog`) is a confirmation whose answer resumes the script
+//! ([`Command::PopupAnswer`]). The panel is kept by the HUD as `game_dialogs`.
 
 use ac2_ui::{
     DeathPanel, DialogFactory, DialogOutcome, GameplayDialogs, OfferAnswer, UiMessage, UiStrings,
@@ -30,6 +31,15 @@ pub(crate) fn game_dialog_notices(
             SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
                 let text = player.render_info(text);
                 game.display_message(tree, dialogs, &text, *topmost);
+            }
+            // `gmCWInterface::PopupYesNoDialog`: the question's confirmation, answered later.
+            SessionEvent::Notice(GameplayNotice::PopupYesNo {
+                object,
+                context,
+                text,
+            }) => {
+                let text = player.render_info(text);
+                game.ask_popup(tree, dialogs, &text, *object, *context);
             }
             // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`, which closes the please-wait
             // dialog the login left up.
@@ -87,6 +97,14 @@ pub(crate) fn game_dialog_answers(
         match *outcome {
             DialogOutcome::Message { context } => game.close_message(context),
             DialogOutcome::Confirmation { context, yes } => {
+                if let Some(popup) = game.take_popup(context) {
+                    commands.push(Command::PopupAnswer {
+                        object: popup.object,
+                        context: popup.context,
+                        yes,
+                    });
+                    continue;
+                }
                 match death.recv_close_confirmation(context, yes) {
                     OfferAnswer::None => {}
                     OfferAnswer::Declined => {

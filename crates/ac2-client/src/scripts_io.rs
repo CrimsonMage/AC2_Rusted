@@ -8,7 +8,6 @@ use ac2_net::protocol::pack_values;
 use ac2_script::host::{
     ChatRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptNotice, SkillPanelData,
 };
-use ac2_script::vm::InterpStatus;
 use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
@@ -36,7 +35,9 @@ impl Client {
                 "{id:#018x} {call}: {:?} {:?}",
                 outcome.status, outcome.fault
             )),
-            Ok(outcome) if outcome.status == InterpStatus::Interrupted => {
+            // A context stopped for a DAT read runs again when the read lands; one stopped for
+            // a question (`PopupYesNoDialog`) waits for its answer.
+            Ok(outcome) if outcome.data_wait => {
                 scripts.data_waits.insert(outcome.context, (id, function));
             }
             Ok(_) => {}
@@ -89,6 +90,26 @@ impl Client {
         if let Some(scripts) = self.scripts.as_mut() {
             scripts.script_notices.extend(script_notices);
         }
+    }
+
+    /// `ggmCWInterface::Resume_PopupYesNoDialog`: the player's answer to a script's question
+    /// resumes the context that asked it, and its output goes out with the frame.
+    pub(crate) fn answer_popup(
+        &mut self,
+        object: u64,
+        context: u32,
+        yes: bool,
+    ) -> Vec<SessionEvent> {
+        let mut out = Vec::new();
+        let Some(scripts) = self.scripts.as_mut() else {
+            return out;
+        };
+        // `ggmCWInterface::CallEFun_PopupYesNoDialog` (0xB400F5) is the call the context stopped in.
+        let Some(outcome) = scripts.host.answer_popup(object, context, yes) else {
+            return out;
+        };
+        self.script_outcome(object, Some(0x00B4_00F5), Ok(outcome), &mut out);
+        out
     }
 
     /// `ggmCWInterface::CallIFun_*` on the player's process, its output routed into `out`.

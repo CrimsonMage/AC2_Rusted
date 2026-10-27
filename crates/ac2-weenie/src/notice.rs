@@ -159,6 +159,14 @@ pub enum GameplayNotice {
     ChangeRadarLook(u64),
     /// `CM_Character::SendNotice_DisplayMessage`: a message box.
     DisplayMessage { text: StringInfo, topmost: bool },
+    /// `gmCWInterface::PopupYesNoDialog`: the script `object` (`ggmCWInterface::CallEFun_
+    /// PopupYesNoDialog`'s context `context`) asks a yes/no question. The answer resumes the
+    /// context (`ggmCWInterface::Resume_PopupYesNoDialog`).
+    PopupYesNo {
+        object: u64,
+        context: u32,
+        text: StringInfo,
+    },
     /// `CM_Character::SendNotice_UpdateMountState`.
     UpdateMountState(bool),
     /// `CM_Character::SendNotice_ResurrectionRequestedByOther`: who offers it.

@@ -14,6 +14,7 @@ mod interface;
 mod inventory_globals;
 mod notices;
 mod notices_typed;
+mod popup;
 pub mod radar;
 mod skill_panel;
 
@@ -74,6 +75,8 @@ pub struct DispatchOutcome {
     pub context: u32,
     /// Why it crashed, when it did.
     pub fault: Option<Fault>,
+    /// The context stopped for a DAT read (cache-only data), not for a UI answer.
+    pub data_wait: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -94,6 +97,7 @@ fn host_efuns() -> EFuns {
     notices::register(&mut efuns);
     gun::register(&mut efuns);
     interface::register(&mut efuns);
+    popup::register(&mut efuns);
     efuns
 }
 
@@ -288,6 +292,7 @@ impl ScriptHost {
             fault: (status == InterpStatus::Crash)
                 .then(|| self.vm.last_fault.clone())
                 .flatten(),
+            data_wait: ctx.data_wait,
         };
         if !matches!(status, InterpStatus::Terminated | InterpStatus::Crash) {
             if let Some(p) = self.processes.get_mut(&id) {

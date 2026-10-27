@@ -23,7 +23,7 @@
 
 use crate::chat_window::TEXT_TYPE_ERROR;
 use crate::death::DeathPanel;
-use crate::dialog::{DialogFactory, DIALOG_MESSAGE, DIALOG_WAIT};
+use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_WAIT};
 use crate::element::UiTree;
 use crate::token::tokenize;
 use crate::ui_string::{UiString, UiStrings};
@@ -35,8 +35,18 @@ pub const ERROR_TEXT_TYPE: u32 = TEXT_TYPE_ERROR;
 /// ends the session on.
 pub const LOGOUT_ACTION: u32 = 0x4100_000E;
 
+/// A script's yes/no question on screen (`gmCWInterface::PopupYesNoDialog`'s awakener): its
+/// confirmation's context, and the script object and context the answer resumes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScriptPopup {
+    pub dialog: u32,
+    pub object: u64,
+    pub context: u32,
+}
+
 /// `gmGamePlayUI`'s wait and message contexts (`_waitContext`, `_messageContexts`, 0 for none),
-/// and its logout state (`_doEndSession`, `_requestedEndSession`).
+/// its logout state (`_doEndSession`, `_requestedEndSession`), and the script questions the
+/// confirmations answer (`YesNoDialogAwakener`s).
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct GameplayDialogs {
     wait_context: u32,
@@ -44,6 +54,7 @@ pub struct GameplayDialogs {
     do_end_session: bool,
     requested_end_session: bool,
     end_session_pending: bool,
+    popups: Vec<ScriptPopup>,
 }
 
 impl GameplayDialogs {
@@ -87,6 +98,33 @@ impl GameplayDialogs {
     /// gone, so only its context is forgotten.
     fn do_please_wait_cancel(&mut self) {
         self.wait_context = 0;
+    }
+
+    /// `gmCWInterface::PopupYesNoDialog` through `YesNoDialogAwakener`: a confirmation (`DIALOG_
+    /// CONFIRMATION`, not topmost) with the question, kept until its answer. Returns the dialog's
+    /// context.
+    pub fn ask_popup(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        text: &str,
+        object: u64,
+        context: u32,
+    ) -> u32 {
+        let dialog = dialogs.make_dialog(tree, text, DIALOG_CONFIRMATION, false);
+        self.popups.push(ScriptPopup {
+            dialog,
+            object,
+            context,
+        });
+        dialog
+    }
+
+    /// The script question a confirmation's answer belongs to, which leaves the list; `None`
+    /// when the confirmation is not a script's.
+    pub fn take_popup(&mut self, dialog: u32) -> Option<ScriptPopup> {
+        let at = self.popups.iter().position(|p| p.dialog == dialog)?;
+        Some(self.popups.remove(at))
     }
 
     /// `gmGamePlayUI::RecvNotice_DisplayMessage`: a message box (`DIALOG_MESSAGE`, at the top when
@@ -172,6 +210,9 @@ impl GameplayDialogs {
         for context in std::mem::take(&mut self.message_contexts) {
             dialogs.close_dialog(tree, context);
         }
+        for popup in std::mem::take(&mut self.popups) {
+            dialogs.close_dialog(tree, popup.dialog);
+        }
         ended
     }
 
@@ -222,7 +263,7 @@ impl GameplayDialogs {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::dialog::{DIALOG_MESSAGE, DIALOG_WAIT};
+    use crate::dialog::{DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_WAIT};
 
     struct Text;
 
@@ -268,6 +309,19 @@ mod tests {
         assert_eq!(game.message_contexts(), &[second]);
         game.close_message(second);
         assert!(game.message_contexts().is_empty());
+    }
+
+    #[test]
+    fn a_script_question_is_a_confirmation_its_answer_resumes_once() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = DialogFactory::new(None);
+        let mut game = GameplayDialogs::default();
+        let dialog = game.ask_popup(&mut tree, &mut dialogs, "Accept?", 0x5000_0009, 0x44);
+        assert_eq!(dialogs.shown(), Some((dialog, DIALOG_CONFIRMATION)));
+        assert_eq!(game.take_popup(dialog + 1), None);
+        let popup = game.take_popup(dialog).expect("the question");
+        assert_eq!((popup.object, popup.context), (0x5000_0009, 0x44));
+        assert_eq!(game.take_popup(dialog), None);
     }
 
     #[test]

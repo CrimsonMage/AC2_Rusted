@@ -197,6 +197,13 @@ pub enum Command {
     /// `gmCWInterface::ClearResurrectionRequest`: the resurrection offer is declined (the
     /// player's script's IFun 0xB400F7).
     ClearResurrectionRequest,
+    /// `ggmCWInterface::Resume_PopupYesNoDialog`: the player's answer to a script's yes/no
+    /// question, which resumes the script context that asked.
+    PopupAnswer {
+        object: u64,
+        context: u32,
+        yes: bool,
+    },
     /// A fellowship or allegiance panel action (`gmCWInterface::DoFellowship*`,
     /// `SwearAllegiance`, `BreakAllegiance`, `AcceptVassal`, `DeclineVassal`,
     /// `QueryAllegianceProfile`).
@@ -444,6 +451,11 @@ impl Client {
                 Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
                 Command::RequestResurrect => self.request_resurrect(),
                 Command::ClearResurrectionRequest => self.clear_resurrection_request(),
+                Command::PopupAnswer {
+                    object,
+                    context,
+                    yes,
+                } => self.answer_popup(*object, *context, *yes),
                 Command::Social(request) => self.social_request(request),
                 Command::Dismount => self.own_ifun(crate::scripts::IFUN_DISMOUNT, &[]),
                 Command::StopAttacking(target) => self.own_ifun(

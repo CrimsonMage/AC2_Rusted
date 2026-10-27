@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 323 done, 151 partial, 1417 to do, 13 skipped.
+1904 retail functions: 329 done, 151 partial, 1411 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (97/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (99/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -498,7 +498,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
-- [ ] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0
+- [x] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackageStateID` · 00454870
@@ -768,7 +768,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-- [ ] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0
+- [x] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 - [~] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [~] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (147/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (151/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1156,8 +1156,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CCliLocationResult::CCliLocationResult` · 00452960 · legions 00453a70
 
 ### `anonymous-namespace'::YesNoDialogAwakener
-- [ ] ``anonymous-namespace'::YesNoDialogAwakener::YesNoDialogAwakener` · 004529f0 · legions 00453b00
-- [ ] ``anonymous-namespace'::YesNoDialogAwakener::RecvNotice_CloseConfirmationDialog` · 00452a70
+- [x] ``anonymous-namespace'::YesNoDialogAwakener::YesNoDialogAwakener` · 004529f0 · legions 00453b00 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+- [x] ``anonymous-namespace'::YesNoDialogAwakener::RecvNotice_CloseConfirmationDialog` · 00452a70 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 
 ### PStringBaseIter_Common<unsigned_short>
 - [ ] `PStringBaseIter_Common<unsigned_short>::GetSubString` · 00452ae0 · legions 00453bf0
@@ -1198,10 +1198,10 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 
 ### `anonymous-namespace'::YesNoDialogAwakener
-- [ ] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60
+- [x] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60 — no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 
 ### gmCWInterface
-- [ ] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0
+- [x] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 
 ## `portal/client/src/action/interp/actioninterp.cpp.c` (0/23)
 
