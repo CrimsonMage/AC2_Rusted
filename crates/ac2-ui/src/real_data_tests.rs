@@ -159,6 +159,11 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     assert_eq!(
         tree.roots().len(),
         GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1
+    // hidden OverviewMap, gmMiniFellowUI's hidden FellowMiniPanel and gmStoryUI's hidden
+    // background and two story fields.
+    assert_eq!(
+        tree.roots().len(),
+        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 3
     );
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");

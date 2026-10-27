@@ -76,8 +76,11 @@ impl Client {
                         self.camera.set_mouse_look(false, subject.as_ref());
                     }
                 }
-                // Drawing and the story's music and voice are known gaps (`gmStoryUI::Play`).
-                StoryEvent::Show(_) | StoryEvent::StopAudio => {}
+                // The HUD draws the keyframes and hides the fields (`hud_story.rs`); the story's
+                // music and voice are not played yet (`gmStoryUI::Play`).
+                event @ (StoryEvent::Show(_) | StoryEvent::StopAudio | StoryEvent::Hide) => {
+                    self.story_queue.push(event);
+                }
                 StoryEvent::PlayScenesDone(ids) => {
                     let played = ids
                         .iter()
@@ -103,6 +106,32 @@ impl Client {
                 }
             }
         }
+    }
+
+    /// The skip key reaches the story slot (`gmStoryUI::ListenToMessage` 0xffff0003): a skippable
+    /// story finishes. Its session events join the next frame.
+    pub(crate) fn story_key(&mut self, data: u32) {
+        let events = self.story.key(data);
+        self.story_step(events);
+    }
+
+    /// `gmGamePlayUI::EndSession` on a disconnect: the slot's story is deleted and its events join
+    /// the next frame.
+    pub(crate) fn story_session_end(&mut self) {
+        let events = self.story.end_session();
+        self.story_step(events);
+    }
+
+    /// Acts on the events a call outside the frame made, into [`Client::story_outbox`].
+    fn story_step(&mut self, events: Vec<StoryEvent>) {
+        let mut out = Vec::new();
+        self.story_events(events, &[], &mut out);
+        self.story_outbox.extend(out);
+    }
+
+    /// The story slot's drawn events since the last call (`Show`, `Hide`, `StopAudio`).
+    pub(crate) fn take_story_events(&mut self) -> Vec<StoryEvent> {
+        std::mem::take(&mut self.story_queue)
     }
 
     /// Runs the damage hooks of the physics stories among `events`, in order.

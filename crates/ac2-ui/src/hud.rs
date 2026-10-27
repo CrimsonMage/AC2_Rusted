@@ -51,6 +51,7 @@ use crate::shortcut::ShortcutUi;
 use crate::skill_tree::SkillTreeUi;
 use crate::stack::StackUi;
 use crate::statusbar::show_statusbar;
+use crate::story_view::StoryView;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
@@ -150,6 +151,8 @@ pub struct GameplayHud {
     pub shop: Option<ShopUi>,
     /// `gmShopCatalogUI`, the storekeeper's catalog (its managed elements are made when it opens).
     pub catalog: Option<CatalogUi>,
+    /// `gmStoryUI`'s background and story fields, hidden until a story starts.
+    pub story: Option<StoryView>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -303,6 +306,9 @@ pub fn build_gameplay_hud(
     let book = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| BookUi::create(&mut tree, gameplay));
+    let story = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .and_then(|gameplay| StoryView::create(&mut tree, gameplay));
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -340,6 +346,7 @@ pub fn build_gameplay_hud(
         shop,
         catalog,
         book,
+        story,
     })
 }
 

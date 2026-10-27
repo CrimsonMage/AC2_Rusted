@@ -109,9 +109,13 @@ pub use gameplay_story::{GameplayStory, StoryEvent, StoryScene};
 mod story;
 #[cfg(test)]
 mod story_layout_tests;
-pub use story::{StoryField, StoryFrame, StoryPlayback, StoryShow, StoryStep};
+pub use story::{StoryField, StoryFrame, StoryPlayback, StoryShow, StoryStep, SKIP_STORY_MESSAGE};
 #[cfg(test)]
 mod story_tests;
+mod story_view;
+#[cfg(test)]
+mod story_view_tests;
+pub use story_view::StoryView;
 mod target_cycle;
 #[cfg(test)]
 mod tests;

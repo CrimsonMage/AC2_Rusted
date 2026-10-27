@@ -152,6 +152,7 @@ fn a_story_without_playable_frames_finishes_as_soon_as_it_starts() {
         game.fade_done(0.0),
         vec![
             StoryEvent::MouseLook(true),
+            StoryEvent::Hide,
             StoryEvent::PlayScenesDone(vec![3]),
         ]
     );
@@ -174,7 +175,11 @@ fn end_session_clears_the_slot_without_reporting_scenes() {
     let events = game.end_session();
     assert_eq!(
         events,
-        vec![StoryEvent::MouseLook(true), StoryEvent::StopAudio]
+        vec![
+            StoryEvent::MouseLook(true),
+            StoryEvent::Hide,
+            StoryEvent::StopAudio
+        ]
     );
     assert!(!game.is_active());
     assert!(game.end_session().is_empty());

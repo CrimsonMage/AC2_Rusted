@@ -102,6 +102,8 @@ pub(crate) struct HudView {
     pub(crate) overview: Option<ac2_ui::OverviewMapUi>,
     /// `gmBookUI`, shown by the book's use notice.
     pub(crate) book: Option<ac2_ui::BookUi>,
+    /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
+    pub(crate) story: Option<ac2_ui::StoryView>,
     /// `gmMoneyBagUI`, made with the backpack.
     pub(crate) money: Option<ac2_ui::MoneyBagUi>,
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the

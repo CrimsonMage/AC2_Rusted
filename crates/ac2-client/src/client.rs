@@ -173,6 +173,12 @@ pub struct Client {
     pub(crate) story: ac2_ui::GameplayStory,
     /// The scenes the story holding the slot was made from, for `HandlePlayScenesDone`.
     pub(crate) story_scenes: Vec<ac2_weenie::SceneInfo>,
+    /// The story slot's events the HUD draws (`StoryEvent::Show`, `Hide`, `StopAudio`), taken by
+    /// [`HudView::story_frameworks`](crate::hud_view::HudView).
+    pub(crate) story_queue: Vec<ac2_ui::StoryEvent>,
+    /// Session events the story slot made outside a frame (the skip key, the session's end);
+    /// they join the next frame's events.
+    pub(crate) story_outbox: Vec<SessionEvent>,
     /// Whether mouse look may be on: a story holding the slot turns it off
     /// (`CM_UI::SendNotice_UpdateCanMouseLook`).
     pub(crate) mouse_look_allowed: bool,
@@ -243,6 +249,8 @@ impl Client {
             teleporting: false,
             story: Default::default(),
             story_scenes: Vec::new(),
+            story_queue: Vec::new(),
+            story_outbox: Vec::new(),
             mouse_look_allowed: true,
         }
     }
@@ -324,7 +332,15 @@ impl Client {
         events.extend(dispatched);
         // The script notices of this frame reach the story slot (`CM_Quest`, `CM_UI`).
         let mut story = self.apply_story_notices(&events);
+        // `gmGamePlayUI::EndSession`: the story slot is deleted when the session drops.
+        if events
+            .iter()
+            .any(|event| matches!(event, SessionEvent::Disconnected(_)))
+        {
+            self.story_session_end();
+        }
         story.extend(self.story_frame());
+        story.append(&mut self.story_outbox);
         events.extend(story);
         let produced = self.radar_use_time(&events);
         events.extend(produced);

@@ -54,6 +54,7 @@ mod hud_player;
 mod hud_shop;
 #[cfg(feature = "window")]
 mod hud_status;
+mod hud_story;
 #[cfg(feature = "window")]
 mod hud_view;
 mod inventory_queries;

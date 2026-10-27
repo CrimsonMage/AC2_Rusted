@@ -613,24 +613,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::GetSubtitle` · 0042bf80 · legions 0042bd40
 
 ### gmStoryUI
-- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
-- [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
-- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
-- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::~QualifiedDataIDArray` · 0042c660 · legions 0042c420
 
 ### gmStoryUI
-- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
-- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
-- [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::QualifiedDataIDArray` · 0042c7a0 · legions 0042c560
 
 ### gmStoryUI
-- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story.rs sequencer and gameplay_story.rs slot; drawing (story fields, BackGround root) and audio playback pending
+- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 
 ## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (14/32)
 

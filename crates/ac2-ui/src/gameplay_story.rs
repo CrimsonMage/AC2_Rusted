@@ -35,6 +35,8 @@ pub enum StoryEvent {
     Show(StoryShow),
     /// The story's music and voice stop (`gmStoryUI::Finish` on a story that had shown).
     StopAudio,
+    /// `gmStoryUI::~gmStoryUI`: the story's fields leave the screen (its roots are removed).
+    Hide,
     /// `gmCWInterface::HandlePlayScenesDone`: the scenes' ids go back to the player's script.
     PlayScenesDone(Vec<u32>),
 }
@@ -193,7 +195,7 @@ impl GameplayStory {
             return Vec::new();
         };
         story.finish();
-        let mut events = vec![StoryEvent::MouseLook(true)];
+        let mut events = vec![StoryEvent::MouseLook(true), StoryEvent::Hide];
         if std::mem::take(&mut self.shown) {
             events.push(StoryEvent::StopAudio);
         }

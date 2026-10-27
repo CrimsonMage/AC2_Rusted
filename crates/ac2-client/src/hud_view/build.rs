@@ -107,6 +107,7 @@ impl HudView {
             navigation: None,
             overview: None,
             book: None,
+            story: None,
             money: None,
             items_3d: None,
             shift_held: false,
@@ -167,6 +168,7 @@ impl HudView {
                     shop,
                     catalog,
                     book,
+                    story,
                 },
                 images,
             )) => {
@@ -221,6 +223,7 @@ impl HudView {
                 self.navigation = navigation;
                 self.overview = overview;
                 self.book = book;
+                self.story = story;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),
