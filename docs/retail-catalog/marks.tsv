@@ -430,20 +430,27 @@ key	status	note
 00429e20	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042a1d0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 0042a290	x	ac2-ui damage_text.rs Damage entry (Vec; element, object, start, duration, boxes)
+0042a4f0	x	ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
 0042a560	x	ac2-ui damage_text.rs update: progress, rise by height*FloatyTextTravel*progress (selection offset), fade 1-progress, CalcScreenPosition, placement via placement.rs place_box
 0042a980	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042aa40	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042ab30	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
+0042ac30	x	ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
+0042aca0	x	ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
 0042ad00	x	ac2-ui DamageTexts::clear (destroys every damage text); not yet called on a world reset
 0042adf0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 0042ae40	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 0042b0c0	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 0042b150	x	ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
+0042b340	-	admin 7148 only: PrecludeFromTop has no Legions 7160 handler (the bottom preclude is ac2-ui reticle.rs precluded_bottom); the C++ destructor is dropped with the Rust structs
 0042b3a0	~	ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
+0042b400	-	
+0042b510	~	ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 0042b610	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042b6a0	~	ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 0042b730	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 0042b7e0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
+0042b840	~	ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 0042ba40	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042ba70	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons

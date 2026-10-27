@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 895 done, 323 partial, 965 to do, 64 skipped.
+2247 retail functions: 898 done, 325 partial, 958 to do, 66 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -66,7 +66,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::DamageTextInfo::operator=` · 0042a290 · legions 0042a050 — ac2-ui damage_text.rs Damage entry (Vec; element, object, start, duration, boxes)
 
 ### SmartArray<gm3DTextUI::DamageTextInfo>
-- [ ] `SmartArray<gm3DTextUI::DamageTextInfo>::RemoveOrderedByIndex` · 0042a4f0 · legions 0042a2b0
+- [x] `SmartArray<gm3DTextUI::DamageTextInfo>::RemoveOrderedByIndex` · 0042a4f0 · legions 0042a2b0 — ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::UpdateDamage` · 0042a560 · legions 0042a320 — ac2-ui damage_text.rs update: progress, rise by height*FloatyTextTravel*progress (selection offset), fade 1-progress, CalcScreenPosition, placement via placement.rs place_box
@@ -75,10 +75,10 @@ Legend and workflow: [README](README.md).
 - [~] `gm3DTextUI::RecvNotice_BeingDeleted` · 0042ab30 · legions 0042a8f0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 
 ### SmartArray<gm3DTextUI::DamageTextInfo>
-- [ ] `SmartArray<gm3DTextUI::DamageTextInfo>::AddToEnd` · 0042ac30 · legions 0042a9f0
+- [x] `SmartArray<gm3DTextUI::DamageTextInfo>::AddToEnd` · 0042ac30 · legions 0042a9f0 — ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
 
 ### SmartArray<gm3DTextUI::NameTextInfo>
-- [ ] `SmartArray<gm3DTextUI::NameTextInfo>::AddToEnd` · 0042aca0 · legions 0042aa60
+- [x] `SmartArray<gm3DTextUI::NameTextInfo>::AddToEnd` · 0042aca0 · legions 0042aa60 — ac2-ui damage_text.rs and name_plates.rs: the arrays are Vecs kept in order (remove keeps the order, add appends)
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::CleanUp` · 0042ad00 · legions 0042aac0 — ac2-ui DamageTexts::clear (destroys every damage text); not yet called on a world reset
@@ -86,15 +86,15 @@ Legend and workflow: [README](README.md).
 - [~] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [~] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [x] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150 — ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
-- [ ] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340
+- [-] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340 — admin 7148 only: PrecludeFromTop has no Legions 7160 handler (the bottom preclude is ac2-ui reticle.rs precluded_bottom); the C++ destructor is dropped with the Rust structs
 - [~] `gm3DTextUI::RecvNotice_PrecludeFromBottom` · 0042b3a0 — ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
-- [ ] `gm3DTextUI::~gm3DTextUI` · 0042b400 · legions 0042b1c0
-- [ ] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0
+- [-] `gm3DTextUI::~gm3DTextUI` · 0042b400 · legions 0042b1c0
+- [~] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [~] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [x] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-- [ ] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600
+- [~] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
