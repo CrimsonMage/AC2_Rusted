@@ -42,8 +42,25 @@ pub struct Rig {
     pub alt: bool,
     /// The world the view draws, kept to rebuild the HUD.
     pub world: Arc<ac2_world::Ac2WorldSource>,
+    /// The cross-process GPU lock ([`gpu_process_lock`]), held for the rig's life.
+    _gpu_process: std::fs::File,
     /// Held for the rig's life ([`GPU_SLOT`]); dropped last.
     _gpu_slot: MutexGuard<'static, ()>,
+}
+
+/// One HUD rig at a time across processes too: test binaries in other checkouts of the
+/// workspace share the GPU. The lock is released when the file is dropped (or the process ends).
+fn gpu_process_lock() -> std::fs::File {
+    let path = std::env::temp_dir().join("ac2-rusted-hud-gpu.lock");
+    let file = std::fs::OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .write(true)
+        .open(&path)
+        .unwrap_or_else(|e| panic!("open {}: {e}", path.display()));
+    file.lock()
+        .unwrap_or_else(|e| panic!("lock {}: {e}", path.display()));
+    file
 }
 
 impl Rig {
@@ -62,6 +79,7 @@ impl Rig {
         let gpu_slot = GPU_SLOT
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let gpu_process = gpu_process_lock();
         let Ok(gpu) = Gpu::headless() else {
             eprintln!("no GPU adapter; skipping");
             return None;
@@ -123,6 +141,7 @@ impl Rig {
             shift: false,
             alt: false,
             world: Arc::clone(&world),
+            _gpu_process: gpu_process,
             _gpu_slot: gpu_slot,
         };
         let mut frames = 0;
