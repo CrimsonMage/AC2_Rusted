@@ -3,7 +3,10 @@
 //! stack dialog calls go to the stack dialog ([`shop_stack_calls`]). The frames call these from
 //! `hud_player`, which routes the notices and the messages in the order the frameworks get them.
 
-use ac2_ui::{DialogFactory, ShopRequest, ShopSource, ShopStackCall, ShopUi, StackUi, UiTree};
+use ac2_ui::{
+    CatalogRequest, CatalogUi, DialogFactory, ShopRequest, ShopSource, ShopStackCall, ShopUi,
+    StackUi, UiTree,
+};
 use ac2_weenie::GameplayNotice;
 
 use crate::gameplay::Command;
@@ -47,6 +50,36 @@ pub fn shop_notice(
         GameplayNotice::SelectionChanged(new) => panel.recv_selection_changed(tree, *new),
         _ => {}
     }
+}
+
+/// One of the catalog's notices (`gmShopCatalogUI::RecvNotice_ViewCatalog` and `_LeaveCatalog`);
+/// `now` is the frame's clock. The notices the catalog does not take pass by.
+pub fn catalog_notice(
+    panel: &mut CatalogUi,
+    tree: &mut UiTree,
+    source: &dyn ShopSource,
+    now: f64,
+    notice: &GameplayNotice,
+) {
+    match notice {
+        GameplayNotice::ViewCatalog { header, shops } => {
+            panel.recv_view_catalog(tree, source, header, shops, now)
+        }
+        GameplayNotice::LeaveCatalog => panel.recv_leave_catalog(tree, now),
+        _ => {}
+    }
+}
+
+/// The catalog's requests as the gameplay commands (`gmCWInterface`'s calls).
+pub fn catalog_commands(requests: Vec<CatalogRequest>) -> Vec<Command> {
+    requests
+        .into_iter()
+        .map(|request| match request {
+            CatalogRequest::LeaveCatalog => Command::LeaveCatalog,
+            CatalogRequest::EnterStore(store) => Command::EnterStore(store),
+            CatalogRequest::EnterConsignment => Command::EnterConsignment,
+        })
+        .collect()
 }
 
 /// The shop's requests as the gameplay commands (`gmCWInterface`'s calls). An examination

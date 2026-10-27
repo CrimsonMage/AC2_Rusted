@@ -20,6 +20,7 @@ use ac2_core::DataId;
 use ac2_db::{ResourceResult, ResourceStore};
 
 use crate::allegiance::AllegianceUi;
+use crate::catalog::CatalogUi;
 use crate::character::CharacterUi;
 use crate::chat::{ChatStrings, ChatUi, CHAT_STRING_TABLE, REPLY_STRING_TABLE, STRING_TABLE_GROUP};
 use crate::chat_options::ChatOptionsUi;
@@ -141,6 +142,8 @@ pub struct GameplayHud {
     pub overview: Option<OverviewMapUi>,
     /// `gmShopUI`, the vendor's panel (its managed elements are made when a store opens).
     pub shop: Option<ShopUi>,
+    /// `gmShopCatalogUI`, the storekeeper's catalog (its managed elements are made when it opens).
+    pub catalog: Option<CatalogUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -286,6 +289,7 @@ pub fn build_gameplay_hud(
         .as_ref()
         .and_then(|gameplay| OverviewMapUi::create(&mut tree, gameplay));
     let shop = layouts[&LAYOUT_GAMEPLAY].as_ref().map(ShopUi::create);
+    let catalog = layouts[&LAYOUT_GAMEPLAY].as_ref().map(CatalogUi::create);
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -320,6 +324,7 @@ pub fn build_gameplay_hud(
         navigation,
         overview,
         shop,
+        catalog,
     })
 }
 

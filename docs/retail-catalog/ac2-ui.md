@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 872 done, 306 partial, 1009 to do, 60 skipped.
+2247 retail functions: 881 done, 308 partial, 998 to do, 60 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -481,20 +481,20 @@ Legend and workflow: [README](README.md).
 - [~] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
 - [~] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
 
-## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (9/11)
 
 ### gmShopCatalogUI
-- [ ] `gmShopCatalogUI::DestroyManagedElements` · 0041cc80 · legions 0041caa0
-- [ ] `gmShopCatalogUI::Show` · 0041ccb0 · legions 0041cad0
-- [ ] `gmShopCatalogUI::Select` · 0041cd30 · legions 0041cb50
-- [ ] `gmShopCatalogUI::ListenToMessage` · 0041cda0 · legions 0041cbc0
-- [ ] `gmShopCatalogUI::EnterStore` · 0041cde0 · legions 0041cc00
-- [ ] `gmShopCatalogUI::gmShopCatalogUI` · 0041ce30 · legions 0041cc50
-- [ ] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30
-- [ ] `gmShopCatalogUI::RecvNotice_LeaveCatalog` · 0041cf80
-- [ ] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10
-- [ ] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10
-- [ ] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230
+- [x] `gmShopCatalogUI::DestroyManagedElements` · 0041cc80 · legions 0041caa0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::Show` · 0041ccb0 · legions 0041cad0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::Select` · 0041cd30 · legions 0041cb50 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::ListenToMessage` · 0041cda0 · legions 0041cbc0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::EnterStore` · 0041cde0 · legions 0041cc00 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::gmShopCatalogUI` · 0041ce30 · legions 0041cc50 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [~] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+- [x] `gmShopCatalogUI::RecvNotice_LeaveCatalog` · 0041cf80 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [~] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+- [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
+- [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
 ## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (0/28)
 

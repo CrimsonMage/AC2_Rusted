@@ -113,7 +113,9 @@ pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };
 pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
-pub use hud_shop::{shop_commands, shop_notice, shop_stack_calls};
+pub use hud_shop::{
+    catalog_commands, catalog_notice, shop_commands, shop_notice, shop_stack_calls,
+};
 pub use item_queries::ItemDisplay;
 pub use motion::PartPose;
 pub use pregame::{

@@ -104,6 +104,7 @@ impl HudView {
             external_container,
             secure_trade,
             shop,
+            catalog,
             character,
             chat_options,
             money,
@@ -330,6 +331,9 @@ impl HudView {
                     frame.server_time,
                     notice,
                 );
+            }
+            if let Some(panel) = catalog.as_mut() {
+                crate::hud_shop::catalog_notice(panel, tree, &player, frame.server_time, notice);
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 crate::ui_social::fellowship_notice(
@@ -656,6 +660,11 @@ impl HudView {
                 );
             }
             game_dialog_message(game_dialogs, message);
+            // `gmShopCatalogUI::ListenToMessage`: the catalog's buttons and rows.
+            if let Some(panel) = catalog.as_mut() {
+                panel.message(tree, message, frame.server_time);
+                commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+            }
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
             }
@@ -730,6 +739,10 @@ impl HudView {
         }
         // `gmShopUI`'s global loop, its stack dialog's calls, its calls on the player and the
         // purchase messages for the chat (`CM_Character::SendNotice_DisplayMessage`).
+        if let Some(panel) = catalog.as_mut() {
+            panel.tick(tree, frame.server_time);
+            commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+        }
         if let Some(panel) = shop.as_mut() {
             panel.tick(tree, frame.server_time);
             let requests = panel.take_requests();

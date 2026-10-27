@@ -84,6 +84,8 @@ pub(crate) struct HudView {
     pub(crate) chat_options: Option<ac2_ui::ChatOptionsUi>,
     /// `gmShopUI`, the vendor's panel (its requests wait in the panel).
     pub(crate) shop: Option<ac2_ui::ShopUi>,
+    /// `gmShopCatalogUI`, the storekeeper's catalog (its requests wait in the panel).
+    pub(crate) catalog: Option<ac2_ui::CatalogUi>,
     /// `gmRadarUI`'s blips, painted over the radar field each compose.
     pub(crate) radar: Option<ac2_ui::RadarUi>,
     /// The player's cell and its map coordinates as the radar shows them (rendered by the

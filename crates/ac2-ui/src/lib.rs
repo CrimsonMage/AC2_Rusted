@@ -77,6 +77,9 @@ mod placement;
 pub mod pregame;
 mod quests_panel;
 pub use quests_panel::QuestsUi;
+mod catalog;
+#[cfg(test)]
+mod catalog_tests;
 mod gameplay_story;
 #[cfg(test)]
 mod gameplay_story_tests;
@@ -124,6 +127,7 @@ mod vitals;
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
+pub use catalog::{CatalogRequest, CatalogUi};
 pub use character::{CharacterRequest, CharacterUi};
 pub use character_options::{
     OptionSetting, OptionsSettings, Setter, PROFILE_LATENCY_INDICATOR_GRAPH,

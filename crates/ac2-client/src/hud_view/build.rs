@@ -98,6 +98,7 @@ impl HudView {
             character: None,
             chat_options: None,
             shop: None,
+            catalog: None,
             radar: None,
             radar_cell: None,
             radar_coordinates: None,
@@ -161,6 +162,7 @@ impl HudView {
                     navigation,
                     overview,
                     shop,
+                    catalog,
                 },
                 images,
             )) => {
@@ -205,6 +207,7 @@ impl HudView {
                 self.character = character;
                 self.chat_options = chat_options;
                 self.shop = shop;
+                self.catalog = catalog;
                 self.radar = Some(radar);
                 self.navigation = navigation;
                 self.overview = overview;
