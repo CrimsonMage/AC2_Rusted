@@ -21,6 +21,7 @@ pub use asset::{
 };
 pub use compose::{Ac2Compositor, Ac2PoseInput};
 pub use tree::{load_ac2_db_animator, Ac2CubeSlider, Ac2DbAnimator};
+pub(crate) use triggers::add_effects_and_impulses;
 pub use triggers::Ac2TrackTriggers;
 
 /// What animators read from (and, for `AMHuman`, write to) the animated object.

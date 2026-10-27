@@ -5656,6 +5656,7 @@ key	status	note
 00685e20	-	editor text source / cache allocator (admin tools or Rust value type)
 00686360	-	editor text source / cache allocator (admin tools or Rust value type)
 006877a0	-	editor text source / cache allocator (admin tools or Rust value type)
+00687be0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 00688190	-	editor text source / cache allocator (admin tools or Rust value type)
 006884a0	-	editor text source / cache allocator (admin tools or Rust value type)
 006889e0	-	editor text source / cache allocator (admin tools or Rust value type)
@@ -5727,6 +5728,10 @@ key	status	note
 0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 0068dfc0	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 0068e410	x	ac2-anim Ac2BehaviorTracker
+0068e510	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+0068e620	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+0068e7b0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+0068e990	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 0068eaf0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0068eb90	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
@@ -5736,6 +5741,11 @@ key	status	note
 0068fde0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00690090	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 006900c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
+00690130	~	ac2-anim: the caller resolves the script (Ac2FxScriptTracker::resolve); the DBObj::Get is the client's library, not on the physics step
+00690220	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+006902a0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+006902d0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+00690300	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 006934c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00694000	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00694120	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)

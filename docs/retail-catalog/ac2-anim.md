@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 108 done, 16 partial, 367 to do, 41 skipped.
+532 retail functions: 117 done, 17 partial, 357 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (3/67)
@@ -844,7 +844,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBAnimator::Allocate` · 0067a5a0
 - [ ] `DBAnimator::StreamPack` · 0067a5f0 · legions 00624040
 
-## `portal/shared/src/animsys/fxscript.cpp.c` (1/16)
+## `portal/shared/src/animsys/fxscript.cpp.c` (2/16)
 
 ### FxScript
 - [x] `FxScript::StreamPack` · 006859d0 · legions 00628970 — ac2-anim fxscript.rs Ac2FxScript (decode, real-data test over the 22 DAT records)
@@ -880,42 +880,42 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<Trigger>::AddToEnd` · 006877f0 · legions 00629620
 
 ### FxScript
-- [ ] `FxScript::GetTriggers` · 00687be0 · legions 00629a10
+- [x] `FxScript::GetTriggers` · 00687be0 · legions 00629a10 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 - [-] `FxScript::ParseImpulseNode` · 00688190 — editor text source / cache allocator (admin tools or Rust value type)
 - [-] `FxScript::ParseEffectsNode` · 006884a0 — editor text source / cache allocator (admin tools or Rust value type)
 - [-] `FxScript::ParseStopEffectsNode` · 006889e0 — editor text source / cache allocator (admin tools or Rust value type)
 - [-] `FxScript::FromFileNode` · 00688d60 — editor text source / cache allocator (admin tools or Rust value type)
 
-## `portal/shared/src/animsys/fxscripttracker.cpp.c` (0/7)
+## `portal/shared/src/animsys/fxscripttracker.cpp.c` (4/7)
 
 ### (free functions)
 - [ ] `STREAMPACK` · 0068e480 · legions 0063af50
 
 ### FXScriptTracker
-- [ ] `FXScriptTracker::StreamPack` · 0068e510
-- [ ] `FXScriptTracker::Update` · 0068e620 · legions 0062f5b0
+- [x] `FXScriptTracker::StreamPack` · 0068e510 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+- [x] `FXScriptTracker::Update` · 0068e620 · legions 0062f5b0 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 
 ### PList<gmActInfo>
 - [ ] `PList<gmActInfo>::GetPackSize` · 0068e700
 
 ### FXScriptTracker
-- [ ] `FXScriptTracker::FXScriptTracker` · 0068e7b0 · legions 0062f790
+- [x] `FXScriptTracker::FXScriptTracker` · 0068e7b0 · legions 0062f790 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 
 ### PList<FXTrack>
 - [ ] `PList<FXTrack>::UnPack` · 0068e8d0 · legions 0062f8c4
 
 ### FXScriptTracker
-- [ ] `FXScriptTracker::DoFXScript` · 0068e990 · legions 0062f970
+- [x] `FXScriptTracker::DoFXScript` · 0068e990 · legions 0062f970 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 
-## `portal/shared/src/animsys/fxtrack.cpp.c` (0/6)
+## `portal/shared/src/animsys/fxtrack.cpp.c` (4/6)
 
 ### FXTrack
-- [ ] `FXTrack::FillCache` · 00690130 · legions 00630cb0
+- [~] `FXTrack::FillCache` · 00690130 · legions 00630cb0 — ac2-anim: the caller resolves the script (Ac2FxScriptTracker::resolve); the DBObj::Get is the client's library, not on the physics step
 - [ ] `FXTrack::StreamPack` · 00690190 · legions 00630d00
-- [ ] `FXTrack::operator=` · 00690220 · legions 00630d90
-- [ ] `FXTrack::~FXTrack` · 006902a0 · legions 00630e10
-- [ ] `FXTrack::FXTrack` · 006902d0 · legions 00630e40
-- [ ] `FXTrack::FXTrack` · 00690300 · legions 00630e70
+- [x] `FXTrack::operator=` · 00690220 · legions 00630d90 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+- [x] `FXTrack::~FXTrack` · 006902a0 · legions 00630e10 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+- [x] `FXTrack::FXTrack` · 006902d0 · legions 00630e40 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
+- [x] `FXTrack::FXTrack` · 00690300 · legions 00630e70 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 
 ## `portal/shared/src/animsys/impulsetrigger.cpp.c` (2/3)
 

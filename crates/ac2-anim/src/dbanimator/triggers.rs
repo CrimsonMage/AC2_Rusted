@@ -42,26 +42,38 @@ fn same_impulse(a: &Ac2ImpulseTrigger, b: &Ac2ImpulseTrigger) -> bool {
         && a.time == b.time
 }
 
+/// `AnimInfo::GetTriggers` and `FxScript::GetTriggers` for the effect and impulse lists: each
+/// trigger at or before `ctime` that the track does not hold yet is added (`Trigger::operator==`
+/// and `ImpulseTrigger::operator==` decide what is held).
+pub(crate) fn add_effects_and_impulses(
+    effects: &[Ac2AnimTrigger],
+    impulses: &[Ac2ImpulseTrigger],
+    ctime: f32,
+    out: &mut Ac2TrackTriggers,
+) {
+    for effect in effects.iter().filter(|e| e.time <= ctime) {
+        if !out.effects.iter().any(|known| same_trigger(known, effect)) {
+            out.effects.push(*effect);
+        }
+    }
+    for impulse in impulses.iter().filter(|i| i.time <= ctime) {
+        if !out
+            .impulses
+            .iter()
+            .any(|(known, _)| same_impulse(known, impulse))
+        {
+            out.impulses.push((*impulse, false));
+        }
+    }
+}
+
 impl Ac2AnimInfo {
     /// `AnimInfo::GetTriggers`: every trigger at or before `ctime` the track does not hold yet.
     fn add_triggers(&self, ctime: f32, out: &mut Ac2TrackTriggers) {
-        for effect in self.effects.iter().filter(|e| e.time <= ctime) {
-            if !out.effects.iter().any(|known| same_trigger(known, effect)) {
-                out.effects.push(*effect);
-            }
-        }
+        add_effects_and_impulses(&self.effects, &self.impulses, ctime, out);
         for hook in self.hooks.iter().filter(|h| h.time <= ctime) {
             if !out.hooks.iter().any(|known| same_hook(known, hook)) {
                 out.hooks.push(*hook);
-            }
-        }
-        for impulse in self.impulses.iter().filter(|i| i.time <= ctime) {
-            if !out
-                .impulses
-                .iter()
-                .any(|(known, _)| same_impulse(known, impulse))
-            {
-                out.impulses.push((*impulse, false));
             }
         }
     }
