@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 255 done, 96 partial, 1542 to do, 11 skipped.
+1904 retail functions: 255 done, 98 partial, 1540 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1356,7 +1356,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/events/ecm_login.cpp.c` (0/21)
 
 ### ECM_Login
-- [ ] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00
+- [~] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 - [ ] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10
 - [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60
 - [ ] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0
@@ -1494,7 +1494,7 @@ Legend and workflow: [README](README.md).
 ### GlobalEventHandler
 - [ ] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590
 - [ ] `GlobalEventHandler::RecvEvt_AccountBooted` · 00492bf0 · legions 0048b5a0
-- [ ] `GlobalEventHandler::RecvEvt_CharExitGame` · 00492c10 · legions 0048b5c0
+- [~] `GlobalEventHandler::RecvEvt_CharExitGame` · 00492c10 · legions 0048b5c0 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 - [ ] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0
 - [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610

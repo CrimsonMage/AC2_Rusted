@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 871 done, 306 partial, 1010 to do, 60 skipped.
+2247 retail functions: 872 done, 306 partial, 1009 to do, 60 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (14/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (15/58)
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::Show` · 00407910 · legions 00407620
@@ -161,7 +161,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::RecvNotice_Logoff` · 00407990
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 - [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0
-- [~] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs make_please_wait (ID_Wait_PleaseWait, wait type); not called by the HUD: EndSession (logoff) does not raise it yet
+- [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 - [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 
 ### PlayingSoundContext
@@ -178,9 +178,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0
 - [x] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080 — ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
 - [~] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-- [~] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
+- [~] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
 - [ ] `gmGamePlayUI::Init` · 00408500 · legions 004081c0
-- [~] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640 — ac2-ui game_dialogs.rs: the wait context is cleared; QueueUIMode(characterselection) not wired (the app's pregame to world switch is one-way; no HUD path closes the wait)
+- [~] `gmGamePlayUI::RecvNotice_CloseWaitDialog` · 00408640 — ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
 
 ### HashTable<unsigned_long,int>
 - [ ] `HashTable<unsigned_long,int>::~HashTable<unsigned_long,int>` · 00408660 · legions 00408320
@@ -255,7 +255,7 @@ Legend and workflow: [README](README.md).
 
 ### gmGamePlayUI
 - [ ] `gmGamePlayUI::RecvNotice_SaveLocationsChanged` · 0040a790
-- [ ] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0
+- [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key + ac2-client hud_game_dialogs.rs game_dialog_message: the logout key (0x4100000e press) only; the other messages are routed by their own frameworks
 - [ ] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960
 
 ## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (19/39)

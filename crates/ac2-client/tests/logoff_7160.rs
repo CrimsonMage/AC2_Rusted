@@ -6,7 +6,6 @@
 mod common;
 
 use ac2_client::FrameInput;
-use ac2_net::protocol::ClientEvent;
 use ac2_weenie::SessionEvent;
 use common::*;
 use legions_server_double::Spawn;
@@ -42,12 +41,12 @@ fn logging_off_sends_the_character_and_leaves_the_world_but_keeps_the_list() {
         }
     }
 
-    // `Proto_UI::LogOffCharacter`: the last blob the client sent, on queue 4.
+    // `Proto_UI::LogOffCharacter` (Legions 0x004BE2F0): 12 bytes, opcode 0x27 (`CharExitGame`),
+    // header word 1, the player's id as 8 little-endian bytes, sent on queue 4.
     let (_, queue, bytes) = server.borrow().blobs.last().cloned().expect("a blob");
-    assert_eq!(
-        (queue, bytes),
-        ClientEvent::LogOffCharacter { character: player }.encode()
-    );
+    let mut retail = vec![0x27, 0x00, 0x01, 0x00];
+    retail.extend_from_slice(&player.to_le_bytes());
+    assert_eq!((queue, bytes), (4, retail));
     assert_eq!(left, 1, "CharExitGame once");
     assert!(!client.frame().in_world);
     assert!(!client.session().is_closed(), "the connection stays up");
