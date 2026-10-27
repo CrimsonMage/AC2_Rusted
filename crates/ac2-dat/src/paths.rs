@@ -10,6 +10,39 @@ pub fn is_dat_mount_root(path: &Path) -> bool {
         .all(|kind| path.join(kind.default_file_name()).is_file())
 }
 
+/// The local DAT of a language (`CLCache::SetLanguageInternal`): retail builds `local_<name>.dat`
+/// from the language's name (its `0x4000002a` enum string, which is the file's suffix on the DVD:
+/// `English`, `Deutsch`, `Francais`, `Japanese`, `Korean`). The installed `local_*.dat` files in
+/// `dir` answer it; the match ignores case, and a language with no file is an error that names
+/// the installed ones.
+pub fn local_dat_for_language(dir: &Path, language: &str) -> Result<String, String> {
+    let entries = std::fs::read_dir(dir).map_err(|error| format!("{}: {error}", dir.display()))?;
+    let mut installed = Vec::new();
+    for entry in entries.flatten() {
+        let file = entry.file_name().to_string_lossy().into_owned();
+        let name = file
+            .strip_prefix("local_")
+            .and_then(|rest| rest.strip_suffix(".dat"))
+            .map(str::to_owned);
+        if let Some(name) = name {
+            installed.push((file, name));
+        }
+    }
+    installed
+        .iter()
+        .find(|(_, name)| name.eq_ignore_ascii_case(language))
+        .map(|(file, _)| file.clone())
+        .ok_or_else(|| {
+            let mut names: Vec<&str> = installed.iter().map(|(_, n)| n.as_str()).collect();
+            names.sort_unstable();
+            format!(
+                "no local_{language}.dat in {} (installed: {})",
+                dir.display(),
+                names.join(", ")
+            )
+        })
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DatOpenOptions {
     pub dat_directory: PathBuf,
@@ -54,8 +87,31 @@ impl DatOpenOptions {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_dat_mount_root, DatOpenOptions};
+    use super::{is_dat_mount_root, local_dat_for_language, DatOpenOptions};
     use crate::DatFileKind;
+
+    #[test]
+    fn a_language_names_its_installed_local_dat() {
+        let root = tempfile::tempdir().expect("temporary DAT root");
+        for name in ["portal.dat", "local_English.dat", "local_Francais.dat"] {
+            std::fs::File::create(root.path().join(name)).expect("DAT fixture");
+        }
+        assert_eq!(
+            local_dat_for_language(root.path(), "Francais").as_deref(),
+            Ok("local_Francais.dat")
+        );
+        assert_eq!(
+            local_dat_for_language(root.path(), "francais").as_deref(),
+            Ok("local_Francais.dat")
+        );
+        assert_eq!(
+            local_dat_for_language(root.path(), "English").as_deref(),
+            Ok("local_English.dat")
+        );
+        let error = local_dat_for_language(root.path(), "Deutsch").unwrap_err();
+        assert!(error.contains("local_Deutsch.dat"), "{error}");
+        assert!(error.contains("English, Francais"), "{error}");
+    }
 
     #[test]
     fn mount_root_requires_portal_cell_and_local_dat_files() {

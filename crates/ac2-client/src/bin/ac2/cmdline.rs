@@ -34,7 +34,7 @@ pub(crate) struct Args {
     pub width: Option<u32>,
     pub height: Option<u32>,
     /// `language <string>` (`Turbine::Client::SetLanguage`, Legions 0x006A0640): the language
-    /// the client runs in. Read but not applied (the language id is not mapped yet).
+    /// the client runs in; its `local_<name>.dat` is mounted (`ac2_dat::local_dat_for_language`).
     pub language: Option<String>,
 }
 

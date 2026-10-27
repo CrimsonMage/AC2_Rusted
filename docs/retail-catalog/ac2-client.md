@@ -329,7 +329,7 @@ Legend and workflow: [README](README.md).
 
 ### Turbine::Client
 - [~] `Turbine::Client::InitNet` · 0071fc50 · legions 006a0500 — queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
-- [~] `Turbine::Client::SetLanguage` · 0071fde0 · legions 006a0640 — --language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
+- [~] `Turbine::Client::SetLanguage` · 0071fde0 · legions 006a0640 — --language mounts local_<name>.dat: ac2_dat paths.rs local_dat_for_language, bin/ac2 run(); the stored string is not otherwise read
 - [-] `Turbine::Client::~Client` · 0071fe30 · legions 006a0690 — destructor: Rust drop order in run()
 - [ ] `Turbine::Client::CleanupNet` · 00720090 · legions 006a08c0
 - [x] `Turbine::Client::ParseArgs` · 007201b0 · legions 006a09e0 — cmdline.rs parse_args; ClientPrefs::load reads Preferences.ini before the frame loop (ac2 run())
@@ -340,7 +340,7 @@ Legend and workflow: [README](README.md).
 - [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag or FILE), rodat, language (kept, not applied), chargen, prefs; other retail options not ported
 - [~] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30 — Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
 - [~] `Turbine::Client::Client` · 00722720 · legions 006a2b30 — no Client object: state is Args, ClientPrefs and OnlineSession built in run()
-- [~] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10 — --language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
+- [~] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10 — --language's local DAT is mounted; the preference-string id path (GetEnum 0x4000002a) is not ported
 - [ ] `Turbine::Client::AppendOutputText` · 00722a20 · legions 006a2e10
 - [ ] `Turbine::Client::InitDatabase` · 00722a80 · legions 006a2e70
 

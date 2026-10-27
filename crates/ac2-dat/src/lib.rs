@@ -30,7 +30,7 @@ pub use entry::{DatEntryMeta, DatFileKind};
 pub use error::{DatError, DatResult};
 pub use iteration::RETAIL_DDD_ITERATION_DID;
 pub use iteration::{DatDddIterationList, DatDddIterationPair};
-pub use paths::is_dat_mount_root;
 pub use paths::DatOpenOptions;
+pub use paths::{is_dat_mount_root, local_dat_for_language};
 pub use read_telemetry::DatReadAttributionSummary;
 pub use read_telemetry::{DatReadAttribution, DatReadTelemetrySummary};

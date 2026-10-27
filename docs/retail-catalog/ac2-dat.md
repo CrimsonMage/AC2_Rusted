@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 23 done, 4 partial, 475 to do, 5 skipped.
+507 retail functions: 23 done, 5 partial, 474 to do, 5 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (1/48)
@@ -165,7 +165,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DBCache::SetRegion` · 006cfc30 · legions 00659980
 - [ ] `DBCache::ReloadObject` · 006cfc40 · legions 00659990
 - [ ] `DBCache::AddToDataGraph` · 006cfcf0 · legions 00659a40
-- [ ] `DBCache::SetLocalLanguage` · 006cfdc0 · legions 00659b10
+- [~] `DBCache::SetLocalLanguage` · 006cfdc0 · legions 00659b10 — the local DAT choice at mount (ac2_dat local_dat_for_language); no live switch, and the id path is not ported
 - [ ] `DBCache::GetLocalLanguage` · 006cfde0
 - [ ] `DBCache::Init` · 006cfec0 · legions 00659c20
 - [ ] `DBCache::UseTime` · 006cfff0 · legions 00659d40

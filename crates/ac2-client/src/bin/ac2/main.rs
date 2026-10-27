@@ -657,11 +657,14 @@ impl ApplicationHandler for App {
 fn run(args: Args) -> Result<(), String> {
     // `Turbine::Client::IsAlreadyRunning`: a second client stops here; the lock lasts for the run.
     let _instance = instance::claim()?;
+    // `Turbine::Client::SetLanguage` -> `CLCache::SetLanguageInternal`: the language's local DAT
+    // (its string tables) replaces the English one the mount opens by default.
+    let mut dat_options = ac2_dat::DatOpenOptions::new(&args.dat_dir);
     if let Some(language) = &args.language {
-        eprintln!("ac2: --language {language} is not applied yet (the language id is not mapped)");
+        dat_options.local_dat_file_name =
+            ac2_dat::local_dat_for_language(args.dat_dir.as_ref(), language)?;
     }
-    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&args.dat_dir))
-        .map_err(|e| e.to_string())?;
+    let dataset = ac2_dat::DatDataset::open(dat_options).map_err(|e| e.to_string())?;
     let store = Arc::new(ac2_db::ResourceStore::new(Arc::clone(&dataset)));
     ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
     // The preferences are read here, before the frame loop; the frame thread never reads the file.

@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 123 done, 12 partial, 450 to do, 48 skipped.
+633 retail functions: 123 done, 13 partial, 449 to do, 48 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 ### CLCache
 - [~] `CLCache::OnServerInterrogation` · 004bfeb0 — ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 - [ ] `CLCache::OnBeginDDD` · 004c0060 · legions 004b44a0
-- [ ] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530
+- [~] `CLCache::SetLanguageInternal` · 004c00f0 · legions 004b4530 — the local_<name>.dat name (ac2_dat local_dat_for_language) at mount; the engine-only reload is not ported
 - [ ] `CLCache::OnEndDDD` · 004c0610 · legions 004b4aa0
 - [ ] `CLCache::SetRegion` · 004c0690 · legions 004b4b20
 
