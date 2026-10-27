@@ -32,6 +32,7 @@ use crate::element::UiTree;
 use crate::examination::ExaminationUi;
 use crate::external_container::ExternalContainerUi;
 use crate::fellowship::FellowshipUi;
+use crate::indicators::IndicatorsUi;
 use crate::ingredient::IngredientUi;
 use crate::layout::{load_layout, LayoutDesc};
 use crate::name_plates::NamePlates;
@@ -44,11 +45,11 @@ use crate::shop::ShopUi;
 use crate::shortcut::ShortcutUi;
 use crate::skill_tree::SkillTreeUi;
 use crate::stack::StackUi;
+use crate::statusbar::show_statusbar;
 use crate::text_data::StoreTextData;
 use crate::token::tokenize;
 use crate::toolbar::ToolbarUi;
 use crate::ui_string::UI_TABLE;
-use crate::vitae::VitaeStatusUi;
 use crate::vitals::VitalsUi;
 
 /// `UILAYOUT_GROUP_ENUM` (`UIMainFramework::CreateAndAddRootElement`'s
@@ -112,8 +113,8 @@ pub struct GameplayHud {
     /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
     pub vitals: VitalsUi,
     pub effects: Option<EffectsUi>,
-    /// `gmStatusbarUI`'s `gmVitaeStatusUI` (the indicators).
-    pub vitae: VitaeStatusUi,
+    /// `gmStatusbarUI`'s `gmIndicatorsUI` (its `gmVitaeStatusUI` is ported).
+    pub indicators: IndicatorsUi,
     /// `DialogFactory` over the gameplay layout.
     pub dialogs: DialogFactory,
     /// `gmGamePlayUI`'s `gmStackUI`, hidden until a split asks for an amount.
@@ -231,10 +232,12 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(|toolbar| FellowshipUi::create(&mut tree, toolbar));
     let vitals = VitalsUi::create(&mut tree);
-    let vitae = VitaeStatusUi::create(&mut tree);
     let effects = layouts[&LAYOUT_STATUSBAR]
         .as_ref()
         .map(|statusbar| EffectsUi::create(&tree, statusbar));
+    let indicators = IndicatorsUi::create(&mut tree);
+    // `gmStatusbarUI::gmStatusbarUI`: `Show(1)` once its children are made.
+    show_statusbar(&mut tree, true);
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let stack = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
@@ -290,7 +293,7 @@ pub fn build_gameplay_hud(
         fellowship,
         vitals,
         effects,
-        vitae,
+        indicators,
         toolbar_layout: layouts[&LAYOUT_TOOLBAR].clone(),
         dialogs,
         stack,

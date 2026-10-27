@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 824 done, 275 partial, 1095 to do, 53 skipped.
+2247 retail functions: 831 done, 279 partial, 1084 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -930,12 +930,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmEffectsUI::RecvNotice_UpdateEffect` · 00439700 — ac2-ui effects.rs
 - [x] `gmEffectsUI::gmEffectsUI` · 00439710 · legions 00439f60 — ac2-ui effects.rs
 
-## `ac2/client/src/ui/gameplay/statusbar/gmstatusbarui.cpp.c` (0/3)
+## `ac2/client/src/ui/gameplay/statusbar/gmstatusbarui.cpp.c` (3/3)
 
 ### gmStatusbarUI
-- [ ] `gmStatusbarUI::Show` · 004231b0 · legions 00422f80
-- [ ] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0
-- [~] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+- [x] `gmStatusbarUI::Show` · 004231b0 · legions 00422f80 — ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+- [x] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0 — ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+- [x] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
 
 ## `ac2/client/src/ui/gameplay/statusbar/gmvitalsui.cpp.c` (2/6)
 
@@ -950,10 +950,10 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmindicatorsui.cpp.c` (0/4)
 
 ### gmIndicatorsUI
-- [ ] `gmIndicatorsUI::Show` · 00438850 · legions 004390a0
-- [ ] `gmIndicatorsUI::SetupChildren` · 00438860 · legions 004390b0
-- [ ] `gmIndicatorsUI::CleanupChildren` · 00438910 · legions 00439160
-- [ ] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0
+- [~] `gmIndicatorsUI::Show` · 00438850 · legions 004390a0 — ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
+- [~] `gmIndicatorsUI::SetupChildren` · 00438860 · legions 004390b0 — ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+- [~] `gmIndicatorsUI::CleanupChildren` · 00438910 · legions 00439160 — ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
+- [~] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0 — ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (0/11)
 
@@ -986,13 +986,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210
 - [ ] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
 
 ### gmVitaeStatusUI
-- [ ] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [ ] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [ ] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-- [ ] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+- [x] `gmVitaeStatusUI::gmVitaeStatusUI` · 0044cd80 · legions 0044df50 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+- [x] `gmVitaeStatusUI::RecvNotice_ExaminationRequestChanged` · 0044ce40 · legions 0044e010 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+- [x] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+- [x] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (6/14)
 
@@ -1230,7 +1230,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmInventoryUI::SetupChildren` · 00434590 · legions 00434d60
 
 ### gmStatusbarUI
-- [ ] `gmStatusbarUI::CleanupChildren` · 00434670 · legions 00434e40
+- [~] `gmStatusbarUI::CleanupChildren` · 00434670 · legions 00434e40 — ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
 
 ### gmInventoryUI
 - [ ] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0

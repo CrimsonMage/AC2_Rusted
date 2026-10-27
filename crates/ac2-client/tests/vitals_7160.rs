@@ -438,14 +438,14 @@ fn a_death_costs_vitae_the_indicator_shows_it_and_experience_restores_it() {
     let (field_at, overlay) = (field(tree, "VitaeStatusField"), field(tree, "Overlay"));
     assert!(!tree.get(overlay).unwrap().visible());
     let status = vitals.vitae.unwrap();
-    hud.vitae.update_vitae(
+    hud.indicators.vitae.update_vitae(
         tree,
         &VitaeStrings,
         status.vitae,
         status.increment,
         status.cost,
     );
-    assert_eq!(hud.vitae.state(tree), Some(id("notfull")));
+    assert_eq!(hud.indicators.vitae.state(tree), Some(id("notfull")));
     assert_eq!(
         tree.tooltip_text(field_at),
         Some(format!(
@@ -463,11 +463,14 @@ fn a_death_costs_vitae_the_indicator_shows_it_and_experience_restores_it() {
         data: 0x4000_0004,
         item: None,
     };
-    assert!(hud.vitae.message(tree, &press));
-    hud.vitae
+    assert!(hud.indicators.vitae.message(tree, &press));
+    hud.indicators
+        .vitae
         .examination_request_changed(tree, ac2_ui::EXAMINE_VITAE);
     assert!(tree.get(overlay).unwrap().visible());
-    hud.vitae.examination_request_changed(tree, 0x4000_0001);
+    hud.indicators
+        .vitae
+        .examination_request_changed(tree, 0x4000_0001);
     assert!(!tree.get(overlay).unwrap().visible());
 
     // The respawn's alive branch (`CDeathSystem` 0x3 -> `DeathSystem` 0x7) tells the vitae.
@@ -519,14 +522,14 @@ fn a_death_costs_vitae_the_indicator_shows_it_and_experience_restores_it() {
     };
     assert_eq!(vitae_notices(events).last(), Some(&(100.0, 1.0, 0.0)));
     let status = client.frame().player_vitals.vitae.unwrap();
-    hud.vitae.update_vitae(
+    hud.indicators.vitae.update_vitae(
         &mut hud.tree,
         &VitaeStrings,
         status.vitae,
         status.increment,
         status.cost,
     );
-    assert_eq!(hud.vitae.state(&hud.tree), Some(id("stateless")));
-    assert!(!hud.vitae.message(&hud.tree, &press));
+    assert_eq!(hud.indicators.vitae.state(&hud.tree), Some(id("stateless")));
+    assert!(!hud.indicators.vitae.message(&hud.tree, &press));
     assert_eq!(client.frame().player_vitals.health.map(|v| v.max), Some(50));
 }

@@ -38,6 +38,7 @@ mod external_container;
 mod fellow_info;
 mod fellowship;
 mod hud;
+mod indicators;
 mod ingredient;
 mod ingredient_slots;
 mod input;
@@ -84,6 +85,7 @@ mod shortcut;
 mod shortcut_states;
 mod skill_tree;
 mod stack;
+mod statusbar;
 mod target_cycle;
 #[cfg(test)]
 mod tests;
@@ -131,6 +133,7 @@ pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
+pub use indicators::IndicatorsUi;
 pub use ingredient::{IngredientCommand, IngredientSource, IngredientUi};
 pub use input::{
     is_ui_action, meta_mode_from_key, InputEvent, InputManager, KeyPress, RawAction,
@@ -255,6 +258,8 @@ mod shortcut_tests;
 mod skill_tree_tests;
 #[cfg(test)]
 mod stack_tests;
+#[cfg(test)]
+mod statusbar_tests;
 #[cfg(test)]
 mod target_cycle_tests;
 #[cfg(test)]

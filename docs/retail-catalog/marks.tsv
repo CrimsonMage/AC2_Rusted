@@ -273,7 +273,9 @@ key	status	note
 00422550	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00422f00	~	ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
-004232f0	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+004231b0	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+00423210	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+004232f0	x	ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
 004233d0	x	
 00423490	x	
 00423550	x	
@@ -499,6 +501,7 @@ key	status	note
 004342d0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
 00434330	x	ac2-ui toolbar.rs
 004343c0	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00434670	~	ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
 00434aa0	_	ac2-client OptionsWindow: the confirmation is a flag; the dialog itself (DialogFactory) is not drawn
 00434af0	_	ac2-client options: DoConfirm yes applies the client page (options_apply), no recalls it; gmCharacterUI and gmChatOptionsUI apply/recall not modelled here
 00434d10	_	ac2-client OptionsWindow::request_close: closing with a change asks (confirming); the window and its show/hide are not modelled
@@ -555,6 +558,11 @@ key	status	note
 004386c0	~	ac2-ui shortcut.rs: no drag/drop, time-left meters, pending look
 004387f0	x	ac2-ui shortcut.rs
 00438830	~	ac2-ui shortcut.rs reload: the bar's rows and set; ac2-client reloads on ReloadOptions (no separate option refresh)
+00438850	~	ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
+00438860	~	ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+00438910	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
+004389a0	~	ac2-ui indicators.rs: the vitae indicator is made; gmNetStatusUI and gmPKStatusUI are not (their frameworks are not ported)
+004389e0	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
 00438a20	x	ac2-ui effects.rs
 00438b80	x	ac2-ui effects.rs
 00438c30	x	ac2-ui effects.rs
@@ -807,10 +815,10 @@ key	status	note
 0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044c7d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044cbc0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-0044cd80	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044ce40	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044ce90	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
-0044cfc0	_	ac2-ui vitae.rs; wired in ac2-client hud_status.rs
+0044cd80	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+0044ce40	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+0044ce90	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
+0044cfc0	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044dc80	x	ac2-ui meter.rs
 0044dcd0	x	ac2-ui meter.rs
 0044de30	x	ac2-ui meter.rs

@@ -143,7 +143,7 @@ impl HudView {
                     fellowship,
                     vitals,
                     effects,
-                    vitae,
+                    indicators,
                     toolbar_layout,
                     dialogs,
                     stack,
@@ -183,7 +183,7 @@ impl HudView {
                 self.fellowship = fellowship;
                 self.vitals = Some(vitals);
                 self.effects = effects;
-                self.vitae = Some(vitae);
+                self.vitae = Some(indicators.vitae);
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
                 self.stack = stack;
