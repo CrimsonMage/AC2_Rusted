@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1364 done, 108 partial, 916 to do, 80 skipped.
+2468 retail functions: 1400 done, 108 partial, 880 to do, 80 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -273,30 +273,30 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCharGenResult::CallEFun_GetName` · 004741f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (0/21)
+## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (15/21)
 
 ### ggmKeyframe
-- [ ] `ggmKeyframe::CallEFun_Clear` · 00473030
-- [ ] `ggmKeyframe::CallEFun_SetAudioTrack` · 00473090
+- [x] `ggmKeyframe::CallEFun_Clear` · 00473030 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_SetAudioTrack` · 00473090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0
-- [ ] `ggmKeyframe::CallEFun_SetDuration` · 00473150
-- [ ] `ggmKeyframe::CallEFun_SetFrameNum` · 004731b0
+- [x] `ggmKeyframe::CallEFun_SetDuration` · 00473150 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_SetFrameNum` · 004731b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210
-- [ ] `ggmKeyframe::CallEFun_SetSceneID` · 00473270
-- [ ] `ggmKeyframe::CallEFun_SetSubtitle` · 004732d0
-- [ ] `ggmKeyframe::CallEFun_SetVideoTrack` · 00473330
+- [x] `ggmKeyframe::CallEFun_SetSceneID` · 00473270 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_SetSubtitle` · 004732d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_SetVideoTrack` · 00473330 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_SetVideoTrackByName` · 00473390
-- [ ] `ggmKeyframe::CallEFun_SetVoiceTrack` · 004733f0
+- [x] `ggmKeyframe::CallEFun_SetVoiceTrack` · 004733f0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_SetVoiceTrackByName` · 00473450
-- [ ] `ggmKeyframe::CallEFun_GetAudioTrack` · 004734b0
-- [ ] `ggmKeyframe::CallEFun_GetDuration` · 00473520
-- [ ] `ggmKeyframe::CallEFun_GetFrameNum` · 00473590
-- [ ] `ggmKeyframe::CallEFun_GetSceneID` · 00473600
-- [ ] `ggmKeyframe::CallEFun_GetVideoTrack` · 00473670
-- [ ] `ggmKeyframe::CallEFun_GetVoiceTrack` · 004736e0
+- [x] `ggmKeyframe::CallEFun_GetAudioTrack` · 004734b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_GetDuration` · 00473520 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_GetFrameNum` · 00473590 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_GetSceneID` · 00473600 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_GetVideoTrack` · 00473670 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmKeyframe::CallEFun_GetVoiceTrack` · 004736e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_Dump` · 00473750
 - [ ] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810
-- [ ] `ggmKeyframe::CallEFun_GetSubtitle` · 004738e0
+- [x] `ggmKeyframe::CallEFun_GetSubtitle` · 004738e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
 ## `ac2/shared/src/interp/glue/ggmquestinfo.cpp.c` (7/8)
 
@@ -334,37 +334,37 @@ Legend and workflow: [README](README.md).
 - [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
-## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (0/20)
+## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (17/20)
 
 ### ggmSceneInfo
-- [ ] `ggmSceneInfo::CallEFun_Clear` · 00471950
-- [ ] `ggmSceneInfo::CallEFun_ClearForHackers` · 004719b0
-- [ ] `ggmSceneInfo::CallEFun_Set` · 00471a10
-- [ ] `ggmSceneInfo::CallEFun_SetActID` · 00471a70
-- [ ] `ggmSceneInfo::CallEFun_SetHidden` · 00471ad0
-- [ ] `ggmSceneInfo::CallEFun_SetID` · 00471b30
-- [ ] `ggmSceneInfo::CallEFun_SetIDByName` · 00471b90
-- [ ] `ggmSceneInfo::CallEFun_SetName` · 00471bf0
-- [ ] `ggmSceneInfo::CallEFun_SetPlayable` · 00471c50
-- [ ] `ggmSceneInfo::CallEFun_SetSceneNum` · 00471cb0
-- [ ] `ggmSceneInfo::CallEFun_AddKeyframe` · 00471d10
-- [ ] `ggmSceneInfo::CallEFun_GetActID` · 00471da0
-- [ ] `ggmSceneInfo::CallEFun_GetID` · 00471e10
-- [ ] `ggmSceneInfo::CallEFun_GetSceneNum` · 00471e80
-- [ ] `ggmSceneInfo::CallEFun_IsHidden` · 00471ef0
-- [ ] `ggmSceneInfo::CallEFun_IsPlayable` · 00471f60
+- [x] `ggmSceneInfo::CallEFun_Clear` · 00471950 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_ClearForHackers` · 004719b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_Set` · 00471a10 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetActID` · 00471a70 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetHidden` · 00471ad0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetID` · 00471b30 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetIDByName` · 00471b90 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetName` · 00471bf0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetPlayable` · 00471c50 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_SetSceneNum` · 00471cb0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_AddKeyframe` · 00471d10 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_GetActID` · 00471da0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_GetID` · 00471e10 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_GetSceneNum` · 00471e80 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_IsHidden` · 00471ef0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfo::CallEFun_IsPlayable` · 00471f60 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmSceneInfo::CallEFun_Dump` · 00471fd0
-- [ ] `ggmSceneInfo::CallEFun_GetName` · 00472090
+- [x] `ggmSceneInfo::CallEFun_GetName` · 00472090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140
 - [ ] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280
 
-## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (0/4)
+## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (4/4)
 
 ### ggmSceneInfoList
-- [ ] `ggmSceneInfoList::CallEFun_num_elements` · 00471720
-- [ ] `ggmSceneInfoList::CallEFun_pop_front` · 00471790
-- [ ] `ggmSceneInfoList::CallEFun_push_tail` · 00471810
-- [ ] `ggmSceneInfoList::CallEFun_insert_sort` · 004718d0
+- [x] `ggmSceneInfoList::CallEFun_num_elements` · 00471720 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfoList::CallEFun_pop_front` · 00471790 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfoList::CallEFun_push_tail` · 00471810 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+- [x] `ggmSceneInfoList::CallEFun_insert_sort` · 004718d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
 ## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (1/8)
 

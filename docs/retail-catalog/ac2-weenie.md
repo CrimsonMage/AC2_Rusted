@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 267 done, 108 partial, 1518 to do, 11 skipped.
+1904 retail functions: 267 done, 112 partial, 1514 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -384,7 +384,7 @@ Legend and workflow: [README](README.md).
 ### gCM_Quest
 - [ ] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
 ## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (0/2)
 
@@ -426,7 +426,7 @@ Legend and workflow: [README](README.md).
 ### gCM_UI
 - [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 - [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [ ] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [~] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
 ## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (0/2)
 
@@ -724,7 +724,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [~] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
-- [ ] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0
+- [~] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 - [~] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0 — no native caller in the call graph; IFun 0xB400AA not wired
 - [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70
 - [ ] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10
@@ -2305,7 +2305,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_SetAccelerationScale` · 004b80b0
 - [ ] `gCWPhysicsObject::CallEFun_SetJumpScale` · 004b8110
 - [ ] `gCWPhysicsObject::CallEFun_SetVelocityScale` · 004b8170
-- [ ] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0
+- [~] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 - [ ] `gCWPhysicsObject::CallEFun_AddImpulse` · 004b8270
 - [ ] `gCWPhysicsObject::CallEFun_AddImpulseLocal` · 004b82f0
 - [ ] `gCWPhysicsObject::CallEFun_AddTargetedImpulse` · 004b8370 · legions 004ae2a0

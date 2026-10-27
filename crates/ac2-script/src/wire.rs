@@ -211,6 +211,10 @@ pub fn native_to_net(
                 used: t.used.clone(),
             })
         }
+        NativeObject::SceneInfo(scene) => W::GmSceneInfo(Box::new(scene_to_net(scene))),
+        NativeObject::SceneList(scenes) => {
+            W::GmSceneInfoList(scenes.iter().map(scene_to_net).collect())
+        }
         NativeObject::Wire(w) => (**w).clone(),
         _ => return Err(Unsupported(native_type)),
     })
@@ -458,5 +462,34 @@ pub fn string_info_to_net(info: &StringInfo) -> net::StringInfo {
         table_id: info.table_id,
         literal: info.literal.as_ref().map(|s| String::from_utf16_lossy(s)),
         variables,
+    }
+}
+
+/// `gmSceneInfo::StreamPack` of a scene: its keyframes' `gmKeyframe::StreamPack`. The movie
+/// track's file name is not set by the scripts this client runs (`SetMovieTrack` is unbound), so
+/// it stays empty.
+fn scene_to_net(scene: &ac2_weenie::SceneInfo) -> net::GmSceneInfo {
+    net::GmSceneInfo {
+        id: scene.id,
+        name: scene.name.clone(),
+        act_id: scene.act_id,
+        scene_num: scene.scene_num,
+        is_hidden: u32::from(scene.hidden),
+        is_playable: u32::from(scene.playable),
+        keyframes: scene
+            .keyframes
+            .iter()
+            .map(|k| net::GmKeyframe {
+                scene_id: k.scene_id,
+                frame_num: k.frame_num,
+                duration: k.duration,
+                video_fragment: k.video,
+                audio_fragment: k.audio,
+                voice_fragment: k.voice,
+                text_fragment: k.subtitle.clone(),
+                movie_fragment_filename: String::new(),
+                defined_tracks: k.defined_tracks,
+            })
+            .collect(),
     }
 }

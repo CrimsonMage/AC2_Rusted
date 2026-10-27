@@ -130,6 +130,20 @@ impl GmSceneInfo {
         })
     }
 
+    /// `PList<gmSceneInfo>::UnPack`: a count, then each scene.
+    pub(super) fn read_list(r: &mut Reader<'_>) -> Result<Vec<Self>, ProtocolError> {
+        let n = count(r, 4)?;
+        (0..n).map(|_| Self::read(r)).collect()
+    }
+
+    /// `PList<gmSceneInfo>::Pack`: a count, then each scene's `StreamPack`.
+    pub(super) fn write_list(list: &[Self], w: &mut Writer) {
+        w.u32(list.len() as u32);
+        for scene in list {
+            scene.write(w);
+        }
+    }
+
     pub(super) fn write(&self, w: &mut Writer) {
         w.u32(self.id);
         self.name.write(w);

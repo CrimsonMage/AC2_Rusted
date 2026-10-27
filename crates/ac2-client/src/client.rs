@@ -169,6 +169,13 @@ pub struct Client {
     pub(crate) portal: PortalSpace,
     /// Between a teleport's start and its end (`SmartBox::HandleTeleport` to the placement).
     pub(crate) teleporting: bool,
+    /// `gmGamePlayUI`'s story slot (`_storyUI`) and its portal-scene flag.
+    pub(crate) story: ac2_ui::GameplayStory,
+    /// The scenes the story holding the slot was made from, for `HandlePlayScenesDone`.
+    pub(crate) story_scenes: Vec<ac2_weenie::SceneInfo>,
+    /// Whether mouse look may be on: a story holding the slot turns it off
+    /// (`CM_UI::SendNotice_UpdateCanMouseLook`).
+    pub(crate) mouse_look_allowed: bool,
 }
 
 fn physics_position(cell: u32, origin: [f32; 3], rotation: [f32; 4]) -> Position {
@@ -234,6 +241,9 @@ impl Client {
             friends: Default::default(),
             portal: PortalSpace::new(),
             teleporting: false,
+            story: Default::default(),
+            story_scenes: Vec::new(),
+            mouse_look_allowed: true,
         }
     }
 
@@ -312,6 +322,10 @@ impl Client {
         self.apply_stories(&dispatched);
         self.run_scripts(&mut dispatched);
         events.extend(dispatched);
+        // The script notices of this frame reach the story slot (`CM_Quest`, `CM_UI`).
+        let mut story = self.apply_story_notices(&events);
+        story.extend(self.story_frame());
+        events.extend(story);
         let produced = self.radar_use_time(&events);
         events.extend(produced);
         self.notices_seen(&events);
@@ -327,6 +341,7 @@ impl Client {
     fn input_handlers(&mut self, input: &FrameInput) {
         let subject = self.camera_subject(false);
         if let Some(state) = input.mouse_look_state {
+            let state = state && self.mouse_look_allowed;
             self.camera.set_mouse_look(state, subject.as_ref());
         }
         if let Some(state) = input.first_person_state {

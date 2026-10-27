@@ -70,6 +70,8 @@ pub mod ntype {
     pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
     pub const GM_SCENE_INFO: u32 = 0xA3;
+    /// `PList<gmSceneInfo>`: the scenes a play sequence or a portal scene carries.
+    pub const GM_SCENE_INFO_LIST: u32 = 0xA4;
     pub const SELECTION_INFO: u32 = 0xAB;
     pub const SHORTCUT_INFO: u32 = 0xAC;
     pub const SKILL_UI_NODE: u32 = 0xAE;
@@ -100,6 +102,8 @@ pub enum NativeObject {
     GameplayOptionsProfile(Box<GameplayOptionsProfile>),
     GmRaceSexInfo(GmRaceSexInfo),
     GmSceneInfo(Box<GmSceneInfo>),
+    /// `PList<gmSceneInfo>` (native 0xA4): the scenes in list order.
+    GmSceneInfoList(Vec<GmSceneInfo>),
     ShortcutInfo(ShortcutInfo),
     SkillUiNode(Box<SkillUiNode>),
     EffectUiNode(Box<EffectUiNode>),
@@ -131,6 +135,7 @@ impl NativeObject {
             Self::GameplayOptionsProfile(_) => ntype::GAMEPLAY_OPTIONS_PROFILE,
             Self::GmRaceSexInfo(_) => ntype::GM_RACE_SEX_INFO,
             Self::GmSceneInfo(_) => ntype::GM_SCENE_INFO,
+            Self::GmSceneInfoList(_) => ntype::GM_SCENE_INFO_LIST,
             Self::ShortcutInfo(_) => ntype::SHORTCUT_INFO,
             Self::SkillUiNode(_) => ntype::SKILL_UI_NODE,
             Self::EffectUiNode(_) => ntype::EFFECT_UI_NODE,
@@ -164,6 +169,7 @@ impl NativeObject {
             }
             ntype::GM_RACE_SEX_INFO => Self::GmRaceSexInfo(GmRaceSexInfo::read(r)?),
             ntype::GM_SCENE_INFO => Self::GmSceneInfo(Box::new(GmSceneInfo::read(r)?)),
+            ntype::GM_SCENE_INFO_LIST => Self::GmSceneInfoList(GmSceneInfo::read_list(r)?),
             ntype::SHORTCUT_INFO => Self::ShortcutInfo(ShortcutInfo::read(r)?),
             ntype::SKILL_UI_NODE => Self::SkillUiNode(Box::new(SkillUiNode::read(r)?)),
             ntype::EFFECT_UI_NODE => Self::EffectUiNode(Box::new(EffectUiNode::read(r)?)),
@@ -200,6 +206,7 @@ impl NativeObject {
             Self::GameplayOptionsProfile(profile) => profile.write(w),
             Self::GmRaceSexInfo(info) => info.write(w),
             Self::GmSceneInfo(info) => info.write(w),
+            Self::GmSceneInfoList(list) => GmSceneInfo::write_list(list, w),
             Self::ShortcutInfo(shortcut) => shortcut.write(w),
             Self::SkillUiNode(node) => node.write(w),
             Self::EffectUiNode(node) => node.write(w),

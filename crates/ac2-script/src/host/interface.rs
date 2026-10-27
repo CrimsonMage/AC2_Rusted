@@ -19,6 +19,18 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007D_001E, add_object_to_be_destroyed);
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
     efuns.register(0x0080_0057, set_no_draw_physics);
+    efuns.register(0x0080_002C, stop_all_camera_fx);
+}
+
+/// `gCWPhysicsObject::CallEFun_StopAllCameraFX` (`CWPhysicsObject::StopAllCameraFX` ->
+/// `CPhysicsObj`'s camera effects): the weenie's physics object's camera effects end. The client
+/// has no camera effect manager yet, so the stop has nothing to end here (a known gap); the call
+/// only checks `this` and returns, as retail's does.
+fn stop_all_camera_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    match this_weenie(vm, ctx) {
+        Ok(_) => InterpStatus::Success,
+        Err(status) => status,
+    }
 }
 
 /// `gCWPhysicsObject::CallEFun_SetNoDrawPhysics(flag)` -> `CWPhysicsObject::SetNoDrawPhysics` ->

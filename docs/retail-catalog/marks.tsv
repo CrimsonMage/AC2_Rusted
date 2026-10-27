@@ -1224,6 +1224,7 @@ key	status	note
 0045b960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045ba40	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
+0045bc60	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 0045bd60	~	no native caller in the call graph; IFun 0xB400AA not wired
 0045c4a0	~	frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -1342,7 +1343,7 @@ key	status	note
 004688c0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468940	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468970	_	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-004689a0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004689a0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 00468a10	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468a50	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 00468aa0	x	ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
@@ -1355,7 +1356,7 @@ key	status	note
 00468d20	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468db0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468e00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-00468e50	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+00468e50	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 00468ec0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 00468f10	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 00468f70	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -1591,6 +1592,27 @@ key	status	note
 00471430	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 00471490	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 00471570	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00471720	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471790	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471810	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004718d0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471950	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004719b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471a10	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471a70	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471ad0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471b30	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471b90	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471bf0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471c50	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471cb0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471d10	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471da0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471e10	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471e80	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471ef0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00471f60	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00472090	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00472260	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004722c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00472320	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -1617,6 +1639,21 @@ key	status	note
 00472e20	x	ac2-script glue::quests / ac2-net native::quest
 00472ed0	x	ac2-script glue::quests / ac2-net native::quest
 00472f80	x	ac2-script glue::quests / ac2-net native::quest
+00473030	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473090	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473150	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004731b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473270	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004732d0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473330	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004733f0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004734b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473520	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473590	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473600	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+00473670	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004736e0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
+004738e0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00473a50	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2099,6 +2136,7 @@ key	status	note
 004b7e60	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7f00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7fa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
 004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
