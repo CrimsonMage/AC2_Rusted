@@ -468,7 +468,34 @@ pub fn string_info_to_net(info: &StringInfo) -> net::StringInfo {
 /// `gmSceneInfo::StreamPack` of a scene: its keyframes' `gmKeyframe::StreamPack`. The movie
 /// track's file name is not set by the scripts this client runs (`SetMovieTrack` is unbound), so
 /// it stays empty.
-fn scene_to_net(scene: &ac2_weenie::SceneInfo) -> net::GmSceneInfo {
+/// A `gmSceneInfo` from its `StreamPack` form: the inverse of [`scene_to_net`]. The movie
+/// track's file name is not kept (the scripts do not set one).
+pub fn scene_from_net(scene: &net::GmSceneInfo) -> ac2_weenie::SceneInfo {
+    ac2_weenie::SceneInfo {
+        id: scene.id,
+        name: scene.name.clone(),
+        act_id: scene.act_id,
+        scene_num: scene.scene_num,
+        hidden: scene.is_hidden != 0,
+        playable: scene.is_playable != 0,
+        keyframes: scene
+            .keyframes
+            .iter()
+            .map(|k| ac2_weenie::Keyframe {
+                scene_id: k.scene_id,
+                frame_num: k.frame_num,
+                duration: k.duration,
+                video: k.video_fragment,
+                audio: k.audio_fragment,
+                voice: k.voice_fragment,
+                subtitle: k.text_fragment.clone(),
+                defined_tracks: k.defined_tracks,
+            })
+            .collect(),
+    }
+}
+
+pub(crate) fn scene_to_net(scene: &ac2_weenie::SceneInfo) -> net::GmSceneInfo {
     net::GmSceneInfo {
         id: scene.id,
         name: scene.name.clone(),

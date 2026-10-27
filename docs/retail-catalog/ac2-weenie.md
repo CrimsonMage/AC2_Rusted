@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 302 done, 150 partial, 1439 to do, 13 skipped.
+1904 retail functions: 304 done, 150 partial, 1437 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (87/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (88/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -729,7 +729,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70
 - [ ] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10
 - [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0
-- [ ] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40
+- [x] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [ ] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0
 - [~] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (136/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (137/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1091,7 +1091,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 - [~] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0 — client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
-- [ ] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0
+- [x] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [ ] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20
 - [x] `gmCWInterface::UploadGameOptions` · 00451ac0 · legions 00452c40 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [ ] `gmCWInterface::UploadChatOptions` · 00451ae0 · legions 00452c60

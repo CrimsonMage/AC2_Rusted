@@ -83,6 +83,7 @@ mod placement;
 pub mod pregame;
 mod quests_panel;
 pub use quests_panel::QuestsUi;
+pub use story_quests::{StoryQuestAction, StoryQuestsUi, STORY_CODE_LIST};
 mod catalog;
 #[cfg(test)]
 mod catalog_tests;
@@ -122,6 +123,9 @@ pub use gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene}
 mod story;
 #[cfg(test)]
 mod story_layout_tests;
+mod story_quests;
+#[cfg(test)]
+mod story_quests_tests;
 pub use story::{StoryField, StoryFrame, StoryPlayback, StoryShow, StoryStep, SKIP_STORY_MESSAGE};
 #[cfg(test)]
 mod story_tests;

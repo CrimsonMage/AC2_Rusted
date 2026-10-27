@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 143 done, 18 partial, 328 to do, 10 skipped.
+499 retail functions: 150 done, 18 partial, 319 to do, 12 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -292,23 +292,23 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1a0 · legions 005ccef0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [x] `FellowshipAdaptor::FellowshipAdaptor` · 0060c1f0 · legions 005ccf40 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/shared/src/quest/gmactinfo.cpp.c` (0/12)
+## `ac2/shared/src/quest/gmactinfo.cpp.c` (7/12)
 
 ### gmActInfo
-- [ ] `gmActInfo::GetActName` · 0060b900 · legions 005cc650
-- [ ] `gmActInfo::StreamPack` · 0060b920 · legions 005cc670
-- [ ] `gmActInfo::AddScene` · 0060b990 · legions 005cc6e0
-- [ ] `gmActInfo::gmActInfo` · 0060b9e0 · legions 005cc730
-- [ ] `gmActInfo::~gmActInfo` · 0060ba40 · legions 005cc790
+- [x] `gmActInfo::GetActName` · 0060b900 · legions 005cc650 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `gmActInfo::StreamPack` · 0060b920 · legions 005cc670 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `gmActInfo::AddScene` · 0060b990 · legions 005cc6e0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `gmActInfo::gmActInfo` · 0060b9e0 · legions 005cc730 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `gmActInfo::~gmActInfo` · 0060ba40 · legions 005cc790 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 
 ### PList<gmSceneInfo>
 - [ ] `PList<gmSceneInfo>::operator=` · 0060ba80 · legions 005cc7d0
 
 ### gmActInfo
-- [ ] `gmActInfo::DumpScenesW` · 0060bac0 · legions 005cc810
-- [ ] `gmActInfo::Init` · 0060bc10 · legions 005cc960
-- [ ] `gmActInfo::GetOrderedSceneList` · 0060bcb0 · legions 005cca00
-- [ ] `gmActInfo::DumpW` · 0060bce0 · legions 005cca30
+- [-] `gmActInfo::DumpScenesW` · 0060bac0 · legions 005cc810 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
+- [x] `gmActInfo::Init` · 0060bc10 · legions 005cc960 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `gmActInfo::GetOrderedSceneList` · 0060bcb0 · legions 005cca00 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [-] `gmActInfo::DumpW` · 0060bce0 · legions 005cca30 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
 - [ ] `gmActInfo::operator=` · 0060be40 · legions 005ccb90
 - [ ] `gmActInfo::gmActInfo` · 0060be90 · legions 005ccbe0
 

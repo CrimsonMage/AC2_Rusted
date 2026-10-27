@@ -1730,6 +1730,7 @@
 009b0056 gGameplayOptionsProfile::CallEFun_GetShowPetUI
 009c0001 ggmActInfo::CallEFun_Init
 009c0002 ggmActInfo::CallEFun_AddScene
+009c0003 ggmActInfo::CallEFun_GetActID
 009d0001 ggmActInfoList::CallEFun_insert_sort
 009d0002 ggmActInfoList::CallEFun_pop_front
 009e0001 ggmCharGenResult::CallEFun_GetName

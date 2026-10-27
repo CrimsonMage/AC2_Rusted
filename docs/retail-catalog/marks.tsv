@@ -146,6 +146,8 @@ key	status	note
 004129f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412a20	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412b10	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
+00412b90	x	
+00412c50	~	
 00412d00	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412e30	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412e60	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -503,7 +505,7 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
-0042c030	~	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+0042c030	x	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 0042c1e0	~	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 0042c2d0	~	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 0042c5a0	~	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
@@ -807,6 +809,19 @@ key	status	note
 0043f130	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
 0043f1e0	x	ac2-ui journal_quests.rs recv_notice_update_quests (all codes); quests_panel.rs recv_notice makes the tabs active; client ui_quests.rs quest_notice fetches the list for code 2
 0043f570	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+0043f590	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f5b0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f610	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f680	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f6c0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f710	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f8b0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043f9a0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+0043fa30	~	ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
+0043fd60	~	ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
+0043fea0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+004400d0	x	ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+00440110	x	ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 00440240	x	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): FinishItemDrop is gmCWInterface::MoveItem(item, player, target, fromSlot, 0, quantity)
 004402c0	x	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): StartFind3DTarget asks the pick at the pointer (one search at a time)
 00440320	~	ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): Start3DDrag puts the selection's image (first icon layer) on the field's ItemIcon, dragable, ShortcutType 0x40000002 and the item as ShortcutData, and starts the drag; the icon description's layers are not composed. A drag of a world item into the pack is not traced (HandleListBoxDrop for an item with no FromID)
@@ -1229,6 +1244,7 @@ key	status	note
 004519c0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 004519f0	_	ac2-weenie shell::HistoryList (CPlayer 0x75/0x4B/0x11D/0x46 over HistoryList 0x3/0x8): OnlineSession::chat_history(Retell|Reply, prev)
 00451a20	~	client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
+00451a60	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 00451ac0	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451b20	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451b50	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
@@ -1351,6 +1367,7 @@ key	status	note
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 0045bc60	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 0045bd60	~	no native caller in the call graph; IFun 0xB400AA not wired
+0045c0f0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 0045c4a0	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -1813,6 +1830,12 @@ key	status	note
 00474180	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004741f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004742c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
+004743f0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+004744b0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+00474530	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+004745c0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+00474640	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+004746b0	-	debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 004747f0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00474850	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -4899,6 +4922,15 @@ key	status	note
 0060b4b0	x	ac2-script glue::quests / ac2-net native::quest
 0060b500	x	ac2-script glue::quests / ac2-net native::quest
 0060b590	x	ac2-script glue::quests / ac2-net native::quest
+0060b900	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060b920	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060b990	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060b9e0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060ba40	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060bac0	-	debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
+0060bc10	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060bcb0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+0060bce0	-	debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
 0060c010	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c0f0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 0060c1a0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)

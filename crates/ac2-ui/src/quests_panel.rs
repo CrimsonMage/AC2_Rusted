@@ -12,17 +12,21 @@
 
 use std::sync::Arc;
 
-use ac2_net::protocol::GmQuestInfo;
+use ac2_net::protocol::{GmActInfo, GmQuestInfo};
 
 use crate::element::UiTree;
-use crate::journal_quests::{find_named, JournalQuestsUi, QuestTab};
+use crate::journal_quests::{find_named, JournalQuestsUi, JournalSource, QuestTab};
 use crate::layout::LayoutDesc;
+use crate::mouse::UiMessage;
+use crate::story_quests::{StoryQuestAction, StoryQuestsUi};
 use crate::token::tokenize;
 
 /// `gmQuestsUI`'s state: the journal and the panel's shown state.
 #[derive(Debug, Clone)]
 pub struct QuestsUi {
     journal: JournalQuestsUi,
+    /// `m_storyQuestsUI`: the Story page's act list.
+    story: StoryQuestsUi,
     /// The panel's own shown state (`UIFramework::IsShown`).
     shown: bool,
 }
@@ -33,8 +37,45 @@ impl QuestsUi {
     pub fn create(tree: &UiTree, toolbar: &Arc<LayoutDesc>) -> Self {
         Self {
             journal: JournalQuestsUi::create(tree, toolbar),
+            story: StoryQuestsUi::create(tree, toolbar),
             shown: false,
         }
+    }
+
+    /// The Story page (`gmStoryQuestsUI`).
+    pub fn story(&self) -> &StoryQuestsUi {
+        &self.story
+    }
+
+    /// The Story page's notice (`gmStoryQuestsUI::RecvNotice_UpdateStoryQuests`): the Story tab
+    /// becomes active when the panel was hidden.
+    pub fn recv_story_notice(&mut self, tree: &mut UiTree, code: u32, act: u32) {
+        if self.story.recv_notice(tree, code, act, self.shown) {
+            self.set_active_panel(tree, QuestTab::Story);
+        }
+    }
+
+    /// The global loop's Story page reload (`gmStoryQuestsUI::ListenToMessage` 0xffff0005): when
+    /// one is pending, `acts` (the script's list) lays the page out.
+    pub fn story_global_loop(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn JournalSource,
+        acts: impl FnOnce() -> Vec<GmActInfo>,
+    ) {
+        if self.story.take_reload() {
+            let acts = acts();
+            self.story.reload(tree, source, acts);
+        }
+    }
+
+    /// A press on the Story page (see [`StoryQuestsUi::message`]).
+    pub fn story_message(
+        &mut self,
+        tree: &UiTree,
+        message: &UiMessage,
+    ) -> Option<StoryQuestAction> {
+        self.story.message(tree, message)
     }
 
     /// The journal (`gmJournalQuestsUI`).
@@ -58,6 +99,7 @@ impl QuestsUi {
     pub fn show(&mut self, tree: &mut UiTree, shown: bool) {
         self.shown = shown;
         self.journal.show(shown);
+        self.story.show(shown);
         if shown {
             if let Some(button) = find_named(tree, "QuestButton") {
                 tree.set_state(button, tokenize("unchanged"));
@@ -95,6 +137,7 @@ impl QuestsUi {
         let name = match tab {
             QuestTab::Underway => "UnderwayTab",
             QuestTab::Finished => "FinishedTab",
+            QuestTab::Story => "StoryTab",
         };
         if let Some(element) = find_named(tree, name) {
             tree.start_use_active(element);

@@ -122,6 +122,23 @@ impl Client {
         self.story_step(events);
     }
 
+    /// The Story page's press on a playable scene (`gmStoryQuestsUI::ListenToMessage`): the scene
+    /// plays in the story slot as a play sequence of its own (`CM_Quest::SendNotice_PlaySequence`
+    /// with one scene). The slot's events join the next frame.
+    pub(crate) fn play_story_scene(&mut self, scene: SceneInfo) {
+        let scenes = vec![scene];
+        let events = self.story.play_sequence(&story_scenes(&scenes));
+        if events
+            .iter()
+            .any(|e| matches!(e, StoryEvent::MouseLook(false)))
+        {
+            self.story_scenes = scenes.clone();
+        }
+        let mut out = Vec::new();
+        self.story_events(events, &scenes, &mut out);
+        self.story_outbox.extend(out);
+    }
+
     /// Acts on the events a call outside the frame made, into [`Client::story_outbox`].
     fn story_step(&mut self, events: Vec<StoryEvent>) {
         let mut out = Vec::new();

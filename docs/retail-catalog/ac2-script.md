@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1400 done, 108 partial, 880 to do, 80 skipped.
+2468 retail functions: 1405 done, 108 partial, 874 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -234,19 +234,19 @@ Legend and workflow: [README](README.md).
 - [x] `gGameplayOptionsProfile::CallEFun_InqShortcutArray` · 00477990 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_InqUISaveLocations` · 00477aa0 — ac2-script glue::options / examination (Legions layout and efun switch)
 
-## `ac2/shared/src/interp/glue/ggmactinfo.cpp.c` (0/4)
+## `ac2/shared/src/interp/glue/ggmactinfo.cpp.c` (3/4)
 
 ### ggmActInfo
-- [ ] `ggmActInfo::CallEFun_Init` · 00474530
-- [ ] `ggmActInfo::CallEFun_AddScene` · 004745c0
-- [ ] `ggmActInfo::CallEFun_GetActID` · 00474640
-- [ ] `ggmActInfo::CallEFun_DumpW` · 004746b0
+- [x] `ggmActInfo::CallEFun_Init` · 00474530 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `ggmActInfo::CallEFun_AddScene` · 004745c0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `ggmActInfo::CallEFun_GetActID` · 00474640 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [-] `ggmActInfo::CallEFun_DumpW` · 004746b0 — debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
 
-## `ac2/shared/src/interp/glue/ggmactinfolist.cpp.c` (0/2)
+## `ac2/shared/src/interp/glue/ggmactinfolist.cpp.c` (2/2)
 
 ### ggmActInfoList
-- [ ] `ggmActInfoList::CallEFun_pop_front` · 004743f0
-- [ ] `ggmActInfoList::CallEFun_insert_sort` · 004744b0
+- [x] `ggmActInfoList::CallEFun_pop_front` · 004743f0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
+- [x] `ggmActInfoList::CallEFun_insert_sort` · 004744b0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 
 ## `ac2/shared/src/interp/glue/ggmchargenresult.cpp.c` (21/21)
 

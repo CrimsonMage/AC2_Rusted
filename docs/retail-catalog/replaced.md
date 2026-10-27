@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 34 done, 0 partial, 0 to do, 2024 skipped.
+2058 retail functions: 36 done, 0 partial, 0 to do, 2022 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -1692,11 +1692,11 @@ Legend and workflow: [README](README.md).
 - [-] `List<gmJournalQuestsUI::QuestDescriptor>::flush` · 0043eec0 · legions 0043f770 — Rust std replaces it
 - [-] `List<gmJournalQuestsUI::QuestDescriptor>::insert_unique_sort` · 0043efa0 · legions 0043f850 — Rust std replaces it
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (0/4)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (2/4)
 
 ### List<gmActInfo>
-- [-] `List<gmActInfo>::pop_front` · 0043f5b0 · legions 0043fe60 — Rust std replaces it
-- [-] `List<gmActInfo>::flush` · 0043f610 · legions 0043fec0 — Rust std replaces it
+- [x] `List<gmActInfo>::pop_front` · 0043f5b0 · legions 0043fe60 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `List<gmActInfo>::flush` · 0043f610 · legions 0043fec0 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [-] `List<gmActInfo>::push_back` · 0043f7d0 · legions 00440030 — Rust std replaces it
 
 ### IntrusiveHashTable<unsigned_long,HashTableData<unsigned_long,int>_*>

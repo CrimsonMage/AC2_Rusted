@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 932 done, 353 partial, 893 to do, 69 skipped.
+2247 retail functions: 943 done, 355 partial, 880 to do, 69 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -607,13 +607,13 @@ Legend and workflow: [README](README.md).
 - [x] `gmStackUI::ListenToMessage` · 00424e20 · legions 00424c10 — ac2-ui stack.rs
 - [x] `gmStackUI::RecvNotice_InitStackUI` · 00424ed0 · legions 00424cc0 — ac2-ui stack.rs
 
-## `ac2/client/src/ui/gameplay/gmstoryui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/gmstoryui.cpp.c` (1/11)
 
 ### gmKeyframe
 - [ ] `gmKeyframe::GetSubtitle` · 0042bf80 · legions 0042bd40
 
 ### gmStoryUI
-- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
+- [x] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 - [~] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 - [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 - [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
@@ -1426,24 +1426,24 @@ Legend and workflow: [README](README.md).
 - [x] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60 — ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
 - [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
 
-## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (9/11)
 
 ### gmSceneInfo
-- [ ] `gmSceneInfo::GetName` · 0043f590 · legions 0043fe40
+- [x] `gmSceneInfo::GetName` · 0043f590 · legions 0043fe40 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 
 ### PList<gmActInfo>
-- [ ] `PList<gmActInfo>::PList<gmActInfo>` · 0043f680 · legions 0043ff30
-- [ ] `PList<gmActInfo>::Pack` · 0043f6c0 · legions 0062f690
-- [ ] `PList<gmActInfo>::UnPack` · 0043f710 · legions 0043ff84
+- [x] `PList<gmActInfo>::PList<gmActInfo>` · 0043f680 · legions 0043ff30 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `PList<gmActInfo>::Pack` · 0043f6c0 · legions 0062f690 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `PList<gmActInfo>::UnPack` · 0043f710 · legions 0043ff84 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 
 ### gmStoryQuestsUI
-- [ ] `gmStoryQuestsUI::~gmStoryQuestsUI` · 0043f8b0 · legions 00440110
-- [ ] `gmStoryQuestsUI::RecvNotice_UpdateStoryQuests` · 0043f9a0 · legions 00440200
-- [ ] `gmStoryQuestsUI::ReloadActs` · 0043fa30 · legions 00440290
-- [ ] `gmStoryQuestsUI::Show` · 0043fd60 · legions 004405c0
-- [ ] `gmStoryQuestsUI::ListenToMessage` · 0043fea0 · legions 00440700
-- [ ] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930
-- [ ] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970
+- [x] `gmStoryQuestsUI::~gmStoryQuestsUI` · 0043f8b0 · legions 00440110 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `gmStoryQuestsUI::RecvNotice_UpdateStoryQuests` · 0043f9a0 · legions 00440200 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [~] `gmStoryQuestsUI::ReloadActs` · 0043fa30 · legions 00440290 — ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
+- [~] `gmStoryQuestsUI::Show` · 0043fd60 · legions 004405c0 — ac2-ui story_quests.rs reload/show: every act listed (the act record has no physics-object word, see module doc); Show clears the updated act when hidden, from the panel's own shown state
+- [x] `gmStoryQuestsUI::ListenToMessage` · 0043fea0 · legions 00440700 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
+- [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (9/22)
 
@@ -1846,7 +1846,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::Create` · 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::Register` · 00411240 · legions 00411220 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 
-## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (8/15)
+## `ac2/client/src/ui/pregame/gmcreditsui.cpp.c` (9/15)
 
 ### gmCreditsUI
 - [x] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1855,8 +1855,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmCreditsUI::GetY` · 004129f0 · legions 00412870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Close` · 00412b10 · legions 00412990 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [ ] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10
-- [ ] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0
+- [x] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10
+- [~] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0
 - [x] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs

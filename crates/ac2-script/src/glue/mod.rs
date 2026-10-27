@@ -11,6 +11,7 @@
 //! `fp - 1 - k` (a 64-bit argument takes two slots, low word lower) and writes the return
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
+mod act_info;
 mod behavior;
 mod chargen;
 mod cparse;
@@ -83,6 +84,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     places::register(efuns);
     social::register(efuns);
     quests::register(efuns);
+    act_info::register(efuns);
     story::register(efuns);
     ui_natives::register(efuns);
     craft_natives::register(efuns);

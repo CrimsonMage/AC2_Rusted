@@ -45,6 +45,8 @@ const TIME_THRESHOLDS: (i64, i64, i64) = (1, 1, 60);
 pub enum QuestTab {
     Underway,
     Finished,
+    /// The Story page (`gmStoryQuestsUI`, `story_quests`).
+    Story,
 }
 
 /// The source of the strings the journal shows.
@@ -236,19 +238,18 @@ impl JournalQuestsUi {
         match page {
             QuestTab::Underway => insert_unique_sort(&mut self.underway, desc),
             QuestTab::Finished => insert_unique_sort(&mut self.finished, desc),
+            // The Story page holds acts, not quests.
+            QuestTab::Story => false,
         };
     }
 
     /// `RemoveQuestElement` and the list removal for the quest `id` on `page`; the quest's id is
     /// cleared as the updated one when it was that one (`RecvNotice_UpdateQuests` case 4 only).
     fn remove_quest_from(&mut self, tree: &mut UiTree, page: QuestTab, id: u32) -> bool {
-        let list = match page {
-            QuestTab::Underway => self.underway_list,
-            QuestTab::Finished => self.finished_list,
-        };
-        let quests = match page {
-            QuestTab::Underway => &mut self.underway,
-            QuestTab::Finished => &mut self.finished,
+        let (list, quests) = match page {
+            QuestTab::Underway => (self.underway_list, &mut self.underway),
+            QuestTab::Finished => (self.finished_list, &mut self.finished),
+            QuestTab::Story => return false,
         };
         let Some(at) = position(quests, id) else {
             return false;

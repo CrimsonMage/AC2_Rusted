@@ -120,6 +120,9 @@ pub mod ntype {
     pub const TURBINE_USER_STATUS: u32 = 0xAF;
     pub const UI_SHOP: u32 = 0x380A;
     pub const UI_SHOP_SALE: u32 = 0x380B;
+    /// `gmActInfo` and `List<gmActInfo>` (the story quests' acts).
+    pub const GM_ACT_INFO: u32 = 0x9C;
+    pub const GM_ACT_INFO_LIST: u32 = 0x9D;
     pub const GM_QUEST_INFO: u32 = 0xA0;
     pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const ALLEGIANCE_DATA_ADAPTOR: u32 = 0x82;
@@ -339,6 +342,12 @@ impl NativeObject {
             )),
             ntype::GM_QUEST_INFO_LIST => NativeObject::Wire(Box::new(
                 ac2_net::protocol::NativeObject::GmQuestInfoList(Vec::new()),
+            )),
+            ntype::GM_ACT_INFO => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmActInfo(Box::default()),
+            )),
+            ntype::GM_ACT_INFO_LIST => NativeObject::Wire(Box::new(
+                ac2_net::protocol::NativeObject::GmActInfoList(Vec::new()),
             )),
             ntype::FELLOW_ADAPTOR => NativeObject::Fellow(Box::new(social::fellow())),
             ntype::FELLOWSHIP_ADAPTOR => NativeObject::Fellowship(Box::new(social::fellowship())),

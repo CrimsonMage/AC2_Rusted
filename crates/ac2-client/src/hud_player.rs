@@ -374,6 +374,7 @@ impl HudView {
             }
             if let Some(panel) = quests.as_mut() {
                 crate::ui_quests::quest_notice(panel, tree, &player, notice);
+                crate::ui_quests::story_quest_notice(panel, tree, notice);
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::allegiance_notice(page, tree, dialogs, &player, notice);
@@ -495,6 +496,9 @@ impl HudView {
                 panel.sync(tree, bar.shown(tree, ac2_ui::ToolbarChild::Quest));
             }
             panel.journal_mut().global_loop(tree, &player, *now);
+            panel.story_global_loop(tree, &player, || {
+                player.client.borrow_mut().inq_act_info_list()
+            });
         }
         for message in &messages {
             // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
@@ -545,6 +549,9 @@ impl HudView {
             }
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);
+                if let Some(action) = panel.story_message(tree, message) {
+                    crate::ui_quests::play_story_scene(panel.story(), action, &player);
+                }
             }
             if let Some(bar) = vitals.as_mut() {
                 bar.message(tree, message, &player);

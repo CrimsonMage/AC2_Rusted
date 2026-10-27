@@ -9,6 +9,7 @@
 //! `FellowshipAdaptor`) pack nothing. Other types (the iterators, `Frame`, `Plane`, ...) are
 //! refused as unsupported.
 
+mod act;
 mod containers;
 mod examination;
 mod gm;
@@ -16,6 +17,7 @@ mod options;
 mod quest;
 mod structs;
 
+pub use act::GmActInfo;
 pub use containers::{HashKey, ScriptHash, ScriptList};
 pub use examination::{
     ExaminationDataNode, ExaminationProfile, ExaminationRequest, ExaminationValue, SelectionInfo,
@@ -66,6 +68,9 @@ pub mod ntype {
     pub const EXAMINATION_PROFILE: u32 = 0x99;
     pub const EXAMINATION_REQUEST: u32 = 0x9A;
     pub const GAMEPLAY_OPTIONS_PROFILE: u32 = 0x9B;
+    /// `gmActInfo` (the story quests' acts) and `List<gmActInfo>`.
+    pub const GM_ACT_INFO: u32 = 0x9C;
+    pub const GM_ACT_INFO_LIST: u32 = 0x9D;
     pub const GM_QUEST_INFO: u32 = 0xA0;
     pub const GM_QUEST_INFO_LIST: u32 = 0xA1;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
@@ -111,6 +116,10 @@ pub enum NativeObject {
     GmQuestInfo(Box<GmQuestInfo>),
     /// `gmQuestInfoList` (`PList<gmQuestInfo>`), in list order.
     GmQuestInfoList(Vec<GmQuestInfo>),
+    /// `gmActInfo`.
+    GmActInfo(Box<GmActInfo>),
+    /// `List<gmActInfo>`, in list order.
+    GmActInfoList(Vec<GmActInfo>),
     /// A type that packs no data (the allegiance and fellowship adaptors): its type id.
     Empty(u32),
 }
@@ -141,6 +150,8 @@ impl NativeObject {
             Self::EffectUiNode(_) => ntype::EFFECT_UI_NODE,
             Self::GmQuestInfo(_) => ntype::GM_QUEST_INFO,
             Self::GmQuestInfoList(_) => ntype::GM_QUEST_INFO_LIST,
+            Self::GmActInfo(_) => ntype::GM_ACT_INFO,
+            Self::GmActInfoList(_) => ntype::GM_ACT_INFO_LIST,
             Self::Empty(native_type) => *native_type,
         }
     }
@@ -175,6 +186,8 @@ impl NativeObject {
             ntype::EFFECT_UI_NODE => Self::EffectUiNode(Box::new(EffectUiNode::read(r)?)),
             ntype::GM_QUEST_INFO => Self::GmQuestInfo(Box::new(GmQuestInfo::read(r)?)),
             ntype::GM_QUEST_INFO_LIST => Self::GmQuestInfoList(GmQuestInfo::read_list(r)?),
+            ntype::GM_ACT_INFO => Self::GmActInfo(Box::new(GmActInfo::read(r)?)),
+            ntype::GM_ACT_INFO_LIST => Self::GmActInfoList(GmActInfo::read_list(r)?),
             ntype::ALLEGIANCE_DATA_ADAPTOR
             | ntype::ALLEGIANCE_PROFILE_ADAPTOR
             | ntype::FELLOW_ADAPTOR
@@ -212,6 +225,8 @@ impl NativeObject {
             Self::EffectUiNode(node) => node.write(w),
             Self::GmQuestInfo(quest) => quest.write(w),
             Self::GmQuestInfoList(list) => GmQuestInfo::write_list(list, w),
+            Self::GmActInfo(act) => act.write(w),
+            Self::GmActInfoList(list) => GmActInfo::write_list(list, w),
             Self::Empty(_) => {}
         }
     }
