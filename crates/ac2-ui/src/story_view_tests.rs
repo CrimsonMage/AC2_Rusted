@@ -5,6 +5,7 @@
 use std::sync::Arc;
 
 use ac2_db::ResourceStore;
+use ac2_net::protocol::StringInfo;
 
 use crate::element::UiTree;
 use crate::story::{StoryField, StoryShow};
@@ -20,6 +21,11 @@ fn field_root(tree: &UiTree, name: &str) -> usize {
         .unwrap_or_else(|| panic!("{name} is a root"))
 }
 
+/// A literal subtitle's text (the test's renderer).
+fn literal(info: &StringInfo) -> String {
+    info.literal.clone().unwrap_or_default()
+}
+
 /// A keyframe for `field` with `image` and `subtitle`.
 fn show(field: StoryField, image: u32, changed: bool, subtitle: &str) -> StoryShow {
     StoryShow {
@@ -29,7 +35,7 @@ fn show(field: StoryField, image: u32, changed: bool, subtitle: &str) -> StorySh
         image_changed: changed,
         music: None,
         voice: None,
-        subtitle: Some(subtitle.to_owned()),
+        subtitle: Some(StringInfo::literal(subtitle)),
         seconds: 5.0,
     }
 }
@@ -62,7 +68,7 @@ fn the_story_fields_draw_each_keyframe_and_hide_again() {
     assert!(!tree.get(field_root(tree, "StoryField1")).unwrap().visible());
 
     // The first keyframe goes into field 1 (its `Frame1` state) with the subtitle.
-    story.show(tree, &show(StoryField::First, 100, true, "Hello"));
+    story.show(tree, &show(StoryField::First, 100, true, "Hello"), &literal);
     assert!(story.is_shown());
     assert!(tree.get(field_root(tree, "StoryField1")).unwrap().visible());
     assert_eq!(
@@ -75,7 +81,11 @@ fn the_story_fields_draw_each_keyframe_and_hide_again() {
     );
 
     // A new image in field 2 cross-fades: field 2 takes `Frame2`, field 1 goes back.
-    story.show(tree, &show(StoryField::Second, 200, true, "Second"));
+    story.show(
+        tree,
+        &show(StoryField::Second, 200, true, "Second"),
+        &literal,
+    );
     assert_eq!(
         tree.get(field_root(tree, "StoryField2")).unwrap().state(),
         tokenize("Frame2")

@@ -205,17 +205,14 @@ fn story_scenes(scenes: &[SceneInfo]) -> Vec<StoryScene> {
         .collect()
 }
 
-/// One keyframe's tracks, subtitle and duration as the sequencer reads them. A subtitle that is
-/// a string-table entry (no literal) is left out: the table is not rendered here yet.
+/// One keyframe's tracks, subtitle and duration as the sequencer reads them. The subtitle is its
+/// `StringInfo`, rendered on the HUD (a string-table entry or a literal).
 fn story_frame(keyframe: &Keyframe) -> StoryFrame {
     StoryFrame {
         image: keyframe.has_video().then_some(keyframe.video),
         music: keyframe.has_audio().then_some(keyframe.audio),
         voice: keyframe.has_voice().then_some(keyframe.voice),
-        subtitle: keyframe
-            .has_subtitle()
-            .then(|| keyframe.subtitle.literal.clone())
-            .flatten(),
+        subtitle: keyframe.has_subtitle().then(|| keyframe.subtitle.clone()),
         duration: keyframe.has_duration().then_some(keyframe.duration),
     }
 }
@@ -228,5 +225,36 @@ impl Client {
         let mut out = self.apply_story_notices(events);
         out.extend(self.story_frame());
         out
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ac2_net::protocol::StringInfo;
+    use ac2_weenie::TRACK_SUBTITLE;
+
+    use super::*;
+
+    /// A string-table subtitle (no literal) reaches the sequencer as its `StringInfo`, so the HUD
+    /// renders it; a keyframe without the subtitle track has none.
+    #[test]
+    fn a_table_subtitle_is_carried_as_its_string_info() {
+        let table = StringInfo {
+            string_id: 0x1234,
+            table_id: 0x2500_0014,
+            literal: None,
+            variables: Vec::new(),
+        };
+        let with = Keyframe {
+            subtitle: table.clone(),
+            defined_tracks: TRACK_SUBTITLE,
+            ..Keyframe::default()
+        };
+        assert_eq!(story_frame(&with).subtitle, Some(table.clone()));
+        let without = Keyframe {
+            subtitle: table,
+            ..Keyframe::default()
+        };
+        assert_eq!(story_frame(&without).subtitle, None);
     }
 }

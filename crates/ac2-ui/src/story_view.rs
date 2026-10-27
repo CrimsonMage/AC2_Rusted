@@ -15,6 +15,8 @@
 
 use std::sync::Arc;
 
+use ac2_net::protocol::StringInfo;
+
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::story::{StoryField, StoryShow};
@@ -95,8 +97,14 @@ impl StoryView {
 
     /// `gmStoryUI::Play` for one keyframe: the background and the story fields show, the image
     /// goes into the active field (the flip and its fade on a new image), the subtitle into its
-    /// text. A keyframe with neither leaves the fields as they are.
-    pub fn show(&mut self, tree: &mut UiTree, show: &StoryShow) {
+    /// text, rendered by `render` (its string-table entry, or its literal). A keyframe with
+    /// neither leaves the fields as they are.
+    pub fn show(
+        &mut self,
+        tree: &mut UiTree,
+        show: &StoryShow,
+        render: &dyn Fn(&StringInfo) -> String,
+    ) {
         if !self.shown {
             self.shown = true;
             tree.set_visible(self.background, true);
@@ -117,7 +125,7 @@ impl StoryView {
             tree.set_visible(element, true);
         }
         if let (Some(subtitle), Some(element)) = (&show.subtitle, field.text) {
-            tree.set_text(element, subtitle);
+            tree.set_text(element, &render(subtitle));
         }
     }
 

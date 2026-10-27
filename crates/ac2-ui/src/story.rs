@@ -14,6 +14,8 @@
 //! the sound playback and the notices to the caller. The story fields, the prefetch and the
 //! gameplay UI's `_storyUI` slot are not made here.
 
+use ac2_net::protocol::StringInfo;
+
 /// `gmStoryUI::Play`'s default frame duration in seconds (the double 5.0 when a keyframe has no
 /// defined duration).
 pub const DEFAULT_FRAME_SECONDS: f64 = 5.0;
@@ -21,7 +23,8 @@ pub const DEFAULT_FRAME_SECONDS: f64 = 5.0;
 /// `gmStoryUI::ListenToMessage` (0xffff0003): the key that skips a story which can be disabled.
 pub const SKIP_STORY_MESSAGE: u32 = 0x4000_001E;
 
-/// One keyframe as the sequencer reads it (`gmKeyframe`'s tracks, subtitle and duration).
+/// One keyframe as the sequencer reads it (`gmKeyframe`'s tracks, subtitle and duration). The
+/// subtitle is the keyframe's `StringInfo` (a literal, or a string-table entry the HUD renders).
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct StoryFrame {
     /// `m_didVideoFragment`, when the keyframe has a video track (an image).
@@ -31,7 +34,7 @@ pub struct StoryFrame {
     /// `m_didVoiceFragment`, when the keyframe has a voice track.
     pub voice: Option<u32>,
     /// `gmKeyframe::GetSubtitle`, when the keyframe has one.
-    pub subtitle: Option<String>,
+    pub subtitle: Option<StringInfo>,
     /// `m_ttDuration`, when the keyframe defines its duration.
     pub duration: Option<f64>,
 }
@@ -58,8 +61,9 @@ pub struct StoryShow {
     pub music: Option<u32>,
     /// The voice started for this keyframe (its voice track), replacing the last voice.
     pub voice: Option<u32>,
-    /// The subtitle in the text field (`_lastSubtitle`, kept when the keyframe has none).
-    pub subtitle: Option<String>,
+    /// The subtitle in the text field (`_lastSubtitle`, kept when the keyframe has none), as its
+    /// `StringInfo`: the view renders it.
+    pub subtitle: Option<StringInfo>,
     /// How long the keyframe shows, in seconds.
     pub seconds: f64,
 }
@@ -95,7 +99,7 @@ pub struct StoryPlayback {
     /// `_lastState`.
     field: StoryField,
     /// `_lastSubtitle`: kept from the last keyframe that had one.
-    last_subtitle: Option<String>,
+    last_subtitle: Option<StringInfo>,
 }
 
 impl StoryPlayback {

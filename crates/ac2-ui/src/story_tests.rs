@@ -1,6 +1,8 @@
 //! `gmStoryUI`'s sequencer (`story.rs`): the start gate, the frame order and durations, the image
 //! cross-fade, the audio and subtitle carry-over, the finish and the skip rule.
 
+use ac2_net::protocol::StringInfo;
+
 use crate::story::{
     StoryField, StoryFrame, StoryPlayback, StoryStep, DEFAULT_FRAME_SECONDS, SKIP_STORY_MESSAGE,
 };
@@ -88,7 +90,7 @@ fn audio_replaces_only_on_frames_that_have_it_and_subtitles_carry_over() {
         StoryFrame {
             music: Some(77),
             voice: Some(78),
-            subtitle: Some("Hello".into()),
+            subtitle: Some(StringInfo::literal("Hello")),
             ..StoryFrame::default()
         },
         StoryFrame {
@@ -101,12 +103,12 @@ fn audio_replaces_only_on_frames_that_have_it_and_subtitles_carry_over() {
     let first = shown(story.fade_done(0.0));
     assert_eq!(first.music, Some(77));
     assert_eq!(first.voice, Some(78));
-    assert_eq!(first.subtitle.as_deref(), Some("Hello"));
+    assert_eq!(first.subtitle, Some(StringInfo::literal("Hello")));
     assert_eq!(first.image, None, "no image before any video track");
     let second = shown(story.tick(first.seconds));
     assert_eq!(second.music, None);
     assert_eq!(second.voice, None);
-    assert_eq!(second.subtitle.as_deref(), Some("Hello"));
+    assert_eq!(second.subtitle, Some(StringInfo::literal("Hello")));
 }
 
 #[test]
