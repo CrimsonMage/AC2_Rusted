@@ -129,3 +129,88 @@ fn property(vm: &Vm, this: u32, name: u32) -> Option<Ac2PropertyValue> {
     let properties = properties?;
     properties.iter().find(|p| p.name == name).cloned()
 }
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use ac2_db::Ac2PropertyValue;
+
+    use super::*;
+    use crate::host::ScriptHost;
+    use crate::vm::{refs::flags, refs::Target, Program, ScriptData};
+
+    const ENTITY: u32 = 0x3000_0001;
+    const NAME_INT: u32 = 0x1000_0001;
+    const NAME_LONG: u32 = 0x1000_0002;
+
+    /// One entity whose properties are the given values.
+    struct Entity(Arc<Vec<Ac2PropertyValue>>);
+
+    impl ScriptData for Entity {
+        fn wstate(&self, _did: u32) -> Option<crate::vm::StateRef> {
+            None
+        }
+
+        fn db_type(&self, did: u32) -> Option<u32> {
+            (did == ENTITY).then_some(DB_TYPE_ENTITY_DESC)
+        }
+
+        fn entity_properties(&self, did: u32) -> Option<crate::vm::EntityProperties> {
+            (did == ENTITY).then(|| self.0.clone())
+        }
+    }
+
+    fn prop(name: u32, value_type: u32, bytes: &[u8]) -> Ac2PropertyValue {
+        Ac2PropertyValue {
+            name,
+            value_type,
+            bytes: bytes.into(),
+        }
+    }
+
+    /// Calls `InqInteger(name, out)` on the entity link; the out is a script local at slot 0.
+    fn inq_integer(name: u32, local: u32) -> (u32, u32) {
+        let props = vec![
+            prop(NAME_INT, TYPE_INTEGER, &7i32.to_le_bytes()),
+            // A LongInteger (0x4000000D) holds eight bytes; `EntityDesc::InqInteger` answers 0 for it.
+            prop(NAME_LONG, 0x4000_000D, &9i64.to_le_bytes()),
+        ];
+        let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+        let mut host = ScriptHost::new(Arc::new(program), Box::new(Entity(Arc::new(props))));
+        let vm = host.vm_mut();
+        let link = vm
+            .refs
+            .create_native(0x22, crate::native::NativeObject::EntityDesc(ENTITY));
+        let addr = vm.refs.add(
+            (0u32 << flags::OFFSET_SHIFT) | flags::KIND_VALUE,
+            Target::Ref(u32::MAX),
+        );
+        let id = crate::glue::efun_table()
+            .find(|(_, n)| *n == "gEntityDesc::CallEFun_InqInteger")
+            .map(|(id, _)| id)
+            .unwrap();
+        let mut ctx = crate::vm::Context::new(1, None);
+        ctx.enter(0).unwrap();
+        ctx.push(local, crate::vm::tag::INT).unwrap();
+        ctx.push(0, crate::vm::tag::INT).unwrap();
+        ctx.push(addr, crate::vm::tag::REF).unwrap();
+        ctx.push(name, crate::vm::tag::INT).unwrap();
+        ctx.push(link, crate::vm::tag::REF).unwrap();
+        let fp = ctx.sp;
+        assert_eq!(vm.run_efun(id, &mut ctx), crate::vm::InterpStatus::Success);
+        (ctx.data[fp - 4], ctx.data[0])
+    }
+
+    #[test]
+    fn inq_integer_reads_integer_properties_and_answers_zero_for_long_integers() {
+        let (found, value) = inq_integer(NAME_INT, 0);
+        assert_eq!((found, value), (1, 7));
+        let (found, value) = inq_integer(NAME_LONG, 0xDEAD);
+        assert_eq!(
+            (found, value),
+            (0, 0xDEAD),
+            "a LongInteger is not read and nothing is written"
+        );
+    }
+}
