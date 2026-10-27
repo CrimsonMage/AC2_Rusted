@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use ac2_client::{Client, Command, FrameInput};
 use ac2_core::DataId;
-use ac2_net::protocol::StringVariable;
+use ac2_net::protocol::{InvTransmuteAllDesc, ScriptRequest, StringVariable};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
@@ -322,4 +322,28 @@ fn drags_and_drops_refresh_the_frame() {
         .map(|c| c.function)
         .collect();
     assert_eq!(calls, [0x820F_0001, 0x820F_0002]);
+}
+
+/// `gmCWInterface::TransmuteAllFromContainer`: the take goes to the server as the container's
+/// `InvTransmuteAllDesc`, and the server's answer raises the container's refresh.
+#[test]
+fn transmute_all_asks_the_server_to_transmute_the_container() {
+    let (mut client, server) = entered(spawn());
+    open_the_pack(&mut client, &server);
+    let before = server.borrow().script_requests.len();
+    let (_, notices) = run(&mut client, &server, Command::TransmuteAll(PACK));
+    let asked = server.borrow().script_requests[before..].to_vec();
+    assert_eq!(
+        asked,
+        [ScriptRequest::TransmuteAll(InvTransmuteAllDesc::new(
+            PACK, PLAYER
+        ))]
+    );
+    assert!(
+        notices.iter().any(|n| matches!(
+            n,
+            GameplayNotice::UpdateContainer { container, .. } if *container == PACK
+        )),
+        "{notices:?}"
+    );
 }

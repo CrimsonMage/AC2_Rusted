@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 249 done, 78 partial, 1566 to do, 11 skipped.
+1904 retail functions: 255 done, 96 partial, 1542 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (66/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (69/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -668,12 +668,12 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruit` · 00458900 · legions 00459550
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0
-- [ ] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760
+- [~] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760 — ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
 - [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 - [x] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
-- [ ] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90
+- [~] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90 — ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — net: the start body raises no list notice in Legions (its status notices are gated by the stored list, CPlayer 0x15a / gmCEntity 0x15, not traced); the panel takes the list from the GUN event; the list conversion is IFunArg::VmList (ac2-script ifun.rs); the add button is a UI path not wired to a frame event
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 - [ ] `ggmCWInterface::CallIFun_GUNEvent_HearFromRoom` · 00459420 · legions 0045a070
@@ -723,7 +723,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
-- [ ] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810
+- [~] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 - [ ] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0
 - [ ] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0
 - [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70
@@ -731,7 +731,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0
 - [ ] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40
 - [ ] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0
-- [ ] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0
+- [~] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0 — frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -749,9 +749,9 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 - [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10
-- [ ] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
-- [ ] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0
+- [~] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
+- [x] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
+- [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
 - [~] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
@@ -764,7 +764,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [~] `ggmCWInterface::CallIFun_IsSkillUsableBasedOnInventoryByEnum` · 0045f280 · legions 0045fed0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `ggmCWInterface::CallIFun_LootAllFromContainer` · 0045f340 · legions 0045ff90 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists (corpse_script_7160)
-- [ ] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060
+- [~] `ggmCWInterface::CallIFun_MoveItem` · 0045f410 · legions 00460060 — ac2-weenie session/inventory.rs move_item: InvMoveDesc / ReorganizeContents byte-exact (inventory_7160, chest_7160); client Command::MoveItem (item_drag_7160, inventory_items_7160). Script checks and optimistic updates not mirrored
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
@@ -825,7 +825,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_SetSelection` · 00462700 · legions 00463350
-- [ ] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
+- [x] `ggmCWInterface::CallIFun_SetShortcut` · 004627d0 · legions 00463420 — client set_shortcut (scripts_queries.rs, IFun 0xB4006F); shortcut_drag_7160 asserts the SetShortcut bytes (ShortcutInfo native, slot)
 - [x] `ggmCWInterface::CallIFun_SetShortcutHeight` · 004628e0 · legions 00463530 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetShortcutInstaScroll` · 00462990 · legions 004635e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetShortcutLocked` · 00462a40 · legions 00463690 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -848,14 +848,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0
 - [ ] `ggmCWInterface::CallIFun_StopExamination` · 004636f0 · legions 00464360
 - [ ] `ggmCWInterface::CallIFun_SwearAllegiance` · 00463780 · legions 004643f0
-- [ ] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480
-- [ ] `ggmCWInterface::CallIFun_UnEquipItem` · 004638e0 · legions 00464550
+- [~] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
+- [~] `ggmCWInterface::CallIFun_UnEquipItem` · 004638e0 · legions 00464550 — ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
 - [ ] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650
 - [ ] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [ ] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870
 - [x] `ggmCWInterface::CallIFun_UseSelection` · 00463c90 · legions 00464900 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
-- [ ] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
+- [x] `ggmCWInterface::CallIFun_UseShortcut` · 00463d30 · legions 004649a0 — client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
 
 ## `ac2/client/src/weenie/interp/glue/gmcefundispatcher.cpp.c` (0/1)
 
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (105/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (108/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -928,7 +928,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::GetLastSelection` · 0044fb20 · legions 00450c60 — ac2-weenie OnlineSession::select/start_examination/... over the PlayerScript stand-in for CPlayer 0x6A/0x3D/0x63/0x114/0xF6
 - [x] `gmCWInterface::ShouldAutoTarget` · 0044fb80 · legions 00450cc0 — ac2-client: the ShouldAutoTarget IFun on the VM before attacking
 - [x] `gmCWInterface::UseSelection` · 0044fbb0 · legions 00450cf0 — ac2-client Command::UseSelection runs IFun 0xB40006 on the player's script when the VM owns it (CPlayer 0x79 -> CUsageSystem 0x9: the targeting pointer, the usage list, then WM_Usage 0x22); butchery_7160 asserts it. The session's use_selection stand-in stays for a client without scripts
-- [ ] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — skill and text shortcuts run on the VM: WM_Combat 0x17 request (combat_7160); /e waves through efun 0x7F0052 into the chat shell
+- [x] `gmCWInterface::UseShortcut` · 0044fbe0 · legions 00450d20 — client use_shortcut (scripts_queries.rs, IFun 0xB40007); skill and text shortcuts run on the VM; vitals_7160 use_shortcut
 - [ ] `gmCWInterface::StopAttacking` · 0044fc20 · legions 00450d60
 - [x] `gmCWInterface::RequestAttackStateChange` · 0044fc60 · legions 00450da0 — ac2-client Command::SetAttacking: ShouldAutoTarget's Select(0x41000024) notice, then the IFun on the VM (stand-in: OnlineSession::request_attack_state -> WM_Combat 0x16 with the selection / 0x14)
 - [ ] `gmCWInterface::CanAutoAttackTarget` · 0044fca0 · legions 00450de0
@@ -973,20 +973,20 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::RequestPetReturn` · 00450410 · legions 00451550
 - [ ] `gmCWInterface::RequestPetMode` · 00450430 · legions 00451570
 - [ ] `gmCWInterface::RequestSetPetName` · 00450460 · legions 004515a0
-- [ ] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [ ] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [ ] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
+- [~] `gmCWInterface::MoveItem` · 00450490 · legions 004515d0 — ac2-weenie session/inventory.rs move_item: InvMoveDesc / ReorganizeContents byte-exact (inventory_7160, chest_7160); client Command::MoveItem (item_drag_7160, inventory_items_7160). Script checks and optimistic updates not mirrored
+- [~] `gmCWInterface::EquipItem` · 004504f0 · legions 00451630 — ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
+- [~] `gmCWInterface::UnEquipItem` · 00450530 · legions 00451670 — ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
 - [x] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
-- [ ] `gmCWInterface::InqSimpleInvByLocTable` · 00450600 · legions 00451740
-- [ ] `gmCWInterface::InqAllInventoryIIDList` · 00450620 · legions 00451760
-- [ ] `gmCWInterface::DoIHaveItem` · 00450640 · legions 00451780
+- [~] `gmCWInterface::InqSimpleInvByLocTable` · 00450600 · legions 00451740 — frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
+- [~] `gmCWInterface::InqAllInventoryIIDList` · 00450620 · legions 00451760 — frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
+- [~] `gmCWInterface::DoIHaveItem` · 00450640 · legions 00451780 — ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
 - [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
 - [~] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
-- [ ] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie OnlineSession::loot_all / transmute_all send InvTakeAllDesc / InvTransmuteAllDesc byte-exact; the scripts' checks (CInventorySystem 0x1E/0x1F) not mirrored
+- [~] `gmCWInterface::TransmuteAllFromContainer` · 00450750 · legions 00451890 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 - [x] `gmCWInterface::HasDurability` · 00450770 · legions 004518b0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
@@ -1035,11 +1035,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [ ] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170
 - [ ] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — ac2-weenie OnlineSession::move_item / equip_item / unequip_item / set_container_open: the CContainer/CInventorySystem stand-in builds InvMoveDesc/InvEquipDesc byte-exact; the scripts' local checks and optimistic updates not mirrored
-- [ ] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0
-- [ ] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210
-- [ ] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250
+- [x] `gmCWInterface::InqShortcutInfo` · 00451090 · legions 004521d0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
+- [x] `gmCWInterface::SetShortcut` · 004510d0 · legions 00452210 — client set_shortcut (scripts_queries.rs, IFun 0xB4006F); shortcut_drag_7160 asserts the SetShortcut bytes (ShortcutInfo native, slot)
+- [~] `gmCWInterface::InqShortcutArray` · 00451110 · legions 00452250 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 - [x] `gmCWInterface::SetWhichShortcutSet` · 00451150 — ac2-client Command::SetShortcutSet: the IFun on the VM, the session's shortcut mirror (a profile write, nothing to the server)
-- [ ] `gmCWInterface::GetWhichShortcutSet` · 00451170 · legions 004522b0
+- [~] `gmCWInterface::GetWhichShortcutSet` · 00451170 · legions 004522b0 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 - [x] `gmCWInterface::SetShowShortcutNumbers` · 004511a0 · legions 004522e0 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetShowShortcutNumbers` · 004511c0 · legions 00452300 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [x] `gmCWInterface::SetShortcutLocked` · 004511f0 · legions 00452330 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)

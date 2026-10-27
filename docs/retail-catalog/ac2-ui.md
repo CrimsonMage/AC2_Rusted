@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 871 done, 304 partial, 1019 to do, 53 skipped.
+2247 retail functions: 871 done, 306 partial, 1010 to do, 60 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -15,7 +15,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-- [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920
+- [-] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
@@ -699,7 +699,7 @@ Legend and workflow: [README](README.md).
 - [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui drag.rs DragCheck::ContainerDrop on each container list: the coin field or an item
 
 ### ContainerDisplay
-- [ ] `ContainerDisplay::Show` · 0042da90 · legions 0042d860
+- [~] `ContainerDisplay::Show` · 0042da90 · legions 0042d860 — ac2-ui external_container.rs ContainerDisplay show: the container field's visibility; backpack.rs show_pack for the pages
 - [ ] `ContainerDisplay::RequestContext` · 0042dab0 · legions 0042d880
 
 ### UIElement_ListBox
@@ -749,7 +749,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### ItemDisplay
-- [ ] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180
+- [-] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -796,7 +796,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0
 - [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10
+- [-] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [~] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 - [x] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20 — ac2-ui item_display.rs / backpack.rs
@@ -804,8 +804,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40
 - [ ] `ItemDisplay::SetShortcutType` · 0042ef60 · legions 0042ee60
 - [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0
-- [ ] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0
+- [-] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [-] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 
 ## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (6/7)
@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
-- [ ] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060
+- [-] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [x] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970 — ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
 - [x] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0 — ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
@@ -1143,7 +1143,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
 - [~] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
 - [~] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — routed to the bar's check_all (CheckAllItems / CheckAllSkills); UpdateResetTime and UpdateSkill also refresh the reset timers via skill_reset; the per-slot checks are not split out
-- [ ] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70
+- [-] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [ ] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830
 - [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
@@ -1260,7 +1260,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260 — ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
 
 ### gmPaperDollUI
-- [ ] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490
+- [~] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490 — hud_ingredient.rs OpenIngredientPanel path into ac2-ui ingredient.rs
 - [~] `gmPaperDollUI::UpdatePaperDollPosition` · 00441ba0 · legions 0041af10 — Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
 - [x] `gmPaperDollUI::MeshTypeToInvLoc` · 00441d20 · legions 00442670 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::HandlePaperDollClick` · 00441db0 · legions 00442700 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
