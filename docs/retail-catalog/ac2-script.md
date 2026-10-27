@@ -1705,7 +1705,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-- [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — Integer property of an entity link (name, out long); a property of another type answers 0 (entity_desc.rs). SaleProfile::ComputeMaxStackSize reads its max stack size through it; the sell's rig test runs it.
+- [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 - [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [~] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
 - [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
@@ -3176,8 +3176,8 @@ Legend and workflow: [README](README.md).
 - [x] `gVisualDesc::CallEFun_ReplaceVisualDesc` · 005373f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 - [x] `gVisualDesc::CallEFun_GetScale` · 00537470 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 - [~] `gVisualDesc::CallEFun_GetTotalIconDesc` · 00537520 · legions 0051b090 — ac2-script glue/visual_desc.rs: the parent-and-own icon layers; atom icon modifiers not modelled
-- [x] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
-- [x] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
+- [x] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
+- [x] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 
 ## `portal/shared/src/interp/glue/gvm.cpp.c` (12/24)
 

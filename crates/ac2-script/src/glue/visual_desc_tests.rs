@@ -65,6 +65,40 @@ fn call(vm: &mut Vm, name: &str, args: &[u32], this: u32, ret: usize) -> u32 {
     ctx.data[fp - ret]
 }
 
+/// The address of stack slot `slot` as a script passes an out parameter (`SADDR`).
+fn saddr(vm: &mut Vm, slot: usize) -> u32 {
+    let blob =
+        (slot as u32) << crate::vm::refs::flags::OFFSET_SHIFT | crate::vm::refs::flags::KIND_VALUE;
+    vm.refs.add(blob, crate::vm::refs::Target::Ref(u32::MAX))
+}
+
+/// Like [`call`], but the script's local at stack slot 0 holds `local` and an out argument
+/// passed as `saddr(0)` names it.
+fn call_with_local(
+    vm: &mut Vm,
+    name: &str,
+    local: u32,
+    args: &[u32],
+    this: u32,
+    ret: usize,
+) -> u32 {
+    let mut ctx = Context::new(1, None);
+    ctx.enter(0).unwrap();
+    ctx.push(local, tag::REF).unwrap();
+    ctx.push(0, tag::INT).unwrap();
+    for &a in args.iter().rev() {
+        ctx.push(a, tag::INT).unwrap();
+    }
+    ctx.push(this, tag::REF).unwrap();
+    let fp = ctx.sp;
+    assert_eq!(
+        vm.run_efun(efun(name), &mut ctx),
+        InterpStatus::Success,
+        "{name}"
+    );
+    ctx.data[fp - ret]
+}
+
 fn visual(vm: &mut Vm, a: Appearance) -> u32 {
     vm.refs
         .create_native(ntype::VISUAL_DESC, NativeObject::VisualDesc(Box::new(a)))
@@ -421,6 +455,99 @@ fn the_total_icon_is_the_parents_layers_with_ours_on_top() {
     // The parent has no icon layers here: ours alone.
     assert_eq!(
         call(vm, "gVisualDesc::CallEFun_GetTotalIconDesc", &[icon], d, 3),
+        1
+    );
+    assert_eq!(
+        vm.native(icon),
+        Some(&NativeObject::IconDesc(vec![(2, 22, 2)]))
+    );
+}
+
+/// The out arguments are the script's locals (`SADDR`): each efun reads the native the local holds
+/// and writes into that object (`GetReferencePtr` in `gVisualDesc::CallEFun_*`).
+#[test]
+fn out_arguments_passed_as_local_addresses_write_through() {
+    let mut host = vm_with(parent_records());
+    let vm = host.vm_mut();
+    // GetVisualDescFromDB: the local holds a description that the record overwrites.
+    let out = visual(
+        vm,
+        Appearance {
+            modes: 9,
+            ..Appearance::default()
+        },
+    );
+    let addr = saddr(vm, 0);
+    assert_eq!(
+        call_with_local(
+            vm,
+            "gVisualDesc::CallEFun_GetVisualDescFromDB",
+            out,
+            &[PARENT, addr],
+            out,
+            4
+        ),
+        1
+    );
+    assert_eq!(
+        appearance(vm, out).modes,
+        0,
+        "the record is loaded into the local's object"
+    );
+    // InqAppInfoHashForPartGroup: the local holds the hash the group's tables go into.
+    let source = visual(
+        vm,
+        Appearance {
+            parent: PARENT,
+            part_groups: vec![PartGroupAppearance {
+                key: ROOT,
+                appearance: vec![(TABLE, vec![(5, 0.25)])],
+                ..PartGroupAppearance::default()
+            }],
+            ..Appearance::default()
+        },
+    );
+    let hash = vm
+        .refs
+        .create_native(ntype::AA_HASH, NativeObject::Hash(ScriptHash::default()));
+    let addr = saddr(vm, 0);
+    assert_eq!(
+        call_with_local(
+            vm,
+            "gVisualDesc::CallEFun_InqAppInfoHashForPartGroup",
+            hash,
+            &[ROOT, addr],
+            source,
+            4
+        ),
+        1
+    );
+    let NativeObject::Hash(h) = vm.native(hash).unwrap().clone() else {
+        panic!()
+    };
+    assert!(h.contains(&RefKey::Value(u64::from(TABLE)), &crate::native::PlainKeys));
+    // GetTotalIconDesc (already through SADDR): the local holds the icon.
+    let icon = vm
+        .refs
+        .create_native(ntype::ICON_DESC, NativeObject::IconDesc(Vec::new()));
+    let d = visual(
+        vm,
+        Appearance {
+            parent: PARENT,
+            icon: vec![(2, 22, 2)],
+            ..Appearance::default()
+        },
+    );
+    let addr = saddr(vm, 0);
+    assert_eq!(
+        call_with_local(
+            vm,
+            "gVisualDesc::CallEFun_GetTotalIconDesc",
+            icon,
+            &[addr],
+            d,
+            3
+        ),
         1
     );
     assert_eq!(

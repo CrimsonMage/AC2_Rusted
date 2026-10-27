@@ -109,7 +109,9 @@ fn visual_method(m: &str) -> Option<EFunFn> {
             status
         },
         "InqAppInfoHashForPartGroup" => |vm, c| {
-            let (pg, hash) = (word(c, 2), word(c, 3));
+            let pg = word(c, 2);
+            // The out hash is the script's local (`SADDR`), read through to its native.
+            let hash = out_native(vm, c, word(c, 3));
             let this = Call::new(c).this();
             let infos = match vm.native(this) {
                 Some(NativeObject::VisualDesc(a)) => a.app_info_of(pg),
@@ -173,8 +175,10 @@ fn visual_method(m: &str) -> Option<EFunFn> {
             status
         },
         "GetVisualDescFromDB" => |vm, c| {
-            let (did, out) = (word(c, 2), word(c, 3));
+            let did = word(c, 2);
             // `VisualDesc::GetVisualDescFromDB`: a visual description record, copied into `out`.
+            // The out is the script's local (`SADDR`), read through to its native.
+            let out = out_native(vm, c, word(c, 3));
             let record = if vm.data().db_type(did) == Some(DB_TYPE_VISUAL_DESC) {
                 vm.data().visual_desc(did)
             } else {
