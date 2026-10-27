@@ -25,6 +25,7 @@ mod ac2_texture;
 mod ac2_total_visual;
 mod ac2_ui_scene;
 mod ac2_visual_desc;
+mod ac2_visual_fx_particles;
 mod ac2_visual_fx_sounds;
 mod ac2_visual_particles;
 mod cull;
@@ -98,5 +99,8 @@ pub use ac2_texture::{
 };
 pub use ac2_total_visual::{Ac2TotalGroup, Ac2TotalVisualDesc, GLOBAL_PART_GROUP};
 pub use ac2_visual_desc::{Ac2AppearanceHash, Ac2PartGroup, Ac2VisualDesc, Ac2VisualFx};
+pub use ac2_visual_fx_particles::{resolve_ac2_visual_fx_particles, Ac2VisualFxParticles};
 pub use ac2_visual_fx_sounds::{resolve_ac2_visual_fx_sounds, Ac2VisualFxSounds};
-pub use ac2_visual_particles::{resolve_ac2_visual_particles, Ac2VisualParticles};
+pub use ac2_visual_particles::{
+    resolve_ac2_visual_particles, Ac2ParticleAttachment, Ac2VisualParticles,
+};

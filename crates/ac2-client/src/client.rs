@@ -135,7 +135,7 @@ pub struct Client {
     pub(crate) scene: SceneCamera,
     pub(crate) game_clock: Option<GameClock>,
     /// The region, for its weather (`PhysicsGlobals::SetWind`).
-    region: Option<Arc<ac2_world::RegionDesc>>,
+    pub(crate) region: Option<Arc<ac2_world::RegionDesc>>,
     physics_clock: PhysicsClock,
     /// `PhysicsModule::m_tAnimationUpdateTime`.
     anim_clock: AnimationClock,
@@ -167,6 +167,8 @@ pub struct Client {
     pub(crate) friend_events: Vec<crate::friends::FriendEvent>,
     /// `SmartBox`'s portal space (`WorldRender::m_PortalSpaceEffect`): the teleport's fade and tunnel.
     pub(crate) portal: PortalSpace,
+    /// The DAT's FX scripts a body's `DoFXScript` plays (read when the client attaches its DAT).
+    pub(crate) fx_scripts: crate::FxScripts,
     /// Between a teleport's start and its end (`SmartBox::HandleTeleport` to the placement).
     pub(crate) teleporting: bool,
     /// `gmGamePlayUI`'s story slot (`_storyUI`) and its portal-scene flag.
@@ -248,6 +250,7 @@ impl Client {
             radar: Default::default(),
             friend_events: Vec::new(),
             portal: PortalSpace::new(),
+            fx_scripts: crate::FxScripts::default(),
             teleporting: false,
             story: Default::default(),
             story_scenes: Vec::new(),
@@ -679,15 +682,19 @@ impl Client {
             let wind = self.region.as_ref().map_or([0.0; 3], |region| {
                 region.physics_wind(self.session.cur_time())
             });
+            // `FXTrack::FillCache`: the pending FX scripts take their records before the step.
+            let scripts = &self.fx_scripts;
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
+                body.physics.resolve_fx_scripts(|id| scripts.get(id));
                 body.physics.set_wind(wind);
                 body.physics.update_animation(step, now, &mut self.random);
             }
             self.remotes
-                .update_animation(step, now, wind, &mut self.random);
+                .update_animation(step, now, wind, &mut self.random, scripts);
             self.animation_sounds(step, now);
         }
         self.audio_use_time(now);
+        self.rain_use_time(now);
         Ok(events)
     }
 

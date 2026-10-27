@@ -165,3 +165,38 @@ fn startup_particles_of_every_visual_name_decodable_particle_systems() {
         "{visuals_with_particles} visuals start particles"
     );
 }
+
+#[test]
+fn the_visuals_fx_particles_resolve_per_fx_id() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    // Every visual's FX particle table: each id's systems name particle descs (`0x39`).
+    let mut visuals = 0;
+    let mut ids = 0;
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let Some(fx) = crate::resolve_ac2_visual_fx_particles(&store, DataId::new(did))
+            .unwrap_or_else(|e| panic!("{did:08X} FX particles: {e:?}"))
+        else {
+            continue;
+        };
+        visuals += 1;
+        for (fx_id, attachments) in fx.entries_for_test() {
+            ids += 1;
+            assert!(!attachments.is_empty(), "{did:08X} {fx_id:08X}");
+            for attachment in attachments.iter() {
+                assert!(
+                    attachment
+                        .particle_descs
+                        .iter()
+                        .all(|d| d.raw() >> 24 == 0x39),
+                    "{did:08X} {fx_id:08X} particle descs"
+                );
+            }
+        }
+    }
+    assert!(
+        visuals > 100 && ids > 500,
+        "{visuals} visuals, {ids} FX ids"
+    );
+}

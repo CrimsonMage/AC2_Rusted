@@ -2207,7 +2207,7 @@ key	status	note
 00495100	_	
 004951f0	_	
 00495260	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-00495360	_	
+00495360	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 00495420	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 004954e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 00495620	_	
@@ -2766,6 +2766,7 @@ key	status	note
 004ddf50	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004de020	x	
 004de0d0	x	
+004de2b0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004de320	x	ac2-client motion.rs
 004de330	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004de340	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
@@ -2780,6 +2781,7 @@ key	status	note
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
 004de5d0	x	
+004de780	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004de7b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de800	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de840	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
@@ -2931,6 +2933,7 @@ key	status	note
 004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 004f1170	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1190	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004f11b0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f11d0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f11f0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f12f0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2956,10 +2959,12 @@ key	status	note
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1c40	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f1cb0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
+004f2540	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
@@ -2983,6 +2988,7 @@ key	status	note
 004f6160	x	ac2-physics los (Terrain::los_check)
 004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
+00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005062c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
@@ -4389,6 +4395,7 @@ key	status	note
 0057cad0	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 0057cb00	x	ac2-audio/ac2-client: ambient environments, groove
 0057cb50	~	outdoor sun, ambient and fog; indoor and sky environments not yet
+0057cf80	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
 0057f960	~	the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported

@@ -10,9 +10,10 @@ use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxSoundNode, Ac2VisualFxSounds};
 use ac2_audio::{Channel, Emitter, LoopingMode, PlaySoundData, SoundManager, SoundType};
 use ac2_core::Random;
-use ac2_physics::{PhysicsBody, Position, Vector};
+use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
 
 use crate::client::Client;
+use crate::fx_particles::{particle_starts, ObjectParticleStart};
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -36,6 +37,8 @@ struct FxState {
 #[derive(Debug, Default)]
 struct FxSounds {
     states: BTreeMap<u32, FxState>,
+    /// The FX ids whose particle systems started and have not been stopped (`StopFx`).
+    particles: HashSet<u32>,
 }
 
 /// What one effect call needs besides the FX.
@@ -84,9 +87,10 @@ impl FxSounds {
         call: &FxCall<'_>,
         manager: &mut SoundManager,
         random: &mut Random,
-    ) {
+    ) -> Vec<u32> {
+        let mut played_dids = Vec::new();
         let Some(nodes) = call.data.table.get(fx).filter(|nodes| !nodes.is_empty()) else {
-            return;
+            return played_dids;
         };
         if let Some(state) = self.states.get_mut(&fx) {
             state.desired = scalar;
@@ -98,7 +102,7 @@ impl FxSounds {
             for &handle in &state.contexts {
                 manager.set_context_volume(handle, state.current);
             }
-            return;
+            return played_dids;
         }
         let mut state = FxState {
             desired: scalar,
@@ -122,6 +126,7 @@ impl FxSounds {
                 data.emitter = Some(call.emitter);
                 data.volume = state.current;
                 let handle = manager.play(&data).unwrap_or(0);
+                played_dids.push(sound);
                 if looping && !node.fire_and_forget && handle != 0 {
                     state.contexts.push(handle);
                 }
@@ -132,6 +137,7 @@ impl FxSounds {
         if played {
             self.states.insert(fx, state);
         }
+        played_dids
     }
 
     /// `FXManager::StopFX`: the FX's looping sounds stop.
@@ -181,6 +187,10 @@ impl FxSounds {
 pub(crate) struct ClientAudio {
     pub(crate) manager: SoundManager,
     objects: HashMap<u64, FxSounds>,
+    /// The particle systems the objects' FX started this step (`FXManager::DoParticleFX`).
+    pub(crate) object_particles: Vec<ObjectParticleStart>,
+    /// `WorldRender`'s rain loop and thunder.
+    pub(crate) rain: crate::rain_sounds::RainSounds,
     pub(crate) ambient: crate::client_ambient::ClientAmbient,
     /// The screen music's playing sound (`PlayingSoundContext` of the pregame screens).
     pregame_music: Option<u32>,
@@ -253,12 +263,14 @@ impl Client {
         self.audio = Some(ClientAudio {
             manager,
             objects: HashMap::new(),
+            object_particles: Vec::new(),
             ambient: Default::default(),
             pregame_music: None,
             story_music: None,
             story_voice: None,
             credit_sound: None,
             portal: Default::default(),
+            rain: Default::default(),
         });
     }
 
@@ -267,6 +279,59 @@ impl Client {
         if let Some(audio) = self.audio.as_mut() {
             audio.portal.set_ids(ids);
         }
+    }
+
+    /// The rain sound DIDs (see [`crate::rain_sound_ids`]); set once the DAT is open.
+    pub fn set_rain_sound_ids(&mut self, ids: crate::RainSoundIds) {
+        if let Some(audio) = self.audio.as_mut() {
+            audio.rain.set_ids(ids);
+        }
+    }
+
+    /// The FX scripts the bodies' `DoFXScript` plays (see [`crate::load_fx_scripts`]).
+    pub fn set_fx_scripts(&mut self, scripts: crate::FxScripts) {
+        self.fx_scripts = scripts;
+    }
+
+    /// The particle systems the objects' FX started in the last animation step, taken by the
+    /// renderer that starts them on the objects.
+    pub fn take_object_particle_starts(&mut self) -> Vec<ObjectParticleStart> {
+        self.audio
+            .as_mut()
+            .map(|audio| std::mem::take(&mut audio.object_particles))
+            .unwrap_or_default()
+    }
+
+    /// `WorldRender::UpdateRainSounds` for the frame: the rain amount at the server time (the
+    /// region's sky, `CDayDesc::GetRain`), zero where the camera's cell cannot see outside.
+    pub(crate) fn rain_use_time(&mut self, now: f64) {
+        let amount = self
+            .region
+            .as_ref()
+            .and_then(|region| region.sample_sky_environment(self.session.cur_time()))
+            .map_or(0.0, |sample| sample.rain().amount());
+        let can_see_outside = self
+            .player
+            .as_ref()
+            .filter(|p| p.in_world)
+            .is_some_and(|p| {
+                let cell = p.position().cell_id;
+                crate::client_ambient::is_outside(cell)
+                    || self
+                        .terrain
+                        .env_cell(cell)
+                        .is_some_and(|env| env.seen_outside)
+            });
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        audio.rain.update(
+            amount,
+            can_see_outside,
+            now,
+            &mut self.random,
+            &mut audio.manager,
+        );
     }
 
     /// `PortalSpace::Effect::StartNow` and `StopNow`'s sounds, from the effect's events since
@@ -371,6 +436,7 @@ impl Client {
             }
             return;
         };
+        audio.object_particles.clear();
         let mut events = self.remotes.take_animation_events();
         let player = self.player.as_mut().filter(|p| p.in_world);
         let player_id = player.as_ref().map(|p| p.id);
@@ -391,19 +457,13 @@ impl Client {
             .filter_map(|(_, _, events)| lock_change(events))
             .next_back();
         for (id, visual, events) in events {
-            let Some(data) = self
-                .remotes
-                .body_data(visual)
-                .and_then(|data| data.fx_sounds.as_deref())
-            else {
+            let visual_data = self.remotes.body_data(visual);
+            let sounds = visual_data.and_then(|data| data.fx_sounds.as_deref());
+            let particles = visual_data.and_then(|data| data.fx_particles.as_deref());
+            if sounds.is_none() && particles.is_none() {
                 continue;
-            };
-            let call = FxCall {
-                data,
-                emitter: id,
-                is_player: Some(id) == player_id,
-                now,
-            };
+            }
+            let is_player = Some(id) == player_id;
             let fx = audio.objects.entry(id).or_default();
             for event in events {
                 match event {
@@ -411,19 +471,51 @@ impl Client {
                         fx: effect,
                         intensity,
                     } => {
-                        fx.do_fx(
-                            effect,
-                            intensity,
-                            &call,
-                            &mut audio.manager,
-                            &mut self.random,
-                        );
+                        if let Some(data) = sounds {
+                            let call = FxCall {
+                                data,
+                                emitter: id,
+                                is_player,
+                                now,
+                            };
+                            fx.do_fx(
+                                effect,
+                                intensity,
+                                &call,
+                                &mut audio.manager,
+                                &mut self.random,
+                            );
+                        }
+                        if let Some(table) = particles {
+                            // `FXManager::DoParticleFX`: an FX already running keeps its systems.
+                            if fx.particles.insert(effect) {
+                                audio.object_particles.extend(particle_starts(
+                                    id,
+                                    effect,
+                                    table,
+                                    &mut self.random,
+                                ));
+                            }
+                        }
                     }
-                    Ac2AnimEvent::StopFx { fx: effect } => fx.stop_fx(effect, &mut audio.manager),
+                    Ac2AnimEvent::StopFx { fx: effect } => {
+                        if sounds.is_some() {
+                            fx.stop_fx(effect, &mut audio.manager);
+                        }
+                        fx.particles.remove(&effect);
+                    }
                     _ => {}
                 }
             }
-            fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+            if let Some(data) = sounds {
+                let call = FxCall {
+                    data,
+                    emitter: id,
+                    is_player,
+                    now,
+                };
+                fx.use_time(step, now, data, call.is_player, &mut audio.manager);
+            }
         }
         if let Some(locked) = lock {
             self.lock_player_actions(locked);
@@ -476,3 +568,7 @@ impl Client {
         audio.manager.use_time_with(now, &lookup);
     }
 }
+
+#[cfg(test)]
+#[path = "fx_effects_tests.rs"]
+mod tests;

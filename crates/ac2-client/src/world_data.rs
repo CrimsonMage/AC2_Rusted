@@ -24,6 +24,8 @@ pub struct BodyData {
     pub animation: Option<ac2_physics::BodyAnimation>,
     /// Its FX sounds (`FXTable` from the total `VisualDesc`), when it has any.
     pub fx_sounds: Option<Arc<crate::FxSoundData>>,
+    /// Its FX particle systems per FX id (the same table), when it has any.
+    pub fx_particles: Option<Arc<ac2_assets::Ac2VisualFxParticles>>,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -159,6 +161,10 @@ pub(crate) fn load_body_data(
         radius: body.radius,
         animation: body.animation,
         fx_sounds: load_fx_sounds(store, visual)?,
+        fx_particles: ac2_assets::resolve_ac2_visual_fx_particles(store, visual)
+            .map_err(|e| e.to_string())?
+            .filter(|table| !table.is_empty())
+            .map(Arc::new),
     })
 }
 

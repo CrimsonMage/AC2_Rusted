@@ -145,6 +145,7 @@ impl WorldData for Synthetic {
     fn body(&self, _visual: Option<u32>) -> Result<BodyData, String> {
         Ok(BodyData {
             fx_sounds: None,
+            fx_particles: None,
             shape: BodyShape {
                 spheres: vec![
                     Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),

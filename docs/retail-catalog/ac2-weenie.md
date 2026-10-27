@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 563 done, 168 partial, 1150 to do, 23 skipped.
+1904 retail functions: 564 done, 168 partial, 1149 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (17/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (18/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
@@ -1404,7 +1404,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
 - [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0
 - [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-- [ ] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30
+- [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `ECM_Physics::RecvEvt_DoMode` · 00495420 · legions 0048dbf0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [x] `ECM_Physics::RecvEvt_DoSlider` · 004954e0 · legions 0048dcb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [ ] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0

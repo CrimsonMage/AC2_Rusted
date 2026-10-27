@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 85 done, 57 partial, 620 to do, 19 skipped.
+781 retail functions: 86 done, 57 partial, 619 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (5/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (6/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0
@@ -1210,7 +1210,7 @@ Legend and workflow: [README](README.md).
 - [x] `WorldRender::UpdateAmbientSounds` · 0057cb00 · legions 0054c3d0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `WorldRender::InitAmbientSounds` · 0057cb40
 - [~] `WorldRender::SetupEnvironment` · 0057cb50 · legions 0054c420 — outdoor sun, ambient and fog; indoor and sky environments not yet
-- [ ] `WorldRender::UpdateRainSounds` · 0057cf80 · legions 0054c850
+- [x] `WorldRender::UpdateRainSounds` · 0057cf80 · legions 0054c850 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 
 ### SceneCamera
 - [ ] `SceneCamera::SceneCamera` · 0057d190 · legions 0054ca60

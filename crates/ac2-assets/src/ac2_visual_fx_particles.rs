@@ -1,0 +1,141 @@
+//! The FX particle nodes of an AC2 visual, resolved ahead of time on a loader thread so the frame
+//! thread can run `FXManager::DoParticleFX` without reading: for every FX id the attachments
+//! `FXTable::GetFXData` returns (the total `VisualDesc`'s override when the id has one, else the
+//! static `DBFXTable` entry followed by its sub-tables'), each placed as
+//! `PHYSICSOBJREP::CreateParticleSystem` places a startup system. The same walk as the sound
+//! table in [`crate::ac2_visual_fx_sounds`], over the particle lists.
+
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use ac2_core::DataId;
+use ac2_dat::DatFileKind;
+use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
+
+use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
+use crate::ac2_visual_desc::Ac2VisualDesc;
+use crate::ac2_visual_particles::{load, placement, Ac2ParticleAttachment};
+use ac2_anim::Ac2Setup;
+
+const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
+const MAX_VISUAL_DESC_DEPTH: usize = 16;
+const MAX_FX_TABLE_DEPTH: usize = 8;
+
+/// A visual's FX id -> particle systems to start (`FXManager::DoParticleFX`'s list).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Ac2VisualFxParticles {
+    entries: HashMap<u32, Arc<[Ac2ParticleAttachment]>>,
+}
+
+impl Ac2VisualFxParticles {
+    /// The systems FX `fx_id` starts, `None` when it starts none.
+    pub fn get(&self, fx_id: u32) -> Option<&Arc<[Ac2ParticleAttachment]>> {
+        self.entries.get(&fx_id)
+    }
+
+    /// Every FX id and its systems, for the real-data checks.
+    #[cfg(test)]
+    pub(crate) fn entries_for_test(
+        &self,
+    ) -> impl Iterator<Item = (u32, &Arc<[Ac2ParticleAttachment]>)> + '_ {
+        self.entries.iter().map(|(id, list)| (*id, list))
+    }
+
+    /// Whether the visual has any particle FX.
+    pub fn is_empty(&self) -> bool {
+        self.entries.is_empty()
+    }
+}
+
+/// Resolves the FX particle nodes of an AC2 `VisualDesc` (`None` when it has none).
+pub fn resolve_ac2_visual_fx_particles(
+    store: &ResourceStore,
+    visual: DataId,
+) -> ResourceResult<Option<Ac2VisualFxParticles>> {
+    if visual.raw() & 0xFF00_0000 != VISUAL_DESC_PREFIX {
+        return Ok(None);
+    }
+    let mut chain = Vec::new();
+    let mut current = Some(visual);
+    while let Some(did) = current.filter(|_| chain.len() < MAX_VISUAL_DESC_DEPTH) {
+        let Some(desc) = load::<Ac2VisualDesc>(store, did)? else {
+            break;
+        };
+        current = desc.parent;
+        chain.push(desc);
+    }
+    // `PartGroupDataDesc::ApplyAdditivePGDDesc`, root first: the first override per id and the
+    // last non-zero table.
+    let mut fx_table = None;
+    let mut overrides = Vec::<(u32, Arc<[Ac2FxParticleNode]>)>::new();
+    for desc in chain.iter().rev() {
+        fx_table = desc.fx.fx_table.or(fx_table);
+        for (id, nodes) in desc.fx.overrides.iter() {
+            if !overrides.iter().any(|(known, _)| known == id) {
+                overrides.push((*id, Arc::clone(nodes)));
+            }
+        }
+    }
+    let mut table_nodes = HashMap::<u32, Vec<Ac2FxParticleNode>>::new();
+    if let Some(table) = fx_table {
+        collect_table(store, table, 0, &mut table_nodes)?;
+    }
+    let mut nodes: HashMap<u32, Vec<Ac2FxParticleNode>> = table_nodes;
+    for (id, list) in overrides {
+        nodes.insert(id, list.iter().cloned().collect());
+    }
+    if nodes.is_empty() {
+        return Ok(None);
+    }
+    let setup = match crate::resolve_ac2_visual_setup(store, visual)? {
+        Some(setup) => load::<Ac2Setup>(store, setup)?,
+        None => None,
+    };
+    let rest = setup
+        .as_ref()
+        .map(|setup| setup.rest_pose())
+        .unwrap_or_default();
+    let entries = nodes
+        .into_iter()
+        .filter(|(_, list)| !list.is_empty())
+        .map(|(id, list)| {
+            let attachments = list
+                .into_iter()
+                .map(|node| Ac2ParticleAttachment {
+                    placement: placement(setup.as_deref(), &rest, &node),
+                    particle_descs: node.particle_descs,
+                    water_plane: node.water_plane,
+                })
+                .collect::<Arc<[_]>>();
+            (id, attachments)
+        })
+        .collect();
+    Ok(Some(Ac2VisualFxParticles { entries }))
+}
+
+/// Every id of `table` and its sub-tables, each id's nodes in `DBFXTable::GetFXData` order.
+fn collect_table(
+    store: &ResourceStore,
+    table: DataId,
+    depth: usize,
+    nodes: &mut HashMap<u32, Vec<Ac2FxParticleNode>>,
+) -> ResourceResult<()> {
+    if depth >= MAX_FX_TABLE_DEPTH {
+        return Ok(());
+    }
+    let Some(record) = store.load_cached_packed::<Ac2FxTable>(TypedResourceRef::new(
+        DatFileKind::Portal,
+        table,
+        0,
+    ))?
+    else {
+        return Ok(());
+    };
+    for (id, list) in record.entries.iter() {
+        nodes.entry(*id).or_default().extend(list.iter().cloned());
+    }
+    for sub in record.sub_tables.iter() {
+        collect_table(store, *sub, depth + 1, nodes)?;
+    }
+    Ok(())
+}

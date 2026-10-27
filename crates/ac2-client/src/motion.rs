@@ -184,6 +184,7 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
         ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
         ObjectAction::SetHoverHeight(height) => body.set_hover_height(*height),
+        ObjectAction::DoFxScript(id) => body.do_fx_script(*id),
         ObjectAction::DoFx { fx, scalar } => {
             body.do_fx(*fx, *scalar);
         }

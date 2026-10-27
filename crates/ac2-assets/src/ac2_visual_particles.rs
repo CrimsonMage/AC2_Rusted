@@ -140,7 +140,7 @@ fn collect_table_nodes(
 /// places the system at its location transform on its bone (the bone offset is unused there); a
 /// bone name offsets the system in that bone's rest pose; otherwise the offset is object-local.
 /// `m_remove_rotation` keeps only the composed translation.
-fn placement(
+pub(crate) fn placement(
     setup: Option<&Ac2Setup>,
     rest: &[Ac2Transform],
     node: &Ac2FxParticleNode,
@@ -172,7 +172,7 @@ fn placement(
     placed
 }
 
-fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
+pub(crate) fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     store: &ResourceStore,
     did: DataId,
 ) -> ResourceResult<Option<CachedResource<T>>> {

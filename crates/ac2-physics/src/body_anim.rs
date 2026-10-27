@@ -42,6 +42,21 @@ impl PhysicsBody {
         self.object.update_animation(quantum, local_time, random);
     }
 
+    /// `CPhysicsObj::DoFXScript`: starts the FX script `id` on the body. The script record is
+    /// attached by [`Self::resolve_fx_scripts`] before the next animation step.
+    pub fn do_fx_script(&mut self, id: u32) {
+        self.object.anim.do_fx_script(id);
+    }
+
+    /// Attaches the pending FX scripts' records (`FXTrack::FillCache`), from `lookup`. A script
+    /// the lookup cannot give is dropped, as `FXScriptTracker::Update` drops it.
+    pub fn resolve_fx_scripts(
+        &mut self,
+        lookup: impl FnMut(u32) -> Option<std::sync::Arc<ac2_anim::Ac2FxScript>>,
+    ) {
+        self.object.anim.resolve_fx_scripts(lookup);
+    }
+
     /// `PhysicsGlobals::SetWind` as this body sees it: the magnitude of `wind` (x, y, z),
     /// which the body's wind slider follows (`PHYSICSOBJREP::UpdateSliderTracker`).
     pub fn set_wind(&mut self, wind: [f32; 3]) {

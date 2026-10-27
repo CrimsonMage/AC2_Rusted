@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 371 done, 81 partial, 1610 to do, 62 skipped.
+2124 retail functions: 377 done, 81 partial, 1604 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `FXMap_FromFileNode` · 006a8b00
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (3/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (4/44)
 
 ### DecalEffectDesc
 - [ ] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500
@@ -1272,7 +1272,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00
 
 ### DBObjGrabber<FxScript>
-- [ ] `DBObjGrabber<FxScript>::DBObjGrabber<FxScript>` · 00505ca0 · legions 004f3f70
+- [x] `DBObjGrabber<FxScript>::DBObjGrabber<FxScript>` · 00505ca0 · legions 004f3f70 — ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 
 ### _STL::pair<unsigned_long_const_,FXState>
 - [ ] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (110/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (112/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2193,7 +2193,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RecvEvt_AddTerrainModifier` · 004de250
 - [ ] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270
 - [ ] `CPhysicsObj::RecvEvt_AddTargetedImpulse` · 004de280
-- [ ] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0
+- [x] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [ ] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0
 - [ ] `CPhysicsObj::RecvEvt_LookAtDir` · 004de300
 - [x] `CPhysicsObj::RecvEvt_StopBehavior` · 004de320 — ac2-client motion.rs
@@ -2230,7 +2230,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::AddTerrainModifier` · 004de6e0
 - [ ] `CPhysicsObj::ClearTerrainModifiers` · 004de6f0
 - [ ] `CPhysicsObj::AddImpulseLocal` · 004de700
-- [ ] `CPhysicsObj::DoFXScript` · 004de780 · legions 004d11e0
+- [x] `CPhysicsObj::DoFXScript` · 004de780 · legions 004d11e0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `CPhysicsObj::DoElement` · 004de7b0 · legions 004d1210 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::SetMode` · 004de800 · legions 004d1260 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::DoSlider` · 004de840 · legions 004d12a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (30/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (33/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2752,7 +2752,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::HandleEnterWorld` · 004f1140 · legions 004e3a70
 - [x] `PHYSICSOBJREP::SetMode` · 004f1170 · legions 004e3aa0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::DoElement` · 004f1190 · legions 004e3ac0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `PHYSICSOBJREP::DoFXScript` · 004f11b0 · legions 004e3ae0
+- [x] `PHYSICSOBJREP::DoFXScript` · 004f11b0 · legions 004e3ae0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::DoMode` · 004f11d0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::DoSlider` · 004f11f0 · legions 004e3b20 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::DoBehavior` · 004f12f0 · legions 004e3c20 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2819,7 +2819,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::GetComboCVel` · 004f1b00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetHoldLocations` · 004f1b90 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [~] `PHYSICSOBJREP::SetupSliderTracker` · 004f1c40 · legions 004e4540 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
-- [ ] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0
+- [x] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670
 - [ ] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0
@@ -2862,7 +2862,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10
 - [ ] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20
 - [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
-- [ ] `PHYSICSOBJREP::UpdateFXScriptTracker` · 004f2540 · legions 004e4e40
+- [x] `PHYSICSOBJREP::UpdateFXScriptTracker` · 004f2540 · legions 004e4e40 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::GetTerrainType` · 004f2590
 - [ ] `PHYSICSOBJREP::HasContact` · 004f25b0

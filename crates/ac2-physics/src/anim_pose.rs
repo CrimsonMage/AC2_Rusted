@@ -71,10 +71,10 @@ impl PhysicsObj {
         step
     }
 
-    /// `CPhysicsObj::UpdateAnimation` (look-at, FX scripts and the FX manager are not
-    /// modelled). Unless animation is frozen: an update frame comes once the update step has
-    /// passed since the last one while the body is within its minimum visible distance (always
-    /// the first call); it advances the sliders by the time since the last update frame and
+    /// `CPhysicsObj::UpdateAnimation` (look-at and the FX manager are not modelled). Unless
+    /// animation is frozen: an update frame comes once the update step has passed since the last
+    /// one while the body is within its minimum visible distance (always the first call); it
+    /// advances the sliders and the FX scripts by the time since the last update frame and
     /// refreshes the bones. Every call adds the half-step of local acceleration to the animation
     /// velocity and runs `ModeTracker::Update`, whose `DoAnimation` collects the tracks'
     /// triggers; then the `TriggerUpdate` fires (FX and weenie hooks become events, impulses
@@ -96,6 +96,7 @@ impl PhysicsObj {
         if refresh {
             self.last_animation_update_time = local_time;
             self.anim.update_sliders(elapsed, self.wind_magnitude);
+            self.anim.update_fx_scripts(elapsed);
         }
         let a = self.position.frame.global_to_local_vec(self.acceleration);
         let q = ld(quantum);

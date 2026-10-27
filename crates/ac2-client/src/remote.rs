@@ -525,9 +525,11 @@ impl Remotes {
         local_time: f64,
         wind: [f32; 3],
         random: &mut ac2_core::Random,
+        scripts: &crate::FxScripts,
     ) {
         for remote in self.objects.values_mut() {
             if let Some(body) = &mut remote.body {
+                body.resolve_fx_scripts(|id| scripts.get(id));
                 body.set_wind(wind);
                 body.update_animation(step, local_time, random);
             }

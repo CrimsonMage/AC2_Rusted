@@ -8,8 +8,8 @@ use std::sync::Arc;
 
 use ac2_anim::{
     Ac2AnimEvent, Ac2AnimationSource, Ac2AnimatorContext, Ac2BehaviorTable, Ac2BoneTransform,
-    Ac2CharTemplate, Ac2ComboInfo, Ac2DbAnimator, Ac2ModeTracker, Ac2Setup, Ac2SliderTracker,
-    Ac2TrackerState,
+    Ac2CharTemplate, Ac2ComboInfo, Ac2DbAnimator, Ac2FxScript, Ac2FxScriptTracker, Ac2ModeTracker,
+    Ac2Setup, Ac2SliderTracker, Ac2TrackerState,
 };
 
 use crate::fpu::{ld, st};
@@ -33,6 +33,8 @@ pub struct BodyAnimation {
 pub(crate) struct AnimRep {
     pub(crate) modes: Ac2ModeTracker,
     pub(crate) sliders: Ac2SliderTracker,
+    /// `PHYSICSOBJREP::m_fxTracker`: the FX scripts playing on the body.
+    pub(crate) fx_scripts: Ac2FxScriptTracker,
     pub(crate) animators: Arc<HashMap<u32, Arc<Ac2DbAnimator>>>,
     pub(crate) table: Option<Arc<Ac2BehaviorTable>>,
     pub(crate) setup: Option<Arc<Ac2Setup>>,
@@ -157,6 +159,7 @@ impl AnimRep {
         Self {
             modes: Ac2ModeTracker::new(template),
             sliders: Ac2SliderTracker::new(),
+            fx_scripts: Ac2FxScriptTracker::default(),
             animators: Arc::new(HashMap::new()),
             table: None,
             setup: None,
@@ -177,6 +180,7 @@ impl AnimRep {
         let mut rep = Self {
             modes: Ac2ModeTracker::new(animation.template),
             sliders: Ac2SliderTracker::new(),
+            fx_scripts: Ac2FxScriptTracker::default(),
             animators: Arc::new(animation.animators),
             table: Some(Arc::clone(&animation.table)),
             setup: animation.setup,
@@ -245,6 +249,26 @@ impl AnimRep {
         ];
         cap_color(&mut self.anim_color);
         self.anim_opacity = cap_opacity(self.sliders.value(SLIDER_OPACITY));
+    }
+
+    /// `PHYSICSOBJREP::DoFXScript`: a track for FX script `id`, its script attached by
+    /// [`Self::resolve_fx_scripts`].
+    pub(crate) fn do_fx_script(&mut self, id: u32) {
+        self.fx_scripts.do_fx_script(id);
+    }
+
+    /// The script attach of `FXTrack::FillCache` for the pending tracks.
+    pub(crate) fn resolve_fx_scripts(
+        &mut self,
+        lookup: impl FnMut(u32) -> Option<std::sync::Arc<Ac2FxScript>>,
+    ) {
+        self.fx_scripts.resolve(lookup);
+    }
+
+    /// `PHYSICSOBJREP::UpdateFXScriptTracker`: the FX scripts advance by `quantum`; the triggers
+    /// they reach join the animation's `TriggerUpdate`, fired by the animation step.
+    pub(crate) fn update_fx_scripts(&mut self, quantum: f32) {
+        self.fx_scripts.update(quantum, self.modes.triggers_mut());
     }
 
     /// `PHYSICSOBJREP::DoSlider`: a slider set at once (`time` 0) that is a colour channel or
