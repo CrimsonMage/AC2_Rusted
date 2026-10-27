@@ -645,6 +645,27 @@ fn stop_attacking_runs_on_the_vm_for_the_target() {
     assert!(client.take_script_problems().is_empty());
 }
 
+/// `PlayerMovementModule::StopAttackingIfAutoMoving` -> `gmCWInterface::StopAttackingIfAutoMoving`
+/// (IFun 0xB400C3) runs on the VM with no arguments: the script decides whether the auto-move
+/// attack stops, so the call must reach the VM and finish without a problem.
+#[test]
+fn stop_attacking_if_auto_moving_runs_on_the_vm() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    advance(&mut client, &server, 1.0);
+    events_for(
+        &mut client,
+        &server,
+        vec![Command::StopAttackingIfAutoMoving],
+        1,
+    );
+    advance(&mut client, &server, 0.5);
+    assert!(client.take_script_problems().is_empty());
+}
+
 /// `gmCWInterface::Dismount` (IFun 0xB400E5) runs on the VM, which sends the script's call with no
 /// arguments (id 0x8212_0033, not traced by name).
 #[test]

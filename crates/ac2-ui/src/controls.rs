@@ -37,6 +37,9 @@ pub struct ControlFrame {
     pub behaviors: Vec<(u32, bool)>,
     /// A movement action started (`InterruptMoveTo`).
     pub interrupt_move_to: bool,
+    /// A turn key started (`PlayerMovementModule::StopAttackingIfAutoMoving`): the client runs
+    /// the script's `gmCWInterface::StopAttackingIfAutoMoving`.
+    pub stop_attacking_if_auto_moving: bool,
     /// The mouse-look motion of the frame (`CallMouseLookHandler`), in mouse-look mode.
     pub mouse_look: Option<(i32, i32)>,
     /// `gmCameraUI::UpdateCamera`, when it ran.
@@ -187,7 +190,9 @@ impl Controls {
         for d in dispatch {
             match d {
                 Dispatch::InterruptMoveTo => self.pending.interrupt_move_to = true,
-                Dispatch::StopAttackingIfAutoMoving => {}
+                Dispatch::StopAttackingIfAutoMoving => {
+                    self.pending.stop_attacking_if_auto_moving = true
+                }
                 Dispatch::Behavior { behavior, start } => {
                     self.pending.behaviors.push((behavior, start))
                 }

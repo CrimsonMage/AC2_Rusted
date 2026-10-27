@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 743 done, 172 partial, 478 to do, 511 skipped.
+1904 retail functions: 746 done, 169 partial, 478 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (122/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (123/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -845,7 +845,7 @@ Legend and workflow: [README](README.md).
 - [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [ ] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140 — needs port: script IFun start examination on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
-- [~] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0 — no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
+- [x] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0
 - [ ] `ggmCWInterface::CallIFun_StopExamination` · 004636f0 · legions 00464360 — needs port: script IFun stop examination on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_SwearAllegiance` · 00463780 · legions 004643f0 — needs port: script IFun swear allegiance on the client interface; no citation in crates/
 - [~] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — needs port: weenie allocator allocate efun dispatcher; no citation in crates/
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — needs port: weenie allocator allocate native factory; no citation in crates/
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (164/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (165/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -1123,7 +1123,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [~] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
-- [~] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110 — no native caller in the call graph. The turn key runs PlayerMovementModule::StopAttackingIfAutoMoving (native, motion interpreter slot 0xC0), not this IFun; that path is not ported (see the PlayerMovementModule row). The VM answer for this IFun was not wanted and is not wired
+- [x] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110 — gmCWInterface::StopAttackingIfAutoMoving (vtable slot 0xC0 of the player's weenie): the IFun 0xB400C3 call (ggmCWInterface::CallIFun_StopAttackingIfAutoMoving, admin 00463660) runs in ac2-client Command::StopAttackingIfAutoMoving, no arguments
 - [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [x] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [ ] `gmCWInterface::HandleSetWeenieDesc` · 00452030 · legions 004531b0 — needs port: interface handle set weenie desc; no citation in crates/
@@ -1262,7 +1262,7 @@ Legend and workflow: [README](README.md).
 - [x] `ActionMap::UnPack` · 0072f200 — ac2-ui maps.rs (ActionMap values by action, modifiers and toggle type, UnPack from the DAT)
 - [-] `ActionMap::Allocate` · 0072f370 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
-## `portal/client/src/action/movement/playermovementmodule.cpp.c` (14/17)
+## `portal/client/src/action/movement/playermovementmodule.cpp.c` (15/17)
 
 ### PlayerMovementModule
 - [x] `PlayerMovementModule::Startup` · 00568e20 · legions 00538db0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
@@ -1272,13 +1272,13 @@ Legend and workflow: [README](README.md).
 - [x] `PlayerMovementModule::ShouldSendLookAtEvent` · 00569200 · legions 00539190 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::SendLookAtEvent` · 005692e0 · legions 00539270 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::MouseMove` · 00569380 · legions 00539310 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
-- [x] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
+- [x] `PlayerMovementModule::DoBehavior` · 005693a0 · legions 00539330
 - [x] `PlayerMovementModule::StopBehavior` · 005693d0 · legions 00539360 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::StartCameraAction` · 00569400 · legions 00539390 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::StopCameraAction` · 00569420 · legions 005393b0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::LockActions` · 00569440 · legions 005393d0 — ac2-client client.rs lock_player_actions, set from the player's LockActions/UnlockActions animation events (client_audio animation_sounds); movement_module.rs locked; motion_tests a_locking_behaviour_on_the_player_emits_lock_events
 - [x] `PlayerMovementModule::InterruptMoveTo` · 00569450 · legions 005393e0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
-- [~] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400 — ac2-ui controls.rs: a turn key starting dispatches StopAttackingIfAutoMoving and it is a no-op, so turning does not stop an auto-move attack (the attack's stop is not wired to the client's combat state)
+- [x] `PlayerMovementModule::StopAttackingIfAutoMoving` · 00569470 · legions 00539400 — PlayerMovementModule::StopAttackingIfAutoMoving (admin 00569470): CPhysicsObj vtable slot 0x54c = CPhysicsObj::GetWeenieObj (004ead90), then the weenie's slot 0xC0 = gmCWInterface::StopAttackingIfAutoMoving (admin 00451f90, objdump-confirmed; the brief's note that slot 0xC0 is GetAcceleration is the CMotionInterp vtable, not this object). Ported: ac2-ui turn keys set ControlFrame.stop_attacking_if_auto_moving, ac2-client Command::StopAttackingIfAutoMoving calls IFun 0xB400C3 (the script decides; no native auto-move state exists to check). Tests: ac2-ui a_turn_key_asks_for_the_auto_move_attack_stop, ac2-client controls a_turn_key_start..., combat_7160 stop_attacking_if_auto_moving_runs_on_the_vm
 - [-] `PlayerMovementModule::Shutdown` · 005694a0 · legions 00539430 — Rust owns the module inside Client (no singleton accessor, no Shutdown ordering)
 - [x] `PlayerMovementModule::SetPlayerID` · 005694f0 · legions 00539480 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests
 - [x] `PlayerMovementModule::UseTime` · 00569550 · legions 005394e0 — ac2-weenie movement_module.rs (UseTime: do-motion, turn, steer, jump count) and reporter.rs (position and look-at reports, tests in ac2-weenie physics_adapter); ac2-client client.rs input_handlers (DoBehavior/StopBehavior, InterruptMoveTo), camera_actions, camera_mouse.rs (MouseMove); ac2-client motion_tests

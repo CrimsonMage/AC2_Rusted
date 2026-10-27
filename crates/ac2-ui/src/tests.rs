@@ -5,6 +5,8 @@ use super::*;
 const W: u32 = 0x11;
 const SHIFT: u32 = 0x2A;
 const R: u32 = 0x13;
+const A: u32 = 0x1E;
+const TURN_LEFT: u32 = 0x4000_0024;
 const FORWARD: u32 = 0x4000_0020;
 const RUN_LOCK: u32 = 0x4000_0027;
 const SHIFT_ACTION: u32 = 0x4000_000E;
@@ -36,7 +38,11 @@ fn controls() -> Controls {
     let main = KeyMap {
         name: String::new(),
         guid: [0; 16],
-        mappings: vec![mapping(FORWARD, W), mapping(RUN_LOCK, R)],
+        mappings: vec![
+            mapping(FORWARD, W),
+            mapping(RUN_LOCK, R),
+            mapping(TURN_LEFT, A),
+        ],
     };
     let shift = KeyMap {
         name: String::new(),
@@ -53,12 +59,15 @@ fn controls() -> Controls {
         extent: 1.0,
     };
     map.toggles.insert(FORWARD, TOGGLE_HOLD);
+    map.toggles.insert(TURN_LEFT, TOGGLE_HOLD);
     map.toggles.insert(RUN_LOCK, TOGGLE_TOGGLE);
     map.toggles.insert(SHIFT_ACTION, TOGGLE_HOLD);
     map.toggles.insert(ZOOM_IN, TOGGLE_ONE_SHOT);
     map.toggles.insert(WAVE, TOGGLE_ONE_SHOT);
     map.actions
         .insert((FORWARD, 0), value(CLASS_MOVEMENT, 0x4000_0001));
+    map.actions
+        .insert((TURN_LEFT, 0), value(CLASS_MOVEMENT, TURN_LEFT));
     map.actions
         .insert((RUN_LOCK, 0), value(CLASS_MOVEMENT, 0x4000_0008));
     map.actions
@@ -75,6 +84,25 @@ fn key(controls: &mut Controls, scan: u32, pressed: bool, now: f64) {
         InputEvent::Key { scan, pressed },
         (now * 1000.0) as u32,
         now,
+    );
+}
+
+#[test]
+fn a_turn_key_asks_for_the_auto_move_attack_stop() {
+    let mut c = controls();
+    key(&mut c, W, true, 0.0);
+    assert!(
+        !c.frame().stop_attacking_if_auto_moving,
+        "forward does not turn"
+    );
+    key(&mut c, W, false, 0.1);
+    key(&mut c, A, true, 0.5);
+    let frame = c.frame();
+    assert!(frame.stop_attacking_if_auto_moving);
+    assert!(frame.interrupt_move_to);
+    assert!(
+        !c.frame().stop_attacking_if_auto_moving,
+        "a one-frame dispatch"
     );
 }
 

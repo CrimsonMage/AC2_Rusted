@@ -177,6 +177,9 @@ pub enum Command {
     /// `gmCWInterface::StopAttacking(target)`: `gmSelectionUI` stops the attack on `target`
     /// (not selectable any more, or deleted).
     StopAttacking(u64),
+    /// `PlayerMovementModule::StopAttackingIfAutoMoving`, when a turn key starts: the script's
+    /// `gmCWInterface::StopAttackingIfAutoMoving` (IFun 0xB400C3, no arguments).
+    StopAttackingIfAutoMoving,
     /// `gmCWInterface::RequestPetAttack(target)`: the pet panel's attack button, on the selection.
     PetAttack(u64),
     /// `gmCWInterface::RequestPetBuff` / `RequestPetHeal` / `RequestPetReturn`: the panel's buttons.
@@ -466,6 +469,9 @@ impl Client {
                     crate::scripts::IFUN_STOP_ATTACKING,
                     &[ac2_net::protocol::PackValue::LongInt(*target)],
                 ),
+                Command::StopAttackingIfAutoMoving => {
+                    self.own_ifun(crate::scripts::IFUN_STOP_ATTACKING_IF_AUTO_MOVING, &[])
+                }
                 Command::PetAttack(target) => self.script_request(
                     crate::scripts::IFUN_REQUEST_PET_ATTACK,
                     &[IFunArg::Long(*target)],

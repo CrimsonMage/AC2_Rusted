@@ -50,6 +50,7 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     // `StopAttacking`).
     IFUN_DISMOUNT,
     IFUN_STOP_ATTACKING,
+    IFUN_STOP_ATTACKING_IF_AUTO_MOVING,
     // The pet panel's requests (`gmCWInterface::RequestPet*`, `RequestSetPetName`).
     IFUN_REQUEST_PET_ATTACK,
     IFUN_REQUEST_PET_BUFF,
@@ -217,6 +218,10 @@ pub const IFUN_DISMOUNT: u32 = 0x00B4_00E5;
 /// `gmCWInterface::StopAttacking(target)` (`ggmCWInterface::CallIFun_StopAttacking`: the
 /// `InstanceID`). `gmSelectionUI` calls it when the target is no longer selectable or is deleted.
 pub const IFUN_STOP_ATTACKING: u32 = 0x00B4_0104;
+/// `gmCWInterface::StopAttackingIfAutoMoving` (`ggmCWInterface::CallIFun_StopAttackingIfAutoMoving`:
+/// the return slot and the player's instance). A turn key starting calls it through
+/// `PlayerMovementModule::StopAttackingIfAutoMoving`.
+pub const IFUN_STOP_ATTACKING_IF_AUTO_MOVING: u32 = 0x00B4_00C3;
 /// `gmCWInterface::RequestPetAttack(target)` (`ggmCWInterface::CallIFun_RequestPetAttack`: the
 /// pet's `InstanceID`).
 pub const IFUN_REQUEST_PET_ATTACK: u32 = 0x00B4_0144;
