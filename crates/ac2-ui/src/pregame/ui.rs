@@ -332,10 +332,10 @@ impl PregameUi {
         &mut self,
         actions: &[(u32, f32)],
         characters: &[(u16, u32)],
-        ctrl: bool,
+        modifiers: crate::chat::Modifiers,
     ) -> Vec<UiMessage> {
         for &(action, extent) in actions {
-            self.tree.text_action(action, extent, ctrl);
+            self.tree.text_action(action, extent, modifiers);
         }
         // `NameInputFilter` on the naming dialog's entry.
         let name_entry = match &self.current {
@@ -346,7 +346,7 @@ impl PregameUi {
             if name_entry.is_some() && self.tree.active() == name_entry && !is_name_character(ch) {
                 continue;
             }
-            self.tree.character(ch, key, ctrl);
+            self.tree.character(ch, key, modifiers);
         }
         self.pump()
     }

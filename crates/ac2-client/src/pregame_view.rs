@@ -160,12 +160,12 @@ impl PregameView {
         &mut self,
         actions: &[(u32, f32)],
         characters: &[(u16, u32)],
-        ctrl: bool,
+        modifiers: ac2_ui::Modifiers,
     ) -> Vec<UiMessage> {
         let Some(ui) = &mut self.ui else {
             return Vec::new();
         };
-        let messages = ui.text_input(actions, characters, ctrl);
+        let messages = ui.text_input(actions, characters, modifiers);
         self.dirty |= ui.tree_mut().take_changed();
         messages
     }

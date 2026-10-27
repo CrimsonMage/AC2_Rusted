@@ -1,0 +1,150 @@
+//! A list box and its scroll bar, and the list's keyboard stepping (`list_scroll.rs`).
+
+use std::sync::Arc;
+
+use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, Rect, StateDesc};
+use crate::token::{tokenize, STATELESS};
+use crate::{UiTree, UI_WHEEL_OUT};
+
+fn element(
+    id: &str,
+    kind: u32,
+    rect: Rect,
+    attributes: Vec<(&str, AttributeValue)>,
+    children: Vec<ElementDesc>,
+) -> ElementDesc {
+    ElementDesc {
+        id: tokenize(id),
+        kind,
+        default_state: STATELESS,
+        rect,
+        z_level: 0,
+        edges: [0; 4],
+        states: vec![StateDesc {
+            id: STATELESS,
+            flags: 0,
+            rect: Rect {
+                x0: -1,
+                y0: -1,
+                x1: -1,
+                y1: -1,
+            },
+            z_level: 0,
+            attributes: attributes
+                .into_iter()
+                .map(|(name, value)| AttributeDesc {
+                    id: tokenize(name),
+                    value,
+                })
+                .collect(),
+            media: Vec::new(),
+            transitions: Vec::new(),
+            children: children.into_iter().map(Arc::new).collect(),
+        }],
+    }
+}
+
+fn rect(x0: i16, y0: i16, x1: i16, y1: i16) -> Rect {
+    Rect {
+        x0: i32::from(x0),
+        y0: i32::from(y0),
+        x1: i32::from(x1),
+        y1: i32::from(y1),
+    }
+}
+
+/// A panel holding a 30 x 20 list of one column of 10 x 10 items, and beside it the scroll bar
+/// the list names as its `vertical_scrollbar`. Five items make a paper 50 pixels tall.
+/// Returns the tree, the list, the scroll bar and the layout.
+fn panel() -> (UiTree, usize, usize, Arc<LayoutDesc>) {
+    let list = element(
+        "List",
+        tokenize("listbox"),
+        rect(0, 0, 29, 19),
+        vec![
+            ("max_columns", AttributeValue::Int(1)),
+            ("vertical_scrollbar", AttributeValue::Id(tokenize("Bar"))),
+        ],
+        vec![],
+    );
+    let bar = element(
+        "Bar",
+        tokenize("scrollbar"),
+        rect(40, 0, 49, 19),
+        vec![],
+        vec![],
+    );
+    let panel = element(
+        "Panel",
+        0x4DA7_2ECC,
+        rect(0, 0, 59, 19),
+        vec![],
+        vec![list, bar],
+    );
+    let item = element("Item", 0x4DA7_2ECC, rect(0, 0, 9, 9), vec![], vec![]);
+    let layout = Arc::new(LayoutDesc {
+        did: 0,
+        sub_ids: Vec::new(),
+        string_table: 0,
+        width: 60,
+        height: 20,
+        elements: vec![Arc::new(panel), Arc::new(item)],
+    });
+    let mut tree = UiTree::new(100, 100);
+    let root = tree
+        .create_root(Arc::clone(&layout), tokenize("Panel"))
+        .unwrap();
+    let list = tree.child_recursive(root, tokenize("List")).unwrap();
+    let bar = tree.child_recursive(root, tokenize("Bar")).unwrap();
+    let item_desc = Arc::clone(layout.element(tokenize("Item")).unwrap());
+    for _ in 0..5 {
+        let item = tree
+            .create_element(Arc::clone(&layout), Arc::clone(&item_desc), false)
+            .unwrap();
+        tree.list_add_item(list, item);
+    }
+    (tree, list, bar, layout)
+}
+
+fn view_y(tree: &UiTree, list: usize) -> i32 {
+    tree.get(list).unwrap().list.as_ref().unwrap().view.1
+}
+
+#[test]
+fn the_scroll_bar_and_the_list_view_follow_each_other() {
+    let (mut tree, list, bar, _) = panel();
+    // Half way down the 49 pixels of scroll: 24, snapped to the row boundary at 20.
+    tree.scrollbar_set_position(bar, 0.5);
+    assert_eq!(view_y(&tree, list), 20);
+    // Scrolling the list moves the bar to the view's share of the paper.
+    tree.list_set_view(list, None, Some(30));
+    assert_eq!(view_y(&tree, list), 30);
+    let share = tree.scrollbar_position(bar);
+    assert!((share - 30.0 / 49.0).abs() < 1e-6, "bar at {share}");
+}
+
+#[test]
+fn a_wheel_turn_over_the_scroll_bar_moves_the_list_a_line() {
+    let (mut tree, list, bar, _) = panel();
+    tree.scrollbar_mouse_wheel(bar, UI_WHEEL_OUT);
+    assert_eq!(view_y(&tree, list), 10);
+    tree.scrollbar_mouse_wheel(bar, crate::UI_WHEEL_IN);
+    assert_eq!(view_y(&tree, list), 0);
+    // A wheel turn at the top stays at the top.
+    tree.scrollbar_mouse_wheel(bar, crate::UI_WHEEL_IN);
+    assert_eq!(view_y(&tree, list), 0);
+}
+
+#[test]
+fn keyboard_steps_wrap_and_show_the_selected_item() {
+    let (mut tree, list, _, _) = panel();
+    tree.list_step_selection(list, 1);
+    assert_eq!(tree.list_selected_index(list), Some(0));
+    tree.list_step_selection(list, -1);
+    // Back past the first item wraps to the last, which the view then shows.
+    assert_eq!(tree.list_selected_index(list), Some(4));
+    assert_eq!(view_y(&tree, list), 30);
+    tree.list_step_selection(list, 1);
+    assert_eq!(tree.list_selected_index(list), Some(0));
+    assert_eq!(view_y(&tree, list), 0);
+}

@@ -422,7 +422,7 @@ pub(super) fn naming_checks_the_expansion_and_sends_the_result() {
     click_named(&mut ui, "NextButton");
     click_named(&mut ui, "NameEntry");
     let typed: Vec<(u16, u32)> = "Ab1c".encode_utf16().map(|c| (c, 0)).collect();
-    ui.text_input(&[], &typed, false);
+    ui.text_input(&[], &typed, crate::chat::Modifiers::default());
     click_named(&mut ui, "EnterButton");
     assert!(actions(&mut ui).is_empty());
     // With the expansion it goes out, named.

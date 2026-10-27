@@ -11,6 +11,7 @@
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
+use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::{tokenize, MOUSE_EVENT_PASSTHROUGH};
 
 pub(crate) const LIST_BOX: u32 = tokenize("listbox");
@@ -116,10 +117,16 @@ impl UiTree {
     /// `UIElement_ListBox::MouseDown` after `UIElement::MouseDown`: a left press selects the
     /// item under the pointer (`HandleSelection`) and is taken unless the list passes it on.
     pub(crate) fn list_mouse_down(&mut self, index: usize, action: u32, processed: &mut bool) {
-        if self.el(index).desc.kind != LIST_BOX || !LEFT.contains(&action) {
+        if self.el(index).desc.kind != LIST_BOX {
             return;
         }
-        if self.bool_attribute(index, CLICK_SELECT) {
+        let wheel = matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT);
+        if !wheel && !LEFT.contains(&action) {
+            return;
+        }
+        if wheel {
+            self.list_wheel(index, action);
+        } else if self.bool_attribute(index, CLICK_SELECT) {
             if let Some(item) = self.list_item_under_mouse(index) {
                 self.list_set_selected_item(index, Some(item), true);
             }

@@ -243,6 +243,8 @@ pub struct UiTree {
     pub(crate) movement: Option<crate::window_locations::Movement>,
     /// A window that saves its location moved (`location_changed`), until taken.
     pub(crate) locations_changed: bool,
+    /// The text clipboard (`text_edit.rs`): process-local, not the OS clipboard.
+    pub(crate) text_clipboard: Vec<u16>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -301,6 +303,7 @@ impl UiTree {
             drag: crate::drag::DragState::default(),
             movement: None,
             locations_changed: false,
+            text_clipboard: Vec::new(),
         }
     }
 

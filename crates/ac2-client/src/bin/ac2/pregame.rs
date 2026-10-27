@@ -22,14 +22,14 @@ impl App {
         };
         let (stamp, now) = state.now();
         let ui_input = state.controls.take_ui_input();
-        let ctrl = state.controls.modifiers().ctrl;
+        let modifiers = state.controls.modifiers();
         let (actions, characters, _) = state.controls.take_text_input();
         let presses = state.controls.take_key_presses();
         let mut messages = Vec::new();
         if let Some(pregame) = &mut state.pregame {
             pregame.key_presses(&presses);
             messages = pregame.input(&ui_input);
-            messages.extend(pregame.text_input(&actions, &characters, ctrl));
+            messages.extend(pregame.text_input(&actions, &characters, modifiers));
             state
                 .controls
                 .set_text_mode(pregame.text_mode(), stamp, now);

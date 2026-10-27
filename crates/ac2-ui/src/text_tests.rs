@@ -253,17 +253,17 @@ fn clicking_an_editable_field_takes_typing_until_a_click_elsewhere() {
     assert!(tree.text_mode());
     assert!(messages.iter().any(|m| m.message == tokenize("activated")));
     let ch = |c: char| c as u16;
-    tree.character(ch('a'), 0, false);
-    tree.character(ch('b'), 0, false);
+    tree.character(ch('a'), 0, crate::chat::Modifiers::default());
+    tree.character(ch('b'), 0, crate::chat::Modifiers::default());
     assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("ab"));
     // Backspace, then the cursor-left action, then a character in front.
-    tree.character(8, 0, false);
-    tree.text_action(0x4000_0013, 1.0, false);
-    tree.character(ch('x'), 0, false);
+    tree.character(8, 0, crate::chat::Modifiers::default());
+    tree.text_action(0x4000_0013, 1.0, crate::chat::Modifiers::default());
+    tree.character(ch('x'), 0, crate::chat::Modifiers::default());
     assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("xa"));
     // Enter types nothing on one line, but goes out as character input.
     tree.take_messages();
-    tree.character(13, 0, false);
+    tree.character(13, 0, crate::chat::Modifiers::default());
     assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("xa"));
     let messages = tree.take_messages();
     assert!(messages
@@ -276,4 +276,110 @@ fn clicking_an_editable_field_takes_typing_until_a_click_elsewhere() {
     assert!(messages
         .iter()
         .any(|m| m.message == tokenize("deactivated")));
+}
+
+/// A one-line editable, selectable entry, 50 pixels wide, in a panel the tree is rooted at.
+fn editable_entry() -> (UiTree, usize) {
+    let entry = element(
+        "entry",
+        TEXT,
+        Rect {
+            x0: 0,
+            y0: 0,
+            x1: 49,
+            y1: 9,
+        },
+        vec![
+            flag("editable"),
+            flag("selectable"),
+            flag("activatable"),
+            flag("one_line"),
+        ],
+        vec![],
+    );
+    let panel = element(
+        "panel",
+        0x4DA7_2ECC,
+        Rect {
+            x0: 0,
+            y0: 0,
+            x1: 99,
+            y1: 49,
+        },
+        vec![],
+        vec![entry],
+    );
+    let layout = Arc::new(LayoutDesc {
+        did: 0,
+        sub_ids: Vec::new(),
+        string_table: 0,
+        width: 100,
+        height: 50,
+        elements: vec![Arc::new(panel)],
+    });
+    let mut tree = UiTree::new(100, 50);
+    tree.set_text_data(Arc::new(Data));
+    let panel = tree.create_root(layout, tokenize("panel")).unwrap();
+    let entry = tree.child_recursive(panel, tokenize("entry")).unwrap();
+    assert!(tree.activate(entry));
+    (tree, entry)
+}
+
+#[test]
+fn shift_selects_typing_replaces_and_the_clipboard_moves_text() {
+    use crate::chat::Modifiers;
+    let (mut tree, entry) = editable_entry();
+    let plain = Modifiers::default();
+    let shift = Modifiers {
+        shift: true,
+        ..Modifiers::default()
+    };
+    let ctrl = Modifiers {
+        ctrl: true,
+        ..Modifiers::default()
+    };
+    let text = |tree: &UiTree| tree.get(entry).unwrap().text().unwrap();
+    for c in "abcd".chars() {
+        tree.character(c as u16, 0, plain);
+    }
+    // Shift and the left arrow extend the selection from the cursor.
+    tree.text_action(0x4000_0013, 1.0, shift);
+    tree.text_action(0x4000_0013, 1.0, shift);
+    assert_eq!(tree.selection(entry), Some((2, 4)));
+    assert_eq!(tree.selected_text(entry), "cd".encode_utf16().collect::<Vec<_>>());
+    // A plain move drops the selection (cursor 2 to 1); typing goes in there.
+    tree.text_action(0x4000_0013, 1.0, plain);
+    assert_eq!(tree.selection(entry), None);
+    tree.character(b'x' as u16, 0, plain);
+    assert_eq!(text(&tree), "axbcd");
+    // Select all, cut (Ctrl+X), paste (Ctrl+V) at the cursor.
+    tree.select_all(entry);
+    assert_eq!(tree.selection(entry), Some((0, 5)));
+    tree.character(0x18, 0, ctrl);
+    assert_eq!(text(&tree), "");
+    tree.character(0x16, 0, ctrl);
+    assert_eq!(text(&tree), "axbcd");
+    // Delete removes the character at the cursor; Home then drops the selection.
+    tree.text_action(0x4000_0013, 1.0, plain);
+    tree.character(0, 0x2E, plain);
+    assert_eq!(text(&tree), "axbc");
+    tree.select_all(entry);
+    tree.character(8, 0, plain);
+    assert_eq!(text(&tree), "");
+    tree.character(b'q' as u16, 0, plain);
+    tree.select_all(entry);
+    tree.text_action(0x4000_001B, 1.0, plain);
+    assert_eq!(tree.selection(entry), None);
+    assert_eq!(tree.get(entry).unwrap().text.as_ref().unwrap().cursor, 0);
+}
+
+#[test]
+fn a_one_line_entry_scrolls_to_keep_the_cursor_in_view() {
+    let (mut tree, entry) = editable_entry();
+    for _ in 0..30 {
+        tree.character(u16::from(b'a'), 0, crate::chat::Modifiers::default());
+    }
+    // Each "a" is 3 pixels: the cursor sits at 90, the last visible column of 50 is 49.
+    let text = tree.get(entry).unwrap().text.as_ref().unwrap();
+    assert_eq!(text.view.0, 90 - 50 + 1);
 }

@@ -6,9 +6,10 @@
 //! replacing and removing items lay the list out again unless a multi-operation is open; a
 //! change of view broadcasts `new_view` (`ViewChanged`).
 //!
-//! Not modelled yet: smooth scrolling (`StartAnimation`, `goal_x_view`), the scroll bars and
-//! buttons (`UpdateControls`), selection, rollover and drag selection, and `allow_updating`
-//! turned off.
+//! The scroll bars (`list_scroll.rs`) drive and follow the view.
+//!
+//! Not modelled yet: smooth scrolling (`StartAnimation`, `goal_x_view`), the scroll bars'
+//! buttons, rollover and drag selection, and `allow_updating` turned off.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -32,6 +33,8 @@ pub(crate) struct ListBoxState {
     pub selected: Option<usize>,
     /// The menu whose drop-down this list is (`UIElement_Menu`'s listener on `new_selection`).
     pub menu: Option<usize>,
+    /// Bit 0x20000: the view is being set from a scroll bar (`list_scroll.rs`).
+    pub from_scrollbar: bool,
 }
 
 impl UiTree {
@@ -85,6 +88,7 @@ impl UiTree {
     fn list_relayout(&mut self, list: usize) {
         self.list_update_layout(list);
         self.list_keep_view_in_bounds(list);
+        self.list_update_controls(list);
     }
 
     /// `UIElement_ListBox::AddItem`.

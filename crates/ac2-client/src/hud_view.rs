@@ -297,15 +297,14 @@ impl HudView {
         characters: &[(u16, u32)],
         modifiers: Modifiers,
     ) -> Vec<UiMessage> {
-        let ctrl = modifiers.ctrl;
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
         for &(action, extent) in actions {
-            tree.text_action(action, extent, ctrl);
+            tree.text_action(action, extent, modifiers);
         }
         for &(ch, key) in characters {
-            tree.character(ch, key, ctrl);
+            tree.character(ch, key, modifiers);
         }
         let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
         self.player_messages.extend(messages.iter().cloned());

@@ -75,9 +75,9 @@ fn the_stack_dialog_asks_for_an_amount_up_to_the_most() {
         .unwrap();
     assert!(tree.activate(entry), "the entry takes typing");
     // End, then the characters.
-    tree.character(0, 0x23, false);
+    tree.character(0, 0x23, crate::chat::Modifiers::default());
     for ch in "2x".encode_utf16() {
-        tree.character(ch, 0, false);
+        tree.character(ch, 0, crate::chat::Modifiers::default());
     }
     assert_eq!(text(tree, field, "AmountEntry"), "92");
     let ok = release(tree, field, "StackOkButton");

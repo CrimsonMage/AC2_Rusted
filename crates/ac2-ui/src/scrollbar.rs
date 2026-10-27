@@ -12,6 +12,7 @@
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
+use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::tokenize;
 
 pub(crate) const SCROLLBAR: u32 = tokenize("scrollbar");
@@ -143,6 +144,7 @@ impl UiTree {
         }
         let position = position.clamp(0.0, 1.0);
         self.scrollbar_set_position(index, position);
+        self.lists_follow_scrollbar(index);
         let root = self.root_of(index);
         self.broadcast(index, MSG_NEW_POSITION, root as i32);
     }
@@ -159,6 +161,7 @@ impl UiTree {
         let position = position.clamp(0.0, 1.0);
         let changed = self.scrollbar_position(index) != position;
         self.scrollbar_set_position(index, position);
+        self.lists_follow_scrollbar(index);
         if changed {
             let root = self.root_of(index);
             self.broadcast(index, MSG_NEW_POSITION, root as i32);
@@ -169,6 +172,10 @@ impl UiTree {
     /// `move_to_touched_position`) moves the widget's middle to the pointer, then any left press
     /// starts dragging the widget.
     pub(crate) fn scrollbar_mouse_down(&mut self, index: usize, action: u32) {
+        if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
+            self.scrollbar_mouse_wheel(index, action);
+            return;
+        }
         if !self.is_scrollbar(index) || !LEFT.contains(&action) {
             return;
         }
@@ -200,6 +207,25 @@ impl UiTree {
         self.set_state(widget, WIDGET_PRESSED);
         let root = self.root_of(index);
         self.broadcast(index, MSG_WIDGET_PRESS, root as i32);
+    }
+
+    /// `UIElement_Scrollbar::HandleMouseWheel`: a wheel turn steps a stop-located bar (up or left
+    /// one stop back); otherwise the lists the bar drives move a line, up or left on a turn in
+    /// (the line message the bar broadcasts). A bar with no position attribute ignores it.
+    pub(crate) fn scrollbar_mouse_wheel(&mut self, index: usize, action: u32) {
+        if !self.is_scrollbar(index)
+            || !self.el(index).attributes.contains_key(&self.position_id(index))
+        {
+            return;
+        }
+        let turn_in = action == UI_WHEEL_IN;
+        if self.bool_attribute(index, tokenize("stop_locations")) {
+            self.scrollbar_move_steps(index, if turn_in { 1 } else { -1 });
+            return;
+        }
+        for (list, vertical) in self.lists_bound_to(index) {
+            self.list_line_step(list, vertical, if turn_in { -1 } else { 1 });
+        }
     }
 
     /// `UIElement_Scrollbar::MouseUp`: the drag ends.

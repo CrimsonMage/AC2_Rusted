@@ -80,6 +80,9 @@ mod key_action_audit_tests;
 mod layout_media;
 mod list_box;
 mod list_box_select;
+mod list_scroll;
+#[cfg(test)]
+mod list_scroll_tests;
 mod maps;
 mod media;
 mod meter;

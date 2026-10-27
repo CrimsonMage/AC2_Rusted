@@ -11,8 +11,11 @@
 //! (`CalcJustification`); `center_vertically` centres the lines (`KeepInBounds`); `one_line`
 //! stops wrapping.
 //!
-//! Not modelled yet: editing, the cursor, selection, scrolling and scrollbars, the Korean and
-//! Japanese fallback fonts (`DetermineFont`), string variables and server string downloads.
+//! Editing lives in `text_edit.rs`: the cursor and selection (`selecting`, `selection`), and an
+//! editable element draws its view scrolled to the cursor (`view.0`).
+//!
+//! Not modelled yet: vertical scrollbars (`UpdateScrollbar`), the Korean and Japanese fallback
+//! fonts (`DetermineFont`), string variables and server string downloads.
 
 use std::sync::Arc;
 
@@ -111,6 +114,10 @@ pub(crate) struct TextState {
     pub cursor: usize,
     /// `m_filter`: a typed printable character it refuses is dropped.
     pub filter: Option<fn(u16) -> bool>,
+    /// `m_bSelecting`: the selection is on (`SetSelecting`).
+    pub selecting: bool,
+    /// `m_nSelectionStart`, `m_nSelectionEnd`: the anchor and the moving end (either order).
+    pub selection: (usize, usize),
 }
 
 impl TextState {
@@ -134,6 +141,8 @@ impl TextState {
             editable: false,
             cursor: 0,
             filter: None,
+            selecting: false,
+            selection: (0, 0),
         }
     }
 
@@ -151,7 +160,18 @@ impl TextState {
     pub(crate) fn clear(&mut self) {
         self.glyphs.clear();
         self.cursor = 0;
+        self.selecting = false;
         self.dirty = true;
+    }
+
+    /// `GlyphList::DeleteSection` of `start..end`; the cursor moves to `start`.
+    pub(crate) fn delete_range(&mut self, start: usize, end: usize) {
+        let end = end.min(self.glyphs.len());
+        if start < end {
+            self.glyphs.drain(start..end);
+            self.dirty = true;
+        }
+        self.cursor = start.min(self.glyphs.len());
     }
 
     /// `GlyphList::AddText` at the cursor, which moves past the new glyphs.
@@ -225,7 +245,7 @@ impl TextState {
     }
 
     /// `UIElement_Text::KeepInBounds`.
-    fn keep_in_bounds(&mut self, width: i32, height: i32) {
+    pub(crate) fn keep_in_bounds(&mut self, width: i32, height: i32) {
         let (mut x, mut y) = self.view;
         x = x.max(0);
         if self.paper.0 < x + width {
@@ -413,8 +433,10 @@ impl UiSurface {
         if drawable <= 0 || text.paper.1 - down - up <= 0 || text.lines.is_empty() {
             return;
         }
-        // Not editable and without a horizontal scrollbar: justify the whole paper.
-        let view_x = -justify(width, text.paper.0 - right - left, text.justification);
+        // Not editable and without a horizontal scrollbar: justify the whole paper. An editable
+        // element also scrolls its view to the cursor (`ScrollHorizontalView`).
+        let scroll = if text.editable { text.view.0 } else { 0 };
+        let view_x = -justify(width, text.paper.0 - right - left, text.justification) + scroll;
         let window = dirty;
         let origin_x = left - view_x - (dirty.x0 - me.x0);
         let mut y = up - text.view.1 - (dirty.y0 - me.y0);

@@ -1,16 +1,21 @@
 //! Typing into text elements: activation (`UIElement::Activate` / `Deactivate`,
 //! `UIElementManager::ActivationAlert`: one active element; an editable text element turns on the
 //! input manager's text mode while active), the text element's handlers (`UIElement_Text::
-//! CharacterHandler` for typed characters and virtual keys, `ActionHandler` for the editing
-//! actions), the cursor (`MoveCursor`, `SetCursorPosition`) and clicking to place it
-//! (`UIElement_Text::MouseDown`). The element broadcasts `activated` / `deactivated`,
-//! `character_input` (with the character) and `key_input`.
+//! CharacterHandler` for typed characters and virtual keys, the `ActionHandler` navigation keys),
+//! the cursor (`MoveCursor`, `SetCursorPosition`), the selection (`SetSelecting`,
+//! `SetSelectionStart` / `End`, `GetSelection`, `SelectAll`, `Deselect`, `DeleteSelection`),
+//! the copy, cut and paste keys, and clicking to place the cursor (`UIElement_Text::MouseDown`).
+//! The element broadcasts `activated` / `deactivated`, `character_input` (with the character) and
+//! `key_input`.
 //!
-//! Not modelled yet: selection, copy / cut / paste, the IME, page up / down, the cursor's
-//! flashing and scrolling the view to the cursor.
+//! The clipboard is process-local (`UiTree::text_clipboard`), standing in for the Windows
+//! clipboard the Legions copy, cut and paste calls use; see the crate's Known Gaps.
+//!
+//! Not modelled yet: the IME, page up / down, the cursor's flashing, and a pointer drag selection
+//! (`m_mouseSelecting` is never set by the Legions 7160 text code).
 
+use crate::chat::Modifiers;
 use crate::element::UiTree;
-use crate::layout::AttributeValue;
 use crate::token::tokenize;
 
 /// `UIElement_Text::MoveCursor`'s directions.
@@ -27,6 +32,9 @@ pub(crate) enum Direction {
     Up,
     Down,
 }
+
+/// `LEFT_MOUSE_BUTTON` (`0x40000004`): the press that places the cursor.
+const LEFT_BUTTON: u32 = 0x4000_0004;
 
 fn message(name: &str) -> u32 {
     tokenize(name)
@@ -88,20 +96,155 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Text::SetCursorPosition`, clamped to the text.
-    fn set_cursor(&mut self, index: usize, position: isize) -> bool {
-        let Some(text) = self.el_mut(index).text.as_mut() else {
-            return false;
-        };
-        let position = position.clamp(0, text.glyphs.len() as isize) as usize;
-        let moved = text.cursor != position;
-        text.cursor = position;
-        self.changed |= moved;
-        moved
+    fn selectable(&self, index: usize) -> bool {
+        self.bool_attribute(index, tokenize("selectable"))
     }
 
-    /// `UIElement_Text::MoveCursor`.
-    pub(crate) fn move_cursor(&mut self, index: usize, direction: Direction) -> bool {
+    /// `UIElement_Text::SetSelecting`: turning the selection on resets its ends to 0.
+    fn set_selecting(&mut self, index: usize, on: bool) {
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        if text.selecting == on {
+            return;
+        }
+        if on {
+            text.selection = (0, 0);
+        }
+        text.selecting = on;
+        self.changed = true;
+    }
+
+    /// `UIElement_Text::SetSelectionStart`: the anchor at `position` (both ends), when selecting.
+    fn set_selection_start(&mut self, index: usize, position: usize) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            if text.selecting {
+                let position = position.min(text.glyphs.len());
+                text.selection = (position, position);
+            }
+        }
+    }
+
+    /// `UIElement_Text::SetSelectionEnd`: the moving end at `position`, when selecting.
+    fn set_selection_end(&mut self, index: usize, position: usize) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            if text.selecting {
+                text.selection.1 = position.min(text.glyphs.len());
+            }
+        }
+    }
+
+    /// `UIElement_Text::GetSelection`: the selected range, lowest first; `None` when off.
+    pub fn selection(&self, index: usize) -> Option<(usize, usize)> {
+        let text = self.get(index)?.text.as_ref()?;
+        text.selecting.then(|| {
+            let (a, b) = text.selection;
+            (a.min(b), a.max(b))
+        })
+    }
+
+    /// `UIElement_Text::SelectAll`: the whole text selected, on a selectable element.
+    pub fn select_all(&mut self, index: usize) {
+        if !self.selectable(index) {
+            return;
+        }
+        let Some(len) = self
+            .get(index)
+            .and_then(|e| e.text.as_ref())
+            .map(|t| t.glyphs.len())
+        else {
+            return;
+        };
+        self.set_selecting(index, true);
+        self.set_selection_start(index, 0);
+        self.set_selection_end(index, len);
+        self.changed = true;
+    }
+
+    /// `UIElement_Text::Deselect`.
+    pub fn deselect(&mut self, index: usize) {
+        self.set_selecting(index, false);
+    }
+
+    /// `UIElement_Text::GetSelectedText`: the selected characters (none when off).
+    pub fn selected_text(&self, index: usize) -> Vec<u16> {
+        let Some((start, end)) = self.selection(index) else {
+            return Vec::new();
+        };
+        self.get(index)
+            .and_then(|e| e.text.as_ref())
+            .and_then(|t| t.glyphs.get(start..end))
+            .map_or_else(Vec::new, |glyphs| glyphs.iter().map(|g| g.ch).collect())
+    }
+
+    /// `UIElement_Text::DeleteSelection`: the selected glyphs go and the selection ends.
+    fn delete_selection(&mut self, index: usize) {
+        let Some((start, end)) = self.selection(index) else {
+            return;
+        };
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.delete_range(start, end);
+            text.selecting = false;
+        }
+        self.changed = true;
+    }
+
+    /// `UIElement_Text::SetCursorPosition`, clamped to the text. Shift extends a selection from
+    /// the old cursor on a selectable element; a move without shift drops the selection
+    /// (`m_mouseSelecting` is never set in the Legions 7160 text code, so it stays off here).
+    fn set_cursor(&mut self, index: usize, position: isize, shift: bool) {
+        let selecting = self
+            .get(index)
+            .and_then(|e| e.text.as_ref())
+            .is_some_and(|t| t.selecting);
+        if !shift {
+            if selecting {
+                self.set_selecting(index, false);
+            }
+        } else if !selecting && self.selectable(index) {
+            let old = self
+                .get(index)
+                .and_then(|e| e.text.as_ref())
+                .map_or(0, |t| t.cursor);
+            self.set_selecting(index, true);
+            self.set_selection_start(index, old);
+        }
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        let position = position.clamp(0, text.glyphs.len() as isize) as usize;
+        text.cursor = position;
+        self.set_selection_end(index, position);
+        self.changed = true;
+    }
+
+    /// `UIElement_Text::ScrollHorizontalView` on a one-line element: the view moves the least
+    /// to keep the cursor's column inside the element's margins.
+    fn scroll_to_cursor(&mut self, index: usize) {
+        let width = self.el(index).rect.width();
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        if !text.one_line {
+            return;
+        }
+        let x: i32 = text.glyphs[..text.cursor].iter().map(|g| g.width).sum();
+        let [_, _, left, right] = text.margins;
+        let drawable = (width - left - right).max(1);
+        let view = text.view.0;
+        text.view.0 = if x < view {
+            x
+        } else if x - view >= drawable {
+            x - drawable + 1
+        } else {
+            view
+        }
+        .max(0);
+        self.changed = true;
+    }
+
+    /// `UIElement_Text::MoveCursor`: the cursor moves in `direction`; `false` when it cannot.
+    pub(crate) fn move_cursor(&mut self, index: usize, direction: Direction, shift: bool) -> bool {
         let Some(text) = self.el(index).text.as_ref() else {
             return false;
         };
@@ -159,18 +302,21 @@ impl UiTree {
                 (line_start(to) + column).min(line_end(to))
             }
         };
-        self.set_cursor(index, target)
+        self.set_cursor(index, target, shift);
+        self.scroll_to_cursor(index);
+        true
     }
 
-    /// `UIElement_Text::ActionHandler` on the active element: the editing actions while held
+    /// `UIElement_Text::ActionHandler` on the active element: the navigation actions while held
     /// (`ActionInterpreter::CtrlKeyDown` turns a step into a word or the line into the text).
-    pub fn text_action(&mut self, action: u32, extent: f32, ctrl: bool) {
+    pub fn text_action(&mut self, action: u32, extent: f32, modifiers: Modifiers) {
         let Some(index) = self.active.filter(|_| self.text_mode()) else {
             return;
         };
         if extent == 0.0 {
             return;
         }
+        let ctrl = modifiers.ctrl;
         let direction = match (action, ctrl) {
             (0x4000_0013, false) => Direction::Left,
             (0x4000_0013, true) => Direction::WordLeft,
@@ -184,20 +330,20 @@ impl UiTree {
             (0x4000_001C, true) => Direction::End,
             _ => return,
         };
-        self.move_cursor(index, direction);
+        self.move_cursor(index, direction, modifiers.shift);
     }
 
     /// `UIElement_Text::CharacterHandler` on the active element: `ch` a typed character, or `key`
     /// the virtual key of a key that typed none.
-    pub fn character(&mut self, ch: u16, key: u32, ctrl: bool) {
+    pub fn character(&mut self, ch: u16, key: u32, modifiers: Modifiers) {
         let Some(index) = self.active else {
             return;
         };
         if self.el(index).text.is_none() {
             return;
         }
+        let (shift, ctrl) = (modifiers.shift, modifiers.ctrl);
         let direction = match key {
-            0x21 | 0x22 => None,
             0x23 => Some(if ctrl {
                 Direction::End
             } else {
@@ -223,34 +369,78 @@ impl UiTree {
             _ => None,
         };
         if let Some(direction) = direction {
-            self.move_cursor(index, direction);
+            self.move_cursor(index, direction, shift);
         }
-        let (editable, one_line, cursor, filter) = {
+        let (editable, filter) = {
             let text = self.el(index).text.as_ref().expect("text element");
-            (text.editable, text.one_line, text.cursor, text.filter)
+            (text.editable, text.filter)
         };
-        if !editable || key != 0 {
+        if key != 0 {
             if editable && key == 0x2E {
-                self.delete_at(index, cursor);
+                self.delete_forward(index);
             }
-            if key != 0 {
-                self.broadcast(index, message("key_input"), key as i32);
-                return;
-            }
-        } else {
-            match ch {
-                8 if cursor > 0 => {
-                    self.set_cursor(index, cursor as isize - 1);
-                    self.delete_at(index, cursor - 1);
-                }
-                10 | 13 if !one_line => self.insert(index, &[10]),
-                c if c >= 0x20 && c != 0x7F && filter.is_none_or(|f| f(c)) => {
-                    self.insert(index, &[c])
-                }
-                _ => {}
-            }
+            self.broadcast(index, message("key_input"), key as i32);
+            return;
+        }
+        if editable {
+            self.edit_character(index, ch, filter);
         }
         self.broadcast(index, message("character_input"), i32::from(ch));
+    }
+
+    /// The Delete key: the selection, or the character at the cursor (`DeleteChar`).
+    fn delete_forward(&mut self, index: usize) {
+        if self.selection(index).is_some() {
+            self.delete_selection(index);
+        } else {
+            let cursor = self.el(index).text.as_ref().map_or(0, |t| t.cursor);
+            self.delete_at(index, cursor);
+        }
+    }
+
+    /// The editable branch of `CharacterHandler` for a typed character `ch`.
+    fn edit_character(&mut self, index: usize, ch: u16, filter: Option<fn(u16) -> bool>) {
+        let (cursor, one_line) = {
+            let text = self.el(index).text.as_ref().expect("text element");
+            (text.cursor, text.one_line)
+        };
+        match ch {
+            // Ctrl+C, Ctrl+X: the selection to the clipboard (cut then deletes it).
+            3 | 0x18 => {
+                let selected = self.selected_text(index);
+                if self.selection(index).is_some() {
+                    self.text_clipboard = selected;
+                }
+                if ch == 0x18 {
+                    self.delete_selection(index);
+                }
+            }
+            // Ctrl+V: the clipboard inserted at the cursor, over the selection.
+            0x16 => {
+                let text = self.text_clipboard.clone();
+                if !text.is_empty() {
+                    self.insert(index, &text);
+                }
+            }
+            8 => {
+                if self.selection(index).is_some() {
+                    self.delete_selection(index);
+                } else if cursor > 0 {
+                    self.set_cursor(index, cursor as isize - 1, false);
+                    self.delete_at(index, cursor - 1);
+                }
+            }
+            9 | 0x1B => {}
+            10 | 13 => {
+                if !one_line {
+                    self.insert(index, &[10]);
+                }
+            }
+            c if c < 0x20 || c == 0x7F => {}
+            c if filter.is_none_or(|f| f(c)) => self.insert(index, &[c]),
+            _ => {}
+        }
+        self.scroll_to_cursor(index);
     }
 
     /// `m_filter` of a text element: typed printable characters `filter` refuses are dropped.
@@ -260,8 +450,14 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Text::AddText_Internal` at the cursor.
+    /// `UIElement_Text::AddText_Internal` at the cursor: an editable element first replaces its
+    /// selection, anything else drops it.
     fn insert(&mut self, index: usize, units: &[u16]) {
+        if self.el(index).text.as_ref().is_some_and(|t| t.editable) {
+            self.delete_selection(index);
+        } else {
+            self.set_selecting(index, false);
+        }
         if let Some(text) = self.el_mut(index).text.as_mut() {
             text.insert_at_cursor(units);
             self.changed = true;
@@ -272,37 +468,35 @@ impl UiTree {
     fn delete_at(&mut self, index: usize, position: usize) {
         if let Some(text) = self.el_mut(index).text.as_mut() {
             if position < text.glyphs.len() {
-                text.glyphs.remove(position);
-                text.dirty = true;
+                text.delete_range(position, position + 1);
                 self.changed = true;
             }
         }
     }
 
     /// `UIElement_Text::MouseDown`: a left press on an editable (or selectable) text element
-    /// places the cursor at the pointer and activates an editable one.
+    /// places the cursor at the pointer (extending a selection while shift is held) and
+    /// activates an editable one.
     pub(crate) fn text_mouse_down(&mut self, index: usize, action: u32) {
-        if action != 0x4000_0004 {
+        if action != LEFT_BUTTON {
             return;
         }
         let Some(text) = self.el(index).text.as_ref() else {
             return;
         };
-        let selectable = matches!(
-            self.el(index).attributes.get(&tokenize("selectable")),
-            Some(AttributeValue::Bool(true))
-        );
-        if !(text.editable || selectable) {
+        let editable = text.editable;
+        if !(editable || self.selectable(index)) {
             return;
         }
-        let editable = text.editable;
         let local_x = self.pointer.0 - self.screen_box(index).x0;
         let position = self
             .el(index)
             .text
             .as_ref()
             .map_or(0, |t| t.position_at(local_x));
-        self.set_cursor(index, position as isize);
+        // The pointer's shift state (`set_shift`, shared with the drag).
+        let shift = self.drag.shift;
+        self.set_cursor(index, position as isize, shift);
         if editable {
             self.activate(index);
         }

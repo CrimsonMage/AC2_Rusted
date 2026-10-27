@@ -223,7 +223,7 @@ impl Session {
         assert!(self.ui.avatar_modification().unwrap().dialog().is_some());
         click(&mut self.ui, "NameEntry");
         let typed: Vec<(u16, u32)> = name.encode_utf16().map(|c| (c, 0)).collect();
-        self.ui.text_input(&[], &typed, false);
+        self.ui.text_input(&[], &typed, ac2_ui::Modifiers::default());
         click(
             &mut self.ui,
             if enter { "EnterButton" } else { "CreateButton" },

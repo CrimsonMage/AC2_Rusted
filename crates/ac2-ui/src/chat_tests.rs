@@ -83,7 +83,7 @@ fn enter_opens_the_entry_line_and_sends_what_was_typed() {
     assert_eq!(tree.active(), Some(entry));
     assert!(tree.text_mode());
     for ch in "hi there".encode_utf16() {
-        tree.character(ch, 0, false);
+        tree.character(ch, 0, crate::chat::Modifiers::default());
     }
     pump(&mut tree, &mut chat);
     assert_eq!(tree.get(entry).unwrap().text().as_deref(), Some("hi there"));

@@ -71,7 +71,7 @@ fn the_creation_answers_show_their_retail_strings() {
     click_named(&mut ui, "NextButton");
     click_named(&mut ui, "NameEntry");
     let typed: Vec<(u16, u32)> = "Abc".encode_utf16().map(|c| (c, 0)).collect();
-    ui.text_input(&[], &typed, false);
+    ui.text_input(&[], &typed, crate::chat::Modifiers::default());
     click_named(&mut ui, "EnterButton");
     assert!(matches!(
         actions(&mut ui).as_slice(),
