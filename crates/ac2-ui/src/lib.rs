@@ -173,7 +173,11 @@ mod toolbar;
 mod tooltip;
 mod transition;
 mod tree_view;
+mod wheel;
+#[cfg(test)]
+mod wheel_tests;
 mod window_locations;
+pub use wheel::{wheel_event_delta, WheelAccumulator, PIXELS_PER_NOTCH, WHEEL_DELTA};
 pub use window_locations::{clip_to_pixel, pixel_to_clip, SavedWindow, WindowLocation};
 mod window_positions;
 pub use window_positions::{

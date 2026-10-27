@@ -46,11 +46,12 @@ use ac2_client::view::ClientView;
 use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
-use ac2_ui::{Controls, InputEvent, SelectionUi};
+use ac2_ui::{wheel_event_delta, Controls, InputEvent, SelectionUi, WheelAccumulator};
 use ac2_weenie::{CharacterChoice, GameplayNotice, OnlineConfig, OnlineSession, SessionEvent};
 use winit::application::ApplicationHandler;
 use winit::event::{
-    DeviceEvent, DeviceId, ElementState, Ime, MouseButton, MouseScrollDelta, WindowEvent,
+    DeviceEvent, DeviceId, ElementState, Ime, MouseButton, MouseScrollDelta, TouchPhase,
+    WindowEvent,
 };
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::keyboard::PhysicalKey;
@@ -58,8 +59,6 @@ use winit::window::{CursorGrabMode, Window, WindowId};
 
 /// Frame-thread time spent taking finished loads (`DBCache::UseTime`'s pump).
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
-/// `WHEEL_DELTA`: one notch.
-const WHEEL_DELTA: f32 = 120.0;
 
 /// The script library and script data character generation runs over (`ScriptCharGen`'s host is
 /// consumed by its view, so each pregame view builds its own).
@@ -170,6 +169,8 @@ struct App {
     /// to each world view as it is made.
     scene_options: ac2_render::prefs::SceneOptions,
     state: Option<State>,
+    /// The wheel's fractional notches from pixel-reporting devices (`ac2_ui::WheelAccumulator`).
+    wheel: WheelAccumulator,
     store: Arc<ac2_db::ResourceStore>,
     /// Whether the pregame screens show (no start character).
     pregame: bool,
@@ -685,14 +686,21 @@ impl ApplicationHandler for App {
                     pressed: pressed == ElementState::Pressed,
                 });
             }
-            WindowEvent::MouseWheel { delta, .. } => {
+            WindowEvent::MouseWheel { delta, phase, .. } => {
+                // Vertical only (`ProcessDeviceData` reads the Z axis). A new trackpad gesture
+                // drops the fraction of a notch the last one left.
+                if phase == TouchPhase::Started {
+                    self.wheel.start_gesture();
+                }
                 let notches = match delta {
-                    MouseScrollDelta::LineDelta(_, y) => y,
-                    MouseScrollDelta::PixelDelta(p) => (p.y / 40.0) as f32,
+                    MouseScrollDelta::LineDelta(_, y) => self.wheel.line_delta(y),
+                    MouseScrollDelta::PixelDelta(p) => self.wheel.pixel_delta(p.y),
                 };
-                if notches != 0.0 {
+                // One wheel action per notch, as a detented wheel sends one sample per notch.
+                let step = notches.signum();
+                for _ in 0..notches.unsigned_abs() {
                     state.input(InputEvent::Wheel {
-                        delta: (notches * WHEEL_DELTA) as i32,
+                        delta: wheel_event_delta(step),
                     });
                 }
             }
@@ -817,6 +825,7 @@ fn run(args: Args) -> Result<(), String> {
         radius: args.radius,
         scene_options,
         state: None,
+        wheel: WheelAccumulator::default(),
         store,
         pregame: args.character.is_none(),
         chargen: ChargenSource {
