@@ -14,6 +14,8 @@ pub(crate) struct UiImageLoader {
     send: Sender<u32>,
     receive: Receiver<(u32, Option<UiPixels>)>,
     asked: HashSet<u32>,
+    /// Images asked for and not yet back.
+    outstanding: usize,
 }
 
 impl UiImageLoader {
@@ -42,14 +44,19 @@ impl UiImageLoader {
             send,
             receive,
             asked: HashSet::new(),
+            outstanding: 0,
         }
     }
 
     /// Asks for every image the tree shows that is not loaded or asked for yet.
     pub(crate) fn request_missing(&mut self, tree: &UiTree, images: &HashMap<u32, UiPixels>) {
         for file in tree.image_files() {
-            if file != 0 && !images.contains_key(&file) && self.asked.insert(file) {
-                let _ = self.send.send(file);
+            if file != 0
+                && !images.contains_key(&file)
+                && self.asked.insert(file)
+                && self.send.send(file).is_ok()
+            {
+                self.outstanding += 1;
             }
         }
     }
@@ -57,12 +64,40 @@ impl UiImageLoader {
     /// The images loaded since the last call into `images`; whether any arrived.
     pub(crate) fn take(&mut self, images: &mut HashMap<u32, UiPixels>) -> bool {
         let mut any = false;
-        for (file, pixels) in self.receive.try_iter() {
-            if let Some(pixels) = pixels {
-                images.insert(file, pixels);
-                any = true;
-            }
+        while let Ok(arrived) = self.receive.try_recv() {
+            any |= self.arrived(arrived, images);
         }
         any
+    }
+
+    /// Waits up to `timeout` for every image asked for (headless snapshots); whether any arrived.
+    pub(crate) fn wait_all(
+        &mut self,
+        images: &mut HashMap<u32, UiPixels>,
+        timeout: std::time::Duration,
+    ) -> bool {
+        let deadline = std::time::Instant::now() + timeout;
+        let mut any = false;
+        while self.outstanding > 0 {
+            let left = deadline.saturating_duration_since(std::time::Instant::now());
+            let Ok(arrived) = self.receive.recv_timeout(left) else {
+                break;
+            };
+            any |= self.arrived(arrived, images);
+        }
+        any
+    }
+
+    fn arrived(
+        &mut self,
+        (file, pixels): (u32, Option<UiPixels>),
+        images: &mut HashMap<u32, UiPixels>,
+    ) -> bool {
+        self.outstanding = self.outstanding.saturating_sub(1);
+        let Some(pixels) = pixels else {
+            return false;
+        };
+        images.insert(file, pixels);
+        true
     }
 }

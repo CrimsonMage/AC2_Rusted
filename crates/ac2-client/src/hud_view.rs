@@ -459,7 +459,8 @@ impl HudView {
         self.compose(gpu);
     }
 
-    /// Waits for the build (headless snapshots).
+    /// Waits for the build and the images it shows (headless snapshots), so a snapshot never
+    /// races the UI image loader.
     pub(crate) fn settle(&mut self, gpu: &Gpu) {
         if let Some(pending) = self.pending.take() {
             if let Ok(built) = pending.recv() {
@@ -467,6 +468,21 @@ impl HudView {
             }
         }
         self.compose(gpu);
+        // A composed image may show further images (a newly loaded frame's children), so
+        // compose again until nothing new arrives.
+        for _ in 0..8 {
+            let Some((_, images)) = &mut self.hud else {
+                break;
+            };
+            if !self
+                .images
+                .wait_all(images, std::time::Duration::from_secs(10))
+            {
+                break;
+            }
+            self.dirty = true;
+            self.compose(gpu);
+        }
     }
 
     /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock, rising
