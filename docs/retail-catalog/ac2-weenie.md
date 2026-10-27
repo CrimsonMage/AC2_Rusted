@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 267 done, 112 partial, 1514 to do, 11 skipped.
+1904 retail functions: 267 done, 114 partial, 1512 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2316,7 +2316,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600
 - [ ] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680
 - [ ] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0
-- [ ] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820
+- [~] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
 - [ ] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0
 - [ ] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0
 - [ ] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0
@@ -2871,7 +2871,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230
 - [ ] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — ac2-weenie ObjectTable::apply_action
 - [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290
-- [ ] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0
+- [~] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
 - [ ] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0
 - [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0
 - [ ] `CWPhysicsObject::DoBehavior` · 00530220

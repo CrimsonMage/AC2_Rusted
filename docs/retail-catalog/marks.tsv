@@ -2137,6 +2137,7 @@ key	status	note
 004b7f00	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b7fa0	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
 004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
+004b8820	~	efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
 004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 004bb580	_	ac2-script glue::options / examination (Legions layout and efun switch)
 004bb600	_	ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
@@ -2859,6 +2860,7 @@ key	status	note
 0052f430	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 0052f990	_	ac2-weenie ChatCommands::register (split ;:, lowercased, first registration wins); ac2-client chat_commands resolves CPlayer 0x121's table
 00530150	_	ac2-weenie ObjectTable::apply_action
+005301b0	~	efun bound as a no-op (interface.rs do_fx): the physics object's FX is not played; equipping calls it, so the VM no longer crashes
 005309a0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 00530e70	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation
 00530f40	_	qualities kept per object in ac2-weenie (WeenieQualities); no DB defaults (InitDefaults) or DID derivation

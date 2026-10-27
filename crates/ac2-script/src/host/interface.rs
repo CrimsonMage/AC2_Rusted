@@ -20,6 +20,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
     efuns.register(0x0080_0057, set_no_draw_physics);
     efuns.register(0x0080_002C, stop_all_camera_fx);
+    efuns.register(0x0080_0045, do_fx);
 }
 
 /// `gCWPhysicsObject::CallEFun_StopAllCameraFX` (`CWPhysicsObject::StopAllCameraFX` ->
@@ -31,6 +32,19 @@ fn stop_all_camera_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         Ok(_) => InterpStatus::Success,
         Err(status) => status,
     }
+}
+
+/// `gCWPhysicsObject::CallEFun_DoFX(fx, scalar)` -> `CWPhysicsObject::DoFX` -> the physics
+/// object's FX (its vtable slot 0x3BC). The client's FX sounds are driven by the animation's FX
+/// events (`FxSounds::do_fx`), not by script calls, so the effect is not played yet; the efun
+/// answers 1 (started) for a weenie with an owner. Equipping a weapon calls it (`CPlayer` 0xC8's
+/// `EquipItem_Done`), so the call must not crash the script.
+fn do_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    if let Err(status) = this_weenie(vm, ctx) {
+        return status;
+    }
+    Call::new(ctx).ret(4, 1, tag::INT);
+    InterpStatus::Success
 }
 
 /// `gCWPhysicsObject::CallEFun_SetNoDrawPhysics(flag)` -> `CWPhysicsObject::SetNoDrawPhysics` ->
