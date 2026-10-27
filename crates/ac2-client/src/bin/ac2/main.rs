@@ -43,7 +43,7 @@ use std::time::{Duration, Instant};
 
 use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
-use ac2_client::{frame_input, Client, Command, DatWorld};
+use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{Controls, InputEvent, SelectionUi};
@@ -412,14 +412,16 @@ impl App {
         // cleared) by `gmSelectionUI::Finish3DSelection`.
         if state.selection.wants_pick() {
             let screen = (state.config.width, state.config.height);
-            let picked = view.pick(&frame, screen, view.pointer());
-            let outcome = state.selection.finish(picked);
-            state.commands.push(Command::Select(outcome.select));
-            if outcome.use_selection {
-                state.commands.push(Command::UseSelection);
-            }
-            if outcome.open_examination {
-                view.open_examination();
+            let potential = view.pick_list(&frame, screen, view.pointer());
+            let (targets, player_type) = pick_targets(&self.client, &frame, &potential);
+            if let Some(outcome) = state.selection.finish(&targets, player_type) {
+                state.commands.push(Command::Select(outcome.select));
+                if outcome.use_selection {
+                    state.commands.push(Command::UseSelection);
+                }
+                if outcome.open_examination {
+                    view.open_examination();
+                }
             }
         }
         view.update(&state.gpu, &frame, LOAD_BUDGET);

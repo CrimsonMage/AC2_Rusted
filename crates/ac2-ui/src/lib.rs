@@ -128,6 +128,8 @@ mod selection_notices;
 #[cfg(test)]
 mod selection_notices_tests;
 mod selection_ui;
+#[cfg(test)]
+mod selection_ui_tests;
 mod shop;
 mod shop_rows;
 #[cfg(test)]
@@ -269,7 +271,7 @@ pub use selection_notices::{
     being_deleted, direct_key, last_attacker_notice, selectability_notice, set_targeting_pointer,
     SelectionAction, SelectionSnapshot,
 };
-pub use selection_ui::{SelectionClick, SelectionOutcome, SelectionUi};
+pub use selection_ui::{PotentialTarget, SelectionClick, SelectionOutcome, SelectionUi};
 pub use shop::{ShopRequest, ShopSource, ShopStackCall, ShopUi};
 pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,

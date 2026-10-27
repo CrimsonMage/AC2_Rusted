@@ -16,7 +16,7 @@ use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
 use ac2_math::{Mat4, Quat, Vec3};
 use ac2_render::object::ObjectPose;
 use ac2_render::scene::WorldScene;
-use ac2_render::selection::{pick, PickCandidate};
+use ac2_render::selection::{pick_list, PickCandidate};
 use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
@@ -275,7 +275,20 @@ impl ClientView {
     /// `screen`-sized view (`ac2_render::selection::pick`); the player is not selectable in
     /// first person.
     pub fn pick(&self, frame: &ClientFrame, screen: (u32, u32), cursor: (i32, i32)) -> Option<u64> {
-        let camera = self.camera(frame)?;
+        self.pick_list(frame, screen, cursor).first().copied()
+    }
+
+    /// The potential list under `cursor`, nearest first (`SmartBox`'s pick list that
+    /// `Finish3DSelection` reads).
+    pub fn pick_list(
+        &self,
+        frame: &ClientFrame,
+        screen: (u32, u32),
+        cursor: (i32, i32),
+    ) -> Vec<u64> {
+        let Some(camera) = self.camera(frame) else {
+            return Vec::new();
+        };
         let first_person = frame.camera.is_some_and(|c| c.first_person);
         let aspect = screen.0 as f32 / screen.1.max(1) as f32;
         let drawn = drawn_objects(frame);
@@ -298,13 +311,16 @@ impl ClientView {
                 third_person_player: *player,
             })
             .collect();
-        pick(
+        pick_list(
             camera.view_projection(aspect),
             camera.eye,
             screen,
             cursor,
             &candidates,
         )
+        .into_iter()
+        .map(|(id, _)| id)
+        .collect()
     }
 
     /// `gm3DTextUI::Update`: the reticle around the selected object, from its model box, its

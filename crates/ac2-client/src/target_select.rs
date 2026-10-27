@@ -6,7 +6,7 @@
 //! same state. The types, selectability and owners come from the session, the fellowship from
 //! the frame's progress.
 
-use ac2_ui::{Candidate, SelectionAction, SelectionSnapshot, UiTree};
+use ac2_ui::{Candidate, PotentialTarget, SelectionAction, SelectionSnapshot, UiTree};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
@@ -184,6 +184,33 @@ fn run(
         }
     }
     out
+}
+
+/// The potential list of a 3D selection (nearest first), as `Finish3DSelection` reads its first
+/// entry: each object's `0x270` selectability, and the player's type (`0x14`, 0 without a
+/// player).
+pub fn pick_targets(
+    client: &Client,
+    frame: &ClientFrame,
+    potential: &[u64],
+) -> (Vec<PotentialTarget>, u32) {
+    let objects = client.session().objects();
+    let targets = potential
+        .iter()
+        .map(|&id| PotentialTarget {
+            id,
+            selectable: objects
+                .get(id)
+                .map(|object| object.qualities.inq_bool(0x270).unwrap_or(0) != 0),
+        })
+        .collect();
+    let player_type = frame
+        .player
+        .as_ref()
+        .and_then(|player| objects.get(player.id))
+        .and_then(|object| object.qualities.inq_int(0x14))
+        .unwrap_or(0) as u32;
+    (targets, player_type)
 }
 
 /// The objects in the radar's range, as `Select` reads them: `CWRepository`'s type (`0x14`),

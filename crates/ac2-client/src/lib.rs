@@ -39,6 +39,7 @@ pub use hud_options::OptionsEffect;
 pub use portal_sounds::{portal_sound_ids, PortalSoundIds};
 pub use pref_labels::pref_label;
 pub use rain_sounds::{rain_sound_ids, RainSoundIds};
+pub use target_select::pick_targets;
 mod consignment;
 mod controls;
 mod craft;

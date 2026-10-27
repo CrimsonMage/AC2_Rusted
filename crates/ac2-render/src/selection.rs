@@ -187,6 +187,20 @@ pub fn pick_part(
     cursor: (i32, i32),
     candidates: &[PickCandidate<'_>],
 ) -> Option<(u64, u32)> {
+    pick_list(view_projection, eye, screen, cursor, candidates)
+        .first()
+        .copied()
+}
+
+/// The whole potential list under `cursor`, as `SceneTool::SelectObject` keeps it: each object
+/// with its `meshType`, nearest first (`gmSelectionUI::Finish3DSelection` reads its first entry).
+pub fn pick_list(
+    view_projection: Mat4,
+    eye: Vec3,
+    screen: (u32, u32),
+    cursor: (i32, i32),
+    candidates: &[PickCandidate<'_>],
+) -> Vec<(u64, u32)> {
     let ndc = (
         (cursor.0 as f32 + 0.5) / screen.0 as f32 * 2.0 - 1.0,
         1.0 - (cursor.1 as f32 + 0.5) / screen.1 as f32 * 2.0,
@@ -219,5 +233,8 @@ pub fn pick_part(
             .unwrap_or(selected.len());
         selected.insert(at, (depth, candidate.id, mesh_type));
     }
-    selected.first().map(|&(_, id, mesh_type)| (id, mesh_type))
+    selected
+        .into_iter()
+        .map(|(_, id, mesh_type)| (id, mesh_type))
+        .collect()
 }
