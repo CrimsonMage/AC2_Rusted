@@ -30,7 +30,7 @@ pub use shading::srgb_to_linear;
 pub use shadow_map::{StaticShadowMap, SHADOW_MAP_FORMAT, SHADOW_MAP_SIZE};
 pub use sky::{SkyLook, SkyRenderer, DEFAULT_CLOUD_COVER};
 pub use terrain::{GpuFarTerrain, TerrainBlock, TerrainRenderer};
-pub use texture::{TextureCache, TextureKey};
+pub use texture::{uploaded_texture_bytes, TextureCache, TextureKey};
 pub use tonemap::{HdrTarget, ScenePresenter, ToneMap, HDR_FORMAT};
 pub use ui::{UiLayer, UiOverlay};
 
@@ -78,7 +78,10 @@ impl Gpu {
                 })
                 .await
                 .map_err(GpuError::NoAdapter)?;
-            let required_features = adapter.features() & wgpu::Features::PIPELINE_CACHE;
+            // A pipeline cache where the driver keeps one; BC textures where the GPU samples them
+            // (the scene then loads DXT levels as blocks, `ac2_render::set_gpu_block_compression`).
+            let required_features = adapter.features()
+                & (wgpu::Features::PIPELINE_CACHE | wgpu::Features::TEXTURE_COMPRESSION_BC);
             let (device, queue) = adapter
                 .request_device(&wgpu::DeviceDescriptor {
                     label: Some("ac2-gpu"),
@@ -95,6 +98,13 @@ impl Gpu {
                 pipeline_cache: None,
             })
         })
+    }
+
+    /// Whether the device samples BC1-BC3 textures.
+    pub fn block_compression(&self) -> bool {
+        self.device
+            .features()
+            .contains(wgpu::Features::TEXTURE_COMPRESSION_BC)
     }
 
     /// The pipeline cache new pipelines compile through, once loaded.

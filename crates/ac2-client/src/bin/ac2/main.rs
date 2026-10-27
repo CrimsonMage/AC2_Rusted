@@ -538,6 +538,8 @@ impl ApplicationHandler for App {
         let instance = wgpu::Instance::default();
         let surface = instance.create_surface(window.clone()).expect("surface");
         let mut gpu = Gpu::new(Some(&surface), instance).expect("GPU adapter");
+        // DXT textures stay BC blocks on a GPU that samples them, before anything loads.
+        ac2_render::set_gpu_block_compression(gpu.block_compression());
         // The driver's compiled pipelines from the last run, before any renderer is made.
         gpu.load_pipeline_cache(&pipeline_cache_dir());
         let caps = surface.get_capabilities(&gpu.adapter);

@@ -10,7 +10,9 @@
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
 //! frames of update, prepare and render, each waiting for the GPU, and prints one `bench` line
-//! (frame p50, p95 and max, the per-step p50s, peak RSS and the typed cache's bytes and entries).
+//! (frame p50, p95 and max, the per-step p50s, peak RSS, the typed cache's bytes and entries, and
+//! the texture bytes uploaded). `--rgba-textures` decodes DXT textures to RGBA8 even where the
+//! GPU samples BC blocks, to compare the two.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -48,6 +50,8 @@ struct Args {
     snapshot: Option<PathBuf>,
     /// Timed frames after the warm-up (0: no bench).
     bench: u32,
+    /// Decode DXT textures to RGBA8 even on a BC-capable GPU (compares the two upload paths).
+    rgba_textures: bool,
     fly: bool,
     model: usize,
     walk_seconds: f32,
@@ -69,6 +73,7 @@ fn parse_args() -> Result<Args, String> {
         radius: 2,
         snapshot: None,
         bench: 0,
+        rgba_textures: false,
         fly: false,
         model: 0,
         walk_seconds: 4.0,
@@ -91,6 +96,7 @@ fn parse_args() -> Result<Args, String> {
             "--snapshot" => args.snapshot = Some(value()?.into()),
             "--bench" => args.bench = value()?.parse().map_err(|e| format!("--bench: {e}"))?,
             "--fly" => args.fly = true,
+            "--rgba-textures" => args.rgba_textures = true,
             "--model" => args.model = value()?.parse().map_err(|e| format!("--model: {e}"))?,
             "--walk" => {
                 args.walk_seconds = value()?.parse().map_err(|e| format!("--walk: {e}"))?;
@@ -212,6 +218,8 @@ fn snapshot(
 ) {
     let (width, height) = (1280, 720);
     let gpu = Gpu::headless().expect("GPU adapter");
+    // As the client: DXT textures stay BC blocks when the GPU samples them.
+    ac2_render::set_gpu_block_compression(gpu.block_compression() && !args.rgba_textures);
     let mut view = ClientView::new(
         Arc::clone(&world),
         &gpu,

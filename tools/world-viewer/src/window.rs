@@ -97,6 +97,7 @@ impl ApplicationHandler for App {
         let instance = wgpu::Instance::default();
         let surface = instance.create_surface(window.clone()).expect("surface");
         let gpu = Gpu::new(Some(&surface), instance).expect("GPU adapter");
+        ac2_render::set_gpu_block_compression(gpu.block_compression());
         let caps = surface.get_capabilities(&gpu.adapter);
         // Gamma-space output like the retail D3D back buffer.
         let format = caps

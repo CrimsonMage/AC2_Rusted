@@ -24,6 +24,9 @@ pub struct Report {
     pub peak_rss_kib: u64,
     pub cache_bytes: usize,
     pub cache_entries: usize,
+    /// GPU texture bytes uploaded, and of those the BC blocks (`ac2_gpu::uploaded_texture_bytes`).
+    pub texture_bytes: u64,
+    pub texture_block_bytes: u64,
 }
 
 /// Renders `frames` frames of `frame` into `target` and reports their times.
@@ -66,6 +69,8 @@ pub fn run(
         peak_rss_kib: peak_rss_kib(),
         cache_bytes: cache.retained_bytes(),
         cache_entries: cache.entry_count(),
+        texture_bytes: ac2_gpu::uploaded_texture_bytes().0,
+        texture_block_bytes: ac2_gpu::uploaded_texture_bytes().1,
     }
 }
 
@@ -75,7 +80,7 @@ impl Report {
         format!(
             "bench frames={} p50_ms={:.3} p95_ms={:.3} max_ms={:.3} update_p50_ms={:.3} \
              prepare_p50_ms={:.3} render_p50_ms={:.3} peak_rss_kib={} cache_bytes={} \
-             cache_entries={}",
+             cache_entries={} texture_bytes={} texture_block_bytes={}",
             self.frames,
             self.p50_ms,
             self.p95_ms,
@@ -86,6 +91,8 @@ impl Report {
             self.peak_rss_kib,
             self.cache_bytes,
             self.cache_entries,
+            self.texture_bytes,
+            self.texture_block_bytes,
         )
     }
 }
