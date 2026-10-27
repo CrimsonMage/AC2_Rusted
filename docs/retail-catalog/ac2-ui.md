@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 864 done, 294 partial, 1036 to do, 53 skipped.
+2247 retail functions: 864 done, 303 partial, 1027 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -168,8 +168,8 @@ Legend and workflow: [README](README.md).
 - [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
 
 ### gmGamePlayUI
-- [ ] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-- [ ] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [~] `gmGamePlayUI::RecvNotice_PlayerTeleportStart` · 00407bf0 — ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
+- [~] `gmGamePlayUI::RecvNotice_PortalSpace` · 00407c30 — ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
 - [~] `gmGamePlayUI::RecvNotice_UpdateDeathState` · 00407c80 — ac2-ui death.rs (DeathPanel::notice: the death dialog up or closed); ac2-client hud_death.rs; not reproduced: the vtable call at +0x20 (the gameplay UI's show toggle, target not named in the export)
 - [x] `gmGamePlayUI::RecvNotice_ResurrectionRequestedByOther` · 00407cf0 — ac2-ui death.rs (DeathPanel::recv_resurrection_requested, the prompt); ac2-client hud_death.rs renders the notice; death_panel_7160 (offer layout)
 - [x] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30 — ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
@@ -613,24 +613,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gmKeyframe::GetSubtitle` · 0042bf80 · legions 0042bd40
 
 ### gmStoryUI
-- [ ] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0
+- [~] `gmStoryUI::Finish` · 0042c030 · legions 0042bdf0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 - [ ] `gmStoryUI::~gmStoryUI` · 0042c1e0 · legions 0042bfa0
-- [ ] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090
-- [ ] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360
+- [~] `gmStoryUI::Play` · 0042c2d0 · legions 0042c090 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::CheckStart` · 0042c5a0 · legions 0042c360 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::~QualifiedDataIDArray` · 0042c660 · legions 0042c420
 
 ### gmStoryUI
-- [ ] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470
-- [ ] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0
-- [ ] `gmStoryUI::OnContextFinished` · 0042c780
+- [~] `gmStoryUI::ListenToMessage` · 0042c6b0 · legions 0042c470 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::ListenToMessage` · 0042c6f0 · legions 0042c4b0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+- [~] `gmStoryUI::OnContextFinished` · 0042c780 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 
 ### QualifiedDataIDArray
 - [ ] `QualifiedDataIDArray::QualifiedDataIDArray` · 0042c7a0 · legions 0042c560
 
 ### gmStoryUI
-- [ ] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0
+- [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 
 ## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (14/32)
 

@@ -34,8 +34,8 @@ key	status	note
 004079e0	~	ac2-ui game_dialogs.rs make_please_wait (ID_Wait_PleaseWait, wait type); not called by the HUD: EndSession (logoff) does not raise it yet
 00407a40	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
-00407bf0	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-00407c30	_	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00407bf0	~	ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
+00407c30	~	ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
 00407c80	~	ac2-ui death.rs (DeathPanel::notice: the death dialog up or closed); ac2-client hud_death.rs; not reproduced: the vtable call at +0x20 (the gameplay UI's show toggle, target not named in the export)
 00407cf0	x	ac2-ui death.rs (DeathPanel::recv_resurrection_requested, the prompt); ac2-client hud_death.rs renders the notice; death_panel_7160 (offer layout)
 00407d00	x	ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
@@ -398,6 +398,13 @@ key	status	note
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
+0042c030	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c2d0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c5a0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c6b0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c6f0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c780	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
+0042c7f0	~	ac2-ui story.rs StoryPlayback: the sequencing (start gate, frame order, durations, image cross-fade, audio and subtitle carry-over, finish, skip key); the story fields, audio output and the gameplay notices (PlaySequence, PortalScene) are not made
 0042cb60	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 0042cb90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 0042cc90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)

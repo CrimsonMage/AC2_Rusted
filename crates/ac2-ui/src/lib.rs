@@ -95,6 +95,10 @@ mod shortcut_states;
 mod skill_tree;
 mod stack;
 mod statusbar;
+mod story;
+pub use story::{StoryField, StoryFrame, StoryPlayback, StoryShow, StoryStep};
+#[cfg(test)]
+mod story_tests;
 mod target_cycle;
 #[cfg(test)]
 mod tests;
