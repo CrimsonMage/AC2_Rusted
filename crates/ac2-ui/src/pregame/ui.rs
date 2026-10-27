@@ -31,7 +31,6 @@ use crate::pregame::avatar_modification::AvatarModificationUi;
 use crate::pregame::avatar_selection::AvatarSelectionUi;
 use crate::pregame::character_selection::CharacterSelectionUi;
 use crate::pregame::chargen::{CharGenSystem, NoCharGen};
-use crate::pregame::confirmation::is_name_character;
 use crate::pregame::credits::CreditsUi;
 use crate::pregame::data_patch::DataPatchUi;
 use crate::pregame::disconnected::DisconnectedUi;
@@ -337,15 +336,7 @@ impl PregameUi {
         for &(action, extent) in actions {
             self.tree.text_action(action, extent, modifiers);
         }
-        // `NameInputFilter` on the naming dialog's entry.
-        let name_entry = match &self.current {
-            Framework::AvatarModification(ui) => ui.dialog().and_then(|d| d.name_entry()),
-            _ => None,
-        };
         for &(ch, key) in characters {
-            if name_entry.is_some() && self.tree.active() == name_entry && !is_name_character(ch) {
-                continue;
-            }
             self.tree.character(ch, key, modifiers);
         }
         self.pump()

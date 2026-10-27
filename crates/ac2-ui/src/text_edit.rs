@@ -8,11 +8,10 @@
 //! The element broadcasts `activated` / `deactivated`, `character_input` (with the character) and
 //! `key_input`.
 //!
-//! The clipboard is process-local (`UiTree::text_clipboard`), standing in for the Windows
-//! clipboard the Legions copy, cut and paste calls use; see the crate's Known Gaps.
+//! The clipboard keys and the pointer drag selection are in `text_clip.rs`; the clipboard itself
+//! is `UiTree::set_text_clipboard`.
 //!
-//! Not modelled yet: the IME, page up / down, the cursor's flashing, and a pointer drag selection
-//! (`m_mouseSelecting` is never set by the Legions 7160 text code).
+//! Not modelled yet: the IME, page up / down, and the cursor's flashing.
 
 use crate::chat::Modifiers;
 use crate::element::UiTree;
@@ -96,8 +95,11 @@ impl UiTree {
         }
     }
 
-    fn selectable(&self, index: usize) -> bool {
+    /// Whether the element can hold a selection: a `selectable` one, or any editable one (the
+    /// modern selection exception in AGENTS.md).
+    pub(crate) fn selectable(&self, index: usize) -> bool {
         self.bool_attribute(index, tokenize("selectable"))
+            || self.el(index).text.as_ref().is_some_and(|t| t.editable)
     }
 
     /// `UIElement_Text::SetSelecting`: turning the selection on resets its ends to 0.
@@ -144,7 +146,7 @@ impl UiTree {
     }
 
     /// `UIElement_Text::SelectAll`: the whole text selected, on a selectable element.
-    pub fn select_all(&mut self, index: usize) {
+    pub(crate) fn select_all(&mut self, index: usize) {
         if !self.selectable(index) {
             return;
         }
@@ -167,7 +169,7 @@ impl UiTree {
     }
 
     /// `UIElement_Text::GetSelectedText`: the selected characters (none when off).
-    pub fn selected_text(&self, index: usize) -> Vec<u16> {
+    pub(crate) fn selected_text(&self, index: usize) -> Vec<u16> {
         let Some((start, end)) = self.selection(index) else {
             return Vec::new();
         };
@@ -178,7 +180,7 @@ impl UiTree {
     }
 
     /// `UIElement_Text::DeleteSelection`: the selected glyphs go and the selection ends.
-    fn delete_selection(&mut self, index: usize) {
+    pub(crate) fn delete_selection(&mut self, index: usize) {
         let Some((start, end)) = self.selection(index) else {
             return;
         };
@@ -192,7 +194,7 @@ impl UiTree {
     /// `UIElement_Text::SetCursorPosition`, clamped to the text. Shift extends a selection from
     /// the old cursor on a selectable element; a move without shift drops the selection
     /// (`m_mouseSelecting` is never set in the Legions 7160 text code, so it stays off here).
-    fn set_cursor(&mut self, index: usize, position: isize, shift: bool) {
+    pub(crate) fn set_cursor(&mut self, index: usize, position: isize, shift: bool) {
         let selecting = self
             .get(index)
             .and_then(|e| e.text.as_ref())
@@ -220,7 +222,7 @@ impl UiTree {
 
     /// `UIElement_Text::ScrollHorizontalView` on a one-line element: the view moves the least
     /// to keep the cursor's column inside the element's margins.
-    fn scroll_to_cursor(&mut self, index: usize) {
+    pub(crate) fn scroll_to_cursor(&mut self, index: usize) {
         let width = self.el(index).rect.width();
         let Some(text) = self.el_mut(index).text.as_mut() else {
             return;
@@ -382,8 +384,12 @@ impl UiTree {
             self.broadcast(index, message("key_input"), key as i32);
             return;
         }
-        if editable {
-            self.edit_character(index, ch, filter);
+        let ch = control_code(ch, modifiers.ctrl);
+        match ch {
+            // Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X (`text_clip.rs`).
+            1 | 3 | 0x16 | 0x18 => self.clipboard_key(index, ch),
+            _ if editable => self.edit_character(index, ch, filter),
+            _ => {}
         }
         self.broadcast(index, message("character_input"), i32::from(ch));
     }
@@ -405,23 +411,6 @@ impl UiTree {
             (text.cursor, text.one_line)
         };
         match ch {
-            // Ctrl+C, Ctrl+X: the selection to the clipboard (cut then deletes it).
-            3 | 0x18 => {
-                let selected = self.selected_text(index);
-                if self.selection(index).is_some() {
-                    self.text_clipboard = selected;
-                }
-                if ch == 0x18 {
-                    self.delete_selection(index);
-                }
-            }
-            // Ctrl+V: the clipboard inserted at the cursor, over the selection.
-            0x16 => {
-                let text = self.text_clipboard.clone();
-                if !text.is_empty() {
-                    self.insert(index, &text);
-                }
-            }
             8 => {
                 if self.selection(index).is_some() {
                     self.delete_selection(index);
@@ -452,7 +441,7 @@ impl UiTree {
 
     /// `UIElement_Text::AddText_Internal` at the cursor: an editable element first replaces its
     /// selection, anything else drops it.
-    fn insert(&mut self, index: usize, units: &[u16]) {
+    pub(crate) fn insert(&mut self, index: usize, units: &[u16]) {
         if self.el(index).text.as_ref().is_some_and(|t| t.editable) {
             self.delete_selection(index);
         } else {
@@ -475,8 +464,8 @@ impl UiTree {
     }
 
     /// `UIElement_Text::MouseDown`: a left press on an editable (or selectable) text element
-    /// places the cursor at the pointer (extending a selection while shift is held) and
-    /// activates an editable one.
+    /// places the cursor at the pointer (extending a selection while shift is held), starts a
+    /// drag selection (`text_clip.rs`) and activates an editable one.
     pub(crate) fn text_mouse_down(&mut self, index: usize, action: u32) {
         if action != LEFT_BUTTON {
             return;
@@ -488,17 +477,33 @@ impl UiTree {
         if !(editable || self.selectable(index)) {
             return;
         }
-        let local_x = self.pointer.0 - self.screen_box(index).x0;
+        let (local_x, local_y) = self.text_local_pointer(index);
         let position = self
             .el(index)
             .text
             .as_ref()
-            .map_or(0, |t| t.position_at(local_x));
+            .map_or(0, |t| t.position_at(local_x, local_y));
         // The pointer's shift state (`set_shift`, shared with the drag).
         let shift = self.drag.shift;
         self.set_cursor(index, position as isize, shift);
+        self.text_drag = Some(index);
         if editable {
             self.activate(index);
         }
+    }
+}
+
+/// The control code a typed Ctrl+letter stands for (Ctrl+A, C, V, X give 1, 3, 0x16, 0x18 where
+/// the platform types the code itself, as `WM_CHAR` does); other characters are unchanged.
+fn control_code(ch: u16, ctrl: bool) -> u16 {
+    if !ctrl || ch > 0x7F {
+        return ch;
+    }
+    match (ch as u8).to_ascii_lowercase() {
+        b'a' => 1,
+        b'c' => 3,
+        b'v' => 0x16,
+        b'x' => 0x18,
+        _ => ch,
     }
 }

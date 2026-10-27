@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 121 done, 48 partial, 136 to do, 49 skipped.
+354 retail functions: 121 done, 50 partial, 134 to do, 49 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -269,9 +269,9 @@ Legend and workflow: [README](README.md).
 - [ ] `Device::Cleanup` · 00534130 · legions 005180d0
 - [ ] `Device::WndProc` · 00534190
 - [ ] `Device::DoEventLoop` · 00534810 · legions 005187b0
-- [ ] `Device::SendStringToClipboard` · 00534a50 · legions 005189f0
+- [~] `Device::SendStringToClipboard` · 00534a50 · legions 005189f0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [ ] `Device::SetPath` · 00534b50 · legions 00518af0
-- [ ] `Device::GetStringFromClipboard` · 00534cd0
+- [~] `Device::GetStringFromClipboard` · 00534cd0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [ ] `Device::ChangePresentation` · 00534de0 · legions 00518d80
 - [ ] `Device::Show16BitWarning` · 00534fc0 · legions 00518f60
 - [ ] `Device::ForceDisplayResolution` · 005350a0 · legions 00518fa0

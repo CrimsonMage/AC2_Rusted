@@ -19,6 +19,7 @@ mod client_locations;
 pub use client_locations::{saved_windows, ui_save_locations};
 mod client_options;
 mod client_prefs;
+mod clipboard;
 use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
 mod client_objects;

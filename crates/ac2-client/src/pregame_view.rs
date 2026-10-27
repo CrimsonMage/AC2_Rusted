@@ -239,6 +239,7 @@ impl PregameView {
                         self.scale.display.0 as i32,
                         self.scale.display.1 as i32,
                     );
+                    ui.tree_mut().set_text_clipboard(crate::clipboard::shared());
                     if let Some(set) = self.resume.take() {
                         ui.resume_at_character_selection(set);
                     }

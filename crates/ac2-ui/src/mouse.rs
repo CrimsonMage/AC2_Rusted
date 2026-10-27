@@ -136,6 +136,7 @@ impl UiTree {
         // (`UpdateMouse` runs in the next `UseTime`).
         self.drag_mouse_move();
         self.movement_mouse_move();
+        self.text_drag_move();
         self.update_mouse();
     }
 
@@ -332,5 +333,6 @@ impl UiTree {
         self.dragbar_mouse_up(index, action);
         self.button_mouse_up(index, action, processed);
         self.scrollbar_mouse_up(index);
+        self.text_mouse_up(index, action);
     }
 }

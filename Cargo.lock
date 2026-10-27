@@ -78,6 +78,7 @@ dependencies = [
  "ac2-ui",
  "ac2-weenie",
  "ac2-world",
+ "arboard",
  "image",
  "legions-server-double",
  "png",

@@ -243,8 +243,11 @@ pub struct UiTree {
     pub(crate) movement: Option<crate::window_locations::Movement>,
     /// A window that saves its location moved (`location_changed`), until taken.
     pub(crate) locations_changed: bool,
-    /// The text clipboard (`text_edit.rs`): process-local, not the OS clipboard.
-    pub(crate) text_clipboard: Vec<u16>,
+    /// The clipboard the text elements copy, cut and paste through (`text_clip.rs`).
+    pub(crate) text_clipboard: std::sync::Arc<dyn crate::text_clipboard::TextClipboard>,
+    /// The editable or selectable text element a left press started a selection in
+    /// (`UIElement_Text::m_mouseSelecting`); the drag moves its moving end until the release.
+    pub(crate) text_drag: Option<usize>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -303,7 +306,8 @@ impl UiTree {
             drag: crate::drag::DragState::default(),
             movement: None,
             locations_changed: false,
-            text_clipboard: Vec::new(),
+            text_clipboard: std::sync::Arc::new(crate::text_clipboard::MemoryClipboard::default()),
+            text_drag: None,
         }
     }
 
@@ -315,6 +319,12 @@ impl UiTree {
 
     pub fn set_text_data(&mut self, data: Arc<dyn UiTextData>) {
         self.text_data = Some(data);
+    }
+
+    /// The clipboard text elements copy, cut and paste through (the client's OS clipboard). A
+    /// tree starts with its own in-memory one.
+    pub fn set_text_clipboard(&mut self, clipboard: Arc<dyn crate::text_clipboard::TextClipboard>) {
+        self.text_clipboard = clipboard;
     }
 
     /// One past the highest element index.

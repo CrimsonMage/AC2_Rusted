@@ -177,6 +177,8 @@ impl UiTree {
                 match id {
                     // `SetAtrb_Editable`.
                     id if id == tokenize("editable") => text.editable = *v,
+                    // A password field: its text never goes to the clipboard (`text_clip.rs`).
+                    id if id == tokenize("password") => text.password = *v,
                     TEXT_ONE_LINE => text.one_line = *v,
                     TEXT_CENTER_VERTICALLY => text.center_vertically = *v,
                     TEXT_CENTER => text.justification = Justification::Center,

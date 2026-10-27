@@ -160,6 +160,8 @@ mod target_cycle;
 mod tests;
 mod text;
 mod text_attr;
+mod text_clip;
+mod text_clipboard;
 mod text_data;
 mod text_edit;
 mod token;
@@ -283,6 +285,7 @@ pub use stack::{StackUi, StackUiDone};
 pub use statusbar::{show_statusbar, statusbar_shown};
 pub use target_cycle::{is_select_key, select_key_of, select_target, Candidate};
 pub use text::UiTextData;
+pub use text_clipboard::{MemoryClipboard, TextClipboard};
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};
 pub use token::{
     tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, MSG_MOUSE_PRESS_TOP, REFERENCE, REFERENT,
@@ -369,6 +372,8 @@ mod stack_tests;
 mod statusbar_tests;
 #[cfg(test)]
 mod target_cycle_tests;
+#[cfg(test)]
+mod text_clip_tests;
 #[cfg(test)]
 mod text_tests;
 #[cfg(test)]

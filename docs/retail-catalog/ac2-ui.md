@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1029 done, 361 partial, 749 to do, 108 skipped.
+2247 retail functions: 1042 done, 361 partial, 736 to do, 108 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (14/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (27/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3055,10 +3055,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::ClampPosition` · 005edd40 · legions 005ae930
 - [ ] `UIElement_Text::MoveUpDown` · 005edd80 · legions 005ae970
 - [ ] `UIElement_Text::MoveBeginEndLine` · 005edf30 · legions 005aeb20
-- [ ] `UIElement_Text::SetSelecting` · 005edfd0 · legions 005aebc0
-- [ ] `UIElement_Text::SetSelectionStart` · 005ee010 · legions 005aec00
-- [ ] `UIElement_Text::SetSelectionEnd` · 005ee070 · legions 005aec60
-- [ ] `UIElement_Text::GetSelection` · 005ee0d0 · legions 005aecc0
+- [x] `UIElement_Text::SetSelecting` · 005edfd0 · legions 005aebc0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::SetSelectionStart` · 005ee010 · legions 005aec00 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::SetSelectionEnd` · 005ee070 · legions 005aec60 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::GetSelection` · 005ee0d0 · legions 005aecc0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [ ] `UIElement_Text::GetTotalLines` · 005ee130 · legions 005aed20
 
 ### GlyphLine
@@ -3067,14 +3067,14 @@ Legend and workflow: [README](README.md).
 ### UIElement_Text
 - [ ] `UIElement_Text::~UIElement_Text` · 005ee160 · legions 005aed50
 - [x] `UIElement_Text::ClearAllText` · 005ee340 · legions 005aef30 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-- [ ] `UIElement_Text::SelectAll` · 005ee3a0 · legions 005aef90
-- [ ] `UIElement_Text::Deselect` · 005ee400 · legions 005aeff0
+- [x] `UIElement_Text::SelectAll` · 005ee3a0 · legions 005aef90 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::Deselect` · 005ee400 · legions 005aeff0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [ ] `UIElement_Text::GetText` · 005ee420 · legions 005af010
-- [ ] `UIElement_Text::GetSelectedText` · 005ee490
+- [x] `UIElement_Text::GetSelectedText` · 005ee490 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [ ] `UIElement_Text::UpdateScrollbar` · 005ee550 · legions 005af140
 - [x] `UIElement_Text::ResizeTo` · 005ee6a0 · legions 005af290 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DetermineFont` · 005ee6f0 · legions 005af2e0
-- [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+- [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [ ] `UIElement_Text::Create` · 005eed10
@@ -3098,10 +3098,10 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::SetViewY` · 005f0080 · legions 005b0bb0
 - [x] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0
-- [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
-- [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
-- [ ] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10
-- [ ] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0
+- [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [x] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [ ] `UIElement_Text::DetermineAndSetNewLine` · 005f03e0 · legions 005b0f10
 - [ ] `UIElement_Text::DetermineAndSetNewPage` · 005f04f0 · legions 005b1020
 - [ ] `UIElement_Text::ScrollToPosition` · 005f0590 · legions 005b10c0
@@ -3112,16 +3112,16 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280
 - [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
 - [ ] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0
-- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600
-- [ ] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640
-- [ ] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660
-- [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
-- [ ] `UIElement_Text::Cut` · 005f0cf0
+- [x] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [x] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [~] `UIElement_Text::AddText_Internal` · 005f0ba0 · legions 005b16d0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [x] `UIElement_Text::Cut` · 005f0cf0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::ActionHandler` · 005f0d50 — ac2-ui input.rs / text_edit.rs: typing into text elements
 - [~] `UIElement_Text::CheckStringDownloads` · 005f0e90 · legions 005b19c0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
-- [ ] `UIElement_Text::Paste` · 005f0f70
-- [~] `UIElement_Text::CharacterHandler` · 005f0ff0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+- [x] `UIElement_Text::Paste` · 005f0f70 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
+- [~] `UIElement_Text::CharacterHandler` · 005f0ff0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [ ] `UIElement_Text::Global_Loop` · 005f12a0 · legions 005b1dd0
 - [x] `UIElement_Text::AddStringInfowFont` · 005f1350 · legions 005b1e80 — ac2-ui chat.rs / chat_window.rs
 - [x] `UIElement_Text::AddStringInfowFont` · 005f13e0 · legions 005b1f10 — ac2-ui chat.rs / chat_window.rs

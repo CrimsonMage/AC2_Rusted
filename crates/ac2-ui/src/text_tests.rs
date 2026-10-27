@@ -86,7 +86,7 @@ fn lines_wrap_at_the_last_break_and_the_next_line_keeps_the_space() {
     assert_eq!(lines, [line(0, 4), line(2, 3)]);
 }
 
-struct Data;
+pub(crate) struct Data;
 
 impl UiTextData for Data {
     fn font(&self, _did: u32) -> Option<Arc<Ac2Font>> {
@@ -164,7 +164,7 @@ fn a_centred_entry_draws_each_glyph_but_its_last_column() {
     assert_eq!(&surface.rgba[8..12], &[255, 255, 255, 255]);
 }
 
-fn element(
+pub(crate) fn element(
     name: &str,
     kind: u32,
     rect: Rect,
@@ -196,7 +196,7 @@ fn element(
     }
 }
 
-fn flag(name: &str) -> AttributeDesc {
+pub(crate) fn flag(name: &str) -> AttributeDesc {
     AttributeDesc {
         id: tokenize(name),
         value: AttributeValue::Bool(true),
@@ -279,7 +279,13 @@ fn clicking_an_editable_field_takes_typing_until_a_click_elsewhere() {
 }
 
 /// A one-line editable, selectable entry, 50 pixels wide, in a panel the tree is rooted at.
-fn editable_entry() -> (UiTree, usize) {
+pub(crate) fn editable_entry() -> (UiTree, usize) {
+    entry_with(&["editable", "selectable", "activatable", "one_line"])
+}
+
+/// A one-line, 50 pixels wide text element with the layout flags `flags`, in a panel the tree is
+/// rooted at; returns the tree and the element. It is activated when editable.
+pub(crate) fn entry_with(flags: &[&str]) -> (UiTree, usize) {
     let entry = element(
         "entry",
         TEXT,
@@ -289,12 +295,7 @@ fn editable_entry() -> (UiTree, usize) {
             x1: 49,
             y1: 9,
         },
-        vec![
-            flag("editable"),
-            flag("selectable"),
-            flag("activatable"),
-            flag("one_line"),
-        ],
+        flags.iter().map(|name| flag(name)).collect(),
         vec![],
     );
     let panel = element(
@@ -321,7 +322,9 @@ fn editable_entry() -> (UiTree, usize) {
     tree.set_text_data(Arc::new(Data));
     let panel = tree.create_root(layout, tokenize("panel")).unwrap();
     let entry = tree.child_recursive(panel, tokenize("entry")).unwrap();
-    assert!(tree.activate(entry));
+    if flags.contains(&"editable") {
+        assert!(tree.activate(entry));
+    }
     (tree, entry)
 }
 

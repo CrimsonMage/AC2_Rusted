@@ -44,6 +44,7 @@ ac2-gpu = { path = "../ac2-gpu", optional = true }
 winit = { version = "0.30", optional = true }
 wgpu = { version = "30.0.1", default-features = false, optional = true }
 image = { version = "0.25", default-features = false, features = ["jpeg"] }
+arboard = "3.7"
 
 [dev-dependencies]
 ac2-client = { path = ".", features = ["test-support"] }

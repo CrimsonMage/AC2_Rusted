@@ -118,6 +118,8 @@ pub(crate) struct TextState {
     pub selecting: bool,
     /// `m_nSelectionStart`, `m_nSelectionEnd`: the anchor and the moving end (either order).
     pub selection: (usize, usize),
+    /// A password field (the layout's `password` flag): its text never goes to the clipboard.
+    pub password: bool,
 }
 
 impl TextState {
@@ -143,6 +145,7 @@ impl TextState {
             filter: None,
             selecting: false,
             selection: (0, 0),
+            password: false,
         }
     }
 
@@ -191,17 +194,34 @@ impl TextState {
         self.dirty = true;
     }
 
-    /// `UIElement_Text::DeterminePositionFromXY` along the first line: the glyph boundary
-    /// nearest `x` (element pixels).
-    pub(crate) fn position_at(&self, x: i32) -> usize {
+    /// `UIElement_Text::DeterminePositionFromXY`: the line at `y` (element pixels, from the top
+    /// margin on), then the glyph boundary nearest `x` in that line. Justification is not
+    /// applied, so the position is right for left-justified text.
+    pub(crate) fn position_at(&self, x: i32, y: i32) -> usize {
+        let len = self.glyphs.len();
+        let (start, end) = if self.lines.is_empty() {
+            (0, len)
+        } else {
+            let mut top = self.margins[0] - self.view.1;
+            let mut line = self.lines.len() - 1;
+            for (i, l) in self.lines.iter().enumerate() {
+                if y < top + l.height {
+                    line = i;
+                    break;
+                }
+                top += l.height;
+            }
+            let end = self.lines.get(line + 1).map_or(len, |next| next.index);
+            (self.lines[line].index.min(len), end.min(len))
+        };
         let mut left = self.margins[2] - self.view.0;
-        for (i, glyph) in self.glyphs.iter().enumerate() {
+        for (i, glyph) in self.glyphs[start..end].iter().enumerate() {
             if glyph.ch == 10 || x < left + glyph.width / 2 {
-                return i;
+                return start + i;
             }
             left += glyph.width;
         }
-        self.glyphs.len()
+        end
     }
 
     /// `UIElement_Text::AddText_Internal` / `GlyphList::AddText` at the end, in the current
@@ -357,6 +377,9 @@ fn color_bytes(color: [f32; 4]) -> [u8; 4] {
     color.map(|c| (f64::from(c) * 255.0) as i64 as u8)
 }
 
+/// The background of a selected run of glyphs (a modern highlight; retail's text drew none).
+pub(crate) const SELECTION_COLOR: [f32; 4] = [0.18, 0.42, 0.85, 1.0];
+
 impl UiSurface {
     /// `SurfaceWindow::DrawCharacter` into `window` (surface coordinates, inclusive) at window
     /// position (`x`, `y`); returns the advance.
@@ -424,6 +447,27 @@ impl UiSurface {
         glyph_width
     }
 
+    /// A `width` x `height` box at window position (`x`, `y`) filled with `pixel`, clipped to
+    /// `window`.
+    fn fill_box(&mut self, window: UiBox, x: i32, y: i32, width: i32, height: i32, pixel: [u8; 4]) {
+        for dy in 0..height {
+            for dx in 0..width {
+                let (tx, ty) = (window.x0 + x + dx, window.y0 + y + dy);
+                let inside = window.intersection(&UiBox::new(tx, ty, tx, ty)).is_some();
+                if !inside
+                    || tx < 0
+                    || ty < 0
+                    || tx >= self.width as i32
+                    || ty >= self.height as i32
+                {
+                    continue;
+                }
+                let at = (ty as usize * self.width as usize + tx as usize) * 4;
+                self.rgba[at..at + 4].copy_from_slice(&pixel);
+            }
+        }
+    }
+
     /// `UIElement_Text::PostBlit` for an element whose box is `me` and dirty part `dirty`
     /// (surface coordinates).
     pub(crate) fn draw_text(&mut self, text: &TextState, me: UiBox, dirty: UiBox, active: bool) {
@@ -444,6 +488,10 @@ impl UiSurface {
         let mut line_height = text.lines[0].height;
         let mut next_line = 1;
         let mut cursor_at = None;
+        let selected = text.selecting.then(|| {
+            text.selection.0.min(text.selection.1)..text.selection.0.max(text.selection.1)
+        });
+        let highlight = color_bytes(SELECTION_COLOR);
         for (index, glyph) in text.glyphs.iter().enumerate() {
             if index == text.cursor {
                 cursor_at = Some((x, y));
@@ -459,6 +507,12 @@ impl UiSurface {
             }
             if glyph.ch == 10 {
                 continue;
+            }
+            if selected
+                .as_ref()
+                .is_some_and(|range| range.contains(&index))
+            {
+                self.fill_box(window, x, y, glyph.width, line_height, highlight);
             }
             if glyph.outline {
                 for dy in -1..2 {

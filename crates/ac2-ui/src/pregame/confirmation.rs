@@ -61,6 +61,10 @@ impl ConfirmationUi {
             ctx.tree.set_state(buttons, CLIENT_TYPE);
             ui.clear_on_activate = true;
             ui.name_entry = ctx.tree.child_recursive(field, tokenize("NameEntry"));
+            if let Some(entry) = ui.name_entry {
+                // `NameInputFilter`: the entry takes name characters, typed or pasted.
+                ctx.tree.set_text_filter(entry, Some(is_name_character));
+            }
         }
         ui
     }
@@ -70,11 +74,6 @@ impl ConfirmationUi {
         if let Some(field) = self.field {
             ctx.tree.remove_root(field);
         }
-    }
-
-    /// The name entry, for the input filter.
-    pub(crate) fn name_entry(&self) -> Option<usize> {
-        self.name_entry
     }
 
     fn child(&self, ctx: &Ctx<'_>, name: &str) -> Option<usize> {

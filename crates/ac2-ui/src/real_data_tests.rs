@@ -416,3 +416,65 @@ fn the_shift_map_binds_escape_to_the_logout_action() {
     eprintln!("shift Escape -> {:08x} ({})", escape.action, escape.name);
     assert_eq!(escape.action, LOGOUT_ACTION);
 }
+
+#[test]
+fn the_chat_entry_selects_copies_cuts_and_pastes_on_the_real_layout() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let clip = std::sync::Arc::new(MemoryClipboard::with_text("pasted"));
+    tree.set_text_clipboard(clip.clone());
+    // The chat windows' entry lines; the shown one takes the activation.
+    let entries: Vec<usize> = (0..tree.slots_len())
+        .filter(|&i| {
+            tree.get(i)
+                .is_some_and(|e| e.id() == tokenize("ChatEntry") && e.text.is_some())
+        })
+        .collect();
+    let entry = entries
+        .into_iter()
+        .find(|&i| tree.activate(i))
+        .expect("a shown chat entry line");
+    assert!(tree.text_mode(), "the entry line takes typing");
+    let ctrl = Modifiers {
+        ctrl: true,
+        ..Modifiers::default()
+    };
+    let plain = Modifiers::default();
+    let text = |tree: &UiTree| tree.get(entry).unwrap().text().unwrap();
+    for c in "hi there".chars() {
+        tree.character(c as u16, 0, plain);
+    }
+    assert_eq!(text(&tree), "hi there");
+    // Ctrl+A selects the line, Ctrl+C copies it and leaves it in place.
+    tree.character(u16::from(b'a'), 0, ctrl);
+    assert_eq!(tree.selection(entry), Some((0, 8)));
+    tree.character(u16::from(b'c'), 0, ctrl);
+    assert_eq!(clip.text().as_deref(), Some("hi there"));
+    assert_eq!(text(&tree), "hi there");
+    // Ctrl+X cuts it: the line empties and the clipboard keeps it.
+    tree.character(u16::from(b'x'), 0, ctrl);
+    assert_eq!(text(&tree), "");
+    assert_eq!(clip.text().as_deref(), Some("hi there"));
+    // Ctrl+V pastes at the cursor, and the field's length limit holds on the real layout.
+    let max = tree
+        .get(entry)
+        .unwrap()
+        .text
+        .as_ref()
+        .unwrap()
+        .max_characters;
+    assert!(max > 0 && max < 0xFFFF, "the entry line has a length limit");
+    assert!(clip.set_text(&"x".repeat(max + 10)));
+    tree.character(u16::from(b'v'), 0, ctrl);
+    assert_eq!(text(&tree).chars().count(), max);
+    // Shift+Home from the end selects back to the start.
+    let shift = Modifiers {
+        shift: true,
+        ..Modifiers::default()
+    };
+    tree.text_action(0x4000_001B, 1.0, shift);
+    assert_eq!(tree.selection(entry), Some((0, max)));
+}

@@ -38,6 +38,8 @@ impl HudView {
             .spawn(move || {
                 let built =
                     ac2_ui::build_gameplay_hud(&store, width, height).and_then(|mut hud| {
+                        // The text elements copy, cut and paste through the OS clipboard.
+                        hud.tree.set_text_clipboard(crate::clipboard::shared());
                         // `CRegionDesc::GetGameMap`: the map image the navigation panel shows.
                         if let (Some(nav), Some(map)) = (
                             hud.navigation.as_mut(),
