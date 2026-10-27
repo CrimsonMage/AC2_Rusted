@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 364 done, 82 partial, 1616 to do, 62 skipped.
+2124 retail functions: 365 done, 81 partial, 1616 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (103/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (104/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2731,7 +2731,7 @@ Legend and workflow: [README](README.md).
 ### CPhysicsObj
 - [ ] `CPhysicsObj::TogglePlaceMarkerObjects` · 004ec4f0 · legions 004dee60
 - [ ] `CPhysicsObj::makeObjectInternal` · 004ec520 · legions 004dee90
-- [~] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680 — ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
+- [x] `CPhysicsObj::RecvEvt_DoBehavior` · 004ec680 — ac2-client client_objects.rs apply_remote: the weenie emote gate (answer_weenie_emote); the copy with context 1 is motion.rs behavior()
 - [~] `CPhysicsObj::SetPosition` · 004ec730 · legions 004df090 — ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 - [~] `CPhysicsObj::EnterWorld` · 004ec7d0 — ac2-client remote.rs
 - [~] `CPhysicsObj::set_description` · 004ec830 — ac2-physics set_description_animation: mode, network behaviours, sliders; velocity, omega, scales, look-at, FX, missile and stamps not ported

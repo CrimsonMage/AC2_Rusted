@@ -224,6 +224,9 @@ pub const IFUN_REQUEST_PET_BUFF: u32 = 0x00B4_0145;
 pub const IFUN_REQUEST_PET_HEAL: u32 = 0x00B4_0146;
 /// `gmCWInterface::RequestPetReturn` (`CallIFun_RequestPetReturn`: no arguments).
 pub const IFUN_REQUEST_PET_RETURN: u32 = 0x00B4_0147;
+/// `gmCWInterface::HandleWeenieEmote(emoteID)` (`ggmCWInterface::CallIFun_HandleWeenieEmote`: the
+/// emote's id, and the int answer). A behaviour that names a weenie emote runs only when it says yes.
+pub const IFUN_HANDLE_WEENIE_EMOTE: u32 = 0x00B4_00AA;
 /// `gmCWInterface::RequestPetMode(target, mode)` (`CallIFun_RequestPetMode`: the mode, then the
 /// pet's `InstanceID`).
 pub const IFUN_REQUEST_PET_MODE: u32 = 0x00B4_0148;

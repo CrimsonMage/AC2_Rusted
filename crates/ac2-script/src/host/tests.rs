@@ -789,3 +789,25 @@ fn get_entity_did_answers_the_weenies_init_did() {
         InterpStatus::Crash
     );
 }
+
+/// `gmCWInterface::HandleWeenieEmote` reaches the player's script as IFun 0xB400AA
+/// (`ggmCWInterface::CallIFun_HandleWeenieEmote`): the call runs to its end, and an object with no
+/// process has no answer.
+#[test]
+fn the_player_script_answers_the_weenie_emote_ifun() {
+    let Some(mut host) = legions_host() else {
+        return;
+    };
+    let pid = host.vm().program.package_id("CPlayer").expect("CPlayer");
+    assert!(host.create_weenie(0x5000_0001, pid, 0));
+    host.set_player(0x5000_0001);
+    let result = host
+        .call_ifun(0x5000_0001, 0x00B4_00AA, &[IFunArg::Int(0x2A)])
+        .unwrap();
+    assert_eq!(result.outcome.status, InterpStatus::Terminated);
+    assert!(result.outcome.fault.is_none());
+    assert_eq!(
+        host.call_ifun(0x6, 0x00B4_00AA, &[IFunArg::Int(0x2A)]),
+        Err(HostError::UnknownObject(0x6))
+    );
+}

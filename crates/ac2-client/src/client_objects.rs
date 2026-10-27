@@ -38,6 +38,17 @@ impl Client {
 
     /// The session's object events (`CObjectMaint`, `CPhysicsObj::RecvEvt_*`).
     pub(crate) fn apply_remote(&mut self, event: &SessionEvent) {
+        // `CPhysicsObj::RecvEvt_DoBehavior`: a behaviour that names a weenie emote is asked of the
+        // object's weenie first, and a no leaves the body alone.
+        let emote_refused = match event {
+            SessionEvent::ObjectAction {
+                object,
+                action: ObjectAction::DoBehavior(params),
+            } if params.weenie_emote != 0 => {
+                !self.answer_weenie_emote(*object, params.weenie_emote)
+            }
+            _ => false,
+        };
         let (remotes, mut cx) = self.remote_context();
         match event {
             SessionEvent::ObjectAdded(id) => remotes.added(*id, &mut cx),
@@ -52,7 +63,9 @@ impl Client {
                     _ => *object,
                 };
                 remotes.action(target, &mut cx);
-                remotes.motion(*object, action);
+                if !emote_refused {
+                    remotes.motion(*object, action);
+                }
             }
             // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
             SessionEvent::ObjectContained(id) => remotes.action(*id, &mut cx),
@@ -62,7 +75,11 @@ impl Client {
         // The player's body takes its motion events too, and only it moves to (`RecvEvt_MoveTo`;
         // the session keeps the move-to stamp).
         if let SessionEvent::ObjectAction { object, action } = event {
-            if let Some(player) = self.player.as_mut().filter(|p| p.id == *object) {
+            if let Some(player) = self
+                .player
+                .as_mut()
+                .filter(|p| p.id == *object && !emote_refused)
+            {
                 let started = player
                     .body
                     .as_mut()

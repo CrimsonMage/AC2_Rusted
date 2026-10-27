@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 329 done, 151 partial, 1411 to do, 13 skipped.
+1904 retail functions: 331 done, 150 partial, 1410 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (99/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (100/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -725,7 +725,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770
 - [~] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 - [~] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-- [~] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0 — no native caller in the call graph; IFun 0xB400AA not wired
+- [x] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0 — gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 - [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70
 - [ ] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10
 - [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (151/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (152/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -1106,7 +1106,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWInterface::IsFellowshipMember` · 00451c10 · legions 00452d90
 - [x] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10
-- [~] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30 — no native caller in the call graph; IFun 0xB400AA not wired
+- [x] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30 — gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 - [x] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::SwearAllegiance` · 00451d10 · legions 00452e90 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::BreakAllegiance` · 00451d30 · legions 00452eb0 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1463,7 +1463,7 @@ Legend and workflow: [README](README.md).
 ### ECM_Physics
 - [ ] `ECM_Physics::RecvEvt_MoveTo` · 00497750 · legions 0048fc60
 - [ ] `ECM_Physics::RecvEvt_ReleaseBehavior` · 004978c0 · legions 0048fdd0
-- [ ] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10
+- [~] `ECM_Physics::RecvEvt_DoBehavior` · 00497a00 · legions 0048ff10 — ECM_Physics::RecvEvt_DoBehavior: the session decodes the event; the emote gate runs in ac2-client apply_remote
 
 ## `portal/client/src/events/ecm_qualities.cpp.c` (0/20)
 

@@ -112,6 +112,38 @@ impl Client {
         out
     }
 
+    /// `gmCWInterface::HandleWeenieEmote`, called by `CPhysicsObj::RecvEvt_DoBehavior` through the
+    /// weenie's slot before a behaviour starts: the object's script answers whether the emote's
+    /// behaviour may run. Retail answers no when the interface has no process, so does this.
+    pub(crate) fn answer_weenie_emote(&mut self, object: u64, emote: u32) -> bool {
+        let Some(scripts) = self.scripts.as_mut() else {
+            return false;
+        };
+        if scripts.host.instance(object).is_none() {
+            return false;
+        }
+        let result = scripts
+            .host
+            .call_ifun(
+                object,
+                crate::scripts::IFUN_HANDLE_WEENIE_EMOTE,
+                &[IFunArg::Int(emote)],
+            )
+            .map_err(|e| format!("{e:?}"));
+        let answer = result.as_ref().is_ok_and(|r| r.retval != 0);
+        let mut out = Vec::new();
+        self.script_outcome(
+            object,
+            Some(crate::scripts::IFUN_HANDLE_WEENIE_EMOTE),
+            result.map(|r| r.outcome),
+            &mut out,
+        );
+        if let Some(scripts) = self.scripts.as_mut() {
+            scripts.produced.extend(out);
+        }
+        answer
+    }
+
     /// `ggmCWInterface::CallIFun_*` on the player's process, its output routed into `out`.
     pub(crate) fn ifun_into(
         &mut self,

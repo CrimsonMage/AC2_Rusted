@@ -1314,7 +1314,7 @@ key	status	note
 00451bd0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451bf0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451c50	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-00451cb0	~	no native caller in the call graph; IFun 0xB400AA not wired
+00451cb0	x	gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 00451cf0	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d10	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d30	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1431,7 +1431,7 @@ key	status	note
 0045ba40	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 0045bc60	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-0045bd60	~	no native caller in the call graph; IFun 0xB400AA not wired
+0045bd60	x	gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 0045c0f0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 0045c4a0	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -2201,7 +2201,7 @@ key	status	note
 00497550	_	
 00497750	_	
 004978c0	_	
-00497a00	_	
+00497a00	~	ECM_Physics::RecvEvt_DoBehavior: the session decodes the event; the emote gate runs in ac2-client apply_remote
 00497af0	_	
 00497ba0	_	
 00497c90	_	
@@ -2830,7 +2830,7 @@ key	status	note
 004ec310	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
-004ec680	~	ac2-client motion.rs: DoBehavior with context 1; a weenie emote is not run first
+004ec680	x	ac2-client client_objects.rs apply_remote: the weenie emote gate (answer_weenie_emote); the copy with context 1 is motion.rs behavior()
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
 004ec830	~	ac2-physics set_description_animation: mode, network behaviours, sliders; velocity, omega, scales, look-at, FX, missile and stamps not ported
