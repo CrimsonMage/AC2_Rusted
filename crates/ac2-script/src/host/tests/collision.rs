@@ -60,6 +60,7 @@ fn set_collision_state_queues_the_parameters_minimums_for_the_weenie() {
         NativeObject::CollisionParameters(CollisionParameters {
             min_reported_impact_xy: 2.5,
             min_reported_impact_z: 0.0,
+            sets: Default::default(),
         }),
     );
     assert_eq!(
@@ -299,4 +300,98 @@ fn is_end_contact_reads_the_contact_state() {
         ..CollisionProfile::default()
     });
     assert_eq!(efun_result(&mut host.vm, 0x001B_000F, &[], begin, 2), 0);
+}
+
+/// `gCollisionParameters::CallEFun_AddToEtherealList(InstanceID)` adds the id to the native's
+/// ethereal lists: the body then passes through it, and answers 1.
+#[test]
+fn add_to_ethereal_list_makes_the_id_ethereal_on_the_native() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let native = host.vm.refs.create_native(
+        ntype::COLLISION_PARAMETERS,
+        NativeObject::CollisionParameters(CollisionParameters::default()),
+    );
+    // The 64-bit id 0x1_0000_0042: word 2 holds the high half, word 3 the low one.
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001A_0001, &[1, 0x42], native, 4),
+        1,
+        "AddToEtherealList answers 1"
+    );
+    let Some(NativeObject::CollisionParameters(p)) = host.vm.native(native) else {
+        panic!("the native is a CollisionParameters");
+    };
+    let none = ac2_physics::PhysicsTypeMask::default();
+    assert!(!p.sets.blocks(0x1_0000_0042, none, false), "passed through");
+    assert!(
+        !p.sets.blocks(0x1_0000_0042, none, true),
+        "and on placement"
+    );
+    assert!(
+        p.sets.blocks(0x1_0000_0043, none, false),
+        "other objects still block"
+    );
+}
+
+/// `UpdateMovementEthereal` and the other mask efuns answer 0 for a name the master property
+/// table lacks, and set no bit (`EtherealPhysicsType::SetProperty`). The name is outside
+/// the property range, so no installed table holds it.
+#[test]
+fn a_mask_efun_with_an_unknown_property_changes_nothing() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let native = host.vm.refs.create_native(
+        ntype::COLLISION_PARAMETERS,
+        NativeObject::CollisionParameters(CollisionParameters::default()),
+    );
+    let unknown = [0, 0x7EAD_BEEF];
+    for id in [
+        0x001A_000B,
+        0x001A_000C,
+        0x001A_0010,
+        0x001A_0011,
+        0x001A_0007,
+        0x001A_0008,
+    ] {
+        assert_eq!(
+            efun_result(&mut host.vm, id, &unknown, native, 4),
+            0,
+            "{id:#010x}"
+        );
+    }
+    let Some(NativeObject::CollisionParameters(p)) = host.vm.native(native) else {
+        panic!("the native is a CollisionParameters");
+    };
+    // Retail sets the set's bitfield flag and clears its mask before the name is checked, so
+    // only the observable state is compared: no physics-type bits, and the body still solid.
+    let none = ac2_physics::PhysicsTypeMask::default();
+    assert_eq!(p.sets.physics_type(), none);
+    assert!(p.sets.blocks(7, none, false));
+    assert!(p.sets.blocks(7, none, true));
+}
+
+/// With the DATs installed, a mask efun answers whether the master property table names the
+/// property, as `MasterProperty::GetPropertyDesc` does. Skipped without `AC2_DAT_DIR`.
+#[test]
+fn a_mask_efun_answers_the_master_property_table() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(std::sync::Arc::clone(&dataset));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let native = host.vm.refs.create_native(
+        ntype::COLLISION_PARAMETERS,
+        NativeObject::CollisionParameters(CollisionParameters::default()),
+    );
+    for name in [0x4000_0038_u32, 0x4000_001B, 0x4000_0026, 0x4000_001C] {
+        let known = ac2_db::ac2_property_type(name).is_some();
+        let answer = efun_result(&mut host.vm, 0x001A_000B, &[0, name], native, 4);
+        assert_eq!(
+            answer,
+            u32::from(known),
+            "UpdateMovementEthereal({name:#010x})"
+        );
+    }
 }

@@ -235,14 +235,17 @@ fn set_collision_state(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         Err(status) => return status,
     };
     let params = Call::new(ctx).word(2);
-    let (xy, z) = match vm.native(params) {
-        Some(NativeObject::CollisionParameters(p)) => {
-            (p.min_reported_impact_xy, p.min_reported_impact_z)
-        }
+    let (xy, z, sets) = match vm.native(params) {
+        Some(NativeObject::CollisionParameters(p)) => (
+            p.min_reported_impact_xy,
+            p.min_reported_impact_z,
+            (*p.sets).clone(),
+        ),
         _ => return vm.bad_this(params),
     };
     if id != 0 {
         vm.collision_minimums.push((id, xy, z));
+        vm.collision_sets.push((id, sets));
     }
     Call::new(ctx).ret(3, 0, tag::BOOL);
     InterpStatus::Success

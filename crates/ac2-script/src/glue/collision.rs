@@ -11,6 +11,13 @@ pub(super) fn register(efuns: &mut EFuns) {
         let function: crate::vm::EFunFn = match name {
             "gCollisionParameters::CallEFun_SetMinReportedImpactXY" => set_min_xy,
             "gCollisionParameters::CallEFun_SetMinReportedImpactZ" => set_min_z,
+            "gCollisionParameters::CallEFun_AddToEtherealList" => add_to_ethereal_list,
+            "gCollisionParameters::CallEFun_UpdatePhysicsType" => update_physics_type,
+            "gCollisionParameters::CallEFun_RemovePhysicsType" => remove_physics_type,
+            "gCollisionParameters::CallEFun_UpdateMovementEthereal" => update_movement_ethereal,
+            "gCollisionParameters::CallEFun_UpdateMovementSolid" => update_movement_solid,
+            "gCollisionParameters::CallEFun_UpdatePlacementEthereal" => update_placement_ethereal,
+            "gCollisionParameters::CallEFun_UpdatePlacementSolid" => update_placement_solid,
             "gCollisionProfile::CallEFun_HasCollided" => has_collided,
             "gCollisionProfile::CallEFun_IsEndCollision" => is_end_collision,
             "gCollisionProfile::CallEFun_GetObject" => get_object,
@@ -53,6 +60,80 @@ fn set_minimum(
         }
         _ => vm.bad_this(this),
     }
+}
+
+/// `MasterProperty::GetPropertyDesc(name)` against the table the world source installed on the
+/// preload path: a name the table lacks is not a property, so its set is left alone.
+fn master_property(name: u64) -> bool {
+    u32::try_from(name)
+        .ok()
+        .and_then(ac2_db::ac2_property_type)
+        .is_some()
+}
+
+/// Runs one set update on the native's collision sets: `this` and the 64-bit name or id at words
+/// 2 and 3, the int result in the return slot (word 4).
+fn update_sets(
+    vm: &mut Vm,
+    ctx: &mut Context,
+    update: fn(&mut ac2_physics::CollisionParameters, u64) -> bool,
+) -> InterpStatus {
+    let call = Call::new(ctx);
+    let (this, name) = (call.this(), call.word64(3));
+    let ok = match vm.native_mut(this) {
+        Some(NativeObject::CollisionParameters(p)) => update(&mut p.sets, name),
+        _ => return vm.bad_this(this),
+    };
+    Call::new(ctx).ret(4, u32::from(ok), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCollisionParameters::CallEFun_AddToEtherealList(InstanceID)`: the id joins the placement
+/// and movement ethereal lists (`CollisionParameters::AddToEtherealList`).
+fn add_to_ethereal_list(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, id| sets.add_to_ethereal_list(id))
+}
+
+/// `gCollisionParameters::CallEFun_UpdatePhysicsType(name)`: sets the bit of the physics type.
+fn update_physics_type(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_physics_type(name, true, master_property)
+    })
+}
+
+/// `gCollisionParameters::CallEFun_RemovePhysicsType(name)`: clears it.
+fn remove_physics_type(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_physics_type(name, false, master_property)
+    })
+}
+
+/// `gCollisionParameters::CallEFun_UpdateMovementEthereal(name)`: the movement type is ethereal.
+fn update_movement_ethereal(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_movement(name, true, master_property)
+    })
+}
+
+/// `gCollisionParameters::CallEFun_UpdateMovementSolid(name)`: the movement type is solid.
+fn update_movement_solid(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_movement(name, false, master_property)
+    })
+}
+
+/// `gCollisionParameters::CallEFun_UpdatePlacementEthereal(name)`: the placement type is ethereal.
+fn update_placement_ethereal(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_placement(name, true, master_property)
+    })
+}
+
+/// `gCollisionParameters::CallEFun_UpdatePlacementSolid(name)`: the placement type is solid.
+fn update_placement_solid(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    update_sets(vm, ctx, |sets, name| {
+        sets.update_placement(name, false, master_property)
+    })
 }
 
 /// `gCollisionProfile::CallEFun_HasCollided(Vector *normal, float *speed)`: when the report has

@@ -5317,7 +5317,7 @@ key	status	note
 004f7770	_	needs port: collision reports and properties
 004f7930	_	needs port: collision reports and properties
 004f7b10	_	needs port: collision reports and properties
-004f7ca0	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
+004f7ca0	~	minimums and the sets reach the player body (ac2-client apply_collision_minimums/apply_collision_sets); the sets replace the body's rather than merging as CCollisionManager does; the physics and placement masks of the manager and its temp lists are not ported
 004f7db0	_	needs port: collision reports and properties
 004f7e30	_	needs port: collision reports and properties
 004f7ed0	_	needs port: collision reports and properties
@@ -7042,13 +7042,13 @@ key	status	note
 00549630	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 005496a0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 00549710	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549780	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549800	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549880	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549900	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549980	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549a00	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549a80	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+00549780	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549800	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549880	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549900	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549980	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549a00	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549a80	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549b00	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 00549bc0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 00549c80	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)

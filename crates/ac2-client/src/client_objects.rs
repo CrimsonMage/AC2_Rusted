@@ -73,6 +73,24 @@ impl Client {
         }
     }
 
+    /// `CCollisionManager::SetCollisionState` for a script's collision sets: the player's body
+    /// takes the script's placement and movement ethereal and physics-type sets. Remote bodies
+    /// keep theirs, as with the minimums.
+    pub(crate) fn apply_collision_sets(
+        &mut self,
+        object: u64,
+        sets: &ac2_physics::CollisionParameters,
+    ) {
+        if let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        {
+            *body.physics.collision_mut() = sets.clone();
+        }
+    }
+
     /// The position a targeted impulse on `object` pushes from: the target's, when the target
     /// is another object in the world (`CPhysics::GetObjectA(target)` with `pCVar7 != this`).
     fn impulse_source(&self, object: u64, target: u64) -> Option<ac2_physics::Position> {

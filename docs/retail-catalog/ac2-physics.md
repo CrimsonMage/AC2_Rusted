@@ -812,7 +812,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
-- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
+- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — minimums and the sets reach the player body (ac2-client apply_collision_minimums/apply_collision_sets); the sets replace the body's rather than merging as CCollisionManager does; the physics and placement masks of the manager and its temp lists are not ported
 - [ ] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — needs port: collision reports and properties
 - [ ] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — needs port: collision reports and properties

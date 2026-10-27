@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1443 done, 110 partial, 585 to do, 330 skipped.
+2468 retail functions: 1450 done, 110 partial, 578 to do, 330 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1557,7 +1557,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 - [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 
-## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (2/25)
+## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (9/25)
 
 ### gCollisionParameters
 - [x] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
@@ -1573,13 +1573,13 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionParameters::CallEFun_SetPlacementLowDWord` · 00549630 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_SetWeenieMovementType` · 005496a0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_SetWeeniePlacementType` · 00549710 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_AddToEtherealList` · 00549780 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_RemovePhysicsType` · 00549800 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_UpdateMovementEthereal` · 00549880 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_UpdateMovementSolid` · 00549900 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_UpdatePhysicsType` · 00549980 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_UpdatePlacementEthereal` · 00549a00 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_UpdatePlacementSolid` · 00549a80 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [x] `gCollisionParameters::CallEFun_AddToEtherealList` · 00549780 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_RemovePhysicsType` · 00549800 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_UpdateMovementEthereal` · 00549880 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_UpdateMovementSolid` · 00549900 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_UpdatePhysicsType` · 00549980 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_UpdatePlacementEthereal` · 00549a00 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+- [x] `gCollisionParameters::CallEFun_UpdatePlacementSolid` · 00549a80 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 - [ ] `gCollisionParameters::CallEFun_GetPhysicsMovementType` · 00549b00 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_GetPhysicsPlacementType` · 00549bc0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_GetPhysicsType` · 00549c80 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)

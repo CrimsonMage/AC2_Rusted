@@ -5,10 +5,12 @@
 
 /// `CollisionParameters`: the two impact minimums (`m_min_reported_impactXY` at +0xA8 and
 /// `m_min_reported_impactZ` at +0xAC in retail's native). Zero means the minimum is not set.
-#[derive(Debug, Clone, Copy, Default, PartialEq)]
+/// The ethereal and physics-type sets the mask efuns build are `sets`.
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct CollisionParameters {
     pub min_reported_impact_xy: f32,
     pub min_reported_impact_z: f32,
+    pub sets: Box<ac2_physics::CollisionParameters>,
 }
 
 /// `ObjCollisionProfile` (native 0x4F): one object a collision report lists

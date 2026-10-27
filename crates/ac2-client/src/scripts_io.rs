@@ -43,6 +43,15 @@ impl Client {
         for (object, xy, z) in minimums {
             self.apply_collision_minimums(object, xy, z);
         }
+        // The same call's ethereal and physics-type sets (`CCollisionManager::SetCollisionState`).
+        let sets = self
+            .scripts
+            .as_mut()
+            .map(|scripts| scripts.host.take_collision_sets())
+            .unwrap_or_default();
+        for (object, sets) in sets {
+            self.apply_collision_sets(object, &sets);
+        }
         let latent = self
             .scripts
             .as_mut()

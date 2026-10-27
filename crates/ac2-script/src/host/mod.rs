@@ -224,6 +224,11 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.collision_minimums)
     }
 
+    /// The collision sets the scripts set since the last take, with their objects.
+    pub fn take_collision_sets(&mut self) -> Vec<(u64, ac2_physics::CollisionParameters)> {
+        std::mem::take(&mut self.vm.collision_sets)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {

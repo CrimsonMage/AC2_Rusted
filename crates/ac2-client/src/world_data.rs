@@ -80,6 +80,9 @@ pub struct DatWorld {
 
 impl DatWorld {
     pub fn new(store: Arc<ResourceStore>) -> Result<Self, String> {
+        // `MasterProperty` names for the collision sets (`MasterProperty::GetPropertyDesc`),
+        // read here on the preload path, never on the frame thread.
+        ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
         let world = Ac2WorldSource::open(Arc::clone(&store))
             .map_err(|e| e.to_string())?
             .ok_or("no AC2 landscape in the DATs")?;
