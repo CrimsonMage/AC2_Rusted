@@ -555,10 +555,7 @@ impl Client {
                     self.session.emote(*emote);
                     Vec::new()
                 }
-                Command::Friends(request) => {
-                    self.friends_command(request);
-                    Vec::new()
-                }
+                Command::Friends(request) => self.friends_command(request),
                 Command::SendToRoom { room, text, flags } => {
                     self.session.send_to_room(*room, text, *flags);
                     Vec::new()

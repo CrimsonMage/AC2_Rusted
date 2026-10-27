@@ -41,6 +41,7 @@ mod social;
 mod story;
 mod string_info;
 mod string_text;
+mod string_utils;
 mod ui_natives;
 mod visual_desc;
 mod vm_glue;
@@ -64,6 +65,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wpstring::register(efuns);
     string_info::register(efuns);
     string_text::register(efuns);
+    string_utils::register(efuns);
     enums::register(efuns);
     lists::register(efuns);
     hashes::register(efuns);

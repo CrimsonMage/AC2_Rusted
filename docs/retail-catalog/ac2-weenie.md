@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 561 done, 170 partial, 1150 to do, 23 skipped.
+1904 retail functions: 563 done, 168 partial, 1150 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (100/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (101/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -660,7 +660,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [~] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0 — Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
 - [ ] `ggmCWInterface::CallIFun_DoAssistedTell` · 00458410 · legions 00459060
-- [~] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
+- [x] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipCreate` · 004585e0 · legions 00459230
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipDisband` · 00458710 · legions 00459360
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipDismiss` · 004587a0 · legions 004593f0
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (152/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (153/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -950,7 +950,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::RequestExecuteCraft` · 00450080 · legions 004511c0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `gmCWInterface::InqRecipeCost` · 004500b0 · legions 004511f0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `gmCWInterface::GetAvailableCraftExperience` · 004500f0 · legions 00451230 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [~] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
+- [x] `gmCWInterface::DoEmote` · 00450130 · legions 00451270 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 - [~] `gmCWInterface::PurchaseItem` · 00450150 · legions 00451290 — Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 - [x] `gmCWInterface::RequestNextSales` · 00450180 · legions 004512c0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [x] `gmCWInterface::RequestPrevSales` · 004501a0 · legions 004512e0 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs

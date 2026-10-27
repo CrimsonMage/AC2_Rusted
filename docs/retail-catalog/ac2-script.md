@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1405 done, 108 partial, 874 to do, 81 skipped.
+2468 retail functions: 1406 done, 108 partial, 873 to do, 81 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -3101,16 +3101,16 @@ Legend and workflow: [README](README.md).
 - [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0
 - [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
-## `portal/shared/src/interp/glue/gstringutils.cpp.c` (1/3)
+## `portal/shared/src/interp/glue/gstringutils.cpp.c` (2/3)
 
 ### gStringUtils
 - [ ] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0
 
 ### (free functions)
-- [x] `IsWordInString` · 00551fa0 · legions 0052d1d0 — ac2-weenie shell::is_word_in (emote names, squelch sub-commands)
+- [x] `IsWordInString` · 00551fa0 · legions 0052d1d0 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 
 ### gStringUtils
-- [ ] `gStringUtils::CallEFun_IsWordInString` · 005520c0
+- [x] `gStringUtils::CallEFun_IsWordInString` · 005520c0 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 
 ## `portal/shared/src/interp/glue/gtabootableadaptor.cpp.c` (0/3)
 

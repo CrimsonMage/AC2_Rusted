@@ -22,7 +22,7 @@ pub enum FriendsRequest {
     /// `RequestGUN_FriendDelete(name)` (`gmFriendsUI::HandleRemoveButton`).
     Delete(String),
     /// `RequestGUN_SetLocation(flags, "")` and the status's emote (`gmFriendsUI::HandleStatusChange`:
-    /// `DoEmote` with the table's emote, by its name in the emote table).
+    /// `DoEmote` with the emote's string id, named as the UI table names it, `ID_EmoteAFKCmd`).
     Status {
         flags: u32,
         emote: Option<&'static str>,

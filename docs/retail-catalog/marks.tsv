@@ -1200,7 +1200,7 @@ key	status	note
 00450080	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 004500b0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 004500f0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-00450130	~	ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
+00450130	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 00450150	~	Command runs its IFun on the player's script (VM only; no session stand-in). Stub packs and the forwarders traced. The requests need an open shopper (a server ViewStore); ViewStore with a StoreTemplate reference stops at the shop build (store_script_7160 pins the notices). RequestSell's pack is traced (WM_Store 0x4E) but its locals are not.
 00450180	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 004501a0	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
@@ -1441,7 +1441,7 @@ key	status	note
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004582f0	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00458380	~	Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
-00458500	~	ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
+00458500	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 00458b10	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 00458bf0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
@@ -3631,7 +3631,8 @@ key	status	note
 00551d70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
-00551fa0	x	ac2-weenie shell::is_word_in (emote names, squelch sub-commands)
+00551fa0	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
+005520c0	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 00552130	x	ac2-script glue
 005521c0	x	ac2-script glue
 00552270	x	ac2-script glue

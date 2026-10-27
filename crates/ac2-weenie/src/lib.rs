@@ -75,7 +75,7 @@ pub use story::{
 };
 pub use tables::{
     StringTableIds, TABLE_ENUM_CHANNELS, TABLE_ENUM_CHAT_WINDOW, TABLE_ENUM_COMMUNICATION,
-    TABLE_ENUM_FELLOWSHIP, TABLE_ENUM_TELL, TABLE_ENUM_USAGE,
+    TABLE_ENUM_EMOTE, TABLE_ENUM_FELLOWSHIP, TABLE_ENUM_TELL, TABLE_ENUM_USAGE,
 };
 pub use ui_data::{CraftSkill, DamageText, Shop, ShopSale};
 pub use usage::DISPLAY_USAGE;

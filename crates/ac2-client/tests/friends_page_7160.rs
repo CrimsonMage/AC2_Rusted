@@ -80,7 +80,7 @@ fn the_list_lists_the_online_friends_then_the_offline_ones() {
         status_request(2),
         Some(FriendsRequest::Status {
             flags: 2,
-            emote: Some("afk")
+            emote: Some("ID_EmoteAFKCmd")
         })
     );
 }
@@ -118,7 +118,7 @@ fn the_status_drop_down_sends_the_chosen_status() {
         requests,
         vec![FriendsRequest::Status {
             flags: 2,
-            emote: Some("afk")
+            emote: Some("ID_EmoteAFKCmd")
         }]
     );
 }

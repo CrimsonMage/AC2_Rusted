@@ -44,6 +44,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_SET_WHICH_SHORTCUT_SET,
     IFUN_SET_SHOW_RADAR_COORDS,
     IFUN_SET_SHOW_OBJECT_NAMES,
+    // `gmCWInterface::DoEmote` (the friends status's emote).
+    IFUN_DO_EMOTE,
     // The combat IFuns the gameplay UI calls with no stand-in (`gmCWInterface::Dismount`,
     // `StopAttacking`).
     IFUN_DISMOUNT,
@@ -375,6 +377,9 @@ pub const IFUN_SET_CHAT_FONT_SIZE: u32 = 0x00B4_00D3;
 pub const IFUN_SET_CHAT_FONT_COLOR: u32 = 0x00B4_00D4;
 /// `CallIFun_UploadChatOptions` (no arguments; the profile to the server).
 pub const IFUN_UPLOAD_CHAT_OPTIONS: u32 = 0x00B4_00D5;
+/// `gmCWInterface::DoEmote(emoteName)` (`ggmCWInterface::CallIFun_DoEmote`: the emote's
+/// `StringInfo`, the emote table's string). Its one caller is the friends status drop-down.
+pub const IFUN_DO_EMOTE: u32 = 0x00B4_00EC;
 /// `CallIFun_SetChatPopupFlag(textType, flag)`.
 pub const IFUN_SET_CHAT_POPUP_FLAG: u32 = 0x00B4_00DD;
 /// The window's text type (`FUN_00458e50`'s IFun in Legions 7160): the window, then the type.

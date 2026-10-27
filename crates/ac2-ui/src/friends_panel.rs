@@ -32,9 +32,13 @@ fn id(name: &str) -> u32 {
 }
 
 /// `gmFriendsUI::StatusTable` (admin 7148's `_E435` initializer): the GUN mode each status sets
-/// (`m_gunMode`, the first from Legions 7160's data), and the emote it plays (`m_emoteStringID`:
-/// `ID_EmoteYawnCmd`, or `ID_EmoteAFKCmd` for away).
-pub const STATUS_TABLE: [(u32, &str); 3] = [(1, "yawn"), (4, "yawn"), (2, "afk")];
+/// (`m_gunMode`, the first from Legions 7160's data), and the emote's string id name it plays
+/// (`m_emoteStringID`: `ID_EmoteYawnCmd`, or `ID_EmoteAFKCmd` for away).
+pub const STATUS_TABLE: [(u32, &str); 3] = [
+    (1, "ID_EmoteYawnCmd"),
+    (4, "ID_EmoteYawnCmd"),
+    (2, "ID_EmoteAFKCmd"),
+];
 
 /// `gmFriendsUI::HandleStatusChange` for drop-down entry `index`: the status flags and the emote
 /// word (`None` past the table).
@@ -293,14 +297,14 @@ mod tests {
             status_request(1),
             Some(FriendsRequest::Status {
                 flags: 4,
-                emote: Some("yawn")
+                emote: Some("ID_EmoteYawnCmd")
             })
         );
         assert_eq!(
             status_request(2),
             Some(FriendsRequest::Status {
                 flags: 2,
-                emote: Some("afk")
+                emote: Some("ID_EmoteAFKCmd")
             })
         );
         assert_eq!(status_request(3), None);

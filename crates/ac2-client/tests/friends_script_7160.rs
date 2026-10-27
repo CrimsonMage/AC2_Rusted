@@ -11,6 +11,7 @@ use std::sync::Arc;
 
 use ac2_client::{Client, FrameInput, FriendEvent, FriendResult};
 use ac2_core::DataId;
+use ac2_net::protocol::ScriptRequest;
 use ac2_script::data::DatScriptData;
 use ac2_script::host::{ChatRequest, ScriptHost};
 use ac2_script::vm::Program;
@@ -44,9 +45,16 @@ fn with_gun() -> Option<(Client, Shared)> {
         .unwrap()
         .unwrap();
     let program = Arc::new(Program::from_stream(&wlib.stream));
+    let names = DatScriptData::new(dataset.clone(), store.clone());
     let data = DatScriptData::new(dataset, store);
     data.preload_tables();
     let (mut client, server) = entered(spawn());
+    client
+        .session_mut()
+        .set_string_tables(ac2_client::string_table_ids(&names));
+    client
+        .session_mut()
+        .set_chat_commands(ac2_client::chat_commands(&names));
     {
         let mut state = server.borrow_mut();
         state.give_starter_items();
@@ -343,4 +351,49 @@ fn gun_events_reach_the_page_and_its_requests_go_to_gun() {
         name: "Ilse".to_owned(),
     });
     assert!(client.take_script_problems().is_empty());
+}
+
+/// The friends status drop-down's emote is `gmCWInterface::DoEmote`, the player's script's IFun
+/// 0xB400EC with the emote's `StringInfo`: the status's flags go to GUN, and the script runs the
+/// IFun (it raises no problem), where the emote's request reaches the server as the script
+/// sends it.
+#[test]
+fn the_status_emote_runs_the_scripts_do_emote() {
+    let Some((mut client, server)) = with_gun() else {
+        return;
+    };
+    let before = server.borrow().script_requests.len();
+    let request = ac2_client::Command::Friends(ac2_ui::FriendsRequest::Status {
+        flags: 2,
+        emote: Some("ID_EmoteAFKCmd"),
+    });
+    let input = FrameInput {
+        commands: vec![request],
+        ..FrameInput::default()
+    };
+    step(&mut client, &server, &input);
+    for _ in 0..4 {
+        step(&mut client, &server, &FrameInput::default());
+    }
+    let gun = client.take_gun_requests();
+    assert!(
+        gun.contains(&ChatRequest::SetLocation {
+            flags: 2,
+            location: String::new(),
+        }),
+        "{gun:?}"
+    );
+    assert!(client.take_script_problems().is_empty());
+    // The script sends the emote the status names (`ID_EmoteAFKCmd`'s emote id in the chat table).
+    let requests = server.borrow().script_requests[before..].to_vec();
+    let afk = client
+        .session_mut()
+        .chat()
+        .commands()
+        .emote("afk")
+        .expect("the away emote");
+    assert!(
+        requests.contains(&ScriptRequest::Emote(afk)),
+        "{requests:?}"
+    );
 }

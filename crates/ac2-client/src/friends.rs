@@ -174,27 +174,55 @@ impl Client {
     }
 
     /// The friends page's requests as the client makes them: the list, add, delete and the status
-    /// (`gmFriendsUI::HandleStatusChange`). The status's emote plays whether or not there is a
-    /// GUN service (the `DoEmote` is not behind the GUN call); it is the game server's emote.
-    pub(crate) fn friends_command(&mut self, request: &FriendsRequest) {
+    /// (`gmFriendsUI::HandleStatusChange`). The status's emote is `gmCWInterface::DoEmote`, the
+    /// player's script's IFun; it runs whether or not there is a GUN service (the `DoEmote` is
+    /// not behind the GUN call). Returns the IFun's output.
+    pub(crate) fn friends_command(&mut self, request: &FriendsRequest) -> Vec<SessionEvent> {
         match request {
             FriendsRequest::GetList { user_requested } => {
                 self.friends_list(*user_requested);
+                Vec::new()
             }
             FriendsRequest::Add(name) => {
                 self.friend_add(name);
+                Vec::new()
             }
             FriendsRequest::Delete(name) => {
                 self.friend_delete(name);
+                Vec::new()
             }
             FriendsRequest::Status { flags, emote } => {
                 self.friend_status(*flags);
-                let id = emote.and_then(|word| self.session.chat().commands().emote(word));
-                if let Some(id) = id {
-                    self.session.emote(id);
+                match emote {
+                    Some(name) => self.do_emote(ac2_ui::tokenize(name)),
+                    None => Vec::new(),
                 }
             }
         }
+    }
+
+    /// `gmCWInterface::DoEmote(emoteName)`: the player's script's IFun 0xB400EC with the emote's
+    /// `StringInfo` (the emote table's string `string_id`). Retail calls the IFun only with a
+    /// process on the interface, so with no script running the player's script does nothing.
+    pub(crate) fn do_emote(&mut self, string_id: u32) -> Vec<SessionEvent> {
+        if !self.scripts_own(IFUN_DO_EMOTE) {
+            return Vec::new();
+        }
+        let table_id = self
+            .session
+            .player_script()
+            .string_tables()
+            .did(ac2_weenie::TABLE_ENUM_EMOTE);
+        let info = ac2_net::protocol::StringInfo {
+            string_id,
+            table_id,
+            literal: None,
+            variables: Vec::new(),
+        };
+        self.script_ifun_args(
+            IFUN_DO_EMOTE,
+            &[IFunArg::Native(NetNative::StringInfo(info))],
+        )
     }
 
     /// Queues a GUN request for the service, as `gmCWInterface::RequestGUN_*` does: nothing
