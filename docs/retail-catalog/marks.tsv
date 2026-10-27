@@ -6,8 +6,12 @@ key	status	note
 00401b80	x	
 00401be0	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 00401bf0	x	Legions returns E_NOINTERFACE: the port has no COM interface query
+00401c30	x	base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player_notice)
+00401c40	x	base virtual is empty; the navigation UI overrides it: client_radar.rs radar_notice -> add_map_note / marker
 00401c50	x	ac2-weenie OnlineSession::send_to_room; the Legions vtable stub is empty (room sends go through gmChatInterfaceProvider::OnSendToRoom)
 00401c60	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
+00401c70	-	GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
+00401c80	x	base virtual is empty; the stack UI is set up by ShopStackCall::Init (hud_shop.rs shop_stack_calls)
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
 00401f90	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
@@ -25,8 +29,14 @@ key	status	note
 00404190	x	the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 004042f0	x	
 00404e10	~	ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
+00405050	-	GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
+00405210	~	base virtual flushes the played list; the port sends no finish notice, the story slot ends its own sequence (client_story.rs)
+00405230	x	base virtual flushes its list; the story slot takes the scenes: client_story.rs GameplayNotice::PlaySequence
+00405330	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
+004054b0	x	base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player_notice)
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00405b40	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
 00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00405e00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00405e10	-	debug keys (bench mode, debug HUD, screenshot, sound debug)

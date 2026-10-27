@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 106 done, 33 partial, 169 to do, 46 skipped.
+354 retail functions: 113 done, 34 partial, 159 to do, 48 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (11/92)
+## `ac2/client/src/main/gmclient.cpp.c` (18/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -53,16 +53,16 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::ChatInterfaceProvider::QueryInterface` · 00401bf0 · legions 00401b10 — Legions returns E_NOINTERFACE: the port has no COM interface query
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_Patron_SwearDone` · 00401c30 · legions 00401b70
-- [ ] `gmNoticeHandler::RecvNotice_AddMarker` · 00401c40
+- [x] `gmNoticeHandler::RecvNotice_Patron_SwearDone` · 00401c30 · legions 00401b70 — base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player_notice)
+- [x] `gmNoticeHandler::RecvNotice_AddMarker` · 00401c40 — base virtual is empty; the navigation UI overrides it: client_radar.rs radar_notice -> add_map_note / marker
 
 ### Turbine::Client::ChatInterfaceProvider
 - [x] `Turbine::Client::ChatInterfaceProvider::OnSendToRoom` · 00401c50 · legions 00401b90 — ac2-weenie OnlineSession::send_to_room; the Legions vtable stub is empty (room sends go through gmChatInterfaceProvider::OnSendToRoom)
 - [x] `Turbine::Client::ChatInterfaceProvider::OnEnterRoomByNameResult` · 00401c60 · legions 00401bc0 — Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_GUNResult_FriendStatus` · 00401c70
-- [ ] `gmNoticeHandler::RecvNotice_InitStackUI` · 00401c80 · legions 00401be0
+- [-] `gmNoticeHandler::RecvNotice_GUNResult_FriendStatus` · 00401c70 — GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
+- [x] `gmNoticeHandler::RecvNotice_InitStackUI` · 00401c80 · legions 00401be0 — base virtual is empty; the stack UI is set up by ShopStackCall::Init (hud_shop.rs shop_stack_calls)
 
 ### gmCharNameCharacterValidator
 - [ ] `gmCharNameCharacterValidator::SetLanguage` · 00401c90 · legions 00401bf0
@@ -195,21 +195,21 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::Connect` · 00404f80 · legions 00404d20
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_GUNResult_GetFriendsList` · 00405050
-- [ ] `gmNoticeHandler::RecvNotice_FinishPlaySequence` · 00405210
-- [ ] `gmNoticeHandler::RecvNotice_PlaySequence` · 00405230
+- [-] `gmNoticeHandler::RecvNotice_GUNResult_GetFriendsList` · 00405050 — GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
+- [~] `gmNoticeHandler::RecvNotice_FinishPlaySequence` · 00405210 — base virtual flushes the played list; the port sends no finish notice, the story slot ends its own sequence (client_story.rs)
+- [x] `gmNoticeHandler::RecvNotice_PlaySequence` · 00405230 — base virtual flushes its list; the story slot takes the scenes: client_story.rs GameplayNotice::PlaySequence
 
 ### FXNode
 - [ ] `FXNode::~FXNode` · 00405250 · legions 00404ff0
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_UpdateConsignment` · 00405330
+- [x] `gmNoticeHandler::RecvNotice_UpdateConsignment` · 00405330 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
 
 ### UIShop
 - [ ] `UIShop::~UIShop` · 00405340 · legions 004050e0
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_UpdateStore` · 004054b0
+- [x] `gmNoticeHandler::RecvNotice_UpdateStore` · 004054b0 — base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player_notice)
 
 ### PHashTable<unsigned_long,unsigned_long>
 - [~] `PHashTable<unsigned_long,unsigned_long>::StreamPack` · 00405500 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -218,7 +218,7 @@ Legend and workflow: [README](README.md).
 - [~] `PHashTable<unsigned_long,FXNode>::StreamPack` · 004058e0 · legions 004055c0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### gmNoticeHandler
-- [ ] `gmNoticeHandler::RecvNotice_ViewCatalog` · 00405b40
+- [x] `gmNoticeHandler::RecvNotice_ViewCatalog` · 00405b40 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
 
 ### FXData
 - [ ] `FXData::~FXData` · 00405c30 · legions 00405910
