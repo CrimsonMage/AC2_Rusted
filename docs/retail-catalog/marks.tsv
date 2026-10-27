@@ -5202,7 +5202,7 @@ key	status	note
 004f2e70	~	ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 004f3280	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f3460	_	needs port: cite-only physics-object method
-004f3510	_	needs port: cite-only physics-object method
+004f3510	~	ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights once at creation (startup_light_starts, LightSourceEffects gated); startup sounds, streaks, decals, repulsors and vdesc objects of the object branch, and the shared rep's particle branch, are not ported here
 004f35f0	_	needs port: cite-only physics-object method
 004f36a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 004f3800	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -5474,7 +5474,7 @@ key	status	note
 005087c0	_	needs port: FX manager effect
 00508860	-	STL/MSVC or archive template helper; Rust collections replace it
 005089d0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
-00509220	_	needs port: FX manager effect
+00509220	~	ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights once at creation (startup_light_starts, LightSourceEffects gated); startup sounds, streaks, decals, repulsors and vdesc objects of the object branch, and the shared rep's particle branch, are not ported here
 00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509480	-	C++ constructor/destructor; Rust constructor and Drop replace it
 005094a0	_	needs port: cite-only physics-object method

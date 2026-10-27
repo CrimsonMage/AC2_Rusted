@@ -79,6 +79,22 @@ pub(crate) fn light_starts(
         .collect()
 }
 
+/// The lights an object's startup FX place when the object is created
+/// (`CPhysicsObj::InitObjectEnd` -> `PHYSICSOBJREP::ApplyStartupFX(rep, object)` ->
+/// `FXManager::DoStartupFX`, whose object branch runs `DoLightSourceFX` for each node of each
+/// startup FX that carries a light). The particle systems of the same nodes start with the
+/// shared rep (`ApplyStartupFX(rep, NULL)`), not here.
+pub(crate) fn startup_light_starts(
+    emitter: u64,
+    table: &Ac2VisualFxParticles,
+) -> Vec<ObjectLightStart> {
+    table
+        .startup()
+        .iter()
+        .flat_map(|fx| light_starts(emitter, *fx, table))
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use std::sync::Arc;
@@ -120,6 +136,28 @@ mod tests {
         let mut random = Random::default();
         assert!(particle_starts(3, 7, &table, &mut random)[0].looping);
         assert!(!particle_starts(3, 8, &table, &mut random)[0].looping);
+    }
+
+    /// `DoStartupFX` with an object: the light-only node of each startup FX places its light at
+    /// creation, and an FX that is not a startup one places none.
+    #[test]
+    fn startup_fx_place_their_lights_when_the_object_is_created() {
+        let table = Ac2VisualFxParticles::from_entries([
+            (7, vec![attachment(&[], Some(light(2.0)))]),
+            (8, vec![attachment(&[], Some(light(3.0)))]),
+        ])
+        .with_startup(vec![7]);
+        assert_eq!(
+            startup_light_starts(3, &table),
+            vec![ObjectLightStart {
+                emitter: 3,
+                light: light(2.0),
+            }],
+            "only the startup FX's light starts"
+        );
+        let no_startup =
+            Ac2VisualFxParticles::from_entries([(7, vec![attachment(&[], Some(light(2.0)))])]);
+        assert!(startup_light_starts(3, &no_startup).is_empty());
     }
 
     #[test]

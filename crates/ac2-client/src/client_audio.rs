@@ -14,7 +14,9 @@ use ac2_core::Random;
 use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
 
 use crate::client::Client;
-use crate::fx_particles::{light_starts, particle_starts, ObjectLightStart, ObjectParticleStart};
+use crate::fx_particles::{
+    light_starts, particle_starts, startup_light_starts, ObjectLightStart, ObjectParticleStart,
+};
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -200,6 +202,8 @@ pub(crate) struct ClientAudio {
     /// `Render::m_Prefs.LightSourceEffects`: while off, an FX places no light (its particle
     /// systems still start; `DoLightSourceFX` returns without a light).
     pub(crate) light_effects: bool,
+    /// The objects whose startup FX have run (`CPhysicsObj::InitObjectEnd`), once per object.
+    startup_objects: HashSet<u64>,
     /// The last handle handed out (`ObjectParticleStart::handle`).
     particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
@@ -288,6 +292,7 @@ impl Client {
             object_lights: Vec::new(),
             object_lights_gone: Vec::new(),
             light_effects: true,
+            startup_objects: HashSet::new(),
             particle_handles: 0,
             ambient: Default::default(),
             pregame_music: None,
@@ -474,6 +479,7 @@ impl Client {
     /// After `CPhysics::UpdateAllAnimation`: each object's started and stopped effects, then
     /// its `FXManager::UseTime` for the step.
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
+        self.start_startup_lights();
         // The player's events come first: its latent script physics finish on them.
         let player_taken = self.player.as_mut().filter(|p| p.in_world).and_then(|p| {
             let (id, visual) = (p.id, p.visual);
@@ -587,6 +593,35 @@ impl Client {
         }
     }
 
+    /// `CPhysicsObj::InitObjectEnd` -> `ApplyStartupFX(rep, object)`: each object whose body
+    /// exists runs its visual's startup FX once, which places their lights (`DoLightSourceFX`,
+    /// gated by `LightSourceEffects`). Startup particle systems start with the shared rep, not here.
+    fn start_startup_lights(&mut self) {
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        let player = self
+            .player
+            .as_ref()
+            .filter(|p| p.body.is_some())
+            .map(|p| (p.id, p.visual));
+        for (id, visual) in player.into_iter().chain(self.remotes.bodied()) {
+            if !audio.startup_objects.insert(id) {
+                continue;
+            }
+            let Some(table) = self
+                .remotes
+                .body_data(visual)
+                .and_then(|data| data.fx_particles.as_deref())
+            else {
+                continue;
+            };
+            if audio.light_effects {
+                audio.object_lights.extend(startup_light_starts(id, table));
+            }
+        }
+    }
+
     /// `SoundManager::UseTime` from the render camera: objects that left stop their sounds
     /// (`StopSoundsForEmitter`), and every emitter is placed relative to the camera.
     pub(crate) fn audio_use_time(&mut self, now: f64) {
@@ -599,6 +634,9 @@ impl Client {
         let player = self.player.as_ref().filter(|p| p.in_world);
         let player_id = player.map(|p| p.id);
         let remotes = &self.remotes;
+        audio
+            .startup_objects
+            .retain(|id| Some(*id) == player_id || remotes.tracks(*id));
         let gone: Vec<u64> = audio
             .objects
             .keys()

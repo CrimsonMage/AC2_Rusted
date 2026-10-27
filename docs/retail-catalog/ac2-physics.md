@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 463 done, 89 partial, 794 to do, 778 skipped.
+2124 retail functions: 463 done, 91 partial, 792 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1327,7 +1327,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
-- [ ] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — needs port: FX manager effect
+- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights once at creation (startup_light_starts, LightSourceEffects gated); startup sounds, streaks, decals, repulsors and vdesc objects of the object branch, and the shared rep's particle branch, are not ported here
 - [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
 ## `portal/shared/src/physobj/fx/fxtable.cpp.c` (1/8)
@@ -2913,7 +2913,7 @@ Legend and workflow: [README](README.md).
 - [~] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f3280 · legions 004e5a40 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [ ] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::ApplyStartupFX` · 004f3510 · legions 004e5d70 — needs port: cite-only physics-object method
+- [~] `PHYSICSOBJREP::ApplyStartupFX` · 004f3510 · legions 004e5d70 — ac2-client client_audio.rs start_startup_lights: each object's startup FX place their lights once at creation (startup_light_starts, LightSourceEffects gated); startup sounds, streaks, decals, repulsors and vdesc objects of the object branch, and the shared rep's particle branch, are not ported here
 - [ ] `PHYSICSOBJREP::InitInternal` · 004f35f0 · legions 004e5ee0 — needs port: cite-only physics-object method
 - [~] `PHYSICSOBJREP::SetupCompositor` · 004f36a0 · legions 004e5f90 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 

@@ -583,6 +583,19 @@ impl Remotes {
     }
 
     /// The loaded data of `visual`.
+    /// The remote objects whose body exists, with their visual (`CPhysicsObj` created).
+    pub(crate) fn bodied(&self) -> impl Iterator<Item = (u64, Option<u32>)> + '_ {
+        self.objects
+            .iter()
+            .filter(|(_, remote)| remote.body.is_some())
+            .map(|(id, remote)| (*id, remote.visual))
+    }
+
+    /// Whether `id` is a remote object the client still tracks.
+    pub(crate) fn tracks(&self, id: u64) -> bool {
+        self.objects.contains_key(&id)
+    }
+
     pub(crate) fn body_data(&self, visual: Option<u32>) -> Option<&BodyData> {
         self.bodies.get(&visual)?.as_ref().ok()
     }

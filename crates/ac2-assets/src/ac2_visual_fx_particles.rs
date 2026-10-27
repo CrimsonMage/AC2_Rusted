@@ -26,6 +26,9 @@ const MAX_FX_TABLE_DEPTH: usize = 8;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2VisualFxParticles {
     entries: HashMap<u32, Arc<[Ac2ParticleAttachment]>>,
+    /// The startup FX ids (`m_startup_fx`), each once, in the order `PHYSICSOBJREP::InitFXManager`
+    /// fills them.
+    startup: Vec<u32>,
 }
 
 impl Ac2VisualFxParticles {
@@ -38,7 +41,20 @@ impl Ac2VisualFxParticles {
                 .into_iter()
                 .map(|(id, list)| (id, list.into()))
                 .collect(),
+            startup: Vec::new(),
         }
+    }
+
+    /// The same table with `startup` as its startup FX ids (for tests).
+    pub fn with_startup(mut self, startup: Vec<u32>) -> Self {
+        self.startup = startup;
+        self
+    }
+
+    /// The startup FX ids: `CPhysicsObj::InitObjectEnd` runs each one's `DoStartupFX` on the
+    /// object it creates, which places the lights of the nodes that carry one.
+    pub fn startup(&self) -> &[u32] {
+        &self.startup
     }
 
     /// The nodes FX `fx_id` starts, `None` when it starts none.
@@ -81,8 +97,14 @@ pub fn resolve_ac2_visual_fx_particles(
     // last non-zero table.
     let mut fx_table = None;
     let mut overrides = Vec::<(u32, Arc<[Ac2FxParticleNode]>)>::new();
+    let mut startup = Vec::<u32>::new();
     for desc in chain.iter().rev() {
         fx_table = desc.fx.fx_table.or(fx_table);
+        for (id, _) in desc.fx.startup.iter() {
+            if !startup.contains(id) {
+                startup.push(*id);
+            }
+        }
         for (id, nodes) in desc.fx.overrides.iter() {
             if !overrides.iter().any(|(known, _)| known == id) {
                 overrides.push((*id, Arc::clone(nodes)));
@@ -124,7 +146,7 @@ pub fn resolve_ac2_visual_fx_particles(
         }
         entries.insert(id, Arc::from(attachments));
     }
-    Ok(Some(Ac2VisualFxParticles { entries }))
+    Ok(Some(Ac2VisualFxParticles { entries, startup }))
 }
 
 /// Every id of `table` and its sub-tables, each id's nodes in `DBFXTable::GetFXData` order.
