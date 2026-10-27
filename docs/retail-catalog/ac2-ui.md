@@ -1929,7 +1929,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmKeyboardUI::DoClearAll` · 004135c0 · legions 00413440 — ac2-ui pregame/keyboard.rs KeyboardUi::dialog_outcome: the clear-all question's yes clears every slot (keyboard_list clear_all)
 - [x] `gmKeyboardUI::CloseAllDialogs` · 004136a0 · legions 00413520 — ac2-ui pregame/keyboard.rs KeyboardUi::destroy closes the clear-all, already-mapped, restore, undo, exit and wait questions
 - [x] `gmKeyboardUI::~gmKeyboardUI` · 00413720 · legions 004135a0 — ac2-ui pregame/keyboard.rs KeyboardUi::destroy: questions closed, root removed (rows go with it); notice handlers are per object in Rust
-- [~] `gmKeyboardUI::InqKeyStringInfo` · 004137d0 · legions 00413650 — ac2-ui pregame/key_names.rs key_name and keyboard.rs binding_text: the key with its meta key's name. The names are authored DIK scan-code names; the retail strings (CKeyMap::LoadSemantics) are not copied, and the format string is not the retail one
+- [~] `gmKeyboardUI::InqKeyStringInfo` · 004137d0 · legions 00413650 — Key text is ac2-ui pregame/keyboard.rs binding_text, rendered from ID_Keyboard_key / ID_Keyboard_key_meta (keys key, key2) in the UI string table. Key names are key_names.rs: DirectInput's GetObjectInfo tszName stand-in, an unverified US table; no name gives no text; the retail names are not copied
 
 ### IntrusiveSmartPointer<PFileNode>
 - [ ] `IntrusiveSmartPointer<PFileNode>::~IntrusiveSmartPointer<PFileNode>` · 00413930 · legions 004137b0
@@ -2121,7 +2121,7 @@ Legend and workflow: [README](README.md).
 - [-] `CInputManager_WIN32::ReleaseDevices` · 0059e730 · legions 0056b600 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 - [-] `CInputManager_WIN32::SwitchMouseMode` · 0059e770 · legions 0056b640 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 - [ ] `CInputManager_WIN32::SetFocus` · 0059e850 · legions 0056b720
-- [~] `CInputManager_WIN32::GetNameFromKey` · 0059e970 · legions 0056b890 — ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
+- [~] `CInputManager_WIN32::GetNameFromKey` · 0059e970 · legions 0056b890 — ac2-ui pregame/key_names.rs key_name: stands in for DirectInput's GetObjectInfo(DIK).tszName on macOS/Linux, an unverified US table of scan-code names; a key with no name gives no text (the Key 0x hex form is kept only for keymap files); the retail names are not copied
 
 ### SmartArray<CInputManager_WIN32::InputDevice>
 - [-] `SmartArray<CInputManager_WIN32::InputDevice>::AddToEnd` · 0059eb80 · legions 0056ba40 — DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)

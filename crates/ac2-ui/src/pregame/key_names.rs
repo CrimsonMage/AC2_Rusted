@@ -1,33 +1,42 @@
 //! The names of keys on the controls screen (`gmKeyboardUI::InqKeyStringInfo` reads them through
-//! `ICIDM`'s name lookup).
+//! `CInputManager_WIN32::GetNameFromKey`).
 //!
-//! A keyboard semantic is `0x81000400 | scan code`. The names here are the DirectInput scan code
-//! names (the public `DIK_*` constants), written out for this port. The retail names are the
-//! strings `CKeyMap::LoadSemantics` and `CInputManager_WIN32::GetNameFromKey` hold in the client,
-//! which this port does not copy, so a key's name can differ from retail's.
+//! A keyboard semantic is `0x81000400 | scan code`. Retail's name for a key is DirectInput's:
+//! `GetNameFromKey` calls `IDirectInputDevice8::GetObjectInfo(DIPH_BYOFFSET, DIK code)` and takes
+//! its `tszName`, so the text is whatever the runtime reports for the keyboard layout, and a key
+//! it reports no name for shows no text. DirectInput does not exist on macOS or Linux, so this
+//! table stands in for it: the names are the DirectInput scan code names (the public `DIK_*`
+//! constants) written out for this port as an unverified US table. Retail's names are not copied
+//! here, so a key's name can differ from retail's.
 
 /// The keyboard semantics' base (`0x81000400 | DIK scan code`).
 const KEY_BASE: u32 = 0x8100_0400;
 
-/// The name of a key semantic, or a hex fallback for one this table does not name.
-pub fn key_name(semantic: u32) -> String {
+/// The name of a key semantic, or `None` for a key this table does not name (retail shows no text
+/// for it).
+pub fn key_name(semantic: u32) -> Option<&'static str> {
     if semantic & !0xFF == KEY_BASE {
-        if let Some(name) = scan_code_name(semantic & 0xFF) {
-            return name.to_owned();
-        }
+        scan_code_name(semantic & 0xFF)
+    } else {
+        None
     }
-    format!("Key {semantic:#010x}")
 }
 
-/// The semantic a key name stands for (`CKeyMap::GetSemanticByName`): the inverse of [`key_name`]
-/// over the named keys, and the hex form `key_name` gives an unnamed semantic.
+/// The keymap file's name for a semantic: its key name, or the hex form `Key 0x........` for one
+/// without a name, so the file still round-trips through [`semantic_from_name`].
+pub fn key_file_name(semantic: u32) -> String {
+    key_name(semantic).map_or_else(|| format!("Key {semantic:#010x}"), str::to_owned)
+}
+
+/// The semantic a key name stands for (`CKeyMap::GetSemanticByName`): the inverse of
+/// [`key_file_name`] over the named keys and the hex form it gives an unnamed semantic.
 pub fn semantic_from_name(name: &str) -> Option<u32> {
     if let Some(hex) = name.strip_prefix("Key 0x") {
         return u32::from_str_radix(hex, 16).ok();
     }
     (0..=0xFF)
         .map(|code| KEY_BASE | code)
-        .find(|&semantic| key_name(semantic) == name)
+        .find(|&semantic| key_name(semantic) == Some(name))
 }
 
 /// The DirectInput scan code names.
@@ -133,21 +142,29 @@ const FUNCTION_KEYS: [&str; 10] = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8
 
 #[cfg(test)]
 mod tests {
-    use super::key_name;
+    use super::{key_file_name, key_name, semantic_from_name};
 
     #[test]
     fn keys_are_named_by_scan_code() {
-        assert_eq!(key_name(0x8100_042A), "Left Shift");
-        assert_eq!(key_name(0x8100_041D), "Left Control");
-        assert_eq!(key_name(0x8100_0439), "Space");
-        assert_eq!(key_name(0x8100_0402), "1");
-        assert_eq!(key_name(0x8100_040A), "9");
-        assert_eq!(key_name(0x8100_0440), "F6");
+        assert_eq!(key_name(0x8100_042A), Some("Left Shift"));
+        assert_eq!(key_name(0x8100_041D), Some("Left Control"));
+        assert_eq!(key_name(0x8100_0439), Some("Space"));
+        assert_eq!(key_name(0x8100_0402), Some("1"));
+        assert_eq!(key_name(0x8100_040A), Some("9"));
+        assert_eq!(key_name(0x8100_0440), Some("F6"));
     }
 
     #[test]
-    fn unnamed_semantics_show_their_value() {
-        assert_eq!(key_name(0x8200_0300), "Key 0x82000300");
-        assert_eq!(key_name(0x8100_04EE), "Key 0x810004ee");
+    fn an_unnamed_key_has_no_name_and_the_file_keeps_its_value() {
+        assert_eq!(key_name(0x8200_0300), None);
+        assert_eq!(key_name(0x8100_04EE), None);
+        assert_eq!(key_file_name(0x8200_0300), "Key 0x82000300");
+        assert_eq!(semantic_from_name("Key 0x82000300"), Some(0x8200_0300));
+    }
+
+    #[test]
+    fn a_name_maps_back_to_its_semantic() {
+        assert_eq!(semantic_from_name("Space"), Some(0x8100_0439));
+        assert_eq!(semantic_from_name("Nonesuch"), None);
     }
 }

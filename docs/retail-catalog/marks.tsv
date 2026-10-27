@@ -203,7 +203,7 @@ key	status	note
 004135c0	x	ac2-ui pregame/keyboard.rs KeyboardUi::dialog_outcome: the clear-all question's yes clears every slot (keyboard_list clear_all)
 004136a0	x	ac2-ui pregame/keyboard.rs KeyboardUi::destroy closes the clear-all, already-mapped, restore, undo, exit and wait questions
 00413720	x	ac2-ui pregame/keyboard.rs KeyboardUi::destroy: questions closed, root removed (rows go with it); notice handlers are per object in Rust
-004137d0	~	ac2-ui pregame/key_names.rs key_name and keyboard.rs binding_text: the key with its meta key's name. The names are authored DIK scan-code names; the retail strings (CKeyMap::LoadSemantics) are not copied, and the format string is not the retail one
+004137d0	~	Key text is ac2-ui pregame/keyboard.rs binding_text, rendered from ID_Keyboard_key / ID_Keyboard_key_meta (keys key, key2) in the UI string table. Key names are key_names.rs: DirectInput's GetObjectInfo tszName stand-in, an unverified US table; no name gives no text; the retail names are not copied
 004139d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00413a70	x	ac2-ui pregame/keyboard_list.rs finish_set: the selection takes the key, the occupied slot clears; keyboard.rs rebuilds the texts
 00413d10	~	ac2-ui pregame/keyboard_list.rs start_set: the already-mapped conflict on another slot, a free key is set. Not: the second pass over actions without a row (ICIDM 0x54)
@@ -4529,7 +4529,7 @@ key	status	note
 0059e700	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e730	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e770	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
-0059e970	~	ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
+0059e970	~	ac2-ui pregame/key_names.rs key_name: stands in for DirectInput's GetObjectInfo(DIK).tszName on macOS/Linux, an unverified US table of scan-code names; a key with no name gives no text (the Key 0x hex form is kept only for keymap files); the retail names are not copied
 0059eb80	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ebe0	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ec20	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)

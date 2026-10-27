@@ -25,7 +25,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use crate::maps::{ActionMapping, KeyMap};
-use crate::pregame::key_names::{key_name, semantic_from_name};
+use crate::pregame::key_names::{key_file_name, semantic_from_name};
 use crate::pregame::KeyMapSet;
 
 /// The name of the version header node (`CKeyMap::ToFileNode`'s `VersionHeader`).
@@ -247,7 +247,7 @@ pub fn key_map_tree(map: &KeyMap) -> FileNode {
     for mapping in &map.mappings {
         root.push(FileNode::record(vec![
             FileNode::leaf(mapping.name.clone()),
-            FileNode::leaf(key_name(mapping.semantic)),
+            FileNode::leaf(key_file_name(mapping.semantic)),
         ]));
     }
     FileNode::record(root)

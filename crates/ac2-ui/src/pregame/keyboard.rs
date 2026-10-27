@@ -18,8 +18,15 @@ use crate::pregame::flow::MODE_CHARACTER_SELECTION;
 use crate::pregame::key_names::key_name;
 use crate::pregame::keyboard_list::{KeyBinding, KeyboardList, SetOutcome, SlotRef, META_NONE};
 use crate::pregame::keyboard_maps::{list_of, meta_key_of, saved_set, Preset};
-use crate::pregame::{Ctx, PregameRequest, LAYOUT_KEYBOARD};
+use crate::pregame::strings::text_var;
+use crate::pregame::{Ctx, PregameRequest, UiStrings, LAYOUT_KEYBOARD};
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON};
+
+/// `ID_Keyboard_key` (`Tokenize("ID_Keyboard_key")`): a key's text, and
+/// `ID_Keyboard_key_meta` (`Tokenize("ID_Keyboard_key_meta")`) a key with its meta key, both in the
+/// UI string table.
+const ID_KEYBOARD_KEY: u32 = tokenize("ID_Keyboard_key");
+const ID_KEYBOARD_KEY_META: u32 = tokenize("ID_Keyboard_key_meta");
 
 /// The restore buttons and the preset each one picks.
 const RESTORE_BUTTONS: [(&str, Preset); 3] = [
@@ -141,8 +148,9 @@ impl KeyboardUi {
         };
         let table = library.action_map.string_table;
         let layout = ctx.assets.layout(LAYOUT_KEYBOARD).cloned();
+        let strings = ctx.strings;
         for row in self.model.rows() {
-            let action = ctx.strings.render_in(table, row.name);
+            let action = strings.render_in(table, row.name);
             if let Some(item) = layout
                 .as_ref()
                 .and_then(|l| ctx.tree.create_from(l, tokenize("action_box_item")))
@@ -151,7 +159,7 @@ impl KeyboardUi {
                 ctx.tree.list_add_item(list, item);
             }
             for slot in row.slots {
-                let text = slot.map(binding_text).unwrap_or_default();
+                let text = slot.map(|b| binding_text(strings, b)).unwrap_or_default();
                 if let Some(item) = layout
                     .as_ref()
                     .and_then(|l| ctx.tree.create_from(l, tokenize("key_box_item")))
@@ -299,7 +307,7 @@ impl KeyboardUi {
                     .render_in(library.action_map.string_table, row.name)
             })
             .unwrap_or_default();
-        let key = binding_text(KeyBinding { semantic, meta });
+        let key = binding_text(ctx.strings, KeyBinding { semantic, meta });
         format!("{key} is already bound to {action}. Replace it?")
     }
 
@@ -365,13 +373,24 @@ fn item_index(slot: SlotRef) -> usize {
     slot.row * 3 + slot.slot + 1
 }
 
-/// A key's text: the key, after its meta key (`InqKeyStringInfo`'s two parts).
-fn binding_text(binding: KeyBinding) -> String {
-    let key = key_name(binding.semantic);
-    if binding.meta == META_NONE {
-        key
-    } else {
-        format!("{}+{key}", key_name(binding.meta))
+/// `gmKeyboardUI::InqKeyStringInfo`: a key's text, rendered from the UI string table. The key's
+/// name is `key`; with a meta key whose name is known, `ID_Keyboard_key_meta` renders it with the
+/// meta key's name as `key2`. A key with no name has no text, and a meta key with no name leaves
+/// the key alone.
+fn binding_text(strings: &UiStrings, binding: KeyBinding) -> String {
+    let Some(key) = key_name(binding.semantic) else {
+        return String::new();
+    };
+    let meta = match binding.meta {
+        META_NONE => None,
+        meta => key_name(meta),
+    };
+    match meta {
+        Some(meta) => strings.render(
+            ID_KEYBOARD_KEY_META,
+            vec![text_var("key", key), text_var("key2", meta)],
+        ),
+        None => strings.render(ID_KEYBOARD_KEY, vec![text_var("key", key)]),
     }
 }
 
@@ -383,5 +402,50 @@ fn set_item_text(ctx: &mut Ctx<'_>, item: usize, text: &str) {
     };
     if let Some(child) = child {
         ctx.tree.set_text(child, text);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pregame::keyboard_list::META_SHIFT;
+
+    /// A plain key and a meta key render through `ID_Keyboard_key` / `ID_Keyboard_key_meta` in the
+    /// real UI string table (`AC2_DAT_DIR`).
+    #[test]
+    fn a_binding_renders_through_the_dat_key_strings() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let strings = UiStrings::load(&ac2_db::ResourceStore::new(dataset)).unwrap();
+        let space = 0x8100_0439;
+        let plain = KeyBinding {
+            semantic: space,
+            meta: META_NONE,
+        };
+        let with_shift = KeyBinding {
+            semantic: space,
+            meta: META_SHIFT,
+        };
+        let text = binding_text(&strings, plain);
+        assert_eq!(
+            text,
+            strings.render(ID_KEYBOARD_KEY, vec![text_var("key", "Space")])
+        );
+        assert_eq!(text, "Space");
+        let meta_text = binding_text(&strings, with_shift);
+        assert_eq!(
+            meta_text,
+            strings.render(
+                ID_KEYBOARD_KEY_META,
+                vec![text_var("key", "Space"), text_var("key2", "Left Shift")],
+            )
+        );
+        assert_eq!(meta_text, "Left Shift - Space");
+        let unnamed = KeyBinding {
+            semantic: 0x8200_0300,
+            meta: META_NONE,
+        };
+        assert_eq!(binding_text(&strings, unnamed), "");
     }
 }
