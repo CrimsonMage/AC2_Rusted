@@ -288,6 +288,7 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
     };
     let (mut bone, mut holding, mut missing_holding) = (0, 0, 0);
     let (mut object, mut water, mut removed, mut fire) = (0, 0, 0, 0);
+    let mut unstarted = 0;
     for did in portal_ids(&dataset, 0x1F00_0000) {
         let Some(table) = resolve_ac2_visual_fx_particles(&store, DataId::new(did))
             .unwrap_or_else(|error| panic!("VisualDesc {did:08X}: {error}"))
@@ -296,6 +297,12 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
         };
         for (_, attachments) in table.entries_for_test() {
             for attachment in attachments.iter() {
+                // A node with no system (a bone the visual lacks, or a light-only node) starts
+                // nothing, so only the nodes that start a system count.
+                if attachment.particle_descs.is_empty() {
+                    unstarted += 1;
+                    continue;
+                }
                 match attachment.anchor {
                     Ac2ParticleAnchor::Object { .. } => object += 1,
                     Ac2ParticleAnchor::Bone { .. } => bone += 1,
@@ -311,7 +318,7 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
     eprintln!(
         "FX particle nodes: object {object}, bone {bone}, holding \
          {holding} (missing {missing_holding}), water {water}, removed rotation {removed}, \
-         fire-and-forget {fire}"
+         fire-and-forget {fire}, no system {unstarted}"
     );
     assert!(bone > 0, "some FX attach to a posed bone");
     assert!(holding > 0, "some FX attach to a holding point");

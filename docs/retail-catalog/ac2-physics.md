@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 487 done, 105 partial, 754 to do, 778 skipped.
+2124 retail functions: 486 done, 106 partial, 754 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2039,7 +2039,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [ ] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 - [ ] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — needs port: cite-only physics-object method
-- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation, bone missing = no system (real data: 27% of bone nodes name a bone outside the root Setup).
+- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — a bone-anchored node the visual lacks starts no system (filtered at resolve in ac2-assets); attached() unplaced case unreachable from data
 - [ ] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — needs port: cite-only physics-object method
 - [-] `CPartArray::SetPartGroupData` · 004ef8f0 · legions 004e2230 — render plumbing
 
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (44/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (43/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2858,7 +2858,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f21b0 · legions 004e4ab0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-- [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
+- [~] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — bone overload: FindBoneType failing starts no system (ac2-assets ac2_visual_particles attaches, root Setup only for now; part-group search follows)
 - [ ] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20 — needs port: cite-only physics-object method
 - [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate

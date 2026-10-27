@@ -15,7 +15,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::ac2_visual_particles::{
-    anchor, load, looping_flags, placement, Ac2ParticleAnchor, Ac2ParticleAttachment,
+    anchor, attaches, load, looping_flags, placement, Ac2ParticleAnchor, Ac2ParticleAttachment,
 };
 use ac2_anim::Ac2Setup;
 
@@ -149,12 +149,18 @@ pub fn resolve_ac2_visual_fx_particles(
     for (id, list) in nodes.into_iter().filter(|(_, list)| !list.is_empty()) {
         let mut attachments = Vec::with_capacity(list.len());
         for node in list {
-            let looping = looping_flags(store, &node.particle_descs)?;
+            // A node whose bone the visual lacks starts no system but keeps its light.
+            let particle_descs = if attaches(setup.as_deref(), &node) {
+                node.particle_descs.clone()
+            } else {
+                Arc::from([])
+            };
+            let looping = looping_flags(store, &particle_descs)?;
             attachments.push(Ac2ParticleAttachment {
                 placement: placement(setup.as_deref(), &rest, &node),
                 anchor: anchor(setup.as_deref(), &node),
                 remove_rotation: node.remove_rotation,
-                particle_descs: node.particle_descs,
+                particle_descs,
                 water_plane: node.water_plane,
                 fire_and_forget: node.fire_and_forget,
                 light: node.light,

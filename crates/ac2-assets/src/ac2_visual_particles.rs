@@ -135,6 +135,7 @@ pub fn resolve_ac2_visual_particles(
     for node in nodes
         .into_iter()
         .filter(|node| !node.particle_descs.is_empty())
+        .filter(|node| attaches(setup.as_deref(), node))
     {
         let looping = looping_flags(store, &node.particle_descs)?;
         attachments.push(Ac2ParticleAttachment {
@@ -177,6 +178,20 @@ fn collect_table_nodes(
         collect_table_nodes(store, *sub, fx_id, depth + 1, nodes)?;
     }
     Ok(())
+}
+
+/// Whether a node starts a system at all. `PHYSICSOBJREP::CreateParticleSystem` finds its bone
+/// first and returns zero when there is none, so a bone-anchored node whose bone the Setup lacks
+/// starts nothing. A fire-and-forget node is not filtered: `FXManager::FireParticleFX` places it
+/// where its object stands. The bone is looked up in the root Setup only for now.
+pub(crate) fn attaches(setup: Option<&Ac2Setup>, node: &Ac2FxParticleNode) -> bool {
+    if node.fire_and_forget || node.holding_location != 0 || node.bone_name == 0 {
+        return true;
+    }
+    match setup {
+        Some(setup) => setup.bones.iter().any(|bone| bone.name == node.bone_name),
+        None => true,
+    }
 }
 
 /// `PHYSICSOBJREP::CreateParticleSystem` and `CPartArray::QueueParticleSystems`: a holding point
@@ -259,4 +274,72 @@ pub(crate) fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     did: DataId,
 ) -> ResourceResult<Option<CachedResource<T>>> {
     store.load_cached_packed::<T>(TypedResourceRef::new(DatFileKind::Portal, did, 0))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use ac2_core::DataId;
+    use ac2_math::Vec3;
+
+    use super::*;
+    use crate::ac2_fx::Ac2FxObject;
+    use ac2_anim::Ac2Bone;
+
+    fn setup_with_bones(names: &[u32]) -> Ac2Setup {
+        Ac2Setup {
+            meshes: Arc::from([]),
+            bones: names
+                .iter()
+                .map(|name| Ac2Bone {
+                    parent: None,
+                    name: *name,
+                })
+                .collect(),
+            placements: Arc::from([]),
+            holding_points: Arc::from([]),
+            connection_points: Arc::from([]),
+            bounds_min: Vec3::ZERO,
+            bounds_max: Vec3::ZERO,
+        }
+    }
+
+    fn node(bone_name: u32) -> Ac2FxParticleNode {
+        Ac2FxParticleNode {
+            particle_descs: Arc::from([DataId::new(9)]),
+            fire_and_forget: false,
+            light: None,
+            holding_location: 0,
+            bone_name,
+            bone_offset: Vec3::ZERO,
+            remove_rotation: false,
+            water_plane: false,
+            object: Ac2FxObject::default(),
+        }
+    }
+
+    /// `CPartGroup::FindBoneType` finds no bone, so `CreateParticleSystem` starts nothing; a
+    /// node whose bone the Setup has, or that names no bone, still starts its system.
+    #[test]
+    fn a_node_whose_bone_the_setup_lacks_starts_no_system() {
+        let setup = setup_with_bones(&[5]);
+        assert!(!attaches(Some(&setup), &node(7)));
+        assert!(attaches(Some(&setup), &node(5)));
+        assert!(attaches(Some(&setup), &node(0)));
+        assert!(attaches(None, &node(7)), "no Setup, nothing to search");
+    }
+
+    /// `FXManager::FireParticleFX` places a fire-and-forget system without its bone, and a
+    /// holding-point node never reads the bone name.
+    #[test]
+    fn fire_and_forget_and_holding_nodes_are_not_filtered_by_their_bone() {
+        let setup = setup_with_bones(&[5]);
+        let mut fired = node(7);
+        fired.fire_and_forget = true;
+        assert!(attaches(Some(&setup), &fired));
+        let mut holding = node(7);
+        holding.holding_location = 3;
+        assert!(attaches(Some(&setup), &holding));
+    }
 }

@@ -5024,7 +5024,7 @@ key	status	note
 004eedd0	x	CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 004eee60	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 004eef20	_	needs port: cite-only physics-object method
-004eef90	~	ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation, bone missing = no system (real data: 27% of bone nodes name a bone outside the root Setup).
+004eef90	~	a bone-anchored node the visual lacks starts no system (filtered at resolve in ac2-assets); attached() unplaced case unreachable from data
 004ef290	_	needs port: cite-only physics-object method
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -5159,7 +5159,7 @@ key	status	note
 004f2190	_	needs port: cite-only physics-object method
 004f21a0	_	needs port: cite-only physics-object method
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f22c0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
+004f22c0	~	bone overload: FindBoneType failing starts no system (ac2-assets ac2_visual_particles attaches, root Setup only for now; part-group search follows)
 004f2410	_	needs port: cite-only physics-object method
 004f2420	_	needs port: cite-only physics-object method
 004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
