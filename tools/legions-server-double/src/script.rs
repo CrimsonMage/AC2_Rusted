@@ -250,6 +250,9 @@ impl State {
             ScriptRequest::Use(desc) if desc.item == crate::butcher::BUTCHER_KNIFE => {
                 self.answer_butcher(desc);
             }
+            ScriptRequest::Use(desc) if desc.item == crate::world_objects::GROUND_ITEM => {
+                self.answer_pickup(desc);
+            }
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

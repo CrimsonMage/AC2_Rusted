@@ -37,6 +37,7 @@ mod store;
 mod trade;
 mod vitae;
 mod vitals;
+mod world_objects;
 
 pub use allegiance::{Allegiance, Liege};
 pub use appearance::{
@@ -79,6 +80,7 @@ pub use vitae::{
 pub use vitals::{
     Vitals, COMBAT_NOT_ENOUGH_VIGOR, PLAYER_VIGOR_MAX, REGEN_INTERVAL, VIGOR, VIGOR_MAX,
 };
+pub use world_objects::{DOOR, GROUND_ITEM, LEVER};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;

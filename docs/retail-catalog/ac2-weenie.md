@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 331 done, 150 partial, 1410 to do, 13 skipped.
+1904 retail functions: 332 done, 150 partial, 1409 to do, 13 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (0/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (1/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
@@ -1399,7 +1399,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480
 - [ ] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600
 - [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700
-- [ ] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie World (the player's RecvEvt_Contain on the child)
+- [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
 - [ ] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830
 - [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0
 - [ ] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0

@@ -2160,7 +2160,7 @@ key	status	note
 00494cb0	_	
 00494e30	_	
 00494f30	_	
-00494fb0	_	ac2-weenie World (the player's RecvEvt_Contain on the child)
+00494fb0	x	ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
 00495060	_	
 00495100	_	
 004951f0	_	
