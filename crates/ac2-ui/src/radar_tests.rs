@@ -162,3 +162,34 @@ fn the_radar_shows_once_its_location_is_applied() {
     hud.radar.location_applied(&mut hud.tree);
     assert!(hud.radar.shown(&hud.tree));
 }
+
+/// The heading ring follows the radar's field when the radar moves (`RadarUi::update`).
+#[test]
+fn the_heading_ring_follows_the_radar_when_it_moves() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let field = hud.radar.field().expect("RadarField");
+    let heading = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).unwrap().id() == tokenize("HeadingField"))
+        .expect("HeadingField");
+    hud.radar.location_applied(tree);
+    hud.radar.update(tree, &RadarView::default());
+    let (f0, h0) = (tree.screen_box(field), tree.screen_box(heading));
+    // The radar sits in the display's top-right corner: move it left and down, inside the display.
+    tree.move_to(field, f0.x0 - 30, f0.y0 + 20);
+    hud.radar.update(tree, &RadarView::default());
+    let (f1, h1) = (tree.screen_box(field), tree.screen_box(heading));
+    assert_eq!((f1.x0 - f0.x0, f1.y0 - f0.y0), (-30, 20), "the radar moved");
+    assert_eq!(
+        (h1.x0 - h0.x0, h1.y0 - h0.y0),
+        (-30, 20),
+        "the heading ring moved with the radar"
+    );
+}

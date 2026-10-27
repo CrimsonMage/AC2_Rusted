@@ -74,7 +74,6 @@ pub struct RadarUi {
     /// `_radarX`, `_radarY`, `_radarRadius`, `_xoffset`, `_yoffset`.
     center: (i32, i32),
     radius: i32,
-    offset: (i32, i32),
     /// `_oldHeading`, `_oldTooltip`.
     old_heading: f32,
     old_tooltip: Option<String>,
@@ -109,7 +108,6 @@ impl RadarUi {
         };
         let field = root("RadarField");
         let base = field.and_then(|f| tree.child_recursive(f, id("BaseField")));
-        let offset = base.map_or((0, 0), |b| tree.object_origin(b));
         Self {
             field,
             base,
@@ -121,7 +119,6 @@ impl RadarUi {
                 )
             }),
             radius: field.map_or(0, |f| int_attr(tree, f, "RadarRadius")),
-            offset,
             old_heading: 0.0,
             old_tooltip: None,
             old_coordinates: None,
@@ -171,9 +168,12 @@ impl RadarUi {
                 tree.set_text(text, view.coordinates.as_deref().unwrap_or_default());
             }
         }
-        let (fx, fy) = tree.get(field).and_then(|e| e.object).unwrap_or((0, 0));
         if let Some(heading) = self.heading {
-            tree.set_object_position(heading, self.offset.0 + fx, self.offset.1 + fy);
+            // The ring's corner is `BaseField`'s corner on the display, so the ring moves with the
+            // field however the field was placed (a move resets the field's box origin).
+            let corner = tree.screen_box(self.base.unwrap_or(field));
+            let ring = tree.get(heading).map(|e| e.rect()).unwrap_or_default();
+            tree.set_object_position(heading, corner.x0 - ring.x0, corner.y0 - ring.y0);
             if let Some(degrees) = view.heading_degrees {
                 if self.old_heading != degrees {
                     self.old_heading = degrees;
@@ -183,6 +183,8 @@ impl RadarUi {
         }
         // `radarScale = (float)_radarRadius / range`, stored.
         let scale = f64::from((f64::from(self.radius) / f64::from(view.range)) as f32);
+        // The blips are plotted in the field's surface, so the pointer is read in its object's frame.
+        let (fx, fy) = tree.get(field).and_then(|e| e.object).unwrap_or((0, 0));
         let (px, py) = tree.pointer();
         let mut tooltip = None;
         self.last_under_mouse = 0;

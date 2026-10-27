@@ -181,30 +181,39 @@ impl UiTree {
         true
     }
 
-    /// The window the pointer is on: the root of the element under the pointer when that is a
-    /// window, else the topmost window root whose box holds the pointer (the roots are listed
-    /// topmost first, so an overlay or a transient above a window is skipped).
+    /// The window the pointer is on: the first window root, topmost first (the roots' order), with
+    /// a visible element under the pointer, found by the element tree (`UIRegion::NotifyMouseMove`'s
+    /// test). An overlay or a transient is skipped, so the window under it is the target. A box is
+    /// never enough: a window whose elements are all transparent or hidden under the pointer is not
+    /// taken, so a large transparent window cannot steal the press.
     fn window_under_pointer(&self) -> Option<usize> {
-        // The element under the pointer decides when its window is a window (what is drawn there).
-        if let Some(top) = self.mouse_top {
-            let root = self.root_of(top);
-            if self.is_window_root(root) && !self.is_transient_root(root) {
-                return Some(root);
-            }
-        }
-        // Otherwise (an overlay or a transient is the top element, or nothing is): the topmost
-        // window whose box holds the pointer, so the window under an overlay is the target.
-        let (px, py) = self.pointer;
+        let pointer = self.pointer;
         self.roots.iter().copied().find(|&root| {
-            if !self.is_window_root(root) || self.is_transient_root(root) {
-                return false;
-            }
-            if !self.el(root).visible {
-                return false;
-            }
-            let b = self.screen_box(root);
-            (b.x0..=b.x1).contains(&px) && (b.y0..=b.y1).contains(&py)
+            self.is_window_root(root)
+                && !self.is_transient_root(root)
+                && self.pointer_hits(root, pointer)
         })
+    }
+
+    /// Whether an element (or one of its children) is under `pointer` and can be pointed at: shown,
+    /// not `mouse_invisible`, and not transparent (`opacity` above zero). A child counts only inside
+    /// its parent's place, as the mouse walk reads it.
+    fn pointer_hits(&self, index: usize, pointer: (i32, i32)) -> bool {
+        let el = self.el(index);
+        if !el.visible {
+            return false;
+        }
+        let b = self.screen_box(index);
+        let (px, py) = pointer;
+        if !((b.x0..=b.x1).contains(&px) && (b.y0..=b.y1).contains(&py)) {
+            return false;
+        }
+        if el.mouse_visible && el.opacity > 0.0 {
+            return true;
+        }
+        el.children
+            .iter()
+            .any(|&child| self.pointer_hits(child, pointer))
     }
 
     /// The Alt key's state (`GetKeyState(VK_MENU)`), set from the frame's modifiers.

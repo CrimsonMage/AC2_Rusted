@@ -55,6 +55,14 @@ impl UiTree {
         Self::position_from_desc(desc, el.state).0
     }
 
+    /// The top-left of an element's place in its layout (`UIElement`'s authored rectangle, before
+    /// a saved window position or a move): the offset a docked part keeps from its window.
+    pub(crate) fn layout_origin(&self, index: usize) -> (i32, i32) {
+        let el = self.el(index);
+        let (original, _) = Self::position_from_desc(&el.reference, el.state);
+        (original.x0, original.y0)
+    }
+
     /// The element's box on the screen.
     pub fn screen_box(&self, index: usize) -> UiBox {
         let el = self.el(index);

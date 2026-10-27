@@ -239,3 +239,61 @@ fn a_fresh_login_puts_a_moved_window_back_where_it_was_left() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// The paper doll's 3D viewport (`PaperDollViewport`), shown with the inventory panel.
+fn doll_viewport(rig: &Rig) -> ac2_ui::SceneViewport {
+    rig.view
+        .paper_doll_viewport()
+        .expect("the doll shows with the inventory panel")
+}
+
+#[test]
+fn an_alt_drag_of_the_inventory_carries_the_paper_doll_viewport_by_the_same_offset() {
+    let Some(mut rig) = Rig::new() else {
+        return;
+    };
+    let dir = test_dir("doll");
+    rig.client.set_window_positions_dir(Some(dir.clone()));
+    rig.open_inventory();
+    rig.wait("the doll's viewport", |r| {
+        r.view.paper_doll_viewport().is_some()
+    });
+    // The inventory window: the root of the head slot, the doll's docking window.
+    let tree = rig.view.hud_tree().unwrap();
+    let slot = ac2_ui::tokenize("Head_Slot");
+    let inventory = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.child_recursive(r, slot).is_some())
+        .expect("the inventory window holds the head slot");
+    let window_before = tree.screen_box(inventory);
+    let viewport_before = doll_viewport(&rig);
+
+    // Into bounds first, then the drag to measure.
+    alt_drag(&mut rig, inventory, 1.0, (-200, -40));
+    let start_w = rig.view.hud_tree().unwrap().screen_box(inventory);
+    let start_v = doll_viewport(&rig);
+    alt_drag(&mut rig, inventory, 1.0, (60, 40));
+    let moved_w = rig.view.hud_tree().unwrap().screen_box(inventory);
+    let moved_v = doll_viewport(&rig);
+    let (dx, dy) = (moved_w.x0 - start_w.x0, moved_w.y0 - start_w.y0);
+    assert!(
+        (dx - 60).abs() <= 1 && (dy - 40).abs() <= 1,
+        "the inventory moved {dx},{dy}"
+    );
+    assert_eq!(
+        (moved_v.x - start_v.x, moved_v.y - start_v.y),
+        (dx, dy),
+        "the doll's viewport moved with the inventory"
+    );
+    // The docking offset holds: the viewport is where it was relative to the window.
+    assert_eq!(
+        (start_v.x - start_w.x0, start_v.y - start_w.y0),
+        (
+            viewport_before.x - window_before.x0,
+            viewport_before.y - window_before.y0
+        ),
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

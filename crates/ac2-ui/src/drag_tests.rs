@@ -222,3 +222,69 @@ fn a_refusing_drag_out_callback_keeps_the_icon_in_place() {
     point(&mut tree, 20, 15);
     assert!(tree.dragged().is_some(), "with no callback the drag starts");
 }
+
+/// The window exception: Alt + press moves the window under the pointer, and an item under the
+/// pointer is taken only when Alt is up.
+#[test]
+fn an_alt_press_on_an_item_moves_the_window_and_drags_no_item() {
+    let (mut tree, icon, _) = tree();
+    let root = tree.root_of(icon);
+    let before = tree.screen_box(root);
+    point(&mut tree, 15, 15);
+    tree.set_alt(true);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 35, 25);
+    tree.stop_input(LEFT);
+    tree.set_alt(false);
+    let after = tree.screen_box(root);
+    assert_eq!(
+        (after.x0 - before.x0, after.y0 - before.y0),
+        (20, 10),
+        "the window moved by the pointer"
+    );
+    assert!(tree.dragged().is_none(), "no item drag under Alt");
+    assert!(tree.get(icon).is_some());
+}
+
+#[test]
+fn a_plain_press_drag_on_an_item_starts_the_item_drag_and_moves_no_window() {
+    let (mut tree, icon, _) = tree();
+    let root = tree.root_of(icon);
+    let before = tree.screen_box(root);
+    point(&mut tree, 15, 15);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 35, 25);
+    assert!(tree.dragged().is_some(), "the item drag starts");
+    tree.stop_input(LEFT);
+    assert_eq!(tree.screen_box(root), before, "the window stays");
+}
+
+/// The Alt target is found by the element tree, not by the window's box: a window whose
+/// elements are transparent (its root at zero opacity) under the pointer is not taken, while
+/// its opaque icon still is.
+#[test]
+fn a_transparent_window_does_not_take_an_alt_press_on_its_empty_area() {
+    let (mut tree, icon, _) = tree();
+    let root = tree.root_of(icon);
+    tree.el_mut(root).opacity = 0.0;
+    let before = tree.screen_box(root);
+    // (190, 90) is inside the window's box, and no element is there.
+    point(&mut tree, 190, 90);
+    tree.set_alt(true);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 200, 95);
+    tree.stop_input(LEFT);
+    assert_eq!(
+        tree.screen_box(root),
+        before,
+        "the empty area takes no press"
+    );
+    // The opaque icon still moves its window.
+    point(&mut tree, 15, 15);
+    tree.start_input(LEFT, 1.0);
+    point(&mut tree, 25, 20);
+    tree.stop_input(LEFT);
+    tree.set_alt(false);
+    let after = tree.screen_box(root);
+    assert_eq!((after.x0 - before.x0, after.y0 - before.y0), (10, 5));
+}

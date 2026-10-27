@@ -378,3 +378,87 @@ fn the_worn_items_durability_fills_its_meter_and_hides_without_durability() {
     doll.item_changed(tree, &Player, SWORD);
     assert!(!tree.get(torso).unwrap().visible());
 }
+
+/// The inventory window that holds the doll's slots: the root of the head slot.
+fn inventory_window(tree: &UiTree) -> usize {
+    let slot = tokenize("Head_Slot");
+    let root = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.child_recursive(r, slot).is_some())
+        .expect("the inventory window holds the head slot");
+    root
+}
+
+/// The viewport's place relative to the inventory window, read after the doll follows it.
+fn docked_offset(tree: &mut UiTree, doll: &PaperDollUi) -> (i32, i32) {
+    let viewport = doll.viewport().expect("PaperDollViewport");
+    doll.follow_panel(tree);
+    let v = tree.screen_box(viewport);
+    let w = tree.screen_box(inventory_window(tree));
+    (v.x0 - w.x0, v.y0 - w.y0)
+}
+
+#[test]
+fn the_doll_viewport_moves_with_its_inventory_window_when_it_is_moved() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let doll = PaperDollUi::create(tree, &layout, &Player, PLAYER, &[(HEAD, HELM)]);
+    let viewport = doll.viewport().expect("PaperDollViewport");
+    let rest = docked_offset(tree, &doll);
+
+    // The window moves by its place: the doll's viewport goes with it, by the same offset.
+    let window = inventory_window(tree);
+    let before_v = tree.screen_box(viewport);
+    let before_w = tree.screen_box(window);
+    // Toward the middle of the display, so the move is not clamped at its edge.
+    let by = (
+        if before_w.x0 < 300 { 40 } else { -40 },
+        if before_w.y0 < 300 { 25 } else { -25 },
+    );
+    tree.move_to(window, before_w.x0 + by.0, before_w.y0 + by.1);
+    doll.follow_panel(tree);
+    let after_v = tree.screen_box(viewport);
+    let after_w = tree.screen_box(window);
+    let moved_by = (after_w.x0 - before_w.x0, after_w.y0 - before_w.y0);
+    assert_ne!(moved_by, (0, 0), "the window moved");
+    assert_eq!(
+        (after_v.x0 - before_v.x0, after_v.y0 - before_v.y0),
+        moved_by,
+        "the viewport moved with the window"
+    );
+    assert_eq!(docked_offset(tree, &doll), rest, "the docking offset holds");
+}
+
+#[test]
+fn a_saved_inventory_place_carries_the_doll_viewport_at_login() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut first = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let first_layout = first.toolbar_layout.clone().unwrap();
+    let doll = PaperDollUi::create(&mut first.tree, &first_layout, &Player, PLAYER, &[]);
+    let rest = docked_offset(&mut first.tree, &doll);
+    let window = inventory_window(&first.tree);
+    let w = first.tree.screen_box(window);
+    first.tree.move_to(window, w.x0 + 60, w.y0 + 30);
+    let saved = first.tree.window_positions();
+
+    // A fresh login: the saved place is applied before the doll is made.
+    let mut second = build_gameplay_hud(&store, 1024, 768).unwrap();
+    second.tree.set_window_positions(&saved);
+    let layout = second.toolbar_layout.clone().unwrap();
+    let doll = PaperDollUi::create(&mut second.tree, &layout, &Player, PLAYER, &[]);
+    assert_eq!(
+        docked_offset(&mut second.tree, &doll),
+        rest,
+        "the viewport sits in its window's saved place"
+    );
+}

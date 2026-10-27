@@ -411,11 +411,24 @@ impl PaperDollUi {
         self.slots.iter().copied().find(|s| s.slot == Some(element))
     }
 
-    /// The doll shows while its slots do (`UIChildFramework::Show` with the inventory panel).
+    /// The inventory window that holds the doll's slots: the root of the first slot. The doll's
+    /// viewport is docked to it.
+    fn docking_window(&self, tree: &UiTree) -> Option<usize> {
+        self.slots
+            .iter()
+            .find_map(|s| s.slot)
+            .map(|slot| tree.root_of(slot))
+    }
+
+    /// The doll shows while its slots do (`UIChildFramework::Show` with the inventory panel), and
+    /// the viewport stays docked to its inventory window: it sits where the window's place puts it,
+    /// at the offset its layout gives (the window's place moves by Alt + drag or its drag bar, and
+    /// by the saved places). Called each global loop, so a moved window carries the doll with it.
     pub fn follow_panel(&self, tree: &mut UiTree) {
         let Some(viewport) = self.viewport else {
             return;
         };
+        self.dock_viewport(tree, viewport);
         let anchor = self.slots.iter().find_map(|s| s.slot);
         let shown = anchor.is_some_and(|mut at| loop {
             let Some(el) = tree.get(at) else {
@@ -432,5 +445,17 @@ impl PaperDollUi {
         if tree.get(viewport).is_some_and(|e| e.visible() != shown) {
             tree.set_visible(viewport, shown);
         }
+    }
+
+    /// The viewport's screen place: the docking window's screen origin plus the layout offset
+    /// between the viewport and that window.
+    fn dock_viewport(&self, tree: &mut UiTree, viewport: usize) {
+        let Some(window) = self.docking_window(tree) else {
+            return;
+        };
+        let (vx, vy) = tree.layout_origin(viewport);
+        let (wx, wy) = tree.layout_origin(window);
+        let origin = tree.screen_box(window);
+        tree.set_object_position(viewport, origin.x0 + vx - wx, origin.y0 + vy - wy);
     }
 }
