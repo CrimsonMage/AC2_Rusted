@@ -920,8 +920,8 @@ key	status	note
 00443d20	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 00443d80	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 00443de0	x	chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
-00443e40	~	chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
-00443ee0	~	chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
+00443e40	x	ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
+00443ee0	x	ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 00443f60	x	chat_options_setup.rs specs: Legions 7160's order (font size, colour, the four window flags, popup; the entry line has the first two; the window section has each window's text type). Admin 7148 has no window flags; Legions followed
 00444100	-	C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
 004442a0	x	chat_options.rs changed / update_buttons: Apply and Recall ghost while nothing differs; Default never ghosts (retail)
@@ -1068,22 +1068,22 @@ key	status	note
 0044dea0	x	ac2-ui meter.rs
 0044ded0	x	ac2-ui meter.rs
 0044def0	x	ac2-ui meter.rs
-0044df20	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044df20	x	ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 0044dfa0	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
-0044dfe0	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
-0044e060	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
-0044e090	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044dfe0	x	ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
+0044e060	~	ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
+0044e090	x	ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 0044e140	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e180	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e1c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e210	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e260	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e280	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-0044e2a0	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044e2a0	~	ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
 0044e370	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
 0044e3a0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e3c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-0044e590	~	the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+0044e590	~	ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
 0044e6d0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
 0044e760	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
 0044e7a0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled

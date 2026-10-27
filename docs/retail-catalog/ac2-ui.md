@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1018 done, 357 partial, 793 to do, 79 skipped.
+2247 retail functions: 1023 done, 352 partial, 793 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -819,24 +819,24 @@ Legend and workflow: [README](README.md).
 - [x] `OptionBase::Describe` · 0044f890 · legions 004509d0 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 - [x] `OptionBase::Identify` · 0044f940 · legions 00450a80 — character.rs and the option widgets' states: the element from its template, its label and tooltip (Describe); tested on the real layout
 
-## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (8/15)
+## `ac2/client/src/ui/gameplay/helper/optionchoice.cpp.c` (11/15)
 
 ### OptionChoice
-- [~] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [x] `OptionChoice::OptionChoice` · 0044df20 · legions 0044f0f0 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 - [-] `OptionChoice::Cast` · 0044dfa0 · legions 0044f170 — C++ downcast (Cast) and scalar deleter: the page keeps typed entries
-- [~] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
-- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
-- [~] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [x] `OptionChoice::AddChoice` · 0044dfe0 · legions 0044f1b0 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
+- [~] `OptionChoice::AssignChoice` · 0044e060 · legions 0044f230 — ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
+- [x] `OptionChoice::SetCurrent` · 0044e090 · legions 0044f260 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 - [x] `OptionChoice::SetDefault` · 0044e140 · legions 0044f310 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::GetCurrent` · 0044e180 · legions 0044f350 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Changed` · 0044e1c0 · legions 0044f390 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Apply` · 0044e210 · legions 0044f3e0 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Recall` · 0044e260 · legions 0044f430 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Default` · 0044e280 · legions 0044f450 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [~] `OptionChoice::ListenToMessage` · 0044e2a0 · legions 0044f470 — ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
 - [x] `OptionChoice::Refresh` · 0044e3a0 · legions 0044f570 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 - [x] `OptionChoice::Refresh` · 0044e3c0 · legions 0044f590 — character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — the drop-down's labels and values are ported; UIElement_Menu (ac2-ui menu.rs) exists but the option bank's handlers do not attach it
+- [~] `OptionChoice::Merge` · 0044e590 · legions 0044f6d0 — ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
 
 ## `ac2/client/src/ui/gameplay/helper/optionexpander.cpp.c` (9/16)
 
@@ -1335,14 +1335,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterUI::Setup` · 00445c80 · legions 004467c0 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 - [x] `gmCharacterUI::gmCharacterUI` · 00446610 · legions 00447150 — character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmchatoptionsui.cpp.c` (15/18)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmchatoptionsui.cpp.c` (17/18)
 
 ### gmChatOptionsUI
 - [x] `gmChatOptionsUI::ConfirmApply` · 00443d20 · legions 00444670 — chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 - [x] `gmChatOptionsUI::ConfirmRecall` · 00443d80 · legions 004446d0 — chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
 - [x] `gmChatOptionsUI::ConfirmDefault` · 00443de0 · legions 00444730 — chat_options.rs confirm_apply / confirm_recall / confirm_default ask their confirmation (ID_Option_ApplyText, RecallText, DefaultText); answers via dialog_outcomes; chat_options_tests.rs on the real layout
-- [~] `gmChatOptionsUI::CreateChatFontSizeChoice` · 00443e40 · legions 00444790 — chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
-- [~] `gmChatOptionsUI::CreateChatFontColorChoice` · 00443ee0 · legions 00444830 — chat_options_setup.rs specs: the labels (ID_Option_ChatSmallerFont..LargeFont, 3 on the entry line; ID_Option_ChatColor1..10), the defaults; the choice object is the shared widget, its drop-down menu is not modelled
+- [x] `gmChatOptionsUI::CreateChatFontSizeChoice` · 00443e40 · legions 00444790 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
+- [x] `gmChatOptionsUI::CreateChatFontColorChoice` · 00443ee0 · legions 00444830 — ac2-ui character_options.rs (fill_choices, select_choice, selected_choice, sync_option) and character.rs / chat_options.rs drop-downs: UIElement_Menu items keyed by choice number (tested on the real layout in character_tests.rs, chat_options_tests.rs)
 - [x] `gmChatOptionsUI::PopulateExpander` · 00443f60 — chat_options_setup.rs specs: Legions 7160's order (font size, colour, the four window flags, popup; the entry line has the first two; the window section has each window's text type). Admin 7148 has no window flags; Legions followed
 - [-] `gmChatOptionsUI::~gmChatOptionsUI` · 00444100 · legions 00444b40 — C++ destructor and scalar deleter: the page's widgets are owned by the tree and dropped with it
 - [x] `gmChatOptionsUI::Changed` · 004442a0 · legions 00444ce0 — chat_options.rs changed / update_buttons: Apply and Recall ghost while nothing differs; Default never ghosts (retail)

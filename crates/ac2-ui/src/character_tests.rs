@@ -13,6 +13,7 @@ use crate::character_options::{
 use crate::dialog::{DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
 use crate::token::{
@@ -531,4 +532,44 @@ fn the_shortcut_bar_height_is_taken_and_uploaded() {
             CharacterRequest::Upload,
         ]
     );
+}
+
+#[test]
+fn the_shortcut_height_drop_down_is_a_menu_that_shows_and_applies_the_choice() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let mut page = hud.character.take().expect("CharacterPage");
+    let mut dialogs = hud.dialogs;
+    let tree = &mut hud.tree;
+    page.refresh(tree, &profile());
+    let control = page.control("ID_Option_ShortcutHeight").expect("drop-down");
+    // Five items, keyed 1 to 5: the profile's height 2 is the second item, selected.
+    assert_eq!(tree.menu_items(control).len(), 5);
+    assert_eq!(tree.menu_selected_index(control), Some(1));
+    // The user picks choice 4: the page's value follows the menu's new selection, and Apply
+    // sends it.
+    tree.menu_set_selected_index(control, Some(3));
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("DropDownMenu", Some(control), MSG_MENU_NEW_SELECTION),
+    );
+    assert_eq!(page.value("ID_Option_ShortcutHeight"), Some(4.0));
+    assert!(page.changed());
+    page.apply(tree);
+    assert_eq!(
+        page.take_requests(),
+        [
+            CharacterRequest::Set(OptionSetting::Int {
+                setter: Setter::ShortcutHeight,
+                value: 4
+            }),
+            CharacterRequest::Upload,
+        ]
+    );
+    // Recall puts the saved choice back in the menu.
+    tree.menu_set_selected_index(control, Some(0));
+    page.recall(tree);
+    assert_eq!(tree.menu_selected_index(control), Some(3));
 }

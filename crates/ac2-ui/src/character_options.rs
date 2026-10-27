@@ -9,7 +9,11 @@
 //! `SetDefault` gave it. The page reads the profile through [`OptionsSettings`].
 
 use crate::element::UiTree;
+use crate::layout::AttributeValue;
 use crate::token::{tokenize, BUTTON_HIGHLIGHTED};
+
+/// The attribute a drop-down's item holds its choice number in (`OptionChoice::AddChoice`'s `Key`).
+const CHOICE_KEY: u32 = tokenize("Key");
 
 /// The options profile's bit field (`GameplayOptionsProfile::m_bitField`, read by the `Get*`
 /// accessors of `gmCWInterface`; the bit values are the profile's own).
@@ -367,6 +371,66 @@ pub(crate) fn is_changed_of(kind: Kind, current: f64, saved: f64) -> bool {
             d * d >= 0.0001
         }
         Kind::Flag | Kind::Choice { .. } => current != saved,
+    }
+}
+
+/// The choice number an item of a drop-down holds (its `Key`).
+fn choice_of(tree: &UiTree, item: usize) -> Option<i32> {
+    match tree.get(item)?.attribute(CHOICE_KEY)? {
+        AttributeValue::Int(value) => Some(*value),
+        _ => None,
+    }
+}
+
+/// `OptionChoice::AddChoice`: each `(number, label)` is a text item of the drop-down's menu,
+/// keyed by its number and inserted in number order. Nothing is selected.
+pub(crate) fn fill_choices(tree: &mut UiTree, control: Option<usize>, choices: &[(u32, String)]) {
+    let Some(menu) = control else {
+        return;
+    };
+    tree.menu_flush(menu);
+    for (number, label) in choices {
+        let items = tree.menu_items(menu).to_vec();
+        let here = items
+            .iter()
+            .position(|&item| choice_of(tree, item).is_some_and(|key| key > *number as i32))
+            .unwrap_or(items.len());
+        if let Some(item) = tree.menu_insert_text(menu, label, here) {
+            tree.set_int(item, CHOICE_KEY, *number as i32);
+        }
+    }
+}
+
+/// `OptionChoice::GetCurrent`: the number of the menu's selected item (`None` with no selection).
+pub(crate) fn selected_choice(tree: &UiTree, control: Option<usize>) -> Option<f64> {
+    let menu = control?;
+    let item = tree.menu_selected_item(menu)?;
+    choice_of(tree, item).map(f64::from)
+}
+
+/// `OptionChoice::SetCurrent`: the item keyed `choice` is selected. With no such item the
+/// selection stays where it is.
+fn select_choice(tree: &mut UiTree, control: Option<usize>, choice: f64) {
+    let Some(menu) = control else {
+        return;
+    };
+    let wanted = choice as i32;
+    let item = tree
+        .menu_items(menu)
+        .iter()
+        .copied()
+        .find(|&item| choice_of(tree, item) == Some(wanted));
+    if item.is_some() {
+        tree.menu_set_selected_item(menu, item);
+    }
+}
+
+/// Shows an option's value on its control when the drop-down is a menu: a choice selects its
+/// item (`OptionChoice::SetCurrent`), the other kinds as [`sync_control_of`].
+pub(crate) fn sync_option(tree: &mut UiTree, control: Option<usize>, kind: Kind, current: f64) {
+    match kind {
+        Kind::Choice { .. } => select_choice(tree, control, current),
+        _ => sync_control_of(tree, control, kind, current, &[]),
     }
 }
 

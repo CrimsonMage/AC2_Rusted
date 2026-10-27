@@ -12,20 +12,23 @@
 //! messages come through [`CharacterUi::message`]; what the page asks of the player is queued for
 //! [`CharacterUi::take_requests`].
 //!
+//! A drop-down (`OptionChoice`) is a `UIElement_Menu` on `DropDownMenu`, filled with its labels
+//! when the option is made; the menu's selection is the choice, read back on its new selection.
+//!
 //! Not modelled: the native `CM_Character::SendNotice_ReloadGameplayOptions` to the other option
-//! listeners (`gmNetStatusUI`, `gmPetUI`, `FellowshipHelper`), the drop-down's menu (`UIElement_Menu`,
-//! the label of the choice is shown on `DropDownMenu` instead), the preference bank's handlers
+//! listeners (`gmNetStatusUI`, `gmPetUI`, `FellowshipHelper`), the preference bank's handlers
 //! (`PreferenceBank::Change`) and the expanders' `Refit` sizes.
 
 use std::sync::Arc;
 
 use crate::character_options::{
-    choice_name, is_changed_of, read, string_id, sync_control_of, template_name, write, Kind,
-    OptionDesc, OptionSetting, OptionsSettings, Setter, SETUP,
+    choice_name, fill_choices, is_changed_of, read, selected_choice, string_id, sync_option,
+    template_name, write, Kind, OptionDesc, OptionSetting, OptionsSettings, Setter, SETUP,
 };
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
 use crate::scrollbar::MSG_NEW_POSITION;
@@ -66,8 +69,6 @@ struct OptionEntry {
     /// `m_Preference`'s current value and its saved one (`mPrevious`).
     current: f64,
     saved: f64,
-    /// The drop-down's labels, for choices `1..=count`.
-    labels: Vec<String>,
 }
 
 /// An expander (`OptionExpander`): its header, the list of its options while open, and its
@@ -248,7 +249,6 @@ impl CharacterUi {
             slider_buttons: [None, None],
             current: 0.0,
             saved: 0.0,
-            labels: Vec::new(),
         };
         match desc.kind {
             Kind::Flag => {
@@ -263,9 +263,10 @@ impl CharacterUi {
             }
             Kind::Choice { count } => {
                 entry.control = tree.child_recursive(element, id("DropDownMenu"));
-                entry.labels = (1..=count)
-                    .map(|n| labels.get(&choice_name(desc.name, n)))
+                let choices: Vec<(u32, String)> = (1..=count)
+                    .map(|n| (n, labels.get(&choice_name(desc.name, n))))
                     .collect();
+                fill_choices(tree, entry.control, &choices);
             }
         }
         // `SetDefault`: the default and the current value, as the widget shows them.
@@ -505,6 +506,7 @@ impl CharacterUi {
             }
         } else if message.message == MSG_HIGHLIGHT_STATE_CHANGE
             || message.message == MSG_NEW_POSITION
+            || message.message == MSG_MENU_NEW_SELECTION
         {
             if let Some(index) = self.control_at(message.element) {
                 self.read_control(tree, index);
@@ -717,7 +719,11 @@ impl CharacterUi {
                 let position = f64::from(tree.scrollbar_position(control));
                 entry.current = position * (upper - lower) + lower;
             }
-            Kind::Choice { .. } => {}
+            Kind::Choice { .. } => {
+                if let Some(choice) = selected_choice(tree, entry.control) {
+                    entry.current = choice;
+                }
+            }
         }
     }
 
@@ -756,13 +762,7 @@ fn is_changed(entry: &OptionEntry) -> bool {
 }
 
 /// Shows an option's value on its control: the checkbox's highlight, the slider's position, the
-/// drop-down's label.
+/// drop-down's selected item.
 fn sync_control(tree: &mut UiTree, entry: &OptionEntry) {
-    sync_control_of(
-        tree,
-        entry.control,
-        entry.desc.kind,
-        entry.current,
-        &entry.labels,
-    );
+    sync_option(tree, entry.control, entry.desc.kind, entry.current);
 }

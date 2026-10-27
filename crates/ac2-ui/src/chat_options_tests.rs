@@ -9,6 +9,7 @@ use crate::chat::ChatSettings;
 use crate::chat_options_table::ROWS;
 use crate::dialog::DialogOutcome;
 use crate::element::UiTree;
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
@@ -402,4 +403,88 @@ fn an_unopened_page_keeps_its_buttons_as_they_were() {
     press(tree, &mut page, &mut dialogs, "ApplyButton");
     assert!(page.take_requests().is_empty());
     assert!(!page.page_open());
+}
+
+#[test]
+fn the_font_and_colour_drop_downs_are_menus_that_show_and_apply_the_choice() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let mut page = hud.chat_options.take().expect("ChatPage");
+    let mut dialogs = hud.dialogs;
+    let tree = &mut hud.tree;
+    page.refresh(tree, &settings());
+    // Say's font size: four items, the large one (choice 4) selected; its colour: ten items,
+    // colour 6 (choice 6) selected.
+    let size = page.control(SAY, FONT_SIZE).expect("font size drop-down");
+    assert_eq!(tree.menu_items(size).len(), 4);
+    assert_eq!(tree.menu_selected_index(size), Some(3));
+    let colour = page.control(SAY, FONT_COLOR).expect("colour drop-down");
+    assert_eq!(tree.menu_items(colour).len(), 10);
+    assert_eq!(tree.menu_selected_index(colour), Some(5));
+    // The user picks the smallest size and colour 3: the values follow, and Apply sends them.
+    tree.menu_set_selected_index(size, Some(0));
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("DropDownMenu", Some(size), MSG_MENU_NEW_SELECTION),
+    );
+    tree.menu_set_selected_index(colour, Some(2));
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("DropDownMenu", Some(colour), MSG_MENU_NEW_SELECTION),
+    );
+    assert_eq!(page.value(SAY, FONT_SIZE), Some(1.0));
+    assert_eq!(page.value(SAY, FONT_COLOR), Some(3.0));
+    page.apply(tree);
+    let requests = page.take_requests();
+    assert!(
+        requests.contains(&ChatOptionRequest::Set(ChatOptionSetting::FontSize {
+            text_type: TEXT_TYPE_SAY,
+            size: 3,
+        }))
+    );
+    assert!(
+        requests.contains(&ChatOptionRequest::Set(ChatOptionSetting::FontColor {
+            text_type: TEXT_TYPE_SAY,
+            color: 2,
+        }))
+    );
+    // Apply saved the picks: a further change, then Recall, shows the saved choices again.
+    tree.menu_set_selected_index(size, Some(3));
+    tree.menu_set_selected_index(colour, Some(5));
+    page.recall(tree);
+    assert_eq!(tree.menu_selected_index(size), Some(0));
+    assert_eq!(tree.menu_selected_index(colour), Some(2));
+}
+
+#[test]
+fn the_window_drop_down_lists_the_window_choices_by_table_row() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let mut page = hud.chat_options.take().expect("ChatPage");
+    let mut dialogs = hud.dialogs;
+    let tree = &mut hud.tree;
+    page.refresh(tree, &settings());
+    // Window 1 shows say: the first of the seven window choices is selected.
+    let window = page.control(DEVOTED, WINDOW_1).expect("window drop-down");
+    assert_eq!(tree.menu_items(window).len(), 7);
+    assert_eq!(tree.menu_selected_index(window), Some(0));
+    // The last window choice is region chat, row 14 of the table.
+    tree.menu_set_selected_index(window, Some(6));
+    page.message(
+        tree,
+        &mut dialogs,
+        &message("DropDownMenu", Some(window), MSG_MENU_NEW_SELECTION),
+    );
+    assert_eq!(page.value(DEVOTED, WINDOW_1), Some(14.0));
+    page.apply(tree);
+    assert!(page.take_requests().contains(&ChatOptionRequest::Set(
+        ChatOptionSetting::WindowTextType {
+            window: 1,
+            text_type: ROWS[13].text_type,
+        }
+    )));
 }

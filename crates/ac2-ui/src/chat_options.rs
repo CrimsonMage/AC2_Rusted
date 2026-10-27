@@ -14,20 +14,26 @@
 //! font size is `FONT_SIZES[n - 1]`, of a colour the colour `n - 1`, of a window's text type the
 //! row `n - 1` of [`chat_options_table::ROWS`].
 //!
-//! Not modelled: the drop-down menus (only the chosen label shows), the tooltips (no help strings
-//! are known for these options), the expanders' `Refit` sizes and the notice registrations.
+//! Each drop-down is a `UIElement_Menu` filled with its items when the option is made; its new
+//! selection is read back into the option.
+//!
+//! Not modelled: the tooltips (no help strings are known for these options), the expanders' `Refit`
+//! sizes and the notice registrations.
 
 use std::sync::Arc;
 
 use crate::character::describe;
 use crate::character::Labels;
-use crate::character_options::{is_changed_of, sync_control_of, template_name, Kind};
+use crate::character_options::{
+    fill_choices, is_changed_of, selected_choice, sync_option, template_name, Kind,
+};
 use crate::chat::ChatSettings;
 use crate::chat_options_setup::{flag, read, specs, Field, Spec};
 use crate::chat_options_table::{FONT_SIZES, ROWS};
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
 use crate::text::UiTextData;
@@ -82,8 +88,6 @@ struct ChatOption {
     element: usize,
     control: Option<usize>,
     kind: Kind,
-    /// The drop-down's labels, choice `n` at `labels[n - 1]`.
-    labels: Vec<String>,
     current: f64,
     saved: f64,
     default: f64,
@@ -231,6 +235,7 @@ impl ChatOptionsUi {
             Kind::Value { .. } => None,
         };
         describe(tree, labels, element, spec.name, None);
+        fill_choices(tree, control, &spec.choices);
         let option = ChatOption {
             field: spec.field,
             text_type: spec.text_type,
@@ -239,12 +244,11 @@ impl ChatOptionsUi {
             element,
             control,
             kind: spec.kind,
-            labels: spec.labels,
             current: spec.default,
             saved: spec.default,
             default: spec.default,
         };
-        sync_control_of(tree, control, option.kind, option.current, &option.labels);
+        sync_option(tree, control, option.kind, option.current);
         Some(option)
     }
 
@@ -273,13 +277,7 @@ impl ChatOptionsUi {
                 option.current = value;
             }
             option.saved = option.current;
-            sync_control_of(
-                tree,
-                option.control,
-                option.kind,
-                option.current,
-                &option.labels,
-            );
+            sync_option(tree, option.control, option.kind, option.current);
         }
         self.update_buttons(tree);
     }
@@ -379,13 +377,7 @@ impl ChatOptionsUi {
                 continue;
             };
             option.current = option.saved;
-            sync_control_of(
-                tree,
-                option.control,
-                option.kind,
-                option.current,
-                &option.labels,
-            );
+            sync_option(tree, option.control, option.kind, option.current);
         }
         self.update_buttons(tree);
     }
@@ -397,13 +389,7 @@ impl ChatOptionsUi {
                 continue;
             };
             option.current = option.default;
-            sync_control_of(
-                tree,
-                option.control,
-                option.kind,
-                option.current,
-                &option.labels,
-            );
+            sync_option(tree, option.control, option.kind, option.current);
         }
         self.apply(tree);
     }
@@ -503,7 +489,9 @@ impl ChatOptionsUi {
             }
             return;
         }
-        if message.message == MSG_HIGHLIGHT_STATE_CHANGE {
+        if message.message == MSG_HIGHLIGHT_STATE_CHANGE
+            || message.message == MSG_MENU_NEW_SELECTION
+        {
             if let Some(index) = self.control_at(message.element) {
                 self.read_control(tree, index);
             }
@@ -546,13 +534,7 @@ impl ChatOptionsUi {
             }
             _ => option.current = flag(value != 0.0),
         }
-        sync_control_of(
-            tree,
-            option.control,
-            option.kind,
-            option.current,
-            &option.labels,
-        );
+        sync_option(tree, option.control, option.kind, option.current);
         self.update_buttons(tree);
         true
     }
@@ -706,7 +688,7 @@ impl ChatOptionsUi {
         })
     }
 
-    /// Reads a checkbox's highlight into its option.
+    /// Reads a checkbox's highlight, or a drop-down's selected choice, into its option.
     fn read_control(&mut self, tree: &UiTree, index: usize) {
         let Entry::Option(option) = &mut self.entries[index] else {
             return;
@@ -714,11 +696,20 @@ impl ChatOptionsUi {
         let Some(control) = option.control else {
             return;
         };
-        if let Some(AttributeValue::Bool(on)) = tree
-            .get(control)
-            .and_then(|e| e.attribute(BUTTON_HIGHLIGHTED))
-        {
-            option.current = flag(*on);
+        match option.kind {
+            Kind::Choice { .. } => {
+                if let Some(choice) = selected_choice(tree, Some(control)) {
+                    option.current = choice;
+                }
+            }
+            _ => {
+                if let Some(AttributeValue::Bool(on)) = tree
+                    .get(control)
+                    .and_then(|e| e.attribute(BUTTON_HIGHLIGHTED))
+                {
+                    option.current = flag(*on);
+                }
+            }
         }
     }
 

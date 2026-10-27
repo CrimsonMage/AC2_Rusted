@@ -28,7 +28,8 @@ pub(crate) struct Spec {
     pub(crate) text_type: u32,
     pub(crate) name: &'static str,
     pub(crate) kind: Kind,
-    pub(crate) labels: Vec<String>,
+    /// The drop-down's items: each choice's number and label (`OptionChoice::AddChoice`).
+    pub(crate) choices: Vec<(u32, String)>,
     pub(crate) default: f64,
 }
 
@@ -46,15 +47,12 @@ fn font_size_choice(size: u32) -> f64 {
 pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<Spec> {
     let row = ROWS[row];
     if row.text_type == WINDOW_SECTION {
-        let labels_of_rows: Vec<String> = ROWS
+        // Choice `n` is row `n - 1` of the table, and only the window choices are items.
+        let window_choices: Vec<(u32, String)> = ROWS
             .iter()
-            .map(|r| {
-                if r.window_choice {
-                    labels.get(r.name)
-                } else {
-                    String::new()
-                }
-            })
+            .enumerate()
+            .filter(|(_, r)| r.window_choice)
+            .map(|(i, r)| ((i + 1) as u32, labels.get(r.name)))
             .collect();
         let default = ROWS
             .iter()
@@ -68,7 +66,7 @@ pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<
                 kind: Kind::Choice {
                     count: WINDOW_CHOICE_COUNT,
                 },
-                labels: labels_of_rows.clone(),
+                choices: window_choices.clone(),
                 default,
             })
             .collect();
@@ -81,9 +79,10 @@ pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<
         text_type,
         name: FONT_SIZE_NAME,
         kind: Kind::Choice { count: size_count },
-        labels: FONT_SIZES[..size_count as usize]
+        choices: FONT_SIZES[..size_count as usize]
             .iter()
-            .map(|(name, _)| labels.get(name))
+            .enumerate()
+            .map(|(n, (name, _))| ((n + 1) as u32, labels.get(name)))
             .collect(),
         default: font_size_choice(defaults.font_sizes.get(&text_type).copied().unwrap_or(0)),
     }];
@@ -95,8 +94,8 @@ pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<
         kind: Kind::Choice {
             count: FONT_COLOR_COUNT,
         },
-        labels: (1..=FONT_COLOR_COUNT)
-            .map(|n| labels.get(&format!("ID_Option_ChatColor{n}")))
+        choices: (1..=FONT_COLOR_COUNT)
+            .map(|n| (n, labels.get(&format!("ID_Option_ChatColor{n}"))))
             .collect(),
         default: f64::from(colour) + 1.0,
     });
@@ -107,7 +106,7 @@ pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<
                 text_type,
                 name: WINDOW_NAMES[window as usize - 1],
                 kind: Kind::Flag,
-                labels: Vec::new(),
+                choices: Vec::new(),
                 default: flag(defaults.filter(window) & text_type != 0),
             });
         }
@@ -116,7 +115,7 @@ pub(crate) fn specs(row: usize, defaults: &ChatSettings, labels: Labels) -> Vec<
             text_type,
             name: POPUP_NAME,
             kind: Kind::Flag,
-            labels: Vec::new(),
+            choices: Vec::new(),
             default: flag(defaults.popups.get(&text_type).copied().unwrap_or(false)),
         });
     }
