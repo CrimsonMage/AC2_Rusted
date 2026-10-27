@@ -20,7 +20,7 @@ mod visual;
 /// `Position` (cell id, origin, rotation w x y z).
 pub use ac2_net::protocol::Position;
 pub use chargen::CharGenResult;
-pub use collision::{CollisionParameters, CollisionProfile};
+pub use collision::{CollideProperty, CollisionParameters, CollisionProfile, ObjCollisionProfile};
 pub use containers::{RefKey, ScriptList};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
@@ -62,6 +62,12 @@ pub mod ntype {
     pub const COLLISION_PARAMETERS: u32 = 0x1A;
     /// `CollisionProfile` (`gCollisionProfile`): a collision report.
     pub const COLLISION_PROFILE: u32 = 0x1B;
+    /// `CollideProperty` (`gCollideProperty`): one property a collision report lists.
+    pub const COLLIDE_PROPERTY: u32 = 0x19;
+    /// `ObjCollisionProfile` (`gObjCollisionProfile`): one object a collision report lists.
+    pub const OBJ_COLLISION_PROFILE: u32 = 0x4F;
+    /// `Plane` (`gPlane`): a contact plane (the normal and `d`).
+    pub const PLANE: u32 = 0x59;
     pub const NA_HASH: u32 = 0x4B;
     pub const NR_HASH: u32 = 0x4D;
     pub const HEADING: u32 = 0x2D;
@@ -208,7 +214,13 @@ pub enum NativeObject {
     /// `CollisionParameters` (native 0x1A).
     CollisionParameters(CollisionParameters),
     /// `CollisionProfile` (native 0x1B).
-    CollisionProfile(CollisionProfile),
+    CollisionProfile(Box<CollisionProfile>),
+    /// `CollideProperty` (native 0x19).
+    CollideProperty(CollideProperty),
+    /// `ObjCollisionProfile` (native 0x4F).
+    ObjCollisionProfile(ObjCollisionProfile),
+    /// `Plane` (native 0x59): the normal and `d`.
+    Plane(([f32; 3], f32)),
     BehaviorParams(Box<BehaviorParams>),
     RandomSelectionTable(RandomSelectionTable),
     /// `QualifiedDataIDArray`: the set of (DB type, DID) pairs (`std::set<QualifiedDataID>`;
@@ -391,7 +403,12 @@ impl NativeObject {
             ntype::COLLISION_PARAMETERS => {
                 NativeObject::CollisionParameters(CollisionParameters::default())
             }
-            ntype::COLLISION_PROFILE => NativeObject::CollisionProfile(CollisionProfile::default()),
+            ntype::COLLISION_PROFILE => NativeObject::CollisionProfile(Box::default()),
+            ntype::COLLIDE_PROPERTY => NativeObject::CollideProperty(CollideProperty::default()),
+            ntype::OBJ_COLLISION_PROFILE => {
+                NativeObject::ObjCollisionProfile(ObjCollisionProfile::default())
+            }
+            ntype::PLANE => NativeObject::Plane(([0.0, 0.0, 1.0], 0.0)),
             ntype::GM_SCENE_INFO => NativeObject::SceneInfo(Box::default()),
             ntype::GM_KEYFRAME => NativeObject::Keyframe(Box::default()),
             ntype::GM_SCENE_INFO_LIST => NativeObject::SceneList(Vec::new()),

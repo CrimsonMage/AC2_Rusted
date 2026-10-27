@@ -758,7 +758,7 @@ impl Client {
         let profile = ac2_script::native::CollisionProfile::impact(normal, report.speed);
         let args = [IFunArg::Vm(
             ac2_script::native::ntype::COLLISION_PROFILE,
-            ac2_script::native::NativeObject::CollisionProfile(profile),
+            ac2_script::native::NativeObject::CollisionProfile(Box::new(profile)),
         )];
         let result = scripts
             .host

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1435 done, 110 partial, 598 to do, 325 skipped.
+2468 retail functions: 1443 done, 110 partial, 585 to do, 330 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1586,24 +1586,24 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 
-## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (2/15)
+## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (10/15)
 
 ### gCollisionProfile
-- [ ] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [-] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
+- [-] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
+- [-] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
+- [-] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
+- [-] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
 - [x] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-- [ ] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_FindObject` · 00548cb0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetEnvProperty` · 00548d60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetObject` · 00548e00 · legions 00527aa0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetObjectProperty` · 00548ea0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetSurfaceProperty` · 00548f40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_GetWaterProperty` · 00548fe0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [x] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_FindObject` · 00548cb0 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_GetEnvProperty` · 00548d60 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_GetObject` · 00548e00 · legions 00527aa0 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_GetObjectProperty` · 00548ea0 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_GetSurfaceProperty` · 00548f40 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+- [x] `gCollisionProfile::CallEFun_GetWaterProperty` · 00548fe0 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
 - [x] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-- [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [x] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50 — ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
 
 ## `portal/shared/src/interp/glue/gdbcache.cpp.c` (4/4)
 
