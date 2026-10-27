@@ -35,6 +35,9 @@ subsystem it reproduces. This file states the working rules.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one ACES tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. UI viewport scenes
   composite over their panel where they drew. Do not add a retail/modern switch.
+- Exception: the inventory paper doll frames the whole figure as admin 7148's
+  `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
+  height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).
 - No admin tools in the client. The admin 7148 build is a reference for names and code, not for
   features: do not port its admin-only commands, debuggers, account overrides, admin entities
   (e.g. `wsl_butcherytool`) or admin UI; mark those catalog rows `skip` with the reason.

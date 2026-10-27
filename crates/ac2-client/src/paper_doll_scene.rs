@@ -103,8 +103,11 @@ impl PaperDollScene {
     }
 }
 
-/// `gmPaperDollUI::UpdatePaperDollPosition`: the avatar below the origin, the
-/// camera's vertical scale that height.
+/// `gmPaperDollUI::UpdatePaperDollPosition`, the admin 7148 framing: the avatar half its
+/// height below the origin and the orthographic camera that height tall, so the whole figure
+/// shows. Legions 7160 sets the avatar at -0.875 of its height and the camera to a quarter of
+/// it, a head-and-shoulders portrait; a deliberate deviation (AGENTS.md) keeps the full figure.
+/// The race factors are Legions'.
 fn position(setup: &mut ViewSetup<'_>, race: Option<i32>) {
     let key = avatar_key(setup.viewport.scene);
     let Some(avatar) = setup.figures.iter_mut().find(|p| p.key == key) else {
@@ -113,14 +116,13 @@ fn position(setup: &mut ViewSetup<'_>, race: Option<i32>) {
     let Some(height) = avatar.height() else {
         return;
     };
-    // `float` stores: the scaled height, then its offset below the origin and the camera's
-    // scale (a quarter of it, Legions).
+    // `float` stores: the scaled height, then its offset below the origin.
     let height = (f64::from(height) * race_factor(race)) as f32;
     let mut frame = Frame::IDENTITY;
-    frame.origin.z = (f64::from(height) * -0.875) as f32;
+    frame.origin.z = (f64::from(height) * -0.5) as f32;
     avatar.move_to(frame);
     let mut base = setup.base.clone();
-    base.vertical_scale = (f64::from(height) * 0.25) as f32;
+    base.vertical_scale = height;
     let (view, offset) = camera::scene_camera(&base);
     setup.camera = view;
     setup.eye_offset = offset;

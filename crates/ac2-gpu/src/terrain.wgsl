@@ -54,6 +54,9 @@ struct VsOut {
     @location(4) distance: f32,
     // The modern fogged fraction (`modern_fog`).
     @location(5) haze: f32,
+    @location(6) normal: vec3<f32>,
+    // `SurfaceInfo::vertex_color`: the surface tint (rgb) and how much the sun reaches it (a).
+    @location(7) surface: vec4<f32>,
 };
 
 // `LScapeMaterialInfo::CalcRotUVs` by rotation (ROT_0..ROT_270) and slot (SW, SE, NW, NE).
@@ -73,13 +76,10 @@ fn mask_uv(rot: u32, corner: u32) -> vec2<f32> {
 fn vs(input: VsIn) -> VsOut {
     var out: VsOut;
     out.clip = frame.view_proj * vec4(input.position, 1.0);
-    // `RenderVertexBuffer::IlluminateVertices`: diffuse = saturate((max(-N.L * c.a, 0) * dir +
-    // ambient) * c.rgb), c being the vertex specular colour.
-    let c = input.surface_color;
-    let direct = max(-dot(input.normal, frame.light_dir.xyz) * c.a, 0.0);
-    // The 8-bit display-space vertex diffuse retail writes; the fragment combines it with the
-    // texels in display space, as the D3D8 stages did, and decodes the result once.
-    out.color = vec4(saturate((direct * frame.dir_color.rgb + frame.ambient.rgb) * c.rgb), 1.0);
+    // The light is evaluated per pixel (`fs`); the vertex passes the normal and surface colour.
+    out.color = vec4(1.0);
+    out.normal = input.normal;
+    out.surface = input.surface_color;
     out.grid = input.grid;
     out.mask1_uv = mask_uv(batch.rot.x, input.corner);
     out.mask2_uv = mask_uv(batch.rot.y, input.corner);
@@ -91,9 +91,22 @@ fn vs(input: VsIn) -> VsOut {
 // The layers as the D3D8 stages combined them, in display space (MODULATE2X saturating per
 // layer, the masks blending the 8-bit results), fogged there, then decoded once to linear light
 // for the HDR scene; the tone map keeps colours below its shoulder as they are.
+// Retail's `RenderVertexBuffer::IlluminateVertices` light, saturate((max(-N.L c.a, 0) dir +
+// ambient) c.rgb), evaluated per pixel on the interpolated normal instead of per vertex. The
+// ambient is a sky-over-ground hemisphere as the objects' (`object_modern.wgsl`): full from
+// above, the warm ground bounce from below.
+const TERRAIN_GROUND_TINT: vec3<f32> = vec3<f32>(0.55, 0.5, 0.42);
+
+fn terrain_light(normal: vec3<f32>, c: vec4<f32>) -> vec3<f32> {
+    let n = normalize(normal);
+    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0);
+    let ambient = mix(frame.ambient.rgb * TERRAIN_GROUND_TINT, frame.ambient.rgb, n.z * 0.5 + 0.5);
+    return saturate((direct * frame.dir_color.rgb + ambient) * c.rgb);
+}
+
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
-    let diffuse = input.color.rgb;
+    let diffuse = terrain_light(input.normal, input.surface);
     let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
     let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
     let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);

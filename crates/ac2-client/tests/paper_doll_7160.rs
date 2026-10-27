@@ -195,6 +195,14 @@ fn the_paper_doll_wears_the_sword_and_empties_when_it_comes_off() {
         .expect("the doll shows with its panel");
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;
     view.settle(&gpu, &frame, aspect);
+    // A second of the doll's idle with the panel open, as a player sees it.
+    let mut frame = frame;
+    for _ in 0..64 {
+        events.extend(step(&mut client, &idle));
+        frame = client.frame();
+        view.update(&gpu, &frame, Duration::ZERO);
+    }
+    view.settle(&gpu, &frame, aspect);
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);
     view.render(&gpu, &target.color_view, &target.depth_view, true);
