@@ -229,6 +229,16 @@ fn notices_decode_by_signature() {
     run_efun(vm, 0x0094_0003, &[0, 1], fs); // SetLeader
     run_efun(vm, 0x008A_0001, &[obj, fs], u32::MAX);
     run_efun(vm, 0x008A_0008, &[obj, 0, 1, 30, 2], u32::MAX);
+    // CM_Usage::SendNotice_UseBook(obj, showControls, mode, title, text, image): the title and
+    // the text are strings, the rest raw.
+    let title = vm.new_wstring("Tome".encode_utf16().collect());
+    let body = vm.new_wstring("Words".encode_utf16().collect());
+    run_efun(
+        vm,
+        0x0092_0002,
+        &[obj, 1, 5, title, body, 0x7000_0001],
+        u32::MAX,
+    );
     assert_eq!(
         host.take_script_notices(),
         vec![ScriptNotice {
@@ -254,6 +264,13 @@ fn notices_decode_by_signature() {
         ]
     );
     // Fellows in table order (id % 47: 48 -> bucket 1, 1 -> bucket 1, the later at the head).
+    assert!(notices.contains(&GameplayNotice::UseBook {
+        show_controls: true,
+        mode: 5,
+        title: "Tome".to_owned(),
+        text: "Words".to_owned(),
+        image: 0x7000_0001,
+    }));
     let GameplayNotice::UpdateFellowship(f) = &notices[2] else {
         panic!("{notices:?}");
     };

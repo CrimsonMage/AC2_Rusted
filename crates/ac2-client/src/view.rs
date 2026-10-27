@@ -538,6 +538,7 @@ impl ClientView {
         });
         let mut commands = self.hud.items_3d_frame(client, frame, world_pick);
         commands.extend(self.hud.craft_frameworks(client, frame, events));
+        self.hud.book_frameworks(client, frame, events);
         commands.extend(self.hud.ingredient_frameworks(client, frame, events));
         commands.extend(
             self.hud

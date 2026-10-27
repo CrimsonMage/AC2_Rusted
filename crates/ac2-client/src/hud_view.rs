@@ -98,6 +98,8 @@ pub(crate) struct HudView {
     /// `gmNavigationUI`'s macro map (its map image is set on the worker) and `gmOverviewMapUI`.
     pub(crate) navigation: Option<ac2_ui::NavigationUi>,
     pub(crate) overview: Option<ac2_ui::OverviewMapUi>,
+    /// `gmBookUI`, shown by the book's use notice.
+    pub(crate) book: Option<ac2_ui::BookUi>,
     /// `gmMoneyBagUI`, made with the backpack.
     pub(crate) money: Option<ac2_ui::MoneyBagUi>,
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the

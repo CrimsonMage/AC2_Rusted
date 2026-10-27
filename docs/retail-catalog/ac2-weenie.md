@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 287 done, 116 partial, 1490 to do, 11 skipped.
+1904 retail functions: 288 done, 117 partial, 1488 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -217,7 +217,7 @@ Legend and workflow: [README](README.md).
 
 ### CM_Usage
 - [ ] `CM_Usage::SendNotice_SetTargetingPointer` · 007261c0 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
-- [ ] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script: reached through the script glue; quality tables only (no weenie-desc/defaults), notices/chat requests handed to the host
+- [~] `CM_Usage::SendNotice_UseBook` · 00726250 · legions 006a5160 — ac2-script host/notices.rs (oiiwwi) and notices_typed.rs UseBook -> GameplayNotice::UseBook -> ac2-client hud_book.rs; the handler list fan-out is the frame's event list
 
 ## `ac2/client/src/events/gmceventqueue.cpp.c` (0/2)
 
@@ -428,11 +428,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [~] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
-## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (1/2)
 
 ### gCM_Usage
 - [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
-- [ ] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host glue (notices, chat requests, gCWRepository, gCWInterface)
+- [x] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host/notices.rs entry 0x00920002 'oiiwwi' (argument order checked against the glue's stack slots)
 
 ## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (9/9)
 

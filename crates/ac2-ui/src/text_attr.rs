@@ -259,3 +259,33 @@ impl UiTree {
         }
     }
 }
+
+/// The text calls the book makes on its pages (`gmBookUI::ParseText`).
+impl UiTree {
+    /// `UIElement_Text::AddText` at the end, in the current font (no font change).
+    pub(crate) fn append_text(&mut self, index: usize, text: &str) {
+        let units: Vec<u16> = text.encode_utf16().collect();
+        if let Some(state) = self.el_mut(index).text.as_mut() {
+            state.add_text(&units);
+            self.changed = true;
+        }
+    }
+
+    /// `UIElement_Text::RecalculateGlyphList` then `GetTotalLines`: the display lines.
+    pub(crate) fn text_line_count(&mut self, index: usize) -> usize {
+        self.text_paper_height(index);
+        self.el(index)
+            .text
+            .as_ref()
+            .map_or(0, |text| text.lines.len())
+    }
+
+    /// `UIElement_Text::SetViewY`: the text's view moved to `y` pixels.
+    pub(crate) fn set_text_view_y(&mut self, index: usize, y: i32) {
+        if let Some(text) = self.el_mut(index).text.as_mut() {
+            text.view.1 = y;
+            text.dirty = true;
+            self.changed = true;
+        }
+    }
+}

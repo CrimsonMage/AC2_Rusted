@@ -48,6 +48,9 @@ mod interpreter;
 mod item_display;
 mod journal_quests;
 pub use journal_quests::{JournalQuestsUi, JournalSource, QuestTab, CODE_LIST as QUEST_CODE_LIST};
+mod book;
+#[cfg(test)]
+mod book_tests;
 mod items_3d;
 #[cfg(test)]
 mod items_3d_tests;
@@ -68,6 +71,7 @@ mod navigation_detail;
 mod navigation_detail_tests;
 mod navigation_map;
 mod net_status;
+pub use book::{BookRequest, BookUi};
 mod overview_map;
 mod panel;
 mod paper_doll;
