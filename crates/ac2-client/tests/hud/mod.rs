@@ -227,7 +227,7 @@ impl Rig {
     /// Idle frames until `ready` holds (the HUD's loads finish on worker threads). The budget is
     /// wall-clock time, not a frame count, so a loaded machine's slow loaders still finish.
     pub fn wait(&mut self, what: &str, ready: impl Fn(&Self) -> bool) {
-        let deadline = Instant::now() + Duration::from_secs(60);
+        let deadline = Instant::now() + Duration::from_secs(180);
         while Instant::now() < deadline {
             if ready(self) {
                 return;
