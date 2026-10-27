@@ -3284,7 +3284,7 @@ key	status	note
 00532050	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532110	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
 00532170	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
-005356e0	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
+005356e0	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.jpg (first free N, create_new); not re-rendered
 00535e20	~	ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
 00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -4312,7 +4312,7 @@ key	status	note
 00573550	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00573560	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00573570	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-00573580	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
+00573580	~	the presented frame is copied instead of re-rendering the scene (bin/ac2/screenshot.rs)
 005735e0	x	
 00573630	x	
 005736f0	x	
@@ -4664,7 +4664,7 @@ key	status	note
 005af390	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005af9c0	~	A8R8G8B8 only; colour key and format conversion not modelled
 005b0620	x	ac2-ui tree_view.rs
-005b1f70	-	Intel IJL JPEG writer not ported; screenshots are PNG via the png crate
+005b1f70	~	JPEG via the image crate encoder (screenshot.rs encode_jpeg), fixed quality 90; retail's IJL quality sits in an undecoded jprops block
 005b2860	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 005b2c80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 005b2e10	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle

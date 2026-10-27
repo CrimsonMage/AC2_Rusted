@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 85 done, 56 partial, 620 to do, 20 skipped.
+781 retail functions: 85 done, 57 partial, 620 to do, 19 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -286,7 +286,7 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderSurface::StreamPack` · 005b1c40 · legions 0057d6d0
 - [-] `RenderSurface::LoadDDS` · 005b1d60 — text source loader, admin build only
 - [-] `RenderSurface::LoadJPGAsRawData` · 005b1eb0 — text source loader, admin build only
-- [-] `RenderSurface::SaveJPG` · 005b1f70 · legions 0057d7f0 — Intel IJL JPEG writer not ported; screenshots are PNG via the png crate
+- [~] `RenderSurface::SaveJPG` · 005b1f70 · legions 0057d7f0 — JPEG via the image crate encoder (screenshot.rs encode_jpeg), fixed quality 90; retail's IJL quality sits in an undecoded jprops block
 - [ ] `RenderSurface::Allocator` · 005b2130
 - [-] `RenderSurface::LoadFromFile` · 005b2170 — text source loader, admin build only
 - [ ] `RenderSurface::Unlock` · 005b2370 · legions 0057d9f0

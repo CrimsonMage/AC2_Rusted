@@ -284,7 +284,7 @@ Legend and workflow: [README](README.md).
 - [x] `SmartBox::EnterPortalSpace` · 00573550 · legions 00543550 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [x] `SmartBox::ExitPortalSpace` · 00573560 · legions 00543560 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 - [x] `SmartBox::InPortalSpace` · 00573570 · legions 00543570 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [~] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580 — bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.png (first free N); not re-rendered, PNG not JPEG
+- [~] `SmartBox::RenderScreenshot` · 00573580 · legions 00543580 — the presented frame is copied instead of re-rendering the scene (bin/ac2/screenshot.rs)
 - [x] `SmartBox::SetCameraPosition` · 005735e0 · legions 005435e0
 - [x] `SmartBox::SetCameraDefaults` · 00573630 · legions 00543630
 - [ ] `SmartBox::RecvNotice_SetRegionID` · 005736e0 · legions 005436e0

@@ -1,10 +1,9 @@
 //! The screenshot key (`0x41000017`). Retail's `gmUIFlow::ListenToMessage` takes the key's release
 //! (`0xffff0004`) and calls `Device::SaveScreenshot`, which renders the frame, numbers the file
-//! (`capN`, the first N not yet taken in the AC2 directory) and writes it with `RenderSurface::SaveJPG`.
-//! Here the frame is the presented surface, copied before it is presented; the file is PNG (the
-//! lossless encoding the crate already carries, where retail's Intel JPEG writer produced
-//! `capN.jpg`). The read-back stalls the frame; the encode and the file write run on a worker
-//! thread, so the frame thread never writes a file.
+//! (`capN.jpg`, the first N not yet taken in the AC2 directory) and writes it with
+//! `RenderSurface::SaveJPG`. Here the frame is the presented surface, copied before it is presented
+//! and encoded as JPEG by the `image` crate. The read-back stalls the frame; the encode and the file
+//! write run on a worker thread, so the frame thread never writes a file.
 
 use std::fs::OpenOptions;
 use std::io::{self, Write};
@@ -12,6 +11,8 @@ use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, TryRecvError};
 
 use ac2_gpu::Gpu;
+use image::codecs::jpeg::JpegEncoder;
+use image::ExtendedColorType;
 
 /// `gmUIFlow::ListenToMessage`'s screenshot action.
 pub const SCREENSHOT_KEY: u32 = 0x4100_0017;
@@ -19,13 +20,17 @@ pub const SCREENSHOT_KEY: u32 = 0x4100_0017;
 /// `Device::SaveScreenshot`'s bound on the numbering scan.
 const MAX_NUMBER: u32 = 100_000;
 
-/// The file name of screenshot `number` (`cap%d`; PNG here).
+/// The JPEG quality. Retail's `SaveJPG` sets its quality inside an opaque `jprops` block that the
+/// decompile does not expose, so this is a fixed choice.
+const JPEG_QUALITY: u8 = 90;
+
+/// The file name of screenshot `number` (`cap%d`, with retail's `.jpg`).
 pub fn file_name(number: u32) -> String {
-    format!("cap{number}.png")
+    format!("cap{number}.jpg")
 }
 
-/// A frame as PNG bytes (8-bit RGBA, `width` by `height`, rows tightly packed).
-pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> io::Result<Vec<u8>> {
+/// A frame as JPEG bytes (8-bit RGBA, `width` by `height`, rows tightly packed; alpha is dropped).
+pub fn encode_jpeg(width: u32, height: u32, rgba: &[u8]) -> io::Result<Vec<u8>> {
     let expected = width as usize * height as usize * 4;
     if rgba.len() != expected {
         return Err(io::Error::new(
@@ -36,20 +41,21 @@ pub fn encode_png(width: u32, height: u32, rgba: &[u8]) -> io::Result<Vec<u8>> {
             ),
         ));
     }
+    let rgb: Vec<u8> = rgba
+        .chunks_exact(4)
+        .flat_map(|p| [p[0], p[1], p[2]])
+        .collect();
     let mut out = Vec::new();
-    let mut encoder = png::Encoder::new(&mut out, width, height);
-    encoder.set_color(png::ColorType::Rgba);
-    encoder.set_depth(png::BitDepth::Eight);
-    let mut writer = encoder.write_header().map_err(io::Error::other)?;
-    writer.write_image_data(rgba).map_err(io::Error::other)?;
-    writer.finish().map_err(io::Error::other)?;
+    JpegEncoder::new_with_quality(&mut out, JPEG_QUALITY)
+        .encode(&rgb, width, height, ExtendedColorType::Rgb8)
+        .map_err(io::Error::other)?;
     Ok(out)
 }
 
-/// Writes the frame into `dir` as the first `capN.png` not yet there. `create_new` claims the name,
+/// Writes the frame into `dir` as the first `capN.jpg` not yet there. `create_new` claims the name,
 /// so two screenshots in a row never pick the same file; the directory is created when missing.
 pub fn save_frame(dir: &Path, width: u32, height: u32, rgba: &[u8]) -> io::Result<PathBuf> {
-    let bytes = encode_png(width, height, rgba)?;
+    let bytes = encode_jpeg(width, height, rgba)?;
     std::fs::create_dir_all(dir)?;
     for number in 0..MAX_NUMBER {
         let path = dir.join(file_name(number));
@@ -64,7 +70,6 @@ pub fn save_frame(dir: &Path, width: u32, height: u32, rgba: &[u8]) -> io::Resul
     }
     Err(io::Error::other("no free screenshot name"))
 }
-
 /// The surface's pixels as tightly packed RGBA8: the copy's rows are padded to the copy alignment,
 /// and a BGRA surface swaps its red and blue.
 pub fn unpad_rgba(bytes: &[u8], width: u32, height: u32, padded_row: usize, bgra: bool) -> Vec<u8> {
@@ -193,25 +198,25 @@ mod tests {
 
     #[test]
     fn names_follow_retail_numbering() {
-        assert_eq!(file_name(0), "cap0.png");
-        assert_eq!(file_name(17), "cap17.png");
+        assert_eq!(file_name(0), "cap0.jpg");
+        assert_eq!(file_name(17), "cap17.jpg");
         assert_eq!(SCREENSHOT_KEY, 0x4100_0017);
     }
 
     #[test]
     fn save_takes_the_first_free_number() {
         let dir = scratch_dir("naming");
-        std::fs::write(dir.join("cap0.png"), b"taken").unwrap();
-        std::fs::write(dir.join("cap1.png"), b"taken").unwrap();
+        std::fs::write(dir.join("cap0.jpg"), b"taken").unwrap();
+        std::fs::write(dir.join("cap1.jpg"), b"taken").unwrap();
         let rgba = vec![9u8; 2 * 2 * 4];
         let first = save_frame(&dir, 2, 2, &rgba).expect("first save");
         let second = save_frame(&dir, 2, 2, &rgba).expect("second save");
-        assert_eq!(first, dir.join("cap2.png"));
-        assert_eq!(second, dir.join("cap3.png"));
+        assert_eq!(first, dir.join("cap2.jpg"));
+        assert_eq!(second, dir.join("cap3.jpg"));
         // The taken files are not overwritten.
-        assert_eq!(std::fs::read(dir.join("cap0.png")).unwrap(), b"taken");
+        assert_eq!(std::fs::read(dir.join("cap0.jpg")).unwrap(), b"taken");
         let bytes = std::fs::read(&first).unwrap();
-        assert_eq!(&bytes[..8], b"\x89PNG\r\n\x1a\n");
+        assert_eq!(&bytes[..3], &[0xFF, 0xD8, 0xFF]);
         std::fs::remove_dir_all(&dir).unwrap();
     }
 
@@ -219,28 +224,34 @@ mod tests {
     fn save_creates_the_directory() {
         let dir = scratch_dir("create").join("AC2");
         let path = save_frame(&dir, 1, 1, &[0, 0, 0, 255]).expect("save");
-        assert_eq!(path, dir.join("cap0.png"));
+        assert_eq!(path, dir.join("cap0.jpg"));
         assert!(path.is_file());
         std::fs::remove_dir_all(dir.parent().unwrap()).unwrap();
     }
 
+    /// The JPEG decodes to the frame's size, and its colours are the frame's within the lossy
+    /// tolerance of the codec (a flat colour survives with only small error).
     #[test]
-    fn png_round_trips_the_pixels() {
-        let (width, height) = (3u32, 2u32);
-        let rgba: Vec<u8> = (0..(width * height * 4) as u8).collect();
-        let bytes = encode_png(width, height, &rgba).expect("encode");
-        let decoder = png::Decoder::new(io::Cursor::new(&bytes));
-        let mut reader = decoder.read_info().expect("header");
-        let mut buffer = vec![0; reader.output_buffer_size().expect("size")];
-        let info = reader.next_frame(&mut buffer).expect("frame");
-        assert_eq!((info.width, info.height), (width, height));
-        assert_eq!(info.color_type, png::ColorType::Rgba);
-        assert_eq!(&buffer[..info.buffer_size()], &rgba[..]);
+    fn jpeg_round_trips_size_and_colour() {
+        let (width, height) = (64u32, 48u32);
+        let rgba: Vec<u8> = (0..width * height)
+            .flat_map(|_| [200u8, 100, 50, 255])
+            .collect();
+        let bytes = encode_jpeg(width, height, &rgba).expect("encode");
+        let decoded = image::load_from_memory_with_format(&bytes, image::ImageFormat::Jpeg)
+            .expect("decode")
+            .to_rgb8();
+        assert_eq!(decoded.dimensions(), (width, height));
+        for pixel in decoded.pixels() {
+            for (got, want) in pixel.0.iter().zip([200i32, 100, 50]) {
+                assert!((i32::from(*got) - want).abs() <= 8, "{pixel:?}");
+            }
+        }
     }
 
     #[test]
     fn encode_rejects_a_short_frame() {
-        assert!(encode_png(2, 2, &[0; 15]).is_err());
+        assert!(encode_jpeg(2, 2, &[0; 15]).is_err());
     }
 
     #[test]
@@ -270,7 +281,7 @@ mod tests {
     fn finished_drains_only_completed_saves() {
         let (done_tx, done_rx) = std::sync::mpsc::channel();
         let (_idle_tx, idle_rx) = std::sync::mpsc::channel::<io::Result<PathBuf>>();
-        done_tx.send(Ok(PathBuf::from("a.png"))).unwrap();
+        done_tx.send(Ok(PathBuf::from("a.jpg"))).unwrap();
         let mut pending = vec![done_rx, idle_rx];
         let results = finished(&mut pending);
         assert_eq!(results.len(), 1);

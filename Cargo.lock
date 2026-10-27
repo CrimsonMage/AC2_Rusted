@@ -78,6 +78,7 @@ dependencies = [
  "ac2-ui",
  "ac2-weenie",
  "ac2-world",
+ "image",
  "legions-server-double",
  "png",
  "wgpu",
@@ -1434,6 +1435,8 @@ dependencies = [
  "num-traits",
  "png",
  "tiff",
+ "zune-core",
+ "zune-jpeg",
 ]
 
 [[package]]
