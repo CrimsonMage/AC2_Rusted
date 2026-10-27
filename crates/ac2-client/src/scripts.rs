@@ -671,7 +671,9 @@ impl Client {
             return;
         }
         if let Some(object) = self.session.objects().get(id) {
-            scripts.host.set_appearance(id, object.appearance.clone());
+            scripts
+                .host
+                .set_appearance(id, (*object.appearance).clone());
         }
     }
 
