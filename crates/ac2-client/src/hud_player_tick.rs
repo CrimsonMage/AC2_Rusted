@@ -50,6 +50,7 @@ impl HudView {
             shortcuts,
             skills,
             stack,
+            toolbar,
             ..
         } = self;
         let Some((tree, _)) = hud else {
@@ -57,6 +58,10 @@ impl HudView {
         };
         let mut commands = Vec::new();
         let mut open_examination = false;
+        // `gmToolbarUI::ManageChildren`: the buttons' tooltips follow the children's shown states.
+        if let Some(bar) = toolbar.as_ref() {
+            bar.refresh_tooltips(tree, player);
+        }
         // `gmSecureTradeUI`'s global loop: an ended trade closes; a stack its list dropped asks.
         if let Some(panel) = secure_trade.as_mut() {
             panel.tick(tree, frame.server_time);

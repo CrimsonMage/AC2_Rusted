@@ -424,12 +424,12 @@ key	status	note
 00421f60	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 00421fe0	x	ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
 00422080	x	ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
-004220d0	~	ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state and the shortcut bar's Show (gmShortcutUI::Show is a separate entry)
-00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+004220d0	~	ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; KeyStone help is an external window, ShowKeyStone skipped) and the shortcut bar Show is a separate entry
+00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
 00422230	x	ac2-ui toolbar.rs
-00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-00422300	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-00422550	~	ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+00422270	~	ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
+00422300	~	ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
+00422550	~	ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
 00422f00	~	ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 004231b0	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order

@@ -94,3 +94,41 @@ fn showing_the_toolbar_precludes_its_height_from_the_bottom_until_it_hides() {
     assert!(height > 0, "the toolbar's PrecludeHeight");
     assert_eq!(hud.toolbar.show_bar(&mut hud.tree, false), 0);
 }
+
+/// Renders a string as `id[vars]`, its nested strings in turn, so a tooltip reads as its ids.
+struct Ids;
+
+impl crate::UiStrings for Ids {
+    fn render_string(&self, string: &crate::UiString) -> String {
+        let vars: Vec<String> = string
+            .vars
+            .iter()
+            .map(|(_, var)| match var {
+                crate::skill_tree::SkillVar::Info(inner) => self.render_string(inner),
+                _ => String::new(),
+            })
+            .collect();
+        format!("{:08x}[{}]", string.string_id, vars.join(","))
+    }
+}
+
+#[test]
+fn a_child_button_says_whether_a_click_hides_or_shows_its_panel() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let skill = button(&hud.tree, "SkillButton");
+    let tip = |id: &str, action: &str| format!("{:08x}[{:08x}[]]", tokenize(id), tokenize(action),);
+    hud.toolbar.refresh_tooltips(&mut hud.tree, &Ids);
+    assert_eq!(
+        hud.tree.tooltip_text(skill).as_deref(),
+        Some(tip("ID_Toolbar_TT_Skill", "ID_Toolbar_TT_Show").as_str())
+    );
+    hud.toolbar
+        .show(&mut hud.tree, crate::ToolbarChild::Skill, true);
+    hud.toolbar.refresh_tooltips(&mut hud.tree, &Ids);
+    assert_eq!(
+        hud.tree.tooltip_text(skill).as_deref(),
+        Some(tip("ID_Toolbar_TT_Skill", "ID_Toolbar_TT_Hide").as_str())
+    );
+}

@@ -7,13 +7,21 @@
 //! `ManageChildren` hides the children that share a side panel when one shows (their
 //! `MExList`).
 //!
+//! Each child's button carries its tooltip (`ManageChildren`): `ID_Toolbar_TT_<child>` with the
+//! `ID_Toolbar_TT_Hide` text while the child shows and `ID_Toolbar_TT_Show` while it is hidden,
+//! refreshed when a child's shown state changes ([`ToolbarUi::refresh_tooltips`]).
+//!
 //! Not modelled yet: the panels' contents (each child's own frameworks), the help buttons
-//! (`KeyStone::OpenHelp`), the buttons' show/hide tooltips, the key stone and plug-in keys.
+//! (`KeyStone::OpenHelp`), the key stone and plug-in keys.
+
+use std::cell::Cell;
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::skill_tree::SkillVar;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_RELEASE};
+use crate::ui_string::{UiString, UiStrings};
 
 /// A toolbar panel child.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -74,6 +82,8 @@ struct Child {
     child: ToolbarChild,
     field: Option<usize>,
     button: u32,
+    /// The toolbar button's element (`ManageChildren`'s tooltip target).
+    button_element: Option<usize>,
     close: u32,
 }
 
@@ -86,12 +96,19 @@ pub struct ToolbarUi {
     /// `DismountButton` and `ConsignmentsButton`: hidden until a mount or a sale needs them.
     dismount: Option<usize>,
     consignments: Option<usize>,
+    /// Each child's shown state when its tooltip was last set (`None`: not yet).
+    tooltip_shown: Cell<[Option<bool>; 7]>,
 }
 
 impl ToolbarUi {
     /// `gmToolbarUI::SetupChildren`: each child finds its field (`IUIManager::GetElement`) and
     /// hides it.
     pub fn create(tree: &mut UiTree) -> Self {
+        let field = tree.roots().iter().copied().find(|&r| {
+            tree.get(r)
+                .is_some_and(|e| e.id() == tokenize("ToolbarField"))
+        });
+        let button = |name: &str| field.and_then(|f| tree.child_recursive(f, tokenize(name)));
         let children = ToolbarChild::ALL
             .iter()
             .map(|&child| {
@@ -105,20 +122,17 @@ impl ToolbarUi {
                     child,
                     field,
                     button: tokenize(&format!("{name}Button")),
+                    button_element: button(&format!("{name}Button")),
                     close: tokenize(&format!("{name}CloseButton")),
                 }
             })
             .collect();
-        let field = tree.roots().iter().copied().find(|&r| {
-            tree.get(r)
-                .is_some_and(|e| e.id() == tokenize("ToolbarField"))
-        });
-        let button = |name: &str| field.and_then(|f| tree.child_recursive(f, tokenize(name)));
         let toolbar = Self {
             children,
             field,
             dismount: button("DismountButton"),
             consignments: button("ConsignmentsButton"),
+            tooltip_shown: Cell::new([None; 7]),
         };
         for child in ToolbarChild::ALL {
             toolbar.set_field(tree, child, false);
@@ -203,6 +217,37 @@ impl ToolbarUi {
             Some(AttributeValue::Int(height)) if shown => *height,
             _ => 0,
         }
+    }
+
+    /// `gmToolbarUI::ManageChildren`'s tooltips: each child's button names its panel and says
+    /// whether a click hides it (`ID_Toolbar_TT_Hide`, shown) or shows it. Set again only when
+    /// a child's shown state moved since the last call.
+    pub fn refresh_tooltips(&self, tree: &mut UiTree, strings: &dyn UiStrings) {
+        let mut last = self.tooltip_shown.get();
+        for (index, c) in self.children.iter().enumerate() {
+            let shown = self.shown(tree, c.child);
+            if last[index] == Some(shown) {
+                continue;
+            }
+            last[index] = Some(shown);
+            let Some(button) = c.button_element else {
+                continue;
+            };
+            let action = if shown {
+                "ID_Toolbar_TT_Hide"
+            } else {
+                "ID_Toolbar_TT_Show"
+            };
+            let string = UiString::ui(
+                tokenize(&format!("ID_Toolbar_TT_{}", c.child.name())),
+                vec![(
+                    tokenize("value"),
+                    SkillVar::Info(Box::new(UiString::ui(tokenize(action), Vec::new()))),
+                )],
+            );
+            tree.set_tooltip(button, Some(strings.render_string(&string)));
+        }
+        self.tooltip_shown.set(last);
     }
 
     /// `gmToolbarUI::CleanupChildren`'s part here: the children's fields hide (their frameworks

@@ -1171,11 +1171,11 @@ Legend and workflow: [README](README.md).
 - [-] `gmToolbarUI::ShowPlugin` · 00421f60 · legions 00421da0 — KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 - [x] `gmToolbarUI::RecvNotice_ShowSaleReminder` · 00421fe0 — ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
 - [x] `gmToolbarUI::RecvNotice_UpdateMountState` · 00422080 · legions 00421ec0 — ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
-- [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state and the shortcut bar's Show (gmShortcutUI::Show is a separate entry)
-- [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; KeyStone help is an external window, ShowKeyStone skipped) and the shortcut bar Show is a separate entry
+- [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
 - [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
-- [~] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
-- [~] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
+- [~] `gmToolbarUI::ListenToMessage` · 00422300 · legions 00422140 — ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
 
 ### List<unsigned_long>
 - [ ] `List<unsigned_long>::operator=` · 00422360 · legions 0040d980
@@ -1184,7 +1184,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ListNode<ToolbarChildInfo>::ListNode<ToolbarChildInfo>` · 00422400 · legions 004221d0
 
 ### gmToolbarUI
-- [~] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320 — ac2-ui toolbar.rs: fields shown/hidden by side; contents, help, tooltips not yet
+- [~] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320 — ac2-ui toolbar.rs: fields shown/hidden by side; the buttons tooltips (ID_Toolbar_TT_<child> with Hide while shown, Show while hidden) refreshed when a child shown state moves (refresh_tooltips, client tick pass). Not: the panels contents (each child framework), the help buttons (KeyStone)
 - [~] `gmToolbarUI::CleanupChildren` · 00422f00 · legions 00422cd0 — ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 - [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0
