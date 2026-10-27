@@ -55,6 +55,12 @@ mod hud_navigation;
 mod hud_pets;
 #[cfg(feature = "window")]
 mod hud_player;
+#[cfg(feature = "window")]
+mod hud_player_message;
+#[cfg(feature = "window")]
+mod hud_player_notice;
+#[cfg(feature = "window")]
+mod hud_player_tick;
 mod hud_shop;
 mod hud_shortcut_checks;
 #[cfg(feature = "window")]
