@@ -8,6 +8,7 @@ use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
 use crate::cells::{CellSource, LandCell, TerrainPolygon};
+use crate::collision_types::PhysicsTypeMask;
 use crate::envcell::EnvCell;
 use crate::find_cells::shadow_cells;
 use crate::fpu::{ld, st};
@@ -198,6 +199,22 @@ impl Terrain {
     pub fn set_object_ethereal(&mut self, id: u32, ethereal: bool) {
         if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
             object.set_ethereal(ethereal);
+        }
+    }
+
+    /// Sets object `id`'s blocking physics-type bits (`CPhysicsObj::m_blocking_mask`), as its
+    /// body's bits change; see `StaticObject::with_blocking_mask`.
+    pub fn set_object_blocking(&mut self, id: u32, bits: u64) {
+        if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
+            object.blocking = PhysicsTypeMask::from_bits(bits);
+        }
+    }
+
+    /// The blocking physics-type bits of object `id`, or `None` when no object has that id.
+    pub fn object_blocking(&self, id: u32) -> Option<u64> {
+        match self.objects.get(id as usize) {
+            Some(Some((object, _))) => Some(object.blocking.bits()),
+            _ => None,
         }
     }
 

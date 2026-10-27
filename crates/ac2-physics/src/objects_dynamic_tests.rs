@@ -175,3 +175,51 @@ fn removed_ids_are_reused_and_removed_objects_stop_blocking() {
     assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
     assert_eq!(creature(&mut world, 120.2, 84.0), id);
 }
+
+/// A dynamic mobile pillar at `(80.2, 84)` whose blocking mask is `bits` (`CPhysicsObj::
+/// m_blocking_mask`, the bits its body took from its `EntityDesc`).
+fn creature_with_blocking(terrain: &mut Terrain, bits: u64) -> u32 {
+    let at = position(80.2, 84.0, 0.0);
+    terrain.insert_object(
+        StaticObject::dynamic(at, Vector::new(1.0, 1.0, 1.0), pillar(), true)
+            .with_blocking_mask(bits),
+    )
+}
+
+#[test]
+fn a_dynamic_entry_whose_blocking_bit_the_mover_shares_is_passed_through() {
+    let mut world = flat();
+    creature_with_blocking(&mut world, 1 << 4);
+    let mut body = walker(80.0, 80.0);
+    // The walker's movement physics set shares bit 4 with the entry's blocking mask.
+    body.collision_mut().update_movement(4, true, |_| true);
+    let path = walk_north(&mut body, &world, 3.0);
+    let last = *path.last().expect("steps");
+    assert!(last[1] > 86.0, "passed the shared-bit object: {last:?}");
+}
+
+#[test]
+fn a_dynamic_entry_whose_blocking_bit_the_mover_lacks_still_blocks() {
+    let mut world = flat();
+    creature_with_blocking(&mut world, 1 << 4);
+    let mut body = walker(80.0, 80.0);
+    // Bit 5 is shared with nothing in the entry's mask, so the entry blocks as a solid object.
+    body.collision_mut().update_movement(5, true, |_| true);
+    let path = walk_north(&mut body, &world, 3.0);
+    for p in &path {
+        let (dx, dy) = (p[0] - 80.2, p[1] - 84.0);
+        assert!((dx * dx + dy * dy).sqrt() >= 0.9 - 0.02, "{p:?}");
+    }
+    assert!(path.last().expect("steps")[1] > 82.5, "{path:?}");
+}
+
+#[test]
+fn a_dynamic_entry_carries_the_blocking_bits_it_is_set_to() {
+    let mut world = flat();
+    let id = creature_with_blocking(&mut world, 0);
+    assert_eq!(world.object_blocking(id), Some(0));
+    world.set_object_blocking(id, (1 << 4) | (1 << 9));
+    assert_eq!(world.object_blocking(id), Some((1 << 4) | (1 << 9)));
+    world.move_object(id, position(80.2, 84.0, 0.0));
+    assert_eq!(world.object_blocking(id), Some((1 << 4) | (1 << 9)));
+}
