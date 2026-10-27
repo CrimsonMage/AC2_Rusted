@@ -273,3 +273,29 @@ fn cb4d_statics_count_by_blocking_mask_and_an_ethereal_static_passes_a_matching_
     assert!(!mover.blocks(1, object_mask, false));
     assert!(CollisionParameters::default().blocks(1, object_mask, false));
 }
+
+#[test]
+fn block_0x21020000_ethereal_statics_after_their_values_are_read() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let source = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let markers = source
+        .entity_markers(CellId::new(0x2102_0000 | 0xFFFF))
+        .expect("entities decode");
+    let statics: Vec<_> = markers.iter().filter(|m| m.collides()).collect();
+    let ethereal: Vec<_> = statics.iter().filter(|m| m.ethereal_mask() != 0).collect();
+    eprintln!(
+        "block 0x21020000: {} collidable statics, {} with an ethereal mask (masks {:?})",
+        statics.len(),
+        ethereal.len(),
+        ethereal
+            .iter()
+            .map(|m| m.ethereal_mask())
+            .collect::<std::collections::BTreeSet<_>>()
+    );
+    assert!(!statics.is_empty(), "the block places statics");
+}

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 486 done, 105 partial, 755 to do, 778 skipped.
+2124 retail functions: 487 done, 105 partial, 754 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (146/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (147/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2390,7 +2390,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetGraphicsState` · 004e1780 — render plumbing
 - [-] `CPhysicsObj::set_state` · 004e17a0 — state-bit flag accessor
 - [ ] `CPhysicsObj::ReApplyPropertyCollection` · 004e1810 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::ApplyEtherealProperty` · 004e1820 · legions 004d4280 — ac2_db::ac2_ethereal_mask sets the blocking bit from a bool ethereal-group property (desc data word); applied to landblock entities and interior entities (StaticObject::blocking). The value is not read (InqBool always succeeds); the body path (player ApplyPropertyCollection) is not wired
+- [x] `CPhysicsObj::ApplyEtherealProperty` · 004e1820 · legions 004d4280 — value read from the bool getter; bit set only when true (SetBit)
 - [ ] `CPhysicsObj::ApplyRenderProperty` · 004e1880 · legions 004d42e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ApplyPhysicsProperty` · 004e1a40 · legions 004d44a0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ApplyPusherProperty` · 004e1ad0 · legions 004d4530 — needs port: cite-only physics-object method
@@ -2566,7 +2566,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::StartStreak` · 004e6a30 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::StopStreak` · 004e6aa0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::InitVisualDesc` · 004e6b10 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::InitVisualDesc` · 004e6b10 — ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 - [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [ ] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40 — needs port: cite-only physics-object method

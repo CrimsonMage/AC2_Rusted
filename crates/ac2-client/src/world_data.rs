@@ -53,6 +53,11 @@ pub trait WorldData: Send + Sync {
     fn motion_desc(&self, _did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
         Ok(None)
     }
+    /// The ethereal blocking bits of the `EntityDesc` `did`'s own properties, read on a loader
+    /// thread (`CPhysicsObj::InitVisualDesc` applies them to the body it makes).
+    fn entity_ethereal_mask(&self, _did: u32) -> Result<u64, String> {
+        Ok(0)
+    }
     /// The region (its weather and sky), held in memory by the frame thread.
     fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
         None
@@ -159,6 +164,11 @@ impl WorldData for DatWorld {
         let desc = ac2_world::load_ac2_motion_interp_desc(&self.store, DataId::new(did))
             .map_err(|e| e.to_string())?;
         Ok(desc.map(|desc| Arc::new((*desc).clone())))
+    }
+
+    fn entity_ethereal_mask(&self, did: u32) -> Result<u64, String> {
+        ac2_world::load_entity_ethereal_mask(&self.store, DataId::new(did))
+            .map_err(|e| e.to_string())
     }
 
     fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {

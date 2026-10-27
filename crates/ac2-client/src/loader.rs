@@ -31,6 +31,8 @@ pub(crate) enum Request {
     AmbientPoints(u32),
     /// An object's `MotionInterpDesc` (`CMotionInterp::SetMIDESC`): object, DID.
     MotionDesc(u64, u32),
+    /// An object's `EntityDesc` ethereal bits (`CPhysicsObj::InitVisualDesc`): object, DID.
+    EntityMask(u64, u32),
 }
 
 /// Finished work.
@@ -51,6 +53,8 @@ pub(crate) enum Loaded {
         u64,
         Result<Option<std::sync::Arc<ac2_world::Ac2MotionInterpDesc>>, String>,
     ),
+    /// An object's `EntityDesc` ethereal bits: object, and the bits or the read's error.
+    EntityMask(u64, Result<u64, String>),
 }
 
 /// A pool of loader threads over one `WorldData`.
@@ -88,6 +92,9 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
             crate::client_ambient::AmbientLoaded::Points(block, data.ambient_points(block)),
         ),
         Request::MotionDesc(object, did) => Loaded::MotionDesc(object, data.motion_desc(did)),
+        Request::EntityMask(object, did) => {
+            Loaded::EntityMask(object, data.entity_ethereal_mask(did))
+        }
     }
 }
 

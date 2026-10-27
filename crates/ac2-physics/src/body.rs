@@ -537,6 +537,18 @@ impl PhysicsBody {
         &mut self.object.collision
     }
 
+    /// `CPhysicsObj::ApplyEtherealProperty`: sets the body's blocking bits (`EtherealPhysicsType::
+    /// SetBit` on `m_blocking_mask`) named by `bits`; bits the body already has stay set.
+    pub fn apply_blocking_bits(&mut self, bits: u64) {
+        let merged = self.object.blocking.bits() | bits;
+        self.object.blocking = crate::collision_types::PhysicsTypeMask::from_bits(merged);
+    }
+
+    /// The body's blocking physics-type bits (`CPhysicsObj::m_blocking_mask`).
+    pub fn blocking_bits(&self) -> u64 {
+        self.object.blocking.bits()
+    }
+
     /// The collision impact minimums as the body holds them (`m_min_reported_impactXY`, `Z`).
     pub fn impact_minimums(&self) -> (f32, f32) {
         let m = self.object.impact_minimums;

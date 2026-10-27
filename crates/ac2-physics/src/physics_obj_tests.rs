@@ -457,3 +457,14 @@ fn a_targeted_impulse_from_the_body_itself_is_vertical_only() {
     body.add_targeted_impulse(&source, 5.0, false, 2.5);
     assert_eq!(body.movement_state().velocity, [0.0, 0.0, 2.5]);
 }
+
+#[test]
+fn ethereal_bits_accumulate_on_the_body_and_none_clears_them() {
+    let mut body = body_at(70.0, 70.0, 53.0);
+    assert_eq!(body.blocking_bits(), 0);
+    body.apply_blocking_bits(1 << 4);
+    body.apply_blocking_bits(1 << 5);
+    assert_eq!(body.blocking_bits(), (1 << 4) | (1 << 5));
+    body.apply_blocking_bits(0);
+    assert_eq!(body.blocking_bits(), (1 << 4) | (1 << 5));
+}

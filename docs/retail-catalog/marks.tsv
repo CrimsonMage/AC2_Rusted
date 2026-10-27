@@ -4640,7 +4640,7 @@ key	status	note
 004e1780	-	render plumbing
 004e17a0	-	state-bit flag accessor
 004e1810	_	needs port: cite-only physics-object method
-004e1820	~	ac2_db::ac2_ethereal_mask sets the blocking bit from a bool ethereal-group property (desc data word); applied to landblock entities and interior entities (StaticObject::blocking). The value is not read (InqBool always succeeds); the body path (player ApplyPropertyCollection) is not wired
+004e1820	x	value read from the bool getter; bit set only when true (SetBit)
 004e1880	_	needs port: cite-only physics-object method
 004e1a40	_	needs port: cite-only physics-object method
 004e1ad0	_	needs port: cite-only physics-object method
@@ -4792,7 +4792,7 @@ key	status	note
 004e6990	_	needs port: cite-only physics-object method
 004e6a30	_	needs port: cite-only physics-object method
 004e6aa0	_	needs port: cite-only physics-object method
-004e6b10	_	needs port: cite-only physics-object method
+004e6b10	~	ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6c30	_	needs port: cite-only physics-object method
 004e6c40	_	needs port: cite-only physics-object method
@@ -10919,7 +10919,7 @@ key	status	note
 00616800	-	copy of plain data; Rust clones values
 00616820	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 00616960	_	needs port: entity description: EntityDesc::GetRootPackageID
-006169c0	x	
+006169c0	x	template chain first, own properties update over it (ac2_world entity_total_properties)
 00616a50	x	ac2-assets ac2_static_model.rs resolve_ac2_entity_visual: an EntityDesc (0x47) follows its template (m_dataID) to the VisualDesc or CSetup it draws; ac2-client world_data.rs load_body_data resolves FX object DIDs through it on the loader thread (real-data test every_fx_objects_entity_resolves_to_a_drawable_visual)
 00616ac0	x	ac2-script/src/glue/entity_desc.rs cites EntityDesc::InqEntityDescFromDataID
 00616b20	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)

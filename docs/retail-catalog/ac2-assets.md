@@ -553,7 +553,7 @@ Legend and workflow: [README](README.md).
 - [-] `EntityDesc::CopyInto` · 00616800 · legions 005d43e0 — copy of plain data; Rust clones values
 - [-] `EntityDesc::Destroy` · 00616820 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [ ] `EntityDesc::GetRootPackageID` · 00616960 · legions 005d4540 — needs port: entity description: EntityDesc::GetRootPackageID
-- [x] `EntityDesc::GetTotalProperties` · 006169c0 · legions 005d45a0
+- [x] `EntityDesc::GetTotalProperties` · 006169c0 · legions 005d45a0 — template chain first, own properties update over it (ac2_world entity_total_properties)
 - [x] `EntityDesc::GetVisualDescID` · 00616a50 · legions 005d4610 — ac2-assets ac2_static_model.rs resolve_ac2_entity_visual: an EntityDesc (0x47) follows its template (m_dataID) to the VisualDesc or CSetup it draws; ac2-client world_data.rs load_body_data resolves FX object DIDs through it on the loader thread (real-data test every_fx_objects_entity_resolves_to_a_drawable_visual)
 - [x] `EntityDesc::InqEntityDescFromDataID` · 00616ac0 · legions 005d4680 — ac2-script/src/glue/entity_desc.rs cites EntityDesc::InqEntityDescFromDataID
 - [-] `EntityDesc::Allocate` · 00616b20 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)

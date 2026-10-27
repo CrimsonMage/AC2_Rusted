@@ -99,6 +99,9 @@ pub(crate) struct PhysicsObj {
     /// The body's id in the world's object lists (`Terrain::insert_object`), so its own
     /// transitions skip its entry (`CTransition`'s object is the mover itself).
     pub(crate) world_id: Option<u32>,
+    /// `CPhysicsObj::m_blocking_mask` (`EtherealPhysicsType`): the physics types the body
+    /// blocks, set from its ethereal properties (`CPhysicsObj::ApplyEtherealProperty`).
+    pub(crate) blocking: crate::collision_types::PhysicsTypeMask,
     pub(crate) impact_speed: Option<f32>,
     pub(crate) impact_report: Option<crate::collision_impact::ImpactReport>,
     /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
@@ -171,6 +174,7 @@ impl PhysicsObj {
             impact_minimums: crate::collision_impact::ImpactMinimums::default(),
             collision: crate::collision_types::CollisionParameters::default(),
             world_id: None,
+            blocking: crate::collision_types::PhysicsTypeMask::default(),
             impact_speed: None,
             impact_report: None,
             element: ELEMENT_GROUND,

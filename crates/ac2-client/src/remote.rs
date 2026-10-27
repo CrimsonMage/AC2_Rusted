@@ -169,6 +169,17 @@ pub(crate) struct Remotes {
     /// Loaded Setups by visual, and the visuals asked for.
     bodies: HashMap<Option<u32>, Result<BodyData, String>>,
     requested: BTreeSet<Option<u32>>,
+    /// Each object's `EntityDesc` DID from its create (the `CObjectMaint` entity), and whether
+    /// its ethereal bits were asked for.
+    entities: BTreeMap<u64, u32>,
+    entity_requested: BTreeSet<u64>,
+    /// The ethereal bits each object's `EntityDesc` set, applied when its body is made.
+    masks: HashMap<u64, u64>,
+}
+
+/// An `EntityDesc` DID (`DivineType` `0x40000049`, the `0x47` prefix of its DIDs).
+pub(crate) fn is_entity_desc(did: u32) -> bool {
+    did & 0xFF00_0000 == 0x4700_0000
 }
 
 /// What the remote objects need from the client on each call.
@@ -182,6 +193,27 @@ pub(crate) struct Context<'a> {
 impl Remotes {
     pub(crate) fn get(&self, id: u64) -> Option<&Remote> {
         self.objects.get(&id)
+    }
+
+    /// The `EntityDesc`s of new objects to read their ethereal bits from (each once).
+    pub(crate) fn take_entity_requests(&mut self) -> Vec<(u64, u32)> {
+        let wanted: Vec<_> = self
+            .entities
+            .iter()
+            .filter(|(id, _)| !self.entity_requested.contains(id))
+            .map(|(&id, &did)| (id, did))
+            .collect();
+        self.entity_requested
+            .extend(wanted.iter().map(|&(id, _)| id));
+        wanted
+    }
+
+    /// The object's `EntityDesc` ethereal bits arrived: its body takes them now, or when made.
+    pub(crate) fn entity_mask_loaded(&mut self, object: u64, bits: u64) {
+        self.masks.insert(object, bits);
+        if let Some(body) = self.objects.get_mut(&object).and_then(|r| r.body.as_mut()) {
+            body.apply_blocking_bits(bits);
+        }
     }
 
     /// The visuals to load (each once).
@@ -209,6 +241,9 @@ impl Remotes {
         let position = table_position(object);
         let held = object.parent.is_some();
         let visual = object.visual;
+        if let Some(did) = object.entity.filter(|&did| is_entity_desc(did)) {
+            self.entities.insert(id, did);
+        }
         if self.objects.contains_key(&id) {
             if let (Some(position), false) = (position, held) {
                 if position.cell_id != 0 {
@@ -279,6 +314,9 @@ impl Remotes {
             // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
             // physics type, which the object's list entry carries (`sync_shadow`).
             body.collision_mut().set_bit(FX_OBJECT_COLLISION_BIT);
+        }
+        if let Some(&bits) = self.masks.get(&id) {
+            body.apply_blocking_bits(bits);
         }
         if let Some(animation) = data.animation {
             body.set_animation(animation);
@@ -720,5 +758,27 @@ impl Remotes {
         }
         self.objects.clear();
         self.lost_cells.clear();
+    }
+}
+
+#[cfg(test)]
+mod entity_mask_tests {
+    use super::{is_entity_desc, Remotes};
+
+    #[test]
+    fn only_entity_desc_dids_are_read_and_each_object_is_asked_once() {
+        assert!(is_entity_desc(0x4700_0012));
+        assert!(!is_entity_desc(0x1F00_0001));
+        let mut remotes = Remotes::default();
+        remotes.entities.insert(7, 0x4700_0012);
+        assert_eq!(remotes.take_entity_requests(), vec![(7, 0x4700_0012)]);
+        assert!(remotes.take_entity_requests().is_empty());
+    }
+
+    #[test]
+    fn a_mask_that_arrives_is_kept_for_the_body_made_later() {
+        let mut remotes = Remotes::default();
+        remotes.entity_mask_loaded(7, 1 << 4);
+        assert_eq!(remotes.masks.get(&7), Some(&(1 << 4)));
     }
 }

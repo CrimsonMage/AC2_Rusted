@@ -114,6 +114,8 @@ pub(crate) struct Player {
     turn_to: Option<f32>,
     /// The object the server's move-to heads for (`RecvEvt_MoveTo` with an object target).
     pub(crate) move_to_target: Option<u64>,
+    /// The player's `EntityDesc` ethereal bits were asked for (once its create is known).
+    pub(crate) entity_mask_requested: bool,
 }
 
 impl Player {
@@ -522,6 +524,7 @@ impl Client {
             }
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
+            Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),
             Loaded::ScriptData => self.script_data_loaded(),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
             Loaded::Block(block, result) => {
@@ -920,6 +923,7 @@ impl Client {
             in_world: false,
             turn_to: None,
             move_to_target: None,
+            entity_mask_requested: false,
         });
         self.loader.request(Request::Body(entry.visual));
         self.blocking_load = true;

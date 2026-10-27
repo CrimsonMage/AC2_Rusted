@@ -36,6 +36,48 @@ impl Client {
         for visual in self.remotes.take_requests() {
             self.loader.request(Request::Body(visual));
         }
+        for (object, did) in self.remotes.take_entity_requests() {
+            self.loader.request(Request::EntityMask(object, did));
+        }
+        self.request_player_entity_mask();
+    }
+
+    /// The player's create names an `EntityDesc` (once, as the player's body is made from it):
+    /// its ethereal bits load on a loader thread.
+    fn request_player_entity_mask(&mut self) {
+        let Some(player) = self.player.as_ref().filter(|p| !p.entity_mask_requested) else {
+            return;
+        };
+        let id = player.id;
+        let Some(did) = self
+            .session
+            .objects()
+            .get(id)
+            .and_then(|object| object.entity)
+            .filter(|&did| crate::remote::is_entity_desc(did))
+        else {
+            return;
+        };
+        if let Some(player) = self.player.as_mut() {
+            player.entity_mask_requested = true;
+        }
+        self.loader.request(Request::EntityMask(id, did));
+    }
+
+    /// `CPhysicsObj::InitVisualDesc`'s `ApplyPropertyCollection` landed for an object: the
+    /// player's body or a remote's takes the ethereal bits. A failed read sets none.
+    pub(crate) fn entity_mask_loaded(&mut self, object: u64, mask: Result<u64, String>) {
+        let bits = mask.unwrap_or(0);
+        if let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        {
+            body.physics.apply_blocking_bits(bits);
+            return;
+        }
+        self.remotes.entity_mask_loaded(object, bits);
     }
 
     /// The session's object events (`CObjectMaint`, `CPhysicsObj::RecvEvt_*`).
