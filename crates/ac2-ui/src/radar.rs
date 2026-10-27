@@ -135,6 +135,20 @@ impl RadarUi {
         self.field
     }
 
+    /// `gmRadarUI::Show`'s part: the radar field and the heading ring show or hide with the flag.
+    pub fn show(&self, tree: &mut UiTree, shown: bool) {
+        for element in [self.field, self.heading].into_iter().flatten() {
+            tree.set_visible(element, shown);
+        }
+    }
+
+    /// Whether the radar is shown (its field is visible; `gmRadarUI::Shown`).
+    pub fn shown(&self, tree: &UiTree) -> bool {
+        self.field
+            .and_then(|f| tree.get(f))
+            .is_some_and(|e| e.visible)
+    }
+
     /// `gmRadarUI::Update` for this frame: the heading ring placed and turned, the blips
     /// plotted, the tooltip named.
     pub fn update(&mut self, tree: &mut UiTree, view: &RadarView) {

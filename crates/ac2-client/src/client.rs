@@ -523,8 +523,8 @@ impl Client {
 
     /// `SmartBox::UseTime`.
     fn smart_box(&mut self) -> Result<Vec<SessionEvent>, String> {
-        self.update_player();
-        let events = self.world_manager_update()?;
+        let mut events = self.update_player();
+        events.extend(self.world_manager_update()?);
         let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
         if in_world && self.camera.mouse_look {
             let now = self.session.local_time();
@@ -542,9 +542,9 @@ impl Client {
     /// `SmartBox::UpdatePlayer`: the cells around the player, then (unless blocking for them)
     /// world entry: `ReEnterVisibility` places the body (`EnterWorldSimple`, sliding), the
     /// player is ready to enter the world, and the camera starts behind it.
-    fn update_player(&mut self) {
+    fn update_player(&mut self) -> Vec<SessionEvent> {
         let Some(player) = &self.player else {
-            return;
+            return Vec::new();
         };
         let cell = player.position().cell_id;
         self.cells.update_visible_cells(
@@ -556,10 +556,10 @@ impl Client {
         self.blocking_load = false;
         self.object_cells();
         if self.cells.is_blocking() {
-            return;
+            return Vec::new();
         }
         let Some(player) = self.player.as_mut().filter(|p| !p.in_world) else {
-            return;
+            return Vec::new();
         };
         let entered = match &mut player.body {
             Some(body) if cell != 0 => {
@@ -571,10 +571,12 @@ impl Client {
             }
             _ => false,
         };
+        let mut events = Vec::new();
         if cell == 0 || entered {
             player.in_world = entered;
             self.notices.push(Notice::PlayerReadyToEnterWorld);
-            // `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`.
+            // `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`: the portal gate.
+            events = self.player_ready_to_enter_world();
             self.want_frame_drawn = true;
         }
         if entered && self.teleporting {
@@ -592,6 +594,7 @@ impl Client {
                 .update_camera(ENTRY_CAMERA_QUANTUM, subject.as_ref(), &at);
             self.set_camera_position(desired, true);
         }
+        events
     }
 
     /// `WorldRender::Update` (the SmartBox's world manager): `WorldManager::Update` (game time,
@@ -687,6 +690,8 @@ impl Client {
                 impulse,
             } => self.player_moved(position, *heading_degrees, *teleported, *impulse),
             SessionEvent::ServerDied => self.notices.push(Notice::ConnectionLost),
+            // `gmGamePlayUI::RecvNotice_LoginFinished` (Init, then the portal gate's leave).
+            SessionEvent::LoginFinished => self.login_finished(),
             SessionEvent::LeftWorld | SessionEvent::Disconnected(_) => {
                 self.player = None;
                 self.camera.reset();

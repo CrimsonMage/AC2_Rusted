@@ -13,6 +13,13 @@ pub fn statusbar_field(tree: &UiTree) -> Option<usize> {
     })
 }
 
+/// Whether the status bar is shown (its root is visible; `gmStatusbarUI::Shown`).
+pub fn statusbar_shown(tree: &UiTree) -> bool {
+    statusbar_field(tree)
+        .and_then(|f| tree.get(f))
+        .is_some_and(|e| e.visible)
+}
+
 /// `gmStatusbarUI::Show`: `UIFramework::Show` records the flag, and the root element shows or
 /// hides with it. The top preclude is sent as 0 whatever the flag
 /// (`CM_UI::SendNotice_PrecludeFromTop(0)`), so the reticle keeps no space from the top.

@@ -116,6 +116,20 @@ fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
         client.use_time(&idle).unwrap();
         server.borrow_mut().elapsed += STEP;
     }
+    // The login's portal space (the placement's enter, then `LoginFinished`'s leave) fades out
+    // before play; a teleport started during that fade would be ignored.
+    let mut login = client.frame();
+    let mut login_frames = 0;
+    while login.portal.in_portal_space {
+        client.use_time(&idle).unwrap();
+        server.borrow_mut().elapsed += STEP;
+        login = client.frame();
+        login_frames += 1;
+        assert!(
+            login_frames < 2000,
+            "the login's portal space did not run out"
+        );
+    }
 
     // The town, drawn with its world.
     let aspect = SIZE.0 as f32 / SIZE.1 as f32;

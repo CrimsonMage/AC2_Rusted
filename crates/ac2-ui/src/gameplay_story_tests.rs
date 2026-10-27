@@ -2,7 +2,7 @@
 //! a portal scene a non-skippable one, the slot holds one story, and the teardown reports the
 //! scenes played and restores mouse look.
 
-use crate::gameplay_story::{GameplayStory, StoryEvent, StoryScene};
+use crate::gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
 use crate::story::{StoryFrame, StoryShow, SKIP_STORY_MESSAGE};
 
 /// A scene of `frames` one-second keyframes, each with its own image (`id * 10 + index`).
@@ -183,4 +183,54 @@ fn end_session_clears_the_slot_without_reporting_scenes() {
     );
     assert!(!game.is_active());
     assert!(game.end_session().is_empty());
+}
+
+#[test]
+fn a_teleport_enters_and_the_placed_player_exits_once_the_weenie_has_let_it_out() {
+    let mut game = GameplayStory::new();
+    // `RecvNotice_PlayerTeleportStart` enters: the player is not placed yet.
+    assert_eq!(game.player_teleport_start(), Some(PortalSpaceCall::Enter));
+    // The script's leave arrives before the placement: the gate still waits for the client.
+    assert_eq!(game.portal_space(false), Some(PortalSpaceCall::Enter));
+    assert!(game.weenie_ready());
+    // Placed in the world: both are ready, so the portal space exits.
+    let (call, events) = game.player_ready_to_enter_world();
+    assert_eq!(call, Some(PortalSpaceCall::Exit));
+    assert!(events.is_empty());
+}
+
+#[test]
+fn the_placement_before_the_leave_notice_waits_for_the_leave() {
+    let mut game = GameplayStory::new();
+    game.player_teleport_start();
+    // The placement first: the weenie has not let go, so the portal space stays up.
+    assert_eq!(
+        game.player_ready_to_enter_world().0,
+        Some(PortalSpaceCall::Enter)
+    );
+    assert_eq!(game.portal_space(false), Some(PortalSpaceCall::Exit));
+}
+
+#[test]
+fn entering_portal_space_again_is_not_an_exit() {
+    let mut game = GameplayStory::new();
+    game.player_ready_to_enter_world();
+    assert_eq!(game.portal_space(true), Some(PortalSpaceCall::Enter));
+    assert_eq!(game.portal_space(false), Some(PortalSpaceCall::Exit));
+}
+
+#[test]
+fn a_teleport_inside_a_portal_scene_leaves_the_portal_space_alone() {
+    let mut game = GameplayStory::new();
+    game.portal_scene(true, &[scene(3, true, 1)]);
+    assert_eq!(game.player_teleport_start(), None);
+    // The placement ends the scene instead of running the gate; `CheckPortalScene` runs with no
+    // scenes, so none are reported played.
+    let (call, events) = game.player_ready_to_enter_world();
+    assert_eq!(call, None);
+    assert!(
+        events.contains(&StoryEvent::PlayScenesDone(Vec::new())),
+        "{events:?}"
+    );
+    assert!(!game.is_active());
 }

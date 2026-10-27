@@ -71,7 +71,20 @@ fn a_teleport_runs_the_portal_space_and_places_the_player_at_the_destination() {
     };
     let (mut client, server) = entered_with(spawn, world);
     let mut notices = Vec::new();
-    let settled = client.frame();
+    let mut settled = client.frame();
+    assert!(settled.in_world, "the player stands in the town");
+    // The login's portal space: the world's entry enters it (`gmGamePlayUI::RecvNotice_PlayerReady
+    // ToEnterWorld` while the weenie is not ready), and the description's `LoginFinished` lets the
+    // weenie out, so the gate exits once the player is placed. Its fade runs out before play.
+    let mut login_frames = 0;
+    while settled.portal.in_portal_space {
+        settled = frame(&mut client, &server, &mut notices);
+        login_frames += 1;
+        assert!(
+            login_frames < 2000,
+            "the login's portal space did not run out"
+        );
+    }
     assert!(settled.in_world, "the player stands in the town");
     assert!(!settled.portal.in_portal_space && settled.portal.world_drawn());
     let acks_before = acks(&server);

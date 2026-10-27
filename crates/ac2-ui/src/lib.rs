@@ -86,6 +86,7 @@ pub use quests_panel::QuestsUi;
 mod catalog;
 #[cfg(test)]
 mod catalog_tests;
+mod gameplay_keys;
 mod gameplay_story;
 #[cfg(test)]
 mod gameplay_story_tests;
@@ -107,7 +108,11 @@ mod shortcut_states;
 mod skill_tree;
 mod stack;
 mod statusbar;
-pub use gameplay_story::{GameplayStory, StoryEvent, StoryScene};
+pub use gameplay_keys::{
+    child_for_key, GameplayChild, GAMEPLAY_SHOW_KEY, RADAR_CHILD_KEY, STATUSBAR_CHILD_KEY,
+    TOOLBAR_CHILD_KEY,
+};
+pub use gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
 mod story;
 #[cfg(test)]
 mod story_layout_tests;
@@ -231,6 +236,7 @@ pub use skill_tree::{
     ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
 };
 pub use stack::{StackUi, StackUiDone};
+pub use statusbar::{show_statusbar, statusbar_shown};
 pub use target_cycle::{is_select_key, select_key_of, select_target, Candidate};
 pub use text::UiTextData;
 pub use text_data::{StoreTextData, DEFAULT_FONT, FONT_GROUP};

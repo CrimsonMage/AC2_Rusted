@@ -182,6 +182,13 @@ impl ToolbarUi {
             && message.message == MSG_BUTTON_RELEASE_ON
     }
 
+    /// Whether the toolbar bar is shown (its `ToolbarField` is visible; `gmToolbarUI::Shown`).
+    pub fn bar_shown(&self, tree: &UiTree) -> bool {
+        self.field
+            .and_then(|f| tree.get(f))
+            .is_some_and(|e| e.visible)
+    }
+
     /// `gmToolbarUI::Show`'s part: the toolbar field shows or hides, and the bottom preclude the
     /// reticle keeps is its `PrecludeHeight` when it shows (0 when it hides).
     pub fn show_bar(&self, tree: &mut UiTree, shown: bool) -> i32 {

@@ -525,6 +525,9 @@ impl ClientView {
         events: &[ac2_weenie::SessionEvent],
         script_notices: &[ac2_script::host::ScriptNotice],
     ) -> Vec<crate::Command> {
+        // `gmGamePlayUI::ListenToMessage` 0x4100000C: the HUD toggle, with the story's state.
+        let story_active = client.story.is_active();
+        self.hud.gameplay_show_key(story_active);
         // The paper doll's pick from the scene as last drawn (`FinishPaperDollClick` runs on
         // the loop after the selection render).
         let doll_pick = self.hud.doll_wants_pick().map(|point| {
@@ -701,6 +704,16 @@ impl ClientView {
     /// Whether a toolbar panel is shown.
     pub fn panel_shown(&self, child: ac2_ui::ToolbarChild) -> bool {
         self.hud.panel_shown(child)
+    }
+
+    /// Whether the gameplay HUD is shown (`gmGamePlayUI::m_shown`, the `0x4100000C` key).
+    pub fn gameplay_shown(&self) -> bool {
+        self.hud.gameplay_shown()
+    }
+
+    /// Whether a gameplay child with a key is shown: the toolbar's bar, the status bar, the radar.
+    pub fn child_visible(&self, child: ac2_ui::GameplayChild) -> bool {
+        self.hud.child_visible(child)
     }
 
     /// `RecvNotice_DisplayStringInfo`: a `StringInfo` line for the chat windows, rendered off the

@@ -25,6 +25,14 @@ pub struct StoryScene {
     pub frames: Vec<StoryFrame>,
 }
 
+/// The portal-space call the gameplay UI makes on its `SmartBox` (`EnterPortalSpace` or
+/// `ExitPortalSpace`, both with `bInstantly` 0).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PortalSpaceCall {
+    Enter,
+    Exit,
+}
+
 /// What the story slot asks of its caller.
 #[derive(Debug, Clone, PartialEq)]
 pub enum StoryEvent {
@@ -49,9 +57,12 @@ pub struct GameplayStory {
     /// `_playingPortalScene`: set by the first portal scene entered and kept for the gameplay
     /// UI's life (only its constructor clears it).
     playing_portal_scene: bool,
-    /// `_weenieReady`: the last portal-scene notice was a leave; with the client ready,
-    /// `gmGamePlayUI::Update` exits portal space.
+    /// `_weenieReady`: the last portal-space or portal-scene notice was a leave; with the client
+    /// ready, the portal space exits.
     weenie_ready: bool,
+    /// `_clientReady`: the player is placed in the world since the last teleport started
+    /// (`RecvNotice_PlayerReadyToEnterWorld` sets it, `RecvNotice_PlayerTeleportStart` clears it).
+    client_ready: bool,
     /// The ids of the scenes the slot's story was made from, in list order.
     scene_ids: Vec<u32>,
     /// Whether the slot's story has shown a keyframe, so it has music or voice to stop.
@@ -98,6 +109,43 @@ impl GameplayStory {
     /// `_weenieReady`: the server's last portal-scene notice let the player out.
     pub fn weenie_ready(&self) -> bool {
         self.weenie_ready
+    }
+
+    /// The gate every portal-space notice runs (`gmGamePlayUI::RecvNotice_PortalSpace` and the
+    /// others): `SmartBox::ExitPortalSpace` once the weenie and the client are both ready,
+    /// otherwise `SmartBox::EnterPortalSpace`.
+    fn portal_gate(&self) -> PortalSpaceCall {
+        if self.weenie_ready && self.client_ready {
+            PortalSpaceCall::Exit
+        } else {
+            PortalSpaceCall::Enter
+        }
+    }
+
+    /// `gmGamePlayUI::RecvNotice_PlayerTeleportStart`: `_clientReady` clears, then unless a portal
+    /// scene plays the gate runs (the player is not placed yet, so it enters).
+    pub fn player_teleport_start(&mut self) -> Option<PortalSpaceCall> {
+        self.client_ready = false;
+        (!self.playing_portal_scene).then(|| self.portal_gate())
+    }
+
+    /// `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`: `_clientReady` is set. Outside a portal
+    /// scene the gate runs; inside one, the scene ends: `_playingPortalScene` clears and
+    /// `CheckPortalScene` runs with no scenes, whose events come back.
+    pub fn player_ready_to_enter_world(&mut self) -> (Option<PortalSpaceCall>, Vec<StoryEvent>) {
+        self.client_ready = true;
+        if !self.playing_portal_scene {
+            return (Some(self.portal_gate()), Vec::new());
+        }
+        self.playing_portal_scene = false;
+        (None, self.check_portal_scene(&[]))
+    }
+
+    /// `gmGamePlayUI::RecvNotice_PortalSpace(enter)`: `_weenieReady` becomes `!enter`, then the
+    /// gate runs.
+    pub fn portal_space(&mut self, enter: bool) -> Option<PortalSpaceCall> {
+        self.weenie_ready = !enter;
+        Some(self.portal_gate())
     }
 
     /// `gmGamePlayUI::CheckPortalScene`: outside a portal scene the slot's story is torn down and

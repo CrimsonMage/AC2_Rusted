@@ -18,6 +18,7 @@
 //! The frame drawn after that is acknowledged (`SceneRenderingComplete`) by the client's render step.
 
 use ac2_script::host::IFunArg;
+use ac2_ui::PortalSpaceCall;
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::{Client, Notice};
@@ -37,20 +38,48 @@ impl Client {
             body.physics.unconstrain();
         }
         self.teleporting = true;
-        // ECM_Physics::SendNotice_PlayerTeleportStart -> gmGamePlayUI::RecvNotice_PlayerTeleportStart
-        // -> SmartBox::EnterPortalSpace(0).
+        // ECM_Physics::SendNotice_PlayerTeleportStart -> gmGamePlayUI::RecvNotice_PlayerTeleportStart,
+        // whose gate enters the portal space.
         self.notices.push(Notice::PlayerTeleportStart);
-        self.enter_portal_space(false);
+        let call = self.story.player_teleport_start();
+        self.portal_call(call);
         self.teleport_ifun(IFUN_HANDLE_TELEPORT_START, &[]);
     }
 
     /// The teleport's end: the destination is in and the player is placed there.
-    /// `CWInterface::HandleTeleportEnd(1)` runs its script, then `SmartBox::ExitPortalSpace`.
+    /// `CWInterface::HandleTeleportEnd(1)` runs its script. The portal space does not exit here:
+    /// retail's only `SmartBox::ExitPortalSpace` callers are the gameplay UI's notice handlers, so
+    /// the exit comes from [`Client::player_ready_to_enter_world`] and the weenie's leave notice.
     pub(crate) fn teleport_ended(&mut self) {
         self.teleporting = false;
         self.notices.push(Notice::TeleportEnd);
         self.teleport_ifun(IFUN_HANDLE_TELEPORT_END, &[IFunArg::Int(1)]);
-        self.exit_portal_space(false);
+    }
+
+    /// `gmGamePlayUI::RecvNotice_PlayerReadyToEnterWorld`: the gate runs, or a portal scene ends
+    /// (its story events come back for the frame).
+    pub(crate) fn player_ready_to_enter_world(&mut self) -> Vec<SessionEvent> {
+        let (call, events) = self.story.player_ready_to_enter_world();
+        self.portal_call(call);
+        let mut out = Vec::new();
+        self.story_events(events, &[], &mut out);
+        out
+    }
+
+    /// `gmGamePlayUI::RecvNotice_LoginFinished`: `Init`, then `RecvNotice_PortalSpace(0)` (the
+    /// vtable call at `+0x22C` on the notice handler, which is the portal notice).
+    pub(crate) fn login_finished(&mut self) {
+        let call = self.story.portal_space(false);
+        self.portal_call(call);
+    }
+
+    /// The gate's call on the `SmartBox`, if the gate makes one.
+    fn portal_call(&mut self, call: Option<PortalSpaceCall>) {
+        match call {
+            Some(PortalSpaceCall::Enter) => self.enter_portal_space(false),
+            Some(PortalSpaceCall::Exit) => self.exit_portal_space(false),
+            None => {}
+        }
     }
 
     /// `SmartBox::EnterPortalSpace(bInstantly)` (`WorldRender::EnterPortalSpace`).
@@ -65,15 +94,13 @@ impl Client {
         self.portal.exit(instantly, now);
     }
 
-    /// `gmGamePlayUI::RecvNotice_PortalSpace(enter)`: the script's portal-space notices.
+    /// `gmGamePlayUI::RecvNotice_PortalSpace(enter)`: the script's portal-space notices, through the
+    /// gate.
     pub(crate) fn portal_notices(&mut self, events: &[SessionEvent]) {
         for event in events {
             if let SessionEvent::Notice(GameplayNotice::PortalSpace(enter)) = event {
-                if *enter {
-                    self.enter_portal_space(false);
-                } else {
-                    self.exit_portal_space(false);
-                }
+                let call = self.story.portal_space(*enter);
+                self.portal_call(call);
             }
         }
     }

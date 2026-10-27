@@ -139,6 +139,16 @@ impl HudView {
         tree.get(log)?.text()
     }
 
+    /// Whether the HUD is shown (`gmGamePlayUI::m_shown`).
+    pub(crate) fn gameplay_shown(&self) -> bool {
+        self.gameplay_shown
+    }
+
+    /// Whether a gameplay child with a key is shown (the toolbar's bar, the status bar, the radar).
+    pub(crate) fn child_visible(&self, child: ac2_ui::GameplayChild) -> bool {
+        self.child_shown(child)
+    }
+
     /// Whether a toolbar panel is shown.
     pub(crate) fn panel_shown(&self, child: ToolbarChild) -> bool {
         match (&self.hud, &self.toolbar) {

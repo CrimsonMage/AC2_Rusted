@@ -29,27 +29,31 @@ key	status	note
 00406f50	x	ac2-script reference/native unpack
 00407050	x	ac2-script reference/native unpack
 00407770	~	ac2-script: unpack direction only
+00407910	~	ac2-client hud_view.rs set_gameplay_shown (m_shown, 0x4100000C via gameplay_show_key with the wait/death/story/logout guard); cascades only to the status bar, radar and toolbar bar; the other children's Show (selection, stack, trade, panels) not modelled; gameplay_keys_7160 (the_hud_key_hides...)
 00407940	x	ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 004079e0	x	ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 00407a40	_	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
-00407bf0	~	ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
-00407c30	~	ac2-client client_teleport.rs: enter/exit portal space (teleport_started, portal_notices); not yet: the run-lock field, the portal sounds
+00407bf0	x	ac2-ui gameplay_story.rs GameplayStory::player_teleport_start / portal_space (the gate: Exit iff weenie and client ready, else Enter; the teleport start clears _clientReady); ac2-client client_teleport.rs portal_call; gameplay_story_tests (the teleport and leave tests), portal_7160 (the teleport places and exits)
+00407c30	x	ac2-ui gameplay_story.rs GameplayStory::player_teleport_start / portal_space (the gate: Exit iff weenie and client ready, else Enter; the teleport start clears _clientReady); ac2-client client_teleport.rs portal_call; gameplay_story_tests (the teleport and leave tests), portal_7160 (the teleport places and exits)
 00407c80	~	ac2-ui death.rs (DeathPanel::notice: the death dialog up or closed); ac2-client hud_death.rs; not reproduced: the vtable call at +0x20 (the gameplay UI's show toggle, target not named in the export)
 00407cf0	x	ac2-ui death.rs (DeathPanel::recv_resurrection_requested, the prompt); ac2-client hud_death.rs renders the notice; death_panel_7160 (offer layout)
 00407d00	x	ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
 00407d70	x	ac2-ui death.rs (DeathPanel::take_resurrect: the death dialog's button asks the respawn); death_panel_7160
+00407f70	x	ac2-ui gameplay_keys.rs (child_for_key: keys 0x41000008 toolbar, 0x41000009 statusbar, 0x4100000B radar); ac2-client hud_view.rs gameplay_keys / set_child_shown; gameplay_keys_7160 (each_child_key_toggles_its_child)
 00408080	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
-004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
+004080c0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar; the keypress registrations (GameplayChildInfo: radar 0x4100000B, statusbar 0x41000009, toolbar 0x41000008, the rest 0) are in ac2-ui gameplay_keys.rs
 004084a0	~	ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
 00408640	~	ac2-ui game_dialogs.rs recv_close_wait_dialog clears the wait context; the app's QueueUIMode(characterselection) is ac2-client bin/ac2 back_to_character_selection after CharExitGame (pregame resume_at_character_selection), not from the wait close: no HUD path calls recv_close_wait_dialog yet
+00408840	~	ac2-ui gameplay_story.rs GameplayStory::player_ready_to_enter_world (_clientReady set; the gate, or in a portal scene the scene ends with CheckPortalScene(empty)); ac2-client client.rs update_player -> player_ready_to_enter_world; LoginFinished: client.rs apply -> client_teleport.rs login_finished (RecvNotice_PortalSpace(0), the vtable call at +0x22C); not modelled: the SmartBox tail call at +0x18 (1), and Init's please-wait close (Init's HUD part is built at entry)
 00408860	x	ac2-ui game_dialogs.rs (GameplayDialogs: message contexts, display_message, close_message); ac2-client hud_game_dialogs.rs wires the DisplayMessage notice and the OK answer; game_dialogs_7160 (message box text and OK)
+00408c60	~	ac2-ui gameplay_story.rs GameplayStory::new (_weenieReady, _clientReady, _playingPortalScene = 0); the constructor's SmartBox::EnterPortalSpace(1) when both are not ready is not modelled (the login's fade is the PlayerReady and LoginFinished gate calls)
 00408e90	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 00408f50	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 00408fa0	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 00409000	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
-00409270	~	asks for the next-frame-drawn notice (SetWantNoticeOnNextFrameDrawn); no portal scenes
+00409270	~	ac2-ui gameplay_story.rs GameplayStory::player_ready_to_enter_world (_clientReady set; the gate, or in a portal scene the scene ends with CheckPortalScene(empty)); ac2-client client.rs update_player -> player_ready_to_enter_world; LoginFinished: client.rs apply -> client_teleport.rs login_finished (RecvNotice_PortalSpace(0), the vtable call at +0x22C); not modelled: the SmartBox tail call at +0x18 (1), and Init's please-wait close (Init's HUD part is built at entry)
 00409330	~	ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 00409960	x	
@@ -59,7 +63,7 @@ key	status	note
 00409be0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00409e00	x	
 0040a1f0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
-0040a810	~	ac2-ui game_dialogs.rs logout_key + ac2-client hud_game_dialogs.rs game_dialog_message: the logout key (0x4100000e press) only; the other messages are routed by their own frameworks
+0040a810	~	ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (0x41000008/09/0B child keys while Shown) and gameplay_show_key (0x4100000C); 0x4100000D UseSelection and 0xffff0007 save locations not here
 0040aad0	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 0040ab10	x	ac2-ui pregame/avatar_modification.rs
 0040ab70	x	ac2-ui pregame/avatar_modification.rs
@@ -862,11 +866,11 @@ key	status	note
 00445c20	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 00445c80	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
 00446610	x	character_options.rs (the options' Setup tree, the setters' values) and character.rs: the page's refresh, apply, recall, default and confirmations; ported, tested on the real layout (character_tests.rs)
-00446830	_	ac2-client apply returns verify_render; the VerifyRenderOptions dialog is not drawn
-004468d0	_	ac2-client ClientPrefs::options_changed: any of the page's sections has a changed value
-00446bf0	_	ac2-client ClientPrefs::options_apply: render change noted, device submitted (no handler), sections applied in retail order, save on a worker unless the render changed; the render verification dialog is not drawn and its answer is not modelled
-00446ce0	_	ac2-client ClientPrefs::options_recall: every section recalled; the page's widgets are not synchronised
-00446d10	_	ac2-client ClientPrefs::options_default: every section reset to its defaults then applied; widgets not modelled
+00446830	~	ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
+004468d0	x	ac2-client client_options.rs options_changed (any section's value differs from the applied one); options_7160 (no change after apply)
+00446bf0	~	ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
+00446ce0	~	ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
+00446d10	~	ac2-client client_options.rs options_apply / options_recall / options_default (sections in retail order, render change noted, save on a worker); the page's widgets are not synchronised and the render verification dialog (ConfirmRecall/ConfirmDefault/VerifyRenderOptions via DialogFactory) is not drawn; options_7160
 00447550	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 004475b0	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
 00447610	x	ac2-ui skill_tree.rs

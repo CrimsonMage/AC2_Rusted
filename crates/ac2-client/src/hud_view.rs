@@ -13,9 +13,9 @@ use std::sync::Arc;
 use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
-    ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayHud, IngredientUi, Modifiers, Reticle,
-    ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi, UiMessage,
-    UiPixels, UiTree,
+    ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayChild, GameplayHud, IngredientUi,
+    Modifiers, Reticle, ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild,
+    ToolbarUi, UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -72,6 +72,11 @@ pub(crate) struct HudView {
     /// The selection info the reticle's meters last took.
     reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
+    /// `gmGamePlayUI::m_shown`: the HUD is shown (`gmGamePlayUI::Show`, the `0x4100000C` key).
+    pub(crate) gameplay_shown: bool,
+    /// The `0x4100000C` key was pressed this frame; [`HudView::frameworks`] runs it, where the
+    /// client's story state is.
+    hud_key_pending: bool,
     /// `gmGamePlayUI`'s death dialog (`_deathContext`).
     pub(crate) death: ac2_ui::DeathPanel,
     /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
@@ -179,7 +184,87 @@ impl HudView {
         if tree.take_changed() {
             self.dirty = true;
         }
+        self.gameplay_keys(&messages);
         messages
+    }
+
+    /// `gmGamePlayUI::ListenToMessage` for the frame's global key presses. A child key runs its
+    /// `ChildKeyPress` while the gameplay UI is shown; the HUD key is kept for
+    /// [`HudView::frameworks`].
+    fn gameplay_keys(&mut self, messages: &[UiMessage]) {
+        for message in messages {
+            if message.element.is_some() || message.message != ac2_ui::GLOBAL_KEY_PRESS {
+                continue;
+            }
+            let key = message.data as u32;
+            if key == GAMEPLAY_SHOW_KEY {
+                self.hud_key_pending = true;
+            } else if let Some(child) = ac2_ui::child_for_key(key) {
+                if self.gameplay_shown {
+                    self.set_child_shown(child, !self.child_shown(child));
+                }
+            }
+        }
+    }
+
+    /// Whether a gameplay child is shown: the toolbar's bar, the status bar, the radar.
+    pub(crate) fn child_shown(&self, child: GameplayChild) -> bool {
+        let Some((tree, _)) = &self.hud else {
+            return false;
+        };
+        match child {
+            GameplayChild::Toolbar => self.toolbar.as_ref().is_some_and(|t| t.bar_shown(tree)),
+            GameplayChild::Statusbar => ac2_ui::statusbar_shown(tree),
+            GameplayChild::Radar => self.radar.as_ref().is_some_and(|r| r.shown(tree)),
+        }
+    }
+
+    /// A gameplay child's `Show`: the toolbar's bar (with its shortcut bar), the status bar or the
+    /// radar. Their panels' own cascade is not modelled here.
+    pub(crate) fn set_child_shown(&mut self, child: GameplayChild, shown: bool) {
+        match child {
+            GameplayChild::Toolbar => self.show_toolbar(shown),
+            GameplayChild::Statusbar => {
+                if let Some((tree, _)) = &mut self.hud {
+                    ac2_ui::show_statusbar(tree, shown);
+                }
+            }
+            GameplayChild::Radar => {
+                if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &self.radar) {
+                    radar.show(tree, shown);
+                }
+            }
+        }
+        self.dirty = true;
+    }
+
+    /// `gmGamePlayUI::Show(shown)` for the HUD's children with a key: the status bar, the radar
+    /// and the toolbar's bar show or hide with the flag.
+    pub(crate) fn set_gameplay_shown(&mut self, shown: bool) {
+        self.gameplay_shown = shown;
+        for child in [
+            GameplayChild::Toolbar,
+            GameplayChild::Statusbar,
+            GameplayChild::Radar,
+        ] {
+            self.set_child_shown(child, shown);
+        }
+    }
+
+    /// `gmGamePlayUI::ListenToMessage` case `0x4100000C`: the HUD toggles unless a death dialog is
+    /// open or a logout is requested, and `gmGamePlayUI::Show` ignores it while a please-wait
+    /// dialog or a story holds the UI.
+    pub(crate) fn gameplay_show_key(&mut self, story_active: bool) {
+        if !std::mem::take(&mut self.hud_key_pending) {
+            return;
+        }
+        if self.death.context() != 0 || self.game_dialogs.end_session_requested() {
+            return;
+        }
+        if self.game_dialogs.wait_context() != 0 || story_active {
+            return;
+        }
+        self.set_gameplay_shown(!self.gameplay_shown);
     }
 
     /// The active text element's actions and characters (`UIElement_Text::ActionHandler` /

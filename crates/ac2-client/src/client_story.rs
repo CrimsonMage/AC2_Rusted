@@ -60,7 +60,7 @@ impl Client {
 
     /// Acts on the story slot's events. `notice` is the scene list of the notice that produced
     /// them, which `PlayScenesDone` may name when the slot held no story (a portal scene's leave).
-    fn story_events(
+    pub(crate) fn story_events(
         &mut self,
         events: Vec<StoryEvent>,
         notice: &[SceneInfo],
