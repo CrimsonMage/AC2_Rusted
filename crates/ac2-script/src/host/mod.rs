@@ -218,6 +218,12 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.physics)
     }
 
+    /// The collision minimums the scripts set on weenies' collision managers (see
+    /// [`Vm::collision_minimums`]), in order.
+    pub fn take_collision_minimums(&mut self) -> Vec<(u64, f32, f32)> {
+        std::mem::take(&mut self.vm.collision_minimums)
+    }
+
     /// The object went away (`VM::DeleteProcess`).
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {

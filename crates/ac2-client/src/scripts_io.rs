@@ -34,6 +34,15 @@ impl Client {
         for (object, action) in physics {
             self.apply_script_physics(object, &action);
         }
+        // `gCWPhysicsObject::CallEFun_SetCollisionState` (the impact minimums).
+        let minimums = self
+            .scripts
+            .as_mut()
+            .map(|scripts| scripts.host.take_collision_minimums())
+            .unwrap_or_default();
+        for (object, xy, z) in minimums {
+            self.apply_collision_minimums(object, xy, z);
+        }
         let latent = self
             .scripts
             .as_mut()

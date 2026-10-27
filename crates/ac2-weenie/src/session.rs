@@ -85,6 +85,11 @@ pub struct WorldEntry {
 /// panel) stay quiet and the caller runs it on the object's process.
 pub const IFUN_ON_STAT_CHANGED: u32 = 0x007F_0044;
 
+/// `CWInterface::HandleCollision`'s IFun (`gCWInterface::CallIFun_HandleCollision`: the
+/// collision profile, a native the script reads with `gCollisionProfile`'s efuns). The impacts
+/// a body records reach it (`CPhysicsObj::ReportCollisions`).
+pub const IFUN_HANDLE_COLLISION: u32 = 0x007F_0043;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum SessionEvent {
     Connected,

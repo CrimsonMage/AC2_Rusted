@@ -59,6 +59,20 @@ impl Client {
         self.remotes.motion(object, action, None);
     }
 
+    /// `CCollisionManager::SetCollisionState` for a script's `CollisionParameters`: the player's
+    /// body takes the non-zero impact minimums. Remote bodies keep theirs (their scripts are not
+    /// run here; see the catalog).
+    pub(crate) fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32) {
+        if let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        {
+            body.physics.set_collision_minimums(xy, z);
+        }
+    }
+
     /// The position a targeted impulse on `object` pushes from: the target's, when the target
     /// is another object in the world (`CPhysics::GetObjectA(target)` with `pCVar7 != this`).
     fn impulse_source(&self, object: u64, target: u64) -> Option<ac2_physics::Position> {

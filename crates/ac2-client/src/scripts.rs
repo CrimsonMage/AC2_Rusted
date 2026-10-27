@@ -92,6 +92,8 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_UPLOAD_CHAT_OPTIONS,
     // `CWInterface::OnStatChanged` (a quality update: vitals, the XP bar, the skill panel).
     ac2_weenie::IFUN_ON_STAT_CHANGED,
+    // `CWInterface::HandleCollision` (a collision report: the impact a body recorded).
+    ac2_weenie::IFUN_HANDLE_COLLISION,
     // `WM_Combat` 0x1B -> `CPlayer` 0x2 (`SendNotice_UpdateAttackState`) and 0x1A -> `CPlayer`
     // 0xE0 (a combat action's failure: `CCombatSystem` 0x11 makes the chat line).
     0x8204_001B,
@@ -728,6 +730,36 @@ impl Client {
             return;
         }
         let args = [IFunArg::Int(table), IFunArg::Int(quality)];
+        let result = scripts
+            .host
+            .call_ifun(id, function, &args)
+            .map(|r| r.outcome)
+            .map_err(|e| format!("{e:?}"));
+        self.script_outcome(id, None, result, out);
+    }
+
+    /// `CPhysicsObj::ReportCollisions` -> `CWInterface::HandleCollision`: the object's script
+    /// hears the impact it recorded (its contact normal and speed, as a `CollisionProfile`).
+    /// Only an object whose script runs and owns the IFun hears it.
+    pub(crate) fn collision_reported(
+        &mut self,
+        id: u64,
+        report: ac2_physics::ImpactReport,
+        out: &mut Vec<SessionEvent>,
+    ) {
+        let function = ac2_weenie::IFUN_HANDLE_COLLISION;
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        if !scripts.owned.contains(&function) || !scripts.running.contains(&id) {
+            return;
+        }
+        let normal = [report.normal.x, report.normal.y, report.normal.z];
+        let profile = ac2_script::native::CollisionProfile::impact(normal, report.speed);
+        let args = [IFunArg::Vm(
+            ac2_script::native::ntype::COLLISION_PROFILE,
+            ac2_script::native::NativeObject::CollisionProfile(profile),
+        )];
         let result = scripts
             .host
             .call_ifun(id, function, &args)

@@ -6,6 +6,7 @@
 //! converts, and natives no glue edits yet stay in their wire form ([`NativeObject::Wire`]).
 
 mod chargen;
+mod collision;
 mod containers;
 mod hash_table;
 mod multi;
@@ -19,6 +20,7 @@ mod visual;
 /// `Position` (cell id, origin, rotation w x y z).
 pub use ac2_net::protocol::Position;
 pub use chargen::CharGenResult;
+pub use collision::{CollisionParameters, CollisionProfile};
 pub use containers::{RefKey, ScriptList};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
@@ -56,6 +58,10 @@ pub mod ntype {
     pub const L_LIST_ITER: u32 = 0x3C;
     pub const LR_HASH: u32 = 0x40;
     pub const MISSILE_PARAMETERS: u32 = 0x46;
+    /// `CollisionParameters` (`gCollisionParameters`): the impact minimums.
+    pub const COLLISION_PARAMETERS: u32 = 0x1A;
+    /// `CollisionProfile` (`gCollisionProfile`): a collision report.
+    pub const COLLISION_PROFILE: u32 = 0x1B;
     pub const NA_HASH: u32 = 0x4B;
     pub const NR_HASH: u32 = 0x4D;
     pub const HEADING: u32 = 0x2D;
@@ -199,6 +205,10 @@ pub enum NativeObject {
     Vector([f32; 3]),
     Position(Position),
     MissileParameters(MissileParameters),
+    /// `CollisionParameters` (native 0x1A).
+    CollisionParameters(CollisionParameters),
+    /// `CollisionProfile` (native 0x1B).
+    CollisionProfile(CollisionProfile),
     BehaviorParams(Box<BehaviorParams>),
     RandomSelectionTable(RandomSelectionTable),
     /// `QualifiedDataIDArray`: the set of (DB type, DID) pairs (`std::set<QualifiedDataID>`;
@@ -378,6 +388,10 @@ impl NativeObject {
             ntype::MISSILE_PARAMETERS => {
                 NativeObject::MissileParameters(MissileParameters::default())
             }
+            ntype::COLLISION_PARAMETERS => {
+                NativeObject::CollisionParameters(CollisionParameters::default())
+            }
+            ntype::COLLISION_PROFILE => NativeObject::CollisionProfile(CollisionProfile::default()),
             ntype::GM_SCENE_INFO => NativeObject::SceneInfo(Box::default()),
             ntype::GM_KEYFRAME => NativeObject::Keyframe(Box::default()),
             ntype::GM_SCENE_INFO_LIST => NativeObject::SceneList(Vec::new()),

@@ -258,6 +258,10 @@ pub struct Vm {
     /// hover setters of `gCWPhysicsObject`), as the server event each one is: the object and
     /// the action, in order. The client applies them to the object's body.
     pub physics: Vec<(u64, ac2_net::protocol::ObjectAction)>,
+    /// The impact minimums the scripts set on weenies' collision managers through
+    /// `gCWPhysicsObject::CallEFun_SetCollisionState`: the object, then the XY and Z minimums
+    /// of its `CollisionParameters` (a zero keeps the body's), in order.
+    pub collision_minimums: Vec<(u64, f32, f32)>,
     /// The latent starts: `gCWPhysicsObject::CallEFun_DoMode` and `CallEFun_DoBehavior` stop
     /// their context until the body reports the mode or behaviour done (`ModeDone` /
     /// `BehaviorDone` with the context). The client starts each on the body with its context.
@@ -322,6 +326,7 @@ impl Vm {
             shell_lines: Vec::new(),
             no_draw: Vec::new(),
             physics: Vec::new(),
+            collision_minimums: Vec::new(),
             latent_physics: Vec::new(),
             init_data: Default::default(),
             player: 0,

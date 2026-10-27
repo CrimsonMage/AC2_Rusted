@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 750 done, 167 partial, 476 to do, 511 skipped.
+1904 retail functions: 751 done, 170 partial, 472 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2286,7 +2286,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWInterface::CallEFun_GetOutputFilesPath` · 004bbd90 · legions 004b0cb0 — needs port: script efun get output files path on the interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandleCharacterSessionEnd` · 004bbe30 · legions 004b0d20 — needs port: script IFun handle character session end on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandleCharacterSessionStart` · 004bbec0 · legions 004b0db0 — needs port: script IFun handle character session start on the client interface; no citation in crates/
-- [ ] `gCWInterface::CallIFun_HandleCollision` · 004bbf50 · legions 004b0e40 — needs port: script IFun handle collision on the client interface; no citation in crates/
+- [~] `gCWInterface::CallIFun_HandleCollision` · 004bbf50 · legions 004b0e40 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `gCWInterface::CallIFun_HandleCreation` · 004bc030 · legions 004b0f20 — needs port: script IFun handle creation on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandleDestruction` · 004bc0c0 · legions 004b0fb0 — needs port: script IFun handle destruction on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_HandleEnterWorld` · 004bc150 · legions 004b1040 — needs port: script IFun handle enter world on the client interface; no citation in crates/
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (14/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (15/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — needs port: script efun do story on the physics object; no citation in crates/
@@ -2355,7 +2355,7 @@ Legend and workflow: [README](README.md).
 - [~] `gCWPhysicsObject::CallEFun_ReleaseBehavior` · 004b9b30 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [ ] `gCWPhysicsObject::CallEFun_SetAnimationFrozen` · 004b9c60 — needs port: script efun set animation frozen on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_SetCloaked` · 004b9ce0 — needs port: script efun set cloaked on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_SetCollisionState` · 004b9d60 — needs port: script efun set collision state on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_SetCollisionState` · 004b9d60 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [ ] `gCWPhysicsObject::CallEFun_SetLocalVisualDesc` · 004b9de0 — needs port: script efun set local visual desc on the physics object; no citation in crates/
 - [x] `gCWPhysicsObject::CallEFun_SetMode` · 004b9e60 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::CallEFun_SetMovementFrozen` · 004b9ee0 — needs port: script efun set movement frozen on the physics object; no citation in crates/
@@ -2602,7 +2602,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWInterface::RecvEvt_PlayerDesc` · 0052e6a0 · legions 005129e0 — implemented: cited at crates/ac2-net/src/protocol/qualities.rs:2
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00 — needs port: interface handle intersection done; no citation in crates/
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20 — needs port: interface inq detection profile; no citation in crates/
-- [ ] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40 — needs port: interface handle collision; no citation in crates/
+- [~] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CWInterface::HandleBehaviorDone` · 0052e730 · legions 00512a70 — needs port: interface handle behavior done; no citation in crates/
 - [ ] `CWInterface::HandleReleaseDone` · 0052e750 · legions 00512a90 — needs port: interface handle release done; no citation in crates/
 - [ ] `CWInterface::HandleSliderDone` · 0052e770 · legions 00512ab0 — needs port: interface handle slider done; no citation in crates/
@@ -2853,7 +2853,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::HandleDestruction` · 0052fe80 · legions 00513fd0 — needs port: physics object handle destruction; no citation in crates/
 - [ ] `CWPhysicsObject::DoIntersection` · 0052fe90 — needs port: physics object do intersection; no citation in crates/
 - [ ] `CWPhysicsObject::PerformLOS` · 0052ff20 · legions 00514020 — needs port: physics object perform los; no citation in crates/
-- [ ] `CWPhysicsObject::SetCollisionState` · 0052ff40 · legions 00514040 — needs port: physics object set collision state; no citation in crates/
+- [~] `CWPhysicsObject::SetCollisionState` · 0052ff40 · legions 00514040 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 - [ ] `CWPhysicsObject::GetCollisionState` · 0052ff60 · legions 00514060 — needs port: physics object get collision state; no citation in crates/
 - [ ] `CWPhysicsObject::MissileInitPlaceAndFire` · 0052ff80 · legions 00514080 — needs port: physics object missile init place and fire; no citation in crates/
 - [ ] `CWPhysicsObject::MissileInitialize` · 0052ffa0 · legions 005140a0 — needs port: physics object missile initialize; no citation in crates/

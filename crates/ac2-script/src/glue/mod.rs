@@ -14,6 +14,7 @@
 mod act_info;
 mod behavior;
 mod chargen;
+mod collision;
 mod cparse;
 mod craft_natives;
 mod effect_node;
@@ -73,6 +74,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wlog::register(efuns);
     random::register(efuns);
     behavior::register(efuns);
+    collision::register(efuns);
     missile::register(efuns);
     math::register(efuns);
     multi::register(efuns);

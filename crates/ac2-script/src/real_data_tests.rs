@@ -158,6 +158,8 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::AppearanceInfo(_) => "AppearanceInfo",
         NativeObject::Position(_) => "Position",
         NativeObject::MissileParameters(_) => "MissileParameters",
+        NativeObject::CollisionParameters(_) => "CollisionParameters",
+        NativeObject::CollisionProfile(_) => "CollisionProfile",
         NativeObject::BehaviorParams(_) => "BehaviorParams",
         NativeObject::RandomSelectionTable(_) => "RandomSelectionTable",
         NativeObject::GameplayOptions(_) => "GameplayOptionsProfile",

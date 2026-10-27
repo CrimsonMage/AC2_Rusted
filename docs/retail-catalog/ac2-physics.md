@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 463 done, 91 partial, 792 to do, 778 skipped.
+2124 retail functions: 466 done, 93 partial, 787 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -732,7 +732,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910 — needs port: collision reports and properties
 - [ ] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0 — needs port: collision reports and properties
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (1/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (3/61)
 
 ### CollisionParameters
 - [ ] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — needs port: ethereal/collision parameter state
@@ -742,8 +742,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ObjCollisionType::UpdateIgnoreCollide` · 004f6370 · legions 004e8b60 — needs port: collision reports and properties
 
 ### CCollisionManager
-- [~] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
-- [~] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
+- [x] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
+- [x] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 - [ ] `CCollisionManager::GetCollisionState` · 004f63b0 · legions 004e8ba0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — needs port: collision reports and properties
@@ -812,7 +812,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — needs port: collision reports and properties
+- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 - [ ] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — needs port: collision reports and properties
 - [ ] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — needs port: collision reports and properties
@@ -823,7 +823,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::EndOnLandscape` · 004f8610 · legions 004eae60 — needs port: collision reports and properties
 - [ ] `CCollisionManager::AddPusherProperties` · 004f8670 · legions 004eaec0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::AddToCollideList` · 004f9260 · legions 004ebab0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::ReportCollision` · 004f9390 · legions 004ebbe0 — needs port: collision reports and properties
+- [~] `CCollisionManager::ReportCollision` · 004f9390 · legions 004ebbe0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CCollisionManager::AddToPropertyList` · 004f9a00 · legions 004ec250 — needs port: collision reports and properties
 
 ### PHashTable<InstanceID,ObjCollisionType>
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (143/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (144/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2274,7 +2274,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::DeleteAllTargetedDetectionCylspheres` · 004dee30 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::InqDetectors` · 004dee50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ReceiveDetectionUpdate` · 004dee70 · legions 004d18d0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetCollisionState` · 004deea0 · legions 004d1900 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::SetCollisionState` · 004deea0 · legions 004d1900 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 - [ ] `CPhysicsObj::GetCollisionState` · 004deef0 · legions 004d1950 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionStatePtr` · 004def40 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionProfile` · 004def50 — needs port: cite-only physics-object method
@@ -2476,7 +2476,7 @@ Legend and workflow: [README](README.md).
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitObjectBegin` · 004e2ed0 · legions 004d5920 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30 — InitObjectEnd's minimums (XY and Z) are not set at object init: only SetVelocityScale and SetJumpScale update them.
+- [x] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 - [x] `CPhysicsObj::RecvEvt_AddImpulse` · 004e30b0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::GetStepDownHeight` · 004e30e0
 - [-] `CPhysicsObj::GetRenderBoundingBox` · 004e3140 · legions 004d5b90 — render plumbing
@@ -2582,7 +2582,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
 - [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
-- [ ] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
@@ -2610,7 +2610,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
-- [ ] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [ ] `CPhysicsObj::AddChild` · 004e9200 — needs port: cite-only physics-object method

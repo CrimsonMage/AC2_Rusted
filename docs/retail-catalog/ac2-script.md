@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1431 done, 110 partial, 602 to do, 325 skipped.
+2468 retail functions: 1435 done, 110 partial, 598 to do, 325 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1557,11 +1557,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 - [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 
-## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (0/25)
+## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (2/25)
 
 ### gCollisionParameters
-- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactZ` · 00549250 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [x] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
+- [x] `gCollisionParameters::CallEFun_SetMinReportedImpactZ` · 00549250 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [ ] `gCollisionParameters::CallEFun_SetMovementHighDWord` · 005492b0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_SetMovementLowDWord` · 00549320 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_SetPhysicsMovementType` · 00549390 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
@@ -1586,7 +1586,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 - [ ] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 
-## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (0/15)
+## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (2/15)
 
 ### gCollisionProfile
 - [ ] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
@@ -1594,7 +1594,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [x] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [ ] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_FindObject` · 00548cb0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_GetEnvProperty` · 00548d60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
@@ -1602,7 +1602,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCollisionProfile::CallEFun_GetObjectProperty` · 00548ea0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_GetSurfaceProperty` · 00548f40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 - [ ] `gCollisionProfile::CallEFun_GetWaterProperty` · 00548fe0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-- [ ] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [x] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 
 ## `portal/shared/src/interp/glue/gdbcache.cpp.c` (4/4)

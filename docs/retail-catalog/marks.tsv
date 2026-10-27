@@ -3628,7 +3628,7 @@ key	status	note
 004b9b30	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 004b9c60	_	needs port: script efun set animation frozen on the physics object; no citation in crates/
 004b9ce0	_	needs port: script efun set cloaked on the physics object; no citation in crates/
-004b9d60	_	needs port: script efun set collision state on the physics object; no citation in crates/
+004b9d60	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 004b9de0	_	needs port: script efun set local visual desc on the physics object; no citation in crates/
 004b9e60	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 004b9ee0	_	needs port: script efun set movement frozen on the physics object; no citation in crates/
@@ -3680,7 +3680,7 @@ key	status	note
 004bbd90	_	needs port: script efun get output files path on the interface; no citation in crates/
 004bbe30	_	needs port: script IFun handle character session end on the client interface; no citation in crates/
 004bbec0	_	needs port: script IFun handle character session start on the client interface; no citation in crates/
-004bbf50	_	needs port: script IFun handle collision on the client interface; no citation in crates/
+004bbf50	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004bc030	_	needs port: script IFun handle creation on the client interface; no citation in crates/
 004bc0c0	_	needs port: script IFun handle destruction on the client interface; no citation in crates/
 004bc150	_	needs port: script IFun handle enter world on the client interface; no citation in crates/
@@ -4528,7 +4528,7 @@ key	status	note
 004dee30	_	needs port: cite-only physics-object method
 004dee50	_	needs port: cite-only physics-object method
 004dee70	_	needs port: cite-only physics-object method
-004deea0	_	needs port: cite-only physics-object method
+004deea0	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 004deef0	_	needs port: cite-only physics-object method
 004def40	_	needs port: cite-only physics-object method
 004def50	_	needs port: cite-only physics-object method
@@ -4714,7 +4714,7 @@ key	status	note
 004e2d40	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004e2d80	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 004e2ed0	_	needs port: cite-only physics-object method
-004e2fe0	~	InitObjectEnd's minimums (XY and Z) are not set at object init: only SetVelocityScale and SetJumpScale update them.
+004e2fe0	x	ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 004e30b0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e30e0	x	
 004e3140	-	render plumbing
@@ -4808,7 +4808,7 @@ key	status	note
 004e6f80	_	needs port: cite-only physics-object method
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
-004e79a0	_	needs port: cite-only physics-object method
+004e79a0	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004e79e0	_	needs port: cite-only physics-object method
 004e7a60	_	needs port: cite-only physics-object method
 004e7af0	~	PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
@@ -4836,7 +4836,7 @@ key	status	note
 004e8ec0	_	needs port: cite-only physics-object method
 004e8f20	_	needs port: cite-only physics-object method
 004e8f80	x	
-004e9040	_	needs port: cite-only physics-object method
+004e9040	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004e90c0	_	needs port: cite-only physics-object method
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9200	_	needs port: cite-only physics-object method
@@ -5277,8 +5277,8 @@ key	status	note
 004f6330	_	needs port: ethereal/collision parameter state
 004f6350	_	needs port: ethereal/collision parameter state
 004f6370	_	needs port: collision reports and properties
-004f6390	~	Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
-004f63a0	~	Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
+004f6390	x	ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
+004f63a0	x	ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 004f63b0	_	needs port: collision reports and properties
 004f63f0	_	needs port: collision reports and properties
 004f64d0	_	needs port: collision reports and properties
@@ -5317,7 +5317,7 @@ key	status	note
 004f7770	_	needs port: collision reports and properties
 004f7930	_	needs port: collision reports and properties
 004f7b10	_	needs port: collision reports and properties
-004f7ca0	_	needs port: collision reports and properties
+004f7ca0	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 004f7db0	_	needs port: collision reports and properties
 004f7e30	_	needs port: collision reports and properties
 004f7ed0	_	needs port: collision reports and properties
@@ -5328,7 +5328,7 @@ key	status	note
 004f8610	_	needs port: collision reports and properties
 004f8670	_	needs port: collision reports and properties
 004f9260	_	needs port: collision reports and properties
-004f9390	_	needs port: collision reports and properties
+004f9390	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004f9a00	_	needs port: collision reports and properties
 004f9a30	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004f9d30	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -6147,7 +6147,7 @@ key	status	note
 0052e6a0	x	implemented: cited at crates/ac2-net/src/protocol/qualities.rs:2
 0052e6c0	_	needs port: interface handle intersection done; no citation in crates/
 0052e6e0	_	needs port: interface inq detection profile; no citation in crates/
-0052e700	_	needs port: interface handle collision; no citation in crates/
+0052e700	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 0052e730	_	needs port: interface handle behavior done; no citation in crates/
 0052e750	_	needs port: interface handle release done; no citation in crates/
 0052e770	_	needs port: interface handle slider done; no citation in crates/
@@ -6191,7 +6191,7 @@ key	status	note
 0052fe80	_	needs port: physics object handle destruction; no citation in crates/
 0052fe90	_	needs port: physics object do intersection; no citation in crates/
 0052ff20	_	needs port: physics object perform los; no citation in crates/
-0052ff40	_	needs port: physics object set collision state; no citation in crates/
+0052ff40	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 0052ff60	_	needs port: physics object get collision state; no citation in crates/
 0052ff80	_	needs port: physics object missile init place and fire; no citation in crates/
 0052ffa0	_	needs port: physics object missile initialize; no citation in crates/
@@ -7019,7 +7019,7 @@ key	status	note
 00548a80	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548af0	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548b60	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-00548bd0	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+00548bd0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 00548c40	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548cb0	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548d60	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
@@ -7027,10 +7027,10 @@ key	status	note
 00548ea0	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548f40	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 00548fe0	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-00549080	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+00549080	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 00549150	_	needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
-005491f0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549250	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+005491f0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
+00549250	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 005492b0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 00549320	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 00549390	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)

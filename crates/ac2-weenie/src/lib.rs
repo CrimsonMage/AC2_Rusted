@@ -58,7 +58,8 @@ pub use progress::{
 pub use qualities::{DescKind, WeenieQualities};
 pub use reporter::{heading_equals, BodyState, PositionReporter, ReportStamps};
 pub use session::{
-    CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry, IFUN_ON_STAT_CHANGED,
+    CharacterChoice, OnlineConfig, OnlineSession, SessionEvent, WorldEntry, IFUN_HANDLE_COLLISION,
+    IFUN_ON_STAT_CHANGED,
 };
 pub use shell::{
     handler as chat_handler, ChatCommands, ChatHistory, ChatState, ShellAction, Speaker,

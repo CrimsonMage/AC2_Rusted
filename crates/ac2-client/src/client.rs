@@ -706,6 +706,8 @@ impl Client {
             // `CPhysics::UpdatePhysics` on `Timer::local_time`.
             let quanta = self.physics_clock.advance(now);
             let cur_time = self.session.cur_time();
+            // The player's impacts, in the order its quanta recorded them.
+            let mut impacts = Vec::new();
             for _ in 0..quanta {
                 self.track_move_to_target();
                 let player = self
@@ -715,6 +717,7 @@ impl Client {
                     .and_then(|p| p.body.as_mut());
                 if let Some(body) = player {
                     body.physics.step_quantum(&self.terrain);
+                    impacts.extend(body.physics.take_impact_report());
                     // `SmartBox::PlayerPhysicsUpdatedCallback`.
                     if !self.camera.mouse_look {
                         self.update_camera(PHYSICS_QUANTUM, true);
@@ -722,6 +725,12 @@ impl Client {
                 }
                 // `CPhysics::UpdateAllPhysics`: the other objects.
                 self.remotes.step_quantum(&self.terrain, cur_time);
+            }
+            // `CPhysicsObj::ReportCollisions` for the player: its script hears each impact.
+            if let Some(id) = self.player.as_ref().map(|p| p.id) {
+                for report in impacts {
+                    self.collision_reported(id, report, &mut events);
+                }
             }
         }
         self.render_interpolation = self.physics_clock.render_interpolation(now);

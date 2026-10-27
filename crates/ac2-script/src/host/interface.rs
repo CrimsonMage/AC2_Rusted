@@ -42,6 +42,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0080_0007, |vm, ctx| {
         physics_scale(vm, ctx, ObjectAction::SetJumpScale)
     });
+    efuns.register(0x0080_000A, set_collision_state);
 }
 
 /// `gCWPhysicsObject::CallEFun_LookAt(iid)` -> `CWPhysicsObject::LookAt` -> `CPhysicsObj::LookAt`:
@@ -220,6 +221,30 @@ fn physics_scale(vm: &mut Vm, ctx: &mut Context, action: fn(f32) -> ObjectAction
     if id != 0 {
         vm.physics.push((id, action(scale)));
     }
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_SetCollisionState(CollisionParameters *)` ->
+/// `CWPhysicsObject::SetCollisionState` -> `CPhysicsObj::SetCollisionState` ->
+/// `CCollisionManager::SetCollisionState`: the parameters' non-zero impact minimums replace the
+/// weenie's body's (the body keeps the zero ones). The parameters must be a native (an
+/// argument that is not one crashes the script). The efun answers 0, as retail does.
+fn set_collision_state(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let params = Call::new(ctx).word(2);
+    let (xy, z) = match vm.native(params) {
+        Some(NativeObject::CollisionParameters(p)) => {
+            (p.min_reported_impact_xy, p.min_reported_impact_z)
+        }
+        _ => return vm.bad_this(params),
+    };
+    if id != 0 {
+        vm.collision_minimums.push((id, xy, z));
+    }
+    Call::new(ctx).ret(3, 0, tag::BOOL);
     InterpStatus::Success
 }
 
