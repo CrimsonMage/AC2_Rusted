@@ -9,9 +9,12 @@
 //! are filled by code that Legions 7160 does not carry in this page, so an empty location (the GUN
 //! status's "offline or unknown", see [`FriendInfo`]) lists the friend offline.
 //!
-//! Not modelled yet: the status drop-down's choice (`UIElement_Menu` is not ported, so
-//! [`FriendsPanel::message`] reads no choice; [`status_request`] is the request it would send), the
-//! text of an away or do-not-disturb friend (the GUN mode bits are not traced), and the row tooltips.
+//! The status drop-down (`StatusDropDownMenu`, a `UIElement_Menu`) is filled with the status names
+//! when the page is made; a new selection in it is the status request ([`status_request`]).
+//!
+//! Not modelled yet: `RecvNotice_LocalStatus` setting the drop-down from the server's status, the
+//! GUN mode bits of an away or do-not-disturb friend (not traced), the IsMoving reset of the
+//! drop-down (`ListenToMessage`'s global 0xFFFF0005), and the row tooltips.
 
 use std::sync::Arc;
 
@@ -20,6 +23,7 @@ use ac2_weenie::FriendInfo;
 use crate::element::UiTree;
 use crate::friends::{FriendsRequest, FriendsUi};
 use crate::layout::LayoutDesc;
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON};
 
@@ -42,6 +46,13 @@ pub fn status_request(index: usize) -> Option<FriendsRequest> {
     })
 }
 
+/// The status drop-down's items, in [`STATUS_TABLE`]'s order (`gmFriendsUI::StatusTable`'s names).
+const STATUS_NAMES: [&str; 3] = [
+    "ID_FriendStatus_Available",
+    "ID_FriendStatus_DoNotDisturb",
+    "ID_FriendStatus_AwayFromKeyboard",
+];
+
 /// The friends page's state: the model, and the page's elements.
 #[derive(Debug, Clone)]
 pub struct FriendsPanel {
@@ -54,6 +65,8 @@ pub struct FriendsPanel {
     /// `m_addButton`, `m_removeButton`.
     add: Option<usize>,
     remove: Option<usize>,
+    /// `m_statusMenu` (`StatusDropDownMenu`).
+    status: Option<usize>,
     /// The friend rows as listed: the row element and the friend's name, in list order.
     rows: Vec<(usize, String)>,
 }
@@ -74,6 +87,16 @@ impl FriendsPanel {
         if let Some(remove) = remove {
             tree.set_bool(remove, BUTTON_GHOSTED, true);
         }
+        // `gmFriendsUI::gmFriendsUI`: the status items inserted, the first selected (before the
+        // page listens to the drop-down, so that selection is not its message).
+        let status = child(tree, "StatusDropDownMenu");
+        if let Some(menu) = status {
+            for (index, name) in STATUS_NAMES.iter().enumerate() {
+                tree.menu_insert_string(menu, layout.string_table, id(name), index);
+            }
+            tree.menu_set_selected_index(menu, Some(0));
+            tree.menu_drop_selection_messages(menu);
+        }
         Self {
             layout: Arc::clone(layout),
             model: FriendsUi::default(),
@@ -81,6 +104,7 @@ impl FriendsPanel {
             list,
             add,
             remove,
+            status,
             rows: Vec::new(),
         }
     }
@@ -139,7 +163,8 @@ impl FriendsPanel {
 
     /// The panel's messages. A press on a friend row selects it. The add button sends the
     /// target's name (`HandleAddButton`, `target` as [`FriendsPanel::set_target`] has it); the
-    /// remove button sends the selected friend (`HandleRemoveButton`).
+    /// remove button sends the selected friend (`HandleRemoveButton`). A new selection in the
+    /// status drop-down sends its status (`HandleStatusChange`).
     pub fn message(
         &mut self,
         tree: &mut UiTree,
@@ -147,6 +172,14 @@ impl FriendsPanel {
         target: Option<&str>,
     ) -> Vec<FriendsRequest> {
         let mut requests = Vec::new();
+        if message.message == MSG_MENU_NEW_SELECTION
+            && message.element.is_some()
+            && message.element == self.status
+        {
+            if let Some(index) = self.status.and_then(|menu| tree.menu_selected_index(menu)) {
+                requests.extend(status_request(index));
+            }
+        }
         if message.message == MSG_BUTTON_RELEASE_ON {
             if message.element.is_some() && message.element == self.add {
                 if let Some(name) = target.filter(|n| !n.is_empty()) {

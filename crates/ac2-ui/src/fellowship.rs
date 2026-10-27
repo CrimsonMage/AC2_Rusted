@@ -8,8 +8,8 @@
 //! The panel turns the player's buttons and clicks into [`FellowshipRequest`]s; the client runs
 //! them (`gmCWInterface::DoFellowship*`, `SetSelection`, `DoAssistedTell`).
 //!
-//! Not modelled yet: the looting drop-down (`UIElement_Menu`; Create sends retail's default,
-//! method 1), tooltips and the map markers (`SendNotice_AddMarker` / `RemoveMarker` /
+//! Not modelled yet: the looting drop-down (`menu.rs` ports `UIElement_Menu`, but it is not
+//! wired here; Create sends retail's default, method 1), tooltips and the map markers (`SendNotice_AddMarker` / `RemoveMarker` /
 //! `ClearMarkers`). The radar's mini panel is `mini_fellow.rs`.
 
 use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION};

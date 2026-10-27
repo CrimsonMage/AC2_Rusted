@@ -84,3 +84,41 @@ fn the_list_lists_the_online_friends_then_the_offline_ones() {
         })
     );
 }
+
+#[test]
+fn the_status_drop_down_sends_the_chosen_status() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut page: FriendsPanel = hud.friends.take().expect("the friends page");
+    let root = page_root(&hud.tree);
+    let menu = hud
+        .tree
+        .child_recursive(root, tokenize("StatusDropDownMenu"))
+        .expect("the status drop-down");
+    // The page's own selection when it was made sends nothing; the first status is selected.
+    assert_eq!(hud.tree.menu_selected_index(menu), Some(0));
+    assert!(!hud
+        .tree
+        .take_messages()
+        .iter()
+        .any(|message| message.element == Some(menu)));
+
+    // A choice in the drop-down (the menu's new selection) is the status request.
+    hud.tree.menu_set_selected_index(menu, Some(2));
+    let requests: Vec<FriendsRequest> = hud
+        .tree
+        .take_messages()
+        .iter()
+        .flat_map(|message| page.message(&mut hud.tree, message, None))
+        .collect();
+    assert_eq!(
+        requests,
+        vec![FriendsRequest::Status {
+            flags: 2,
+            emote: Some("afk")
+        }]
+    );
+}
