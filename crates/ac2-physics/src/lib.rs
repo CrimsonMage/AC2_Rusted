@@ -16,6 +16,7 @@ mod body;
 mod body_anim_tests;
 mod bsp;
 mod cells;
+mod collision_impact;
 mod constraint;
 mod envcell;
 #[cfg(test)]

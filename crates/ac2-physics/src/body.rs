@@ -495,6 +495,16 @@ impl PhysicsBody {
     /// `CMotionInterp::SetVelocityScale`: scales the walking and running speeds.
     pub fn set_velocity_scale(&mut self, scale: f32) {
         self.object.motion.set_velocity_scale(scale);
+        let standard = self.object.motion.standard_motion_values();
+        self.object
+            .impact_minimums
+            .set_velocity_scale(scale, standard.max_forward_velocity);
+    }
+
+    /// The last impact speed an environment contact recorded above the collision minimum
+    /// (`CCollisionManager::SetCollisionNormal`), `None` until one does.
+    pub fn last_impact_speed(&self) -> Option<f32> {
+        self.object.impact_speed
     }
 
     /// `ECM_Physics::RecvEvt_SetAccelerationScale` -> `CMotionInterp::SetAccelerationScale`.
@@ -507,6 +517,10 @@ impl PhysicsBody {
     pub fn set_jump_scale(&mut self, scale: f32) {
         if scale >= 0.0 {
             self.object.jump_scale = scale;
+            let standard = self.object.motion.standard_motion_values();
+            self.object
+                .impact_minimums
+                .set_jump_scale(scale, standard.jump_impulse);
         }
     }
 

@@ -215,6 +215,13 @@ impl MotionInterp {
             .unwrap_or_default()
     }
 
+    /// `PHYSICSOBJREP::GetStandardMotionValues`: the peace-on-earth values (element and mode
+    /// `0x40000001`), else the static default.
+    pub(crate) fn standard_motion_values(&self) -> Ac2MotionValues {
+        self.find_motion_values(ELEMENT_GROUND, MODE_DEFAULT)
+            .unwrap_or_default()
+    }
+
     /// `CMotionInterp::GetMotionValuesForElement`: `element` in the desired mode, else the
     /// static default.
     pub(crate) fn motion_values_for_element(&self, element: u32) -> Ac2MotionValues {

@@ -89,6 +89,10 @@ pub(crate) struct PhysicsObj {
     /// `CPhysicsObj::m_fJumpScale` and `m_nTimesJumped`.
     pub jump_scale: f32,
     pub times_jumped: u32,
+    /// The collision impact minimums (`CCollisionManager::m_current_info`) and the last impact
+    /// speed the environment contact recorded (`m_impact_speed`, `m_has_normal`).
+    pub(crate) impact_minimums: crate::collision_impact::ImpactMinimums,
+    pub(crate) impact_speed: Option<f32>,
     /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
     /// element without one; this port takes the element at once instead so tableless bodies
     /// still swim and fall.
@@ -156,6 +160,8 @@ impl PhysicsObj {
             scale: Vector::new(1.0, 1.0, 1.0),
             jump_scale: 1.0,
             times_jumped: 0,
+            impact_minimums: crate::collision_impact::ImpactMinimums::default(),
+            impact_speed: None,
             element: ELEMENT_GROUND,
             motion,
             anim: AnimRep::unanimated(),

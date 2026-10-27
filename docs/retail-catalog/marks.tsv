@@ -4670,7 +4670,7 @@ key	status	note
 004e22c0	_	needs port: cite-only physics-object method
 004e22d0	_	needs port: cite-only physics-object method
 004e22e0	_	needs port: cite-only physics-object method
-004e22f0	~	ac2-physics body.rs set_velocity_scale sets CMotionInterp velocity scale. The collision impact minimum (CCollisionManager::SetMinReportedImpactXY from scale and a float at the body's +0x100 descriptor, plus 0.1) is not modelled: this client has no collision manager or collision reports
+004e22f0	x	Collision impact minimum (CCollisionManager::SetMinReportedImpactXY): scale times the standard values' mMaxForwardVel plus 0.1 (SetVelocityScale), and Z (SetMinReportedImpactZ): jump scale times mJumpImpulse plus 0.1 (SetJumpScale, the field read through CPartArray::GetOpacity). ac2-physics collision_impact.rs, body.rs set_velocity_scale/set_jump_scale. Tests: collision_impact tests. Retail skips the minimum when the object has no collision manager; here it is always kept (no manager).
 004e2340	_	needs port: cite-only physics-object method
 004e2350	x	CPhysicsObj::SetJumpScale - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e23a0	_	needs port: cite-only physics-object method
@@ -4714,7 +4714,7 @@ key	status	note
 004e2d40	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004e2d80	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 004e2ed0	_	needs port: cite-only physics-object method
-004e2fe0	_	needs port: cite-only physics-object method
+004e2fe0	~	InitObjectEnd's minimums (XY and Z) are not set at object init: only SetVelocityScale and SetJumpScale update them.
 004e30b0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e30e0	x	
 004e3140	-	render plumbing
@@ -5277,13 +5277,13 @@ key	status	note
 004f6330	_	needs port: ethereal/collision parameter state
 004f6350	_	needs port: ethereal/collision parameter state
 004f6370	_	needs port: collision reports and properties
-004f6390	_	needs port: collision reports and properties
-004f63a0	_	needs port: collision reports and properties
+004f6390	~	Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
+004f63a0	~	Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
 004f63b0	_	needs port: collision reports and properties
 004f63f0	_	needs port: collision reports and properties
 004f64d0	_	needs port: collision reports and properties
 004f64f0	_	needs port: collision reports and properties
-004f6520	_	needs port: collision reports and properties
+004f6520	~	gate modelled (ac2-physics collision_impact.rs); collision manager sounds and reports not ported
 004f65a0	_	needs port: collision reports and properties
 004f65b0	_	needs port: collision reports and properties
 004f65f0	_	needs port: collision reports and properties

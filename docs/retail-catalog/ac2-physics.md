@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 462 done, 86 partial, 798 to do, 778 skipped.
+2124 retail functions: 463 done, 89 partial, 794 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -742,13 +742,13 @@ Legend and workflow: [README](README.md).
 - [ ] `ObjCollisionType::UpdateIgnoreCollide` · 004f6370 · legions 004e8b60 — needs port: collision reports and properties
 
 ### CCollisionManager
-- [ ] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — needs port: collision reports and properties
+- [~] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
+- [~] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — Retail stores the minimums in the collision manager; here the body keeps them (ac2-physics collision_impact.rs, set by SetVelocityScale and SetJumpScale). Nothing else reads them yet.
 - [ ] `CCollisionManager::GetCollisionState` · 004f63b0 · legions 004e8ba0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateCollidePhysicsMask` · 004f64f0 · legions 004e8ce0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — needs port: collision reports and properties
+- [~] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — gate modelled (ac2-physics collision_impact.rs); collision manager sounds and reports not ported
 - [ ] `CCollisionManager::SetNoCollisionNormal` · 004f65a0 · legions 004e8d90 — needs port: collision reports and properties
 - [ ] `CCollisionManager::SetContactPlane` · 004f65b0 · legions 004e8da0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::SetInWater` · 004f65f0 · legions 004e8de0 — needs port: collision reports and properties
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (142/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (143/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2420,7 +2420,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetDefaultHoverHeight` · 004e22c0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetVelocityScale` · 004e22d0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetAccelerationScale` · 004e22e0 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::SetVelocityScale` · 004e22f0 — ac2-physics body.rs set_velocity_scale sets CMotionInterp velocity scale. The collision impact minimum (CCollisionManager::SetMinReportedImpactXY from scale and a float at the body's +0x100 descriptor, plus 0.1) is not modelled: this client has no collision manager or collision reports
+- [x] `CPhysicsObj::SetVelocityScale` · 004e22f0 — Collision impact minimum (CCollisionManager::SetMinReportedImpactXY): scale times the standard values' mMaxForwardVel plus 0.1 (SetVelocityScale), and Z (SetMinReportedImpactZ): jump scale times mJumpImpulse plus 0.1 (SetJumpScale, the field read through CPartArray::GetOpacity). ac2-physics collision_impact.rs, body.rs set_velocity_scale/set_jump_scale. Tests: collision_impact tests. Retail skips the minimum when the object has no collision manager; here it is always kept (no manager).
 - [ ] `CPhysicsObj::SetAccelerationScale` · 004e2340 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::SetJumpScale` · 004e2350 — CPhysicsObj::SetJumpScale - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [ ] `CPhysicsObj::GetJumpScale` · 004e23a0 — needs port: cite-only physics-object method
@@ -2476,7 +2476,7 @@ Legend and workflow: [README](README.md).
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitObjectBegin` · 004e2ed0 · legions 004d5920 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::InitObjectEnd` · 004e2fe0 · legions 004d5a30 — InitObjectEnd's minimums (XY and Z) are not set at object init: only SetVelocityScale and SetJumpScale update them.
 - [x] `CPhysicsObj::RecvEvt_AddImpulse` · 004e30b0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::GetStepDownHeight` · 004e30e0
 - [-] `CPhysicsObj::GetRenderBoundingBox` · 004e3140 · legions 004d5b90 — render plumbing
