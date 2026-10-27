@@ -4458,7 +4458,7 @@ key	status	note
 0059a1c0	x	ac2-ui maps.rs
 0059a2b0	x	ac2-ui maps.rs
 0059a320	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
-0059a360	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+0059a360	x	ac2-ui keymap_file.rs update_version + MAIN_KEY_UPDATES (Main table row 0x9d73ac); read_key_map_upgraded rewrites the file (keymap_file_tests)
 0059a690	-	CKeyMap::LoadSemantics: the retail key-name strings are game data; this port authors its own names (ac2-ui key_names.rs)
 0059d820	x	ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
 0059de20	x	ac2-ui keymap_file.rs key_map_tree / key_map_from_tree: the .keymap text tree (PFileParser name [ children ]) written by SaveKeyboardList and read by PushKeyMap, the VersionHeader and GUID layout; round-trip tests and real-data round trip
@@ -4485,7 +4485,7 @@ key	status	note
 005a05e0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 005a09b0	x	ac2-ui input.rs
 005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-005a0da0	~	ac2-ui controls.rs Controls::load_with + keymap_file: reads the player's Main/Shift/Control.keymap, falls back per map to the DAT map (gmClient::InitKeymap order). Not: UpdateVersion's table upgrade of old files
+005a0da0	~	ac2-ui controls.rs load_with + keymap_file read_key_map_upgraded: upgrade and rewrite done; retail's Destroy/ToFileNode/SaveToFile step is the same write_atomic
 005a0f80	x	ac2-ui input.rs
 005a1000	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a10f0	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records

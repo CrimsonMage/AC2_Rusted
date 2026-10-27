@@ -16,8 +16,9 @@
 //! The semantic name is the key's name (`CKeyMap::GetNameBySemantic`); this port writes its own
 //! key names (`key_names`), so a file from a retail client loads only the bindings whose names
 //! this port knows (the others are dropped, as `FromFileNode` drops an unknown semantic name).
-//! `PFileParser`'s include files, escapes and version upgrade table (`UpdateVersion`) are not
-//! read.
+//! The version header is read: a file older than the map's upgrade table (`CKeyMap::UpdateVersion`,
+//! [`MAIN_KEY_UPDATES`]) gains the bindings the table adds, and is rewritten at the current version
+//! (`CInputManager_WIN32::PushKeyMap`). `PFileParser`'s include files and escapes are not read.
 
 use std::collections::HashMap;
 use std::io;
@@ -31,6 +32,24 @@ use crate::pregame::KeyMapSet;
 const VERSION_HEADER: &str = "VersionHeader";
 /// The version `ToFileNode` writes.
 const VERSION: u32 = 1;
+
+/// One row of a key map's upgrade table (`VersionKeyUpdate`): a file older than `version` that
+/// does not bind `semantic` gets the binding `name` (the action's name, as the DATs give it).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct VersionKeyUpdate {
+    pub version: u32,
+    pub semantic: u32,
+    pub name: &'static str,
+}
+
+/// The Main map's upgrade table. `gmClient::InitKeymap` pushes `Main.keymap` with one row, read
+/// from the client's data at 0x009D73AC (the Legions 7160 build); the Shift and Control maps are
+/// pushed with no table. The row adds `REPLY_KEY` on the R key to a file older than version 1.
+pub const MAIN_KEY_UPDATES: &[VersionKeyUpdate] = &[VersionKeyUpdate {
+    version: 1,
+    semantic: 0x8100_0413,
+    name: "REPLY_KEY",
+}];
 /// A GUID's parts: `Data1`, `Data2`, `Data3` and eight `Data4` bytes.
 const GUID_PARTS: usize = 11;
 
@@ -240,14 +259,10 @@ pub fn key_map_from_tree(
     root: &FileNode,
     actions: &HashMap<String, u32>,
 ) -> Result<KeyMap, KeymapFormatError> {
+    version_of(root)?;
     let mut records = root.children.iter().peekable();
     if let Some(header) = records.peek() {
         if header.name == VERSION_HEADER {
-            header
-                .children
-                .first()
-                .and_then(|v| parse_uint(&v.name))
-                .ok_or(KeymapFormatError("invalid version info"))?;
             records.next();
         }
     }
@@ -287,6 +302,47 @@ pub fn key_map_from_tree(
         guid,
         mappings,
     })
+}
+
+/// The file's version: the `VersionHeader` value, or 0 for a file with no header (the version the
+/// upgrade tables are checked against).
+pub fn version_of(root: &FileNode) -> Result<u32, KeymapFormatError> {
+    match root.children.first() {
+        Some(header) if header.name == VERSION_HEADER => header
+            .children
+            .first()
+            .and_then(|v| parse_uint(&v.name))
+            .map(|v| v as u32)
+            .ok_or(KeymapFormatError("invalid version info")),
+        _ => Ok(0),
+    }
+}
+
+/// `CKeyMap::UpdateVersion`: each row newer than the file's `version` whose key the map does not
+/// bind adds its binding. Returns whether a binding was added. A row whose action name the DATs
+/// do not hold is skipped (retail would bind the enum's zero value, which does nothing).
+pub fn update_version(
+    map: &mut KeyMap,
+    version: u32,
+    table: &[VersionKeyUpdate],
+    actions: &HashMap<String, u32>,
+) -> bool {
+    let mut updated = false;
+    for row in table {
+        if version >= row.version || map.mappings.iter().any(|m| m.semantic == row.semantic) {
+            continue;
+        }
+        let Some(&action) = actions.get(row.name) else {
+            continue;
+        };
+        map.mappings.push(ActionMapping {
+            action,
+            semantic: row.semantic,
+            name: row.name.to_owned(),
+        });
+        updated = true;
+    }
+    updated
 }
 
 /// The action a name stands for: its name in the table, or the enum value a name the table does
@@ -397,6 +453,38 @@ pub fn read_key_map(
         Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(None),
         Err(error) => Err(error),
     }
+}
+
+/// `CInputManager_WIN32::PushKeyMap`'s read of one map: `CKeyMap::FromFileNode`, then
+/// `CKeyMap::UpdateVersion` with the map's upgrade `table`. When the upgrade added a binding the
+/// file is rewritten at the current version, as `PushKeyMap` saves it; a file that cannot be
+/// rewritten still loads upgraded. `Ok(None)` when there is no file.
+pub fn read_key_map_upgraded(
+    path: &Path,
+    actions: &HashMap<String, u32>,
+    table: &[VersionKeyUpdate],
+) -> io::Result<Option<Result<KeyMap, KeymapFormatError>>> {
+    let text = match std::fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error),
+    };
+    let root = match parse_tree(&text) {
+        Ok(root) => root,
+        Err(error) => return Ok(Some(Err(error))),
+    };
+    let version = match version_of(&root) {
+        Ok(version) => version,
+        Err(error) => return Ok(Some(Err(error))),
+    };
+    let mut map = match key_map_from_tree(&root, actions) {
+        Ok(map) => map,
+        Err(error) => return Ok(Some(Err(error))),
+    };
+    if update_version(&mut map, version, table, actions) {
+        let _ = ac2_prefs::paths::write_atomic(path, format_key_map(&map).as_bytes());
+    }
+    Ok(Some(Ok(map)))
 }
 
 /// Writes a keymap set's three files (`SaveKeyboardList`'s `ToFileNode` and `SaveToFile`).

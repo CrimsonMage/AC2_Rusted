@@ -10,7 +10,7 @@ use ac2_weenie::ActiveAction;
 use crate::camera_ui::{CameraUi, CameraUiEffect, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::input::{InputEvent, InputManager, RawAction, DEVICE_MOUSE};
 use crate::interpreter::{ActionInterpreter, Dispatch};
-use crate::keymap_file::{self, KeymapFiles};
+use crate::keymap_file::{self, KeymapFiles, MAIN_KEY_UPDATES};
 use crate::maps::{
     load_action_map, load_key_map, KeyMap, KEYMAP_CONTROL, KEYMAP_MAIN, KEYMAP_SHIFT,
 };
@@ -92,12 +92,20 @@ impl Controls {
             dat_maps.push(load_key_map(store, enum_value)?.map(|map| (*map).clone()));
         }
         let actions = keymap_file::action_table(dat_maps.iter().flatten());
-        for (index, (_, meta)) in slots.into_iter().enumerate() {
+        for (index, (enum_value, meta)) in slots.into_iter().enumerate() {
+            // `gmClient::InitKeymap` pushes the Main map with its upgrade table; the others have none.
+            let table: &[keymap_file::VersionKeyUpdate] = if enum_value == KEYMAP_MAIN {
+                MAIN_KEY_UPDATES
+            } else {
+                &[]
+            };
             let from_file = match saved {
-                Some(files) => keymap_file::read_key_map(files.path(index), &actions)
-                    .ok()
-                    .flatten()
-                    .and_then(Result::ok),
+                Some(files) => {
+                    keymap_file::read_key_map_upgraded(files.path(index), &actions, table)
+                        .ok()
+                        .flatten()
+                        .and_then(Result::ok)
+                }
                 None => None,
             };
             if let Some(map) = from_file.as_ref().or(dat_maps[index].as_ref()) {

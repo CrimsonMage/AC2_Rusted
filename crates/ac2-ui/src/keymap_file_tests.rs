@@ -4,8 +4,9 @@
 use std::collections::HashMap;
 
 use crate::keymap_file::{
-    action_table, format_key_map, format_tree, parse_key_map, parse_tree, read_key_map, save_set,
-    FileNode, KeymapFiles,
+    action_table, format_key_map, format_tree, key_map_from_tree, key_map_tree, parse_key_map,
+    parse_tree, read_key_map, read_key_map_upgraded, save_set, update_version, version_of,
+    FileNode, KeymapFiles, MAIN_KEY_UPDATES,
 };
 use crate::maps::{ActionMapping, KeyMap};
 use crate::pregame::KeyMapSet;
@@ -280,5 +281,151 @@ fn a_saved_file_changes_the_controls_it_loads() {
         ),
         Some(jump)
     );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// `REPLY_KEY`'s action (the chat's reply key) and the R key the Main table binds it to.
+const REPLY: u32 = 0x4100_0049;
+const R: u32 = 0x8100_0413;
+
+/// The actions the DATs hold, with `REPLY_KEY` among them.
+fn actions_with_reply() -> HashMap<String, u32> {
+    let mut table = actions();
+    table.insert("REPLY_KEY".to_owned(), REPLY);
+    table
+}
+
+/// A map's text as a version 0 file writes it: the `VersionHeader` record left out.
+fn without_header(map: &KeyMap) -> String {
+    let mut tree = key_map_tree(map);
+    assert_eq!(tree.children[0].name, "VersionHeader");
+    tree.children.remove(0);
+    format_tree(&tree)
+}
+
+fn reply_binding() -> ActionMapping {
+    ActionMapping {
+        action: REPLY,
+        semantic: R,
+        name: "REPLY_KEY".to_owned(),
+    }
+}
+
+#[test]
+fn the_version_header_is_read_and_a_headerless_file_is_version_zero() {
+    let current = parse_tree(&format_key_map(&sample())).unwrap();
+    assert_eq!(version_of(&current), Ok(1));
+    let old = parse_tree(&without_header(&sample())).unwrap();
+    assert_eq!(version_of(&old), Ok(0));
+}
+
+/// `CKeyMap::UpdateVersion`: a version 0 file gains the R key's `REPLY_KEY` binding; the upgrade
+/// does not run a second time.
+#[test]
+fn a_file_older_than_the_table_gains_its_binding() {
+    let root = parse_tree(&without_header(&sample())).unwrap();
+    let mut map = key_map_from_tree(&root, &actions_with_reply()).unwrap();
+    assert!(update_version(
+        &mut map,
+        0,
+        MAIN_KEY_UPDATES,
+        &actions_with_reply()
+    ));
+    assert!(map.mappings.contains(&reply_binding()));
+    assert!(!update_version(
+        &mut map,
+        0,
+        MAIN_KEY_UPDATES,
+        &actions_with_reply()
+    ));
+}
+
+#[test]
+fn a_current_file_is_not_upgraded() {
+    let mut map = sample();
+    let before = map.clone();
+    assert!(!update_version(
+        &mut map,
+        1,
+        MAIN_KEY_UPDATES,
+        &actions_with_reply()
+    ));
+    assert_eq!(map, before);
+}
+
+/// The file's own binding of the R key stays: the table adds only where the key is unbound.
+#[test]
+fn a_key_the_file_binds_is_kept() {
+    let mut map = sample();
+    map.mappings.push(ActionMapping {
+        action: JUMP,
+        semantic: R,
+        name: "Jump".to_owned(),
+    });
+    let before = map.clone();
+    assert!(!update_version(
+        &mut map,
+        0,
+        MAIN_KEY_UPDATES,
+        &actions_with_reply()
+    ));
+    assert_eq!(map, before);
+}
+
+/// A row whose action the DATs do not name is skipped, and so reports no change.
+#[test]
+fn a_row_with_an_unknown_action_is_skipped() {
+    let mut map = sample();
+    let before = map.clone();
+    assert!(!update_version(&mut map, 0, MAIN_KEY_UPDATES, &actions()));
+    assert_eq!(map, before);
+}
+
+/// `CInputManager_WIN32::PushKeyMap`: an upgraded file is read upgraded and written back at the
+/// current version, and a file already at it is left as it is.
+#[test]
+fn an_upgraded_file_is_rewritten_at_the_current_version() {
+    let dir = temp_dir("upgrade");
+    let files = KeymapFiles::in_dir(&dir);
+    std::fs::write(&files.main, without_header(&sample())).unwrap();
+    let loaded = read_key_map_upgraded(&files.main, &actions_with_reply(), MAIN_KEY_UPDATES)
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert!(loaded.mappings.contains(&reply_binding()));
+    let written = std::fs::read_to_string(&files.main).unwrap();
+    assert_eq!(version_of(&parse_tree(&written).unwrap()), Ok(1));
+    let again = read_key_map_upgraded(&files.main, &actions_with_reply(), MAIN_KEY_UPDATES)
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert_eq!(again, loaded);
+    assert_eq!(std::fs::read_to_string(&files.main).unwrap(), written);
+    assert!(read_key_map_upgraded(&files.shift, &actions(), &[])
+        .unwrap()
+        .is_none());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// The Main map of the DATs, with its R bindings removed and the file written without a header:
+/// `Controls::load_with` loads it upgraded, so R takes `REPLY_KEY`.
+#[test]
+fn an_old_main_file_loads_with_the_reply_key_on_r() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ac2_db::ResourceStore::new(dataset);
+    let mut main = (*crate::maps::load_key_map(&store, crate::maps::KEYMAP_MAIN)
+        .unwrap()
+        .unwrap())
+    .clone();
+    main.mappings.retain(|m| m.semantic != R);
+    let dir = temp_dir("old-main");
+    let files = KeymapFiles::in_dir(&dir);
+    std::fs::write(&files.main, without_header(&main)).unwrap();
+    let controls = crate::Controls::load_with(&store, Some(&files))
+        .unwrap()
+        .unwrap();
+    assert_eq!(controls.input.action_from_key(R, 0), Some(REPLY));
     let _ = std::fs::remove_dir_all(&dir);
 }

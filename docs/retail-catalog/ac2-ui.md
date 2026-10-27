@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1027 done, 362 partial, 750 to do, 108 skipped.
+2247 retail functions: 1028 done, 361 partial, 750 to do, 108 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2055,7 +2055,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager::SetMouseLookMode` · 00599ce0 · legions 00566d10 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager::SetTextMode` · 00599d40 · legions 00566d70 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
-## `portal/client/src/cinputmap/ckeymap.cpp.c` (6/23)
+## `portal/client/src/cinputmap/ckeymap.cpp.c` (7/23)
 
 ### MapGUID
 - [x] `MapGUID::StreamPack` · 00599d60 · legions 00566d90 — ac2-ui maps.rs
@@ -2082,7 +2082,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CKeyMap::AddAction` · 0059a210 · legions 005671d0
 - [x] `CKeyMap::StreamPack` · 0059a2b0 · legions 00567270 — ac2-ui maps.rs
 - [~] `CKeyMap::GetSemanticByName` · 0059a320 · legions 005672e0 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
-- [~] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320 — ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+- [x] `CKeyMap::UpdateVersion` · 0059a360 · legions 00567320 — ac2-ui keymap_file.rs update_version + MAIN_KEY_UPDATES (Main table row 0x9d73ac); read_key_map_upgraded rewrites the file (keymap_file_tests)
 - [ ] `CKeyMap::Destroy` · 0059a680
 - [-] `CKeyMap::LoadSemantics` · 0059a690 · legions 00567650 — CKeyMap::LoadSemantics: the retail key-name strings are game data; this port authors its own names (ac2-ui key_names.rs)
 
@@ -2154,7 +2154,7 @@ Legend and workflow: [README](README.md).
 - [~] `CInputManager_WIN32::ProcessDeviceData` · 005a05e0 · legions 0056d2e0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
 - [x] `CInputManager_WIN32::PushKeyMap_Internal` · 005a09b0 · legions 0056d6b0 — ac2-ui input.rs
 - [~] `CInputManager_WIN32::GetInput` · 005a0ac0 · legions 0056d7c0 — ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-- [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs Controls::load_with + keymap_file: reads the player's Main/Shift/Control.keymap, falls back per map to the DAT map (gmClient::InitKeymap order). Not: UpdateVersion's table upgrade of old files
+- [~] `CInputManager_WIN32::PushKeyMap` · 005a0da0 · legions 0056daa0 — ac2-ui controls.rs load_with + keymap_file read_key_map_upgraded: upgrade and rewrite done; retail's Destroy/ToFileNode/SaveToFile step is the same write_atomic
 - [x] `CInputManager_WIN32::PushKeyMap` · 005a0f80 — ac2-ui input.rs
 
 ## `portal/client/src/cregion/cdetailmap/cdetailmapdesc.cpp.c` (3/22)
