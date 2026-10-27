@@ -86,10 +86,10 @@ pub use quests_panel::QuestsUi;
 mod catalog;
 #[cfg(test)]
 mod catalog_tests;
-mod gameplay_keys;
 mod consignment;
 #[cfg(test)]
 mod consignment_tests;
+mod gameplay_keys;
 mod gameplay_story;
 #[cfg(test)]
 mod gameplay_story_tests;
