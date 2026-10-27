@@ -59,6 +59,8 @@ pub enum PregameRequest {
     /// `SoundManager::Play` of a screen's music on `Channel_Main` (the screen's constructor):
     /// the previous screen's music fades out over two seconds first (`PlayingSoundContext::Stop`).
     Music(u32),
+    /// `gmCreditsUI::UpdateSound`'s `SoundManager::Play` of the credits' sound on `Channel_Main`.
+    CreditSound(u32),
     /// `Device::Done`: close the client.
     Quit,
     /// The input manager's maps are these (`SaveKeyboardList`'s reload, a restore preset).
@@ -234,6 +236,14 @@ impl PregameUi {
     /// What the UI asked since the last call.
     pub fn take_requests(&mut self) -> Vec<PregameRequest> {
         std::mem::take(&mut self.requests)
+    }
+
+    /// Whether the credits' sound is still playing (its `PlayingSoundContext` holds a sound that
+    /// has not finished); the client answers this before each loop. Other screens ignore it.
+    pub fn set_credit_sound_busy(&mut self, busy: bool) {
+        if let Framework::Credits(ui) = &mut self.current {
+            ui.sound_busy = busy;
+        }
     }
 
     /// `UIPersistantData::RecvNotice_CharacterSet` (`SetCharSet`): the set kept and the shown

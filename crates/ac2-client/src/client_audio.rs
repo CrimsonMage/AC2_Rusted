@@ -178,6 +178,8 @@ pub(crate) struct ClientAudio {
     /// `gmStoryUI::_lastMusicCtx` and `_lastVoiceCtx`: the story's music and voice playing.
     story_music: Option<u32>,
     story_voice: Option<u32>,
+    /// The credits' sound (`gmCreditsUI::UpdateSound`'s `PlayingSoundContext`).
+    credit_sound: Option<u32>,
 }
 
 /// One of the story's sounds (`gmStoryUI::Play`): the last one it played stops over two seconds
@@ -244,7 +246,30 @@ impl Client {
             pregame_music: None,
             story_music: None,
             story_voice: None,
+            credit_sound: None,
         });
+    }
+
+    /// `gmCreditsUI::UpdateSound`'s `SoundManager::Play` of `did` on `Channel_Main`, its handle
+    /// kept for the next check.
+    pub fn play_credit_sound(&mut self, did: u32) {
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        audio.credit_sound = audio
+            .manager
+            .play(&PlaySoundData::new(did))
+            .filter(|handle| *handle != 0);
+    }
+
+    /// Whether the credits' sound still plays (its handle, and the sound has not finished).
+    pub fn credit_sound_busy(&self) -> bool {
+        let Some(audio) = self.audio.as_ref() else {
+            return false;
+        };
+        audio
+            .credit_sound
+            .is_some_and(|handle| !audio.manager.has_sound_finished(handle))
     }
 
     /// `gmStoryUI::Play`'s sounds for a keyframe: its music and its voice, each replacing the

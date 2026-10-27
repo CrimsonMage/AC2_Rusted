@@ -1855,8 +1855,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmCreditsUI::GetY` · 004129f0 · legions 00412870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Close` · 00412b10 · legions 00412990 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [x] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10
-- [~] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0
+- [x] `gmCreditsUI::GetSoundID` · 00412b90 · legions 00412a10 — ac2-ui pregame/credits.rs sound_id (ID_Sound<n> on the PictureField, restarting from 0)
+- [~] `gmCreditsUI::UpdateSound` · 00412c50 · legions 00412ad0 — ac2-ui pregame/credits.rs update_sound + ac2-client play_credit_sound/credit_sound_busy: the next sound plays once the last has finished; the sound context is kept by the panel, not in the element retail reads
 - [x] `gmCreditsUI::UpdateText` · 00412d00 · legions 00412b80 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::ListenToMessage` · 00412e30 · legions 00412cb0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs

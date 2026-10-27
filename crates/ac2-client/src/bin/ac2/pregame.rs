@@ -58,6 +58,10 @@ impl App {
                 for did in outcome.music {
                     self.client.play_pregame_music(did);
                 }
+                for did in outcome.credit_sounds {
+                    self.client.play_credit_sound(did);
+                }
+                pregame.set_credit_sound_busy(self.client.credit_sound_busy());
                 if let Some(set) = &outcome.key_maps {
                     state.controls.replace_key_maps(set);
                 }

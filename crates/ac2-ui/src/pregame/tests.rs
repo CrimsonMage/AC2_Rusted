@@ -509,6 +509,27 @@ pub(super) fn the_credits_scroll_then_return_to_character_selection() {
     ui.use_time(10.2);
     let later = ui.tree().screen_box(area).y0;
     assert!(later < start, "{later} < {start}");
+    // The credits' sounds: a loop asks for the next sound unless the last one still plays.
+    let sounds = |ui: &mut PregameUi| -> Vec<u32> {
+        ui.take_requests()
+            .into_iter()
+            .filter_map(|r| match r {
+                PregameRequest::CreditSound(did) => Some(did),
+                _ => None,
+            })
+            .collect()
+    };
+    let mut heard = Vec::new();
+    for step in 0..4 {
+        ui.use_time(10.3 + f64::from(step) * 0.1);
+        heard.extend(sounds(&mut ui));
+    }
+    assert!(!heard.is_empty(), "the credits name a sound");
+    assert!(heard.iter().all(|&did| did != 0));
+    ui.set_credit_sound_busy(true);
+    ui.use_time(10.8);
+    assert!(sounds(&mut ui).is_empty(), "no sound while one plays");
+    ui.set_credit_sound_busy(false);
     // A key press closes it.
     ui.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
     assert_eq!(ui.flow().next_mode(), Some(MODE_CHARACTER_SELECTION));

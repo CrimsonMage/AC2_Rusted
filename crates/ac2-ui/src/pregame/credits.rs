@@ -6,8 +6,12 @@
 //! `fading` state (`UpdatePicture`). The end of the scroll or a key press returns to character
 //! selection behind a please-wait dialog (`Close`).
 //!
-//! Not modelled yet: the alternate fields (Ctrl+Alt held when the screen opens) and the music
-//! (`ID_Sound<n>`, `UpdateSound`).
+//! The sounds (`ID_Sound<n>`, `GetSoundID` and `UpdateSound`): the next sound plays once the last
+//! one has finished; the client plays it (`PregameRequest::CreditSound`) and reports whether one
+//! still plays. The sound context is held by the panel: retail keeps it in the element its
+//! `UpdateSound` reads, which the port does not name.
+//!
+//! Not modelled yet: the alternate fields (Ctrl+Alt held when the screen opens).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -20,7 +24,7 @@ use crate::dialog::DIALOG_WAIT;
 use crate::layout::{AttributeValue, ElementDesc, LayoutDesc};
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
 use crate::pregame::flow::MODE_CHARACTER_SELECTION;
-use crate::pregame::{Ctx, LAYOUT_CREDITS};
+use crate::pregame::{Ctx, PregameRequest, LAYOUT_CREDITS};
 use crate::text_data::StoreTextData;
 use crate::token::{tokenize, STATELESS};
 use crate::UiTextData;
@@ -92,6 +96,10 @@ pub(crate) struct CreditsUi {
     wait_context: u32,
     /// `Close` unregistered the key press and the loop.
     closed: bool,
+    /// `m_lastSound`: the `ID_Sound<n>` the next sound is read from.
+    last_sound: u32,
+    /// The credits' sound still plays (set by the client before each loop).
+    pub(crate) sound_busy: bool,
 }
 
 impl CreditsUi {
@@ -271,6 +279,37 @@ impl CreditsUi {
         }
     }
 
+    /// `gmCreditsUI::GetSoundID`: the picture's `ID_Sound<n>` for `m_lastSound`; when that names
+    /// no sound and the count is past the first, the count starts again from 0.
+    fn sound_id(&mut self, ctx: &Ctx<'_>) -> u32 {
+        let Some(picture) = self.picture else {
+            return 0;
+        };
+        let name = format!("ID_Sound{}", self.last_sound);
+        let id = match Self::int(ctx, picture, &name) {
+            Some(AttributeValue::DataId(id)) => id,
+            _ => 0,
+        };
+        if id == 0 && self.last_sound != 0 {
+            self.last_sound = 0;
+            return self.sound_id(ctx);
+        }
+        id
+    }
+
+    /// `gmCreditsUI::UpdateSound`: when the last sound is no longer playing, the next one is
+    /// played (`SoundManager::Play` on `Channel_Main`, the client's job) and the count goes up.
+    fn update_sound(&mut self, ctx: &mut Ctx<'_>) {
+        if self.sound_busy {
+            return;
+        }
+        let did = self.sound_id(ctx);
+        self.last_sound += 1;
+        if did != 0 {
+            ctx.requests.push(PregameRequest::CreditSound(did));
+        }
+    }
+
     /// `ListenToMessage(UIMESSAGE_GLOBAL_LOOP)` at `now` seconds (`Update`): the scroll's end
     /// time is set on the first loop (`Initialize`'s `Timer` read).
     pub(crate) fn global_loop(&mut self, ctx: &mut Ctx<'_>, now: f64) {
@@ -281,5 +320,6 @@ impl CreditsUi {
         self.end.get_or_insert(now + duration);
         self.update_picture(ctx);
         self.update_text(ctx, now);
+        self.update_sound(ctx);
     }
 }

@@ -20,6 +20,8 @@ pub struct PregameOutcome {
     pub quit: bool,
     /// The screens' music, in the order the screens opened it (`Client::play_pregame_music`).
     pub music: Vec<u32>,
+    /// The credits' sounds, in order (`Client::play_credit_sound`).
+    pub credit_sounds: Vec<u32>,
     /// The input manager's maps the controls screen saved or restored (`Controls::replace_key_maps`).
     pub key_maps: Option<ac2_ui::pregame::KeyMapSet>,
 }
@@ -86,6 +88,7 @@ pub fn pregame_requests_capturing(
                 eprintln!("ac2: restoring {character:#x} is an admin request; not sent");
             }
             PregameRequest::Music(did) => outcome.music.push(did),
+            PregameRequest::CreditSound(did) => outcome.credit_sounds.push(did),
             PregameRequest::Quit => outcome.quit = true,
             PregameRequest::KeyMaps(set) => outcome.key_maps = Some(set),
         }

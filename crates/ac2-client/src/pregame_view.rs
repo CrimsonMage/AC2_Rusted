@@ -212,6 +212,14 @@ impl PregameView {
         self.step(gpu, now, false);
     }
 
+    /// Whether the credits' sound still plays, for the UI's next loop (see
+    /// `PregameUi::set_credit_sound_busy`).
+    pub fn set_credit_sound_busy(&mut self, busy: bool) {
+        if let Some(ui) = self.ui.as_mut() {
+            ui.set_credit_sound_busy(busy);
+        }
+    }
+
     /// [`PregameView::update`], waiting for every load the frame asks for (headless snapshots).
     pub fn settle(&mut self, gpu: &Gpu, now: f64) {
         self.step(gpu, now, true);

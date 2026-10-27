@@ -146,8 +146,8 @@ key	status	note
 004129f0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412a20	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412b10	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-00412b90	x	
-00412c50	~	
+00412b90	x	ac2-ui pregame/credits.rs sound_id (ID_Sound<n> on the PictureField, restarting from 0)
+00412c50	~	ac2-ui pregame/credits.rs update_sound + ac2-client play_credit_sound/credit_sound_busy: the next sound plays once the last has finished; the sound context is kept by the panel, not in the element retail reads
 00412d00	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412e30	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00412e60	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
