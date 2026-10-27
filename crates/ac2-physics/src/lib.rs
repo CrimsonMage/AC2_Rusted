@@ -17,6 +17,8 @@ mod body_anim_tests;
 mod bsp;
 mod cells;
 mod collision_impact;
+#[cfg(test)]
+mod collision_impact_tests;
 mod constraint;
 mod envcell;
 #[cfg(test)]
@@ -64,6 +66,7 @@ pub use body::{
 };
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
+pub use collision_impact::ImpactReport;
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use heading::Heading;

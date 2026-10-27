@@ -89,10 +89,12 @@ pub(crate) struct PhysicsObj {
     /// `CPhysicsObj::m_fJumpScale` and `m_nTimesJumped`.
     pub jump_scale: f32,
     pub times_jumped: u32,
-    /// The collision impact minimums (`CCollisionManager::m_current_info`) and the last impact
-    /// speed the environment contact recorded (`m_impact_speed`, `m_has_normal`).
+    /// The collision impact minimums (`CCollisionManager::m_current_info`), the last impact
+    /// speed the environment contact recorded (`m_impact_speed`), and the impact not yet taken
+    /// by the collision report (`m_has_normal` with `m_collision_normal`).
     pub(crate) impact_minimums: crate::collision_impact::ImpactMinimums,
     pub(crate) impact_speed: Option<f32>,
+    pub(crate) impact_report: Option<crate::collision_impact::ImpactReport>,
     /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
     /// element without one; this port takes the element at once instead so tableless bodies
     /// still swim and fall.
@@ -162,6 +164,7 @@ impl PhysicsObj {
             times_jumped: 0,
             impact_minimums: crate::collision_impact::ImpactMinimums::default(),
             impact_speed: None,
+            impact_report: None,
             element: ELEMENT_GROUND,
             motion,
             anim: AnimRep::unanimated(),
@@ -193,6 +196,18 @@ impl PhysicsObj {
             ld(st(s * ld(self.scale.z))),
         );
         st(ld(st((x * x + y * y) + z * z)).sqrt() * ld(self.setup_containment))
+    }
+
+    /// `CPhysicsObj::InitObjectEnd`'s collision impact minimums: the XY minimum from the hover
+    /// height and the standard values' forward speed, the Z minimum from the jump impulse and the
+    /// jump scale (both plus 0.1).
+    pub(crate) fn init_object_end(&mut self) {
+        let hover = self.motion.hover_height(self.desired_element());
+        let standard = self.motion.standard_motion_values();
+        self.impact_minimums
+            .init_hover(hover, standard.max_forward_velocity);
+        self.impact_minimums
+            .set_jump_scale(self.jump_scale, standard.jump_impulse);
     }
 
     /// `PHYSICSOBJREP::GetDesiredElement` (`ModeTracker::mDesiredElement`).

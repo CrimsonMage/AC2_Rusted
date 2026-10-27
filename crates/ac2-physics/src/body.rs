@@ -6,6 +6,7 @@ use std::sync::Arc;
 use ac2_anim::Ac2AnimEvent;
 use ac2_world::Ac2MotionInterpDesc;
 
+use crate::collision_impact::ImpactReport;
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
@@ -183,10 +184,9 @@ impl PhysicsBody {
         shape: BodyShape,
         motion_desc: Option<Arc<Ac2MotionInterpDesc>>,
     ) -> Self {
-        Self {
-            object: PhysicsObj::new(position, shape, MotionInterp::new(motion_desc)),
-            turn: 0.0,
-        }
+        let mut object = PhysicsObj::new(position, shape, MotionInterp::new(motion_desc));
+        object.init_object_end();
+        Self { object, turn: 0.0 }
     }
 
     pub fn position(&self) -> Position {
@@ -505,6 +505,30 @@ impl PhysicsBody {
     /// (`CCollisionManager::SetCollisionNormal`), `None` until one does.
     pub fn last_impact_speed(&self) -> Option<f32> {
         self.object.impact_speed
+    }
+
+    /// The impact an environment contact recorded and the collision report has not taken yet
+    /// (`CCollisionManager::ReportCollision` copies `m_collision_normal` and `m_impact_speed` into
+    /// the profile, then clears `m_has_normal`). Taking it clears it: one report per impact.
+    pub fn take_impact_report(&mut self) -> Option<ImpactReport> {
+        self.object.impact_report.take()
+    }
+
+    /// `CCollisionManager::SetCollisionState` on a script's `CollisionParameters`: a non-zero
+    /// `m_min_reported_impactXY` or `Z` replaces the body's minimum; zero keeps it.
+    pub fn set_collision_minimums(&mut self, xy: f32, z: f32) {
+        if xy != 0.0 {
+            self.object.impact_minimums.xy = xy;
+        }
+        if z != 0.0 {
+            self.object.impact_minimums.z = z;
+        }
+    }
+
+    /// The collision impact minimums as the body holds them (`m_min_reported_impactXY`, `Z`).
+    pub fn impact_minimums(&self) -> (f32, f32) {
+        let m = self.object.impact_minimums;
+        (m.xy, m.z)
     }
 
     /// `ECM_Physics::RecvEvt_SetAccelerationScale` -> `CMotionInterp::SetAccelerationScale`.

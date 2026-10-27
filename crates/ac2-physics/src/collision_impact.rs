@@ -1,8 +1,8 @@
 //! The collision impact minimums (`CCollisionManager::SetMinReportedImpactXY` and `Z`, set by
 //! `CPhysicsObj::SetVelocityScale`, `CPhysicsObj::SetJumpScale` and `CPhysicsObj::InitObjectEnd`)
 //! and the gate `CCollisionManager::SetCollisionNormal` puts on an impact: a contact only records
-//! its impact speed when the vertical fall is above the minimum. The collision manager's sounds and
-//! reports are not ported; the body keeps the impact it would report.
+//! its impact when the vertical fall is above the minimum. The body keeps the impact until the
+//! collision report takes it (`CCollisionManager::ReportCollision`).
 
 use crate::fpu::{ld, st};
 use crate::vector::Vector;
@@ -26,6 +26,12 @@ impl ImpactMinimums {
         self.xy = st(ld(scale) * ld(max_forward_velocity) + ld(MIN_IMPACT_OFFSET));
     }
 
+    /// `CPhysicsObj::InitObjectEnd`: the XY minimum is the hover height times the standard
+    /// values' `mMaxForwardVel`, plus 0.1 (the same expression as `set_velocity_scale`).
+    pub(crate) fn init_hover(&mut self, hover_height: f32, max_forward_velocity: f32) {
+        self.xy = st(ld(hover_height) * ld(max_forward_velocity) + ld(MIN_IMPACT_OFFSET));
+    }
+
     /// `CPhysicsObj::SetJumpScale`: the Z minimum is the jump scale times the standard values'
     /// `mJumpImpulse`, plus 0.1. Retail reads that field through `CPartArray::GetOpacity` (Ghidra
     /// typed the object as a part array; the code at +0x50 is `MotionValues::mJumpImpulse`).
@@ -34,16 +40,27 @@ impl ImpactMinimums {
     }
 }
 
-/// `CCollisionManager::SetCollisionNormal`: the impact speed of a contact with `normal` at
-/// `velocity`, when the vertical speed is above the Z minimum (floored at 0.0002). The speed is
+/// An impact a contact recorded: the contact normal and the impact speed
+/// (`m_collision_normal`, `m_impact_speed`), taken by the collision report.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ImpactReport {
+    pub normal: Vector,
+    pub speed: f32,
+}
+
+/// `CCollisionManager::SetCollisionNormal`: the impact of a contact with `normal` at `velocity`,
+/// when the vertical speed is above the Z minimum (floored at 0.0002). The speed is
 /// `-(velocity.z * normal.z)`. `None` when the contact is too slow to record.
-pub(crate) fn impact_speed(minimum_z: f32, normal: Vector, velocity: Vector) -> Option<f32> {
+pub(crate) fn impact(minimum_z: f32, normal: Vector, velocity: Vector) -> Option<ImpactReport> {
     let floor = if minimum_z < MIN_IMPACT_FLOOR {
         MIN_IMPACT_FLOOR
     } else {
         minimum_z
     };
-    (floor < velocity.z.abs()).then(|| st(-(ld(velocity.z) * ld(normal.z))))
+    (floor < velocity.z.abs()).then(|| ImpactReport {
+        normal,
+        speed: st(-(ld(velocity.z) * ld(normal.z))),
+    })
 }
 
 #[cfg(test)]
@@ -52,6 +69,11 @@ mod tests {
 
     fn v(x: f32, y: f32, z: f32) -> Vector {
         Vector::new(x, y, z)
+    }
+
+    /// The recorded speed of `impact`, for the gate tests.
+    fn impact_speed_of(minimum_z: f32, normal: Vector, velocity: Vector) -> Option<f32> {
+        impact(minimum_z, normal, velocity).map(|r| r.speed)
     }
 
     #[test]
@@ -72,23 +94,23 @@ mod tests {
     fn a_fall_above_the_minimum_records_its_speed_and_a_slower_one_does_not() {
         let up = v(0.0, 0.0, 1.0);
         // Falling at 2 against a minimum of 1: recorded, as -(vz * nz) = 2.
-        assert_eq!(impact_speed(1.0, up, v(0.0, 0.0, -2.0)), Some(2.0));
+        assert_eq!(impact_speed_of(1.0, up, v(0.0, 0.0, -2.0)), Some(2.0));
         // Falling at 0.5: below the minimum of 1, not recorded.
-        assert_eq!(impact_speed(1.0, up, v(0.0, 0.0, -0.5)), None);
+        assert_eq!(impact_speed_of(1.0, up, v(0.0, 0.0, -0.5)), None);
     }
 
     #[test]
     fn the_floor_keeps_a_zero_minimum_above_0_0002() {
         let up = v(0.0, 0.0, 1.0);
-        assert_eq!(impact_speed(0.0, up, v(0.0, 0.0, -0.0001)), None);
-        assert_eq!(impact_speed(0.0, up, v(0.0, 0.0, -0.0003)), Some(0.0003));
+        assert_eq!(impact_speed_of(0.0, up, v(0.0, 0.0, -0.0001)), None);
+        assert_eq!(impact_speed_of(0.0, up, v(0.0, 0.0, -0.0003)), Some(0.0003));
     }
 
     #[test]
     fn a_sloped_contact_records_the_normal_component() {
         let slope = v(0.6, 0.0, 0.8);
         // -(vz * nz) = -(-5 * 0.8) = 4.
-        let speed = impact_speed(1.0, slope, v(0.0, 0.0, -5.0)).expect("above the minimum");
+        let speed = impact_speed_of(1.0, slope, v(0.0, 0.0, -5.0)).expect("above the minimum");
         assert!((speed - 4.0).abs() < 1e-6, "{speed}");
     }
 }

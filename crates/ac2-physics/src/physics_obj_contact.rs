@@ -272,12 +272,13 @@ impl PhysicsObj {
         // `CCollisionManager::SetCollisionNormal` with the velocity before the response: a
         // contact above the vertical minimum records its impact speed.
         if collisions.collision_normal_valid {
-            if let Some(speed) = crate::collision_impact::impact_speed(
+            if let Some(report) = crate::collision_impact::impact(
                 self.impact_minimums.z,
                 collisions.collision_normal,
                 self.velocity,
             ) {
-                self.impact_speed = Some(speed);
+                self.impact_speed = Some(report.speed);
+                self.impact_report = Some(report);
             }
         }
         let left_ground = !prev_on_walkable || !self.on_walkable();
