@@ -14,32 +14,58 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
+/// A script's yes/no question as the notice carried it, until the HUD's dialogs show it
+/// ([`HudView::popup_backlog`](crate::hud_view::HudView)).
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) struct PopupQuestion {
+    pub text: ac2_net::protocol::StringInfo,
+    pub object: u64,
+    pub context: u32,
+}
+
+/// The frame's script questions (`GameplayNotice::PopupYesNo`), in order.
+pub(crate) fn popup_questions(events: &[SessionEvent]) -> Vec<PopupQuestion> {
+    events
+        .iter()
+        .filter_map(|event| match event {
+            SessionEvent::Notice(GameplayNotice::PopupYesNo {
+                object,
+                context,
+                text,
+            }) => Some(PopupQuestion {
+                text: text.clone(),
+                object: *object,
+                context: *context,
+            }),
+            _ => None,
+        })
+        .collect()
+}
+
 /// `RecvNotice_DisplayMessage` for the frame's notices, in order, and `Init`'s dialog step on the
-/// login. The message's text is rendered from its `StringInfo` on the player's tables.
+/// login. The message's text is rendered from its `StringInfo` on the player's tables. The
+/// backlog's script questions are asked first, as they were raised before this frame's notices.
 pub(crate) fn game_dialog_notices(
     game: &mut GameplayDialogs,
     tree: &mut UiTree,
     dialogs: &mut Option<DialogFactory>,
     player: &ClientPlayer<'_>,
     events: &[SessionEvent],
+    popup_backlog: &mut Vec<PopupQuestion>,
 ) {
     let Some(dialogs) = dialogs.as_mut() else {
         return;
     };
+    // `gmCWInterface::PopupYesNoDialog`: the question's confirmation, answered later.
+    for question in popup_backlog.drain(..) {
+        let text = player.render_info(&question.text);
+        game.ask_popup(tree, dialogs, &text, question.object, question.context);
+    }
     for event in events {
         match event {
             SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
                 let text = player.render_info(text);
                 game.display_message(tree, dialogs, &text, *topmost);
-            }
-            // `gmCWInterface::PopupYesNoDialog`: the question's confirmation, answered later.
-            SessionEvent::Notice(GameplayNotice::PopupYesNo {
-                object,
-                context,
-                text,
-            }) => {
-                let text = player.render_info(text);
-                game.ask_popup(tree, dialogs, &text, *object, *context);
             }
             // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`, which closes the please-wait
             // dialog the login left up.

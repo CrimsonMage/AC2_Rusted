@@ -81,6 +81,11 @@ impl HudView {
         doll_pick: Option<Option<u32>>,
     ) -> Vec<Command> {
         let messages = std::mem::take(&mut self.player_messages);
+        // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
+        // is up yet: the dialogs are the game's own, always there in retail. A question that
+        // comes before the HUD's dialogs waits in the backlog and is asked when they are.
+        self.popup_backlog
+            .extend(crate::hud_game_dialogs::popup_questions(events));
         let mut out = PassOut::default();
         let Some(strings) = self.strings.clone() else {
             return out.commands;

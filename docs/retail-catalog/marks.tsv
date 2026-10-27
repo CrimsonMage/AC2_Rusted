@@ -1378,7 +1378,7 @@ key	status	note
 00452580	_	ac2-net GunChatExtraInfo::new: version 1, flags; the meta letters (RetrieveMetaLetters) are left empty
 00452710	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 004527c0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
-004529f0	x	ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+004529f0	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00452a70	x	ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 00452dd0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00452e40	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
@@ -1390,11 +1390,11 @@ key	status	note
 00453bd0	x	ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
 00453c10	_	ac2-weenie ChatState::ignored_added/ignored_deleted/ignored_list (CPlayer 0x32/0x5D/0x7); nothing calls them without a GUN service
 00453de0	x	no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
-00453e30	x	ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+00453e30	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 00454080	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00454300	_	ac2-script vm (VM/ReferenceTable/Resolver)
 00454440	_	ac2-script vm (VM/ReferenceTable/Resolver)
-004544b0	x	ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+004544b0	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 004549f0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00454a90	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00454b10	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
@@ -1499,7 +1499,7 @@ key	status	note
 0045f5e0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 0045f6e0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045f790	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-0045f860	x	ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+0045f860	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 0045f8f0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045f9a0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045fc20	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested

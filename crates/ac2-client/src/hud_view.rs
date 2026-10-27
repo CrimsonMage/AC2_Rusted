@@ -87,6 +87,9 @@ pub(crate) struct HudView {
     pub(crate) death: ac2_ui::DeathPanel,
     /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
     pub(crate) game_dialogs: ac2_ui::GameplayDialogs,
+    /// The script questions raised and not yet asked: they wait for the HUD's dialogs (see
+    /// [`HudView::frameworks`](crate::hud_player)).
+    pub(crate) popup_backlog: Vec<crate::hud_game_dialogs::PopupQuestion>,
     /// `gmStackUI`.
     pub(crate) stack: Option<ac2_ui::StackUi>,
     /// `gmExternalContainerUI`.

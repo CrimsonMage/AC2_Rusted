@@ -498,7 +498,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ContextState::Init` · 00454440 · legions 00455320 — ac2-script vm (VM/ReferenceTable/Resolver)
 
 ### ggmCWInterface
-- [x] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+- [x] `ggmCWInterface::CallEFun_PopupYesNoDialog` · 004544b0 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 
 ### ReferenceEntry
 - [ ] `ReferenceEntry::GetPackageStateID` · 00454870
@@ -768,7 +768,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_OfferItemForTrade` · 0045f5e0 · legions 00460230 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_OpenRecipe` · 0045f6e0 · legions 00460330 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [~] `ggmCWInterface::CallIFun_OpenTradeNegotiations` · 0045f790 · legions 004603e0 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-- [x] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+- [x] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 - [~] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [~] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710
@@ -1156,7 +1156,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCliLocationResult::CCliLocationResult` · 00452960 · legions 00453a70
 
 ### `anonymous-namespace'::YesNoDialogAwakener
-- [x] ``anonymous-namespace'::YesNoDialogAwakener::YesNoDialogAwakener` · 004529f0 · legions 00453b00 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+- [x] ``anonymous-namespace'::YesNoDialogAwakener::YesNoDialogAwakener` · 004529f0 · legions 00453b00 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 - [x] ``anonymous-namespace'::YesNoDialogAwakener::RecvNotice_CloseConfirmationDialog` · 00452a70 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
 
 ### PStringBaseIter_Common<unsigned_short>
@@ -1201,7 +1201,7 @@ Legend and workflow: [README](README.md).
 - [x] ``anonymous-namespace'::YesNoDialogAwakener::OnTrigger` · 00453de0 · legions 00454e60 — no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 
 ### gmCWInterface
-- [x] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0 — ac2-ui game_dialogs.rs ask_popup/take_popup; ac2-script host/popup.rs efun 0xB400F5 + answer_popup; ac2-client hud_game_dialogs.rs + scripts_io.rs answer_popup
+- [x] `gmCWInterface::PopupYesNoDialog` · 00453e30 · legions 00454eb0 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 
 ## `portal/client/src/action/interp/actioninterp.cpp.c` (16/23)
 

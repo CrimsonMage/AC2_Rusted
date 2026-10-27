@@ -174,6 +174,15 @@ impl Rig {
         self.pending.push(command);
     }
 
+    /// One frame with `events` as the session's notices for the HUD (no pointer input).
+    pub fn notify(&mut self, events: &[SessionEvent]) {
+        let frame = self.client.frame();
+        let asked = self.view.frameworks(&mut self.client, &frame, events, &[]);
+        self.asked.extend(asked.iter().cloned());
+        self.pending.extend(asked);
+        self.view.update(&self.gpu, &frame, Duration::ZERO);
+    }
+
     /// Frames with nothing pressed.
     pub fn idle(&mut self, frames: usize) {
         for _ in 0..frames {
