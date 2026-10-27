@@ -11,6 +11,7 @@ mod common;
 use std::rc::Rc;
 use std::sync::Arc;
 
+use ac2_audio::{RecordingSink, SinkCommand};
 use ac2_client::{Client, Command, DatWorld, FrameInput, ObjectFrame, WorldData};
 use ac2_core::DataId;
 use ac2_net::protocol::ScriptRequest;
@@ -84,8 +85,9 @@ fn object(client: &Client, id: u64) -> ObjectFrame {
 }
 
 /// A client in the world with the double's door, lever and ground item placed, the bodies
-/// loaded and the script VM attached (the wlib's weenie packages run the uses).
-fn world() -> (Client, Server) {
+/// loaded and the script VM attached (the wlib's weenie packages run the uses). Its sounds go to
+/// the returned recording.
+fn world() -> (Client, Server, RecordingSink) {
     let dataset = ac2_dat::test_support::env_dataset().expect("AC2_DAT_DIR");
     let store = ac2_db::ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
@@ -98,7 +100,7 @@ fn world() -> (Client, Server) {
     scripts.preload_skill_states(&program);
     scripts.set_cache_only(true);
     let world = DoorWorld {
-        dat: DatWorld::new(Arc::new(ac2_db::ResourceStore::new(dataset))).unwrap(),
+        dat: DatWorld::new(Arc::new(ac2_db::ResourceStore::new(dataset.clone()))).unwrap(),
         scripts: scripts.clone(),
     };
     let (mut client, server) = entered_with(spawn(), Arc::new(world));
@@ -106,6 +108,11 @@ fn world() -> (Client, Server) {
         ScriptHost::new(program, Box::new(scripts)),
         ac2_client::SCRIPT_VM_FUNCTIONS,
     );
+    let sounds = RecordingSink::new();
+    client.attach_audio(ac2_client::sound_manager(
+        Arc::new(ac2_db::ResourceStore::new(dataset)),
+        Box::new(sounds.clone()),
+    ));
     {
         let mut state = server.borrow_mut();
         state.send_init_player();
@@ -114,7 +121,7 @@ fn world() -> (Client, Server) {
         state.spawn_world_objects();
     }
     play(&mut client, &server, Vec::new(), 64);
-    (client, server)
+    (client, server, sounds)
 }
 
 /// The `Use` requests the double heard for `id`, in order.
@@ -140,7 +147,7 @@ fn use_object(client: &mut Client, server: &Server, id: u64, frames: usize) {
 /// and no script problem came up.
 #[test]
 fn the_door_and_the_lever_run_their_scripts() {
-    let (mut client, _server) = world();
+    let (mut client, _server, _sounds) = world();
     let host = client.script_host().expect("the scripts are attached");
     assert!(
         host.instance(DOOR).is_some(),
@@ -155,7 +162,7 @@ fn the_door_and_the_lever_run_their_scripts() {
 
 #[test]
 fn a_door_opens_and_shuts_when_used() {
-    let (mut client, server) = world();
+    let (mut client, server, _sounds) = world();
     let shut = object(&client, DOOR);
     assert_eq!(shut.visual, Some(DOOR_VISUAL));
     assert_eq!(shut.animated_mode, Some(DOOR_SHUT), "placed shut");
@@ -182,23 +189,26 @@ fn a_door_opens_and_shuts_when_used() {
 
 #[test]
 fn a_lever_pull_plays_its_flip_and_leaves_the_mode() {
-    let (mut client, server) = world();
+    let (mut client, server, sounds) = world();
     let before = object(&client, LEVER);
     assert_eq!(before.visual, Some(LEVER_VISUAL));
     assert!(!before.pose.is_empty(), "the lever has its bones");
+    let sounds_before = sounds.commands().len();
 
     play(&mut client, &server, vec![Command::Select(Some(LEVER))], 0);
     play(&mut client, &server, vec![Command::UseSelection], 0);
-    // The flip's frames: the bones move while the behaviour plays.
-    let mut flipped = before.pose.clone();
+    // The flip's frames: the bones move while the behaviour plays, and it plays out.
+    let mut moved = false;
     for _ in 0..96 {
         step(&mut client, &server, &FrameInput::default());
-        flipped = object(&client, LEVER).pose;
-        if flipped != before.pose {
-            break;
-        }
+        moved |= object(&client, LEVER).pose != before.pose;
     }
-    assert_ne!(flipped, before.pose, "the flip moved the lever's bones");
+    assert!(moved, "the flip moved the lever's bones");
+    // The lever's FX sound (`dn_lever`'s FX table) plays from the lever's position.
+    let started = sounds.commands()[sounds_before..]
+        .iter()
+        .any(|command| matches!(command, SinkCommand::Start { .. }));
+    assert!(started, "the flip plays the lever's sound");
     assert_eq!(
         object(&client, LEVER).animated_mode,
         before.animated_mode,
