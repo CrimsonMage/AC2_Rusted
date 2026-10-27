@@ -253,6 +253,12 @@ impl State {
             ScriptRequest::Use(desc) if desc.item == crate::world_objects::GROUND_ITEM => {
                 self.answer_pickup(desc);
             }
+            ScriptRequest::Use(desc) if desc.item == crate::world_objects::DOOR => {
+                self.answer_door(desc);
+            }
+            ScriptRequest::Use(desc) if desc.item == crate::world_objects::LEVER => {
+                self.answer_lever(desc);
+            }
             ScriptRequest::Use(desc) => {
                 let mut desc = desc.clone();
                 desc.error = self.script_world.usage_error;

@@ -236,6 +236,7 @@ impl Client {
                     velocity,
                     contact,
                     mode: o.mode,
+                    animated_mode: body.map(|b| b.mode()),
                     motion: o.motion,
                     holder: held,
                     container: weenie.and_then(|w| w.container),

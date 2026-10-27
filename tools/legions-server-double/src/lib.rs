@@ -80,7 +80,9 @@ pub use vitae::{
 pub use vitals::{
     Vitals, COMBAT_NOT_ENOUGH_VIGOR, PLAYER_VIGOR_MAX, REGEN_INTERVAL, VIGOR, VIGOR_MAX,
 };
-pub use world_objects::{DOOR, GROUND_ITEM, LEVER};
+pub use world_objects::{
+    DOOR, DOOR_OPEN, DOOR_SHUT, DOOR_VISUAL, GROUND_ITEM, LEVER, LEVER_FLIP, LEVER_VISUAL,
+};
 
 use std::cell::RefCell;
 use std::net::SocketAddr;
@@ -242,6 +244,8 @@ pub enum TeleportMessage {
 #[derive(Default)]
 pub struct State {
     pub spawn: Spawn,
+    /// Whether the door stands open (a use flips it).
+    pub door_open: bool,
     /// The teleports the double sent, in order (see [`State::teleport_player`]).
     pub teleport_trace: Vec<TeleportMessage>,
     pub elapsed: f64,

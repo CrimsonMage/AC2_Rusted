@@ -50,6 +50,9 @@ pub struct ObjectFrame {
     /// `PhysicsDesc::mode` / the latest `SetMode`, and the do-motion values of the latest
     /// position (`PositionPack`): what its motion table would play.
     pub mode: Option<u32>,
+    /// `CPhysicsObj::GetMode`: the mode the body's animation has reached (a `DoMode`'s transition
+    /// ends in it); `None` without a body.
+    pub animated_mode: Option<u32>,
     pub motion: [f32; 3],
     /// The object holding this one at a holding location (`CPhysicsObj::set_parent`: a wielded
     /// or carried item), drawn there rather than at `origin`.
