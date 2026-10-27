@@ -316,7 +316,7 @@ fn the_close_button_leaves_the_store_and_the_loop_destroys_the_dialog() {
         &mut hud.tree,
         &mut hud.dialogs,
         &Pack,
-        &release("ShopCloseButton"),
+        &release("NewSaleCloseButton"),
         10.0,
         &mut || 0.0,
     );

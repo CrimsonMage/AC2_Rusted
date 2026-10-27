@@ -6,7 +6,7 @@
 //! presses `AddSaleButton` (`AddSale`): a price below one, no item or no quantity is refused with a
 //! message; otherwise a confirmation asks for the consignment fee (`GetConsignmentCharge`). The
 //! answer's yes sends `gmCWInterface::RequestSell(item, quantity, price)` and hides the dialog.
-//! `ShopCloseButton` hides it and leaves the store (`RequestLeaveStore`).
+//! `NewSaleCloseButton` hides it and leaves the store (`RequestLeaveStore`).
 //!
 //! The entry points are [`NewSaleUi::recv_init_new_sale`] (the notice), [`NewSaleUi::message`] (the
 //! presses and the drop), [`NewSaleUi::recv_stack_ui_done`] and
@@ -355,7 +355,7 @@ impl NewSaleUi {
         }
     }
 
-    /// `gmShopNewSaleUI::ListenToMessage`: `ShopCloseButton` hides the dialog and leaves the store,
+    /// `gmShopNewSaleUI::ListenToMessage`: `NewSaleCloseButton` hides the dialog and leaves the store,
     /// `AddSaleButton` adds the sale, and an item dropped on `NewSale` becomes the sale.
     pub fn message(
         &mut self,
@@ -371,7 +371,7 @@ impl NewSaleUi {
         }
         let element = message.element_id;
         if message.message == MSG_BUTTON_RELEASE_ON {
-            if element == id("ShopCloseButton") {
+            if element == id("NewSaleCloseButton") {
                 self.show(tree, dialogs, false, now);
                 self.requests.push(NewSaleRequest::LeaveStore);
             } else if element == id("AddSaleButton") {
