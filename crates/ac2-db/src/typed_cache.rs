@@ -11,7 +11,6 @@ use ac2_dat::DatFileKind;
 
 use crate::{
     ResourceKey, ResourceOwnershipLane, ResourceOwnershipStats, ResourceScopeOverlapStats,
-    RETAIL_CACHE_IDLE_GRACE_SECONDS,
 };
 
 pub(crate) type CacheValue = Arc<dyn Any + Send + Sync>;
@@ -120,30 +119,40 @@ pub enum ResourceCacheObservation<T> {
     Busy,
 }
 
+/// Bytes of decoded values nobody holds that the cache keeps for reuse by default.
+pub const DEFAULT_FREE_CACHE_BUDGET_BYTES: usize = 256 * 1024 * 1024;
+
+/// Diagnostic window: a value decoded again this soon after its eviction counts as a
+/// reinsertion (the budget was too small for the working set).
+const REINSERTION_WINDOW: Duration = Duration::from_secs(30);
+
+/// The cache's memory policy. Replaces retail `DBOCache`'s per-type free-object counts and its
+/// 30 second idle aging (`DBOCache::UseTime`): values are shared while held, and once released
+/// stay only while the free bytes fit `free_byte_budget`, oldest released first.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ResourceCacheConfig {
-    idle_grace: Duration,
+    free_byte_budget: usize,
 }
 
 impl ResourceCacheConfig {
-    pub(crate) const fn new(idle_grace: Duration) -> Self {
-        Self { idle_grace }
+    pub(crate) const fn new(free_byte_budget: usize) -> Self {
+        Self { free_byte_budget }
     }
 
-    pub(crate) const fn idle_grace(self) -> Duration {
-        self.idle_grace
+    pub(crate) const fn free_byte_budget(self) -> usize {
+        self.free_byte_budget
     }
 
-    #[cfg(test)]
-    pub(crate) const fn with_idle_grace(mut self, idle_grace: Duration) -> Self {
-        self.idle_grace = idle_grace;
-        self
+    /// Free bytes an over-budget pass reaps down to, so one release past the budget does not
+    /// cost one pass per insert.
+    pub(crate) const fn free_byte_low_water(self) -> usize {
+        self.free_byte_budget - self.free_byte_budget / 8
     }
 }
 
 impl Default for ResourceCacheConfig {
     fn default() -> Self {
-        Self::new(Duration::from_secs(RETAIL_CACHE_IDLE_GRACE_SECONDS))
+        Self::new(DEFAULT_FREE_CACHE_BUDGET_BYTES)
     }
 }
 
@@ -554,11 +563,8 @@ impl TypedResourceCache {
                 .expect("typed cache key must downcast to its declared value type");
         }
 
-        let reinserted_after_eviction = family.take_recent_eviction(
-            typed_key,
-            accessed_at,
-            Duration::from_secs(RETAIL_CACHE_IDLE_GRACE_SECONDS),
-        );
+        let reinserted_after_eviction =
+            family.take_recent_eviction(typed_key, accessed_at, REINSERTION_WINDOW);
         family.entries.insert(
             typed_key,
             CacheEntry::new(&self.state, typed_key, value.clone(), retained_bytes),
@@ -570,6 +576,7 @@ impl TypedResourceCache {
             self.state.record_eviction_reinsertion();
         }
         drop(family);
+        self.trim_if_over_budget();
         CachedResource::new(value, checkout)
     }
 
@@ -625,9 +632,9 @@ impl TypedResourceCache {
         pins
     }
 
-    /// Reapplies the configured retention policy only when no decode or cache mutation owns
-    /// the cache lock. This is intended for a low-priority maintenance pass: `Busy` means the
-    /// pass was skipped rather than waiting behind live work.
+    /// Takes queued releases and reaps free values over the byte budget, only when no decode or
+    /// cache mutation owns the cache lock: `Busy` means the pass was skipped rather than waiting
+    /// behind live work. Inserts run this themselves once the cache could be over budget.
     pub fn try_maintain(&self) -> ResourceCacheMaintenanceOutcome {
         self.try_maintain_report()
     }

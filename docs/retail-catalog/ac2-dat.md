@@ -1,6 +1,6 @@
 # ac2-dat: DAT files and the database layer
 
-507 retail functions: 23 done, 5 partial, 474 to do, 5 skipped.
+507 retail functions: 23 done, 7 partial, 471 to do, 6 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/database/asynccache.cpp.c` (1/48)
@@ -61,7 +61,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AsyncCache::CCallbackHandler::~CCallbackHandler` · 006d1090 · legions 0065adb0
 
 ### AsyncCache
-- [ ] `AsyncCache::UseTime` · 006d1140 · legions 0065ae60
+- [~] `AsyncCache::UseTime` · 006d1140 · legions 0065ae60 — ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
 - [ ] `AsyncCache::AreOnDisk` · 006d11d0 · legions 0065aef0
 - [ ] `AsyncCache::FlushPendingRequests` · 006d1470 · legions 0065b140
 
@@ -168,7 +168,7 @@ Legend and workflow: [README](README.md).
 - [~] `DBCache::SetLocalLanguage` · 006cfdc0 · legions 00659b10 — the local DAT choice at mount (ac2_dat local_dat_for_language); no live switch, and the id path is not ported
 - [ ] `DBCache::GetLocalLanguage` · 006cfde0
 - [ ] `DBCache::Init` · 006cfec0 · legions 00659c20
-- [ ] `DBCache::UseTime` · 006cfff0 · legions 00659d40
+- [~] `DBCache::UseTime` · 006cfff0 · legions 00659d40 — ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
 - [ ] `DBCache::UnloadCellData` · 006d0050 · legions 00659da0
 - [ ] `DBCache::AskForLastWords` · 006d00e0 · legions 00659e30
 - [ ] `DBCache::FlushFreeObjects` · 006d0140 · legions 00659ee0
@@ -257,7 +257,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/database/dbocache.cpp.c` (0/21)
 
 ### DBOCache
-- [ ] `DBOCache::UseTime` · 006d9b40 · legions 00662f70
+- [-] `DBOCache::UseTime` · 006d9b40 · legions 00662f70 — ac2-db typed cache: free on last drop with a free-byte budget replaces DBOCache's free pool and 30 s idle aging (AGENTS.md exception)
 - [ ] `DBOCache::AddObj` · 006d9b80
 - [ ] `DBOCache::FreeObject` · 006d9ba0
 - [ ] `DBOCache::ReloadObject` · 006d9be0

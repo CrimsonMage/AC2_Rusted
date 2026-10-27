@@ -1,5 +1,4 @@
 use std::sync::Arc;
-use std::time::Duration;
 
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::DatFileKind;
@@ -25,11 +24,6 @@ fn typed_key(raw_did: u32, type_id: u32) -> ResourceKey {
 
 fn fixture_key(raw_did: u32) -> ResourceKey {
     typed_key(raw_did, crate::ResourceTypeId::FixtureA as u32)
-}
-
-/// A key in the landblock family, whose ideal free count (21) is below its maximum (144).
-fn land_key(raw_did: u32) -> ResourceKey {
-    typed_key(raw_did, crate::ResourceTypeId::LandBlock as u32)
 }
 
 fn maintain(cache: &TypedResourceCache) -> super::ResourceCacheMaintenanceReport {
@@ -178,67 +172,58 @@ fn stale_detached_lifecycle_never_releases_its_replacement() {
     assert_eq!(cache.peek::<CacheValueA>(key).unwrap().0, 2);
 }
 
-#[test]
-fn retail_maximum_evicts_the_oldest_free_entry() {
-    let cache = TypedResourceCache::default();
-    for offset in 0..17 {
-        drop(cache.insert_with_retained_bytes(
-            fixture_key(0x2200_1000 + offset),
-            Arc::new(CacheValueA(offset)),
-            1,
-        ));
-    }
-
-    let report = maintain(&cache);
-    assert_eq!(report.lifecycle_events(), 17);
-    assert_eq!(report.evicted_over_maximum(), 1);
-    assert_eq!(cache.stats().entry_count(), 16);
-    assert!(cache.get::<CacheValueA>(fixture_key(0x2200_1000)).is_none());
-    assert!(cache.get::<CacheValueA>(fixture_key(0x2200_1010)).is_some());
+fn budget_cache(free_byte_budget: usize) -> TypedResourceCache {
+    TypedResourceCache::new(ResourceCacheConfig::new(free_byte_budget))
 }
 
 #[test]
-fn retail_use_time_ages_one_oldest_entry_above_ideal() {
-    let cache =
-        TypedResourceCache::new(ResourceCacheConfig::default().with_idle_grace(Duration::ZERO));
-    for offset in 0..22 {
-        drop(cache.insert_with_retained_bytes(
-            land_key(0x2200_2000 + offset),
-            Arc::new(CacheValueA(offset)),
-            1,
-        ));
-    }
+fn a_zero_budget_frees_a_released_value_at_the_next_insert() {
+    let cache = budget_cache(0);
+    let first = fixture_key(0x2200_1000);
+    let second = fixture_key(0x2200_1001);
+    drop(cache.insert_with_retained_bytes(first, Arc::new(CacheValueA(1)), 10));
+    let held = cache.insert_with_retained_bytes(second, Arc::new(CacheValueA(2)), 10);
 
-    let report = maintain(&cache);
-    assert_eq!(report.evicted_idle(), 1);
-    assert_eq!(cache.stats().entry_count(), 21);
-    let report = maintain(&cache);
-    assert_eq!(report.evicted_idle(), 0);
+    assert!(cache.peek::<CacheValueA>(first).is_none());
+    assert!(cache.get::<CacheValueA>(first).is_none());
+    assert_eq!(cache.stats().entry_count(), 1);
+    drop(held);
+    maintain(&cache);
+    assert_eq!(cache.stats().entry_count(), 0);
+    assert_eq!(cache.stats().retained_bytes(), 0);
 }
 
 #[test]
-fn aged_backlog_continues_without_waiting_and_stops_at_the_retail_floor() {
-    let cache =
-        TypedResourceCache::new(ResourceCacheConfig::default().with_idle_grace(Duration::ZERO));
-    for offset in 0..24 {
+fn free_values_stay_within_the_budget_and_go_oldest_released_first() {
+    const ENTRY: usize = 8;
+    let cache = budget_cache(3 * ENTRY);
+    for offset in 0..5 {
         drop(cache.insert_with_retained_bytes(
-            land_key(0x2200_2800 + offset),
+            fixture_key(0x2200_2000 + offset),
             Arc::new(CacheValueA(offset)),
-            1,
+            ENTRY,
         ));
     }
-    for expected_remaining in (21..24).rev() {
-        let report = maintain(&cache);
-        assert_eq!(report.evicted_idle(), 1);
-        assert_eq!(cache.stats().entry_count(), expected_remaining);
-        assert_eq!(report.more_work(), expected_remaining > 21);
+
+    for offset in 0..2 {
+        assert!(cache
+            .peek::<CacheValueA>(fixture_key(0x2200_2000 + offset))
+            .is_none());
     }
-    assert_eq!(maintain(&cache).evicted_entries(), 0);
+    for offset in 2..5 {
+        assert!(cache
+            .peek::<CacheValueA>(fixture_key(0x2200_2000 + offset))
+            .is_some());
+    }
+    maintain(&cache);
+    let stats = cache.stats();
+    assert!(stats.free_retained_bytes() <= 3 * ENTRY, "{stats:?}");
+    assert_eq!(stats.entry_count(), 3);
 }
 
 #[test]
-fn young_free_backlog_waits_for_the_idle_grace() {
-    let cache = TypedResourceCache::default();
+fn values_within_the_budget_are_kept_for_reuse() {
+    let cache = budget_cache(1024);
     for offset in 0..6 {
         drop(cache.insert_with_retained_bytes(
             fixture_key(0x2200_2900 + offset),
@@ -247,14 +232,14 @@ fn young_free_backlog_waits_for_the_idle_grace() {
         ));
     }
     let report = maintain(&cache);
-    assert_eq!(report.evicted_idle(), 0);
+    assert_eq!(report.evicted_entries(), 0);
     assert!(!report.more_work());
+    assert_eq!(cache.stats().free_entry_count(), 6);
 }
 
 #[test]
-fn active_checkout_and_explicit_pin_are_not_evicted() {
-    let cache =
-        TypedResourceCache::new(ResourceCacheConfig::default().with_idle_grace(Duration::ZERO));
+fn active_checkout_and_explicit_pin_are_never_reaped() {
+    let cache = budget_cache(0);
     let active_key = fixture_key(0x2200_3000);
     let pinned_key = fixture_key(0x2200_3001);
     let active = cache.insert_with_retained_bytes(active_key, Arc::new(CacheValueA(1)), 1);
@@ -274,64 +259,49 @@ fn active_checkout_and_explicit_pin_are_not_evicted() {
     assert_eq!(active.0, 1);
     assert!(cache.peek::<CacheValueA>(active_key).is_some());
     assert!(cache.peek::<CacheValueA>(pinned_key).is_some());
+    assert_eq!(cache.stats().entry_count(), 2);
     drop(pin);
     drop(active);
 }
 
 #[test]
-fn free_byte_pressure_reaps_to_the_low_water_across_bounded_passes() {
+fn an_explicit_pass_reaps_free_bytes_to_the_low_water() {
     const ENTRY_BYTES: usize = 8 * 1024 * 1024;
     let cache = TypedResourceCache::default();
-    for offset in 0..5 {
-        drop(cache.insert_with_retained_bytes(
-            fixture_key(0x2200_3800 + offset),
-            Arc::new(CacheValueA(offset)),
-            ENTRY_BYTES,
-        ));
-    }
-
-    let first = maintain(&cache);
-    assert_eq!(first.free_retained_bytes_before(), 5 * ENTRY_BYTES);
-    assert_eq!(first.evicted_pressure(), 1);
-    assert_eq!(first.pressure_evicted_bytes(), ENTRY_BYTES);
-    assert_eq!(first.free_retained_bytes_after(), 4 * ENTRY_BYTES);
-    assert!(first.more_work());
-
-    let second = maintain(&cache);
-    assert_eq!(second.evicted_pressure(), 1);
-    assert_eq!(second.free_retained_bytes_after(), 3 * ENTRY_BYTES);
-    assert!(!second.more_work());
-    assert_eq!(cache.stats().entry_count(), 3);
-}
-
-#[test]
-fn free_byte_pressure_never_counts_active_or_pinned_values() {
-    const ENTRY_BYTES: usize = 8 * 1024 * 1024;
-    let cache = TypedResourceCache::default();
-    let active_key = fixture_key(0x2200_3900);
-    let pinned_key = fixture_key(0x2200_3901);
-    let active =
-        cache.insert_with_retained_bytes(active_key, Arc::new(CacheValueA(1)), ENTRY_BYTES);
-    let pinned =
-        cache.insert_with_retained_bytes(pinned_key, Arc::new(CacheValueA(2)), ENTRY_BYTES);
-    let pins = cache.retain_resource(pinned_key);
-    drop(pinned);
-    for offset in 0..4 {
-        drop(cache.insert_with_retained_bytes(
-            fixture_key(0x2200_3910 + offset),
-            Arc::new(CacheValueA(offset)),
-            ENTRY_BYTES,
-        ));
-    }
+    let budget = cache.state.config().free_byte_budget();
+    let entries = budget / ENTRY_BYTES;
+    // Held values do not count against the free budget and cannot be reaped.
+    let held = (0..entries)
+        .map(|offset| {
+            cache.insert_with_retained_bytes(
+                fixture_key(0x2200_3800 + offset as u32),
+                Arc::new(CacheValueA(offset as u32)),
+                ENTRY_BYTES,
+            )
+        })
+        .collect::<Vec<_>>();
+    let extra = cache.insert_with_retained_bytes(
+        fixture_key(0x2200_3F00),
+        Arc::new(CacheValueA(0)),
+        ENTRY_BYTES,
+    );
+    assert_eq!(cache.stats().entry_count(), entries + 1);
+    drop(held);
+    drop(extra);
 
     let report = maintain(&cache);
-    assert_eq!(report.free_retained_bytes_before(), 4 * ENTRY_BYTES);
-    assert_eq!(report.evicted_pressure(), 1);
-    assert!(cache.peek::<CacheValueA>(active_key).is_some());
-    assert!(cache.peek::<CacheValueA>(pinned_key).is_some());
-    assert_eq!(active.0, 1);
-    drop(pins);
-    drop(active);
+    assert_eq!(
+        report.free_retained_bytes_before(),
+        (entries + 1) * ENTRY_BYTES
+    );
+    assert!(report.free_retained_bytes_after() <= report.free_byte_low_water());
+    assert!(report.evicted_pressure() > 0);
+    assert!(cache
+        .peek::<CacheValueA>(fixture_key(0x2200_3800))
+        .is_none());
+    assert!(cache
+        .peek::<CacheValueA>(fixture_key(0x2200_3F00))
+        .is_some());
 }
 
 #[test]

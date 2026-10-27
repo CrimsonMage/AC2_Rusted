@@ -202,10 +202,13 @@ fn released_context_does_not_receive_stale_completion_events() {
 }
 
 #[test]
-fn runtime_exposes_retail_idle_grace_and_bounded_maintenance() {
+fn runtime_exposes_the_free_byte_budget_and_bounded_maintenance() {
     let runtime = inline_runtime(Arc::new(test_store(build_string_table_payload())));
 
-    assert_eq!(runtime.cache_config().idle_grace(), Duration::from_secs(30));
+    assert_eq!(
+        runtime.cache_config().free_byte_budget(),
+        crate::DEFAULT_FREE_CACHE_BUDGET_BYTES
+    );
     assert!(matches!(
         runtime.try_maintain_cache(),
         crate::ResourceCacheMaintenanceOutcome::Completed(_)

@@ -6086,7 +6086,9 @@ key	status	note
 006cf2c0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 006cfa80	x	ac2-script data/glue::enums
 006cfdc0	~	the local DAT choice at mount (ac2_dat local_dat_for_language); no live switch, and the id path is not ported
+006cfff0	~	ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
 006d0bc0	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
+006d1140	~	ac2-db typed cache trims on the inserting worker; the finished-request pump is the client's time-budgeted loader drain (LOAD_BUDGET)
 006d7020	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 006d7040	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
 006d7830	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -6096,6 +6098,7 @@ key	status	note
 006d8150	x	ac2-script data/glue::enums
 006d83f0	x	ac2-script data/glue::enums
 006d8450	x	ac2-script data/glue::enums
+006d9b40	-	ac2-db typed cache: free on last drop with a free-byte budget replaces DBOCache's free pool and 30 s idle aging (AGENTS.md exception)
 006da360	x	
 006da480	x	
 006da500	x	

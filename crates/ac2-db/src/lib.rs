@@ -26,7 +26,6 @@ mod preparation_executor;
 mod preparation_queue;
 mod property;
 mod resource_runtime;
-mod retail_cache_retention;
 mod store;
 mod string_info;
 #[cfg(test)]
@@ -82,9 +81,6 @@ pub use resource_runtime::{
     ResourcePriority, ResourceRequestContext, ResourceRequestOutcome, ResourceRequestProgress,
     ResourceRuntimeConfig, ResourceRuntimeEvent,
 };
-pub use retail_cache_retention::{
-    retail_cache_retention_for_type, RetailCacheRetention, RETAIL_CACHE_IDLE_GRACE_SECONDS,
-};
 pub use store::ResourceResidencyLease;
 pub use store::ResourceStore;
 pub use string_info::{
@@ -109,7 +105,9 @@ pub use string_table::{
 };
 pub use string_tables::{PreloadedStringTables, StoreStringTables};
 pub use thread_executor::ThreadPreparationExecutor;
-pub use typed_cache::{CachedResource, ResourceCacheStats, ResourceDecodeScope};
+pub use typed_cache::{
+    CachedResource, ResourceCacheStats, ResourceDecodeScope, DEFAULT_FREE_CACHE_BUDGET_BYTES,
+};
 pub use typed_cache::{
     ResourceCacheFamilyMaintenanceReport, ResourceCacheMaintenanceOutcome,
     ResourceCacheMaintenanceReport, ResourceCacheObservation,

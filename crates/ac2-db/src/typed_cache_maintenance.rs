@@ -2,18 +2,16 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant};
 
-use crate::retail_cache_retention_for_type;
-
 use super::state::{CacheEntry, CacheFamilyState, FreeTicket};
 use super::TypedResourceCache;
 
 const MAX_LIFECYCLE_EVENTS_PER_PASS: usize = 1_024;
-const MAX_EVICTIONS_PER_PASS: usize = 32;
-const MAX_EVICTION_BYTES_PER_PASS: usize = 8 * 1024 * 1024;
-const FREE_RETAINED_BYTES_HIGH_WATER: usize = 32 * 1024 * 1024;
-const FREE_RETAINED_BYTES_LOW_WATER: usize = 24 * 1024 * 1024;
+const MAX_EVICTIONS_PER_PASS: usize = 256;
+const MAX_EVICTION_BYTES_PER_PASS: usize = 64 * 1024 * 1024;
+/// Passes one insert-side trim may run before it leaves the rest to the next insert.
+const MAX_TRIM_PASSES: usize = 8;
 
-/// Result of one low-priority retail free-entry aging attempt.
+/// Result of one free-value reaping attempt.
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[allow(clippy::large_enum_variant)]
 pub enum ResourceCacheMaintenanceOutcome {
@@ -27,8 +25,6 @@ pub struct ResourceCacheFamilyMaintenanceReport {
     resource_type: u32,
     releases_accepted: usize,
     stale_releases: usize,
-    evicted_idle: usize,
-    evicted_over_maximum: usize,
     evicted_pressure: usize,
 }
 
@@ -41,12 +37,6 @@ impl ResourceCacheFamilyMaintenanceReport {
     }
     pub const fn stale_releases(self) -> usize {
         self.stale_releases
-    }
-    pub const fn evicted_idle(self) -> usize {
-        self.evicted_idle
-    }
-    pub const fn evicted_over_maximum(self) -> usize {
-        self.evicted_over_maximum
     }
     pub const fn evicted_pressure(self) -> usize {
         self.evicted_pressure
@@ -68,12 +58,12 @@ pub struct ResourceCacheMaintenanceReport {
     families_skipped: usize,
     evicted_entries: usize,
     evicted_bytes: usize,
-    evicted_idle: usize,
-    evicted_over_maximum: usize,
     evicted_pressure: usize,
     pressure_evicted_bytes: usize,
     free_retained_bytes_before: usize,
     free_retained_bytes_after: usize,
+    free_byte_budget: usize,
+    free_byte_low_water: usize,
     pressure_blocked: bool,
     eviction_reinsertions_total: u64,
     more_work: bool,
@@ -120,12 +110,6 @@ impl ResourceCacheMaintenanceReport {
     pub const fn evicted_bytes(&self) -> usize {
         self.evicted_bytes
     }
-    pub const fn evicted_idle(&self) -> usize {
-        self.evicted_idle
-    }
-    pub const fn evicted_over_maximum(&self) -> usize {
-        self.evicted_over_maximum
-    }
     pub const fn evicted_pressure(&self) -> usize {
         self.evicted_pressure
     }
@@ -138,11 +122,11 @@ impl ResourceCacheMaintenanceReport {
     pub const fn free_retained_bytes_after(&self) -> usize {
         self.free_retained_bytes_after
     }
-    pub const fn free_pressure_high_water_bytes(&self) -> usize {
-        FREE_RETAINED_BYTES_HIGH_WATER
+    pub const fn free_byte_budget(&self) -> usize {
+        self.free_byte_budget
     }
-    pub const fn free_pressure_low_water_bytes(&self) -> usize {
-        FREE_RETAINED_BYTES_LOW_WATER
+    pub const fn free_byte_low_water(&self) -> usize {
+        self.free_byte_low_water
     }
     pub const fn pressure_blocked(&self) -> bool {
         self.pressure_blocked
@@ -279,6 +263,31 @@ fn detach_ticket(
 }
 
 impl TypedResourceCache {
+    /// The insert side of the byte budget: once the cache holds more than the free budget in
+    /// total (so its free values may exceed it), the inserting thread, a decode worker, takes
+    /// the queued releases and reaps the oldest free values. Nothing runs on a frame timer.
+    pub(super) fn trim_if_over_budget(&self) {
+        let Some(config) = self.state.try_config() else {
+            return;
+        };
+        if self.state.retained_bytes() <= config.free_byte_budget()
+            && !self.state.free_pressure_active()
+        {
+            return;
+        }
+        if !self.state.try_begin_trim() {
+            return;
+        }
+        for _ in 0..MAX_TRIM_PASSES {
+            match self.try_maintain_report() {
+                ResourceCacheMaintenanceOutcome::Completed(report)
+                    if report.more_work() && report.evicted_entries() > 0 => {}
+                _ => break,
+            }
+        }
+        self.state.end_trim();
+    }
+
     pub(super) fn try_maintain_report(&self) -> ResourceCacheMaintenanceOutcome {
         let total_started = Instant::now();
         let Some(config) = self.state.try_config() else {
@@ -353,70 +362,14 @@ impl TypedResourceCache {
         let mut pressure_blocked =
             self.state.free_pressure_active() && !free_pressure_before.complete;
         if free_pressure_before.complete
-            && free_pressure_before.retained_bytes >= FREE_RETAINED_BYTES_HIGH_WATER
+            && free_pressure_before.retained_bytes > config.free_byte_budget()
         {
             self.state.set_free_pressure_active(true);
         }
 
         let now = Instant::now();
         let mut detached = DetachedCacheEntries::default();
-        let mut completed = 0_usize;
-        for (resource_type, family) in &families {
-            let Ok(mut family) = family.try_write() else {
-                skipped = skipped.saturating_add(1);
-                more_work = true;
-                continue;
-            };
-            completed = completed.saturating_add(1);
-            let retention = retail_cache_retention_for_type(*resource_type);
-            let report =
-                reports
-                    .entry(*resource_type)
-                    .or_insert(ResourceCacheFamilyMaintenanceReport {
-                        resource_type: *resource_type,
-                        ..Default::default()
-                    });
-
-            while family.free_count() > retention.max_free_entries() {
-                if detached.budget_exhausted() {
-                    more_work = true;
-                    break;
-                }
-                let Some(ticket) = family.oldest_free() else {
-                    break;
-                };
-                if !detach_ticket(self, &mut family, ticket, &mut detached, now) {
-                    more_work = true;
-                    break;
-                }
-                report.evicted_over_maximum = report.evicted_over_maximum.saturating_add(1);
-            }
-            if detached.budget_exhausted() {
-                more_work = true;
-                continue;
-            }
-            if family.free_count() <= retention.ideal_free_entries() {
-                continue;
-            }
-            let Some(ticket) = family.oldest_free() else {
-                continue;
-            };
-            if now.saturating_duration_since(ticket.released_at) < config.idle_grace() {
-                family.restore_oldest(ticket);
-                continue;
-            }
-            if detach_ticket(self, &mut family, ticket, &mut detached, now) {
-                report.evicted_idle = report.evicted_idle.saturating_add(1);
-                // Keep the retail one-oldest-per-family pass bounded, but do not sleep a
-                // second between already-aged entries. Continue only above the ideal floor.
-                more_work |= family.free_count() > retention.ideal_free_entries()
-                    && family.peek_oldest_free().is_some_and(|(next, _)| {
-                        now.saturating_duration_since(next.released_at) >= config.idle_grace()
-                    });
-            } else {
-                more_work = true;
-            }
-        }
+        let completed = families.len().saturating_sub(skipped);
 
         let mut evicted_pressure = 0_usize;
         let mut pressure_evicted_bytes = 0_usize;
@@ -427,7 +380,7 @@ impl TypedResourceCache {
                 more_work = true;
                 break;
             }
-            if pressure.retained_bytes <= FREE_RETAINED_BYTES_LOW_WATER {
+            if pressure.retained_bytes <= config.free_byte_low_water() {
                 self.state.set_free_pressure_active(false);
                 break;
             }
@@ -491,7 +444,7 @@ impl TypedResourceCache {
         }
         if self.state.free_pressure_active()
             && free_pressure_after.complete
-            && free_pressure_after.retained_bytes > FREE_RETAINED_BYTES_LOW_WATER
+            && free_pressure_after.retained_bytes > config.free_byte_low_water()
         {
             more_work = true;
         }
@@ -500,11 +453,6 @@ impl TypedResourceCache {
         let retained_bytes_after = self.state.retained_bytes();
         let evicted_entries = detached.len();
         let evicted_bytes = detached.retained_bytes;
-        let evicted_idle = reports.values().map(|report| report.evicted_idle).sum();
-        let evicted_over_maximum = reports
-            .values()
-            .map(|report| report.evicted_over_maximum)
-            .sum();
         let lock_elapsed = total_started.elapsed();
         let drop_elapsed = detached.drop_and_measure();
         let mut family_activity = reports.into_values().collect::<Vec<_>>();
@@ -522,12 +470,12 @@ impl TypedResourceCache {
             families_skipped: skipped,
             evicted_entries,
             evicted_bytes,
-            evicted_idle,
-            evicted_over_maximum,
             evicted_pressure,
             pressure_evicted_bytes,
             free_retained_bytes_before: free_pressure_before.retained_bytes,
             free_retained_bytes_after: free_pressure_after.retained_bytes,
+            free_byte_budget: config.free_byte_budget(),
+            free_byte_low_water: config.free_byte_low_water(),
             pressure_blocked,
             eviction_reinsertions_total: self.state.eviction_reinsertion_count(),
             more_work,

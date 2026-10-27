@@ -285,10 +285,6 @@ impl CacheFamilyState {
         self.free_retained_bytes = self.free_retained_bytes.saturating_sub(retained_bytes);
     }
 
-    pub(super) fn free_count(&self) -> usize {
-        self.free_count
-    }
-
     pub(super) fn free_retained_bytes(&self) -> usize {
         self.free_retained_bytes
     }
@@ -417,6 +413,8 @@ pub(super) struct TypedCacheState {
     retention_eviction_count: AtomicU64,
     eviction_reinsertion_count: AtomicU64,
     free_pressure_active: AtomicBool,
+    /// One thread at a time reaps on insert; the others carry on with their own work.
+    trimming: AtomicBool,
 }
 
 impl TypedCacheState {
@@ -435,6 +433,7 @@ impl TypedCacheState {
             retention_eviction_count: AtomicU64::new(0),
             eviction_reinsertion_count: AtomicU64::new(0),
             free_pressure_active: AtomicBool::new(false),
+            trimming: AtomicBool::new(false),
         }
     }
 
@@ -549,6 +548,17 @@ impl TypedCacheState {
 
     pub(super) fn set_free_pressure_active(&self, active: bool) {
         self.free_pressure_active.store(active, Ordering::Release);
+    }
+
+    /// Claims the insert-side trim, or `false` when another thread holds it.
+    pub(super) fn try_begin_trim(&self) -> bool {
+        self.trimming
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .is_ok()
+    }
+
+    pub(super) fn end_trim(&self) {
+        self.trimming.store(false, Ordering::Release);
     }
 
     pub(super) fn entry_count(&self) -> usize {
