@@ -11,6 +11,8 @@ use crate::data::DatScriptData;
 use crate::vm::NoData;
 use crate::{load_wlib, LEGIONS_WLIB_DID};
 
+mod physics;
+
 fn legions_host() -> Option<ScriptHost> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ResourceStore::new(dataset.clone());
@@ -141,7 +143,11 @@ fn run_efun(vm: &mut Vm, id: u32, args: &[u32], this: u32) -> InterpStatus {
 fn efun_result(vm: &mut Vm, id: u32, args: &[u32], this: u32, ret: usize) -> u32 {
     let mut ctx = Context::new(1, None);
     ctx.enter(0).unwrap();
-    ctx.push(0, tag::INT).unwrap();
+    // The caller reserves the words from the answer slot down to the arguments (the latent
+    // efuns answer deeper than the others: DoMode and DoBehavior at slot 4, ReleaseBehavior at 5).
+    for _ in 0..ret.saturating_sub(args.len() + 1).max(1) {
+        ctx.push(0, tag::INT).unwrap();
+    }
     for &a in args.iter().rev() {
         ctx.push(a, tag::INT).unwrap();
     }

@@ -5,6 +5,7 @@
 use ac2_net::protocol::ObjectAction;
 
 use crate::glue::{word64, Call};
+use crate::native::NativeObject;
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
 pub(super) fn register(efuns: &mut EFuns) {
@@ -24,6 +25,11 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0080_002C, stop_all_camera_fx);
     efuns.register(0x0080_0045, do_fx);
     efuns.register(0x0080_0047, stop_fx);
+    efuns.register(0x0080_0015, do_mode);
+    efuns.register(0x0080_0017, set_mode);
+    efuns.register(0x0080_001B, do_behavior);
+    efuns.register(0x0080_001E, release_behavior);
+    efuns.register(0x0080_0027, stop_behavior);
     efuns.register(0x0080_0003, |vm, ctx| {
         physics_scale(vm, ctx, ObjectAction::SetVelocityScale)
     });
@@ -73,6 +79,100 @@ fn stop_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let fx = Call::new(ctx).word(2);
     vm.physics.push((id, ObjectAction::StopFx(fx)));
     Call::new(ctx).ret(3, 1, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_DoMode(mode)` -> `CWPhysicsObject::DoMode` -> `CPhysicsObj::DoMode(
+/// cid, mode)`: the weenie's body animates toward the mode. Queued as the server's `DoMode`; the
+/// efun answers 1 for a weenie with an owner. Retail stops the context until the mode is reached
+/// (`ModeDone`); that wait is not modelled, so the script continues at once.
+fn do_mode(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let mode = Call::new(ctx).word(2);
+    if id != 0 {
+        vm.physics.push((id, ObjectAction::DoMode(mode)));
+    }
+    Call::new(ctx).ret(4, u32::from(id != 0), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_SetMode(mode)` -> `CWPhysicsObject::SetMode` -> `CPhysicsObj::SetMode`
+/// (`ModeTracker::SetMode`, switching at once): queued as the server's `SetMode`. Answers 1 for a
+/// weenie with an owner.
+fn set_mode(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let mode = Call::new(ctx).word(2);
+    if id != 0 {
+        vm.physics.push((id, ObjectAction::SetMode(mode)));
+    }
+    Call::new(ctx).ret(3, u32::from(id != 0), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_DoBehavior(params)` -> `CWPhysicsObject::DoBehavior` ->
+/// `CPhysicsObj::DoBehavior(params)`: the `BehaviorParams` native in argument 2 is queued as the
+/// server's `DoBehavior`. Retail answers 0 for a weenie with a physics object (8 without one), and
+/// stops the context while the behaviour runs (not modelled here; see `do_mode`). An argument
+/// that is not a `BehaviorParams` crashes the script.
+fn do_behavior(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let reference = Call::new(ctx).word(2);
+    let params = match vm.native(reference) {
+        Some(NativeObject::BehaviorParams(p)) => p.clone(),
+        _ => return vm.bad_this(reference),
+    };
+    if id != 0 {
+        vm.physics.push((id, ObjectAction::DoBehavior(params)));
+    }
+    Call::new(ctx).ret(4, if id != 0 { 0 } else { 8 }, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_ReleaseBehavior(behavior, params)` -> `CWPhysicsObject::
+/// ReleaseBehavior` -> `CPhysicsObj::ReleaseBehavior`: queued as the server's `ReleaseBehavior`
+/// with the behaviour id (argument 2) and the `BehaviorParams` native (argument 3). Answers 0 for
+/// a weenie with an owner (8 without one).
+fn release_behavior(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let behavior = Call::new(ctx).word(2);
+    let reference = Call::new(ctx).word(3);
+    let params = match vm.native(reference) {
+        Some(NativeObject::BehaviorParams(p)) => p.clone(),
+        _ => return vm.bad_this(reference),
+    };
+    if id != 0 {
+        vm.physics
+            .push((id, ObjectAction::ReleaseBehavior { behavior, params }));
+    }
+    Call::new(ctx).ret(5, if id != 0 { 0 } else { 8 }, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_StopBehavior(behavior)` -> `CWPhysicsObject::StopBehavior` ->
+/// `CPhysicsObj::StopBehavior` (which answers 1): queued as the server's `StopBehavior`. Answers 1
+/// for a weenie with an owner (8 without one, as `CWPhysicsObject::StopBehavior` does).
+fn stop_behavior(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let behavior = Call::new(ctx).word(2);
+    if id != 0 {
+        vm.physics.push((id, ObjectAction::StopBehavior(behavior)));
+    }
+    Call::new(ctx).ret(3, if id != 0 { 1 } else { 8 }, tag::INT);
     InterpStatus::Success
 }
 
