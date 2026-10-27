@@ -90,6 +90,9 @@ mod gameplay_keys;
 mod gameplay_story;
 #[cfg(test)]
 mod gameplay_story_tests;
+mod newsale;
+#[cfg(test)]
+mod newsale_tests;
 mod radar;
 mod reticle;
 mod scene_viewport;
@@ -211,6 +214,7 @@ pub use navigation_detail::{
 };
 pub use navigation_map::MapFrame;
 pub use net_status::{LinkSample, NetStatusUi};
+pub use newsale::{NewSaleRequest, NewSaleSource, NewSaleUi};
 pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
 pub use pets::{next_mode, previous_mode, PetAction, PetUi, PET_MODES};

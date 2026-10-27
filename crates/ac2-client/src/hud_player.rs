@@ -107,6 +107,7 @@ impl HudView {
             secure_trade,
             shop,
             catalog,
+            new_sale,
             character,
             chat_options,
             money,
@@ -651,6 +652,9 @@ impl HudView {
                 if let Some(panel) = shop.as_mut() {
                     panel.recv_stack_ui_done(context, amount);
                 }
+                if let Some(panel) = new_sale.as_mut() {
+                    panel.recv_stack_ui_done(tree, &player, context, amount);
+                }
             }
             if let Some(request) = paper_doll
                 .as_mut()
@@ -687,6 +691,26 @@ impl HudView {
             if let Some(panel) = catalog.as_mut() {
                 panel.message(tree, message, frame.server_time);
                 commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+            }
+            // `gmShopNewSaleUI::ListenToMessage`: the sale's buttons and the drop on its slot.
+            if let (Some(panel), Some(dialogs)) = (new_sale.as_mut(), dialogs.as_mut()) {
+                let mut charge = || {
+                    player
+                        .client
+                        .borrow_mut()
+                        .consignment_charge()
+                        .unwrap_or(0.0)
+                };
+                panel.message(
+                    tree,
+                    dialogs,
+                    &player,
+                    message,
+                    frame.server_time,
+                    &mut charge,
+                );
+                commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
+                crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
@@ -732,6 +756,11 @@ impl HudView {
             if let Some(panel) = shop.as_mut() {
                 panel.dialog_outcomes(&outcomes);
             }
+            // The sale's confirmation (`gmShopNewSaleUI::RecvNotice_CloseConfirmationDialog`).
+            if let Some(panel) = new_sale.as_mut() {
+                panel.dialog_outcomes(tree, dialogs, &outcomes, frame.server_time);
+                commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
+            }
             // The recall's and default's confirmations (`gmCharacterUI::RecvNotice_CloseConfirmationDialog`).
             if let Some(page) = character.as_mut() {
                 page.dialog_outcomes(tree, dialogs, &outcomes);
@@ -770,6 +799,11 @@ impl HudView {
         if let Some(panel) = catalog.as_mut() {
             panel.tick(tree, frame.server_time);
             commands.extend(crate::hud_shop::catalog_commands(panel.take_requests()));
+        }
+        if let Some(panel) = new_sale.as_mut() {
+            panel.tick(tree, frame.server_time);
+            commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
+            crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
         }
         if let Some(panel) = shop.as_mut() {
             panel.tick(tree, frame.server_time);

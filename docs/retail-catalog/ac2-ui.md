@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 909 done, 338 partial, 934 to do, 66 skipped.
+2247 retail functions: 919 done, 341 partial, 920 to do, 67 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -538,27 +538,27 @@ Legend and workflow: [README](README.md).
 - [ ] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60
 - [ ] `gmShopConsignmentUI::RecvNotice_ViewConsignment` · 0041cbd0 · legions 0041c9f0
 
-## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (0/14)
+## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (10/14)
 
 ### gmShopNewSaleUI
-- [ ] `gmShopNewSaleUI::DestroyManagedElements` · 0041a600 · legions 0041a440
-- [ ] `gmShopNewSaleUI::Update` · 0041a640 · legions 0041a4a0
-- [ ] `gmShopNewSaleUI::ListenToMessage` · 0041a760 · legions 0041a5c0
-- [ ] `gmShopNewSaleUI::RecvNotice_CloseConfirmationDialog` · 0041a7b0 · legions 0041a610
-- [ ] `gmShopNewSaleUI::HandleDragDrop` · 0041a830 · legions 0041a690
+- [x] `gmShopNewSaleUI::DestroyManagedElements` · 0041a600 · legions 0041a440 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::Update` · 0041a640 · legions 0041a4a0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::ListenToMessage` · 0041a760 · legions 0041a5c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::RecvNotice_CloseConfirmationDialog` · 0041a7b0 · legions 0041a610 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::HandleDragDrop` · 0041a830 · legions 0041a690 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 
 ### (free functions)
-- [ ] `gmShopNewSaleUI_DDCB` · 0041a950
+- [-] `gmShopNewSaleUI_DDCB` · 0041a950 — scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 
 ### gmShopNewSaleUI
-- [ ] `gmShopNewSaleUI::~gmShopNewSaleUI` · 0041a9c0 · legions 0041a820
-- [ ] `gmShopNewSaleUI::CreateManagedElements` · 0041aa70 · legions 0041a8d0
-- [ ] `gmShopNewSaleUI::RecvNotice_StackUIDone` · 0041ab00 · legions 0041a960
-- [ ] `gmShopNewSaleUI::RecvNotice_InitNewSale` · 0041ab40
-- [ ] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0
-- [ ] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60
-- [ ] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0
-- [ ] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0
+- [~] `gmShopNewSaleUI::~gmShopNewSaleUI` · 0041a9c0 · legions 0041a820 — ac2-ui newsale.rs: no Drop; the destructor's stack and confirmation closes are the panel's Show(false), its notice unregistration is the HUD's routing
+- [x] `gmShopNewSaleUI::CreateManagedElements` · 0041aa70 · legions 0041a8d0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::RecvNotice_StackUIDone` · 0041ab00 · legions 0041a960 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::RecvNotice_InitNewSale` · 0041ab40 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [x] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [~] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
+- [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — ac2-ui newsale.rs message: the sale slot's mouse-over tooltip and the help page are not modelled
 
 ## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (17/22)
 

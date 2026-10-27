@@ -230,6 +230,21 @@ key	status	note
 00419b70	~	Legions 7160 routes no UpdatePetMode here (gmNoticeHandler slot 0x70 is a no-op stub); not ported as a notice, the typed notice is parsed in ac2-script
 00419c20	~	ac2-ui pets.rs message: the buttons (attack on the selection, return, heal, buff), the arrows, and a row press selecting its pet; the name edit (RequestSetPetName from the text) is not ported (the command is, see the CallIFun rows)
 0041a040	~	ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
+0041a600	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041a640	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041a760	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041a7b0	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041a830	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041a950	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
+0041a9c0	~	ac2-ui newsale.rs: no Drop; the destructor's stack and confirmation closes are the panel's Show(false), its notice unregistration is the HUD's routing
+0041aa70	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041ab00	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041ab40	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041ab60	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041ac00	~	ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
+0041ad20	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
+0041ad40	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
+0041af80	~	ac2-ui newsale.rs message: the sale slot's mouse-over tooltip and the help page are not modelled
 0041b250	~	ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
 0041cc80	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041ccb0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs

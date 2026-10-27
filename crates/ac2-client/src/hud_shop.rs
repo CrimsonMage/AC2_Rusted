@@ -4,8 +4,8 @@
 //! `hud_player`, which routes the notices and the messages in the order the frameworks get them.
 
 use ac2_ui::{
-    CatalogRequest, CatalogUi, DialogFactory, ShopRequest, ShopSource, ShopStackCall, ShopUi,
-    StackUi, UiTree,
+    CatalogRequest, CatalogUi, DialogFactory, NewSaleRequest, ShopRequest, ShopSource,
+    ShopStackCall, ShopUi, StackUi, UiTree,
 };
 use ac2_weenie::GameplayNotice;
 
@@ -78,6 +78,26 @@ pub fn catalog_commands(requests: Vec<CatalogRequest>) -> Vec<Command> {
             CatalogRequest::LeaveCatalog => Command::LeaveCatalog,
             CatalogRequest::EnterStore(store) => Command::EnterStore(store),
             CatalogRequest::EnterConsignment => Command::EnterConsignment,
+        })
+        .collect()
+}
+
+/// The new-sale dialog's requests as the gameplay commands (`gmCWInterface`'s calls): the sale is
+/// `RequestSell`, the close button `RequestLeaveStore`.
+pub fn new_sale_commands(requests: Vec<NewSaleRequest>) -> Vec<Command> {
+    requests
+        .into_iter()
+        .map(|request| match request {
+            NewSaleRequest::Sell {
+                item,
+                quantity,
+                price,
+            } => Command::RequestSell {
+                item,
+                quantity,
+                price,
+            },
+            NewSaleRequest::LeaveStore => Command::LeaveStore,
         })
         .collect()
 }

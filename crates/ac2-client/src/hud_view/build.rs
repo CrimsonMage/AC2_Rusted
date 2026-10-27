@@ -101,6 +101,7 @@ impl HudView {
             chat_options: None,
             shop: None,
             catalog: None,
+            new_sale: None,
             radar: None,
             radar_cell: None,
             radar_coordinates: None,
@@ -171,6 +172,7 @@ impl HudView {
                     overview,
                     shop,
                     catalog,
+                    new_sale,
                     book,
                     story,
                 },
@@ -224,6 +226,7 @@ impl HudView {
                 self.chat_options = chat_options;
                 self.shop = shop;
                 self.catalog = catalog;
+                self.new_sale = new_sale;
                 self.radar = Some(radar);
                 self.navigation = navigation;
                 self.overview = overview;

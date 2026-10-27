@@ -41,6 +41,7 @@ use crate::layout::{load_layout, LayoutDesc};
 use crate::mini_fellow::MiniFellowUi;
 use crate::name_plates::NamePlates;
 use crate::navigation::NavigationUi;
+use crate::newsale::NewSaleUi;
 use crate::overview_map::OverviewMapUi;
 use crate::pets::PetUi;
 use crate::quests_panel::QuestsUi;
@@ -156,6 +157,8 @@ pub struct GameplayHud {
     pub catalog: Option<CatalogUi>,
     /// `gmStoryUI`'s background and story fields, hidden until a story starts.
     pub story: Option<StoryView>,
+    /// `gmShopNewSaleUI`, the consignment's new-sale dialog (its managed elements are made when it opens).
+    pub new_sale: Option<NewSaleUi>,
 }
 
 /// The HUD on a `width` x `height` display; its text is read through `store`, then frozen.
@@ -310,6 +313,7 @@ pub fn build_gameplay_hud(
         .and_then(|gameplay| OverviewMapUi::create(&mut tree, gameplay));
     let shop = layouts[&LAYOUT_GAMEPLAY].as_ref().map(ShopUi::create);
     let catalog = layouts[&LAYOUT_GAMEPLAY].as_ref().map(CatalogUi::create);
+    let new_sale = layouts[&LAYOUT_GAMEPLAY].as_ref().map(NewSaleUi::create);
     let book = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| BookUi::create(&mut tree, gameplay));
@@ -353,6 +357,7 @@ pub fn build_gameplay_hud(
         overview,
         shop,
         catalog,
+        new_sale,
         book,
         story,
     })
