@@ -237,6 +237,11 @@ impl TerrainRenderer {
         );
     }
 
+    /// The region's cloud shadows, once loaded.
+    pub fn clouds(&self) -> Option<CloudShadow> {
+        self.clouds
+    }
+
     /// Sets the frame's world-to-shadow-map transform; zero samples the map's corner texel.
     pub fn set_shadow_matrix(&mut self, matrix: Mat4) {
         self.shadow = matrix;

@@ -18,6 +18,9 @@ struct SkyFrame {
     grade: vec4<f32>,
     // x cloud cover (0 clear to 1 overcast), y client seconds for the drift, z rain amount.
     clouds: vec4<f32>,
+    // xy the deck's drift in m/s: the region's cloud-shadow scroll, so the clouds move with
+    // their shadows on the landscape.
+    wind: vec4<f32>,
 };
 
 @group(0) @binding(0) var<uniform> sky: SkyFrame;
@@ -158,7 +161,7 @@ fn fs_clouds(input: VsOut) -> @location(0) vec4<f32> {
     }
     let sun = sky.sun_dir.xyz;
     let distance = CLOUD_HEIGHT / max(view.z, 0.01);
-    let at = (sky.eye.xy + view.xy * distance) / CLOUD_SCALE + CLOUD_WIND * sky.clouds.y / CLOUD_SCALE;
+    let at = (sky.eye.xy + view.xy * distance) / CLOUD_SCALE + sky.wind.xy * sky.clouds.y / CLOUD_SCALE;
     let density = cloud_density(at, cover);
     let toward_sun = cloud_density(at + sun.xy * 0.06, cover);
     let shadow = exp(-2.2 * toward_sun);

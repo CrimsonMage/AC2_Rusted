@@ -73,11 +73,10 @@ fn fresnel_schlick(v_dot_h: f32, f0: vec3<f32>) -> vec3<f32> {
     return f0 + (vec3(1.0) - f0) * f;
 }
 
-// The procedural cloud deck the sky draws (`sky.wgsl`) and the landscape's cloud shadows sample
-// (`terrain.wgsl`): height above the eye, the noise's feature size and drift (metres, m/s).
+// The procedural cloud deck the sky draws (`sky.wgsl`): height above the eye and the noise's
+// feature size (metres).
 const CLOUD_HEIGHT: f32 = 1600.0;
 const CLOUD_SCALE: f32 = 2400.0;
-const CLOUD_WIND: vec2<f32> = vec2<f32>(9.0, 3.5);
 const CLOUD_FADE: f32 = 16000.0;
 
 fn hash(p: vec2<f32>) -> f32 {

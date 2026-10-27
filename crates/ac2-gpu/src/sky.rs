@@ -21,6 +21,7 @@ struct SkyUniform {
     sun_color: [f32; 4],
     grade: [f32; 4],
     clouds: [f32; 4],
+    wind: [f32; 4],
 }
 
 /// What the frame's sky shows beyond the region's lighting.
@@ -34,6 +35,8 @@ pub struct SkyLook {
     pub cloud_cover: f32,
     /// Client seconds; the clouds drift with it.
     pub time: f64,
+    /// The deck's drift in m/s ([`cloud_wind`]).
+    pub wind: [f32; 2],
 }
 
 impl Default for SkyLook {
@@ -42,12 +45,27 @@ impl Default for SkyLook {
             backdrop: None,
             cloud_cover: DEFAULT_CLOUD_COVER,
             time: 0.0,
+            wind: DEFAULT_CLOUD_WIND,
         }
     }
 }
 
 /// The cloud cover of a dry day.
 pub const DEFAULT_CLOUD_COVER: f32 = 0.25;
+
+/// The deck's drift before the region's cloud shadows load, m/s.
+pub const DEFAULT_CLOUD_WIND: [f32; 2] = [9.0, 3.5];
+
+/// The ground speed of the region's cloud shadows (`CSurfaceDesc::m_fCloudScrollU`/`V` texture
+/// units per second at `m_fCloudTextureScale` units per metre): a texture offset falling by the
+/// scroll carries the pattern the other way.
+pub fn cloud_wind(clouds: &ac2_render::scene::CloudShadow) -> [f32; 2] {
+    if clouds.scale > 0.0 {
+        clouds.scroll.map(|rate| -rate / clouds.scale)
+    } else {
+        DEFAULT_CLOUD_WIND
+    }
+}
 
 /// The cover over `dry` cover in `rain` (`WorldRender::m_fRainAmount`): overcast by the time
 /// the rain is heavy enough to draw (`RAIN_DRAW_THRESHOLD`, 0.4).
@@ -198,6 +216,7 @@ impl SkyRenderer {
                 None => [1.0, 1.0, 1.0, 0.0],
             },
             clouds: cloud_uniform(look, lighting),
+            wind: [look.wind[0], look.wind[1], 0.0, 0.0],
         };
         queue.write_buffer(&self.buffer, 0, bytemuck::bytes_of(&uniform));
     }
@@ -223,7 +242,19 @@ fn inverse_view_projection(camera: &Camera, aspect: f32) -> Mat4 {
 
 #[cfg(test)]
 mod tests {
-    use super::cloud_cover;
+    use super::{cloud_cover, cloud_wind};
+    use ac2_render::scene::CloudShadow;
+
+    #[test]
+    fn the_deck_drifts_with_the_regions_cloud_shadows() {
+        let clouds = CloudShadow {
+            texture: None,
+            scale: 0.001,
+            scroll: [-0.006, -0.002],
+        };
+        let [x, y] = cloud_wind(&clouds);
+        assert!((x - 6.0).abs() < 1e-4 && (y - 2.0).abs() < 1e-4);
+    }
 
     #[test]
     fn rain_closes_the_cover_by_the_time_it_draws() {

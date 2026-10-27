@@ -232,6 +232,12 @@ impl SceneRenderer {
         let look = SkyLook {
             backdrop: crate::sky_backdrop(&before).map(|index| before[index].tint),
             time,
+            wind: self
+                .terrain
+                .clouds()
+                .map_or(crate::sky::DEFAULT_CLOUD_WIND, |c| {
+                    crate::sky::cloud_wind(&c)
+                }),
             ..SkyLook::default()
         };
         self.sky
