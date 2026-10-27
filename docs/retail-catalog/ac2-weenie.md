@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 573 done, 174 partial, 1134 to do, 23 skipped.
+1904 retail functions: 574 done, 174 partial, 1133 to do, 23 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [ ] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0
 
-## `portal/client/src/events/ecm_physics.cpp.c` (21/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (22/59)
 
 ### TargetPosition
 - [ ] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400
@@ -1420,7 +1420,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_SetJumpScale` · 004961e0 · legions 0048e9b0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-- [ ] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70
+- [x] `ECM_Physics::RecvEvt_SetMIDESC` · 004962a0 · legions 0048ea70 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 - [x] `ECM_Physics::RecvEvt_SetMode` · 00496360 · legions 0048eb30 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to; door_lever_7160: a door's DoMode transitions (opening, closing) and a lever's DoBehavior flip (with its FX sound) play from the DAT setups' behaviour tables
 - [x] `ECM_Physics::RecvEvt_SetVelocityScale` · 00496420 · legions 0048ebf0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_StopAllWeenieBehaviors` · 004964e0 · legions 0048ecb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to

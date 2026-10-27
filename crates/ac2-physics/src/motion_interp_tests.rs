@@ -1,6 +1,36 @@
 use super::*;
 use crate::test_support::{desc, desc_with_global, walking_values, RecordingRep};
 
+/// `CPhysicsObj::RecvEvt_SetMIDESC`: a loaded description replaces the table the lookups read
+/// (the forward speed comes from the new one); a missing one keeps the table.
+#[test]
+fn set_desc_replaces_the_motion_table_the_lookups_read() {
+    let mut motion = MotionInterp::new(Some(desc(&[(ELEMENT_GROUND, walking_values())])));
+    assert_eq!(
+        motion
+            .motion_values_for_element(ELEMENT_GROUND)
+            .max_forward_velocity,
+        4.0
+    );
+    let mut faster = walking_values();
+    faster.max_forward_velocity = 9.0;
+    assert!(motion.set_desc(Some(desc(&[(ELEMENT_GROUND, faster)]))));
+    assert_eq!(
+        motion
+            .motion_values_for_element(ELEMENT_GROUND)
+            .max_forward_velocity,
+        9.0
+    );
+    assert!(!motion.set_desc(None), "a missing description is refused");
+    assert_eq!(
+        motion
+            .motion_values_for_element(ELEMENT_GROUND)
+            .max_forward_velocity,
+        9.0,
+        "and the table stays"
+    );
+}
+
 fn ground_context(local_velocity: Vector) -> MotionContext {
     MotionContext {
         local_velocity,

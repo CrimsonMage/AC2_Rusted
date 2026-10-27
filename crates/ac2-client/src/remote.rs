@@ -10,6 +10,7 @@
 //! destruction is cancelled.
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
+use std::sync::Arc;
 
 use ac2_net::protocol::ServerPosition;
 use ac2_physics::{
@@ -422,6 +423,13 @@ impl Remotes {
 
     /// The server's motion events (`RecvEvt_DoMode`, `RecvEvt_SetMode`, the behaviour, layer
     /// and slider events) for the object's body.
+    /// `CMotionInterp::SetMIDESC` for a remote object whose description the loader read.
+    pub(crate) fn set_motion_desc(&mut self, id: u64, desc: Arc<ac2_world::Ac2MotionInterpDesc>) {
+        if let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) {
+            body.set_motion_desc(Some(desc));
+        }
+    }
+
     pub(crate) fn motion(
         &mut self,
         id: u64,

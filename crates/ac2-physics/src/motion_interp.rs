@@ -146,6 +146,20 @@ impl MotionInterp {
     /// `CMotionInterp::SetVelocityScale` (`mVelScale`), reached from the server's
     /// `ECM_Physics::RecvEvt_SetVelocityScale` through `CPhysicsObj::SetVelocityScale` and
     /// `PHYSICSOBJREP::SetVelocityScale`.
+    /// `CMotionInterp::SetMIDESC`: the body moves by `desc` from now on (the motion table the
+    /// lookups read). The client loads the description on a loader thread and hands it here;
+    /// `None` (the DBObj is missing) keeps the current table and returns false, as retail's
+    /// `return 0` does.
+    pub fn set_desc(&mut self, desc: Option<Arc<Ac2MotionInterpDesc>>) -> bool {
+        match desc {
+            Some(desc) => {
+                self.desc = Some(desc);
+                true
+            }
+            None => false,
+        }
+    }
+
     pub fn set_velocity_scale(&mut self, scale: f32) {
         self.vel_scale = scale;
     }

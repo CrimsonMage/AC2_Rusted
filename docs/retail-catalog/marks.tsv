@@ -2229,7 +2229,7 @@ key	status	note
 00496060	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 00496120	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004961e0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
-004962a0	_	
+004962a0	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 00496360	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to; door_lever_7160: a door's DoMode transitions (opening, closing) and a lever's DoBehavior flip (with its FX sound) play from the DAT setups' behaviour tables
 00496420	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004964e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
@@ -2789,6 +2789,7 @@ key	status	note
 004de350	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004de360	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004de380	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
+004de3f0	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 004de410	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 004de430	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 004de450	x	ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
@@ -2977,6 +2978,7 @@ key	status	note
 004f1580	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f1630	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
+004f1690	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
@@ -3032,6 +3034,7 @@ key	status	note
 005083f0	_	
 005089d0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+005096c0	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 00509790	x	
 005097b0	x	
 005097d0	x	ac2-physics moveto (slice 3)

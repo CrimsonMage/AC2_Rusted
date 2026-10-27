@@ -44,6 +44,12 @@ pub trait WorldData: Send + Sync {
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String>;
     /// The region's `GameTime`, if the world has one.
     fn game_clock(&self) -> Option<GameClock>;
+
+    /// The `MotionInterpDesc` `did` (`CMotionInterp::SetMIDESC`'s `DBObj::Get`), read on a
+    /// loader thread. `None` when the DATs have none.
+    fn motion_desc(&self, _did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
+        Ok(None)
+    }
     /// The region (its weather and sky), held in memory by the frame thread.
     fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
         None
@@ -141,6 +147,12 @@ impl WorldData for DatWorld {
 
     fn game_clock(&self) -> Option<GameClock> {
         Some(self.world.region()?.game_clock())
+    }
+
+    fn motion_desc(&self, did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
+        let desc = ac2_world::load_ac2_motion_interp_desc(&self.store, DataId::new(did))
+            .map_err(|e| e.to_string())?;
+        Ok(desc.map(|desc| Arc::new((*desc).clone())))
     }
 
     fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {

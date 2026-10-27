@@ -29,6 +29,8 @@ pub(crate) enum Request {
     AmbientData,
     /// A landblock's ambient sound points (`CLandBlock::CreateAmbientSoundPoints`).
     AmbientPoints(u32),
+    /// An object's `MotionInterpDesc` (`CMotionInterp::SetMIDESC`): object, DID.
+    MotionDesc(u64, u32),
 }
 
 /// Finished work.
@@ -43,6 +45,12 @@ pub(crate) enum Loaded {
     ScriptData,
     /// The ambient sound's reads.
     Ambient(crate::client_ambient::AmbientLoaded),
+    /// An object's motion description: object, and the description (`None` where the DATs
+    /// have no such DBObj, or the read failed).
+    MotionDesc(
+        u64,
+        Result<Option<std::sync::Arc<ac2_world::Ac2MotionInterpDesc>>, String>,
+    ),
 }
 
 /// A pool of loader threads over one `WorldData`.
@@ -79,6 +87,7 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         Request::AmbientPoints(block) => Loaded::Ambient(
             crate::client_ambient::AmbientLoaded::Points(block, data.ambient_points(block)),
         ),
+        Request::MotionDesc(object, did) => Loaded::MotionDesc(object, data.motion_desc(did)),
     }
 }
 

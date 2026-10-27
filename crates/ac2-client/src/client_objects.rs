@@ -1,6 +1,8 @@
 //! The client's glue for the objects other than the player: the session's object events and
 //! the resident landblocks drive [`Remotes`], and each frame lists them for the renderer.
 
+use std::sync::Arc;
+
 use ac2_net::protocol::{MoveTarget, ObjectAction};
 use ac2_weenie::SessionEvent;
 
@@ -72,7 +74,48 @@ impl Client {
         }
     }
 
+    /// `CPhysicsObj::RecvEvt_SetMIDESC`: the description is read on a loader thread first; the
+    /// body's table changes when it arrives (`motion_desc_loaded`).
+    fn request_motion_desc(&mut self, event: &SessionEvent) -> bool {
+        match event {
+            SessionEvent::ObjectAction {
+                object,
+                action: ObjectAction::SetMotionInterp(did),
+            } => {
+                self.loader.request(Request::MotionDesc(*object, *did));
+                true
+            }
+            _ => false,
+        }
+    }
+
+    /// A loaded `MotionInterpDesc` for `object` (`CMotionInterp::SetMIDESC`): the player's body
+    /// or a remote's. A description that failed to load keeps the table, as retail's SetMIDESC
+    /// returns 0 when `DBObj::Get` fails.
+    pub(crate) fn motion_desc_loaded(
+        &mut self,
+        object: u64,
+        desc: Result<Option<Arc<ac2_world::Ac2MotionInterpDesc>>, String>,
+    ) {
+        let Ok(Some(desc)) = desc else {
+            return;
+        };
+        if let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        {
+            body.physics.set_motion_desc(Some(desc));
+            return;
+        }
+        self.remotes.set_motion_desc(object, desc);
+    }
+
     pub(crate) fn apply_remote(&mut self, event: &SessionEvent) {
+        if self.request_motion_desc(event) {
+            return;
+        }
         let impulse_source = match event {
             SessionEvent::ObjectAction {
                 object,

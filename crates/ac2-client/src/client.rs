@@ -512,6 +512,7 @@ impl Client {
                 }
             }
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
+            Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::ScriptData => self.script_data_loaded(),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
             Loaded::Block(block, result) => {

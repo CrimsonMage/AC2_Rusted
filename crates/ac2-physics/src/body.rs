@@ -485,6 +485,12 @@ impl PhysicsBody {
             .add_targeted_impulse(source, magnitude, falloff, vertical);
     }
 
+    /// `CPhysicsObj::RecvEvt_SetMIDESC` -> `PHYSICSOBJREP::SetMIDESC` -> `CMotionInterp::SetMIDESC`
+    /// with a description the client already loaded (`None` keeps the table).
+    pub fn set_motion_desc(&mut self, desc: Option<Arc<Ac2MotionInterpDesc>>) -> bool {
+        self.object.motion.set_desc(desc)
+    }
+
     /// `ECM_Physics::RecvEvt_SetVelocityScale` -> `CPhysicsObj::SetVelocityScale` ->
     /// `CMotionInterp::SetVelocityScale`: scales the walking and running speeds.
     pub fn set_velocity_scale(&mut self, scale: f32) {

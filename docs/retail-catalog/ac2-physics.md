@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 394 done, 88 partial, 1580 to do, 62 skipped.
+2124 retail functions: 397 done, 88 partial, 1577 to do, 62 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (2/9)
@@ -1565,11 +1565,11 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [ ] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (34/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (35/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680
-- [ ] `CMotionInterp::SetMIDESC` · 005096c0
+- [x] `CMotionInterp::SetMIDESC` · 005096c0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 - [ ] `CMotionInterp::GetBehaviorTableID` · 00509720
 - [ ] `CMotionInterp::SetPhysobjRep` · 00509730
 - [ ] `CMotionInterp::SetTerrainType` · 00509770
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [ ] `TurnModule::StreamPack` · 006abf60
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (122/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (123/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2202,7 +2202,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::RecvEvt_StopAllWeenieBehaviors` · 004de350 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::RecvEvt_DoMode` · 004de360 — ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 - [x] `CPhysicsObj::RecvEvt_DoSlider` · 004de380 · legions 004d0de0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::RecvEvt_SetMIDESC` · 004de3f0
+- [x] `CPhysicsObj::RecvEvt_SetMIDESC` · 004de3f0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 - [x] `CPhysicsObj::RecvEvt_SetAccelerationScale` · 004de410 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [x] `CPhysicsObj::RecvEvt_SetVelocityScale` · 004de430 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [x] `CPhysicsObj::RecvEvt_SetJumpScale` · 004de450 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (34/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (35/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0
@@ -2785,7 +2785,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [ ] `PHYSICSOBJREP::AddTerrainModifier` · 004f1650
 - [ ] `PHYSICSOBJREP::ClearTerrainModifiers` · 004f1670
-- [ ] `PHYSICSOBJREP::SetMIDESC` · 004f1690 · legions 004e3fc0
+- [x] `PHYSICSOBJREP::SetMIDESC` · 004f1690 · legions 004e3fc0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 - [ ] `PHYSICSOBJREP::SetHoverHeight` · 004f16b0 · legions 004e3fe0
 - [ ] `PHYSICSOBJREP::ResetHoverHeight` · 004f16d0
 - [ ] `PHYSICSOBJREP::GetHoverHeight` · 004f16f0 · legions 004e4060
