@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 865 done, 307 partial, 1022 to do, 53 skipped.
+2247 retail functions: 872 done, 303 partial, 1019 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -955,21 +955,21 @@ Legend and workflow: [README](README.md).
 - [~] `gmIndicatorsUI::CleanupChildren` · 00438910 · legions 00439160 — ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
 - [x] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0 — ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (3/11)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (10/11)
 
 ### GraphTool
-- [ ] `GraphTool::GraphTool` · 0044d1a0 · legions 0044e370
-- [ ] `GraphTool::BlendColors` · 0044d220 · legions 0044e3f0
+- [x] `GraphTool::GraphTool` · 0044d1a0 · legions 0044e370 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
+- [x] `GraphTool::BlendColors` · 0044d220 · legions 0044e3f0 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
 
 ### gmNetStatusUI
-- [~] `gmNetStatusUI::RecvNotice_ReloadGameplayOptions` · 0044d2a0 · legions 0044e470 — ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
-- [~] `gmNetStatusUI::RecvNotice_ReloadOptions` · 0044d2c0 · legions 0044e490 — ac2-ui net_status.rs: not modelled, the latency-graph option read (gmCWInterface::GetLatencyIndicatorGraph) and its ForceDraw; no option input yet
+- [x] `gmNetStatusUI::RecvNotice_ReloadGameplayOptions` · 0044d2a0 · legions 0044e470 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
+- [x] `gmNetStatusUI::RecvNotice_ReloadOptions` · 0044d2c0 · legions 0044e490 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
 
 ### GraphTool
-- [ ] `GraphTool::DrawBar` · 0044d2e0 · legions 0044e4b0
+- [x] `GraphTool::DrawBar` · 0044d2e0 · legions 0044e4b0 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
 
 ### gmNetStatusUI
-- [~] `gmNetStatusUI::DrawBandwidthGraph` · 0044d3d0 · legions 0044e5a0 — ac2-ui net_status.rs: the graph history ring is kept (on_heartbeat / history); the blit into the render surface and GraphTool drawing are not ported
+- [x] `gmNetStatusUI::DrawBandwidthGraph` · 0044d3d0 · legions 0044e5a0 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
 
 ### SmartArray<gmNetStatusUI::GraphHistoryColumn>
 - [x] `SmartArray<gmNetStatusUI::GraphHistoryColumn>::AddNElements` · 0044d720 · legions 0044e8f0 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
@@ -977,8 +977,8 @@ Legend and workflow: [README](README.md).
 ### gmNetStatusUI
 - [x] `gmNetStatusUI::~gmNetStatusUI` · 0044d750 · legions 0044e920 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 - [x] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-client hud_player/hud_status: SessionEvent::LinkHeartbeat -> NetStatusUi::on_heartbeat (ac2-ui net_status.rs)
-- [~] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
-- [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
+- [x] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs draw_bandwidth_graph (Graph bars, unit-tested); painted by ac2-client hud_view/compose.rs on each status bar compose; option from hud_player reload
+- [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs create; client routes LinkHeartbeat (hud_player). Not modelled: CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (0/2)
 

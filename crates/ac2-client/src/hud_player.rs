@@ -8,7 +8,7 @@ use std::cell::RefCell;
 
 use ac2_net::protocol::ExaminationRequest;
 use ac2_script::host::ScriptNotice;
-use ac2_ui::{ChatSettings, ShortcutRequest, SkillRequest};
+use ac2_ui::{ChatSettings, ShortcutRequest, SkillRequest, PROFILE_LATENCY_INDICATOR_GRAPH};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
@@ -170,6 +170,13 @@ impl HudView {
         if let Some(page) = character.as_mut() {
             character_commands(page, &mut commands);
         }
+        // `gmNetStatusUI::RecvNotice_ReloadOptions`: the latency graph's option.
+        if let (true, Some(net)) = (reload_radar, net.as_mut()) {
+            if let Some(settings) = options_settings(client) {
+                net.set_graph_enabled(settings.bits & PROFILE_LATENCY_INDICATOR_GRAPH != 0);
+                *dirty = true;
+            }
+        }
         // `gm3DTextUI::RecvNotice_ReloadOptions`: the names as the options say.
         let show_names = reload_radar.then(|| client.show_object_names());
         *player_race = frame
@@ -295,7 +302,7 @@ impl HudView {
                     net: &mut *net,
                 }
                 .link_heartbeat(tree, &player, links);
-                // The indicator's state moved: the status bar is composed again.
+                // The bandwidth graph moved: the status bar is composed again.
                 *dirty = true;
                 continue;
             }

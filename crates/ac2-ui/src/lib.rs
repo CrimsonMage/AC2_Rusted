@@ -125,7 +125,9 @@ pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use character::{CharacterRequest, CharacterUi};
-pub use character_options::{OptionSetting, OptionsSettings, Setter};
+pub use character_options::{
+    OptionSetting, OptionsSettings, Setter, PROFILE_LATENCY_INDICATOR_GRAPH,
+};
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,
     REPLY_STRING_TABLE, STRING_TABLE_GROUP,

@@ -49,6 +49,10 @@ impl HudView {
                 radar.draw(surface);
             }
         }
+        // `gmNetStatusUI::DrawBandwidthGraph`, over the status bar it sits in.
+        if let Some(net) = &self.net {
+            net.draw_bandwidth_graph(tree, &mut surfaces);
+        }
         self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
         self.overlay.set_layers(
             gpu,
