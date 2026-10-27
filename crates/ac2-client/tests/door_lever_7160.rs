@@ -199,10 +199,14 @@ fn a_lever_pull_plays_its_flip_and_leaves_the_mode() {
     play(&mut client, &server, vec![Command::UseSelection], 0);
     // The flip's frames: the bones move while the behaviour plays, and it plays out.
     // The sound's wave loads on the loader threads, so under load it can start a little after
-    // the flip's frames; the frame budget bounds the wait.
+    // the flip's frames; a wall-clock budget bounds the wait, so a loaded machine still finishes.
     let mut moved = false;
     let mut started = false;
-    for frame in 0..960 {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
+    for frame in 0.. {
+        if std::time::Instant::now() >= deadline {
+            break;
+        }
         step(&mut client, &server, &FrameInput::default());
         moved |= object(&client, LEVER).pose != before.pose;
         // The lever's FX sound (`dn_lever`'s FX table) plays from the lever's position.

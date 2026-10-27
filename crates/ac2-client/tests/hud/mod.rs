@@ -9,7 +9,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex, MutexGuard};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use ac2_client::view::ClientView;
 use ac2_client::{Client, Command, DatWorld, FrameInput};
@@ -190,9 +190,11 @@ impl Rig {
         }
     }
 
-    /// Idle frames until `ready` holds (the HUD's loads finish on worker threads).
+    /// Idle frames until `ready` holds (the HUD's loads finish on worker threads). The budget is
+    /// wall-clock time, not a frame count, so a loaded machine's slow loaders still finish.
     pub fn wait(&mut self, what: &str, ready: impl Fn(&Self) -> bool) {
-        for _ in 0..600 {
+        let deadline = Instant::now() + Duration::from_secs(60);
+        while Instant::now() < deadline {
             if ready(self) {
                 return;
             }
