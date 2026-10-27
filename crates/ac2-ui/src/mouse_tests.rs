@@ -93,6 +93,7 @@ fn tree() -> (UiTree, [usize; 4]) {
     );
     let world = element("world", FIELD, (0, 0, 99, 49), 10, vec![], vec![]);
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

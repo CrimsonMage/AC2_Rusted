@@ -46,6 +46,7 @@ fn tree(states: Vec<StateDesc>) -> (UiTree, usize) {
         states,
     };
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 20,

@@ -61,6 +61,7 @@ fn layout() -> Arc<LayoutDesc> {
     );
     let node = element("Node", FIELD, rect(0, 0, 9, 9), vec![]);
     Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

@@ -83,6 +83,7 @@ fn tree() -> (UiTree, Arc<LayoutDesc>, usize) {
     root_state.children.push(list);
     let root = element("Root", "field", 99, 99, vec![root_state]);
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

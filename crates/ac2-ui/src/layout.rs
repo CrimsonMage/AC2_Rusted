@@ -108,6 +108,9 @@ impl ElementDesc {
 /// A `LayoutDesc`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LayoutDesc {
+    /// The layout's DID (`LayoutDesc`'s embedded identity): the key saved window locations are
+    /// filed under (`UILocationData`'s layout id).
+    pub did: u32,
     pub sub_ids: Vec<u32>,
     pub string_table: u32,
     pub width: u16,
@@ -295,6 +298,7 @@ impl ResourcePackedDecode for LayoutDesc {
             return Err(reader.bad("trailing bytes after LayoutDesc"));
         }
         Ok(Self {
+            did: qdid.data_id().raw(),
             sub_ids,
             string_table,
             width,

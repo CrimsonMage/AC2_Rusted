@@ -63,6 +63,7 @@ fn layout() -> Arc<LayoutDesc> {
         vec![element("TextField", "text", (0, 0, 99, 19), vec![])],
     );
     Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

@@ -83,3 +83,13 @@ pub const STATE_GHOSTED: u32 = tokenize("ghosted");
 pub const MSG_BUTTON_RELEASE_ON: u32 = tokenize("mouse_release_on");
 pub const MSG_BUTTON_RELEASE_OFF: u32 = tokenize("mouse_release_off");
 pub const MSG_HIGHLIGHT_STATE_CHANGE: u32 = tokenize("highlight_state_change");
+
+/// `Token_Element_save_loc`, `Token_Element_broadcast_loc_change`, `Token_Element_allow_resize`:
+/// the element's saved location (`UIElement::InqLocation`), its location messages, and whether a
+/// saved size applies (`UIElement::ApplyLocation`).
+pub const SAVE_LOC: u32 = tokenize("save_loc");
+pub const BROADCAST_LOC_CHANGE: u32 = tokenize("broadcast_loc_change");
+pub const ALLOW_RESIZE: u32 = tokenize("allow_resize");
+/// `Token_Dragbar` (the `UIElement_Dragbar` class) and its `disabled` attribute.
+pub const DRAGBAR: u32 = tokenize("dragbar");
+pub const DRAGBAR_DISABLED: u32 = tokenize("disabled");

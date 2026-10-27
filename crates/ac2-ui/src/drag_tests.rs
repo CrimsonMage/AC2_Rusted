@@ -67,6 +67,7 @@ fn tree() -> (UiTree, usize, usize) {
     );
     let root = element("Root", (0, 0, 199, 99), vec![], vec![source, target]);
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 200,

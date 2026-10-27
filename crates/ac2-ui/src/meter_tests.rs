@@ -49,6 +49,7 @@ fn tree(fill: &str, attrs: Vec<(&str, AttributeValue)>) -> (UiTree, usize, usize
     let meter = element("Meter", "meter", rect(10, 5, 109, 14), attrs, vec![fill]);
     let field = element("Field", "field", rect(0, 0, 199, 49), vec![], vec![meter]);
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 200,

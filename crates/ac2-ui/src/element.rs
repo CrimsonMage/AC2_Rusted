@@ -237,6 +237,10 @@ pub struct UiTree {
     pub(crate) new_tooltip_owner: Option<usize>,
     /// `UIElementManager`'s drag and drop.
     pub(crate) drag: crate::drag::DragState,
+    /// The element being moved by its drag bar (`UIElement::m_moving`).
+    pub(crate) movement: Option<crate::window_locations::Movement>,
+    /// A window that saves its location moved (`location_changed`), until taken.
+    pub(crate) locations_changed: bool,
 }
 
 /// The index of `desc`'s state `id`.
@@ -293,6 +297,8 @@ impl UiTree {
             tooltip: crate::tooltip::TooltipState::default(),
             new_tooltip_owner: None,
             drag: crate::drag::DragState::default(),
+            movement: None,
+            locations_changed: false,
         }
     }
 

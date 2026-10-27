@@ -78,6 +78,7 @@ fn tree() -> (UiTree, usize) {
         vec![slider, left, right],
     );
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 300,

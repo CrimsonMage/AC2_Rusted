@@ -135,6 +135,7 @@ impl UiTree {
         // `MouseMoveEvent` checks the drag against the region under the pointer before the move
         // (`UpdateMouse` runs in the next `UseTime`).
         self.drag_mouse_move();
+        self.movement_mouse_move();
         self.update_mouse();
     }
 
@@ -310,6 +311,7 @@ impl UiTree {
         if parent_is_root && !self.bool_attribute(index, MOUSE_EVENT_PASSTHROUGH) {
             *processed = true;
         }
+        self.dragbar_mouse_down(index, action);
         self.button_mouse_down(index, action, processed);
         self.text_mouse_down(index, action);
         self.panel_page_mouse_down(index, action);
@@ -323,6 +325,7 @@ impl UiTree {
             self.broadcast(index, MSG_MOUSE_RELEASE_TOP, action as i32);
         }
         self.broadcast(index, MSG_MOUSE_RELEASE, action as i32);
+        self.dragbar_mouse_up(index, action);
         self.button_mouse_up(index, action, processed);
         self.scrollbar_mouse_up(index);
     }

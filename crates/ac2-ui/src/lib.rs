@@ -145,9 +145,13 @@ mod toolbar;
 mod tooltip;
 mod transition;
 mod tree_view;
+mod window_locations;
+pub use window_locations::{clip_to_pixel, pixel_to_clip, SavedWindow, WindowLocation};
 mod ui_string;
 mod vitae;
 mod vitals;
+#[cfg(test)]
+mod window_locations_tests;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
 pub use backpack::BackpackUi;

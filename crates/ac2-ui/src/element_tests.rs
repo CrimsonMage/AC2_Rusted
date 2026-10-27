@@ -54,6 +54,7 @@ fn image(file: u32, draw_mode: u32) -> MediaDesc {
 
 fn layout(elements: Vec<ElementDesc>) -> Arc<LayoutDesc> {
     Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

@@ -143,6 +143,7 @@ fn a_centred_entry_draws_each_glyph_but_its_last_column() {
         }],
     };
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0x2500_0001,
         width: 100,
@@ -229,6 +230,7 @@ fn clicking_an_editable_field_takes_typing_until_a_click_elsewhere() {
         vec![entry],
     );
     let layout = Arc::new(LayoutDesc {
+        did: 0,
         sub_ids: Vec::new(),
         string_table: 0,
         width: 100,

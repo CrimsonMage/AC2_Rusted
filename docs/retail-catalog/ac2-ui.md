@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 943 done, 355 partial, 880 to do, 69 skipped.
+2247 retail functions: 952 done, 355 partial, 871 to do, 69 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2652,14 +2652,14 @@ Legend and workflow: [README](README.md).
 - [ ] `UIFramework::RemoveChild` · 005fd940 · legions 005be470
 - [ ] `UIFramework::AddChild` · 005fd970 · legions 005be4a0
 
-## `portal/client/src/uielement/framework/uimainframework.cpp.c` (0/11)
+## `portal/client/src/uielement/framework/uimainframework.cpp.c` (2/11)
 
 ### UIMainFramework
 - [ ] `UIMainFramework::MakeNoSurface` · 005fda70 · legions 005be5a0
 - [ ] `UIMainFramework::MakeSurfaceObject` · 005fdaa0 · legions 005be5d0
 - [ ] `UIMainFramework::GetUIFlow` · 005fdba0 · legions 005be6d0
-- [ ] `UIMainFramework::InqLocations` · 005fdbb0 · legions 005be6e0
-- [ ] `UIMainFramework::ApplyLocations` · 005fdc40 · legions 005be770
+- [x] `UIMainFramework::InqLocations` · 005fdbb0 · legions 005be6e0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+- [x] `UIMainFramework::ApplyLocations` · 005fdc40 · legions 005be770 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [ ] `UIMainFramework::DeleteUISurfaceList` · 005fdd40 · legions 005be870
 - [ ] `UIMainFramework::RemoveRootElement` · 005fddc0 · legions 005be8f0
 - [ ] `UIMainFramework::UIMainFramework` · 005fde50 · legions 005be980
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (41/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (47/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790
@@ -2770,9 +2770,9 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::GetRootElement` · 005e8c40 · legions 005a98a0
 - [x] `UIElement::MouseMove` · 005e8c60 · legions 005a98c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::MouseUp` · 005e8c90 · legions 005a98f0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-- [ ] `UIElement::StartMovement` · 005e8ce0 · legions 005a9940
-- [ ] `UIElement::StopMovement` · 005e8d40 · legions 005a99a0
-- [ ] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0
+- [x] `UIElement::StartMovement` · 005e8ce0 · legions 005a9940 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+- [x] `UIElement::StopMovement` · 005e8d40 · legions 005a99a0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+- [x] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [ ] `UIElement::GetChild` · 005e8e00 · legions 005a9a60
 - [x] `UIElement::GetChildRecursive` · 005e8e30 · legions 005a9a90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::GetStringTableID` · 005e8e70 · legions 005a9ad0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
@@ -2847,9 +2847,9 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::MouseResizeElement` · 005eb430 · legions 005ac000
 - [ ] `UIElement::AddImageToState` · 005eb9c0 · legions 005ac590
 - [x] `UIElement::AddAttributesForState` · 005ebaf0 · legions 005ac6c0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::InqLocation` · 005ebb80 · legions 005ac750
-- [ ] `UIElement::CheckLocation` · 005ebc80 · legions 005ac850
-- [ ] `UIElement::ApplyLocation` · 005ebcb0 · legions 005ac880
+- [x] `UIElement::InqLocation` · 005ebb80 · legions 005ac750 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+- [x] `UIElement::CheckLocation` · 005ebc80 · legions 005ac850 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+- [x] `UIElement::ApplyLocation` · 005ebcb0 · legions 005ac880 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [ ] `UIElement::DrawStart` · 005ebdd0 · legions 005ac9a0
 - [ ] `UIElement::DrawDone` · 005ebe10 · legions 005ac9e0
 - [x] `UIElement::GetPositionFromDesc` · 005ebe50 · legions 005aca20 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -3160,10 +3160,10 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 
-## `portal/client/src/uielement/types/uielement_dragbar.cpp.c` (0/8)
+## `portal/client/src/uielement/types/uielement_dragbar.cpp.c` (1/8)
 
 ### UIElement_Dragbar
-- [ ] `UIElement_Dragbar::MouseDown` · 005f8b80 · legions 005b96b0
+- [x] `UIElement_Dragbar::MouseDown` · 005f8b80 · legions 005b96b0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [ ] `UIElement_Dragbar::MouseUp` · 005f8c30 · legions 005b9760
 - [ ] `UIElement_Dragbar::UpdateLayout` · 005f8c90 · legions 005b97c0
 - [ ] `UIElement_Dragbar::SetState` · 005f8d60 · legions 005b9890

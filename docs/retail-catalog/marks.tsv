@@ -4585,6 +4585,9 @@ key	status	note
 005e8ba0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8c60	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e8c90	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
+005e8ce0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+005e8d40	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+005e8d60	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005e8e30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e8e70	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005e8e80	x	ac2-ui media.rs / transition.rs
@@ -4622,6 +4625,9 @@ key	status	note
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eb100	x	ac2-ui media.rs / transition.rs
 005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
+005ebb80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+005ebc80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+005ebcb0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005ebe50	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec570	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005ec870	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -4743,6 +4749,7 @@ key	status	note
 005f8910	x	ac2-ui panel.rs
 005f8a70	x	ac2-ui panel.rs
 005f8ae0	x	ac2-ui panel.rs
+005f8b80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005f9a80	x	ac2-ui scrollbar.rs
 005f9b30	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 005fa1b0	x	ac2-ui scrollbar.rs
@@ -4782,6 +4789,8 @@ key	status	note
 005fd5d0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 005fd620	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 005fd720	x	ac2-ui pregame/flow.rs, pregame/ui.rs
+005fdbb0	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
+005fdc40	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 005fded0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe0b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005fe170	x	ac2-ui hud.rs
