@@ -809,6 +809,9 @@ fn the_player_script_answers_the_weenie_emote_ifun() {
     assert_eq!(
         host.call_ifun(0x6, 0x00B4_00AA, &[IFunArg::Int(0x2A)]),
         Err(HostError::UnknownObject(0x6))
+    );
+}
+
 /// `gCWPhysicsObject`'s DoFX, StopFX and scale efuns queue the server event each one is for the
 /// weenie's physics object (the client applies them to the body); an undefined `this` crashes.
 #[test]
