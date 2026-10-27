@@ -50,6 +50,13 @@ subsystem it reproduces. This file states the working rules.
 - Exception: text fields support modern selection and the clipboard: mouse drag and Shift+arrow
   selection, highlighted, with Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V (the OS clipboard). Password
   fields never copy out. Retail's own text editing rules (max length, enter/escape) still apply.
+  Read-only selectable text (chat log, tells, books) takes Ctrl+A / Ctrl+C too, and a drag
+  selection auto-scrolls at the text's edge. On macOS the shortcuts are Cmd+A/C/X/V.
+- Exception: the mouse wheel scrolls every panel that has a scroll bar (texts, lists, trees, and
+  the bar itself), from the element under the pointer up to its first scrollable ancestor. A
+  wheel turn over a bar's thumb or arrow buttons reaches the bar; retail's buttons swallowed it.
+  Pixel deltas (trackpads, smooth wheels) accumulate into whole notches. All of this (wheel,
+  clipboard, Alt-move) must work on Windows, macOS, Linux X11 and Linux Wayland.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).
