@@ -8,7 +8,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
 use ac2_client::view::ClientView;
@@ -23,6 +23,10 @@ pub const STEP: f64 = 1.0 / 64.0;
 pub const SIZE: (u32, u32) = (1024, 768);
 pub const LEFT: u32 = 0x4000_0004;
 
+/// One HUD rig at a time per test binary: each holds a headless GPU device with the gameplay
+/// HUD's textures, and a binary's tests run in parallel, which runs a shared GPU out of memory.
+static GPU_SLOT: Mutex<()> = Mutex::new(());
+
 pub struct Rig {
     pub client: Client,
     pub server: Rc<RefCell<State>>,
@@ -33,6 +37,8 @@ pub struct Rig {
     /// The commands every frame asked for, in order.
     pub asked: Vec<Command>,
     pub shift: bool,
+    /// Held for the rig's life ([`GPU_SLOT`]); dropped last.
+    _gpu_slot: MutexGuard<'static, ()>,
 }
 
 impl Rig {
@@ -41,6 +47,10 @@ impl Rig {
     pub fn new() -> Option<Self> {
         let dataset = ac2_dat::test_support::env_dataset()?;
         let tables_dataset = Arc::clone(&dataset);
+        // A test that panicked while holding the slot leaves it poisoned; the slot guards no data.
+        let gpu_slot = GPU_SLOT
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         let Ok(gpu) = Gpu::headless() else {
             eprintln!("no GPU adapter; skipping");
             return None;
@@ -99,6 +109,7 @@ impl Rig {
             pending: Vec::new(),
             asked: Vec::new(),
             shift: false,
+            _gpu_slot: gpu_slot,
         };
         let mut frames = 0;
         while !rig.client.frame().in_world {
