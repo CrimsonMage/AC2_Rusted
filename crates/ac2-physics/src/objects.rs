@@ -157,6 +157,9 @@ pub struct StaticObject {
     /// `CPhysicsObj::m_fPhysicsContainmentRadius` (`SetPhysicsContainmentRadius`).
     pub(crate) containment_radius: f32,
     pub(crate) shape: Arc<ObjectShape>,
+    /// The object's blocking physics-type mask (`CPhysicsObj::m_blocking_mask`), set from its
+    /// ethereal properties (`CPhysicsObj::ApplyEtherealProperty`). Zero unless set.
+    pub(crate) blocking: PhysicsTypeMask,
 }
 
 impl StaticObject {
@@ -174,7 +177,14 @@ impl StaticObject {
             state,
             containment_radius: st(length * ld(shape.containment_radius)),
             shape,
+            blocking: PhysicsTypeMask::default(),
         }
+    }
+
+    /// Sets the blocking physics-type bits (`CPhysicsObj::SetPhysicsCollideMask`).
+    pub fn with_blocking_mask(mut self, bits: u64) -> Self {
+        self.blocking = PhysicsTypeMask::from_bits(bits);
+        self
     }
 
     pub fn position(&self) -> Position {
@@ -305,12 +315,12 @@ impl Transition {
         }
         // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
         // is ethereal to it. Outside a placement the transition passes through it; a placement
-        // keeps the overlap test with the obstruction marked ethereal. A static object's own
-        // blocking mask (`CreateStaticObjects`'s ethereal physics type) is not set, so it is zero.
+        // keeps the overlap test with the obstruction marked ethereal. The object's blocking mask
+        // is `StaticObject::blocking`, from its entity's ethereal properties.
         let placement = self.sphere_path.placement_ethereal;
         let ethereal = !self
             .collision
-            .blocks(u64::from(id), PhysicsTypeMask::default(), placement);
+            .blocks(u64::from(id), object.blocking, placement);
         if ethereal && !placement {
             return TransitionState::Ok;
         }

@@ -2761,7 +2761,7 @@ key	status	note
 00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 00488140	x	ac2-physics los (Terrain::los_check)
 00488270	_	needs port: landblock id and coordinate arithmetic
-004882c0	_	needs port: ethereal physics type
+004882c0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 004882d0	-	admin-only dump, save or error report
 004882f0	x	crates/ac2-render/src/terrain/heights.rs (Plane::set_height over terrain heights)
 00488330	_	needs port: seeded random for procedural placement
@@ -2813,7 +2813,7 @@ key	status	note
 0048abb0	x	
 0048ace0	x	
 0048ad70	x	
-0048ae10	~	ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
+0048ae10	~	ac2-physics loader: each landblock entity's blocking mask from its ethereal properties (ac2_db::ac2_ethereal_mask). Retail's SetProperty(0x40000038) is a no-op (bit 0x40000038 is past 63) and the SetCollisionState rewrite of the same mask is the identity. Not ported: the ObjectClearance group/weenie filter and the scene/lbi object split
 0048afe0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048b010	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048b170	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
@@ -4640,7 +4640,7 @@ key	status	note
 004e1780	-	render plumbing
 004e17a0	-	state-bit flag accessor
 004e1810	_	needs port: cite-only physics-object method
-004e1820	_	needs port: cite-only physics-object method
+004e1820	~	ac2_db::ac2_ethereal_mask sets the blocking bit from a bool ethereal-group property (desc data word); applied to landblock entities and interior entities (StaticObject::blocking). The value is not read (InqBool always succeeds); the body path (player ApplyPropertyCollection) is not wired
 004e1880	_	needs port: cite-only physics-object method
 004e1a40	_	needs port: cite-only physics-object method
 004e1ad0	_	needs port: cite-only physics-object method
@@ -4923,7 +4923,7 @@ key	status	note
 004eb1f0	_	needs port: cite-only physics-object method
 004eb210	_	needs port: cite-only physics-object method
 004eb220	_	needs port: cite-only physics-object method
-004eb230	_	needs port: cite-only physics-object method
+004eb230	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 004eb250	_	needs port: cite-only physics-object method
 004eb260	_	needs port: cite-only physics-object method
 004eb280	_	needs port: cite-only physics-object method
@@ -5317,7 +5317,7 @@ key	status	note
 004f7770	_	needs port: collision reports and properties
 004f7930	_	needs port: collision reports and properties
 004f7b10	_	needs port: collision reports and properties
-004f7ca0	~	minimums and the sets reach the player body (ac2-client apply_collision_minimums/apply_collision_sets); the sets replace the body's rather than merging as CCollisionManager does; the physics and placement masks of the manager and its temp lists are not ported
+004f7ca0	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 004f7db0	_	needs port: collision reports and properties
 004f7e30	_	needs port: collision reports and properties
 004f7ed0	_	needs port: collision reports and properties
@@ -13104,7 +13104,7 @@ key	status	note
 006a41d0	x	ac2-physics los (Terrain::los_check)
 006a4210	x	ac2-physics los (Terrain::los_check)
 006a4270	x	ac2-physics los (Terrain::los_check)
-006a44d0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+006a44d0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4510	_	needs port: ethereal/collision parameter state
 006a4590	_	needs port: ethereal/collision parameter state
 006a45e0	_	needs port: ethereal/collision parameter state
@@ -13123,7 +13123,7 @@ key	status	note
 006a48a0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a49b0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a49f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-006a4a30	_	needs port: ethereal/collision parameter state
+006a4a30	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4c10	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a4d30	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it

@@ -26,6 +26,7 @@ pub struct Ac2OutdoorEntityMarker {
     scale: Vec3,
     collides: bool,
     frill: bool,
+    ethereal: u64,
 }
 
 impl Ac2OutdoorEntityMarker {
@@ -52,6 +53,12 @@ impl Ac2OutdoorEntityMarker {
     /// `CObjCell::AddFrill`). Retail draws these through `FrillRender`, not as cell objects.
     pub fn frill(&self) -> bool {
         self.frill
+    }
+
+    /// The object's blocking physics-type bits (`CPhysicsObj::m_blocking_mask`), set from its
+    /// entity's ethereal properties (`ac2_db::ac2_ethereal_mask`). Zero for scenery and grass.
+    pub fn ethereal_mask(&self) -> u64 {
+        self.ethereal
     }
 }
 
@@ -153,10 +160,24 @@ pub(crate) fn ac2_entity_markers(
             scale: entity.scale * template_scale,
             collides: true,
             frill: false,
+            ethereal: entity_ethereal_mask(entity),
         });
     }
     append_scene_markers(store, block_origin, block_cell_id, &mut markers);
     Ok(Arc::from(markers))
+}
+
+/// The blocking-mask bits an entity's own `PropertyCollection` sets
+/// (`CPhysicsObj::ApplyPropertyCollection` on the object its `EntityDesc` makes). An entity
+/// whose properties do not decode sets none.
+pub(crate) fn entity_ethereal_mask(entity: &Ac2EntityDesc) -> u64 {
+    let Some(properties) = entity.properties.as_deref() else {
+        return 0;
+    };
+    match ac2_db::read_ac2_property_groups(&mut ArchiveCursor::new(properties)) {
+        Ok(groups) => ac2_db::ac2_ethereal_mask(&groups),
+        Err(_) => 0,
+    }
 }
 
 /// The `VisualDesc` an entity draws and its template's scale: a placed `VisualDesc` itself, or
@@ -204,6 +225,7 @@ pub(crate) fn ac2_env_cell_markers(
                 scale: entity.scale * template_scale,
                 collides: true,
                 frill: false,
+                ethereal: entity_ethereal_mask(entity),
             })
         })
         .collect()
@@ -236,6 +258,7 @@ fn append_scene_markers(
             scale: placement.scale * template_scale,
             collides: !placement.frill,
             frill: placement.frill,
+            ethereal: 0,
         });
     }
 }

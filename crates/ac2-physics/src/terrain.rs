@@ -136,6 +136,16 @@ impl Terrain {
     /// Adds a static object and enters it in the shadow lists of the resident cells its shadow
     /// box touches (`CPhysicsObj::calc_cross_cells` -> `add_shadows_to_cells`); cells made
     /// resident later pick it up too. Returns its id.
+    /// The blocking mask bits of every resident static object, for the loader's checks.
+    #[cfg(test)]
+    pub(crate) fn object_blocking_masks(&self) -> Vec<u64> {
+        self.objects
+            .iter()
+            .flatten()
+            .map(|(object, _)| object.blocking.bits())
+            .collect()
+    }
+
     pub fn insert_object(&mut self, object: StaticObject) -> u32 {
         let id = self.objects.len() as u32;
         let cells = shadow_cells(&object.position(), object.shadow_box(), self);

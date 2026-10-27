@@ -47,6 +47,8 @@ pub struct Ac2CellEntityPlacement {
     pub visual: DataId,
     pub world_frame: Frame,
     pub scale: Vec3,
+    /// The entity's blocking physics-type bits (`ac2_landblock_info::entity_ethereal_mask`).
+    pub ethereal: u64,
 }
 
 impl Ac2WorldSource {
@@ -193,6 +195,7 @@ impl Ac2WorldSource {
                 visual,
                 world_frame: Frame::new(origin + entity.origin, entity.rotation),
                 scale: entity.scale * template_scale,
+                ethereal: crate::ac2_landblock_info::entity_ethereal_mask(entity),
             });
         }
         Ok(placements)

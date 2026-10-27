@@ -180,7 +180,9 @@ pub fn load_block_objects(
             st(ld(vdesc.y) * ld(s.y)),
             st(ld(vdesc.z) * ld(s.z)),
         );
-        terrain.insert_object(StaticObject::new(position, scale, shape));
+        let blocking = marker.ethereal_mask();
+        terrain
+            .insert_object(StaticObject::new(position, scale, shape).with_blocking_mask(blocking));
         added += 1;
     }
     Ok(added)
@@ -326,7 +328,9 @@ pub fn load_block_interiors(
                 st(ld(vdesc.y) * ld(entity.scale.y)),
                 st(ld(vdesc.z) * ld(entity.scale.z)),
             );
-            terrain.insert_object(StaticObject::new(position, scale, shape));
+            terrain.insert_object(
+                StaticObject::new(position, scale, shape).with_blocking_mask(entity.ethereal),
+            );
         }
     }
     let stab: Vec<u32> = interior

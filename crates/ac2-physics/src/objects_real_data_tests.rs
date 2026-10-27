@@ -9,6 +9,7 @@ use ac2_world::{load_ac2_motion_interp_desc, Ac2WorldSource};
 
 use crate::body::{MovementInput, PhysicsBody, PHYSICS_QUANTUM};
 use crate::cells::CellSource;
+use crate::collision_types::{CollisionParameters, PhysicsTypeMask};
 use crate::fpu::{ld, st};
 use crate::frame::Frame;
 use crate::loader::{load_block_objects, load_body_shape, load_terrain_block};
@@ -199,4 +200,76 @@ fn walking_at_physics_bsp_objects_never_enters_their_polygons() {
         placed += 1;
     }
     assert!(placed > 0);
+}
+
+/// The landblock of the 0xCB4D area the static-object checks use.
+const CB4D_BLOCK: u32 = 0xCB4D_0000;
+
+/// The 5 x 5 landblocks around the 0xCB4D area, then the first 48 x 48 landblocks from the
+/// origin, which hold the dataset's ethereal statics.
+fn ethereal_scan_blocks() -> Vec<u32> {
+    let (bx, by) = (CB4D_BLOCK >> 24, (CB4D_BLOCK >> 16) & 0xFF);
+    let mut blocks = Vec::new();
+    for dx in -2..=2_i32 {
+        for dy in -2..=2_i32 {
+            let x = (bx as i32 + dx) as u32;
+            let y = (by as i32 + dy) as u32;
+            blocks.push(x << 24 | y << 16);
+        }
+    }
+    for x in 0..48_u32 {
+        for y in 0..48_u32 {
+            blocks.push(x << 24 | y << 16);
+        }
+    }
+    blocks
+}
+
+#[test]
+fn cb4d_statics_count_by_blocking_mask_and_an_ethereal_static_passes_a_matching_mover() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let source = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let mut area_statics = 0;
+    let mut first_ethereal = None;
+    for (index, block) in ethereal_scan_blocks().into_iter().enumerate() {
+        let markers = source
+            .entity_markers(CellId::new(block | 0xFFFF))
+            .expect("entities decode");
+        for marker in markers.iter().filter(|m| m.collides()) {
+            if index < 25 {
+                area_statics += 1;
+            }
+            if marker.ethereal_mask() != 0 && first_ethereal.is_none() {
+                first_ethereal = Some((block, marker.ethereal_mask()));
+            }
+        }
+        if first_ethereal.is_some() && index >= 25 {
+            break;
+        }
+    }
+    assert!(area_statics > 0, "the 0xCB4D area places statics");
+    // Without an ethereal static in the dataset there is nothing to pass through.
+    let Some((block, mask)) = first_ethereal else {
+        return;
+    };
+    let mut terrain = Terrain::new();
+    load_block_objects(&source, &mut terrain, CellId::new(block | 0xFFFF))
+        .expect("block objects load");
+    assert!(
+        terrain.object_blocking_masks().contains(&mask),
+        "the loaded static carries its entity's blocking mask"
+    );
+    // A mover with the mask's first bit in its movement set passes the static (its shared type
+    // blocks only solid ids); a mover with no such bit is blocked by it.
+    let bit = u64::from(mask.trailing_zeros());
+    let object_mask = PhysicsTypeMask::from_bits(mask);
+    let mut mover = CollisionParameters::default();
+    assert!(mover.update_movement(bit, true, |_| true));
+    assert!(!mover.blocks(1, object_mask, false));
+    assert!(CollisionParameters::default().blocks(1, object_mask, false));
 }

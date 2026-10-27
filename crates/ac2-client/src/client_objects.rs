@@ -74,8 +74,8 @@ impl Client {
     }
 
     /// `CCollisionManager::SetCollisionState` for a script's collision sets: the player's body
-    /// takes the script's placement and movement ethereal and physics-type sets. Remote bodies
-    /// keep theirs, as with the minimums.
+    /// merges the script's placement and movement ethereal and physics-type sets (only the sets
+    /// its bits name). Remote bodies keep theirs, as with the minimums.
     pub(crate) fn apply_collision_sets(
         &mut self,
         object: u64,
@@ -87,7 +87,7 @@ impl Client {
             .filter(|p| p.id == object)
             .and_then(|p| p.body.as_mut())
         {
-            *body.physics.collision_mut() = sets.clone();
+            body.physics.collision_mut().merge_set_state(sets);
         }
     }
 

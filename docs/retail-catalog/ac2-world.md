@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 179 done, 19 partial, 339 to do, 452 skipped.
+989 retail functions: 180 done, 19 partial, 338 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (18/140)
@@ -249,14 +249,14 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (22/72)
+## `portal/shared/src/cell/landblock.cpp.c` (23/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
 - [ ] `LandDefs::within_block` · 00488270 · legions 00481aa0 — needs port: landblock id and coordinate arithmetic
 
 ### EtherealPhysicsType
-- [ ] `EtherealPhysicsType::SetPropertyEthereal` · 004882c0 · legions 00481af0 — needs port: ethereal physics type
+- [x] `EtherealPhysicsType::SetPropertyEthereal` · 004882c0 · legions 00481af0 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 
 ### IError
 - [-] `IError::ReportDataError` · 004882d0 — admin-only dump, save or error report
@@ -346,7 +346,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
 - [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
-- [~] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics load_block_objects: colliding entity markers as static objects (no ObjectClearance/weenie filter, no CollisionParameters)
+- [~] `CLandBlock::CreateStaticObjects` · 0048ae10 · legions 004846c0 — ac2-physics loader: each landblock entity's blocking mask from its ethereal properties (ac2_db::ac2_ethereal_mask). Retail's SetProperty(0x40000038) is a no-op (bit 0x40000038 is past 63) and the SetCollisionState rewrite of the same mask is the identity. Not ported: the ObjectClearance group/weenie filter and the scene/lbi object split
 - [ ] `CLandBlock::AddDynamicObject` · 0048afe0 · legions 00484890 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::AddToBrushList` · 0048b010 · legions 004848c0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::GetAmbientSoundPoints` · 0048b170 · legions 00484a20 — needs port: landblock streaming: scenery, objects, cells, water, sound points

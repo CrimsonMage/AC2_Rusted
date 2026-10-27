@@ -31,12 +31,25 @@ const TYPE_PACKAGE_ID: u32 = 0x4000_000B;
 const TYPE_LONG_INTEGER: u32 = 0x4000_000D;
 const TYPE_POSITION: u32 = 0x4000_000E;
 
+/// The property group of ethereal properties (`CPhysicsObj::ApplyProperty`'s `0x40000003` case):
+/// a bool property of this group sets the bit `BasePropertyDesc::m_data` names in a body's
+/// blocking mask (`CPhysicsObj::ApplyEtherealProperty`).
+pub const ETHEREAL_PROPERTY_GROUP: u32 = 0x4000_0003;
+
 static PROPERTY_TYPES: OnceLock<Arc<Ac2PropertyTypes>> = OnceLock::new();
 
-/// Property name -> value type, from `MasterProperty::m_properties`.
+/// One `BasePropertyDesc` of `MasterProperty`: its value type, its group and its data word.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Ac2PropertyDesc {
+    pub value_type: u32,
+    pub group: u32,
+    pub data: u32,
+}
+
+/// Property name -> `BasePropertyDesc`, from `MasterProperty::m_properties`.
 #[derive(Debug, Default)]
 pub struct Ac2PropertyTypes {
-    types: HashMap<u32, u32>,
+    descs: HashMap<u32, Ac2PropertyDesc>,
 }
 
 impl ResourcePackedDecode for Ac2PropertyTypes {
@@ -65,23 +78,33 @@ impl ResourcePackedDecode for Ac2PropertyTypes {
             cursor.read_u32()?;
             skip_pstring(&mut cursor, 1).map_err(malformed)?;
         }
-        // `PAutoGrowHashTable<ulong, BasePropertyDesc>`: name, then type, group, default-value
-        // word, report-to-weenie and required flags.
+        // `PAutoGrowHashTable<ulong, BasePropertyDesc>`: name, then type, group, data word
+        // (`m_data`, the bit an ethereal property sets), report-to-weenie and required flags.
         let entries = (cursor.read_u32()? & 0xFFFF) as usize;
-        let mut types = HashMap::with_capacity(entries);
+        let mut descs = HashMap::with_capacity(entries);
         for _ in 0..entries {
             let name = cursor.read_u32()?;
-            types.insert(name, cursor.read_u32()?);
-            cursor.read_bytes(16)?;
+            let value_type = cursor.read_u32()?;
+            let group = cursor.read_u32()?;
+            let data = cursor.read_u32()?;
+            cursor.read_bytes(8)?;
+            descs.insert(
+                name,
+                Ac2PropertyDesc {
+                    value_type,
+                    group,
+                    data,
+                },
+            );
         }
         if cursor.remaining() != 0 {
             return Err(malformed("trailing bytes after MasterProperty"));
         }
-        Ok(Self { types })
+        Ok(Self { descs })
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.types.len() * 16
+        std::mem::size_of::<Self>() + self.descs.len() * 24
     }
 }
 
@@ -99,7 +122,7 @@ pub fn install_ac2_property_types(store: &ResourceStore) -> ResourceResult<bool>
         return Ok(false);
     };
     let owned = Ac2PropertyTypes {
-        types: table.types.clone(),
+        descs: table.descs.clone(),
     };
     let _ = PROPERTY_TYPES.set(Arc::new(owned));
     Ok(true)
@@ -108,7 +131,34 @@ pub fn install_ac2_property_types(store: &ResourceStore) -> ResourceResult<bool>
 /// `MasterProperty::InqPropertyType` against the installed table: the value type of property
 /// `name`, if the table is installed and names it.
 pub fn ac2_property_type(name: u32) -> Option<u32> {
-    PROPERTY_TYPES.get()?.types.get(&name).copied()
+    ac2_property_desc(name).map(|desc| desc.value_type)
+}
+
+/// The `BasePropertyDesc` of property `name` from the installed table.
+pub fn ac2_property_desc(name: u32) -> Option<Ac2PropertyDesc> {
+    PROPERTY_TYPES.get()?.descs.get(&name).copied()
+}
+
+/// The blocking-mask bits a `PropertyCollection`'s groups set on a physics body
+/// (`CPhysicsObj::ApplyPropertyCollection` -> `ApplyEtherealProperty`): each property of
+/// the ethereal group whose desc is a bool sets bit `data`, when that bit is below 64. The
+/// value is not read: retail's `InqBool` check always succeeds.
+pub fn ac2_ethereal_mask(groups: &[Ac2PropertyGroup]) -> u64 {
+    ethereal_mask_with(groups, ac2_property_desc)
+}
+
+/// [`ac2_ethereal_mask`] against the descs `desc_of` gives (the installed table in the client).
+pub fn ethereal_mask_with(
+    groups: &[Ac2PropertyGroup],
+    desc_of: impl Fn(u32) -> Option<Ac2PropertyDesc>,
+) -> u64 {
+    groups
+        .iter()
+        .flat_map(|group| &group.properties)
+        .filter_map(|property| desc_of(property.name))
+        .filter(|desc| desc.group == ETHEREAL_PROPERTY_GROUP && desc.value_type == TYPE_BOOL)
+        .filter(|desc| desc.data < 64)
+        .fold(0, |mask, desc| mask | (1 << desc.data))
 }
 
 /// Steps over a `PropertyCollection` embedded in another record (see
@@ -128,9 +178,9 @@ pub fn skip_property_collection(cursor: &mut ArchiveCursor<'_>) -> Result<(), &'
         for _ in 0..count(cursor, 4)? {
             let name = word(cursor)?;
             let value_type = types
-                .types
+                .descs
                 .get(&name)
-                .copied()
+                .map(|desc| desc.value_type)
                 .ok_or("property name is not in MasterProperty")?;
             skip_value(cursor, value_type)?;
         }
@@ -289,9 +339,9 @@ pub fn read_ac2_property_groups(
         for _ in 0..count(cursor, 4)? {
             let name = word(cursor)?;
             let value_type = types
-                .types
+                .descs
                 .get(&name)
-                .copied()
+                .map(|desc| desc.value_type)
                 .ok_or("property name is not in MasterProperty")?;
             let start = cursor.position();
             skip_value(cursor, value_type)?;

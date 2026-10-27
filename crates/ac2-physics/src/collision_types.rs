@@ -16,6 +16,11 @@ impl PhysicsTypeMask {
         self.0
     }
 
+    /// A mask of the given bits (an object's blocking mask, read from its properties).
+    pub fn from_bits(bits: u64) -> Self {
+        Self(bits)
+    }
+
     /// `EtherealPhysicsType::SetBit`: sets or clears bit `bit` when it is below 64; higher
     /// values change nothing.
     pub fn set_bit(&mut self, bit: u64, is_set: bool) {
@@ -89,6 +94,25 @@ impl WeenieTypes {
             self.ethereal.push(id);
         }
         true
+    }
+
+    /// `EtherealWeenieType::Update(source, this)`: a source with empty lists copies over whole;
+    /// otherwise its mask replaces this one's and its solid and ethereal ids join this one's
+    /// lists, each id once.
+    pub fn update_from(&mut self, source: &WeenieTypes) {
+        if source.ethereal.is_empty() && source.solid.is_empty() {
+            *self = source.clone();
+            return;
+        }
+        self.mask = source.mask;
+        for &id in &source.ethereal {
+            self.add_to_ethereal_list(id);
+        }
+        for &id in &source.solid {
+            if !self.in_solid_list(id) {
+                self.solid.push(id);
+            }
+        }
     }
 
     /// `EtherealWeenieType::AddToSolidList`: each id once (tests build solid sets with it).
@@ -187,6 +211,33 @@ impl CollisionParameters {
             *bitfield |= flag;
         }
         mask.set_property(name, set, exists)
+    }
+
+    /// `CCollisionManager::SetCollisionState`: merges a script's `info` into this body's sets,
+    /// only for the sets `info`'s bits name. A movement or placement physics mask, and the body's
+    /// physics type (`CPhysicsObj::SetPhysicsCollideMask`), are replaced; a weenie set merges
+    /// (`EtherealWeenieType::Update`), so ids the body already holds stay.
+    pub fn merge_set_state(&mut self, info: &CollisionParameters) {
+        if info.bitfield & MOVEMENT_PHYSICS_BIT != 0 {
+            self.movement_physics = info.movement_physics;
+            self.bitfield |= MOVEMENT_PHYSICS_BIT;
+        }
+        if info.bitfield & MOVEMENT_WEENIE_BIT != 0 {
+            self.movement_weenie.update_from(&info.movement_weenie);
+            self.bitfield |= MOVEMENT_WEENIE_BIT;
+        }
+        if info.bitfield & PLACEMENT_PHYSICS_BIT != 0 {
+            self.placement_physics = info.placement_physics;
+            self.bitfield |= PLACEMENT_PHYSICS_BIT;
+        }
+        if info.bitfield & PLACEMENT_WEENIE_BIT != 0 {
+            self.placement_weenie.update_from(&info.placement_weenie);
+            self.bitfield |= PLACEMENT_WEENIE_BIT;
+        }
+        if info.bitfield & PHYSICS_TYPE_BIT != 0 {
+            self.physics_type = info.physics_type;
+            self.bitfield |= PHYSICS_TYPE_BIT;
+        }
     }
 
     /// `CollisionParameters::AddToEtherealList`: the id joins the placement and movement

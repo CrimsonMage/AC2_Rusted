@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 484 done, 97 partial, 765 to do, 778 skipped.
+2124 retail functions: 485 done, 99 partial, 762 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -812,7 +812,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
-- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — minimums and the sets reach the player body (ac2-client apply_collision_minimums/apply_collision_sets); the sets replace the body's rather than merging as CCollisionManager does; the physics and placement masks of the manager and its temp lists are not ported
+- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 - [ ] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — needs port: collision reports and properties
 - [ ] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — needs port: collision reports and properties
@@ -1119,14 +1119,14 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (1/6)
 
 ### EtherealPhysicsType
-- [x] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 - [ ] `EtherealPhysicsType::UpdateEthereality` · 006a4510 · legions 00641470 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetCameraEthereal` · 006a45e0 · legions 00641540 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — needs port: ethereal/collision parameter state
 - [-] `EtherealPhysicsType::EtherealPhysicsType` · 006a4690 · legions 006415f0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (7/14)
+## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (8/14)
 
 ### EtherealWeenieType
 - [~] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
@@ -1142,7 +1142,7 @@ Legend and workflow: [README](README.md).
 - [-] `EtherealWeenieType::CopyInto` · 006a48a0 · legions 00641800 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [x] `EtherealWeenieType::AddToEtherealList` · 006a49b0 · legions 00641910 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [x] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-- [ ] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990 — needs port: ethereal/collision parameter state
+- [x] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 
 ## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (5/10)
 
@@ -2390,7 +2390,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetGraphicsState` · 004e1780 — render plumbing
 - [-] `CPhysicsObj::set_state` · 004e17a0 — state-bit flag accessor
 - [ ] `CPhysicsObj::ReApplyPropertyCollection` · 004e1810 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::ApplyEtherealProperty` · 004e1820 · legions 004d4280 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::ApplyEtherealProperty` · 004e1820 · legions 004d4280 — ac2_db::ac2_ethereal_mask sets the blocking bit from a bool ethereal-group property (desc data word); applied to landblock entities and interior entities (StaticObject::blocking). The value is not read (InqBool always succeeds); the body path (player ApplyPropertyCollection) is not wired
 - [ ] `CPhysicsObj::ApplyRenderProperty` · 004e1880 · legions 004d42e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ApplyPhysicsProperty` · 004e1a40 · legions 004d44a0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ApplyPusherProperty` · 004e1ad0 · legions 004d4530 — needs port: cite-only physics-object method
@@ -2697,7 +2697,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetTerrainType` · 004eb1f0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetWorldMatrix` · 004eb210 · legions 004ddb50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetNumShadowObjects` · 004eb220 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetPhysicsCollideMask` · 004eb230 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::SetPhysicsCollideMask` · 004eb230 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 - [ ] `CPhysicsObj::GetNumChildren` · 004eb250 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetChild` · 004eb260 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AddToIntersection` · 004eb280 · legions 004ddbc0 — needs port: cite-only physics-object method
