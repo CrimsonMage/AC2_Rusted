@@ -180,6 +180,8 @@ impl Rig {
         self.asked.extend(asked.iter().cloned());
         self.pending.extend(asked);
         self.view.update(&self.gpu, &frame, Duration::ZERO);
+        // The window loop submits every frame (its render, or `flush_writes` when none is drawn).
+        self.gpu.flush_writes();
         events
     }
 
@@ -215,6 +217,7 @@ impl Rig {
         self.asked.extend(asked.iter().cloned());
         self.pending.extend(asked);
         self.view.update(&self.gpu, &frame, Duration::ZERO);
+        self.gpu.flush_writes();
     }
 
     /// Frames with nothing pressed.

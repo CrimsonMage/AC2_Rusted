@@ -484,6 +484,8 @@ impl App {
         let (_, time) = state.now();
         let Some(output) = ac2_gpu::acquire_frame(&state.surface, &state.gpu.device, &state.config)
         else {
+            // The frame's uploads still go to the GPU: nothing is presented this time.
+            state.gpu.flush_writes();
             return;
         };
         let target = output.texture.create_view(&Default::default());

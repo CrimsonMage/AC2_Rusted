@@ -100,6 +100,14 @@ impl Gpu {
         })
     }
 
+    /// Submits the buffer and texture writes queued since the last submit (`Queue::write_buffer`,
+    /// `write_texture`) with no commands. Their staging memory is held until a submit, so a frame
+    /// that updates the UI but draws nothing (the window is occluded or its surface is lost) must
+    /// flush them, or they pile up every frame.
+    pub fn flush_writes(&self) {
+        self.queue.submit(std::iter::empty());
+    }
+
     /// Whether the device samples BC1-BC3 textures.
     pub fn block_compression(&self) -> bool {
         self.device
