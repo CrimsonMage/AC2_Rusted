@@ -30,9 +30,10 @@ const MAX_FX_TABLE_DEPTH: usize = 8;
 pub enum Ac2ParticleAnchor {
     /// Neither a holding point nor a bone: `m_bone_offset` in the object's space.
     Object { offset: Vec3 },
-    /// `m_bone_name`: a root Setup bone (`None` when the Setup has no such bone), with
-    /// `m_bone_offset` in that bone's space.
-    Bone { bone: Option<usize>, offset: Vec3 },
+    /// `m_bone_name`: a bone of the object's part groups, found by name the way
+    /// `CPartGroup::FindBoneType` searches them (the render side poses it). A name no group has
+    /// is not an attachment. `m_bone_offset` is in that bone's space.
+    Bone { name: u32, offset: Vec3 },
     /// `m_holding_location`: the Setup's holding point, its bone and location transform. `None`
     /// when the Setup has no such point.
     Holding {
@@ -228,11 +229,8 @@ pub(crate) fn anchor(setup: Option<&Ac2Setup>, node: &Ac2FxParticleNode) -> Ac2P
         return Ac2ParticleAnchor::Holding { location };
     }
     match setup {
-        Some(setup) if node.bone_name != 0 => Ac2ParticleAnchor::Bone {
-            bone: setup
-                .bones
-                .iter()
-                .position(|candidate| candidate.name == node.bone_name),
+        Some(_) if node.bone_name != 0 => Ac2ParticleAnchor::Bone {
+            name: node.bone_name,
             offset: node.bone_offset,
         },
         _ => Ac2ParticleAnchor::Object {

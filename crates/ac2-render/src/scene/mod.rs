@@ -59,14 +59,16 @@ pub struct FramePlacement {
 }
 
 /// Where an object stands this frame, for the particle systems it runs: its emitter (the object's
-/// id), its frame, its total scale (`CPartArray::QueueParticleSystems`'s object matrix) and its
-/// root Setup's posed bones, which the systems and the holding points attach to.
+/// id), its frame, its total scale (`CPartArray::QueueParticleSystems`'s object matrix), its root
+/// Setup's posed bones (the holding points attach to these) and every part group's bones by name
+/// (the bone attachments search them, `CPartGroup::FindBoneType`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObjectPlacement {
     pub emitter: u64,
     pub frame: Frame,
     pub scale: Vec3,
     pub bones: Vec<Ac2Transform>,
+    pub named_bones: Vec<(u32, Ac2Transform)>,
 }
 
 /// What one frame draws, in order.

@@ -1278,7 +1278,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — ac2-render scene/particles.rs fired(): posed bone or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: bone names in child part groups (FindBoneType recursion) are not searched, so those systems are not attached.
+- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): posed bone (now found through the part groups by name, CPartGroup::FindBoneType) or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: the static world sources' rest placement (ac2_visual_particles placement) still searches the root Setup only; a bone no group has leaves an attached system unplaced
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0 — ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 - [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — needs port: FX manager effect
@@ -2029,7 +2029,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::RemoveMaterialModifiers` · 004eea40 · legions 004e13a0 — render plumbing
 - [-] `CPartArray::CacheAnimations` · 004eea70 · legions 004e13d0 — render plumbing
 - [ ] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0 — needs port: cite-only physics-object method
-- [ ] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — needs port: cite-only physics-object method
+- [ ] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 - [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — needs port: cite-only physics-object method
@@ -2107,7 +2107,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::GetHoldingLocation` · 004f51f0 · legions 004e7a10 — needs port: cite-only physics-object method
 - [-] `CPartGroup::CacheAnimations` · 004f5270 · legions 004e7a90 — render plumbing
 - [ ] `CPartGroup::FindMatrixForBoneType` · 004f52b0 · legions 004e7ad0 — needs port: cite-only physics-object method
-- [x] `CPartGroup::FindBoneType` · 004f5320 · legions 004e7b40 — CPartGroup::FindBoneType - CPartGroup FindBoneType (ac2_fx.rs) and AddChild (ac2-render model.rs)
+- [x] `CPartGroup::FindBoneType` · 004f5320 · legions 004e7b40 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 - [ ] `CPartGroup::DestroyParticleSystem` · 004f53a0 · legions 004e7bc0 — needs port: cite-only physics-object method
 - [~] `CPartGroup::ApplyAtomCollection` · 004f5400 · legions 004e7c20 — ac2-render model.rs: mesh + material atoms; opacity atoms not applied (none in the DATs)
 - [ ] `CPartGroup::UpdatePartGroupFromPGDD` · 004f5540 · legions 004e7d30 — needs port: cite-only physics-object method

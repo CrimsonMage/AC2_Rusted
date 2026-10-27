@@ -65,14 +65,49 @@ pub(super) struct SceneParticles {
     alive: usize,
 }
 
-/// An object's frame, scale and root bones this frame (see [`ObjectPlacement`]).
+/// An object's frame, scale and bones this frame (see [`ObjectPlacement`]).
 struct PlacedObject {
     frame: Frame,
     scale: Vec3,
-    bones: Vec<Ac2Transform>,
+    root: Vec<Ac2Transform>,
+    named: Vec<(u32, Ac2Transform)>,
 }
 
-/// A root bone's model-space frame (`CPartArray::m_boneMatrices`); `None` past the Setup's bones.
+impl PlacedObject {
+    fn bones(&self) -> Bones<'_> {
+        Bones {
+            root: &self.root,
+            named: &self.named,
+        }
+    }
+}
+
+/// An object's bones as its systems see them: the root Setup's bones by index (the holding
+/// points), and every part group's bones by name in `CPartGroup::FindBoneType`'s search order.
+#[derive(Debug, Clone, Copy)]
+struct Bones<'a> {
+    root: &'a [Ac2Transform],
+    named: &'a [(u32, Ac2Transform)],
+}
+
+impl Bones<'_> {
+    /// A root bone's model-space frame (`CPartArray::m_boneMatrices`); `None` past the Setup's
+    /// bones.
+    fn root(&self, index: usize) -> Option<Frame> {
+        bone_frame(self.root, index)
+    }
+
+    /// The first bone with that name in the search order (`CPartGroup::FindBoneType` finds the
+    /// first group whose Setup has it); `None` when no group has it.
+    fn named(&self, name: u32) -> Option<Frame> {
+        self.named
+            .iter()
+            .find(|(bone, _)| *bone == name)
+            .map(|(_, bone)| Frame::new(bone.offset, bone.rotation))
+    }
+}
+
+/// A bone's model-space frame.
 fn bone_frame(bones: &[Ac2Transform], index: usize) -> Option<Frame> {
     bones
         .get(index)
@@ -83,28 +118,24 @@ fn bone_frame(bones: &[Ac2Transform], index: usize) -> Option<Frame> {
 /// bone's space, the holding point's transform in its bone's space, or the object's offset. A
 /// bone that is not in the object's Setup is not an attachment, so `None` (the system is not
 /// placed). A removed rotation keeps only the translation.
-fn attached(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Option<Frame> {
+fn attached(anchor: &ParticleAnchor, bones: Bones) -> Option<Frame> {
     let in_object = |offset: Vec3| Frame::new(offset, Quat::IDENTITY);
     let connection = match anchor.anchor {
         Ac2ParticleAnchor::Object { offset } => in_object(offset),
-        Ac2ParticleAnchor::Bone {
-            bone: Some(index),
-            offset,
-        } => bone_frame(bones, index).map_or(in_object(offset), |bone| {
-            bone.compose_frame(in_object(offset))
-        }),
-        Ac2ParticleAnchor::Bone { bone: None, .. } => return None,
+        Ac2ParticleAnchor::Bone { name, offset } => {
+            bones.named(name)?.compose_frame(in_object(offset))
+        }
         Ac2ParticleAnchor::Holding {
             location: Some((index, transform)),
         } => {
             let location = Frame::new(transform.offset, transform.rotation);
-            bone_frame(bones, index).map_or(location, |bone| bone.compose_frame(location))
+            bones
+                .root(index)
+                .map_or(location, |bone| bone.compose_frame(location))
         }
         // A missing holding point attaches to the first bone at the identity (`PHYSICSOBJREP::
         // CreateParticleSystem` keeps the zero index and the identity matrix).
-        Ac2ParticleAnchor::Holding { location: None } => {
-            bone_frame(bones, 0).unwrap_or(Frame::IDENTITY)
-        }
+        Ac2ParticleAnchor::Holding { location: None } => bones.root(0).unwrap_or(Frame::IDENTITY),
     };
     Some(if anchor.remove_rotation {
         Frame::new(connection.origin, Quat::IDENTITY)
@@ -116,17 +147,15 @@ fn attached(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Option<Frame> {
 /// `FXManager::FireParticleFX`'s connection for a fire-and-forget system: a holding point's
 /// transform alone, the posed bone (its offset ignored) or the bone offset, and for a water-plane
 /// node no offset at all (the system stands at its object, on the water).
-fn fired(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Frame {
+fn fired(anchor: &ParticleAnchor, bones: Bones) -> Frame {
     match anchor.anchor {
         Ac2ParticleAnchor::Holding {
             location: Some((_, transform)),
         } => Frame::new(transform.offset, transform.rotation),
         Ac2ParticleAnchor::Holding { location: None } => Frame::IDENTITY,
-        Ac2ParticleAnchor::Bone {
-            bone: Some(index),
-            offset,
-        } => bone_frame(bones, index).unwrap_or(Frame::new(offset, Quat::IDENTITY)),
-        Ac2ParticleAnchor::Bone { bone: None, offset } => Frame::new(offset, Quat::IDENTITY),
+        Ac2ParticleAnchor::Bone { name, offset } => bones
+            .named(name)
+            .unwrap_or(Frame::new(offset, Quat::IDENTITY)),
         Ac2ParticleAnchor::Object { .. } if anchor.water_plane => Frame::IDENTITY,
         Ac2ParticleAnchor::Object { offset } => Frame::new(offset, Quat::IDENTITY),
     }
@@ -137,7 +166,7 @@ fn fired(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Frame {
 /// `None` when an attached system has no bone to stand on.
 fn attach(
     object: Frame,
-    bones: &[Ac2Transform],
+    bones: Bones,
     anchor: &ParticleAnchor,
     follow: bool,
     scale: Vec3,
@@ -284,7 +313,8 @@ impl SceneParticles {
                 PlacedObject {
                     frame: p.frame,
                     scale: p.scale,
-                    bones: p.bones.clone(),
+                    root: p.bones.clone(),
+                    named: p.named_bones.clone(),
                 },
             )
         }));
@@ -325,7 +355,7 @@ impl SceneParticles {
                 };
                 let Some(frame) = attach(
                     placed.frame,
-                    &placed.bones,
+                    placed.bones(),
                     &entry.anchor,
                     entry.follow,
                     placed.scale,
@@ -423,13 +453,17 @@ mod tests {
             bone(Vec3::ZERO, Quat::IDENTITY),
             bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY),
         ];
+        let named = [(7, bones[1])];
         let anchor = anchor(Ac2ParticleAnchor::Bone {
-            bone: Some(1),
+            name: 7,
             offset: Vec3::new(0.0, 1.0, 0.0),
         });
         let frame = attach(
             object_at(Vec3::new(10.0, 0.0, 0.0)),
-            &bones,
+            Bones {
+                root: &bones,
+                named: &named,
+            },
             &anchor,
             true,
             Vec3::ONE,
@@ -452,26 +486,56 @@ mod tests {
         let holding = anchor(Ac2ParticleAnchor::Holding {
             location: Some((0, location)),
         });
-        let kept = attach(Frame::IDENTITY, &bones, &holding, true, Vec3::ONE).unwrap();
+        let no_names = Bones {
+            root: &bones,
+            named: &[],
+        };
+        let kept = attach(Frame::IDENTITY, no_names, &holding, true, Vec3::ONE).unwrap();
         assert!(kept.origin.distance(Vec3::new(0.0, 0.0, 1.5)) < 1e-5);
         assert!(same_rotation(kept.orientation, turned));
         let removed = ParticleAnchor {
             remove_rotation: true,
             ..holding
         };
-        let frame = attach(Frame::IDENTITY, &bones, &removed, true, Vec3::ONE).unwrap();
+        let frame = attach(Frame::IDENTITY, no_names, &removed, true, Vec3::ONE).unwrap();
         assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 1.5)) < 1e-5);
         assert!(same_rotation(frame.orientation, Quat::IDENTITY));
     }
 
-    /// `CreateParticleSystem` with a bone the Setup lacks: no system at all.
+    /// `CreateParticleSystem` with a bone no part group has: no system at all.
     #[test]
     fn an_attached_system_without_its_bone_is_not_placed() {
         let missing = anchor(Ac2ParticleAnchor::Bone {
-            bone: None,
+            name: 9,
             offset: Vec3::ONE,
         });
-        assert!(attach(Frame::IDENTITY, &[], &missing, true, Vec3::ONE).is_none());
+        let none = Bones {
+            root: &[],
+            named: &[],
+        };
+        assert!(attach(Frame::IDENTITY, none, &missing, true, Vec3::ONE).is_none());
+    }
+
+    /// `FindBoneType` searches the child part groups too: a bone only a child group's Setup has
+    /// is found by name, the first group in search order winning.
+    #[test]
+    fn a_bone_of_a_child_group_is_found_by_name_in_search_order() {
+        let root = [bone(Vec3::ZERO, Quat::IDENTITY)];
+        let named = [
+            (1, bone(Vec3::ZERO, Quat::IDENTITY)),
+            (5, bone(Vec3::new(0.0, 3.0, 0.0), Quat::IDENTITY)),
+            (5, bone(Vec3::new(0.0, 4.0, 0.0), Quat::IDENTITY)),
+        ];
+        let bones = Bones {
+            root: &root,
+            named: &named,
+        };
+        let child = anchor(Ac2ParticleAnchor::Bone {
+            name: 5,
+            offset: Vec3::ZERO,
+        });
+        let frame = attach(Frame::IDENTITY, bones, &child, true, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(0.0, 3.0, 0.0)) < 1e-5);
     }
 
     /// `FireParticleFX`: a holding point's transform alone, without its bone's pose.
@@ -489,19 +553,33 @@ mod tests {
         let fired = anchor(Ac2ParticleAnchor::Holding {
             location: Some((1, location)),
         });
-        let frame = attach(object_at(Vec3::ZERO), &bones, &fired, false, Vec3::ONE).unwrap();
+        let frame = attach(
+            object_at(Vec3::ZERO),
+            Bones {
+                root: &bones,
+                named: &[],
+            },
+            &fired,
+            false,
+            Vec3::ONE,
+        )
+        .unwrap();
         assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 0.5)) < 1e-5);
     }
 
     /// `FireParticleFX` with a posed bone: the bone's frame, the bone offset not applied.
     #[test]
     fn a_fire_and_forget_bone_takes_the_posed_bone_not_its_offset() {
-        let bones = [bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY)];
+        let named = [(3, bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY))];
         let fired = anchor(Ac2ParticleAnchor::Bone {
-            bone: Some(0),
+            name: 3,
             offset: Vec3::new(5.0, 5.0, 5.0),
         });
-        let frame = attach(object_at(Vec3::ZERO), &bones, &fired, false, Vec3::ONE).unwrap();
+        let bones = Bones {
+            root: &[],
+            named: &named,
+        };
+        let frame = attach(object_at(Vec3::ZERO), bones, &fired, false, Vec3::ONE).unwrap();
         assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 2.0)) < 1e-5);
     }
 
@@ -518,13 +596,33 @@ mod tests {
             water_z: Some(3.0),
         };
         let object = object_at(Vec3::new(1.0, 2.0, 7.0));
-        let frame = attach(object, &[], &water, false, Vec3::ONE).unwrap();
+        let frame = attach(
+            object,
+            Bones {
+                root: &[],
+                named: &[],
+            },
+            &water,
+            false,
+            Vec3::ONE,
+        )
+        .unwrap();
         assert!(frame.origin.distance(Vec3::new(1.0, 2.0, 3.0)) < 1e-5);
         let dry = ParticleAnchor {
             water_z: None,
             ..water
         };
-        let frame = attach(object, &[], &dry, false, Vec3::ONE).unwrap();
+        let frame = attach(
+            object,
+            Bones {
+                root: &[],
+                named: &[],
+            },
+            &dry,
+            false,
+            Vec3::ONE,
+        )
+        .unwrap();
         assert!(frame.origin.distance(Vec3::new(1.0, 2.0, 7.0)) < 1e-5);
     }
 }

@@ -201,6 +201,8 @@ pub struct SkeletonGroup {
     /// Mesh count of the Setup (`m_numParts`).
     pub parts: usize,
     parents: Vec<Option<usize>>,
+    /// Each bone's name in this group's Setup (`CharacterSetup::FindBoneType`'s bone types).
+    bone_names: Vec<u32>,
     /// `m_boneTransforms` after `SetPlacementFrameID(0)`.
     placement: Vec<Ac2Transform>,
     /// `CharacterSetup::rest_matrix` when a part carries matrix weights; `None` for a rigid group.
@@ -243,6 +245,7 @@ impl SkeletonGroup {
             setup: setup_did,
             parts: setup.meshes.len(),
             parents: setup.bones.iter().map(|bone| bone.parent).collect(),
+            bone_names: setup.bones.iter().map(|bone| bone.name).collect(),
             placement,
             rest: weighted.then(|| rest_matrices(setup)).flatten(),
             attachment,
@@ -332,6 +335,56 @@ pub struct ObjectSkeleton {
 }
 
 impl ObjectSkeleton {
+    /// `CPartGroup::FindBoneType` over the tree: every group's bones by name, in retail's search
+    /// order (a group's own bones, then each child group's search in turn). The first entry for a
+    /// name is the bone retail finds. A root bone is its `root_bones` transform; a child group's
+    /// bone is its bone matrix times the group matrix (`CPartArray::m_boneMatrices` times
+    /// `CPartGroup::m_mFinal`), read back as a transform. `poses` and `root` are as `pose` takes them.
+    pub fn named_bones(
+        &self,
+        poses: &[GroupPose],
+        root_bones: &[Ac2Transform],
+    ) -> Vec<(u32, Ac2Transform)> {
+        let mut found = Vec::new();
+        if !self.groups.is_empty() {
+            self.find_bones(0, poses, root_bones, &mut found);
+        }
+        found
+    }
+
+    fn find_bones(
+        &self,
+        group: usize,
+        poses: &[GroupPose],
+        root_bones: &[Ac2Transform],
+        found: &mut Vec<(u32, Ac2Transform)>,
+    ) {
+        let Some(pose) = poses.get(group) else {
+            return;
+        };
+        for (index, name) in self.groups[group].bone_names.iter().enumerate() {
+            let transform = if group == 0 {
+                root_bones.get(index).copied()
+            } else {
+                pose.bones
+                    .get(index)
+                    .map(|bone| transform_of(&multiply(bone, &pose.matrix)))
+            };
+            if let Some(transform) = transform {
+                found.push((*name, transform));
+            }
+        }
+        for (child, other) in self.groups.iter().enumerate() {
+            if other
+                .attachment
+                .is_some_and(|(parent, _, _)| parent == group)
+                && child > group
+            {
+                self.find_bones(child, poses, root_bones, found);
+            }
+        }
+    }
+
     /// The root group's model-space bones (`CPartArray::m_boneMatrices`, which carry no scale), as
     /// the transforms `pose` builds them from: each bone's parent-relative local composed up its
     /// chain. `root` is taken as `pose` takes it.
@@ -384,6 +437,16 @@ impl ObjectSkeleton {
             poses.push(pose);
         }
         poses
+    }
+}
+
+/// A row-vector matrix read back as the transform it was filled from (rotation, offset, scale).
+fn transform_of(matrix: &Matrix4) -> Ac2Transform {
+    let (scale, rotation, offset) = to_mat4(matrix).to_scale_rotation_translation();
+    Ac2Transform {
+        offset,
+        rotation,
+        scale,
     }
 }
 

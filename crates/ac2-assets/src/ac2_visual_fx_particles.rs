@@ -14,7 +14,9 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
-use crate::ac2_visual_particles::{anchor, load, looping_flags, placement, Ac2ParticleAttachment};
+use crate::ac2_visual_particles::{
+    anchor, load, looping_flags, placement, Ac2ParticleAnchor, Ac2ParticleAttachment,
+};
 use ac2_anim::Ac2Setup;
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -68,6 +70,19 @@ impl Ac2VisualFxParticles {
         &self,
     ) -> impl Iterator<Item = (u32, &Arc<[Ac2ParticleAttachment]>)> + '_ {
         self.entries.iter().map(|(id, list)| (*id, list))
+    }
+
+    /// The bone name of every bone node in the table, once per node (`m_bone_name`), for checks
+    /// that a visual's part groups have each of them (`CPartGroup::FindBoneType`).
+    pub fn bone_names(&self) -> Vec<u32> {
+        self.entries
+            .values()
+            .flat_map(|list| list.iter())
+            .filter_map(|attachment| match attachment.anchor {
+                Ac2ParticleAnchor::Bone { name, .. } => Some(name),
+                _ => None,
+            })
+            .collect()
     }
 
     /// Whether the visual has any particle FX.

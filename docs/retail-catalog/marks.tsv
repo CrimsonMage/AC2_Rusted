@@ -5014,7 +5014,7 @@ key	status	note
 004eea40	-	render plumbing
 004eea70	-	render plumbing
 004eea80	_	needs port: cite-only physics-object method
-004eeaa0	_	needs port: cite-only physics-object method
+004eeaa0	_	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 004eeac0	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eeb10	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eec30	_	needs port: cite-only physics-object method
@@ -5249,7 +5249,7 @@ key	status	note
 004f51f0	_	needs port: cite-only physics-object method
 004f5270	-	render plumbing
 004f52b0	_	needs port: cite-only physics-object method
-004f5320	x	CPartGroup::FindBoneType - CPartGroup FindBoneType (ac2_fx.rs) and AddChild (ac2-render model.rs)
+004f5320	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 004f53a0	_	needs port: cite-only physics-object method
 004f5400	~	ac2-render model.rs: mesh + material atoms; opacity atoms not applied (none in the DATs)
 004f5540	_	needs port: cite-only physics-object method
@@ -5447,7 +5447,7 @@ key	status	note
 00505c30	_	needs port: FX manager effect
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
-00505dd0	~	ac2-render scene/particles.rs fired(): posed bone or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: bone names in child part groups (FindBoneType recursion) are not searched, so those systems are not attached.
+00505dd0	~	scene/particles.rs fired(): posed bone (now found through the part groups by name, CPartGroup::FindBoneType) or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: the static world sources' rest placement (ac2_visual_particles placement) still searches the root Setup only; a bone no group has leaves an attached system unplaced
 005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00506190	x	ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 005061f0	_	needs port: FX manager effect
@@ -10828,7 +10828,7 @@ key	status	note
 00612670	x	ac2-render object/skeleton.rs rest_matrices
 006126d0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00612760	_	needs port (check): CharacterSetup::GetParentIndex bone classification; not cited in Rust
-00612780	_	needs port (check): CharacterSetup::FindBoneType bone classification; not cited in Rust
+00612780	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 006127e0	_	needs port (check): CharacterSetup::InitLoad load-time init not cited
 00612860	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00612a10	-	AVL container (rebalance, node, add); Rust ordered map

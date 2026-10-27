@@ -232,11 +232,21 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     }
     scene.wait();
     assert_eq!(scene.object_particle_systems(), started.len());
+    // The human's posed bones: the footstep system attaches to a bone of its Setup.
+    let posed = ac2_render::object::load_object_model(
+        &store,
+        ac2_core::DataId::new(HUMAN),
+        &ac2_render::object::RenderSettings::default(),
+    )
+    .expect("the human model loads")
+    .and_then(|model| model.pose(None))
+    .expect("the human is posed");
     let placements = [ObjectPlacement {
         emitter: EMITTER,
         frame: ac2_math::Frame::new(at, ac2_math::Quat::IDENTITY),
         scale: Vec3::ONE,
-        bones: Vec::new(),
+        bones: posed.bones,
+        named_bones: posed.named_bones,
     }];
     let camera = Camera {
         eye: at + Vec3::new(0.0, -4.0, 1.0),

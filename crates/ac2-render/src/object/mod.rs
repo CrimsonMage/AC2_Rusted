@@ -4,6 +4,8 @@
 
 mod appearance;
 mod cell;
+#[cfg(test)]
+mod fx_bone_tests;
 mod lights;
 mod model;
 mod pass;

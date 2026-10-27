@@ -286,7 +286,7 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
     let Some((dataset, store)) = ac2_dataset() else {
         return;
     };
-    let (mut bone, mut missing_bone, mut holding, mut missing_holding) = (0, 0, 0, 0);
+    let (mut bone, mut holding, mut missing_holding) = (0, 0, 0);
     let (mut object, mut water, mut removed, mut fire) = (0, 0, 0, 0);
     for did in portal_ids(&dataset, 0x1F00_0000) {
         let Some(table) = resolve_ac2_visual_fx_particles(&store, DataId::new(did))
@@ -298,8 +298,7 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
             for attachment in attachments.iter() {
                 match attachment.anchor {
                     Ac2ParticleAnchor::Object { .. } => object += 1,
-                    Ac2ParticleAnchor::Bone { bone: Some(_), .. } => bone += 1,
-                    Ac2ParticleAnchor::Bone { bone: None, .. } => missing_bone += 1,
+                    Ac2ParticleAnchor::Bone { .. } => bone += 1,
                     Ac2ParticleAnchor::Holding { location: Some(_) } => holding += 1,
                     Ac2ParticleAnchor::Holding { location: None } => missing_holding += 1,
                 }
@@ -310,7 +309,7 @@ fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
         }
     }
     eprintln!(
-        "FX particle nodes: object {object}, bone {bone} (missing {missing_bone}), holding \
+        "FX particle nodes: object {object}, bone {bone}, holding \
          {holding} (missing {missing_holding}), water {water}, removed rotation {removed}, \
          fire-and-forget {fire}"
     );

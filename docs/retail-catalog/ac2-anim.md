@@ -1,9 +1,9 @@
 # ac2-anim: Animation system
 
-532 retail functions: 126 done, 17 partial, 96 to do, 293 skipped.
+532 retail functions: 127 done, 17 partial, 95 to do, 293 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/anim/charactersetup.cpp.c` (5/67)
+## `portal/shared/src/anim/charactersetup.cpp.c` (6/67)
 
 ### PlacementFrame
 - [ ] `PlacementFrame::Pack` · 0060d540 · legions 005ce310 — needs port (check): PlacementFrame::Pack has no cited Rust decode
@@ -124,7 +124,7 @@ Legend and workflow: [README](README.md).
 - [x] `CharacterSetup::InitRestBones` · 00612670 · legions 005d0730 — ac2-render object/skeleton.rs rest_matrices
 - [-] `CharacterSetup::~CharacterSetup` · 006126d0 · legions 005d0790 — ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 - [ ] `CharacterSetup::GetParentIndex` · 00612760 — needs port (check): CharacterSetup::GetParentIndex bone classification; not cited in Rust
-- [ ] `CharacterSetup::FindBoneType` · 00612780 · legions 005d0840 — needs port (check): CharacterSetup::FindBoneType bone classification; not cited in Rust
+- [x] `CharacterSetup::FindBoneType` · 00612780 · legions 005d0840 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 - [ ] `CharacterSetup::InitLoad` · 006127e0 — needs port (check): CharacterSetup::InitLoad load-time init not cited
 - [-] `CharacterSetup::CharacterSetup` · 00612860 · legions 005d0920 — ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 

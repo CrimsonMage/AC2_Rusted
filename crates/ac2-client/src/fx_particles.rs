@@ -5,7 +5,7 @@
 //! places its light at the node's offset (`CPartArray::CreateLightSource`). The renderer starts
 //! them on the object and poses their attachment with the object's bones each frame.
 
-use ac2_assets::{Ac2FxLight, Ac2ParticleAnchor, Ac2VisualFxParticles};
+use ac2_assets::{Ac2FxLight, Ac2VisualFxParticles};
 use ac2_core::{DataId, Random};
 use ac2_render::scene::ParticleAnchor;
 
@@ -49,10 +49,6 @@ pub(crate) fn particle_starts(
     nodes
         .iter()
         .filter(|node| !node.particle_descs.is_empty())
-        .filter(|node| {
-            node.fire_and_forget
-                || !matches!(node.anchor, Ac2ParticleAnchor::Bone { bone: None, .. })
-        })
         .map(|node| {
             let pick = random.roll_dice(0, node.particle_descs.len() as i32 - 1) as usize;
             ObjectParticleStart {
@@ -111,7 +107,7 @@ mod tests {
     use std::sync::Arc;
 
     use ac2_anim::Ac2Transform;
-    use ac2_assets::{Ac2LightSource, Ac2ParticleAttachment};
+    use ac2_assets::{Ac2LightSource, Ac2ParticleAnchor, Ac2ParticleAttachment};
     use ac2_math::Vec3;
 
     use super::*;

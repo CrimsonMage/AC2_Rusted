@@ -283,11 +283,10 @@ impl ClientView {
             .zip(placed)
             .filter_map(|(drawn, placed)| {
                 let (_, scale) = self.scene.object_rig(drawn.key)?;
-                let bones = placed
-                    .as_ref()?
-                    .2
-                    .as_ref()
-                    .map(|pose| pose.bones.clone())
+                let pose = placed.as_ref()?.2.as_ref();
+                let bones = pose.map(|pose| pose.bones.clone()).unwrap_or_default();
+                let named_bones = pose
+                    .map(|pose| pose.named_bones.clone())
                     .unwrap_or_default();
                 let [w, x, y, z] = drawn.rotation;
                 Some(ObjectPlacement {
@@ -298,6 +297,7 @@ impl ClientView {
                     ),
                     scale: *scale,
                     bones,
+                    named_bones,
                 })
             })
             .collect()
