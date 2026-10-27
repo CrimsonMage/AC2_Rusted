@@ -718,6 +718,7 @@ fn run(args: Args) -> Result<(), String> {
     client.attach_scripts(host, ac2_client::SCRIPT_VM_FUNCTIONS);
     // `SoundManager`: the speakers, or silence without an output device.
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
+    client.set_portal_sound_ids(ac2_client::portal_sound_ids(&store));
     let scene_options = prefs.scene_options();
     client.apply_sound_preferences(prefs.bank());
     client.attach_prefs(prefs);

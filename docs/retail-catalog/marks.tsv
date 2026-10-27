@@ -4409,10 +4409,10 @@ key	status	note
 00585e90	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00585f40	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 00585f90	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-00586220	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586220	~	sound: ac2-client portal_sounds.rs plays the enter sound and the two tunnel loops (StartNow) and the exit sound, stopping the loops (StopNow), DIDs from the DAT sound enum 0x40000002 (0x40000018/1d/1e/1c) on Channel_Main; geometry and fader timing remain in ac2-render (see the notes above)
 00586720	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00586740	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
-00586eb0	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+00586eb0	~	sound: ac2-client portal_sounds.rs plays the enter sound and the two tunnel loops (StartNow) and the exit sound, stopping the loops (StopNow), DIDs from the DAT sound enum 0x40000002 (0x40000018/1d/1e/1c) on Channel_Main; geometry and fader timing remain in ac2-render (see the notes above)
 00586f50	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 00587360	~	the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
 00587db0	~	tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material

@@ -189,6 +189,8 @@ pub(crate) struct ClientAudio {
     story_voice: Option<u32>,
     /// The credits' sound (`gmCreditsUI::UpdateSound`'s `PlayingSoundContext`).
     credit_sound: Option<u32>,
+    /// The portal space's sounds and its tunnel loops (`PortalSpace::Effect`).
+    pub(crate) portal: crate::portal_sounds::PortalSounds,
 }
 
 /// One of the story's sounds (`gmStoryUI::Play`): the last one it played stops over two seconds
@@ -256,7 +258,27 @@ impl Client {
             story_music: None,
             story_voice: None,
             credit_sound: None,
+            portal: Default::default(),
         });
+    }
+
+    /// The portal space's sound DIDs (see [`crate::portal_sound_ids`]); set once the DAT is open.
+    pub fn set_portal_sound_ids(&mut self, ids: crate::PortalSoundIds) {
+        if let Some(audio) = self.audio.as_mut() {
+            audio.portal.set_ids(ids);
+        }
+    }
+
+    /// `PortalSpace::Effect::StartNow` and `StopNow`'s sounds, from the effect's events since
+    /// the last frame.
+    pub(crate) fn play_portal_sounds(&mut self) {
+        let events = self.portal.take_sounds();
+        if events.is_empty() {
+            return;
+        }
+        if let Some(audio) = self.audio.as_mut() {
+            audio.portal.play(&mut audio.manager, &events);
+        }
     }
 
     /// `gmCreditsUI::UpdateSound`'s `SoundManager::Play` of `did` on `Channel_Main`, its handle

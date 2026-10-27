@@ -672,6 +672,7 @@ impl Client {
         self.render_time = now;
         // `WorldRender::Update` -> `PortalSpace::Effect::Think`.
         self.portal.think(now, &mut self.random);
+        self.play_portal_sounds();
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
         if let Some(step) = self.anim_clock.advance(now) {
             // `WorldRender::UpdateTimeOfDay`'s `PhysicsGlobals::SetWind`.

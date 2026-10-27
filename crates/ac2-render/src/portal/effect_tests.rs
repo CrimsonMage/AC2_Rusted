@@ -3,7 +3,7 @@
 
 use ac2_core::Random;
 
-use super::{Phase, PortalSpace};
+use super::{Phase, PortalSound, PortalSpace};
 
 fn close(a: f32, b: f32) -> bool {
     (a - b).abs() < 1e-5
@@ -106,4 +106,32 @@ fn the_random_factor_is_rolled_when_the_effect_starts() {
     effect.enter(true, 0.0, &mut random);
     let factor = effect.random_factor();
     assert!((0.0..10000.0).contains(&factor), "{factor}");
+}
+
+#[test]
+fn start_now_and_stop_now_record_their_sounds_once_each() {
+    let mut random = Random::default();
+    let mut effect = PortalSpace::new();
+    assert!(effect.take_sounds().is_empty());
+    // A Think-driven start (`Start` only wants it) plays `StartNow` once.
+    effect.enter(false, 10.0, &mut random);
+    assert!(effect.take_sounds().is_empty(), "no start before the Think");
+    effect.think(10.0, &mut random);
+    assert_eq!(effect.take_sounds(), [PortalSound::Start]);
+    // Nothing more while it runs; the exit's `Stop` wants the stop at the next Think.
+    effect.think(11.5, &mut random);
+    assert!(effect.take_sounds().is_empty());
+    effect.exit(false, 12.0);
+    effect.think(12.0, &mut random);
+    assert_eq!(effect.take_sounds(), [PortalSound::Stop]);
+}
+
+#[test]
+fn an_instant_start_records_its_sound_at_once() {
+    let mut random = Random::default();
+    let mut effect = PortalSpace::new();
+    effect.enter(true, 3.0, &mut random);
+    assert_eq!(effect.take_sounds(), [PortalSound::Start]);
+    effect.exit(true, 3.0);
+    assert_eq!(effect.take_sounds(), [PortalSound::Stop]);
 }

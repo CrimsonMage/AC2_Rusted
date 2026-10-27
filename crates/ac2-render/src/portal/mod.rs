@@ -8,5 +8,5 @@ pub mod tunnel;
 #[cfg(test)]
 mod tunnel_tests;
 
-pub use effect::{Draw, Phase, PortalSpace};
+pub use effect::{Draw, Phase, PortalSound, PortalSpace};
 pub use tunnel::{Portal, Tunnel, TunnelVertex};

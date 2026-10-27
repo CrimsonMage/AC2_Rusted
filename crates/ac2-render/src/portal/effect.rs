@@ -68,6 +68,16 @@ impl Default for Draw {
     }
 }
 
+/// A sound the effect asks for when it starts or stops (`StartNow`'s and `StopNow`'s
+/// `SoundManager::Play` calls). The client maps them to the sound DIDs.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PortalSound {
+    /// `StartNow`: the enter sound, then the tunnel's two loops.
+    Start,
+    /// `StopNow`: the exit sound, then the loops stop.
+    Stop,
+}
+
 /// The phase durations in seconds: `Think` moves on once the phase has run longer than this.
 const PHASE_SECONDS: f64 = 1.0;
 /// The `dTimeNow` constant `Think` writes for the shutdown faders (the double 2^-7, whose high
@@ -94,6 +104,8 @@ pub struct PortalSpace {
     last_portal: usize,
     /// `m_pTunnelPortals` and the ring's points.
     tunnel: Tunnel,
+    /// The sounds `StartNow` and `StopNow` asked for since the client last took them.
+    sounds: Vec<PortalSound>,
 }
 
 impl Default for PortalSpace {
@@ -115,7 +127,13 @@ impl PortalSpace {
             current_position: 0.0,
             last_portal: 0,
             tunnel: Tunnel::new(),
+            sounds: Vec::new(),
         }
+    }
+
+    /// The sounds the effect asked for since the last call (`StartNow` and `StopNow` play them).
+    pub fn take_sounds(&mut self) -> Vec<PortalSound> {
+        std::mem::take(&mut self.sounds)
     }
 
     /// `WorldRender::EnterPortalSpace(instantly)`: starts the effect unless it is wanted already.
@@ -186,12 +204,14 @@ impl PortalSpace {
         self.tunnel.reset();
         self.tunnel.generate(0, PORTALS, self.random_factor);
         self.current_position = self.tunnel.portals[0].position;
+        self.sounds.push(PortalSound::Start);
     }
 
     /// `PortalSpace::Effect::StopNow(_State)`: the phase and its start time.
     fn stop_now(&mut self, phase: Phase, now: f64) {
         self.phase = phase;
         self.phase_start = now;
+        self.sounds.push(PortalSound::Stop);
     }
 
     /// `PortalSpace::Effect::Think`: advances the phase on the clock, then computes this frame's
