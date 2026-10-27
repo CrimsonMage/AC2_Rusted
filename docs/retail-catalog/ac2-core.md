@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 18 done, 4 partial, 166 to do, 401 skipped.
+589 retail functions: 21 done, 4 partial, 12 to do, 552 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -290,110 +290,110 @@ Legend and workflow: [README](README.md).
 ## `core/src/falloc/falloc.cpp.c` (0/3)
 
 ### FallocPool
-- [ ] `FallocPool::FallocPool` · 00662fc0 · legions 00611150
-- [ ] `FallocPool::~FallocPool` · 00663000 · legions 00611190
-- [ ] `FallocPool::AllocateNewPool` · 00663040 · legions 006111d0
+- [-] `FallocPool::FallocPool` · 00662fc0 · legions 00611150 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `FallocPool::~FallocPool` · 00663000 · legions 00611190 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `FallocPool::AllocateNewPool` · 00663040 · legions 006111d0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ## `core/src/newthread/portaldumperr.cpp.c` (0/1)
 
 ### PortalThreadErrorDump
-- [ ] `PortalThreadErrorDump::DumpLastError` · 0063c8e0 · legions 005f1410
+- [-] `PortalThreadErrorDump::DumpLastError` · 0063c8e0 · legions 005f1410 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 
 ## `core/src/newthread/portalevent_win32.cpp.c` (0/4)
 
 ### PortalEvent
-- [ ] `PortalEvent::PortalEvent` · 0063c870 · legions 005f13a0
-- [ ] `PortalEvent::~PortalEvent` · 0063c890 · legions 005f13c0
-- [ ] `PortalEvent::Signal` · 0063c8b0 · legions 005f13e0
-- [ ] `PortalEvent::WaitForSignal` · 0063c8c0 · legions 005f13f0
+- [-] `PortalEvent::PortalEvent` · 0063c870 · legions 005f13a0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalEvent::~PortalEvent` · 0063c890 · legions 005f13c0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalEvent::Signal` · 0063c8b0 · legions 005f13e0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalEvent::WaitForSignal` · 0063c8c0 · legions 005f13f0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 
 ## `core/src/newthread/portalthread_win32.cpp.c` (0/5)
 
 ### PortalThread
-- [ ] `PortalThread::~PortalThread` · 0063c700 · legions 005f1250
-- [ ] `PortalThread::Resume` · 0063c720 · legions 005f1270
-- [ ] `PortalThread::WaitFor` · 0063c760
-- [ ] `PortalThread::Join` · 0063c790 · legions 005f12e0
-- [ ] `PortalThread::PortalThread` · 0063c7f0 · legions 005f1320
+- [-] `PortalThread::~PortalThread` · 0063c700 · legions 005f1250 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalThread::Resume` · 0063c720 · legions 005f1270 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalThread::WaitFor` · 0063c760 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalThread::Join` · 0063c790 · legions 005f12e0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `PortalThread::PortalThread` · 0063c7f0 · legions 005f1320 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 
 ## `core/src/newthread/sharedcritsec_win32.cpp.c` (0/4)
 
 ### SharedCriticalSection
-- [ ] `SharedCriticalSection::SharedCriticalSection` · 0063c650 · legions 005f11a0
-- [ ] `SharedCriticalSection::~SharedCriticalSection` · 0063c670 · legions 005f11c0
-- [ ] `SharedCriticalSection::EnterCriticalSection` · 0063c690 · legions 005f11e0
-- [ ] `SharedCriticalSection::LeaveCriticalSection` · 0063c6b0 · legions 005f1200
+- [-] `SharedCriticalSection::SharedCriticalSection` · 0063c650 · legions 005f11a0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `SharedCriticalSection::~SharedCriticalSection` · 0063c670 · legions 005f11c0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `SharedCriticalSection::EnterCriticalSection` · 0063c690 · legions 005f11e0 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
+- [-] `SharedCriticalSection::LeaveCriticalSection` · 0063c6b0 · legions 005f1200 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 
 ## `core/src/portable/pfile.cpp.c` (0/1)
 
 ### (free functions)
-- [ ] `GetEnvironmentPath` · 00737e60 · legions 006b3a20
+- [-] `GetEnvironmentPath` · 00737e60 · legions 006b3a20 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 
 ## `core/src/pstring/pstringdecls.cpp.c` (0/1)
 
 ### (free functions)
-- [ ] `ConvertWPStringToCIWPstring` · 0064b6c0 · legions 005fa9f0
+- [ ] `ConvertWPStringToCIWPstring` · 0064b6c0 · legions 005fa9f0 — needs port: gStringUtils::ConvertWPStringToCIWPstring efun 0x25bb0004 (case-insensitive wide string conversion), not registered in ac2-script
 
 ## `core/src/serialize/smartbuffer.cpp.c` (0/12)
 
 ### AC2CoreSDKCopy::GrowBuffer
-- [ ] `AC2CoreSDKCopy::GrowBuffer::FreeBuffer` · 00735e50 · legions 006b1af0
+- [-] `AC2CoreSDKCopy::GrowBuffer::FreeBuffer` · 00735e50 · legions 006b1af0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### AC2CoreSDKCopy::SmartBuffer
-- [ ] `AC2CoreSDKCopy::SmartBuffer::GetBuffer` · 00735e90 · legions 006b1b30
-- [ ] `AC2CoreSDKCopy::SmartBuffer::SmartBuffer` · 00735ed0 · legions 006b1b70
-- [ ] `AC2CoreSDKCopy::SmartBuffer::SmartBuffer` · 00735f40 · legions 006b1be0
+- [-] `AC2CoreSDKCopy::SmartBuffer::GetBuffer` · 00735e90 · legions 006b1b30 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `AC2CoreSDKCopy::SmartBuffer::SmartBuffer` · 00735ed0 · legions 006b1b70 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `AC2CoreSDKCopy::SmartBuffer::SmartBuffer` · 00735f40 · legions 006b1be0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### `AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::FreeListLockAllocator
-- [ ] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::FreeListLockAllocator::~FreeListLockAllocator` · 00735f70 · legions 006b1c10
+- [-] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::FreeListLockAllocator::~FreeListLockAllocator` · 00735f70 · legions 006b1c10 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### AC2CoreSDKCopy::SmartBuffer
-- [ ] `AC2CoreSDKCopy::SmartBuffer::~SmartBuffer` · 00735fc0 · legions 006b1c60
-- [ ] `AC2CoreSDKCopy::SmartBuffer::operator=` · 00736000 · legions 006b1ca0
-- [ ] `AC2CoreSDKCopy::SmartBuffer::MakeWindow` · 00736070 · legions 006b1d10
+- [-] `AC2CoreSDKCopy::SmartBuffer::~SmartBuffer` · 00735fc0 · legions 006b1c60 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `AC2CoreSDKCopy::SmartBuffer::operator=` · 00736000 · legions 006b1ca0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `AC2CoreSDKCopy::SmartBuffer::MakeWindow` · 00736070 · legions 006b1d10 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### AC2CoreSDKCopy::GrowBuffer
-- [ ] `AC2CoreSDKCopy::GrowBuffer::GrowExact` · 00736100 · legions 006b1da0
-- [ ] `AC2CoreSDKCopy::GrowBuffer::Grow` · 007361c0 · legions 006b1e60
+- [-] `AC2CoreSDKCopy::GrowBuffer::GrowExact` · 00736100 · legions 006b1da0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `AC2CoreSDKCopy::GrowBuffer::Grow` · 007361c0 · legions 006b1e60 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### AC2CoreSDKCopy::SmartBuffer
-- [ ] `AC2CoreSDKCopy::SmartBuffer::Grow` · 00736200 · legions 006b1ea0
+- [-] `AC2CoreSDKCopy::SmartBuffer::Grow` · 00736200 · legions 006b1ea0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### `AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2
-- [ ] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::s_FreeListHelper` · 00a43c30
+- [-] ``AC2CoreSDKCopy::GrowBuffer::GrowExact'::__l2::s_FreeListHelper` · 00a43c30 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ## `core/src/timer/timer.cpp.c` (3/11)
 
 ### (free functions)
-- [ ] `get_elapsed_time_internal` · 0064b0c0 · legions 005fa3f0
+- [-] `get_elapsed_time_internal` · 0064b0c0 · legions 005fa3f0 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
 
 ### Timer
-- [ ] `Timer::get_real_time` · 0064b310 · legions 005fa640
+- [-] `Timer::get_real_time` · 0064b310 · legions 005fa640 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
 
 ### CSpinLock<512,0>
-- [ ] `CSpinLock<512,0>::Enter` · 0064b320 · legions 005fa650
+- [-] `CSpinLock<512,0>::Enter` · 0064b320 · legions 005fa650 — Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 
 ### Win32TimeWrapper
-- [ ] `Win32TimeWrapper::init` · 0064b370 · legions 005fa6a0
-- [ ] `Win32TimeWrapper::get_elapsed_time` · 0064b460 · legions 005fa790
+- [-] `Win32TimeWrapper::init` · 0064b370 · legions 005fa6a0 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
+- [-] `Win32TimeWrapper::get_elapsed_time` · 0064b460 · legions 005fa790 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
 
 ### Timer
 - [x] `Timer::Init` · 0064b540 · legions 005fa870
-- [ ] `Timer::asctime` · 0064b5a0 · legions 005fa8d0
-- [ ] `Timer::strftime` · 0064b5d0 · legions 005fa900
-- [ ] `Timer::get_elapsed_time` · 0064b610 · legions 00455160
+- [-] `Timer::asctime` · 0064b5a0 · legions 005fa8d0 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
+- [-] `Timer::strftime` · 0064b5d0 · legions 005fa900 — Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)
+- [ ] `Timer::get_elapsed_time` · 0064b610 · legions 00455160 — needs port (check): elapsed time is passed in to ac2-core timer.rs; verify Timer::get_elapsed_time's own rule and cite
 - [x] `Timer::set_time` · 0064b620 · legions 005fa950
 - [x] `Timer::update_time` · 0064b660 · legions 005fa990
 
 ## `core/src/utils/strtoint64.cpp.c` (0/6)
 
 ### (free functions)
-- [ ] `strtoxint64` · 0065f720 · legions 0060e030
-- [ ] `strtoint64` · 0065fa00 · legions 0060e310
-- [ ] `strtouint64` · 0065fa20 · legions 0060e330
-- [ ] `wcstoxint64` · 0065fa40 · legions 0060e350
-- [ ] `wcstoint64` · 0065fcf0 · legions 0060e600
-- [ ] `wcstouint64` · 0065fd10 · legions 0060e620
+- [-] `strtoxint64` · 0065f720 · legions 0060e030 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
+- [-] `strtoint64` · 0065fa00 · legions 0060e310 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
+- [-] `strtouint64` · 0065fa20 · legions 0060e330 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
+- [-] `wcstoxint64` · 0065fa40 · legions 0060e350 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
+- [-] `wcstoint64` · 0065fcf0 · legions 0060e600 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
+- [-] `wcstouint64` · 0065fd10 · legions 0060e620 — CRT strtoint64/wcstoint64 parsing family (Rust parse replaces)
 
 ## `portal/client/src/bench/bench.cpp.c` (0/30)
 
@@ -462,93 +462,93 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/cerror/clienterror.cpp.c` (0/1)
 
 ### ClientError
-- [ ] `ClientError::Init` · 00492ba0 · legions 0048b550
+- [-] `ClientError::Init` · 00492ba0 · legions 0048b550 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/client/src/platformstring/platformstring.cpp.c` (0/4)
 
 ### PlatformString::StringAccessor
-- [ ] `PlatformString::StringAccessor::GetString` · 00569a90 · legions 00539a20
+- [ ] `PlatformString::StringAccessor::GetString` · 00569a90 · legions 00539a20 — needs port (check): implemented as ac2-db string render (%1-%3 replace) but uncited
 
 ### PlatformString
-- [ ] `PlatformString::GetString` · 00569be0 · legions 00539b70
-- [ ] `PlatformString::DisplayFinalString` · 00569d40 · legions 00539cd0
-- [ ] `PlatformString::DisplayString` · 00569f20 · legions 00539eb0
+- [ ] `PlatformString::GetString` · 00569be0 · legions 00539b70 — needs port (check): implemented as ac2-db string render (%1-%3 replace) but uncited
+- [-] `PlatformString::DisplayFinalString` · 00569d40 · legions 00539cd0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `PlatformString::DisplayString` · 00569f20 · legions 00539eb0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/shared/src/error/baseerror/baseerror.cpp.c` (0/2)
 
 ### BaseError
-- [ ] `BaseError::Init` · 00614e70 · legions 005d2ba0
-- [ ] `BaseError::ReportGenericErrorInternal` · 00614ee0 · legions 005d2c10
+- [-] `BaseError::Init` · 00614e70 · legions 005d2ba0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `BaseError::ReportGenericErrorInternal` · 00614ee0 · legions 005d2c10 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/shared/src/error/dataerror/dataerror.cpp.c` (0/15)
 
 ### DataError
-- [ ] `DataError::ReportGenericErrorInternal` · 00614f40 · legions 005d2c70
+- [-] `DataError::ReportGenericErrorInternal` · 00614f40 · legions 005d2c70 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### _STL::less<PStringBase<char>_>
-- [ ] `_STL::less<PStringBase<char>_>::operator()` · 00614fb0 · legions 005d2ce0
+- [-] `_STL::less<PStringBase<char>_>::operator()` · 00614fb0 · legions 005d2ce0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### DataError
-- [ ] `DataError::GetFileName` · 00615130 · legions 005d2e60
-- [ ] `DataError::ReportDataErrorInternal` · 00615290 · legions 005d2fc0
-- [ ] `DataError::ReportMissingDataInternal` · 006152e0 · legions 005d3010
-- [ ] `DataError::ReportMissingDataEnumInternal` · 00615340 · legions 005d3070
-- [ ] `DataError::~DataError` · 00615920 · legions 005d3650
-- [ ] `DataError::ResetDataFileInternal` · 00615980 · legions 005d36b0
-- [ ] `DataError::ResetReportedErrorsInternal` · 00615a10 · legions 005d3740
+- [-] `DataError::GetFileName` · 00615130 · legions 005d2e60 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportDataErrorInternal` · 00615290 · legions 005d2fc0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportMissingDataInternal` · 006152e0 · legions 005d3010 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportMissingDataEnumInternal` · 00615340 · legions 005d3070 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::~DataError` · 00615920 · legions 005d3650 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ResetDataFileInternal` · 00615980 · legions 005d36b0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ResetReportedErrorsInternal` · 00615a10 · legions 005d3740 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### _STL::map<PStringBase<char>,PStringBase<char>,_STL::less<PStringBase<char>_>,_STL::allocator<_STL::pair<PStringBase<char>_const_,PStringBase<char>_>_>_>
-- [ ] `_STL::map<PStringBase<char>,PStringBase<char>,_STL::less<PStringBase<char>_>,_STL::allocator<_STL::pair<PStringBase<char>_const_,PStringBase<char>_>_>_>::operator[]` · 00615a50 · legions 005d3780
+- [-] `_STL::map<PStringBase<char>,PStringBase<char>,_STL::less<PStringBase<char>_>,_STL::allocator<_STL::pair<PStringBase<char>_const_,PStringBase<char>_>_>_>::operator[]` · 00615a50 · legions 005d3780 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### DataError
-- [ ] `DataError::DataError` · 00615b30 · legions 005d3860
-- [ ] `DataError::ReportErrorFromFileInternal` · 00615ba0 · legions 005d38d0
-- [ ] `DataError::ReportDataErrorInternal` · 00615c10 · legions 005d3940
-- [ ] `DataError::ReportMissingFileInternal` · 00615c90 · legions 005d39c0
-- [ ] `DataError::Init` · 00615d40 · legions 005d3a70
+- [-] `DataError::DataError` · 00615b30 · legions 005d3860 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportErrorFromFileInternal` · 00615ba0 · legions 005d38d0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportDataErrorInternal` · 00615c10 · legions 005d3940 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::ReportMissingFileInternal` · 00615c90 · legions 005d39c0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `DataError::Init` · 00615d40 · legions 005d3a70 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/shared/src/error/ierror.cpp.c` (0/25)
 
 ### (free functions)
-- [ ] `DisplayErrorDialogThread` · 00613fb0
+- [-] `DisplayErrorDialogThread` · 00613fb0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### LongNIHash<NIList<NoticeHandler_*>_>
-- [ ] `LongNIHash<NIList<NoticeHandler_*>_>::LongNIHash<NIList<NoticeHandler_*>_>` · 00613fc0 · legions 0048b760
-- [ ] `LongNIHash<NIList<NoticeHandler_*>_>::flush` · 00614020 · legions 0048b820
+- [-] `LongNIHash<NIList<NoticeHandler_*>_>::LongNIHash<NIList<NoticeHandler_*>_>` · 00613fc0 · legions 0048b760 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `LongNIHash<NIList<NoticeHandler_*>_>::flush` · 00614020 · legions 0048b820 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### IError
-- [ ] `IError::PrintToFile` · 00614070 · legions 005d2030
+- [-] `IError::PrintToFile` · 00614070 · legions 005d2030 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### LongNIHash<IError>
-- [ ] `LongNIHash<IError>::remove` · 006140f0 · legions 005d20b0
+- [-] `LongNIHash<IError>::remove` · 006140f0 · legions 005d20b0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### IError::StackEmailDialogTextObject
-- [ ] `IError::StackEmailDialogTextObject::StackEmailDialogTextObject` · 00614160 · legions 005d2120
+- [-] `IError::StackEmailDialogTextObject::StackEmailDialogTextObject` · 00614160 · legions 005d2120 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### IError
-- [ ] `IError::IError` · 00614220 · legions 005d21e0
-- [ ] `IError::Cleanup` · 00614250 · legions 005d2210
-- [ ] `IError::GetCurrError` · 00614290 · legions 005d2250
-- [ ] `IError::ReportGenericError` · 00614300 · legions 005d22c0
-- [ ] `IError::~IError` · 00614320 · legions 005d22e0
-- [ ] `IError::SetCurrentErrorHandler` · 006143a0 · legions 005d2360
-- [ ] `IError::SetLogFile` · 00614470 · legions 005d2430
-- [ ] `IError::ReportDataErrorInternal` · 00614580 · legions 005d2540
-- [ ] `IError::ReportMissingFileInternal` · 006145d0 · legions 005d2590
-- [ ] `IError::ReportMissingDataInternal` · 00614620 · legions 005d25e0
-- [ ] `IError::ReportMissingDataEnumInternal` · 00614670 · legions 005d2630
-- [ ] `IError::ReportGenericErrorArg` · 006146c0
-- [ ] `IError::ReportDataErrorFrom` · 00614730
-- [ ] `IError::ReportDataErrorFrom` · 006147b0
-- [ ] `IError::PopUpWindow` · 00614830 · legions 005d26f0
+- [-] `IError::IError` · 00614220 · legions 005d21e0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::Cleanup` · 00614250 · legions 005d2210 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::GetCurrError` · 00614290 · legions 005d2250 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportGenericError` · 00614300 · legions 005d22c0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::~IError` · 00614320 · legions 005d22e0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::SetCurrentErrorHandler` · 006143a0 · legions 005d2360 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::SetLogFile` · 00614470 · legions 005d2430 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportDataErrorInternal` · 00614580 · legions 005d2540 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportMissingFileInternal` · 006145d0 · legions 005d2590 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportMissingDataInternal` · 00614620 · legions 005d25e0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportMissingDataEnumInternal` · 00614670 · legions 005d2630 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportGenericErrorArg` · 006146c0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportDataErrorFrom` · 00614730 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportDataErrorFrom` · 006147b0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::PopUpWindow` · 00614830 · legions 005d26f0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### IError::StackEmailDialogTextObject
-- [ ] `IError::StackEmailDialogTextObject::GetText` · 00614c30
+- [-] `IError::StackEmailDialogTextObject::GetText` · 00614c30 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ### IError
-- [ ] `IError::ReportMissingFileFrom` · 00614ce0
-- [ ] `IError::ReportMissingDataFrom` · 00614d60
-- [ ] `IError::ReportMissingDataEnumFrom` · 00614de0
+- [-] `IError::ReportMissingFileFrom` · 00614ce0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportMissingDataFrom` · 00614d60 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `IError::ReportMissingDataEnumFrom` · 00614de0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/shared/src/filenode/filenodename.cpp.c` (0/42)
 
@@ -957,14 +957,14 @@ Legend and workflow: [README](README.md).
 - [-] `PFileParser::~PFileParser` · 0066a920 · legions 00615350 — text source files (admin tools)
 - [-] `PFileParser::SaveToStringW` · 0066a960 · legions 00615390 — text source files (admin tools)
 
-## `portal/shared/src/random/random.cpp.c` (3/5)
+## `portal/shared/src/random/random.cpp.c` (5/5)
 
 ### Random
 - [x] `Random::rand` · 0060d2d0 · legions 005ce0a0 — ac2-ui media.rs / transition.rs
 - [x] `Random::RollDice` · 0060d3b0 · legions 005ce180 — ac2-ui media.rs / transition.rs
 - [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2-ui media.rs / transition.rs
-- [ ] `Random::RollGaussianDice` · 0060d450 · legions 005ce220
-- [ ] `Random::RollPercentile` · 0060d520 · legions 005ce2f0
+- [x] `Random::RollGaussianDice` · 0060d450 · legions 005ce220 — crates/ac2-script/src/glue/random.rs roll_gaussian (Random::RollGaussianDice, Leva)
+- [x] `Random::RollPercentile` · 0060d520 · legions 005ce2f0 — crates/ac2-script/src/glue/random.rs roll_percentile (Random::RollPercentile)
 
 ## `portal/shared/src/reg_edit/reg_edit.cpp.c` (0/8)
 
@@ -1002,8 +1002,8 @@ Legend and workflow: [README](README.md).
 ### TSRecv
 - [x] `TSRecv::TSRecv` · 0065b1e0 · legions 00609af0
 - [x] `TSRecv::GetNextReadyEntry` · 0065b210 · legions 00609b20
-- [ ] `TSRecv::~TSRecv` · 0065b2d0 · legions 00609be0
-- [ ] `TSRecv::AddEntryLatest` · 0065b340 · legions 00609c50
+- [-] `TSRecv::~TSRecv` · 0065b2d0 · legions 00609be0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [ ] `TSRecv::AddEntryLatest` · 0065b340 · legions 00609c50 — needs port: TSRecv latest mode (TSRecv::AddEntryLatest via AddAndCheck); ac2-weenie ordering.rs has blocking mode only
 - [x] `TSRecv::AddEntry` · 0065b3c0 · legions 00609cd0
 - [x] `TSRecv::AddEntryBlocking` · 0065b480 · legions 00609d90
 - [x] `TSRecv::AddAndCheck` · 0065b5b0 · legions 00609ec0
@@ -1011,30 +1011,30 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/utils/argparser.cpp.c` (1/13)
 
 ### ArgumentParser
-- [ ] `ArgumentParser::AppendOutputText` · 0065b5e0 · legions 00609ef0
+- [-] `ArgumentParser::AppendOutputText` · 0065b5e0 · legions 00609ef0 — console usage text for the command-line parser (admin/tool output)
 
 ### (free functions)
-- [ ] `SortCommandLineArgs` · 0065b610
+- [ ] `SortCommandLineArgs` · 0065b610 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
 
 ### CommandLineArg
-- [ ] `CommandLineArg::operator=` · 0065b6c0 · legions 00609fd0
-- [ ] `CommandLineArg::CommandLineArg` · 0065b760 · legions 0060a070
+- [-] `CommandLineArg::operator=` · 0065b6c0 · legions 00609fd0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `CommandLineArg::CommandLineArg` · 0065b760 · legions 0060a070 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### ArgumentParser
 - [~] `ArgumentParser::EvaluateCommandLineArg` · 0065b7a0 · legions 0060a0b0 — ac2 bin cmdline.rs: value types 0x22 (strtol base 0, ac2-net parse_port) and 0x32 (string)
 - [x] `ArgumentParser::IsCommandLineArgument` · 0065b9b0 · legions 0060a2c0 — ac2-client cmdline.rs argument_name / ac2-net resolve.rs inet_addr then DNS, IPv4
-- [ ] `ArgumentParser::DisplayUsage` · 0065bce0 · legions 0060a610
-- [ ] `ArgumentParser::AppendAndWordWrap` · 0065bf50 · legions 0060a880
+- [-] `ArgumentParser::DisplayUsage` · 0065bce0 · legions 0060a610 — console usage text for the command-line parser (admin/tool output)
+- [-] `ArgumentParser::AppendAndWordWrap` · 0065bf50 · legions 0060a880 — console usage text for the command-line parser (admin/tool output)
 
 ### (free functions)
-- [ ] `ConvertCommandLineToArgList` · 0065c0e0 · legions 0060aa10
+- [ ] `ConvertCommandLineToArgList` · 0065c0e0 · legions 0060aa10 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
 
 ### ArgumentParser
-- [ ] `ArgumentParser::ParseCommandLine` · 0065c1a0 · legions 0060aad0
+- [ ] `ArgumentParser::ParseCommandLine` · 0065c1a0 · legions 0060aad0 — needs port (check): implemented as ac2-client bin/ac2/cmdline.rs but uncited (cites ParseArgs)
 
 ### ArgumentParser::CommandLineArgList
-- [ ] `ArgumentParser::CommandLineArgList::add` · 0065c520 · legions 0060ae50
-- [ ] `ArgumentParser::CommandLineArgList::~CommandLineArgList` · 0065c640 · legions 0060af70
+- [-] `ArgumentParser::CommandLineArgList::add` · 0065c520 · legions 0060ae50 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `ArgumentParser::CommandLineArgList::~CommandLineArgList` · 0065c640 · legions 0060af70 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ### ArgumentParser
 - [~] `ArgumentParser::ParseArgs` · 0065c6c0 · legions 0060aff0 — ac2 bin cmdline.rs parse_from: -/ prefixes, short and long names, optional rodat value
@@ -1047,99 +1047,99 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/utils/emailutils.cpp.c` (0/2)
 
 ### EmailUtils
-- [ ] `EmailUtils::send_email` · 0065f440 · legions 0060dd50
-- [ ] `EmailUtils::send_emailW` · 0065f5e0 · legions 0060def0
+- [-] `EmailUtils::send_email` · 0065f440 · legions 0060dd50 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
+- [-] `EmailUtils::send_emailW` · 0065f5e0 · legions 0060def0 — debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 
 ## `portal/shared/src/utils/mmaputil.cpp.c` (0/3)
 
 ### MMapUtil
-- [ ] `MMapUtil::MMapUtil` · 00737f60 · legions 006b3b20
-- [ ] `MMapUtil::~MMapUtil` · 00737f90 · legions 006b3b50
-- [ ] `MMapUtil::MMap` · 00738010 · legions 006b3bd0
+- [-] `MMapUtil::MMapUtil` · 00737f60 · legions 006b3b20 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `MMapUtil::~MMapUtil` · 00737f90 · legions 006b3b50 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `MMapUtil::MMap` · 00738010 · legions 006b3bd0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 
-## `portal/shared/src/utils/psutils.cpp.c` (2/40)
+## `portal/shared/src/utils/psutils.cpp.c` (3/40)
 
 ### (free functions)
 - [x] `search_skipescapes` · 0065ccc0 · legions 0060b5f0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PSUtils
-- [ ] `PSUtils::check_access` · 0065cd10 · legions 0060b640
+- [-] `PSUtils::check_access` · 0065cd10 · legions 0060b640 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 - [x] `PSUtils::wcschr_skipescapes` · 0065cd30 · legions 0060b660 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PStringBaseIter_Common<char>
-- [ ] `PStringBaseIter_Common<char>::FindChar` · 0065cdf0 · legions 0060b720
+- [-] `PStringBaseIter_Common<char>::FindChar` · 0065cdf0 · legions 0060b720 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
 
 ### (free functions)
-- [ ] `wildcard_match_iter` · 0065ce90 · legions 0060b7c0
+- [-] `wildcard_match_iter` · 0065ce90 · legions 0060b7c0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 
 ### PSUtils
-- [ ] `PSUtils::get_binary_buffer_from_string` · 0065d010 · legions 0060b940
+- [-] `PSUtils::get_binary_buffer_from_string` · 0065d010 · legions 0060b940 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 
 ### PStringBaseIter_Common<char>
-- [ ] `PStringBaseIter_Common<char>::FindChar` · 0065d150 · legions 0060ba80
-- [ ] `PStringBaseIter_Common<char>::GetSubString` · 0065d2b0 · legions 0060bbe0
-- [ ] `PStringBaseIter_Common<char>::GetSubString` · 0065d330 · legions 0060bc60
+- [-] `PStringBaseIter_Common<char>::FindChar` · 0065d150 · legions 0060ba80 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
+- [-] `PStringBaseIter_Common<char>::GetSubString` · 0065d2b0 · legions 0060bbe0 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
+- [-] `PStringBaseIter_Common<char>::GetSubString` · 0065d330 · legions 0060bc60 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
 
 ### PSUtils
-- [ ] `PSUtils::explode` · 0065d420 · legions 0060bd50
-- [ ] `PSUtils::get_process_name` · 0065d560 · legions 0060be90
-- [ ] `PSUtils::change_extension` · 0065d5a0 · legions 0060bed0
-- [ ] `PSUtils::remove_extension` · 0065d690 · legions 0060bfc0
-- [ ] `PSUtils::get_directory` · 0065d6f0 · legions 0060c020
-- [ ] `PSUtils::get_extension` · 0065d800 · legions 0060c130
-- [ ] `PSUtils::GetEnvironmentVariableA` · 0065d890 · legions 0060c1c0
-- [ ] `PSUtils::GetEnvironmentPath` · 0065d900 · legions 0060c230
-- [ ] `PSUtils::stringify_buffer` · 0065d9f0 · legions 0060c320
-- [ ] `PSUtils::widify` · 0065da70 · legions 0060c3a0
-- [ ] `PSUtils::widify` · 0065dae0 · legions 0060c410
-- [ ] `PSUtils::strip_directory` · 0065e0b0 · legions 0060c9e0
-- [ ] `PSUtils::change_directory` · 0065e180 · legions 0060cab0
-- [ ] `PSUtils::GetEnvironmentPath` · 0065e350 · legions 0060cc80
-- [ ] `PSUtils::linewrap_string` · 0065e4b0 · legions 0060cde0
-- [ ] `PSUtils::MakeCFriendlySymbol` · 0065e5a0 · legions 0060ced0
-- [ ] `PSUtils::find_files` · 0065e750 · legions 0060d080
-- [ ] `PSUtils::narrowify` · 0065ea40 · legions 0060d370
-- [ ] `PSUtils::narrowify` · 0065eab0 · legions 0060d3e0
-- [ ] `PSUtils::make_log_string` · 0065eb10 · legions 0060d440
-- [ ] `PSUtils::remove_extensionW` · 0065eba0 · legions 0060d4d0
-- [ ] `PSUtils::strip_directoryW` · 0065ec50 · legions 0060d580
-- [ ] `PSUtils::get_cwd` · 0065ed00 · legions 0060d630
-- [ ] `PSUtils::get_cwdW` · 0065edc0 · legions 0060d6f0
-- [ ] `PSUtils::get_cwd` · 0065ee80 · legions 0060d7b0
-- [ ] `PSUtils::cleanup_filename` · 0065ef20 · legions 0060d850
-- [ ] `PSUtils::cleanup_directory_name` · 0065efc0 · legions 0060d8f0
-- [ ] `PSUtils::cleanup_directory_nameW` · 0065f020 · legions 0060d950
-- [ ] `PSUtils::unwrap_string` · 0065f0d0 · legions 0060da00
-- [ ] `PSUtils::full_path` · 0065f120 · legions 0060da50
-- [ ] `PSUtils::create_directory` · 0065f180 · legions 0060dab0
+- [-] `PSUtils::explode` · 0065d420 · legions 0060bd50 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
+- [-] `PSUtils::get_process_name` · 0065d560 · legions 0060be90 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::change_extension` · 0065d5a0 · legions 0060bed0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::remove_extension` · 0065d690 · legions 0060bfc0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::get_directory` · 0065d6f0 · legions 0060c020 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::get_extension` · 0065d800 · legions 0060c130 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::GetEnvironmentVariableA` · 0065d890 · legions 0060c1c0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::GetEnvironmentPath` · 0065d900 · legions 0060c230 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::stringify_buffer` · 0065d9f0 · legions 0060c320 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::widify` · 0065da70 · legions 0060c3a0 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
+- [-] `PSUtils::widify` · 0065dae0 · legions 0060c410 — PString iterators and string-conversion/split helpers (Rust str/String replaces; PStringBase wrapper)
+- [-] `PSUtils::strip_directory` · 0065e0b0 · legions 0060c9e0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::change_directory` · 0065e180 · legions 0060cab0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::GetEnvironmentPath` · 0065e350 · legions 0060cc80 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [ ] `PSUtils::linewrap_string` · 0065e4b0 · legions 0060cde0 — needs port (check): unwrap_string / linewrap_string text rule, no Rust counterpart found
+- [-] `PSUtils::MakeCFriendlySymbol` · 0065e5a0 · legions 0060ced0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::find_files` · 0065e750 · legions 0060d080 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::narrowify` · 0065ea40 · legions 0060d370 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::narrowify` · 0065eab0 · legions 0060d3e0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::make_log_string` · 0065eb10 · legions 0060d440 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::remove_extensionW` · 0065eba0 · legions 0060d4d0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::strip_directoryW` · 0065ec50 · legions 0060d580 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::get_cwd` · 0065ed00 · legions 0060d630 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::get_cwdW` · 0065edc0 · legions 0060d6f0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::get_cwd` · 0065ee80 · legions 0060d7b0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::cleanup_filename` · 0065ef20 · legions 0060d850 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::cleanup_directory_name` · 0065efc0 · legions 0060d8f0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [-] `PSUtils::cleanup_directory_nameW` · 0065f020 · legions 0060d950 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
+- [ ] `PSUtils::unwrap_string` · 0065f0d0 · legions 0060da00 — needs port (check): unwrap_string / linewrap_string text rule, no Rust counterpart found
+- [x] `PSUtils::full_path` · 0065f120 · legions 0060da50 — crates/ac2-prefs/src/paths.rs (PSUtils::full_path against the working directory)
+- [-] `PSUtils::create_directory` · 0065f180 · legions 0060dab0 — file, path and environment helpers (std::path/std::env replaces; debug stringify, identifier mangling)
 
 ## `portal/shared/src/utils/scratchpad.cpp.c` (0/3)
 
 ### (free functions)
-- [ ] `GetScratchBuffer` · 0065cbf0 · legions 0060b520
-- [ ] `ReleaseScratchBuffer` · 0065cc70 · legions 0060b5a0
-- [ ] `GetScratchBuffer` · 0065cca0 · legions 0060b5d0
+- [-] `GetScratchBuffer` · 0065cbf0 · legions 0060b520 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `ReleaseScratchBuffer` · 0065cc70 · legions 0060b5a0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+- [-] `GetScratchBuffer` · 0065cca0 · legions 0060b5d0 — container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 
 ## `portal/shared/src/version/resource.cpp.c` (0/5)
 
 ### Resource
-- [ ] `Resource::LoadData` · 0056a2b0 · legions 0053a240
-- [ ] `Resource::Init` · 0056a330 · legions 0053a2c0
-- [ ] `Resource::Cleanup` · 0056a4c0 · legions 0053a450
-- [ ] `Resource::GetComments` · 0056a4e0 · legions 0053a470
-- [ ] `Resource::GetVersion` · 0056a550 · legions 0053a4e0
+- [-] `Resource::LoadData` · 0056a2b0 · legions 0053a240 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Resource::Init` · 0056a330 · legions 0053a2c0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Resource::Cleanup` · 0056a4c0 · legions 0053a450 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Resource::GetComments` · 0056a4e0 · legions 0053a470 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Resource::GetVersion` · 0056a550 · legions 0053a4e0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 
 ## `portal/shared/src/version/version.cpp.c` (0/7)
 
 ### Version
-- [ ] `Version::StringFromVersion` · 00569fe0 · legions 00539f70
-- [ ] `Version::FileVersionStringFromVersion` · 0056a030 · legions 00539fc0
-- [ ] `Version::Cleanup` · 0056a080 · legions 0053a010
+- [-] `Version::StringFromVersion` · 00569fe0 · legions 00539f70 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Version::FileVersionStringFromVersion` · 0056a030 · legions 00539fc0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `Version::Cleanup` · 0056a080 · legions 0053a010 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 
 ### PerfMonCounter<unsigned___int64>
-- [ ] `PerfMonCounter<unsigned___int64>::IncCounter` · 0056a0f0
-- [ ] `PerfMonCounter<unsigned___int64>::DecCounter` · 0056a100
-- [ ] `PerfMonCounter<unsigned___int64>::GetValueAsInt64` · 0056a110
+- [-] `PerfMonCounter<unsigned___int64>::IncCounter` · 0056a0f0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `PerfMonCounter<unsigned___int64>::DecCounter` · 0056a100 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
+- [-] `PerfMonCounter<unsigned___int64>::GetValueAsInt64` · 0056a110 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 
 ### Version
-- [ ] `Version::Init` · 0056a120 · legions 0053a0b0
+- [-] `Version::Init` · 0056a120 · legions 0053a0b0 — Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)

@@ -837,6 +837,7 @@ fn run(args: Args) -> Result<(), String> {
     client.set_fx_scripts(ac2_client::load_fx_scripts(&store));
     let scene_options = prefs.scene_options();
     client.apply_sound_preferences(prefs.bank());
+    client.apply_light_preferences(prefs.bank());
     client.attach_prefs(prefs);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {

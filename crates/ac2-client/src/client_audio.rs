@@ -197,6 +197,9 @@ pub(crate) struct ClientAudio {
     /// and the objects that left the world (their lights go with them).
     pub(crate) object_lights: Vec<ObjectLightStart>,
     pub(crate) object_lights_gone: Vec<u64>,
+    /// `Render::m_Prefs.LightSourceEffects`: while off, an FX places no light (its particle
+    /// systems still start; `DoLightSourceFX` returns without a light).
+    pub(crate) light_effects: bool,
     /// The last handle handed out (`ObjectParticleStart::handle`).
     particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
@@ -269,6 +272,13 @@ impl Client {
         }
     }
 
+    /// `Render::m_Prefs.LightSourceEffects`: the FX lights follow the saved preference.
+    pub fn apply_light_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
+        if let Some(audio) = self.audio.as_mut() {
+            audio.light_effects = ac2_render::prefs::light_source_effects(bank);
+        }
+    }
+
     pub fn attach_audio(&mut self, manager: SoundManager) {
         self.audio = Some(ClientAudio {
             manager,
@@ -277,6 +287,7 @@ impl Client {
             object_particle_stops: Vec::new(),
             object_lights: Vec::new(),
             object_lights_gone: Vec::new(),
+            light_effects: true,
             particle_handles: 0,
             ambient: Default::default(),
             pregame_music: None,
@@ -535,14 +546,17 @@ impl Client {
                                 for start in &mut starts {
                                     audio.particle_handles += 1;
                                     start.handle = audio.particle_handles;
-                                    // A fire-and-forget system is never stopped with its FX.
-                                    if !start.fire_and_forget {
+                                    // `FXManager::DoParticleFX`: only a looping system keeps
+                                    // its handle, so `StopFX` destroys it and no other.
+                                    if start.looping {
                                         handles.push(start.handle);
                                     }
                                 }
                                 slot.insert(handles);
                                 audio.object_particles.extend(starts);
-                                audio.object_lights.extend(light_starts(id, effect, table));
+                                if audio.light_effects {
+                                    audio.object_lights.extend(light_starts(id, effect, table));
+                                }
                             }
                         }
                     }

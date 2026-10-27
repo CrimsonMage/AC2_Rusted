@@ -210,3 +210,17 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
         }
     );
 }
+
+/// `FXManager::DoLightSourceFX` places a light only while `LightSourceEffects` is on, and the
+/// preference starts on (the registered default).
+#[test]
+fn light_source_effects_follow_the_registered_flag() {
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    assert!(super::light_source_effects(&bank), "on by default");
+    bank.find_mut(super::LIGHT_SOURCE_EFFECTS).unwrap().value = Value::Bool(false);
+    assert!(
+        !super::light_source_effects(&bank),
+        "off when the bank says so"
+    );
+}

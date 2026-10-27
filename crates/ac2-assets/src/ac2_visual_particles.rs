@@ -36,6 +36,8 @@ pub struct Ac2ParticleAttachment {
     pub fire_and_forget: bool,
     /// The node's light, if it places one.
     pub light: Option<Ac2FxLight>,
+    /// `FXManager::ParticleIsLooping` of each `particle_descs` entry (the same order).
+    pub looping: Arc<[bool]>,
 }
 
 /// The startup particle systems of a visual and its `m_particle_scale`.
@@ -104,17 +106,22 @@ pub fn resolve_ac2_visual_particles(
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
     // Startup systems are the particle nodes; a light-only node starts none.
-    let attachments = nodes
+    let mut attachments = Vec::new();
+    for node in nodes
         .into_iter()
         .filter(|node| !node.particle_descs.is_empty())
-        .map(|node| Ac2ParticleAttachment {
+    {
+        let looping = looping_flags(store, &node.particle_descs)?;
+        attachments.push(Ac2ParticleAttachment {
             placement: placement(setup.as_deref(), &rest, &node),
             particle_descs: node.particle_descs,
             water_plane: node.water_plane,
             fire_and_forget: node.fire_and_forget,
             light: node.light,
-        })
-        .collect::<Arc<[_]>>();
+            looping,
+        });
+    }
+    let attachments: Arc<[_]> = attachments.into();
     Ok(Some(Ac2VisualParticles {
         attachments,
         particle_scale: particle_scale.unwrap_or(1.0),
@@ -178,6 +185,21 @@ pub(crate) fn placement(
         placed.scale = ac2_math::Vec3::ONE;
     }
     placed
+}
+
+/// `FXManager::ParticleIsLooping` for each of a node's systems, read on the loader thread (the
+/// frame thread never reads a `PSDesc`). A missing system is not looping.
+pub(crate) fn looping_flags(
+    store: &ResourceStore,
+    descs: &[DataId],
+) -> ResourceResult<Arc<[bool]>> {
+    let mut flags = Vec::with_capacity(descs.len());
+    for &did in descs {
+        let looping =
+            load::<crate::Ac2ParticleSystemDesc>(store, did)?.is_some_and(|desc| desc.is_looping());
+        flags.push(looping);
+    }
+    Ok(flags.into())
 }
 
 pub(crate) fn load<T: ResourcePackedDecode + Send + Sync + 'static>(

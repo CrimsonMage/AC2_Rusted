@@ -14,7 +14,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
-use crate::ac2_visual_particles::{load, placement, Ac2ParticleAttachment};
+use crate::ac2_visual_particles::{load, looping_flags, placement, Ac2ParticleAttachment};
 use ac2_anim::Ac2Setup;
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -108,23 +108,22 @@ pub fn resolve_ac2_visual_fx_particles(
         .as_ref()
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
-    let entries = nodes
-        .into_iter()
-        .filter(|(_, list)| !list.is_empty())
-        .map(|(id, list)| {
-            let attachments = list
-                .into_iter()
-                .map(|node| Ac2ParticleAttachment {
-                    placement: placement(setup.as_deref(), &rest, &node),
-                    particle_descs: node.particle_descs,
-                    water_plane: node.water_plane,
-                    fire_and_forget: node.fire_and_forget,
-                    light: node.light,
-                })
-                .collect::<Arc<[_]>>();
-            (id, attachments)
-        })
-        .collect();
+    let mut entries = HashMap::new();
+    for (id, list) in nodes.into_iter().filter(|(_, list)| !list.is_empty()) {
+        let mut attachments = Vec::with_capacity(list.len());
+        for node in list {
+            let looping = looping_flags(store, &node.particle_descs)?;
+            attachments.push(Ac2ParticleAttachment {
+                placement: placement(setup.as_deref(), &rest, &node),
+                particle_descs: node.particle_descs,
+                water_plane: node.water_plane,
+                fire_and_forget: node.fire_and_forget,
+                light: node.light,
+                looping,
+            });
+        }
+        entries.insert(id, Arc::from(attachments));
+    }
     Ok(Some(Ac2VisualFxParticles { entries }))
 }
 

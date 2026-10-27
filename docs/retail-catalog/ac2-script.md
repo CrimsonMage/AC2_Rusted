@@ -1,15 +1,15 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1425 done, 108 partial, 854 to do, 81 skipped.
+2468 retail functions: 1431 done, 110 partial, 602 to do, 325 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
 
 ### Position
-- [ ] `Position::operator=` · 0046ad40 · legions 0046b420
+- [-] `Position::operator=` · 0046ad40 · legions 0046b420 — C++ assignment operator of plain data (Rust copy/move)
 
 ### PHashTable<unsigned_long,unsigned_long>
-- [ ] `PHashTable<unsigned_long,unsigned_long>::~PHashTable<unsigned_long,unsigned_long>` · 0046adc0 · legions 0046b440
+- [-] `PHashTable<unsigned_long,unsigned_long>::~PHashTable<unsigned_long,unsigned_long>` · 0046adc0 · legions 0046b440 — C++ destructor (Rust drop replaces it)
 
 ### gCharacterGenSystem
 - [~] `gCharacterGenSystem::ARHashToRaceSexInfoHash` · 0046ae10 · legions 0046b570 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
@@ -17,17 +17,17 @@ Legend and workflow: [README](README.md).
 - [~] `gCharacterGenSystem::RaceSexListHashToARHash` · 0046b090 · legions 0046b7f0 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### ARHash
-- [ ] `ARHash::ARHash` · 0046b250 · legions 0046b9b0
-- [ ] `ARHash::GetReferences` · 0046b290
+- [-] `ARHash::ARHash` · 0046b250 · legions 0046b9b0 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `ARHash::GetReferences` · 0046b290 — container internals (Rust collections replace them)
 
 ### BaseHash<unsigned_long,unsigned_long,18>
-- [ ] `BaseHash<unsigned_long,unsigned_long,18>::AddDataAsReferences` · 0046b2b0
+- [-] `BaseHash<unsigned_long,unsigned_long,18>::AddDataAsReferences` · 0046b2b0 — container internals (Rust collections replace them)
 
 ### ARHash
-- [ ] `ARHash::UpdateReferences` · 0046b310
+- [-] `ARHash::UpdateReferences` · 0046b310 — container internals (Rust collections replace them)
 
 ### BaseHash<unsigned_long,unsigned_long,18>
-- [ ] `BaseHash<unsigned_long,unsigned_long,18>::UpdateData` · 0046b330
+- [-] `BaseHash<unsigned_long,unsigned_long,18>::UpdateData` · 0046b330 — container internals (Rust collections replace them)
 
 ### gCharacterGenSystem
 - [~] `gCharacterGenSystem::ARHashToRaceSexListHash` · 0046b3f0 · legions 0046bb50 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
@@ -142,7 +142,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/ggameplayoptionsprofile.cpp.c` (80/83)
 
 ### GameplayOptionsProfile
-- [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870
+- [ ] `GameplayOptionsProfile::SetShowDamageTextOther` · 00474770 · legions 00471870 — needs port: options profile show-damage-text-other setter
 
 ### ReferenceIDWrapper
 - [x] `ReferenceIDWrapper::StreamPack` · 00474780 · legions 00471880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -174,7 +174,7 @@ Legend and workflow: [README](README.md).
 - [x] `gGameplayOptionsProfile::CallEFun_SetUISaveLocations` · 004750b0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_SetWhichShortcutSet` · 00475110 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_AddFilter` · 00475220 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `gGameplayOptionsProfile::CallEFun_Export` · 004752a0
+- [ ] `gGameplayOptionsProfile::CallEFun_Export` · 004752a0 — needs port: gameplay options profile Export/Import
 - [x] `gGameplayOptionsProfile::CallEFun_GetAcceptAllegianceRequest` · 00475320 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_GetAcceptFellowshipRequest` · 00475390 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_GetAcceptTradeRequest` · 00475410 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -200,7 +200,7 @@ Legend and workflow: [README](README.md).
 - [x] `gGameplayOptionsProfile::CallEFun_GetShowRadarCoords` · 00475da0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_GetShowShortcutNumbers` · 00475e10 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_GetWhichShortcutSet` · 00475e80 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `gGameplayOptionsProfile::CallEFun_Import` · 00475ef0
+- [ ] `gGameplayOptionsProfile::CallEFun_Import` · 00475ef0 — needs port: gameplay options profile Export/Import
 - [x] `gGameplayOptionsProfile::CallEFun_InitShortcutArray` · 00475f70 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_RemoveAlias` · 00475ff0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gGameplayOptionsProfile::CallEFun_RemoveFilter` · 00476070 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -278,24 +278,24 @@ Legend and workflow: [README](README.md).
 ### ggmKeyframe
 - [x] `ggmKeyframe::CallEFun_Clear` · 00473030 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetAudioTrack` · 00473090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0
+- [ ] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_SetDuration` · 00473150 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetFrameNum` · 004731b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210
+- [ ] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_SetSceneID` · 00473270 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetSubtitle` · 004732d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetVideoTrack` · 00473330 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetVideoTrackByName` · 00473390
+- [ ] `ggmKeyframe::CallEFun_SetVideoTrackByName` · 00473390 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_SetVoiceTrack` · 004733f0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetVoiceTrackByName` · 00473450
+- [ ] `ggmKeyframe::CallEFun_SetVoiceTrackByName` · 00473450 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_GetAudioTrack` · 004734b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetDuration` · 00473520 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetFrameNum` · 00473590 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetSceneID` · 00473600 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetVideoTrack` · 00473670 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetVoiceTrack` · 004736e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_Dump` · 00473750
-- [ ] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810
+- [-] `ggmKeyframe::CallEFun_Dump` · 00473750 — WSL debug dump
+- [ ] `ggmKeyframe::CallEFun_GetMovieTrack` · 00473810 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_GetSubtitle` · 004738e0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
 ## `ac2/shared/src/interp/glue/ggmquestinfo.cpp.c` (7/8)
@@ -353,10 +353,10 @@ Legend and workflow: [README](README.md).
 - [x] `ggmSceneInfo::CallEFun_GetSceneNum` · 00471e80 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfo::CallEFun_IsHidden` · 00471ef0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfo::CallEFun_IsPlayable` · 00471f60 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmSceneInfo::CallEFun_Dump` · 00471fd0
+- [-] `ggmSceneInfo::CallEFun_Dump` · 00471fd0 — WSL debug dump
 - [x] `ggmSceneInfo::CallEFun_GetName` · 00472090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140
-- [ ] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280
+- [ ] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140 — needs port: scene info sub-DID list (GetSubDataIDs) and Verify
+- [ ] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280 — needs port: scene info sub-DID list (GetSubDataIDs) and Verify
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (4/4)
 
@@ -369,14 +369,14 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (1/8)
 
 ### gIngredientAdaptor
-- [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310
+- [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
 - [~] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [x] `gIngredientAdaptor::CallEFun_SetID` · 004713d0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
 - [~] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-- [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500
+- [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
 - [~] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-- [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0
+- [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
 
 ## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (1/1)
 
@@ -414,7 +414,7 @@ Legend and workflow: [README](README.md).
 - [~] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
 - [~] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
 - [x] `gRecipeAdaptor::CallEFun_GetCharges` · 00470d30 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-- [ ] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0
+- [ ] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0 — needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
 - [x] `gRecipeAdaptor::CallEFun_GetCraftSkillCategory` · 00470e10 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetCraftSkillDID` · 00470e80 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetDID` · 00470ef0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -422,7 +422,7 @@ Legend and workflow: [README](README.md).
 - [x] `gRecipeAdaptor::CallEFun_GetIconDID` · 00470fd0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetShown` · 00471040 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetTimeUseAgain` · 004710b0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-- [ ] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130
+- [ ] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130 — needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
 - [~] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 - [~] `gRecipeAdaptor::CallEFun_GetName` · 00471260 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
 
@@ -431,7 +431,7 @@ Legend and workflow: [README](README.md).
 ### gSelectionInfo
 - [x] `gSelectionInfo::CallEFun_SetCurHealth` · 0046fe40 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetCurVigor` · 0046fea0 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [ ] `gSelectionInfo::CallEFun_SetMaxHealth` · 0046ff00
+- [ ] `gSelectionInfo::CallEFun_SetMaxHealth` · 0046ff00 — needs port (check): implemented as glue/examination.rs but uncited
 - [x] `gSelectionInfo::CallEFun_SetMaxVigor` · 0046ff60 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetPKDamage` · 0046ffc0 — ac2-script glue::options / examination (Legions layout and efun switch)
 - [x] `gSelectionInfo::CallEFun_SetPKVigorloss` · 00470020 — ac2-script glue::options / examination (Legions layout and efun switch)
@@ -463,7 +463,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/interp/glue/gskillpanelmanager.cpp.c` (4/5)
 
 ### gSkillPanelManager
-- [ ] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0
+- [ ] `gSkillPanelManager::SkillUINodeHashToARHash` · 0046d140 · legions 0046d8a0 — needs port: skill panel node hash conversion
 - [x] `gSkillPanelManager::ARHashToSkillUINodeHash` · 0046d270 · legions 0046d9d0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 - [x] `gSkillPanelManager::CallIFun_InqIcon` · 0046d380 · legions 0046dae0 — ac2-script host::skill_panel (ScriptHost::skill_panel)
 - [x] `gSkillPanelManager::CallIFun_InqName` · 0046d510 · legions 0046dc70 — ac2-script host::skill_panel (ScriptHost::skill_panel)
@@ -501,12 +501,12 @@ Legend and workflow: [README](README.md).
 
 ### gTurbineGunUtils
 - [x] `gTurbineGunUtils::CallEFun_GetWorldName` · 0046ea20 — ac2-script glue/turbine_gun.rs: returns the client's world name (Vm::world_name, from the WORLD_NAME notice); test in glue/turbine_gun.rs
-- [ ] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0
+- [ ] `gTurbineGunUtils::CallEFun_GetWorldSuffix` · 0046eaa0 — needs port: gTurbineGunUtils::GetWorldSuffix (world name suffix; GetWorldName is in glue/turbine_gun.rs)
 
 ## `ac2/shared/src/interp/glue/gturbineuserstatus.cpp.c` (3/4)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetReferenceTagPtr` · 0046eb20 · legions 0046e9c0
+- [ ] `ReferenceTable::GetReferenceTagPtr` · 0046eb20 · legions 0046e9c0 — needs port: reference table tag lookup (GetReferenceTagPtr)
 
 ### gTurbineUserStatus
 - [x] `gTurbineUserStatus::CallEFun_InqLocation` · 0046ebd0 · legions 0046ea70 — net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
@@ -535,7 +535,7 @@ Legend and workflow: [README](README.md).
 - [x] `gUIShopSale::CallEFun_SetItemDID` · 0046daa0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetItemDesc` · 0046db00 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetItemIID` · 0046db90 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-- [ ] `gUIShopSale::CallEFun_SetItemIconDesc` · 0046dbf0
+- [ ] `gUIShopSale::CallEFun_SetItemIconDesc` · 0046dbf0 — needs port: shop sale icon description (SetItemIconDesc)
 - [x] `gUIShopSale::CallEFun_SetItemIconID` · 0046dc80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetOrdinal` · 0046dce0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetRestricted` · 0046dd40 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -545,13 +545,13 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/breakpointinfo.cpp.c` (0/1)
 
 ### InterpreterBreakpointHelper
-- [ ] `InterpreterBreakpointHelper::SetTemporaryBreakpoint` · 0073c990
+- [-] `InterpreterBreakpointHelper::SetTemporaryBreakpoint` · 0073c990 — debug info (debugger only)
 
-## `portal/shared/src/interp/bytestream.cpp.c` (14/87)
+## `portal/shared/src/interp/bytestream.cpp.c` (16/87)
 
 ### ByteStream
-- [ ] `ByteStream::Pack` · 006e4cd0 · legions 0066b440
-- [ ] `ByteStream::PackSection` · 006e4d40 · legions 0066b4b0
+- [-] `ByteStream::Pack` · 006e4cd0 · legions 0066b440 — compiled-wlib writer (client only reads wlib)
+- [-] `ByteStream::PackSection` · 006e4d40 · legions 0066b4b0 — compiled-wlib writer (client only reads wlib)
 - [x] `ByteStream::LoadOpcodeSection` · 006e4dc0 — ac2-script WLib/WState/ByteStream decode
 - [x] `ByteStream::LoadImportTableSection` · 006e4e50 — ac2-script WLib/WState/ByteStream decode
 - [x] `ByteStream::LoadStringLitTableSection` · 006e4ee0 — ac2-script WLib/WState/ByteStream decode
@@ -560,22 +560,22 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::LoadValidEventTableSection` · 006e5090 — ac2-script WLib/WState/ByteStream decode
 
 ### CObjCell
-- [ ] `CObjCell::UpdateCellMaterial` · 006e5130 · legions 0066b600
+- [ ] `CObjCell::UpdateCellMaterial` · 006e5130 · legions 0066b600 — needs port: cell material update (CObjCell::UpdateCellMaterial)
 
 ### OpcodeStream
 - [~] `OpcodeStream::StreamPack` · 006e5140 — ac2-script: unpack direction only
 
 ### ByteStream
-- [ ] `ByteStream::DiscardAllDebuggingInformation` · 006e5220 · legions 0066b6f0
-- [ ] `ByteStream::PackSectionList` · 006e5310 · legions 0066b7e0
-- [ ] `ByteStream::InqExportPackage` · 006e5450
+- [-] `ByteStream::DiscardAllDebuggingInformation` · 006e5220 · legions 0066b6f0 — wlib debug-info section (debugger only)
+- [-] `ByteStream::PackSectionList` · 006e5310 · legions 0066b7e0 — compiled-wlib writer (client only reads wlib)
+- [-] `ByteStream::InqExportPackage` · 006e5450 — admin wlib tooling (no Legions match)
 - [-] `ByteStream::LoadLineNumDebugSection` · 006e54e0 — text source loader, admin build only
 - [-] `ByteStream::LoadFrameDebugInfoSection` · 006e5690 — text source loader, admin build only
-- [ ] `ByteStream::ValidationFailure` · 006e5760
+- [-] `ByteStream::ValidationFailure` · 006e5760 — admin wlib tooling (no Legions match)
 - [x] `ByteStream::IsDerivedFrom` · 006e5790 · legions 0066ba70 — ac2-script glue
 
 ### VersionTable
-- [ ] `VersionTable::GetVersion` · 006e5820
+- [-] `VersionTable::GetVersion` · 006e5820 — admin wlib version query (no Legions match)
 - [~] `VersionTable::StreamPack` · 006e58e0 — ac2-script: unpack direction only
 
 ### ByteStream
@@ -584,13 +584,13 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::IsDerivedFrom` · 006e5c40 · legions 0066be60 — ac2-script glue
 
 ### PSmartArray<PackageInfo>
-- [ ] `PSmartArray<PackageInfo>::StreamPack` · 006e5ce0 · legions 0066bea0
+- [ ] `PSmartArray<PackageInfo>::StreamPack` · 006e5ce0 · legions 0066bea0 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### PackageInfo
-- [ ] `PackageInfo::PackageInfo` · 006e5e70
+- [-] `PackageInfo::PackageInfo` · 006e5e70 — C++ constructor of plain data or a container (Rust struct init)
 
 ### AnimAssetWeightKey
-- [ ] `AnimAssetWeightKey::StreamPack` · 006e5e80 · legions 006b22d0
+- [ ] `AnimAssetWeightKey::StreamPack` · 006e5e80 · legions 006b22d0 — needs port: animation asset weight key load (StreamPack)
 
 ### StringLitTable
 - [~] `StringLitTable::StreamPack` · 006e5ec0 · legions 0066c040 — ac2-script: unpack direction only
@@ -599,245 +599,245 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::IsDerivedFrom` · 006e5f00 — ac2-script glue
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::find_right` · 006e5fa0 · legions 0066c0c0
+- [-] `DualHash<PStringBase<char>,CheckpointExportData>::find_right` · 006e5fa0 · legions 0066c0c0 — container internals (Rust collections replace them)
 
 ### PSmartArray<VersionTable::ver>
-- [ ] `PSmartArray<VersionTable::ver>::StreamPack` · 006e6030 · legions 0066c150
+- [ ] `PSmartArray<VersionTable::ver>::StreamPack` · 006e6030 · legions 0066c150 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### VersionTable::ver
-- [ ] `VersionTable::ver::ver` · 006e61f0 · legions 0066c310
+- [-] `VersionTable::ver::ver` · 006e61f0 · legions 0066c310 — C++ constructor of plain data or a container (Rust struct init)
 
 ### StringLitTable
-- [ ] `StringLitTable::~StringLitTable` · 006e6230 · legions 0066c350
+- [-] `StringLitTable::~StringLitTable` · 006e6230 · legions 0066c350 — C++ destructor (Rust drop replaces it)
 
 ### ByteStream
-- [ ] `ByteStream::LoadFunctionLocDebugSection` · 006e62d0 · legions 0066c3f0
+- [-] `ByteStream::LoadFunctionLocDebugSection` · 006e62d0 · legions 0066c3f0 — wlib debug-info section (debugger only)
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::contains_right` · 006e6410 · legions 0066c4c0
+- [-] `DualHash<PStringBase<char>,CheckpointExportData>::contains_right` · 006e6410 · legions 0066c4c0 — container internals (Rust collections replace them)
 
 ### PSmartArray<PSmartArray<unsigned_long>_>
-- [ ] `PSmartArray<PSmartArray<unsigned_long>_>::StreamPack` · 006e6480 · legions 0066c530
+- [ ] `PSmartArray<PSmartArray<unsigned_long>_>::StreamPack` · 006e6480 · legions 0066c530 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### PSmartArray<PSmartArray<VTableID>_>
-- [ ] `PSmartArray<PSmartArray<VTableID>_>::StreamPack` · 006e6620 · legions 0066c6d0
+- [ ] `PSmartArray<PSmartArray<VTableID>_>::StreamPack` · 006e6620 · legions 0066c6d0 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### SmartArray<VTableID>
-- [ ] `SmartArray<VTableID>::operator=` · 006e6820 · legions 0066c890
+- [-] `SmartArray<VTableID>::operator=` · 006e6820 · legions 0066c890 — C++ assignment operator of plain data (Rust copy/move)
 
 ### VTableID
-- [ ] `VTableID::`default_constructor_closure'` · 006e6930
+- [-] `VTableID::`default_constructor_closure'` · 006e6930 — MSVC compiler stub (default_constructor_closure)
 
 ### PSmartArray<VTableID>
-- [ ] `PSmartArray<VTableID>::StreamPack` · 006e6940
+- [ ] `PSmartArray<VTableID>::StreamPack` · 006e6940 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### (free functions)
-- [ ] `STREAMPACK` · 006e69e0 · legions 0066d840
+- [ ] `STREAMPACK` · 006e69e0 · legions 0066d840 — needs port: STREAMPACK loader helper (wlib arrays)
 
 ### PSmartArray<POriginalSourceFileInfo>
-- [ ] `PSmartArray<POriginalSourceFileInfo>::StreamPack` · 006e6a60 · legions 0066ca50
+- [-] `PSmartArray<POriginalSourceFileInfo>::StreamPack` · 006e6a60 · legions 0066ca50 — debug-info section table (debugger only)
 
 ### POriginalSourceFileInfo
-- [ ] `POriginalSourceFileInfo::POriginalSourceFileInfo` · 006e6c20 · legions 0066cc10
+- [-] `POriginalSourceFileInfo::POriginalSourceFileInfo` · 006e6c20 · legions 0066cc10 — C++ constructor of plain data or a container (Rust struct init)
 
 ### ByteStream
 - [x] `ByteStream::ReadByteStream` · 006e6c60 — ac2-script WLib/WState/ByteStream decode
 - [x] `ByteStream::UnPack` · 006e6f40 — ac2-script WLib/WState/ByteStream decode
-- [ ] `ByteStream::IsCheckpointedMember` · 006e6fb0 · legions 0066ce00
-- [ ] `ByteStream::LoadSourceFileDebugSection` · 006e7090 · legions 0066ce80
-- [ ] `ByteStream::Open` · 006e7380
+- [-] `ByteStream::IsCheckpointedMember` · 006e6fb0 · legions 0066ce00 — checkpoint member test (debugger/checkpoint)
+- [-] `ByteStream::LoadSourceFileDebugSection` · 006e7090 · legions 0066ce80 — wlib debug-info section (debugger only)
+- [-] `ByteStream::Open` · 006e7380 — admin wlib tooling (no Legions match)
 - [x] `ByteStream::LoadSection` · 006e74f0 — ac2-script WLib/WState/ByteStream decode
 
 ### PSmartArray<FrameDebugInfo>
-- [ ] `PSmartArray<FrameDebugInfo>::StreamPack` · 006e7750 · legions 0066d2e0
+- [-] `PSmartArray<FrameDebugInfo>::StreamPack` · 006e7750 · legions 0066d2e0 — debug-info section table (debugger only)
 
 ### FrameDebugInfo
-- [ ] `FrameDebugInfo::FrameDebugInfo` · 006e78d0 · legions 0066d460
-- [ ] `FrameDebugInfo::operator=` · 006e7910 · legions 0066d4a0
+- [-] `FrameDebugInfo::FrameDebugInfo` · 006e78d0 · legions 0066d460 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `FrameDebugInfo::operator=` · 006e7910 · legions 0066d4a0 — C++ assignment operator of plain data (Rust copy/move)
 
 ### POriginalSourceFileInfo
-- [ ] `POriginalSourceFileInfo::StreamPack` · 006e7990 · legions 0066d520
+- [-] `POriginalSourceFileInfo::StreamPack` · 006e7990 · legions 0066d520 — debug info (debugger only)
 
 ### ByteStream
-- [ ] `ByteStream::Clear` · 006e79d0 · legions 0066d560
+- [-] `ByteStream::Clear` · 006e79d0 · legions 0066d560 — wlib reset helper (Rust Vec owns the stream)
 
 ### PHashTable<FunctionID,int>
 - [~] `PHashTable<FunctionID,int>::StreamPack` · 006e7ad0 — ac2-script: unpack direction only
 
 ### PSmartArray<ImportData>
-- [ ] `PSmartArray<ImportData>::StreamPack` · 006e7cb0 · legions 0066d8c0
+- [x] `PSmartArray<ImportData>::StreamPack` · 006e7cb0 · legions 0066d8c0 — bytestream/tables.rs fn imports (PSmartArray<ImportData>::StreamPack)
 
 ### ImportData
-- [ ] `ImportData::ImportData` · 006e7e30 · legions 0066da40
+- [-] `ImportData::ImportData` · 006e7e30 · legions 0066da40 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PSmartArray<ImportSymbolInfo>
-- [ ] `PSmartArray<ImportSymbolInfo>::StreamPack` · 006e7e80 · legions 0066da90
+- [ ] `PSmartArray<ImportSymbolInfo>::StreamPack` · 006e7e80 · legions 0066da90 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### ImportSymbolInfo
-- [ ] `ImportSymbolInfo::ImportSymbolInfo` · 006e8000 · legions 0066dc10
-- [ ] `ImportSymbolInfo::operator=` · 006e8040 · legions 0066dc50
+- [-] `ImportSymbolInfo::ImportSymbolInfo` · 006e8000 · legions 0066dc10 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `ImportSymbolInfo::operator=` · 006e8040 · legions 0066dc50 — C++ assignment operator of plain data (Rust copy/move)
 
 ### ImportData
-- [ ] `ImportData::operator=` · 006e80b0 · legions 0066dcc0
+- [-] `ImportData::operator=` · 006e80b0 · legions 0066dcc0 — C++ assignment operator of plain data (Rust copy/move)
 
 ### SmartArray<ImportSymbolInfo>
-- [ ] `SmartArray<ImportSymbolInfo>::operator=` · 006e8140 · legions 0066dd50
+- [-] `SmartArray<ImportSymbolInfo>::operator=` · 006e8140 · legions 0066dd50 — C++ assignment operator of plain data (Rust copy/move)
 
 ### ImportSymbolInfo
 - [~] `ImportSymbolInfo::StreamPack` · 006e81f0 · legions 0066de00 — ac2-script: unpack direction only
 
 ### PSmartArray<PLineOffsetList>
-- [ ] `PSmartArray<PLineOffsetList>::StreamPack` · 006e8240 · legions 0066de50
+- [-] `PSmartArray<PLineOffsetList>::StreamPack` · 006e8240 · legions 0066de50 — debug-info section table (debugger only)
 
 ### PLineOffsetList
-- [ ] `PLineOffsetList::PLineOffsetList` · 006e8400
+- [-] `PLineOffsetList::PLineOffsetList` · 006e8400 — C++ constructor of plain data or a container (Rust struct init)
 
 ### SmartArray<PLineOffsetInfo>
-- [ ] `SmartArray<PLineOffsetInfo>::operator=` · 006e8430 · legions 0066e040
+- [-] `SmartArray<PLineOffsetInfo>::operator=` · 006e8430 · legions 0066e040 — C++ assignment operator of plain data (Rust copy/move)
 
 ### PLineOffsetInfo
-- [ ] `PLineOffsetInfo::PLineOffsetInfo` · 006e8590
+- [-] `PLineOffsetInfo::PLineOffsetInfo` · 006e8590 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PLineOffsetList
-- [ ] `PLineOffsetList::StreamPack` · 006e85a0 · legions 0066e1b0
+- [-] `PLineOffsetList::StreamPack` · 006e85a0 · legions 0066e1b0 — debug info (debugger only)
 
 ### PSmartArray<PLineOffsetInfo>
-- [ ] `PSmartArray<PLineOffsetInfo>::StreamPack` · 006e85e0 · legions 0066e1f0
+- [-] `PSmartArray<PLineOffsetInfo>::StreamPack` · 006e85e0 · legions 0066e1f0 — debug-info section table (debugger only)
 
 ### PHashTable<PStringBase<char>,unsigned_long>
-- [ ] `PHashTable<PStringBase<char>,unsigned_long>::StreamPack` · 006e8690 · legions 0066e2a0
+- [ ] `PHashTable<PStringBase<char>,unsigned_long>::StreamPack` · 006e8690 · legions 0066e2a0 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### VTableSection
-- [ ] `VTableSection::VTableSection` · 006e8950 · legions 0066e560
+- [-] `VTableSection::VTableSection` · 006e8950 · legions 0066e560 — C++ constructor of plain data or a container (Rust struct init)
 - [~] `VTableSection::StreamPack` · 006e89d0 · legions 0066e5e0 — ac2-script: unpack direction only
-- [ ] `VTableSection::~VTableSection` · 006e8a30 · legions 0066e640
+- [-] `VTableSection::~VTableSection` · 006e8a30 · legions 0066e640 — C++ destructor (Rust drop replaces it)
 
 ### ByteStream
-- [ ] `ByteStream::ByteStream` · 006e8b00 · legions 0066e710
-- [ ] `ByteStream::~ByteStream` · 006e8c80 · legions 0066e890
+- [-] `ByteStream::ByteStream` · 006e8b00 · legions 0066e710 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `ByteStream::~ByteStream` · 006e8c80 · legions 0066e890 — C++ destructor (Rust drop replaces it)
 
 ### PSmartArray<ExportData>
-- [ ] `PSmartArray<ExportData>::StreamPack` · 006e8e90 · legions 0066eaa0
+- [x] `PSmartArray<ExportData>::StreamPack` · 006e8e90 · legions 0066eaa0 — bytestream/tables.rs fn exports (PSmartArray<ExportData>::StreamPack)
 
 ### ExportData
-- [ ] `ExportData::ExportData` · 006e9010 · legions 0066ec20
+- [-] `ExportData::ExportData` · 006e9010 · legions 0066ec20 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PSmartArray<ExportFunctionData>
-- [ ] `PSmartArray<ExportFunctionData>::StreamPack` · 006e9040 · legions 0066ec50
+- [ ] `PSmartArray<ExportFunctionData>::StreamPack` · 006e9040 · legions 0066ec50 — needs port: wlib loader table (package, vtable or nested array) in bytestream
 
 ### ExportFunctionData
-- [ ] `ExportFunctionData::ExportFunctionData` · 006e91c0 · legions 0066edd0
-- [ ] `ExportFunctionData::operator=` · 006e9210 · legions 0066ee20
+- [-] `ExportFunctionData::ExportFunctionData` · 006e91c0 · legions 0066edd0 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `ExportFunctionData::operator=` · 006e9210 · legions 0066ee20 — C++ assignment operator of plain data (Rust copy/move)
 - [~] `ExportFunctionData::StreamPack` · 006e92a0 · legions 0066eeb0 — ac2-script: unpack direction only
 
 ### ExportPackageArgs
-- [ ] `ExportPackageArgs::ExportPackageArgs` · 006e9310 · legions 0066ef20
+- [-] `ExportPackageArgs::ExportPackageArgs` · 006e9310 · legions 0066ef20 — C++ constructor of plain data or a container (Rust struct init)
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::init` · 006e9380 · legions 0066ef90
+- [-] `DualHash<PStringBase<char>,CheckpointExportData>::init` · 006e9380 · legions 0066ef90 — container internals (Rust collections replace them)
 
 ### ExportPackageArgs
 - [~] `ExportPackageArgs::StreamPack` · 006e9440 · legions 0066f050 — ac2-script: unpack direction only
 
 ### ExportData
-- [ ] `ExportData::operator=` · 006e94f0 · legions 0066f100
+- [-] `ExportData::operator=` · 006e94f0 · legions 0066f100 — C++ assignment operator of plain data (Rust copy/move)
 
 ### SmartArray<ExportFunctionData>
-- [ ] `SmartArray<ExportFunctionData>::operator=` · 006e9530 · legions 0066f140
+- [-] `SmartArray<ExportFunctionData>::operator=` · 006e9530 · legions 0066f140 — C++ assignment operator of plain data (Rust copy/move)
 
 ### ExportPackageArgs
-- [ ] `ExportPackageArgs::operator=` · 006e95a0 · legions 0066f1b0
+- [-] `ExportPackageArgs::operator=` · 006e95a0 · legions 0066f1b0 — C++ assignment operator of plain data (Rust copy/move)
 
 ### DualHash<PStringBase<char>,CheckpointExportData>
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::operator=` · 006e9650 · legions 0066f260
-- [ ] `DualHash<PStringBase<char>,CheckpointExportData>::inc_num_elements` · 006e97e0 · legions 0066f3f0
+- [-] `DualHash<PStringBase<char>,CheckpointExportData>::operator=` · 006e9650 · legions 0066f260 — C++ assignment operator of plain data (Rust copy/move)
+- [-] `DualHash<PStringBase<char>,CheckpointExportData>::inc_num_elements` · 006e97e0 · legions 0066f3f0 — container internals (Rust collections replace them)
 
 ## `portal/shared/src/interp/centraldebuginfo.cpp.c` (0/35)
 
 ### CentralDebugInfo
-- [ ] `CentralDebugInfo::FindNearestSourceLineIdx` · 006e9910
-- [ ] `CentralDebugInfo::FindNearestFunctionLocationIdx` · 006e9950
+- [-] `CentralDebugInfo::FindNearestSourceLineIdx` · 006e9910 — debug info (debugger only)
+- [-] `CentralDebugInfo::FindNearestFunctionLocationIdx` · 006e9950 — debug info (debugger only)
 
 ### DualHash<PStringBase<char>,unsigned_long>
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::init` · 006e9a60 · legions 0066f5e0
+- [-] `DualHash<PStringBase<char>,unsigned_long>::init` · 006e9a60 · legions 0066f5e0 — container internals (Rust collections replace them)
 
 ### DualHashIter<PStringBase<char>,CheckpointExportData>
-- [ ] `DualHashIter<PStringBase<char>,CheckpointExportData>::start_bucket` · 006e9b20 · legions 0066f6a0
+- [-] `DualHashIter<PStringBase<char>,CheckpointExportData>::start_bucket` · 006e9b20 · legions 0066f6a0 — container internals (Rust collections replace them)
 
 ### CentralDebugInfo
-- [ ] `CentralDebugInfo::FindFunctionLocation` · 006e9c30
+- [-] `CentralDebugInfo::FindFunctionLocation` · 006e9c30 — debug info (debugger only)
 
 ### DualHash<PStringBase<char>,unsigned_long>
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::find_right` · 006e9cb0 · legions 0066f7b0
+- [-] `DualHash<PStringBase<char>,unsigned_long>::find_right` · 006e9cb0 · legions 0066f7b0 — container internals (Rust collections replace them)
 
 ### OriginalSourceFileInfo
-- [ ] `OriginalSourceFileInfo::operator=` · 006e9d40
+- [-] `OriginalSourceFileInfo::operator=` · 006e9d40 — C++ assignment operator of plain data (Rust copy/move)
 
 ### DualHash<PStringBase<char>,unsigned_long>
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::find_left` · 006e9f00 · legions 0066f9b0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::add_internal` · 006e9ff0 · legions 0066faa0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::find_left` · 006ea090 · legions 0066fb40
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::find_right` · 006ea120
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::UnPack` · 006ea1e0 · legions 0066fbd0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::contains_left` · 006ea3c0 · legions 0066fdb0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::contains_right` · 006ea430 · legions 0066fe20
+- [-] `DualHash<PStringBase<char>,unsigned_long>::find_left` · 006e9f00 · legions 0066f9b0 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::add_internal` · 006e9ff0 · legions 0066faa0 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::find_left` · 006ea090 · legions 0066fb40 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::find_right` · 006ea120 — container internals (Rust collections replace them)
+- [ ] `DualHash<PStringBase<char>,unsigned_long>::UnPack` · 006ea1e0 · legions 0066fbd0 — needs port: wlib loader table (package, vtable or nested array) in bytestream
+- [-] `DualHash<PStringBase<char>,unsigned_long>::contains_left` · 006ea3c0 · legions 0066fdb0 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::contains_right` · 006ea430 · legions 0066fe20 — container internals (Rust collections replace them)
 
 ### CentralDebugInfo
-- [ ] `CentralDebugInfo::GetFilename` · 006ea580
+- [-] `CentralDebugInfo::GetFilename` · 006ea580 — debug info (debugger only)
 
 ### DualHash<PStringBase<char>,unsigned_long>
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::GetPackSize` · 006ea650 · legions 0066ffb0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::pack_size` · 006ea660 · legions 0066ffc0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::Pack` · 006ea7e0 · legions 00670140
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::clear` · 006ea9f0 · legions 00670350
+- [-] `DualHash<PStringBase<char>,unsigned_long>::GetPackSize` · 006ea650 · legions 0066ffb0 — compiled-wlib writer / pack size (client only reads wlib)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::pack_size` · 006ea660 · legions 0066ffc0 — compiled-wlib writer / pack size (client only reads wlib)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::Pack` · 006ea7e0 · legions 00670140 — compiled-wlib writer / pack size (client only reads wlib)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::clear` · 006ea9f0 · legions 00670350 — container internals (Rust collections replace them)
 
 ### CentralDebugInfo
-- [ ] `CentralDebugInfo::FindSourceLineLocation` · 006eac60
-- [ ] `CentralDebugInfo::GetClosestSourceLineAtPos` · 006eae90
-- [ ] `CentralDebugInfo::GetFunctionAtPos` · 006eaf90
-- [ ] `CentralDebugInfo::GetFunctionContainingPos` · 006eb010
+- [-] `CentralDebugInfo::FindSourceLineLocation` · 006eac60 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetClosestSourceLineAtPos` · 006eae90 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetFunctionAtPos` · 006eaf90 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetFunctionContainingPos` · 006eb010 — debug info (debugger only)
 - [-] `CentralDebugInfo::LoadReadonlyWLinkMap` · 006eb060 — text source loader, admin build only
 
 ### DualHash<PStringBase<char>,unsigned_long>
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::destroy` · 006eb3f0 · legions 00670950
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::~DualHash<PStringBase<char>,unsigned_long>` · 006eb510 · legions 00670a70
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::inc_num_elements` · 006eb590 · legions 00670af0
-- [ ] `DualHash<PStringBase<char>,unsigned_long>::operator=` · 006eb610 · legions 00670b70
+- [-] `DualHash<PStringBase<char>,unsigned_long>::destroy` · 006eb3f0 · legions 00670950 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::~DualHash<PStringBase<char>,unsigned_long>` · 006eb510 · legions 00670a70 — C++ destructor (Rust drop replaces it)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::inc_num_elements` · 006eb590 · legions 00670af0 — container internals (Rust collections replace them)
+- [-] `DualHash<PStringBase<char>,unsigned_long>::operator=` · 006eb610 · legions 00670b70 — C++ assignment operator of plain data (Rust copy/move)
 
 ### CentralDebugInfo
-- [ ] `CentralDebugInfo::CentralDebugInfo` · 006eb920 · legions 00670e80
-- [ ] `CentralDebugInfo::~CentralDebugInfo` · 006eba50 · legions 00670f80
-- [ ] `CentralDebugInfo::PrepareForUse` · 006ebbc0
-- [ ] `CentralDebugInfo::FindFilenameIdx` · 006ebdf0
-- [ ] `CentralDebugInfo::GetSourceFile` · 006ebe90
-- [ ] `CentralDebugInfo::GetLinesOfSourceFile` · 006ec280
-- [ ] `CentralDebugInfo::GetLineOfSourceFile` · 006ec400
+- [-] `CentralDebugInfo::CentralDebugInfo` · 006eb920 · legions 00670e80 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `CentralDebugInfo::~CentralDebugInfo` · 006eba50 · legions 00670f80 — C++ destructor (Rust drop replaces it)
+- [-] `CentralDebugInfo::PrepareForUse` · 006ebbc0 — debug info (debugger only)
+- [-] `CentralDebugInfo::FindFilenameIdx` · 006ebdf0 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetSourceFile` · 006ebe90 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetLinesOfSourceFile` · 006ec280 — debug info (debugger only)
+- [-] `CentralDebugInfo::GetLineOfSourceFile` · 006ec400 — debug info (debugger only)
 
 ## `portal/shared/src/interp/contextstate.cpp.c` (0/1)
 
 ### ContextState
-- [ ] `ContextState::QueryReferenceTree` · 006de060
+- [-] `ContextState::QueryReferenceTree` · 006de060 — WSL debugger query or dump (process, reference and perf tables)
 
 ## `portal/shared/src/interp/debugdata.cpp.c` (0/7)
 
 ### ConversationAction
-- [ ] `ConversationAction::operator=` · 006ec580 · legions 00671450
+- [-] `ConversationAction::operator=` · 006ec580 · legions 00671450 — C++ assignment operator of plain data (Rust copy/move)
 
 ### PFunctionLocationInfo
-- [ ] `PFunctionLocationInfo::PFunctionLocationInfo` · 006ec5d0 · legions 006714a0
+- [-] `PFunctionLocationInfo::PFunctionLocationInfo` · 006ec5d0 · legions 006714a0 — C++ constructor of plain data or a container (Rust struct init)
 
 ### PFunctionLocationInfoTable
-- [ ] `PFunctionLocationInfoTable::GetPackSize` · 006ec790
-- [ ] `PFunctionLocationInfoTable::Pack` · 006ec7c0
+- [-] `PFunctionLocationInfoTable::GetPackSize` · 006ec790 — debug info (debugger only)
+- [-] `PFunctionLocationInfoTable::Pack` · 006ec7c0 — debug info (debugger only)
 
 ### SmartArray<PFunctionLocationInfo>
-- [ ] `SmartArray<PFunctionLocationInfo>::AddToEnd` · 006ec8a0 · legions 00671730
+- [-] `SmartArray<PFunctionLocationInfo>::AddToEnd` · 006ec8a0 · legions 00671730 — container internals (Rust collections replace them)
 
 ### PFunctionLocationInfo
-- [ ] `PFunctionLocationInfo::StreamPack` · 006ec930 · legions 006717c0
+- [-] `PFunctionLocationInfo::StreamPack` · 006ec930 · legions 006717c0 — debug info (debugger only)
 
 ### PFunctionLocationInfoTable
-- [ ] `PFunctionLocationInfoTable::UnPack` · 006ec970
+- [-] `PFunctionLocationInfoTable::UnPack` · 006ec970 — debug info (debugger only)
 
 ## `portal/shared/src/interp/debugger/debug_cmds.cpp.c` (0/50)
 
@@ -1100,14 +1100,14 @@ Legend and workflow: [README](README.md).
 - [x] `gAHashSet::CallEFun_erase` · 00565bb0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned_long>
-- [ ] `HashSet<unsigned_long>::add` · 00565c50 · legions 00536d30
+- [-] `HashSet<unsigned_long>::add` · 00565c50 · legions 00536d30 — container internals (Rust collections replace them)
 
 ### gAHashSet
 - [x] `gAHashSet::CallEFun_add` · 00565cc0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned_long>
-- [ ] `HashSet<unsigned_long>::grow` · 00565d40 · legions 00536e00
-- [ ] `HashSet<unsigned_long>::shrink` · 00565d90 · legions 00536e50
+- [-] `HashSet<unsigned_long>::grow` · 00565d40 · legions 00536e00 — container internals (Rust collections replace them)
+- [-] `HashSet<unsigned_long>::shrink` · 00565d90 · legions 00536e50 — container internals (Rust collections replace them)
 
 ### BaseHashSet<unsigned_long,7>
 - [x] `BaseHashSet<unsigned_long,7>::get_begin` · 00565de0 · legions 00536f00 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -1127,7 +1127,7 @@ Legend and workflow: [README](README.md).
 - [x] `gAHashSetIter::CallEFun_key` · 005655d0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### IntrusiveHashIterator<unsigned_long,HashSetData<unsigned_long>_*>
-- [ ] `IntrusiveHashIterator<unsigned_long,HashSetData<unsigned_long>_*>::remove` · 00565640
+- [-] `IntrusiveHashIterator<unsigned_long,HashSetData<unsigned_long>_*>::remove` · 00565640 — container internals (Rust collections replace them)
 
 ### gAHashSetIter
 - [x] `gAHashSetIter::CallEFun_equals` · 005656a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -1320,20 +1320,20 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (0/5)
 
 ### gAppearanceTableAdaptor
-- [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920
+- [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920 — needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
 
 ### gCharacterGenSystem
 - [~] `gCharacterGenSystem::ValueListToAList` · 0054c960 · legions 0046b490 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 - [~] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### gAppearanceTableAdaptor
-- [ ] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40
-- [ ] `gAppearanceTableAdaptor::CallEFun_InqTsysAppearanceKeyModCount` · 0054caf0
+- [ ] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40 — needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
+- [ ] `gAppearanceTableAdaptor::CallEFun_InqTsysAppearanceKeyModCount` · 0054caf0 — needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
 
 ## `portal/shared/src/interp/glue/gappinfohash.cpp.c` (0/1)
 
 ### gAppInfoHash
-- [ ] `gAppInfoHash::CallEFun_num_elements` · 0054cb60
+- [ ] `gAppInfoHash::CallEFun_num_elements` · 0054cb60 — needs port: gAppInfoHash::num_elements (appearance info hash count)
 
 ## `portal/shared/src/interp/glue/gappliedappearancekey.cpp.c` (4/5)
 
@@ -1415,41 +1415,41 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (0/33)
 
 ### BaseProperty
-- [ ] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0
-- [ ] `BaseProperty::SetStringW` · 0054b430 · legions 005293a0
+- [ ] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0 — needs port: BaseProperty InqStringW (weenie property string)
+- [ ] `BaseProperty::SetStringW` · 0054b430 · legions 005293a0 — needs port: BaseProperty SetStringW (weenie property string)
 
 ### gBaseProperty
-- [ ] `gBaseProperty::CallEFun_GetGroupName` · 0054b480
-- [ ] `gBaseProperty::CallEFun_GetPropertyName` · 0054b4f0
-- [ ] `gBaseProperty::CallEFun_GetPropertyType` · 0054b560
-- [ ] `gBaseProperty::CallEFun_IsDefaultValue` · 0054b5d0
-- [ ] `gBaseProperty::CallEFun_IsReportedToWeenie` · 0054b640
-- [ ] `gBaseProperty::CallEFun_SetBool` · 0054b6b0
-- [ ] `gBaseProperty::CallEFun_SetDataID` · 0054b740
-- [ ] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0
-- [ ] `gBaseProperty::CallEFun_SetFloat` · 0054b860
-- [ ] `gBaseProperty::CallEFun_SetInteger` · 0054b8f0
-- [ ] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980
-- [ ] `gBaseProperty::CallEFun_SetPackageID` · 0054ba10
-- [ ] `gBaseProperty::CallEFun_SetPosition` · 0054baa0
-- [ ] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30
-- [ ] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0
-- [ ] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30
-- [ ] `gBaseProperty::CallEFun_SetStringW` · 0054bcc0
-- [ ] `gBaseProperty::CallEFun_SetVector` · 0054bd40
-- [ ] `gBaseProperty::CallEFun_InqBool` · 0054bdd0
-- [ ] `gBaseProperty::CallEFun_InqDataID` · 0054be90
-- [ ] `gBaseProperty::CallEFun_InqEnum` · 0054bf50
-- [ ] `gBaseProperty::CallEFun_InqFloat` · 0054c010
-- [ ] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0
-- [ ] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190
-- [ ] `gBaseProperty::CallEFun_InqPackageID` · 0054c250
-- [ ] `gBaseProperty::CallEFun_InqPosition` · 0054c310
-- [ ] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30
-- [ ] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460
-- [ ] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500
-- [ ] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0
-- [ ] `gBaseProperty::CallEFun_InqVector` · 0054c650
+- [ ] `gBaseProperty::CallEFun_GetGroupName` · 0054b480 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_GetPropertyName` · 0054b4f0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_GetPropertyType` · 0054b560 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_IsDefaultValue` · 0054b5d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_IsReportedToWeenie` · 0054b640 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetBool` · 0054b6b0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetDataID` · 0054b740 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetFloat` · 0054b860 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetInteger` · 0054b8f0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetPackageID` · 0054ba10 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetStringW` · 0054bcc0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_SetVector` · 0054bd40 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqBool` · 0054bdd0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqDataID` · 0054be90 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqEnum` · 0054bf50 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqFloat` · 0054c010 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqPackageID` · 0054c250 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [ ] `gBaseProperty::CallEFun_InqVector` · 0054c650 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
 
 ## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (26/27)
 
@@ -1489,121 +1489,121 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gcaseinsensitivewpstring.cpp.c` (0/33)
 
 ### gCaseInsensitiveWPString
-- [ ] `gCaseInsensitiveWPString::CallEFun_clear` · 005500e0
-- [ ] `gCaseInsensitiveWPString::CallEFun_cmp` · 00550170
-- [ ] `gCaseInsensitiveWPString::CallEFun_empty` · 00550220
-- [ ] `gCaseInsensitiveWPString::CallEFun_eq` · 00550290
-- [ ] `gCaseInsensitiveWPString::CallEFun_find_substring` · 00550320
-- [ ] `gCaseInsensitiveWPString::CallEFun_ge` · 005503c0
-- [ ] `gCaseInsensitiveWPString::CallEFun_gt` · 00550450
-- [ ] `gCaseInsensitiveWPString::CallEFun_hash` · 005504e0
-- [ ] `gCaseInsensitiveWPString::CallEFun_le` · 00550560
-- [ ] `gCaseInsensitiveWPString::CallEFun_length` · 005505f0
-- [ ] `gCaseInsensitiveWPString::CallEFun_lt` · 00550660
-- [ ] `gCaseInsensitiveWPString::CallEFun_ne` · 005506f0
-- [ ] `gCaseInsensitiveWPString::CallEFun_set` · 00550780
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_float` · 00550810
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_int32` · 005508a0
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_int64` · 00550930
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint32` · 005509c0
-- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint64` · 00550a50
-- [ ] `gCaseInsensitiveWPString::CallEFun_decrypt` · 00550ae0
-- [ ] `gCaseInsensitiveWPString::CallEFun_encrypt` · 00550b40
-- [ ] `gCaseInsensitiveWPString::CallEFun_tolower` · 00550ba0
-- [ ] `gCaseInsensitiveWPString::CallEFun_toupper` · 00550c10
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_float` · 00550df0
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32` · 00550e50
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32_hex` · 00550eb0
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_int64` · 00550f10
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_string` · 00550f70
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32` · 00550ff0
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32_hex` · 00551050
-- [ ] `gCaseInsensitiveWPString::CallEFun_trim` · 005510b0
-- [ ] `gCaseInsensitiveWPString::CallEFun_append_bool` · 00551130
-- [ ] `gCaseInsensitiveWPString::CallEFun_substring` · 00551190
-- [ ] `gCaseInsensitiveWPString::CallEFun_replace` · 00551260
+- [ ] `gCaseInsensitiveWPString::CallEFun_clear` · 005500e0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_cmp` · 00550170 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_empty` · 00550220 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_eq` · 00550290 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_find_substring` · 00550320 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_ge` · 005503c0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_gt` · 00550450 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_hash` · 005504e0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_le` · 00550560 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_length` · 005505f0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_lt` · 00550660 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_ne` · 005506f0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_set` · 00550780 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_to_float` · 00550810 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_to_int32` · 005508a0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_to_int64` · 00550930 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint32` · 005509c0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_to_uint64` · 00550a50 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_decrypt` · 00550ae0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_encrypt` · 00550b40 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_tolower` · 00550ba0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_toupper` · 00550c10 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_float` · 00550df0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32` · 00550e50 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_int32_hex` · 00550eb0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_int64` · 00550f10 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_string` · 00550f70 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32` · 00550ff0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_uint32_hex` · 00551050 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_trim` · 005510b0 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_append_bool` · 00551130 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_substring` · 00551190 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+- [ ] `gCaseInsensitiveWPString::CallEFun_replace` · 00551260 — needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
 
 ## `portal/shared/src/interp/glue/gcdbform.cpp.c` (0/14)
 
 ### CDBForm
-- [ ] `CDBForm::SetNameW` · 0054a200 · legions 00528910
+- [ ] `CDBForm::SetNameW` · 0054a200 · legions 00528910 — needs port: CDBForm SetNameW (DB form builder)
 
 ### gCDBForm
-- [ ] `gCDBForm::CallEFun_SetNameW` · 0054a270
-- [ ] `gCDBForm::CallEFun_AddTable` · 0054a2d0
+- [ ] `gCDBForm::CallEFun_SetNameW` · 0054a270 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddTable` · 0054a2d0 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
 
 ### CDBForm
-- [ ] `CDBForm::AddPropertyW` · 0054a380 · legions 00528a50
-- [ ] `CDBForm::AddProperty` · 0054a3e0 · legions 00528ab0
-- [ ] `CDBForm::AddProperty` · 0054a450 · legions 00528b20
-- [ ] `CDBForm::AddProperty` · 0054a4c0 · legions 00528b90
-- [ ] `CDBForm::AddProperty` · 0054a530 · legions 00528c00
+- [ ] `CDBForm::AddPropertyW` · 0054a380 · legions 00528a50 — needs port: CDBForm AddPropertyW (DB form builder)
+- [ ] `CDBForm::AddProperty` · 0054a3e0 · legions 00528ab0 — needs port: CDBForm AddProperty (DB form builder)
+- [ ] `CDBForm::AddProperty` · 0054a450 · legions 00528b20 — needs port: CDBForm AddProperty (DB form builder)
+- [ ] `CDBForm::AddProperty` · 0054a4c0 · legions 00528b90 — needs port: CDBForm AddProperty (DB form builder)
+- [ ] `CDBForm::AddProperty` · 0054a530 · legions 00528c00 — needs port: CDBForm AddProperty (DB form builder)
 
 ### gCDBForm
-- [ ] `gCDBForm::CallEFun_AddFloatProperty` · 0054a5a0
-- [ ] `gCDBForm::CallEFun_AddIntProperty` · 0054a600
-- [ ] `gCDBForm::CallEFun_AddLongIntProperty` · 0054a660
-- [ ] `gCDBForm::CallEFun_AddPropertyW` · 0054a6c0
-- [ ] `gCDBForm::CallEFun_AddStringProperty` · 0054a730
-- [ ] `gCDBForm::CallEFun_AddTimetypeProperty` · 0054a7a0
+- [ ] `gCDBForm::CallEFun_AddFloatProperty` · 0054a5a0 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddIntProperty` · 0054a600 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddLongIntProperty` · 0054a660 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddPropertyW` · 0054a6c0 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddStringProperty` · 0054a730 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+- [ ] `gCDBForm::CallEFun_AddTimetypeProperty` · 0054a7a0 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
 
 ## `portal/shared/src/interp/glue/gcollideproperty.cpp.c` (0/6)
 
 ### gCollideProperty
-- [ ] `gCollideProperty::CallEFun_GetID` · 00549f00
-- [ ] `gCollideProperty::CallEFun_IsBegin` · 00549f70
-- [ ] `gCollideProperty::CallEFun_IsChanged` · 00549fe0
-- [ ] `gCollideProperty::CallEFun_IsEnd` · 0054a050
-- [ ] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0
-- [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0
+- [ ] `gCollideProperty::CallEFun_GetID` · 00549f00 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [ ] `gCollideProperty::CallEFun_IsBegin` · 00549f70 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [ ] `gCollideProperty::CallEFun_IsChanged` · 00549fe0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [ ] `gCollideProperty::CallEFun_IsEnd` · 0054a050 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [ ] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 
 ## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (0/25)
 
 ### gCollisionParameters
-- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0
-- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactZ` · 00549250
-- [ ] `gCollisionParameters::CallEFun_SetMovementHighDWord` · 005492b0
-- [ ] `gCollisionParameters::CallEFun_SetMovementLowDWord` · 00549320
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsMovementType` · 00549390
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsPlacementType` · 00549400
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsType` · 00549470
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeHighDWord` · 005494e0
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeLowDWord` · 00549550
-- [ ] `gCollisionParameters::CallEFun_SetPlacementHighDWord` · 005495c0
-- [ ] `gCollisionParameters::CallEFun_SetPlacementLowDWord` · 00549630
-- [ ] `gCollisionParameters::CallEFun_SetWeenieMovementType` · 005496a0
-- [ ] `gCollisionParameters::CallEFun_SetWeeniePlacementType` · 00549710
-- [ ] `gCollisionParameters::CallEFun_AddToEtherealList` · 00549780
-- [ ] `gCollisionParameters::CallEFun_RemovePhysicsType` · 00549800
-- [ ] `gCollisionParameters::CallEFun_UpdateMovementEthereal` · 00549880
-- [ ] `gCollisionParameters::CallEFun_UpdateMovementSolid` · 00549900
-- [ ] `gCollisionParameters::CallEFun_UpdatePhysicsType` · 00549980
-- [ ] `gCollisionParameters::CallEFun_UpdatePlacementEthereal` · 00549a00
-- [ ] `gCollisionParameters::CallEFun_UpdatePlacementSolid` · 00549a80
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsMovementType` · 00549b00
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsPlacementType` · 00549bc0
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsType` · 00549c80
-- [ ] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40
-- [ ] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20
+- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetMinReportedImpactZ` · 00549250 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetMovementHighDWord` · 005492b0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetMovementLowDWord` · 00549320 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPhysicsMovementType` · 00549390 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPhysicsPlacementType` · 00549400 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPhysicsType` · 00549470 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeHighDWord` · 005494e0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeLowDWord` · 00549550 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPlacementHighDWord` · 005495c0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetPlacementLowDWord` · 00549630 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetWeenieMovementType` · 005496a0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_SetWeeniePlacementType` · 00549710 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_AddToEtherealList` · 00549780 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_RemovePhysicsType` · 00549800 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_UpdateMovementEthereal` · 00549880 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_UpdateMovementSolid` · 00549900 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_UpdatePhysicsType` · 00549980 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_UpdatePlacementEthereal` · 00549a00 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_UpdatePlacementSolid` · 00549a80 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_GetPhysicsMovementType` · 00549b00 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_GetPhysicsPlacementType` · 00549bc0 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_GetPhysicsType` · 00549c80 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+- [ ] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20 — needs port: collision parameter setters/getters (physics and placement types, ethereal list)
 
 ## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (0/15)
 
 ### gCollisionProfile
-- [ ] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0
-- [ ] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10
-- [ ] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80
-- [ ] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0
-- [ ] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60
-- [ ] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0
-- [ ] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40
-- [ ] `gCollisionProfile::CallEFun_FindObject` · 00548cb0
-- [ ] `gCollisionProfile::CallEFun_GetEnvProperty` · 00548d60
-- [ ] `gCollisionProfile::CallEFun_GetObject` · 00548e00 · legions 00527aa0
-- [ ] `gCollisionProfile::CallEFun_GetObjectProperty` · 00548ea0
-- [ ] `gCollisionProfile::CallEFun_GetSurfaceProperty` · 00548f40
-- [ ] `gCollisionProfile::CallEFun_GetWaterProperty` · 00548fe0
-- [ ] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0
-- [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50
+- [ ] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_FindObject` · 00548cb0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetEnvProperty` · 00548d60 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetObject` · 00548e00 · legions 00527aa0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetObjectProperty` · 00548ea0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetSurfaceProperty` · 00548f40 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_GetWaterProperty` · 00548fe0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_HasCollided` · 00549080 · legions 00527ca0 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
+- [ ] `gCollisionProfile::CallEFun_HasContact` · 00549150 · legions 00527d50 — needs port: collision profile inquiries (object, environment, surface and water properties, contacts)
 
 ## `portal/shared/src/interp/glue/gdbcache.cpp.c` (4/4)
 
@@ -1616,111 +1616,111 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gdebug.cpp.c` (0/11)
 
 ### gdebug
-- [ ] `gdebug::CallEFun_PrintFloat` · 005600a0
-- [ ] `gdebug::CallEFun_PrintInt` · 005600c0
-- [ ] `gdebug::CallEFun_PrintLongFloat` · 005600e0
-- [ ] `gdebug::CallEFun_PrintLongInt` · 00560100
-- [ ] `gdebug::CallEFun_PrintString` · 00560120
-- [ ] `gdebug::CallEFun_WSLAssert` · 00560150 · legions 00534580
-- [ ] `gdebug::CallEFun_WSLAssertFailure` · 00560190 · legions 005345c0
-- [ ] `gdebug::CallEFun_WSLAssertMsg` · 005601e0 · legions 00534610
-- [ ] `gdebug::CallEFun_WSLDebugger` · 00560230 · legions 00534660
-- [ ] `gdebug::CallEFun_MapIIDtoProcID` · 00560270
-- [ ] `gdebug::CallEFun_MapProcIDtoIID` · 005602b0
+- [-] `gdebug::CallEFun_PrintFloat` · 005600a0 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_PrintInt` · 005600c0 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_PrintLongFloat` · 005600e0 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_PrintLongInt` · 00560100 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_PrintString` · 00560120 — debugger/debug output efun (admin only)
+- [ ] `gdebug::CallEFun_WSLAssert` · 00560150 · legions 00534580 — needs port: gdebug WSL assert efuns (assert failure path)
+- [ ] `gdebug::CallEFun_WSLAssertFailure` · 00560190 · legions 005345c0 — needs port: gdebug WSL assert efuns (assert failure path)
+- [ ] `gdebug::CallEFun_WSLAssertMsg` · 005601e0 · legions 00534610 — needs port: gdebug WSL assert efuns (assert failure path)
+- [-] `gdebug::CallEFun_WSLDebugger` · 00560230 · legions 00534660 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_MapIIDtoProcID` · 00560270 — debugger/debug output efun (admin only)
+- [-] `gdebug::CallEFun_MapProcIDtoIID` · 005602b0 — debugger/debug output efun (admin only)
 
 ## `portal/shared/src/interp/glue/gdetectionparameters.cpp.c` (0/13)
 
 ### gDetectionParameters
-- [ ] `gDetectionParameters::CallEFun_SetBasePosition` · 00548390
-- [ ] `gDetectionParameters::CallEFun_SetDetectOffset` · 005483f0
-- [ ] `gDetectionParameters::CallEFun_SetDetectionObjectType` · 00548490
-- [ ] `gDetectionParameters::CallEFun_SetLOSBlockingMasks` · 005484f0
-- [ ] `gDetectionParameters::CallEFun_SetShapeAttackCone` · 00548560
-- [ ] `gDetectionParameters::CallEFun_SetShapeBox` · 005485f0
-- [ ] `gDetectionParameters::CallEFun_SetShapeCylinder` · 00548670
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphere` · 005486e0
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphereCone` · 00548740
-- [ ] `gDetectionParameters::CallEFun_SetShapeSphereWithOffset` · 005487c0
-- [ ] `gDetectionParameters::CallEFun_UseDetectingObjectForBasePosition` · 00548830
-- [ ] `gDetectionParameters::CallEFun_AddExcludeObject` · 005488a0
-- [ ] `gDetectionParameters::CallEFun_AddTarget` · 00548920
+- [ ] `gDetectionParameters::CallEFun_SetBasePosition` · 00548390 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetDetectOffset` · 005483f0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetDetectionObjectType` · 00548490 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetLOSBlockingMasks` · 005484f0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeAttackCone` · 00548560 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeBox` · 005485f0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeCylinder` · 00548670 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeSphere` · 005486e0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeSphereCone` · 00548740 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_SetShapeSphereWithOffset` · 005487c0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_UseDetectingObjectForBasePosition` · 00548830 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_AddExcludeObject` · 005488a0 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
+- [ ] `gDetectionParameters::CallEFun_AddTarget` · 00548920 — needs port: detection parameter setters (shape, base position, targets, LOS masks)
 
 ## `portal/shared/src/interp/glue/gdetectionprofile.cpp.c` (0/9)
 
 ### gDetectionProfile
-- [ ] `gDetectionProfile::CallEFun_SetFloatApp` · 00547ee0
-- [ ] `gDetectionProfile::CallEFun_SetIntApp` · 00547f40
-- [ ] `gDetectionProfile::CallEFun_GetCoverage` · 00547fa0
-- [ ] `gDetectionProfile::CallEFun_GetEntityDID` · 00548010
-- [ ] `gDetectionProfile::CallEFun_GetFloatApp` · 00548080
-- [ ] `gDetectionProfile::CallEFun_GetID` · 00548100
-- [ ] `gDetectionProfile::CallEFun_GetIntApp` · 00548170
-- [ ] `gDetectionProfile::CallEFun_GetDetectionReportType` · 005481f0
-- [ ] `gDetectionProfile::CallEFun_GetPosition` · 005482a0
+- [ ] `gDetectionProfile::CallEFun_SetFloatApp` · 00547ee0 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_SetIntApp` · 00547f40 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetCoverage` · 00547fa0 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetEntityDID` · 00548010 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetFloatApp` · 00548080 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetID` · 00548100 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetIntApp` · 00548170 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetDetectionReportType` · 005481f0 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
+- [ ] `gDetectionProfile::CallEFun_GetPosition` · 005482a0 — needs port: detection profile getters (coverage, float/int appearance, report type, position)
 
 ## `portal/shared/src/interp/glue/gdetectionreporttype.cpp.c` (0/4)
 
 ### gDetectionReportType
-- [ ] `gDetectionReportType::CallEFun_SetHighDWord` · 00547d10
-- [ ] `gDetectionReportType::CallEFun_SetLowDWord` · 00547d80
-- [ ] `gDetectionReportType::CallEFun_GetHighDWord` · 00547df0
-- [ ] `gDetectionReportType::CallEFun_GetLowDWord` · 00547e70
+- [ ] `gDetectionReportType::CallEFun_SetHighDWord` · 00547d10 — needs port: detection report type dword get/set
+- [ ] `gDetectionReportType::CallEFun_SetLowDWord` · 00547d80 — needs port: detection report type dword get/set
+- [ ] `gDetectionReportType::CallEFun_GetHighDWord` · 00547df0 — needs port: detection report type dword get/set
+- [ ] `gDetectionReportType::CallEFun_GetLowDWord` · 00547e70 — needs port: detection report type dword get/set
 
 ## `portal/shared/src/interp/glue/gefuntestsystem.cpp.c` (0/2)
 
 ### EFunTestSystem
-- [ ] `EFunTestSystem::Run` · 00560000 · legions 00534430
+- [-] `EFunTestSystem::Run` · 00560000 · legions 00534430 — test system (admin test harness)
 
 ### gEFunTestSystem
-- [ ] `gEFunTestSystem::CallEFun_Run` · 00560070
+- [-] `gEFunTestSystem::CallEFun_Run` · 00560070 — admin only: test system efun (admin test harness)
 
 ## `portal/shared/src/interp/glue/gemailutils.cpp.c` (0/1)
 
 ### gEmailUtils
-- [ ] `gEmailUtils::CallEFun_send_emailW` · 00547c90
+- [-] `gEmailUtils::CallEFun_send_emailW` · 00547c90 — admin only: admin email tool (no Legions match)
 
 ## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (4/28)
 
 ### gEntityDesc
-- [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10
+- [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [x] `gEntityDesc::CallEFun_GetDataIDFromEntityNameW` · 00546c80 — ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
-- [ ] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0
-- [ ] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30
-- [ ] `gEntityDesc::CallEFun_GetType` · 00546da0
-- [ ] `gEntityDesc::CallEFun_GetVersion` · 00546e10
-- [ ] `gEntityDesc::CallEFun_GetWBID` · 00546e80
-- [ ] `gEntityDesc::CallEFun_IsInside` · 00546f00
-- [ ] `gEntityDesc::CallEFun_SetProperties` · 00546f70
-- [ ] `gEntityDesc::CallEFun_GetCommentsW` · 00546ff0
-- [ ] `gEntityDesc::CallEFun_GetEntityNameFromDataIDW` · 005470b0 · legions 00526470
-- [ ] `gEntityDesc::CallEFun_GetOffset` · 00547130
-- [ ] `gEntityDesc::CallEFun_GetProperties` · 00547210
-- [ ] `gEntityDesc::CallEFun_GetScale` · 005472f0
-- [ ] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0
-- [ ] `gEntityDesc::CallEFun_InqBool` · 00547480
-- [ ] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830
-- [ ] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0
+- [ ] `gEntityDesc::CallEFun_GetRootPackageID` · 00546cc0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetRuntimeID` · 00546d30 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetType` · 00546da0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetVersion` · 00546e10 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetWBID` · 00546e80 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_IsInside` · 00546f00 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_SetProperties` · 00546f70 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetCommentsW` · 00546ff0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetEntityNameFromDataIDW` · 005470b0 · legions 00526470 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetOffset` · 00547130 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetProperties` · 00547210 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetScale` · 005472f0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqBool` · 00547480 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [x] `gEntityDesc::CallEFun_InqDataID` · 00547670 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 - [x] `gEntityDesc::CallEFun_InqEntityDescFromDataID` · 00547720 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
-- [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780
-- [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0
-- [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0
+- [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — Integer property of an entity link (name, out long); a property of another type answers 0 (entity_desc.rs). SaleProfile::ComputeMaxStackSize reads its max stack size through it; the sell's rig test runs it.
-- [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00
+- [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [~] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
-- [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30
-- [ ] `gEntityDesc::CallEFun_InqVector` · 00547bf0
+- [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [ ] `gEntityDesc::CallEFun_InqVector` · 00547bf0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 
 ## `portal/shared/src/interp/glue/gentitylinkdesc.cpp.c` (0/7)
 
 ### gEntityLinkDesc
-- [ ] `gEntityLinkDesc::CallEFun_GetInputID` · 005366d0
-- [ ] `gEntityLinkDesc::CallEFun_GetLinkType` · 00536740
-- [ ] `gEntityLinkDesc::CallEFun_GetOppositeID` · 005367b0
-- [ ] `gEntityLinkDesc::CallEFun_GetOutputID` · 00536840
-- [ ] `gEntityLinkDesc::CallEFun_GetProperties` · 005368b0
-- [ ] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990
-- [ ] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0
+- [ ] `gEntityLinkDesc::CallEFun_GetInputID` · 005366d0 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_GetLinkType` · 00536740 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_GetOppositeID` · 005367b0 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_GetOutputID` · 00536840 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_GetProperties` · 005368b0 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_GetWBName_ForWsl` · 00536990 — needs port: entity link description getters (input/output id, link type, properties)
+- [ ] `gEntityLinkDesc::CallEFun_InqStringPropertyW` · 00536a50 · legions 0051a7e0 — needs port: entity link description getters (input/output id, link type, properties)
 
 ## `portal/shared/src/interp/glue/genummapper.cpp.c` (8/8)
 
@@ -1737,54 +1737,54 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/getherealphysicstype.cpp.c` (0/7)
 
 ### gEtherealPhysicsType
-- [ ] `gEtherealPhysicsType::CallEFun_SetEtherealToWaterLayer` · 00546520
-- [ ] `gEtherealPhysicsType::CallEFun_SetSolidOnlyToEnvironment` · 00546580
-- [ ] `gEtherealPhysicsType::CallEFun_SetToEthereal` · 005465e0
-- [ ] `gEtherealPhysicsType::CallEFun_SetToSolid` · 00546640
-- [ ] `gEtherealPhysicsType::CallEFun_SetProperty` · 005466a0
-- [ ] `gEtherealPhysicsType::CallEFun_SetPropertyEthereal` · 00546720
-- [ ] `gEtherealPhysicsType::CallEFun_SetPropertySolid` · 005467a0
+- [ ] `gEtherealPhysicsType::CallEFun_SetEtherealToWaterLayer` · 00546520 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetSolidOnlyToEnvironment` · 00546580 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetToEthereal` · 005465e0 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetToSolid` · 00546640 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetProperty` · 005466a0 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetPropertyEthereal` · 00546720 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
+- [ ] `gEtherealPhysicsType::CallEFun_SetPropertySolid` · 005467a0 — needs port: ethereal physics type setters (to ethereal/solid, property setters)
 
 ## `portal/shared/src/interp/glue/getherealweenietype.cpp.c` (0/4)
 
 ### gEtherealWeenieType
-- [ ] `gEtherealWeenieType::CallEFun_SetToEthereal` · 00546360
-- [ ] `gEtherealWeenieType::CallEFun_SetToSolid` · 005463c0
-- [ ] `gEtherealWeenieType::CallEFun_AddToEtherealList` · 00546420
-- [ ] `gEtherealWeenieType::CallEFun_AddToSolidList` · 005464a0
+- [ ] `gEtherealWeenieType::CallEFun_SetToEthereal` · 00546360 — needs port: ethereal weenie type setters and list adds
+- [ ] `gEtherealWeenieType::CallEFun_SetToSolid` · 005463c0 — needs port: ethereal weenie type setters and list adds
+- [ ] `gEtherealWeenieType::CallEFun_AddToEtherealList` · 00546420 — needs port: ethereal weenie type setters and list adds
+- [ ] `gEtherealWeenieType::CallEFun_AddToSolidList` · 005464a0 — needs port: ethereal weenie type setters and list adds
 
 ## `portal/shared/src/interp/glue/gfile.cpp.c` (0/15)
 
 ### WSLFilesCleaner
-- [ ] `WSLFilesCleaner::~WSLFilesCleaner` · 005455b0 · legions 00524c10
+- [-] `WSLFilesCleaner::~WSLFilesCleaner` · 005455b0 · legions 00524c10 — C++ destructor (Rust drop replaces it)
 
 ### SmartArray<PStringBase<unsigned_short>_>
-- [ ] `SmartArray<PStringBase<unsigned_short>_>::AddToEnd` · 00545670 · legions 00524c70
+- [-] `SmartArray<PStringBase<unsigned_short>_>::AddToEnd` · 00545670 · legions 00524c70 — container internals (Rust collections replace them)
 
 ### (free functions)
-- [ ] `WSLCloseFile` · 005456f0 · legions 00524cf0
+- [ ] `WSLCloseFile` · 005456f0 · legions 00524cf0 — needs port: script file I/O (WSLCloseFile)
 
 ### gFile
-- [ ] `gFile::CallEFun_WSLCloseFile` · 00545790
-- [ ] `gFile::RArrayToWPStringArray` · 005457e0 · legions 00524de0
+- [ ] `gFile::CallEFun_WSLCloseFile` · 00545790 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
+- [ ] `gFile::RArrayToWPStringArray` · 005457e0 · legions 00524de0 — needs port: script file I/O helper (RArrayToWPStringArray)
 
 ### (free functions)
-- [ ] `WSLOpenFile` · 00545910 · legions 00524f10
-- [ ] `WSLReadFromFile` · 00545ab0 · legions 005250b0
+- [ ] `WSLOpenFile` · 00545910 · legions 00524f10 — needs port: script file I/O (WSLOpenFile)
+- [ ] `WSLReadFromFile` · 00545ab0 · legions 005250b0 — needs port: script file I/O (WSLReadFromFile)
 
 ### gFile
-- [ ] `gFile::CallEFun_WSLOpenFile` · 00545cb0
-- [ ] `gFile::WPStringArrayToRArray` · 00545d10 · legions 00525310
+- [ ] `gFile::CallEFun_WSLOpenFile` · 00545cb0 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
+- [ ] `gFile::WPStringArrayToRArray` · 00545d10 · legions 00525310 — needs port: script file I/O helper (WPStringArrayToRArray)
 
 ### (free functions)
-- [ ] `WriteToFile` · 00545db0 · legions 005253b0
-- [ ] `WSLWriteToFileTimestamped` · 00545ec0 · legions 005254c0
-- [ ] `WSLWriteToFile` · 00546070 · legions 00525670
+- [ ] `WriteToFile` · 00545db0 · legions 005253b0 — needs port: script file I/O (WriteToFile)
+- [ ] `WSLWriteToFileTimestamped` · 00545ec0 · legions 005254c0 — needs port: script file I/O (WSLWriteToFileTimestamped)
+- [ ] `WSLWriteToFile` · 00546070 · legions 00525670 — needs port: script file I/O (WSLWriteToFile)
 
 ### gFile
-- [ ] `gFile::CallEFun_WSLWriteToFile` · 005461c0
-- [ ] `gFile::CallEFun_WSLWriteToFileTimestamped` · 00546230
-- [ ] `gFile::CallEFun_WSLReadFromFile` · 005462a0
+- [ ] `gFile::CallEFun_WSLWriteToFile` · 005461c0 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
+- [ ] `gFile::CallEFun_WSLWriteToFileTimestamped` · 00546230 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
+- [ ] `gFile::CallEFun_WSLReadFromFile` · 005462a0 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
 
 ## `portal/shared/src/interp/glue/gfilearray.cpp.c` (1/4)
 
@@ -1797,30 +1797,30 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gframe.cpp.c` (0/1)
 
 ### gFrame
-- [ ] `gFrame::CallEFun_SetOrigin` · 00543cf0
+- [ ] `gFrame::CallEFun_SetOrigin` · 00543cf0 — needs port: frame origin setter
 
 ## `portal/shared/src/interp/glue/gfxandbehaviorinfo.cpp.c` (0/5)
 
 ### gFXAndBehaviorInfo
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetAttackerFX` · 005439f0
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetBehavior` · 00543a50
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetFX` · 00543ab0
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponBehavior` · 00543b10
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponFX` · 00543b70
+- [ ] `gFXAndBehaviorInfo::CallEFun_SetAttackerFX` · 005439f0 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetBehavior` · 00543a50 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetFX` · 00543ab0 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponBehavior` · 00543b10 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponFX` · 00543b70 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
 
 ## `portal/shared/src/interp/glue/ggametime.cpp.c` (0/10)
 
 ### gGameTime
-- [ ] `gGameTime::CallEFun_AlterTimeOfDayImmediate` · 00543630
-- [ ] `gGameTime::CallEFun_GetDayInYear` · 00543670
-- [ ] `gGameTime::CallEFun_GetDayLength` · 005436e0
-- [ ] `gGameTime::CallEFun_GetTimeOfDay` · 00543750
-- [ ] `gGameTime::CallEFun_GetYear` · 005437c0
-- [ ] `gGameTime::CallEFun_GetYearLength` · 00543830
-- [ ] `gGameTime::CallEFun_InqCurrentGameDateTimeString` · 005438a0
-- [ ] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0
-- [ ] `gGameTime::CallEFun_IsNight` · 00543960
-- [ ] `gGameTime::CallEFun_TemporalDilation` · 005439b0
+- [ ] `gGameTime::CallEFun_AlterTimeOfDayImmediate` · 00543630 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_GetDayInYear` · 00543670 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_GetDayLength` · 005436e0 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_GetTimeOfDay` · 00543750 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_GetYear` · 005437c0 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_GetYearLength` · 00543830 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_InqCurrentGameDateTimeString` · 005438a0 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_IsNight` · 00543960 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
+- [ ] `gGameTime::CallEFun_TemporalDilation` · 005439b0 — needs port: game time efuns (time of day, day/year length, date strings, dilation)
 
 ## `portal/shared/src/interp/glue/gheading.cpp.c` (4/5)
 
@@ -1829,32 +1829,32 @@ Legend and workflow: [README](README.md).
 - [x] `gHeading::CallEFun_get_degrees` · 00543430 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gHeading::CallEFun_get_degrees_0_centered` · 005434a0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gHeading::CallEFun_is_in_range` · 00543510 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
-- [ ] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0
+- [ ] `gHeading::CallEFun_ToWPString` · 005435b0 · legions 005233a0 — needs port: heading efuns (set/get degrees, range check, ToWPString; position.rs dispatches only gPosition)
 
 ## `portal/shared/src/interp/glue/gicondesc.cpp.c` (0/2)
 
 ### gIconDesc
-- [ ] `gIconDesc::CallEFun_Empty` · 005432f0
-- [ ] `gIconDesc::CallEFun_IsValid` · 00543360
+- [ ] `gIconDesc::CallEFun_Empty` · 005432f0 — needs port: icon description Empty/IsValid
+- [ ] `gIconDesc::CallEFun_IsValid` · 00543360 — needs port: icon description Empty/IsValid
 
 ## `portal/shared/src/interp/glue/gifuntestsystem.cpp.c` (0/2)
 
 ### gIFunTestSystem
-- [ ] `gIFunTestSystem::CallIFun_GetFoo` · 00567e60 · legions 00537df0
-- [ ] `gIFunTestSystem::CallIFun_SetFoo` · 00567f50 · legions 00537ee0
+- [-] `gIFunTestSystem::CallIFun_GetFoo` · 00567e60 · legions 00537df0 — admin only: test system IFun (admin test harness)
+- [-] `gIFunTestSystem::CallIFun_SetFoo` · 00567f50 · legions 00537ee0 — admin only: test system IFun (admin test harness)
 
 ## `portal/shared/src/interp/glue/gifunvirtualtestsystem.cpp.c` (0/1)
 
 ### gIFunVirtualTestSystem
-- [ ] `gIFunVirtualTestSystem::CallIFun_VirtualIFun` · 00567dd0 · legions 00537d60
+- [-] `gIFunVirtualTestSystem::CallIFun_VirtualIFun` · 00567dd0 · legions 00537d60 — admin only: test system IFun (admin test harness)
 
 ## `portal/shared/src/interp/glue/gipreproc.cpp.c` (0/2)
 
 ### _STL::_Rb_tree<QualifiedDataID,QualifiedDataID,_STL::_Identity<QualifiedDataID>,_STL::less<QualifiedDataID>,_STL::allocator<QualifiedDataID>_>
-- [ ] `_STL::_Rb_tree<QualifiedDataID,QualifiedDataID,_STL::_Identity<QualifiedDataID>,_STL::less<QualifiedDataID>,_STL::allocator<QualifiedDataID>_>::operator=` · 007337b0 · legions 006afc60
+- [-] `_STL::_Rb_tree<QualifiedDataID,QualifiedDataID,_STL::_Identity<QualifiedDataID>,_STL::less<QualifiedDataID>,_STL::allocator<QualifiedDataID>_>::operator=` · 007337b0 · legions 006afc60 — C++ assignment operator of plain data (Rust copy/move)
 
 ### gIPreproc
-- [ ] `gIPreproc::CallIFun_GetSubDataIDs` · 00733870 · legions 006afd20
+- [-] `gIPreproc::CallIFun_GetSubDataIDs` · 00733870 · legions 006afd20 — admin only: script preprocessor (compiler), the client runs compiled wlib
 
 ## `portal/shared/src/interp/glue/glahash.cpp.c` (20/20)
 
@@ -1907,14 +1907,14 @@ Legend and workflow: [README](README.md).
 - [x] `gLAHashSet::CallEFun_erase` · 00551880 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned___int64>
-- [ ] `HashSet<unsigned___int64>::add` · 00551930 · legions 0052ccf0
+- [-] `HashSet<unsigned___int64>::add` · 00551930 · legions 0052ccf0 — container internals (Rust collections replace them)
 
 ### gLAHashSet
 - [x] `gLAHashSet::CallEFun_add` · 005519a0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashSet<unsigned___int64>
-- [ ] `HashSet<unsigned___int64>::grow` · 00551a30 · legions 0052cdd0
-- [ ] `HashSet<unsigned___int64>::shrink` · 00551a80 · legions 0052ce20
+- [-] `HashSet<unsigned___int64>::grow` · 00551a30 · legions 0052cdd0 — container internals (Rust collections replace them)
+- [-] `HashSet<unsigned___int64>::shrink` · 00551a80 · legions 0052ce20 — container internals (Rust collections replace them)
 
 ### BaseHashSet<unsigned___int64,11788>
 - [x] `BaseHashSet<unsigned___int64,11788>::get_begin` · 00551b30 · legions 0052ce70 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -1995,7 +1995,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/glamultimapiter.cpp.c` (5/6)
 
 ### _STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>
-- [ ] `_STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>::operator--` · 0054d8e0 · legions 0060f180
+- [-] `_STL::_Rb_tree_iterator<_STL::pair<ActionWithModifiers_const_,ActionMapValue>,_STL::_Nonconst_traits<_STL::pair<ActionWithModifiers_const_,ActionMapValue>_>_>::operator--` · 0054d8e0 · legions 0060f180 — MSVC STL internals (Rust collections replace them)
 
 ### gLAMultiMapIter
 - [x] `gLAMultiMapIter::CallEFun_data` · 0054d930 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -2007,9 +2007,9 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/glanddefs.cpp.c` (0/3)
 
 ### gLandDefs
-- [ ] `gLandDefs::CallEFun_get_land_length` · 00543220
-- [ ] `gLandDefs::CallEFun_get_land_width` · 00543250
-- [ ] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280
+- [ ] `gLandDefs::CallEFun_get_land_length` · 00543220 — needs port: landblock size and static-object lookup efuns
+- [ ] `gLandDefs::CallEFun_get_land_width` · 00543250 — needs port: landblock size and static-object lookup efuns
+- [ ] `gLandDefs::CallEFun_InqLandblockIIDFromStaticObjectIID` · 00543280 — needs port: landblock size and static-object lookup efuns
 
 ## `portal/shared/src/interp/glue/glarray.cpp.c` (12/13)
 
@@ -2024,7 +2024,7 @@ Legend and workflow: [README](README.md).
 - [x] `gLArray::CallEFun_get` · 0055e610 — ac2-script glue::lists
 
 ### SmartArray<CLandBlock::DynamicObjectInfo>
-- [ ] `SmartArray<CLandBlock::DynamicObjectInfo>::AddToEnd` · 0055e690 · legions 00533650
+- [-] `SmartArray<CLandBlock::DynamicObjectInfo>::AddToEnd` · 0055e690 · legions 00533650 — container internals (Rust collections replace them)
 
 ### gLArray
 - [x] `gLArray::CallEFun_push` · 0055e6e0 — ac2-script glue::lists
@@ -2035,16 +2035,16 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/glinkrequirements.cpp.c` (0/10)
 
 ### gLinkRequirements
-- [ ] `gLinkRequirements::CallEFun_SetInputLink` · 00542e10
-- [ ] `gLinkRequirements::CallEFun_SetLinkType` · 00542e70
-- [ ] `gLinkRequirements::CallEFun_SetNumLinks` · 00542ed0
-- [ ] `gLinkRequirements::CallEFun_SetNumReqLinks` · 00542f30
-- [ ] `gLinkRequirements::CallEFun_SetRequired` · 00542f90
-- [ ] `gLinkRequirements::CallEFun_GetLinkType` · 00542ff0
-- [ ] `gLinkRequirements::CallEFun_GetNumLinks` · 00543060
-- [ ] `gLinkRequirements::CallEFun_GetNumReqLinks` · 005430d0
-- [ ] `gLinkRequirements::CallEFun_IsInputLink` · 00543140
-- [ ] `gLinkRequirements::CallEFun_IsRequired` · 005431b0
+- [ ] `gLinkRequirements::CallEFun_SetInputLink` · 00542e10 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_SetLinkType` · 00542e70 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_SetNumLinks` · 00542ed0 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_SetNumReqLinks` · 00542f30 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_SetRequired` · 00542f90 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_GetLinkType` · 00542ff0 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_GetNumLinks` · 00543060 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_GetNumReqLinks` · 005430d0 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_IsInputLink` · 00543140 — needs port: link requirement setters and getters
+- [ ] `gLinkRequirements::CallEFun_IsRequired` · 005431b0 — needs port: link requirement setters and getters
 
 ## `portal/shared/src/interp/glue/gllhash.cpp.c` (20/20)
 
@@ -2081,7 +2081,7 @@ Legend and workflow: [README](README.md).
 - [x] `gLLHashIter::CallEFun_key` · 0055d3f0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### IntrusiveHashIterator<unsigned___int64,HashSetData<unsigned___int64>_*>
-- [ ] `IntrusiveHashIterator<unsigned___int64,HashSetData<unsigned___int64>_*>::remove` · 0055d460 · legions 00531370
+- [-] `IntrusiveHashIterator<unsigned___int64,HashSetData<unsigned___int64>_*>::remove` · 0055d460 · legions 00531370 — container internals (Rust collections replace them)
 
 ### gLLHashIter
 - [x] `gLLHashIter::CallEFun_equals` · 0055d4c0 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -2099,7 +2099,7 @@ Legend and workflow: [README](README.md).
 - [x] `gLList::CallEFun_push_front` · 0055b660 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
-- [ ] `BaseList<unsigned___int64,60>::insert_sort_ulint` · 0055b810 · legions 00532260
+- [-] `BaseList<unsigned___int64,60>::insert_sort_ulint` · 0055b810 · legions 00532260 — container internals (Rust collections replace them)
 
 ### gLList
 - [x] `gLList::CallEFun_insert_back` · 0055b860 — ac2-script glue::lists
@@ -2113,7 +2113,7 @@ Legend and workflow: [README](README.md).
 - [x] `gLList::CallEFun_remove` · 0055bce0 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
-- [ ] `BaseList<unsigned___int64,60>::inq_data` · 0055be10 · legions 00532510
+- [-] `BaseList<unsigned___int64,60>::inq_data` · 0055be10 · legions 00532510 — container internals (Rust collections replace them)
 
 ### gLList
 - [x] `gLList::CallEFun_contains` · 0055be60 — ac2-script glue::lists
@@ -2133,9 +2133,9 @@ Legend and workflow: [README](README.md).
 - [x] `gLList::CallEFun_push_unique_tail` · 0055c730 — ac2-script glue::lists
 
 ### BaseList<unsigned___int64,60>
-- [ ] `BaseList<unsigned___int64,60>::get_begin` · 0055c7c0 · legions 005328f0
-- [ ] `BaseList<unsigned___int64,60>::get_reverse` · 0055c810 · legions 00532940
-- [ ] `BaseList<unsigned___int64,60>::get_end` · 0055c860 · legions 00532990
+- [-] `BaseList<unsigned___int64,60>::get_begin` · 0055c7c0 · legions 005328f0 — container internals (Rust collections replace them)
+- [-] `BaseList<unsigned___int64,60>::get_reverse` · 0055c810 · legions 00532940 — container internals (Rust collections replace them)
+- [-] `BaseList<unsigned___int64,60>::get_end` · 0055c860 · legions 00532990 — container internals (Rust collections replace them)
 
 ### gLList
 - [x] `gLList::CallEFun_get_begin` · 0055c8b0 — ac2-script glue::lists
@@ -2243,22 +2243,22 @@ Legend and workflow: [README](README.md).
 - [x] `LOSParameters::SetFromBeginAndEndPosition` · 005425b0 · legions 00522b50 — ac2-physics los (Terrain::los_check)
 
 ### gLOSParameters
-- [ ] `gLOSParameters::CallEFun_AddToEtherealList` · 00542680
-- [ ] `gLOSParameters::CallEFun_SetBlockedByWater` · 00542700
-- [ ] `gLOSParameters::CallEFun_SetCheckEnvOnly` · 00542760
-- [ ] `gLOSParameters::CallEFun_SetCheckPortalsOnly` · 005427c0
-- [ ] `gLOSParameters::CallEFun_SetCheckUnconnectedPortalsOnly` · 00542820
-- [ ] `gLOSParameters::CallEFun_SetExactDrawingCheck` · 00542880
-- [ ] `gLOSParameters::CallEFun_SetFromBeginAndEndPosition` · 005428e0
-- [ ] `gLOSParameters::CallEFun_SetFromPositionAndOffset` · 00542950
-- [ ] `gLOSParameters::CallEFun_SetLOSParams` · 005429e0
-- [ ] `gLOSParameters::CallEFun_SetPhysicsCheck` · 00542a50
-- [ ] `gLOSParameters::CallEFun_SetRay` · 00542ab0
-- [ ] `gLOSParameters::CallEFun_GetFinalCellID` · 00542b20
-- [ ] `gLOSParameters::CallEFun_HitUnloadedBlock` · 00542b90
-- [ ] `gLOSParameters::CallEFun_RayUnblocked` · 00542c10
-- [ ] `gLOSParameters::CallEFun_GetEndPoint` · 00542c90
-- [ ] `gLOSParameters::CallEFun_GetFinalRay` · 00542d30
+- [ ] `gLOSParameters::CallEFun_AddToEtherealList` · 00542680 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetBlockedByWater` · 00542700 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetCheckEnvOnly` · 00542760 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetCheckPortalsOnly` · 005427c0 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetCheckUnconnectedPortalsOnly` · 00542820 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetExactDrawingCheck` · 00542880 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetFromBeginAndEndPosition` · 005428e0 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetFromPositionAndOffset` · 00542950 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetLOSParams` · 005429e0 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetPhysicsCheck` · 00542a50 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_SetRay` · 00542ab0 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_GetFinalCellID` · 00542b20 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_HitUnloadedBlock` · 00542b90 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_RayUnblocked` · 00542c10 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_GetEndPoint` · 00542c90 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+- [ ] `gLOSParameters::CallEFun_GetFinalRay` · 00542d30 — needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
 
 ## `portal/shared/src/interp/glue/glrhash.cpp.c` (20/20)
 
@@ -2362,13 +2362,13 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gmissileinfo.cpp.c` (0/7)
 
 ### gMissileInfo
-- [ ] `gMissileInfo::CallEFun_SetClone` · 00542290
-- [ ] `gMissileInfo::CallEFun_SetCollisionParameters` · 005422f0
-- [ ] `gMissileInfo::CallEFun_SetEntityDID` · 00542350
-- [ ] `gMissileInfo::CallEFun_SetHoldingLocation` · 005423b0
-- [ ] `gMissileInfo::CallEFun_SetMissileParameters` · 00542410
-- [ ] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470
-- [ ] `gMissileInfo::CallEFun_SetThrown` · 005424d0
+- [ ] `gMissileInfo::CallEFun_SetClone` · 00542290 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetCollisionParameters` · 005422f0 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetEntityDID` · 00542350 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetHoldingLocation` · 005423b0 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetMissileParameters` · 00542410 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [ ] `gMissileInfo::CallEFun_SetThrown` · 005424d0 — needs port: missile info setters (clone, collision, targeting, holding location)
 
 ## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (23/23)
 
@@ -2400,81 +2400,81 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gmissiletargetingparameters.cpp.c` (0/12)
 
 ### gMissileTargetingParameters
-- [ ] `gMissileTargetingParameters::CallEFun_ClientUseParentForBasePosition` · 005414d0
-- [ ] `gMissileTargetingParameters::CallEFun_SetAlwaysStartTowardTarget` · 00541530
-- [ ] `gMissileTargetingParameters::CallEFun_SetBasePosition` · 00541590
-- [ ] `gMissileTargetingParameters::CallEFun_SetInitialPitch` · 005415f0
-- [ ] `gMissileTargetingParameters::CallEFun_SetInitialSpeed` · 00541650
-- [ ] `gMissileTargetingParameters::CallEFun_SetMaxInitialTargetRange` · 005416b0
-- [ ] `gMissileTargetingParameters::CallEFun_SetMissileDetonationChance` · 00541710
-- [ ] `gMissileTargetingParameters::CallEFun_SetNoFireIfTooFar` · 00541770
-- [ ] `gMissileTargetingParameters::CallEFun_SetStartTowardTarget` · 005417d0
-- [ ] `gMissileTargetingParameters::CallEFun_SetTargetID` · 00541830
-- [ ] `gMissileTargetingParameters::CallEFun_SetTargetPos` · 005418b0
-- [ ] `gMissileTargetingParameters::CallEFun_UseSourceObjectForBasePosition` · 00541910
+- [ ] `gMissileTargetingParameters::CallEFun_ClientUseParentForBasePosition` · 005414d0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetAlwaysStartTowardTarget` · 00541530 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetBasePosition` · 00541590 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetInitialPitch` · 005415f0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetInitialSpeed` · 00541650 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetMaxInitialTargetRange` · 005416b0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetMissileDetonationChance` · 00541710 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetNoFireIfTooFar` · 00541770 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetStartTowardTarget` · 005417d0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetTargetID` · 00541830 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_SetTargetPos` · 005418b0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [ ] `gMissileTargetingParameters::CallEFun_UseSourceObjectForBasePosition` · 00541910 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
 
 ## `portal/shared/src/interp/glue/gmotionvalues.cpp.c` (0/22)
 
 ### gMotionValues
-- [ ] `gMotionValues::CallEFun_GetBackwardAcl` · 00540b30
-- [ ] `gMotionValues::CallEFun_GetBackwardSB` · 00540ba0
-- [ ] `gMotionValues::CallEFun_GetDrag` · 00540c10
-- [ ] `gMotionValues::CallEFun_GetForwardAcl` · 00540c80
-- [ ] `gMotionValues::CallEFun_GetForwardSB` · 00540cf0
-- [ ] `gMotionValues::CallEFun_GetGravity` · 00540d60
-- [ ] `gMotionValues::CallEFun_GetHoverHeight` · 00540dd0
-- [ ] `gMotionValues::CallEFun_GetJumpImpulse` · 00540e40
-- [ ] `gMotionValues::CallEFun_GetLift` · 00540eb0
-- [ ] `gMotionValues::CallEFun_GetMaxBackwardVel` · 00540f20
-- [ ] `gMotionValues::CallEFun_GetMaxForwardVel` · 00540f90
-- [ ] `gMotionValues::CallEFun_GetMaxStrafeVel` · 00541000
-- [ ] `gMotionValues::CallEFun_GetMaxVertVel` · 00541070
-- [ ] `gMotionValues::CallEFun_GetRunningTurnVel` · 005410e0
-- [ ] `gMotionValues::CallEFun_GetSinkOffset` · 00541150
-- [ ] `gMotionValues::CallEFun_GetStillTurnVel` · 005411c0
-- [ ] `gMotionValues::CallEFun_GetStrafeAcl` · 00541230
-- [ ] `gMotionValues::CallEFun_GetStrafeSB` · 005412a0
-- [ ] `gMotionValues::CallEFun_GetTerminalVel` · 00541310
-- [ ] `gMotionValues::CallEFun_GetTurnAcl` · 00541380
-- [ ] `gMotionValues::CallEFun_GetTurnSB` · 005413f0
-- [ ] `gMotionValues::CallEFun_GetVertAcl` · 00541460
+- [ ] `gMotionValues::CallEFun_GetBackwardAcl` · 00540b30 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetBackwardSB` · 00540ba0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetDrag` · 00540c10 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetForwardAcl` · 00540c80 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetForwardSB` · 00540cf0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetGravity` · 00540d60 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetHoverHeight` · 00540dd0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetJumpImpulse` · 00540e40 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetLift` · 00540eb0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetMaxBackwardVel` · 00540f20 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetMaxForwardVel` · 00540f90 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetMaxStrafeVel` · 00541000 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetMaxVertVel` · 00541070 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetRunningTurnVel` · 005410e0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetSinkOffset` · 00541150 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetStillTurnVel` · 005411c0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetStrafeAcl` · 00541230 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetStrafeSB` · 005412a0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetTerminalVel` · 00541310 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetTurnAcl` · 00541380 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetTurnSB` · 005413f0 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+- [ ] `gMotionValues::CallEFun_GetVertAcl` · 00541460 — needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
 
 ## `portal/shared/src/interp/glue/gmovementparameters.cpp.c` (0/21)
 
 ### gMovementParameters
-- [ ] `gMovementParameters::CallEFun_set_callback_when_in_range` · 005402a0
-- [ ] `gMovementParameters::CallEFun_set_context_id` · 00540300
-- [ ] `gMovementParameters::CallEFun_set_desired_distance` · 00540360
-- [ ] `gMovementParameters::CallEFun_set_desired_velocity` · 005403c0
-- [ ] `gMovementParameters::CallEFun_set_fail_distance` · 00540420
-- [ ] `gMovementParameters::CallEFun_set_max_success_distance` · 00540480
-- [ ] `gMovementParameters::CallEFun_set_min_success_distance` · 005404e0
-- [ ] `gMovementParameters::CallEFun_set_move_away_flag` · 00540540
-- [ ] `gMovementParameters::CallEFun_set_move_towards_flag` · 005405a0
-- [ ] `gMovementParameters::CallEFun_set_object_flag` · 00540600
-- [ ] `gMovementParameters::CallEFun_set_offset_vector` · 00540660
-- [ ] `gMovementParameters::CallEFun_set_persistent_fail_exits_flag` · 005406c0
-- [ ] `gMovementParameters::CallEFun_set_persistent_flag` · 00540720
-- [ ] `gMovementParameters::CallEFun_set_target_heading` · 00540780
-- [ ] `gMovementParameters::CallEFun_set_target_object_id` · 005407f0
-- [ ] `gMovementParameters::CallEFun_set_target_position` · 00540850
-- [ ] `gMovementParameters::CallEFun_set_turn_flag` · 005408b0
-- [ ] `gMovementParameters::CallEFun_set_use_cylinders` · 00540910
-- [ ] `gMovementParameters::CallEFun_get_context_id` · 00540970
-- [ ] `gMovementParameters::CallEFun_set_position_list` · 005409e0
-- [ ] `gMovementParameters::CallEFun_pop_position_list` · 00540aa0
+- [ ] `gMovementParameters::CallEFun_set_callback_when_in_range` · 005402a0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_context_id` · 00540300 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_desired_distance` · 00540360 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_desired_velocity` · 005403c0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_fail_distance` · 00540420 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_max_success_distance` · 00540480 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_min_success_distance` · 005404e0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_move_away_flag` · 00540540 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_move_towards_flag` · 005405a0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_object_flag` · 00540600 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_offset_vector` · 00540660 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_persistent_fail_exits_flag` · 005406c0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_persistent_flag` · 00540720 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_target_heading` · 00540780 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_target_object_id` · 005407f0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_target_position` · 00540850 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_turn_flag` · 005408b0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_use_cylinders` · 00540910 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_get_context_id` · 00540970 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_set_position_list` · 005409e0 — needs port: movement parameter setters (target, distances, flags, position list)
+- [ ] `gMovementParameters::CallEFun_pop_position_list` · 00540aa0 — needs port: movement parameter setters (target, distances, flags, position list)
 
 ## `portal/shared/src/interp/glue/gmovementreturn.cpp.c` (0/8)
 
 ### gMovementReturn
-- [ ] `gMovementReturn::CallEFun_GetError` · 0053fe10
-- [ ] `gMovementReturn::CallEFun_GetObjectHeight` · 0053fe80
-- [ ] `gMovementReturn::CallEFun_GetObjectID` · 0053fef0
-- [ ] `gMovementReturn::CallEFun_GetObjectRadius` · 0053ff80
-- [ ] `gMovementReturn::CallEFun_GetPersistentFlag` · 0053fff0
-- [ ] `gMovementReturn::CallEFun_GetStatus` · 00540060
-- [ ] `gMovementReturn::CallEFun_GetMovementParameters` · 005400d0
-- [ ] `gMovementReturn::CallEFun_GetPosition` · 005401a0
+- [ ] `gMovementReturn::CallEFun_GetError` · 0053fe10 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetObjectHeight` · 0053fe80 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetObjectID` · 0053fef0 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetObjectRadius` · 0053ff80 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetPersistentFlag` · 0053fff0 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetStatus` · 00540060 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetMovementParameters` · 005400d0 — needs port: movement return getters (status, error, object id, position)
+- [ ] `gMovementReturn::CallEFun_GetPosition` · 005401a0 — needs port: movement return getters (status, error, object id, position)
 
 ## `portal/shared/src/interp/glue/gnahash.cpp.c` (20/20)
 
@@ -2550,7 +2550,7 @@ Legend and workflow: [README](README.md).
 - [x] `gNRHashIter::CallEFun_notdone` · 00556a80 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 
 ### HashIterator<ReferenceIDWrapper,unsigned_long>
-- [ ] `HashIterator<ReferenceIDWrapper,unsigned_long>::next` · 00556af0 · legions 0052f8e0
+- [-] `HashIterator<ReferenceIDWrapper,unsigned_long>::next` · 00556af0 · legions 0052f8e0 — container internals (Rust collections replace them)
 
 ### gNRHashIter
 - [x] `gNRHashIter::CallEFun_next` · 00556b30 — ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -2558,10 +2558,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gobjcollisionprofile.cpp.c` (0/4)
 
 ### gObjCollisionProfile
-- [ ] `gObjCollisionProfile::CallEFun_GetID` · 0053fc50
-- [ ] `gObjCollisionProfile::CallEFun_IsBeginCollision` · 0053fcc0
-- [ ] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30
-- [ ] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0
+- [ ] `gObjCollisionProfile::CallEFun_GetID` · 0053fc50 — needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
+- [ ] `gObjCollisionProfile::CallEFun_IsBeginCollision` · 0053fcc0 — needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
+- [ ] `gObjCollisionProfile::CallEFun_IsEndCollision` · 0053fd30 — needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
+- [ ] `gObjCollisionProfile::CallEFun_IsEthereal` · 0053fda0 — needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
 
 ## `portal/shared/src/interp/glue/gpackbuffer.cpp.c` (10/10)
 
@@ -2580,185 +2580,185 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gpath.cpp.c` (0/12)
 
 ### gPath
-- [ ] `gPath::CallEFun_set_dist` · 0053efd0
-- [ ] `gPath::CallEFun_set_ratio` · 0053f030
-- [ ] `gPath::CallEFun_set_time` · 0053f090
-- [ ] `gPath::CallEFun_get_dist` · 0053f0f0
-- [ ] `gPath::CallEFun_get_ratio` · 0053f160
-- [ ] `gPath::CallEFun_get_time` · 0053f1d0
-- [ ] `gPath::CallEFun_length` · 0053f250
-- [ ] `gPath::CallEFun_unsolved` · 0053f2c0
+- [ ] `gPath::CallEFun_set_dist` · 0053efd0 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_set_ratio` · 0053f030 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_set_time` · 0053f090 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_get_dist` · 0053f0f0 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_get_ratio` · 0053f160 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_get_time` · 0053f1d0 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_length` · 0053f250 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::CallEFun_unsolved` · 0053f2c0 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
 
 ### gMovementParameters
-- [ ] `gMovementParameters::RListToPositionList` · 0053f340 · legions 00521800
+- [ ] `gMovementParameters::RListToPositionList` · 0053f340 · legions 00521800 — needs port: path position list conversion (RListToPositionList)
 
 ### gPath
-- [ ] `gPath::CallEFun_ToStringW` · 0053f410
-- [ ] `gPath::PositionListToRList` · 0053f4d0 · legions 00520a00
-- [ ] `gPath::CallEFun_TranslateToPositionList` · 0053f590
+- [ ] `gPath::CallEFun_ToStringW` · 0053f410 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+- [ ] `gPath::PositionListToRList` · 0053f4d0 · legions 00520a00 — needs port: path position list conversion (PositionListToRList)
+- [ ] `gPath::CallEFun_TranslateToPositionList` · 0053f590 — needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
 
 ## `portal/shared/src/interp/glue/gpathfinder.cpp.c` (0/14)
 
 ### gPathFinder
-- [ ] `gPathFinder::CallEFun_AddRequiredProperties` · 0053e9b0
-- [ ] `gPathFinder::CallEFun_AddSolutionTypes` · 0053ea10
-- [ ] `gPathFinder::CallEFun_AddTerminateSolutionTypes` · 0053ea70
-- [ ] `gPathFinder::CallEFun_HasRequiredProperties` · 0053ead0
-- [ ] `gPathFinder::CallEFun_SetRequiredProperties` · 0053eb10
-- [ ] `gPathFinder::CallEFun_SetSolutionTypes` · 0053eb70
-- [ ] `gPathFinder::CallEFun_SetTerminateSolutionTypes` · 0053ebd0
-- [ ] `gPathFinder::CallEFun_HasSolutionType` · 0053ec30
-- [ ] `gPathFinder::CallEFun_HasTerminateSolutionType` · 0053ecb0
-- [ ] `gPathFinder::CallEFun_SetEnd` · 0053ed30
-- [ ] `gPathFinder::CallEFun_SetEndPosition` · 0053edb0
-- [ ] `gPathFinder::CallEFun_SetStart` · 0053ee30
-- [ ] `gPathFinder::CallEFun_SetStartPosition` · 0053eeb0
-- [ ] `gPathFinder::CallEFun_InqSolution` · 0053ef30
+- [ ] `gPathFinder::CallEFun_AddRequiredProperties` · 0053e9b0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_AddSolutionTypes` · 0053ea10 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_AddTerminateSolutionTypes` · 0053ea70 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_HasRequiredProperties` · 0053ead0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetRequiredProperties` · 0053eb10 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetSolutionTypes` · 0053eb70 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetTerminateSolutionTypes` · 0053ebd0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_HasSolutionType` · 0053ec30 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_HasTerminateSolutionType` · 0053ecb0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetEnd` · 0053ed30 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetEndPosition` · 0053edb0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetStart` · 0053ee30 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_SetStartPosition` · 0053eeb0 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
+- [ ] `gPathFinder::CallEFun_InqSolution` · 0053ef30 — needs port: path finder request setters (start, end, solution and property types) and InqSolution
 
 ## `portal/shared/src/interp/glue/gpathfinder_normal.cpp.c` (0/10)
 
 ### gPathFinder_Normal
-- [ ] `gPathFinder_Normal::CallEFun_SetHeight` · 0053e5e0
-- [ ] `gPathFinder_Normal::CallEFun_SetMaxDistance` · 0053e640
-- [ ] `gPathFinder_Normal::CallEFun_SetMinDistance` · 0053e6a0
-- [ ] `gPathFinder_Normal::CallEFun_SetMoveAway` · 0053e700
-- [ ] `gPathFinder_Normal::CallEFun_SetRandomComponent` · 0053e760
-- [ ] `gPathFinder_Normal::CallEFun_SetSameBlockConstraint` · 0053e7c0
-- [ ] `gPathFinder_Normal::CallEFun_SetSlopeConstraint` · 0053e830
-- [ ] `gPathFinder_Normal::CallEFun_SetSolidConstraint` · 0053e890
-- [ ] `gPathFinder_Normal::CallEFun_SetWaterConstraint` · 0053e8f0
-- [ ] `gPathFinder_Normal::CallEFun_SetWidth` · 0053e950
+- [ ] `gPathFinder_Normal::CallEFun_SetHeight` · 0053e5e0 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetMaxDistance` · 0053e640 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetMinDistance` · 0053e6a0 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetMoveAway` · 0053e700 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetRandomComponent` · 0053e760 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetSameBlockConstraint` · 0053e7c0 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetSlopeConstraint` · 0053e830 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetSolidConstraint` · 0053e890 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetWaterConstraint` · 0053e8f0 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
+- [ ] `gPathFinder_Normal::CallEFun_SetWidth` · 0053e950 — needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
 
 ## `portal/shared/src/interp/glue/gpathnodedata.cpp.c` (0/3)
 
 ### gPathNodeData
-- [ ] `gPathNodeData::CallEFun_GetSlopeConstraint` · 0053e490
-- [ ] `gPathNodeData::CallEFun_IsSolid` · 0053e500
-- [ ] `gPathNodeData::CallEFun_IsWater` · 0053e570
+- [ ] `gPathNodeData::CallEFun_GetSlopeConstraint` · 0053e490 — needs port: path node data inquiries (slope constraint, solid, water)
+- [ ] `gPathNodeData::CallEFun_IsSolid` · 0053e500 — needs port: path node data inquiries (slope constraint, solid, water)
+- [ ] `gPathNodeData::CallEFun_IsWater` · 0053e570 — needs port: path node data inquiries (slope constraint, solid, water)
 
 ## `portal/shared/src/interp/glue/gpathsystem.cpp.c` (0/13)
 
 ### PathSystem
-- [ ] `PathSystem::QueryPosition_Internal` · 0053de90 · legions 0051fb50
+- [ ] `PathSystem::QueryPosition_Internal` · 0053de90 · legions 0051fb50 — needs port: path system position query (QueryPosition_Internal)
 
 ### gPathSystem
-- [ ] `gPathSystem::CallEFun_GetPathMapID` · 0053df10
-- [ ] `gPathSystem::CallEFun_GetPathNodeID` · 0053df50
+- [ ] `gPathSystem::CallEFun_GetPathMapID` · 0053df10 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
+- [ ] `gPathSystem::CallEFun_GetPathNodeID` · 0053df50 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
 
 ### PathSystem
-- [ ] `PathSystem::DumpPathMapW` · 0053dfb0 · legions 0051fc70
-- [ ] `PathSystem::DumpSearchStatsW` · 0053e070 · legions 0051fd30
-- [ ] `PathSystem::DumpCacheW` · 0053e130 · legions 0051fdf0
+- [-] `PathSystem::DumpPathMapW` · 0053dfb0 · legions 0051fc70 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `PathSystem::DumpSearchStatsW` · 0053e070 · legions 0051fd30 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `PathSystem::DumpCacheW` · 0053e130 · legions 0051fdf0 — WSL debugger query or dump (process, reference and perf tables)
 
 ### gPathSystem
-- [ ] `gPathSystem::CallEFun_DumpCacheW` · 0053e220
-- [ ] `gPathSystem::CallEFun_DumpPathMapW` · 0053e260
-- [ ] `gPathSystem::CallEFun_DumpSearchStatsW` · 0053e2c0
-- [ ] `gPathSystem::CallEFun_FindPath` · 0053e300
-- [ ] `gPathSystem::CallEFun_InqPathNodeDataByNodeID` · 0053e360
-- [ ] `gPathSystem::CallEFun_InqPathNodeDataByPosition` · 0053e3c0
-- [ ] `gPathSystem::CallEFun_QueryPosition` · 0053e430
+- [-] `gPathSystem::CallEFun_DumpCacheW` · 0053e220 — admin dump of path map and caches
+- [-] `gPathSystem::CallEFun_DumpPathMapW` · 0053e260 — admin dump of path map and caches
+- [-] `gPathSystem::CallEFun_DumpSearchStatsW` · 0053e2c0 — admin dump of path map and caches
+- [ ] `gPathSystem::CallEFun_FindPath` · 0053e300 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
+- [ ] `gPathSystem::CallEFun_InqPathNodeDataByNodeID` · 0053e360 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
+- [ ] `gPathSystem::CallEFun_InqPathNodeDataByPosition` · 0053e3c0 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
+- [ ] `gPathSystem::CallEFun_QueryPosition` · 0053e430 — needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
 
 ## `portal/shared/src/interp/glue/gperfmon.cpp.c` (0/9)
 
 ### gPerfMon
-- [ ] `gPerfMon::CallEFun_AdjustCounter16` · 0053dd50
-- [ ] `gPerfMon::CallEFun_AdjustCounter32` · 0053dd70
-- [ ] `gPerfMon::CallEFun_AdjustCounter64` · 0053dd90
-- [ ] `gPerfMon::CallEFun_AdjustCounter8` · 0053ddc0
-- [ ] `gPerfMon::CallEFun_DecrementCounter` · 0053dde0
-- [ ] `gPerfMon::CallEFun_IncrementCounter` · 0053de00
-- [ ] `gPerfMon::CallEFun_StartTimerCounter` · 0053de20
-- [ ] `gPerfMon::CallEFun_StopTimerCounter` · 0053de40
-- [ ] `gPerfMon::CallEFun_MeasureLock` · 0053de60
+- [-] `gPerfMon::CallEFun_AdjustCounter16` · 0053dd50 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_AdjustCounter32` · 0053dd70 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_AdjustCounter64` · 0053dd90 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_AdjustCounter8` · 0053ddc0 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_DecrementCounter` · 0053dde0 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_IncrementCounter` · 0053de00 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_StartTimerCounter` · 0053de20 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_StopTimerCounter` · 0053de40 — admin only: profiler counters (admin tool)
+- [-] `gPerfMon::CallEFun_MeasureLock` · 0053de60 — admin only: profiler counters (admin tool)
 
 ## `portal/shared/src/interp/glue/gpfilenode.cpp.c` (0/39)
 
 ### FileNodeName_UInt64
-- [ ] `FileNodeName_UInt64::GetType` · 00543d60 · legions 005238d0
-- [ ] `FileNodeName_UInt64::Clone` · 00543d70 · legions 005238e0
+- [ ] `FileNodeName_UInt64::GetType` · 00543d60 · legions 005238d0 — needs port: PFile node GetType (PFile tree names and leaves)
+- [ ] `FileNodeName_UInt64::Clone` · 00543d70 · legions 005238e0 — needs port: PFile node Clone (PFile tree names and leaves)
 
 ### FileNodeName_Int64
-- [ ] `FileNodeName_Int64::Clone` · 00543da0 · legions 00523910
+- [ ] `FileNodeName_Int64::Clone` · 00543da0 · legions 00523910 — needs port: PFile node Clone (PFile tree names and leaves)
 
 ### PFileNode
-- [ ] `PFileNode::SetNameAsBool` · 00543dd0 · legions 00523940
+- [ ] `PFileNode::SetNameAsBool` · 00543dd0 · legions 00523940 — needs port: PFile node SetNameAsBool (PFile tree names and leaves)
 
 ### gPFileNode
-- [ ] `gPFileNode::CallEFun_AddAndRefSubNode` · 00543e20
-- [ ] `gPFileNode::CallEFun_ReportErrorWSL` · 00543e80
-- [ ] `gPFileNode::CallEFun_ReportWarningWSL` · 00543ee0
-- [ ] `gPFileNode::CallEFun_SetNameAsBool` · 00543f40
-- [ ] `gPFileNode::CallEFun_SetNameAsFloat` · 00543fe0
-- [ ] `gPFileNode::CallEFun_SetNameAsInt32` · 00544080
-- [ ] `gPFileNode::CallEFun_SetNameAsUInt32` · 00544120
-- [ ] `gPFileNode::CallEFun_SetNameAsWPString` · 005441c0
+- [ ] `gPFileNode::CallEFun_AddAndRefSubNode` · 00543e20 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_ReportErrorWSL` · 00543e80 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_ReportWarningWSL` · 00543ee0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_SetNameAsBool` · 00543f40 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_SetNameAsFloat` · 00543fe0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_SetNameAsInt32` · 00544080 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_SetNameAsUInt32` · 00544120 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_SetNameAsWPString` · 005441c0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
 
 ### PFileNode
-- [ ] `PFileNode::GetLeafAsInt32` · 00544220 · legions 00523c50
-- [ ] `PFileNode::GetNameAsInt64` · 00544240
-- [ ] `PFileNode::GetNameAsUInt64` · 00544310
+- [ ] `PFileNode::GetLeafAsInt32` · 00544220 · legions 00523c50 — needs port: PFile node GetLeafAsInt32 (PFile tree names and leaves)
+- [ ] `PFileNode::GetNameAsInt64` · 00544240 — needs port: PFile node GetNameAsInt64 (PFile tree names and leaves)
+- [ ] `PFileNode::GetNameAsUInt64` · 00544310 — needs port: PFile node GetNameAsUInt64 (PFile tree names and leaves)
 
 ### gPFileNode
-- [ ] `gPFileNode::CallEFun_GetNumSubNodes` · 005443e0
-- [ ] `gPFileNode::CallEFun_IsKeywordW` · 00544450
-- [ ] `gPFileNode::CallEFun_GetSourceFileNameW` · 005444d0
-- [ ] `gPFileNode::CallEFun_GetSubNode` · 00544590
-- [ ] `gPFileNode::CallEFun_MakeSubNode` · 00544630
-- [ ] `gPFileNode::CallEFun_GetLeafAsBool` · 005446c0
-- [ ] `gPFileNode::CallEFun_GetLeafAsFloat` · 00544780
-- [ ] `gPFileNode::CallEFun_GetLeafAsInt32` · 00544840
-- [ ] `gPFileNode::CallEFun_GetLeafAsInt64` · 00544900
-- [ ] `gPFileNode::CallEFun_GetLeafAsUInt32` · 005449c0
-- [ ] `gPFileNode::CallEFun_GetLeafAsUInt64` · 00544a80
-- [ ] `gPFileNode::CallEFun_GetLeafAsWPString` · 00544b40 · legions 00524350
-- [ ] `gPFileNode::CallEFun_GetNameAsBool` · 00544be0
-- [ ] `gPFileNode::CallEFun_GetNameAsFloat` · 00544c80
-- [ ] `gPFileNode::CallEFun_GetNameAsInt32` · 00544d20
-- [ ] `gPFileNode::CallEFun_GetNameAsInt64` · 00544dc0
-- [ ] `gPFileNode::CallEFun_GetNameAsUInt32` · 00544e60
-- [ ] `gPFileNode::CallEFun_GetNameAsUInt64` · 00544f00
-- [ ] `gPFileNode::CallEFun_GetNameAsWPString` · 00544fa0 · legions 005246c0
-- [ ] `gPFileNode::CallEFun_GetSubNameAsBool` · 00545040 · legions 00524730
-- [ ] `gPFileNode::CallEFun_GetSubNameAsFloat` · 00545110 · legions 005247d0
-- [ ] `gPFileNode::CallEFun_GetSubNameAsInt32` · 005451e0 · legions 00524870
-- [ ] `gPFileNode::CallEFun_GetSubNameAsUInt32` · 005452b0 · legions 00524910
-- [ ] `gPFileNode::CallEFun_GetSubNameAsWPString` · 00545380 · legions 005249b0
+- [ ] `gPFileNode::CallEFun_GetNumSubNodes` · 005443e0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_IsKeywordW` · 00544450 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [-] `gPFileNode::CallEFun_GetSourceFileNameW` · 005444d0 — debugger source file name
+- [ ] `gPFileNode::CallEFun_GetSubNode` · 00544590 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_MakeSubNode` · 00544630 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsBool` · 005446c0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsFloat` · 00544780 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsInt32` · 00544840 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsInt64` · 00544900 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsUInt32` · 005449c0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsUInt64` · 00544a80 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetLeafAsWPString` · 00544b40 · legions 00524350 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsBool` · 00544be0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsFloat` · 00544c80 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsInt32` · 00544d20 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsInt64` · 00544dc0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsUInt32` · 00544e60 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsUInt64` · 00544f00 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetNameAsWPString` · 00544fa0 · legions 005246c0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetSubNameAsBool` · 00545040 · legions 00524730 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetSubNameAsFloat` · 00545110 · legions 005247d0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetSubNameAsInt32` · 005451e0 · legions 00524870 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetSubNameAsUInt32` · 005452b0 · legions 00524910 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+- [ ] `gPFileNode::CallEFun_GetSubNameAsWPString` · 00545380 · legions 005249b0 — needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
 
 ## `portal/shared/src/interp/glue/gpfileparser.cpp.c` (0/2)
 
 ### gPFileParser
-- [ ] `gPFileParser::CallEFun_LoadFromStringW` · 00543bd0
-- [ ] `gPFileParser::CallEFun_SaveToStringW` · 00543c50 · legions 00523800
+- [ ] `gPFileParser::CallEFun_LoadFromStringW` · 00543bd0 — needs port: PFile parser efuns (load and save string)
+- [ ] `gPFileParser::CallEFun_SaveToStringW` · 00543c50 · legions 00523800 — needs port: PFile parser efuns (load and save string)
 
 ## `portal/shared/src/interp/glue/gphysicsstory.cpp.c` (0/7)
 
 ### gPhysicsStory
-- [ ] `gPhysicsStory::CallEFun_AddHook` · 0053daa0
-- [ ] `gPhysicsStory::CallEFun_SetAttackerBehavior` · 0053db00
-- [ ] `gPhysicsStory::CallEFun_SetAttackerID` · 0053db60
-- [ ] `gPhysicsStory::CallEFun_SetBasicAttack` · 0053dbc0
-- [ ] `gPhysicsStory::CallEFun_SetClientAttackContext` · 0053dc20
-- [ ] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80
-- [ ] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0
+- [ ] `gPhysicsStory::CallEFun_AddHook` · 0053daa0 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_SetAttackerBehavior` · 0053db00 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_SetAttackerID` · 0053db60 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_SetBasicAttack` · 0053dbc0 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_SetClientAttackContext` · 0053dc20 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_SetSkillID` · 0053dc80 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+- [ ] `gPhysicsStory::CallEFun_GetOverallAttackResult` · 0053dce0 — needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
 
 ## `portal/shared/src/interp/glue/gplacestable.cpp.c` (3/6)
 
 ### gPlacesTable
-- [ ] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480
-- [ ] `gPlacesTable::CallEFun_WslDump` · 0053d730
+- [ ] `gPlacesTable::NRHashToPlacesHash` · 0053d6a0 · legions 0051f480 — needs port: places hash conversion (NRHashToPlacesHash)
+- [-] `gPlacesTable::CallEFun_WslDump` · 0053d730 — WSL debug dump
 - [x] `gPlacesTable::PlacesHashToNRHash` · 0053d7b0 · legions 0051f590 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [x] `gPlacesTable::CallEFun_InqPlace` · 0053d8f0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
-- [ ] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960
+- [ ] `gPlacesTable::CallEFun_InqPlaceStr` · 0053d960 — needs port: places table efuns (InqPlace, InqPlaceStr, InqPlacesHash)
 - [x] `gPlacesTable::CallEFun_InqPlacesHash` · 0053d9d0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
 ## `portal/shared/src/interp/glue/gplane.cpp.c` (0/4)
 
 ### gPlane
-- [ ] `gPlane::CallEFun_InitPlane` · 0053d3f0
-- [ ] `gPlane::CallEFun_distance_to_point` · 0053d480
-- [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330
-- [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390
+- [ ] `gPlane::CallEFun_InitPlane` · 0053d3f0 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
+- [ ] `gPlane::CallEFun_distance_to_point` · 0053d480 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
+- [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
+- [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
 
 ## `portal/shared/src/interp/glue/gposition.cpp.c` (38/41)
 
@@ -2808,55 +2808,55 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gpropertycollection.cpp.c` (0/12)
 
 ### gPropertyCollection
-- [ ] `gPropertyCollection::CallEFun_AddOptionalProperty` · 0053b790
-- [ ] `gPropertyCollection::CallEFun_AddProperty` · 0053b810
-- [ ] `gPropertyCollection::CallEFun_ContainsGroup` · 0053b890
-- [ ] `gPropertyCollection::CallEFun_ContainsProperty` · 0053b910
-- [ ] `gPropertyCollection::CallEFun_GetNumGroups` · 0053b990
-- [ ] `gPropertyCollection::CallEFun_UpdateProperty` · 0053ba00
-- [ ] `gPropertyCollection::CallEFun_InqGroup` · 0053ba80 · legions 0051e060
-- [ ] `gPropertyCollection::CallEFun_InqGroupAt` · 0053bb20
-- [ ] `gPropertyCollection::CallEFun_InqOptionalProperty` · 0053bbc0
-- [ ] `gPropertyCollection::CallEFun_InqOptionalPropertyW` · 0053bc60
-- [ ] `gPropertyCollection::CallEFun_InqProperty` · 0053bd00
-- [ ] `gPropertyCollection::CallEFun_InqPropertyW` · 0053bda0
+- [ ] `gPropertyCollection::CallEFun_AddOptionalProperty` · 0053b790 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_AddProperty` · 0053b810 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_ContainsGroup` · 0053b890 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_ContainsProperty` · 0053b910 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_GetNumGroups` · 0053b990 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_UpdateProperty` · 0053ba00 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqGroup` · 0053ba80 · legions 0051e060 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqGroupAt` · 0053bb20 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqOptionalProperty` · 0053bbc0 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqOptionalPropertyW` · 0053bc60 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqProperty` · 0053bd00 — needs port: property collection efuns (AddProperty, group and property inquiries)
+- [ ] `gPropertyCollection::CallEFun_InqPropertyW` · 0053bda0 — needs port: property collection efuns (AddProperty, group and property inquiries)
 
 ## `portal/shared/src/interp/glue/gpropertygroup.cpp.c` (0/14)
 
 ### gPropertyGroup
-- [ ] `gPropertyGroup::CallEFun_AddOptionalProperty` · 0053b010
-- [ ] `gPropertyGroup::CallEFun_AddProperty` · 0053b090
-- [ ] `gPropertyGroup::CallEFun_ContainsOptionalProperty` · 0053b110
-- [ ] `gPropertyGroup::CallEFun_ContainsProperty` · 0053b190
-- [ ] `gPropertyGroup::CallEFun_GetNumOptionalProperties` · 0053b210
-- [ ] `gPropertyGroup::CallEFun_GetNumProperties` · 0053b280
-- [ ] `gPropertyGroup::CallEFun_RemoveProperty` · 0053b2f0
-- [ ] `gPropertyGroup::CallEFun_SetGroupName` · 0053b370
-- [ ] `gPropertyGroup::CallEFun_UpdateProperty` · 0053b3f0
-- [ ] `gPropertyGroup::CallEFun_InqOptionalProperty` · 0053b470
-- [ ] `gPropertyGroup::CallEFun_InqOptionalPropertyAt` · 0053b510
-- [ ] `gPropertyGroup::CallEFun_InqProperty` · 0053b5b0
-- [ ] `gPropertyGroup::CallEFun_InqPropertyAt` · 0053b650
-- [ ] `gPropertyGroup::CallEFun_InqPropertyGroupNameW` · 0053b6f0
+- [ ] `gPropertyGroup::CallEFun_AddOptionalProperty` · 0053b010 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_AddProperty` · 0053b090 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_ContainsOptionalProperty` · 0053b110 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_ContainsProperty` · 0053b190 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_GetNumOptionalProperties` · 0053b210 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_GetNumProperties` · 0053b280 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_RemoveProperty` · 0053b2f0 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_SetGroupName` · 0053b370 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_UpdateProperty` · 0053b3f0 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_InqOptionalProperty` · 0053b470 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_InqOptionalPropertyAt` · 0053b510 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_InqProperty` · 0053b5b0 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_InqPropertyAt` · 0053b650 — needs port: property group efuns (AddProperty, group name, property inquiries)
+- [ ] `gPropertyGroup::CallEFun_InqPropertyGroupNameW` · 0053b6f0 — needs port: property group efuns (AddProperty, group name, property inquiries)
 
-## `portal/shared/src/interp/glue/gpsutils.cpp.c` (0/13)
+## `portal/shared/src/interp/glue/gpsutils.cpp.c` (2/13)
 
 ### PSUtils
-- [ ] `PSUtils::is_double` · 0053ab40 · legions 0051d4b0
-- [ ] `PSUtils::is_int32` · 0053abb0 · legions 0051d520
-- [ ] `PSUtils::is_int64` · 0053ac20 · legions 0051d590
-- [ ] `PSUtils::is_uint64` · 0053ac90 · legions 0051d600
+- [x] `PSUtils::is_double` · 0053ab40 · legions 0051d4b0 — ac2-prefs/src/cnum.rs fn is_double (PSUtils::is_double)
+- [x] `PSUtils::is_int32` · 0053abb0 · legions 0051d520 — ac2-prefs/src/cnum.rs fn is_int32 (PSUtils::is_int32)
+- [ ] `PSUtils::is_int64` · 0053ac20 · legions 0051d590 — needs port: PSUtils::is_int64 (64-bit number parse)
+- [ ] `PSUtils::is_uint64` · 0053ac90 · legions 0051d600 — needs port: PSUtils::is_uint64 (64-bit number parse)
 
 ### gPSUtils
-- [ ] `gPSUtils::CallEFun_is_double` · 0053ad00
-- [ ] `gPSUtils::CallEFun_is_int32` · 0053ad50
-- [ ] `gPSUtils::CallEFun_is_int64` · 0053ada0
-- [ ] `gPSUtils::CallEFun_is_uint32` · 0053adf0
-- [ ] `gPSUtils::CallEFun_is_uint64` · 0053ae40
-- [ ] `gPSUtils::CallEFun_cleanup_directory_nameW` · 0053ae90
-- [ ] `gPSUtils::CallEFun_get_cwdW` · 0053aef0
-- [ ] `gPSUtils::CallEFun_remove_extensionW` · 0053af50
-- [ ] `gPSUtils::CallEFun_strip_directoryW` · 0053afb0
+- [ ] `gPSUtils::CallEFun_is_double` · 0053ad00 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_is_int32` · 0053ad50 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_is_int64` · 0053ada0 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_is_uint32` · 0053adf0 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_is_uint64` · 0053ae40 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_cleanup_directory_nameW` · 0053ae90 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_get_cwdW` · 0053aef0 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_remove_extensionW` · 0053af50 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
+- [ ] `gPSUtils::CallEFun_strip_directoryW` · 0053afb0 — needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
 
 ## `portal/shared/src/interp/glue/gqualifieddataidarray.cpp.c` (1/1)
 
@@ -2887,7 +2887,7 @@ Legend and workflow: [README](README.md).
 - [x] `gRandomSelectionTable_Int::CallEFun_InitializeWeights` · 0053a5b0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
 ### SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>
-- [ ] `SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>::AddToEnd` · 0053a610 · legions 0051d040
+- [-] `SmartArray<RandomSelectionTable<unsigned_long>::ElementStruct>::AddToEnd` · 0053a610 · legions 0051d040 — container internals (Rust collections replace them)
 
 ### RandomSelectionTable<unsigned_long>
 - [x] `RandomSelectionTable<unsigned_long>::AddEntry_Internal` · 0053a670 · legions 0051d0a0 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -2907,7 +2907,7 @@ Legend and workflow: [README](README.md).
 - [x] `gRArray::CallEFun_flush` · 00556110 — ac2-script glue::lists
 
 ### RArray
-- [ ] `RArray::SetNElements` · 00556170 · legions 0052f2d0
+- [-] `RArray::SetNElements` · 00556170 · legions 0052f2d0 — container internals (Rust collections replace them)
 
 ### gRArray
 - [x] `gRArray::CallEFun_SetNElements` · 005561c0 — ac2-script glue::lists
@@ -2923,24 +2923,24 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gray.cpp.c` (0/8)
 
 ### gRay
-- [ ] `gRay::CallEFun_InitFromOffset` · 00539fe0
-- [ ] `gRay::CallEFun_InitLineSegment` · 0053a050
-- [ ] `gRay::CallEFun_normalize` · 0053a0f0
-- [ ] `gRay::CallEFun_GetLength` · 0053a150
-- [ ] `gRay::CallEFun_IsFinite` · 0053a1c0
-- [ ] `gRay::CallEFun_GetDirection` · 0053a250
-- [ ] `gRay::CallEFun_GetEndPoint` · 0053a300
-- [ ] `gRay::CallEFun_GetStartPoint` · 0053a3d0
+- [ ] `gRay::CallEFun_InitFromOffset` · 00539fe0 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_InitLineSegment` · 0053a050 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_normalize` · 0053a0f0 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_GetLength` · 0053a150 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_IsFinite` · 0053a1c0 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_GetDirection` · 0053a250 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_GetEndPoint` · 0053a300 — needs port: ray efuns (setters and getters)
+- [ ] `gRay::CallEFun_GetStartPoint` · 0053a3d0 — needs port: ray efuns (setters and getters)
 
 ## `portal/shared/src/interp/glue/greservedids.cpp.c` (3/6)
 
 ### gReservedIDs
-- [ ] `gReservedIDs::CallEFun_IsCameraID` · 00539e60
+- [ ] `gReservedIDs::CallEFun_IsCameraID` · 00539e60 — needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
 - [x] `gReservedIDs::CallEFun_IsDynamicID` · 00539ea0 — ac2-script: gReservedIDs over ac2-net iid
 - [x] `gReservedIDs::CallEFun_IsPlayerID` · 00539ee0 — ac2-script: gReservedIDs over ac2-net iid
 - [x] `gReservedIDs::CallEFun_IsStaticID` · 00539f20 — ac2-script: gReservedIDs over ac2-net iid
-- [ ] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60
-- [ ] `gReservedIDs::CallEFun_IsUIID` · 00539fa0
+- [ ] `gReservedIDs::CallEFun_IsTemporaryID` · 00539f60 — needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
+- [ ] `gReservedIDs::CallEFun_IsUIID` · 00539fa0 — needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
 
 ## `portal/shared/src/interp/glue/grgbacolor.cpp.c` (5/5)
 
@@ -2988,9 +2988,9 @@ Legend and workflow: [README](README.md).
 - [x] `gRList::CallEFun_push_unique_tail` · 00555400 — ac2-script glue::lists
 
 ### BaseList<unsigned_long,102>
-- [ ] `BaseList<unsigned_long,102>::get_begin` · 005554a0 · legions 0052ee40
-- [ ] `BaseList<unsigned_long,102>::get_reverse` · 005554f0 · legions 0052ee90
-- [ ] `BaseList<unsigned_long,102>::get_end` · 00555540 · legions 0052eee0
+- [-] `BaseList<unsigned_long,102>::get_begin` · 005554a0 · legions 0052ee40 — container internals (Rust collections replace them)
+- [-] `BaseList<unsigned_long,102>::get_reverse` · 005554f0 · legions 0052ee90 — container internals (Rust collections replace them)
+- [-] `BaseList<unsigned_long,102>::get_end` · 00555540 · legions 0052eee0 — container internals (Rust collections replace them)
 
 ### gRList
 - [x] `gRList::CallEFun_get_begin` · 00555590 — ac2-script glue::lists
@@ -3025,39 +3025,39 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gsetpositionstruct.cpp.c` (0/10)
 
 ### gSetPositionStruct
-- [ ] `gSetPositionStruct::CallEFun_AddFlags` · 00539840
-- [ ] `gSetPositionStruct::CallEFun_RemoveFlags` · 005398a0
-- [ ] `gSetPositionStruct::CallEFun_SetFlags` · 00539900
-- [ ] `gSetPositionStruct::CallEFun_SetLine` · 00539960
-- [ ] `gSetPositionStruct::CallEFun_SetLineByPos` · 005399c0
-- [ ] `gSetPositionStruct::CallEFun_SetNumTries` · 00539a30
-- [ ] `gSetPositionStruct::CallEFun_SetPosition` · 00539a90
-- [ ] `gSetPositionStruct::CallEFun_SetScatterRadius` · 00539af0
-- [ ] `gSetPositionStruct::CallEFun_GetFlags` · 00539b60
-- [ ] `gSetPositionStruct::CallEFun_IsFlagSet` · 00539bd0
+- [ ] `gSetPositionStruct::CallEFun_AddFlags` · 00539840 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_RemoveFlags` · 005398a0 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetFlags` · 00539900 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetLine` · 00539960 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetLineByPos` · 005399c0 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetNumTries` · 00539a30 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetPosition` · 00539a90 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_SetScatterRadius` · 00539af0 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_GetFlags` · 00539b60 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+- [ ] `gSetPositionStruct::CallEFun_IsFlagSet` · 00539bd0 — needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
 
 ## `portal/shared/src/interp/glue/gsphere.cpp.c` (0/3)
 
 ### gSphere
-- [ ] `gSphere::CallEFun_Intersects` · 005396a0
-- [ ] `gSphere::CallEFun_get_radius` · 00539720
-- [ ] `gSphere::CallEFun_get_center` · 00539790
+- [ ] `gSphere::CallEFun_Intersects` · 005396a0 — needs port: sphere efuns (Intersects, get radius and center)
+- [ ] `gSphere::CallEFun_get_radius` · 00539720 — needs port: sphere efuns (Intersects, get radius and center)
+- [ ] `gSphere::CallEFun_get_center` · 00539790 — needs port: sphere efuns (Intersects, get radius and center)
 
 ## `portal/shared/src/interp/glue/gstoryhookdata.cpp.c` (0/12)
 
 ### gStoryHookData
-- [ ] `gStoryHookData::CallEFun_SetAnimHookNumber` · 00539220
-- [ ] `gStoryHookData::CallEFun_SetAttackHookNumber` · 00539280
-- [ ] `gStoryHookData::CallEFun_SetAttackResult` · 005392e0
-- [ ] `gStoryHookData::CallEFun_SetAttackerHealthChange` · 00539340
-- [ ] `gStoryHookData::CallEFun_SetAttackerPKDamageChange` · 005393a0
-- [ ] `gStoryHookData::CallEFun_SetTargetHealthChange` · 00539400
-- [ ] `gStoryHookData::CallEFun_SetTargetID` · 00539460
-- [ ] `gStoryHookData::CallEFun_SetTargetPKDamageChange` · 005394c0
-- [ ] `gStoryHookData::CallEFun_SetTypeToCreateMissiles` · 00539520
-- [ ] `gStoryHookData::CallEFun_SetTypeToDamage` · 00539580
-- [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0
-- [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640
+- [ ] `gStoryHookData::CallEFun_SetAnimHookNumber` · 00539220 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetAttackHookNumber` · 00539280 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetAttackResult` · 005392e0 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetAttackerHealthChange` · 00539340 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetAttackerPKDamageChange` · 005393a0 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTargetHealthChange` · 00539400 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTargetID` · 00539460 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTargetPKDamageChange` · 005394c0 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTypeToCreateMissiles` · 00539520 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTypeToDamage` · 00539580 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
+- [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
 
 ## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (29/38)
 
@@ -3065,16 +3065,16 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_AddVariable_Float` · 00538010 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedFloat` · 00538080 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedInt` · 005380f0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_FormattedLInt` · 00538160
+- [ ] `gStringInfo::CallEFun_AddVariable_FormattedLInt` · 00538160 — needs port (check): implemented as glue/string_info.rs but uncited
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedUInt` · 005381d0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_FormattedULInt` · 00538240
+- [ ] `gStringInfo::CallEFun_AddVariable_FormattedULInt` · 00538240 — needs port (check): implemented as glue/string_info.rs but uncited
 - [x] `gStringInfo::CallEFun_AddVariable_Int` · 005382b0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_LInt` · 00538310
+- [ ] `gStringInfo::CallEFun_AddVariable_LInt` · 00538310 — needs port (check): implemented as glue/string_info.rs but uncited
 - [x] `gStringInfo::CallEFun_AddVariable_StringIDandTableEnum` · 00538370 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_StringInfo` · 005383d0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_UInt` · 00538440 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_ULInt` · 005384a0
-- [ ] `gStringInfo::CallEFun_ApplyMetasToPlayerName` · 00538500
+- [ ] `gStringInfo::CallEFun_AddVariable_ULInt` · 005384a0 — needs port (check): implemented as glue/string_info.rs but uncited
+- [ ] `gStringInfo::CallEFun_ApplyMetasToPlayerName` · 00538500 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 - [x] `gStringInfo::CallEFun_Reset` · 00538560 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetLiteralValue` · 005385c0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetStringID` · 00538620 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3095,16 +3095,16 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_ne` · 00538ca0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [~] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
 - [x] `gStringInfo::CallEFun_GetString` · 00538de0 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0
+- [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 - [x] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [ ] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160
-- [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0
+- [ ] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+- [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 - [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
 ## `portal/shared/src/interp/glue/gstringutils.cpp.c` (2/3)
 
 ### gStringUtils
-- [ ] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0
+- [ ] `gStringUtils::CallEFun_ConvertWPStringToCIWPstring` · 00551ee0 — needs port: gStringUtils::ConvertWPStringToCIWPstring
 
 ### (free functions)
 - [x] `IsWordInString` · 00551fa0 · legions 0052d1d0 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
@@ -3115,16 +3115,16 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gtabootableadaptor.cpp.c` (0/3)
 
 ### gTabooTableAdaptor
-- [ ] `gTabooTableAdaptor::CallEFun_CheckCharactersW` · 00537ed0
-- [ ] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20
-- [ ] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0
+- [ ] `gTabooTableAdaptor::CallEFun_CheckCharactersW` · 00537ed0 — needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
+- [ ] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20 — needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
+- [ ] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0 — needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
 
 ## `portal/shared/src/interp/glue/gtimer.cpp.c` (0/3)
 
 ### gTimer
-- [ ] `gTimer::CallEFun_compute_time` · 00554020
-- [ ] `gTimer::CallEFun_get_real_time` · 00554050
-- [ ] `gTimer::CallEFun_get_time` · 00554080
+- [ ] `gTimer::CallEFun_compute_time` · 00554020 — needs port: timer efuns (compute_time, get_time, get_real_time)
+- [ ] `gTimer::CallEFun_get_real_time` · 00554050 — needs port: timer efuns (compute_time, get_time, get_real_time)
+- [ ] `gTimer::CallEFun_get_time` · 00554080 — needs port: timer efuns (compute_time, get_time, get_real_time)
 
 ## `portal/shared/src/interp/glue/gtokenize.cpp.c` (1/1)
 
@@ -3134,14 +3134,14 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gtypeinfo.cpp.c` (0/3)
 
 ### gTypeInfo
-- [ ] `gTypeInfo::CallEFun_get_type` · 00553f30
-- [ ] `gTypeInfo::CallEFun_new_type` · 00553f80
-- [ ] `gTypeInfo::CallEFun_new_validated_type` · 00553fd0
+- [ ] `gTypeInfo::CallEFun_get_type` · 00553f30 — needs port: type info efuns (get_type, new_type, new_validated_type)
+- [ ] `gTypeInfo::CallEFun_new_type` · 00553f80 — needs port: type info efuns (get_type, new_type, new_validated_type)
+- [ ] `gTypeInfo::CallEFun_new_validated_type` · 00553fd0 — needs port: type info efuns (get_type, new_type, new_validated_type)
 
 ## `portal/shared/src/interp/glue/guisavelocations.cpp.c` (0/1)
 
 ### gUISaveLocations
-- [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30
+- [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30 — needs port: UI save locations Clear
 
 ## `portal/shared/src/interp/glue/gvector.cpp.c` (14/15)
 
@@ -3199,21 +3199,21 @@ Legend and workflow: [README](README.md).
 - [x] `gVM::CallEFun_GetPackageNameByPkgIDW` · 00553b50 · legions 0052e480 — ac2-script glue
 - [~] `gVM::CallEFun_GetStackTrace` · 00553bd0 · legions 0052e500 — ac2-script glue: no collector/debugger
 - [x] `gVM::CallEFun_GetPackageIDByRef` · 00553c50 — ac2-script glue
-- [ ] `gVM::CallEFun_QueryPerfW` · 00553c90
-- [ ] `gVM::CallEFun_QueryProcessTableW` · 00553cf0
-- [ ] `gVM::CallEFun_QueryProcessW` · 00553d50
-- [ ] `gVM::CallEFun_QueryProcessesW` · 00553db0
-- [ ] `gVM::CallEFun_QueryReferenceTreeForProcessW` · 00553e10
-- [ ] `gVM::CallEFun_QueryReferenceTreeW` · 00553e70
-- [ ] `gVM::CallEFun_QueryReferencesW` · 00553ed0
+- [-] `gVM::CallEFun_QueryPerfW` · 00553c90 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryProcessTableW` · 00553cf0 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryProcessW` · 00553d50 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryProcessesW` · 00553db0 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryReferenceTreeForProcessW` · 00553e10 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryReferenceTreeW` · 00553e70 — WSL debugger query (process, reference and perf tables)
+- [-] `gVM::CallEFun_QueryReferencesW` · 00553ed0 — WSL debugger query (process, reference and perf tables)
 
 ## `portal/shared/src/interp/glue/gvmdata.cpp.c` (0/4)
 
 ### gVMData
-- [ ] `gVMData::CallEFun_AddData` · 00536e50
-- [ ] `gVMData::CallEFun_GetData` · 00536eb0
-- [ ] `gVMData::CallEFun_HasData` · 00536f30
-- [ ] `gVMData::CallEFun_RemoveData` · 00536fa0
+- [ ] `gVMData::CallEFun_AddData` · 00536e50 — needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
+- [ ] `gVMData::CallEFun_GetData` · 00536eb0 — needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
+- [ ] `gVMData::CallEFun_HasData` · 00536f30 — needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
+- [ ] `gVMData::CallEFun_RemoveData` · 00536fa0 — needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
 
 ## `portal/shared/src/interp/glue/gwccinternal.cpp.c` (10/10)
 
@@ -3290,24 +3290,24 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gwstate.cpp.c` (0/2)
 
 ### gWState
-- [ ] `gWState::CallEFun_SaveStateByType` · 00536bc0
-- [ ] `gWState::CallEFun_GetStateByType` · 00536bf0 · legions 0051a960
+- [ ] `gWState::CallEFun_SaveStateByType` · 00536bc0 — needs port: WState save and load efuns (SaveStateByType, GetStateByType)
+- [ ] `gWState::CallEFun_GetStateByType` · 00536bf0 · legions 0051a960 — needs port: WState save and load efuns (SaveStateByType, GetStateByType)
 
 ## `portal/shared/src/interp/glue/nativefactory.cpp.c` (0/2)
 
 ### NativeFactory
-- [ ] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380
-- [ ] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0
+- [-] `NativeFactory::NativeFactory` · 0054cbd0 · legions 0052a380 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `NativeFactory::~NativeFactory` · 0054cbf0 · legions 0052a3a0 — C++ destructor (Rust drop replaces it)
 
-## `portal/shared/src/interp/heapobject.cpp.c` (2/6)
+## `portal/shared/src/interp/heapobject.cpp.c` (3/6)
 
 ### HeapObject
-- [ ] `HeapObject::Clear` · 006dba60 · legions 00664f10
-- [ ] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60
+- [-] `HeapObject::Clear` · 006dba60 · legions 00664f10 — VM heap clear and pack size (Rust memory and writer)
+- [-] `HeapObject::GetPackSize` · 006dbab0 · legions 00664f60 — VM heap clear and pack size (Rust memory and writer)
 - [x] `HeapObject::Pack` · 006dbb00 · legions 00664fb0 — ac2-net protocol::pack
 - [x] `HeapObject::UnPack` · 006dbbd0 · legions 00665080 — ac2-script reference/native unpack
-- [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200
-- [ ] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280
+- [ ] `HeapObject::UpdatePackageReferences` · 006dbd50 · legions 00665200 — needs port: wlib package reference binding (HeapObject)
+- [x] `HeapObject::UpdateReferences` · 006dbdd0 · legions 00665280 — vm/refs.rs fn update_references (HeapObject::UpdateReferences)
 
 ## `portal/shared/src/interp/interp_binop.cpp.c` (71/71)
 
@@ -3389,7 +3389,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/interp_core.cpp.c` (29/31)
 
 ### FileNodeName_Int32
-- [ ] `FileNodeName_Int32::GetType` · 006e3bf0 · legions 0066a360
+- [ ] `FileNodeName_Int32::GetType` · 006e3bf0 · legions 0066a360 — needs port: PFile node GetType (PFile tree names and leaves)
 
 ### Interp
 - [x] `Interp::HandlePop` · 006e3c00 — ac2-script vm::exec
@@ -3400,7 +3400,7 @@ Legend and workflow: [README](README.md).
 - [x] `Interp::HandleRJmp` · 006e3d40 — ac2-script vm::exec
 
 ### FileNodeName_Bool
-- [ ] `FileNodeName_Bool::GetPackSize` · 006e3d50 · legions 0066a4c0
+- [-] `FileNodeName_Bool::GetPackSize` · 006e3d50 · legions 0066a4c0 — PFile node pack size (writer)
 
 ### Interp
 - [x] `Interp::HandlePush` · 006e3d60 — ac2-script vm::exec
@@ -3478,20 +3478,20 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/packagestate.cpp.c` (1/5)
 
 ### PackageState
-- [ ] `PackageState::PackageState` · 006e1630 · legions 00668470
-- [ ] `PackageState::Pack` · 006e1650 · legions 00668490
-- [ ] `PackageState::Clear` · 006e16a0 · legions 006684e0
-- [ ] `PackageState::~PackageState` · 006e16d0 · legions 00668510
+- [-] `PackageState::PackageState` · 006e1630 · legions 00668470 — C++ constructor of plain data or a container (Rust struct init)
+- [ ] `PackageState::Pack` · 006e1650 · legions 00668490 — needs port: WState save (Pack)
+- [ ] `PackageState::Clear` · 006e16a0 · legions 006684e0 — needs port: WState save (Clear)
+- [-] `PackageState::~PackageState` · 006e16d0 · legions 00668510 — C++ destructor (Rust drop replaces it)
 - [x] `PackageState::UnPack` · 006e1700 · legions 00668540 — ac2-script WLib/WState/ByteStream decode
 
 ## `portal/shared/src/interp/packing/packbuffer.cpp.c` (14/20)
 
 ### PackBuffer
-- [ ] `PackBuffer::~PackBuffer` · 006ed4f0 · legions 00672300
-- [ ] `PackBuffer::operator=` · 006ed500 · legions 00672310
+- [-] `PackBuffer::~PackBuffer` · 006ed4f0 · legions 00672300 — C++ destructor (Rust drop replaces it)
+- [-] `PackBuffer::operator=` · 006ed500 · legions 00672310 — C++ assignment operator of plain data (Rust copy/move)
 
 ### PackageState
-- [ ] `PackageState::GetPackSize` · 006ed580 · legions 00672390
+- [-] `PackageState::GetPackSize` · 006ed580 · legions 00672390 — WState pack size (writer)
 
 ### PackBuffer
 - [x] `PackBuffer::UnPackInt` · 006ed590 · legions 006723a0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
@@ -3499,11 +3499,11 @@ Legend and workflow: [README](README.md).
 - [x] `PackBuffer::UnPackFloat` · 006ed700 · legions 00672510 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [x] `PackBuffer::UnPackLFloat` · 006ed7b0 · legions 006725c0 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [x] `PackBuffer::UnPackPackage` · 006ed870 · legions 00672680 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
-- [ ] `PackBuffer::Grow` · 006ed920 · legions 00672730
-- [ ] `PackBuffer::PackBuffer` · 006ed9a0 · legions 006727b0
+- [-] `PackBuffer::Grow` · 006ed920 · legions 00672730 — pack buffer growth (Rust Vec grows itself)
+- [-] `PackBuffer::PackBuffer` · 006ed9a0 · legions 006727b0 — C++ constructor of plain data or a container (Rust struct init)
 - [x] `PackBuffer::Pack` · 006ed9c0 · legions 006727d0
 - [x] `PackBuffer::UnPack` · 006eda20 · legions 00672830
-- [ ] `PackBuffer::PackRaw` · 006edaa0
+- [-] `PackBuffer::PackRaw` · 006edaa0 — pack buffer growth (Rust Vec grows itself)
 - [x] `PackBuffer::PackPackage` · 006edb40 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [x] `PackBuffer::UnPackBuffer_Int` · 006edc00 · legions 00672920 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 - [x] `PackBuffer::UnPackBuffer_LongInt` · 006edc50 · legions 00672970 — ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
@@ -3515,100 +3515,100 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/packing/vmdata.cpp.c` (0/13)
 
 ### VMData
-- [ ] `VMData::VMData` · 006ece90 · legions 00671ca0
-- [ ] `VMData::GetReferenceData` · 006ecea0 · legions 00671cb0
-- [ ] `VMData::GetPackSize` · 006eceb0
-- [ ] `VMData::Pack` · 006ecf30
-- [ ] `VMData::GetData` · 006ecff0 · legions 00671e00
-- [ ] `VMData::HasData` · 006ed020 · legions 00671e30
-- [ ] `VMData::DecrementRefCount_` · 006ed060 · legions 00671e70
-- [ ] `VMData::Clear_` · 006ed0d0 · legions 00671ee0
-- [ ] `VMData::RemoveData` · 006ed150 · legions 00671f60
-- [ ] `VMData::operator=` · 006ed1b0 · legions 00671fc0
-- [ ] `VMData::AddData` · 006ed2e0 · legions 006720f0
-- [ ] `VMData::VMData` · 006ed400 · legions 00672210
-- [ ] `VMData::UnPack` · 006ed420
+- [-] `VMData::VMData` · 006ece90 · legions 00671ca0 — C++ constructor of plain data or a container (Rust struct init)
+- [ ] `VMData::GetReferenceData` · 006ecea0 · legions 00671cb0 — needs port: VM data attach (GetReferenceData)
+- [-] `VMData::GetPackSize` · 006eceb0 — VM data refcount or checkpoint pack (Rust memory replaces it)
+- [-] `VMData::Pack` · 006ecf30 — VM data refcount or checkpoint pack (Rust memory replaces it)
+- [ ] `VMData::GetData` · 006ecff0 · legions 00671e00 — needs port: VM data attach (GetData)
+- [ ] `VMData::HasData` · 006ed020 · legions 00671e30 — needs port: VM data attach (HasData)
+- [-] `VMData::DecrementRefCount_` · 006ed060 · legions 00671e70 — VM data refcount or checkpoint pack (Rust memory replaces it)
+- [-] `VMData::Clear_` · 006ed0d0 · legions 00671ee0 — VM data refcount or checkpoint pack (Rust memory replaces it)
+- [ ] `VMData::RemoveData` · 006ed150 · legions 00671f60 — needs port: VM data attach (RemoveData)
+- [-] `VMData::operator=` · 006ed1b0 · legions 00671fc0 — C++ assignment operator of plain data (Rust copy/move)
+- [ ] `VMData::AddData` · 006ed2e0 · legions 006720f0 — needs port: VM data attach (AddData)
+- [-] `VMData::VMData` · 006ed400 · legions 00672210 — C++ constructor of plain data or a container (Rust struct init)
+- [-] `VMData::UnPack` · 006ed420 — VM data refcount or checkpoint pack (Rust memory replaces it)
 
 ## `portal/shared/src/interp/perf/vmmon.cpp.c` (0/9)
 
 ### VMMon
-- [ ] `VMMon::iInitClockDefaults` · 004bc8d0
-- [ ] `VMMon::iBeginExtra` · 004bc970
-- [ ] `VMMon::iEndExtra` · 004bc9b0
-- [ ] `VMMon::~VMMon` · 004bcb60
-- [ ] `VMMon::iQuery` · 004bcb80
+- [-] `VMMon::iInitClockDefaults` · 004bc8d0 — admin VM monitor and logger
+- [-] `VMMon::iBeginExtra` · 004bc970 — admin VM monitor and logger
+- [-] `VMMon::iEndExtra` · 004bc9b0 — admin VM monitor and logger
+- [-] `VMMon::~VMMon` · 004bcb60 — C++ destructor (Rust drop replaces it)
+- [-] `VMMon::iQuery` · 004bcb80 — admin VM monitor and logger
 
 ### SmartArray<PStringBase<char>_>
-- [ ] `SmartArray<PStringBase<char>_>::AddToEnd` · 004bccf0 · legions 004e60e0
+- [-] `SmartArray<PStringBase<char>_>::AddToEnd` · 004bccf0 · legions 004e60e0 — container internals (Rust collections replace them)
 
 ### VMMon
-- [ ] `VMMon::iLog` · 004bcd70
-- [ ] `VMMon::iInitMapper` · 004bce20
-- [ ] `VMMon::VMMon` · 004bd040
+- [-] `VMMon::iLog` · 004bcd70 — admin VM monitor and logger
+- [-] `VMMon::iInitMapper` · 004bce20 — admin VM monitor and logger
+- [-] `VMMon::VMMon` · 004bd040 — C++ constructor of plain data or a container (Rust struct init)
 
 ## `portal/shared/src/interp/processstate.cpp.c` (0/14)
 
 ### ProcessState
-- [ ] `ProcessState::GetPackageID` · 006dd7a0 · legions 00666b90
-- [ ] `ProcessState::ClearContextTable` · 006dd7c0 · legions 00666bb0
-- [ ] `ProcessState::QueryContexts` · 006dd860
-- [ ] `ProcessState::QueryContextReferenceTree` · 006dd9a0
-- [ ] `ProcessState::~ProcessState` · 006dda60 · legions 00666ca0
-- [ ] `ProcessState::GetContextState` · 006ddab0 · legions 00666cf0
-- [ ] `ProcessState::DeleteContext` · 006ddaf0 · legions 00666d30
-- [ ] `ProcessState::QueryReferenceTree` · 006ddb60
-- [ ] `ProcessState::CreateContext` · 006ddba0 · legions 00666da0
-- [ ] `ProcessState::ProcessState` · 006ddcf0 · legions 00666ea0
+- [ ] `ProcessState::GetPackageID` · 006dd7a0 · legions 00666b90 — needs port: VM process context GetPackageID (ProcessState)
+- [ ] `ProcessState::ClearContextTable` · 006dd7c0 · legions 00666bb0 — needs port: VM process context ClearContextTable (ProcessState)
+- [-] `ProcessState::QueryContexts` · 006dd860 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ProcessState::QueryContextReferenceTree` · 006dd9a0 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ProcessState::~ProcessState` · 006dda60 · legions 00666ca0 — C++ destructor (Rust drop replaces it)
+- [ ] `ProcessState::GetContextState` · 006ddab0 · legions 00666cf0 — needs port: VM process context GetContextState (ProcessState)
+- [ ] `ProcessState::DeleteContext` · 006ddaf0 · legions 00666d30 — needs port: VM process context DeleteContext (ProcessState)
+- [-] `ProcessState::QueryReferenceTree` · 006ddb60 — WSL debugger query or dump (process, reference and perf tables)
+- [ ] `ProcessState::CreateContext` · 006ddba0 · legions 00666da0 — needs port: VM process context CreateContext (ProcessState)
+- [-] `ProcessState::ProcessState` · 006ddcf0 · legions 00666ea0 — C++ constructor of plain data or a container (Rust struct init)
 
 ### ReferenceTable
 - [~] `ReferenceTable::AllocatePackage` · 006ddd50 · legions 00666f00 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ProcessState
-- [ ] `ProcessState::ProcessState` · 006dddf0 · legions 00666fa0
+- [-] `ProcessState::ProcessState` · 006dddf0 · legions 00666fa0 — C++ constructor of plain data or a container (Rust struct init)
 
 ### ReferenceTable
 - [~] `ReferenceTable::AllocatePackage` · 006dde60 · legions 00667010 — ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
 
 ### ProcessState
-- [ ] `ProcessState::ProcessState` · 006ddfe0 · legions 00667190
+- [-] `ProcessState::ProcessState` · 006ddfe0 · legions 00667190 — C++ constructor of plain data or a container (Rust struct init)
 
 ## `portal/shared/src/interp/processtable.cpp.c` (0/8)
 
 ### ProcessTable
-- [ ] `ProcessTable::~ProcessTable` · 006e17f0
+- [-] `ProcessTable::~ProcessTable` · 006e17f0 — C++ destructor (Rust drop replaces it)
 - [ ] `ProcessTable::UnRegisterProcess` · 006e1830 · legions 00668660
-- [ ] `ProcessTable::GetProcess` · 006e1860 · legions 00668640
-- [ ] `ProcessTable::QueryProcess` · 006e1880 · legions 00668690
-- [ ] `ProcessTable::ProcessTable` · 006e18b0 · legions 006686c0
-- [ ] `ProcessTable::RegisterProcess` · 006e18d0 · legions 006686e0
-- [ ] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730
-- [ ] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770
+- [ ] `ProcessTable::GetProcess` · 006e1860 · legions 00668640 — needs port: VM process table GetProcess
+- [-] `ProcessTable::QueryProcess` · 006e1880 · legions 00668690 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ProcessTable::ProcessTable` · 006e18b0 · legions 006686c0 — C++ constructor of plain data or a container (Rust struct init)
+- [ ] `ProcessTable::RegisterProcess` · 006e18d0 · legions 006686e0 — needs port: VM process table RegisterProcess
+- [-] `ProcessTable::QueryProcessTable` · 006e1920 · legions 00668730 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ProcessTable::QueryProcesses` · 006e1960 · legions 00668770 — WSL debugger query or dump (process, reference and perf tables)
 
 ## `portal/shared/src/interp/referenceentry.cpp.c` (2/4)
 
 ### ReferenceEntry
-- [ ] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990
-- [ ] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10
+- [-] `ReferenceEntry::GetPackSize` · 006e0ac0 · legions 00667990 — checkpoint size estimate (Rust memory replaces it)
+- [-] `ReferenceEntry::GetResidentSizeEstimate` · 006e0b10 — checkpoint size estimate (Rust memory replaces it)
 - [x] `ReferenceEntry::Pack` · 006e0b40 · legions 006679e0 — ac2-net protocol::pack
 - [x] `ReferenceEntry::UnPack` · 006e0c20 · legions 00667ac0 — ac2-script reference/native unpack
 
 ## `portal/shared/src/interp/referencetable.cpp.c` (0/3)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::QueryReferences` · 006e1a20
-- [ ] `ReferenceTable::QueryReferenceTree_Recursive` · 006e1cd0
-- [ ] `ReferenceTable::QueryReferenceTree` · 006e2040
+- [-] `ReferenceTable::QueryReferences` · 006e1a20 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ReferenceTable::QueryReferenceTree_Recursive` · 006e1cd0 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `ReferenceTable::QueryReferenceTree` · 006e2040 — WSL debugger query or dump (process, reference and perf tables)
 
 ## `portal/shared/src/interp/reservedreftable.cpp.c` (1/4)
 
 ### ReservedRefTable
-- [ ] `ReservedRefTable::StartMarking` · 006e09e0 · legions 006678b0
+- [-] `ReservedRefTable::StartMarking` · 006e09e0 · legions 006678b0 — container internals (Rust collections replace them)
 
 ### Box2D
-- [ ] `Box2D::Box2D` · 006e09f0 · legions 006678c0
+- [-] `Box2D::Box2D` · 006e09f0 · legions 006678c0 — C++ constructor of plain data or a container (Rust struct init)
 
 ### ReservedRefTable
-- [ ] `ReservedRefTable::StopMarking` · 006e0a00 · legions 006678d0
+- [-] `ReservedRefTable::StopMarking` · 006e0a00 · legions 006678d0 — container internals (Rust collections replace them)
 - [x] `ReservedRefTable::AddReference` · 006e0a50 · legions 00667920 — ac2-script vm::refs (reserved bit on every new entry)
 
 ## `portal/shared/src/interp/runtimebytestream.cpp.c` (0/3)
@@ -3625,80 +3625,80 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/typeinfo.cpp.c` (0/3)
 
 ### (free functions)
-- [ ] `new_validated_type` · 006e1490
-- [ ] `get_type` · 006e14c0 · legions 00668300
-- [ ] `new_type` · 006e15a0 · legions 006683e0
+- [ ] `new_validated_type` · 006e1490 — needs port: VM value type helper (new_validated_type)
+- [ ] `get_type` · 006e14c0 · legions 00668300 — needs port: VM value type helper (get_type)
+- [ ] `new_type` · 006e15a0 · legions 006683e0 — needs port: VM value type helper (new_type)
 
-## `portal/shared/src/interp/vm.cpp.c` (12/66)
+## `portal/shared/src/interp/vm.cpp.c` (13/66)
 
 ### VM
 - [ ] `VM::CreateProcessA` · 006dbe00 · legions 006652b0
-- [ ] `VM::CreateProcessA` · 006dbe30 · legions 006652e0
-- [ ] `VM::CopyNativeObject` · 006dbe60 · legions 00665310
-- [ ] `VM::IsDerivedFrom` · 006dbe80 · legions 00665330
-- [ ] `VM::IsDerivedFrom` · 006dbea0 · legions 00665350
-- [ ] `VM::ValidateVersion` · 006dbec0 · legions 00665370
-- [ ] `VM::GetReferences` · 006dbef0 · legions 006653a0
-- [ ] `VM::UpdateNativeReferences` · 006dbf10 · legions 006653c0
-- [ ] `VM::DeleteNativeObject` · 006dbf30 · legions 006653e0
-- [ ] `VM::GetNativePackSize` · 006dbf50 · legions 00665400
-- [ ] `VM::PackNativeObject` · 006dbf70 · legions 00665420
-- [ ] `VM::UnPackNativeObject` · 006dbf90 · legions 00665440
-- [ ] `VM::GetContextID` · 006dbfb0 · legions 00665460
-- [ ] `VM::SetActiveGC` · 006dbfc0 · legions 00665470
-- [ ] `VM::SetAggressiveGCDeletion` · 006dbfd0 · legions 00665480
-- [ ] `VM::WSL_EFun_GetInstanceReference` · 006dbfe0 · legions 00665490
+- [ ] `VM::CreateProcessA` · 006dbe30 · legions 006652e0 — needs port: VM CreateProcessA (process creation)
+- [ ] `VM::CopyNativeObject` · 006dbe60 · legions 00665310 — needs port: VM::CopyNativeObject (native object copy)
+- [ ] `VM::IsDerivedFrom` · 006dbe80 · legions 00665330 — needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
+- [ ] `VM::IsDerivedFrom` · 006dbea0 · legions 00665350 — needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
+- [ ] `VM::ValidateVersion` · 006dbec0 · legions 00665370 — needs port: VM::ValidateVersion (wlib version check)
+- [-] `VM::GetReferences` · 006dbef0 · legions 006653a0 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [-] `VM::UpdateNativeReferences` · 006dbf10 · legions 006653c0 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [-] `VM::DeleteNativeObject` · 006dbf30 · legions 006653e0 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [-] `VM::GetNativePackSize` · 006dbf50 · legions 00665400 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [~] `VM::PackNativeObject` · 006dbf70 · legions 00665420 — ac2-net native read/write; coverage of every native object type unverified
+- [~] `VM::UnPackNativeObject` · 006dbf90 · legions 00665440 — ac2-net native read/write; coverage of every native object type unverified
+- [ ] `VM::GetContextID` · 006dbfb0 · legions 00665460 — needs port (check): implemented as glue/vm_glue.rs get_context_id but uncited
+- [-] `VM::SetActiveGC` · 006dbfc0 · legions 00665470 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [-] `VM::SetAggressiveGCDeletion` · 006dbfd0 · legions 00665480 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [ ] `VM::WSL_EFun_GetInstanceReference` · 006dbfe0 · legions 00665490 — needs port (check): implemented as glue/vm_glue.rs get_instance_reference but uncited
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0
+- [-] `ReferenceTable::GetReferencePackSize` · 006dbff0 · legions 006654a0 — VM garbage collector internals (Rust memory replaces them)
 - [~] `ReferenceTable::PackReferenceArray` · 006dc040 · legions 006654f0 — ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 - [x] `ReferenceTable::GetDependentReferences_Relative` · 006dc0b0 · legions 00665560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::DeleteProcess` · 006dc0e0 · legions 00665590
+- [ ] `VM::DeleteProcess` · 006dc0e0 · legions 00665590 — needs port (check): implemented as host/mod.rs remove_weenie (cites VM::DeleteProcess as caller)
 - [~] `VM::HashNativeObject` · 006dc110 · legions 006655c0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 - [~] `VM::IsNativeEqual` · 006dc140 · legions 006655f0 — ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 - [x] `VM::GetStringLiteral` · 006dc170 · legions 00665620 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [x] `VM::GetHeapObject` · 006dc190 · legions 00665640 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [ ] `VM::IsReferenceValid` · 006dc1a0
+- [-] `VM::IsReferenceValid` · 006dc1a0 — VM garbage collector and allocator internals (Rust memory replaces them)
 
 ### InterpreterBreakpointHelper::StepBreakpointData
 - [-] `InterpreterBreakpointHelper::StepBreakpointData::~StepBreakpointData` · 006dc210 · legions 00665690 — script debugger
 
 ### ReferenceTable
-- [ ] `ReferenceTable::DeleteAllReferences` · 006dc270 · legions 006656f0
+- [-] `ReferenceTable::DeleteAllReferences` · 006dc270 · legions 006656f0 — VM garbage collector internals (Rust memory replaces them)
 
 ### VM
-- [ ] `VM::GetStackTrace` · 006dc2d0 · legions 00665750
-- [ ] `VM::QueryProcessTableW` · 006dc390 · legions 00665810
-- [ ] `VM::QueryProcessesW` · 006dc450 · legions 006658d0
-- [ ] `VM::QueryProcessW` · 006dc520 · legions 006659a0
-- [ ] `VM::QueryReferencesW` · 006dc5f0 · legions 00665a70
-- [ ] `VM::QueryReferenceTreeW` · 006dc6b0 · legions 00665b30
-- [ ] `VM::QueryReferenceTreeForProcessW` · 006dc780 · legions 00665c00
-- [ ] `VM::DeleteAllUnUsedReferences` · 006dc850 · legions 00665cd0
+- [-] `VM::GetStackTrace` · 006dc2d0 · legions 00665750 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryProcessTableW` · 006dc390 · legions 00665810 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryProcessesW` · 006dc450 · legions 006658d0 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryProcessW` · 006dc520 · legions 006659a0 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryReferencesW` · 006dc5f0 · legions 00665a70 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryReferenceTreeW` · 006dc6b0 · legions 00665b30 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryReferenceTreeForProcessW` · 006dc780 · legions 00665c00 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::DeleteAllUnUsedReferences` · 006dc850 · legions 00665cd0 — VM garbage collector and allocator internals (Rust memory replaces them)
 
 ### ReferenceTable
 - [x] `ReferenceTable::GetDependentReferences_Native` · 006dc860 · legions 00665ce0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 - [x] `ReferenceTable::GetDependentReferences_Package` · 006dc910 · legions 00665d90 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::QueryPerf` · 006dc9e0
-- [ ] `VM::QueryPerfW` · 006dca70
+- [-] `VM::QueryPerf` · 006dc9e0 — WSL debugger query or dump (process, reference and perf tables)
+- [-] `VM::QueryPerfW` · 006dca70 — WSL debugger query or dump (process, reference and perf tables)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::~ReferenceTable` · 006dcb80 · legions 00665f80
+- [-] `ReferenceTable::~ReferenceTable` · 006dcb80 · legions 00665f80 — C++ destructor (Rust drop replaces it)
 - [x] `ReferenceTable::GetDependentReferences_HeapObject` · 006dcbe0 · legions 00665fe0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000
-- [ ] `VM::GetPackageNameByPkgIDW` · 006dcc50 · legions 00666050
-- [ ] `VM::GarbageCollect` · 006dcc70 · legions 00666070
-- [ ] `VM::~VM` · 006dcc80 · legions 00666080
+- [ ] `VM::GetPackageNameByPkgID` · 006dcc00 · legions 00666000 — needs port (check): implemented as glue/vm_glue.rs but uncited
+- [ ] `VM::GetPackageNameByPkgIDW` · 006dcc50 · legions 00666050 — needs port (check): implemented as glue/vm_glue.rs but uncited
+- [-] `VM::GarbageCollect` · 006dcc70 · legions 00666070 — VM garbage collector and allocator internals (Rust memory replaces them)
+- [-] `VM::~VM` · 006dcc80 · legions 00666080 — C++ destructor (Rust drop replaces it)
 - [~] `VM::GetPackageID` · 006dcce0 · legions 006660e0 — ac2-script wstate DID formulas / ByteStream::package_id
-- [ ] `VM::GetPackageID` · 006dcd20 · legions 00666120
-- [ ] `VM::GetSingletonPackage` · 006dce20 · legions 00666220
-- [ ] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290
+- [x] `VM::GetPackageID` · 006dcd20 · legions 00666120 — vm/program.rs fn package_id (VM::GetPackageID)
+- [ ] `VM::GetSingletonPackage` · 006dce20 · legions 00666220 — needs port (check): implemented as vm/mod.rs singleton_package but uncited
+- [ ] `VM::GetSingletonPackageW` · 006dce90 · legions 00666290 — needs port: VM::GetSingletonPackageW
 - [~] `VM::GetSingletonPackageByID` · 006dcf50 · legions 00666350 — ac2-script wstate DID formulas / ByteStream::package_id
 - [x] `VM::GetWStateReference` · 006dcf90 · legions 00666390 — ac2-script vm (VM/ReferenceTable/Resolver)
 - [x] `VM::GetPackageReference` · 006dcfb0 · legions 006663b0 — ac2-script glue
@@ -3707,31 +3707,31 @@ Legend and workflow: [README](README.md).
 - [-] `InterpreterBreakpointHelper::InterpreterBreakpointHelper` · 006dd040 · legions 00666440 — script debugger
 
 ### ReferenceTable
-- [ ] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0
+- [-] `ReferenceTable::ReferenceTable` · 006dd0a0 · legions 006664a0 — C++ constructor of plain data or a container (Rust struct init)
 - [x] `ReferenceTable::GetDependentReferences` · 006dd160 · legions 00666560 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ### VM
-- [ ] `VM::VM` · 006dd220 · legions 00666620
-- [ ] `VM::CreateSingletonProcess` · 006dd2d0 · legions 006666d0
+- [ ] `VM::VM` · 006dd220 · legions 00666620 — needs port (check): implemented as vm/mod.rs VM::new (string literal table load) but uncited
+- [ ] `VM::CreateSingletonProcess` · 006dd2d0 · legions 006666d0 — needs port: VM CreateSingletonProcess (process creation)
 
 ### ReferenceTable
-- [ ] `ReferenceTable::GetReferencePackSize` · 006dd310 · legions 00666710
+- [-] `ReferenceTable::GetReferencePackSize` · 006dd310 · legions 00666710 — VM garbage collector internals (Rust memory replaces them)
 - [~] `ReferenceTable::PackReference` · 006dd3f0 · legions 006667f0 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 
 ### VM
-- [ ] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0
+- [-] `VM::GetReferencePackSize` · 006dd4e0 · legions 006668e0 — VM garbage collector and allocator internals (Rust memory replaces them)
 - [~] `VM::PackReference` · 006dd500 · legions 00666900 — ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
 - [x] `VM::UnPackReference` · 006dd520 · legions 00666920 — ac2-script vm (VM/ReferenceTable/Resolver)
-- [ ] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940
-- [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20
+- [ ] `VM::Preproc_CleanWState` · 006dd540 · legions 00666940 — needs port: VM preprocessor WState cleanup
+- [ ] `VM::GetPackageName` · 006dd630 · legions 00666a20 — needs port: VM::GetPackageName (package name by id)
 - [x] `VM::IsInstanceOf` · 006dd690 · legions 00666a80 — ac2-script glue
 - [x] `VM::CloneReference` · 006dd6c0 · legions 00666ab0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
 
 ## `portal/shared/src/interp/vmlogger.cpp.c` (0/2)
 
 ### VMLogger
-- [ ] `VMLogger::OpenLog` · 004bd0f0
-- [ ] `VMLogger::Log` · 004bd2d0
+- [-] `VMLogger::OpenLog` · 004bd0f0 — admin VM monitor and logger
+- [-] `VMLogger::Log` · 004bd2d0 — admin VM monitor and logger
 
 ## `portal/shared/src/interp/wccefuns.cpp.c` (4/4)
 
@@ -3744,13 +3744,13 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/wlink/wlibdb.cpp.c` (0/4)
 
 ### WLinkMap
-- [ ] `WLinkMap::GetPackageName` · 006186a0 · legions 005d5080
+- [ ] `WLinkMap::GetPackageName` · 006186a0 · legions 005d5080 — needs port: wlib link map package name lookup
 
 ### WLibDB
-- [ ] `WLibDB::I_GetPackageName` · 00618700
+- [-] `WLibDB::I_GetPackageName` · 00618700 — admin wlib database (no Legions match)
 
 ### WLinkMap
-- [ ] `WLinkMap::GetPackageID` · 00618780
+- [-] `WLinkMap::GetPackageID` · 00618780 — admin wlib link map (no Legions match)
 
 ### WLibDB
-- [ ] `WLibDB::I_GetPackageID` · 006187f0
+- [-] `WLibDB::I_GetPackageID` · 006187f0 — admin wlib database (no Legions match)

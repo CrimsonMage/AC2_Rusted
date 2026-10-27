@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 138 done, 35 partial, 89 to do, 105 skipped.
+367 retail functions: 140 done, 35 partial, 16 to do, 176 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (4/13)
@@ -206,29 +206,29 @@ Legend and workflow: [README](README.md).
 - [x] `SoundDirection::CalcWeights` · 0072d620 · legions 006ab700 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `SoundDirection::ChooseSoundDistance` · 0072d630 · legions 006ab710 — ac2-audio/ac2-client: ambient environments, groove
 
-## `portal/client/src/sound/dbmusicobj.cpp.c` (0/5)
+## `portal/client/src/sound/dbmusicobj.cpp.c` (1/5)
 
 ### DBMusicObj
-- [ ] `DBMusicObj::GetSubDataIDs` · 005a30e0
-- [ ] `DBMusicObj::StreamPack` · 005a3110
-- [ ] `DBMusicObj::DBMusicObj` · 005a31f0 · legions 0056fd70
-- [ ] `DBMusicObj::GetDBOType` · 005a3220
-- [ ] `DBMusicObj::Allocate` · 005a3230
+- [ ] `DBMusicObj::GetSubDataIDs` · 005a30e0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [x] `DBMusicObj::StreamPack` · 005a3110 — crates/ac2-audio/src/music/mod.rs:87 (DBMusicObj::StreamPack: reads the record)
+- [-] `DBMusicObj::DBMusicObj` · 005a31f0 · legions 0056fd70 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `DBMusicObj::GetDBOType` · 005a3220 — DBO type tag constant (Rust DB type table)
+- [-] `DBMusicObj::Allocate` · 005a3230 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ## `portal/client/src/sound/dbwave.cpp.c` (4/12)
 
 ### std::strstream
-- [ ] `std::strstream::`vbase_destructor'` · 005a3580 · legions 00570080
+- [-] `std::strstream::`vbase_destructor'` · 005a3580 · legions 00570080 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### DBWave
-- [ ] `DBWave::~DBWave` · 005a35a0 · legions 005700a0
+- [-] `DBWave::~DBWave` · 005a35a0 · legions 005700a0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `DBWave::GetDBOType` · 005a35b0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DBWave::Pack` · 005a35c0
+- [-] `DBWave::Pack` · 005a35c0 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
 - [x] `DBWave::GetTime` · 005a3680 · legions 00570180 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DBWave::ZeroInit` · 005a36d0 · legions 005701d0
-- [ ] `DBWave::ReleaseAll` · 005a36f0 · legions 005701f0
-- [ ] `DBWave::Allocator` · 005a3720
-- [ ] `DBWave::CompressAudio` · 005a3740
+- [-] `DBWave::ZeroInit` · 005a36d0 · legions 005701d0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `DBWave::ReleaseAll` · 005a36f0 · legions 005701f0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `DBWave::Allocator` · 005a3720 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `DBWave::CompressAudio` · 005a3740 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
 - [x] `DBWave::DBWave` · 005a3a50 · legions 00570240 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DBWave::UnPack` · 005a3ab0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `DBWave::LoadFromFile` · 005a3e50 — text source loader, admin build only
@@ -236,48 +236,48 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/sound/directx/directxmusicloader.cpp.c` (0/32)
 
 ### DirectXMusicLoader
-- [ ] `DirectXMusicLoader::Initialize` · 005a71e0 · legions 00573870
-- [ ] `DirectXMusicLoader::AddRef` · 005a7260 · legions 005738f0
-- [ ] `DirectXMusicLoader::QueryInterface` · 005a7280 · legions 00573910
-- [ ] `DirectXMusicLoader::LoadFromStream` · 005a72e0 · legions 00573970
+- [-] `DirectXMusicLoader::Initialize` · 005a71e0 · legions 00573870 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::AddRef` · 005a7260 · legions 005738f0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::QueryInterface` · 005a7280 · legions 00573910 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::LoadFromStream` · 005a72e0 · legions 00573970 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 
 ### DBObjGrabber<DBMusicObj>
-- [ ] `DBObjGrabber<DBMusicObj>::DBObjGrabber<DBMusicObj>` · 005a7380 · legions 00573a00
+- [-] `DBObjGrabber<DBMusicObj>::DBObjGrabber<DBMusicObj>` · 005a7380 · legions 00573a00 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### MusicByteStream
-- [ ] `MusicByteStream::MusicByteStream` · 005a74d0 · legions 00573b50
-- [ ] `MusicByteStream::QueryInterface` · 005a7520 · legions 00573ba0
-- [ ] `MusicByteStream::AddRef` · 005a75d0 · legions 00573c50
-- [ ] `MusicByteStream::Read` · 005a75f0 · legions 00573c70
-- [ ] `MusicByteStream::Revert` · 005a7670 · legions 00573cf0
-- [ ] `MusicByteStream::CopyTo` · 005a7680 · legions 00573d00
-- [ ] `MusicByteStream::GetLoader` · 005a7690
-- [ ] `MusicByteStream::QueryInterface` · 005a76c0
+- [-] `MusicByteStream::MusicByteStream` · 005a74d0 · legions 00573b50 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `MusicByteStream::QueryInterface` · 005a7520 · legions 00573ba0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::AddRef` · 005a75d0 · legions 00573c50 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::Read` · 005a75f0 · legions 00573c70 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::Revert` · 005a7670 · legions 00573cf0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::CopyTo` · 005a7680 · legions 00573d00 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::GetLoader` · 005a7690 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `MusicByteStream::QueryInterface` · 005a76c0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 - [-] `MusicByteStream::AddRef` · 005a76d0 — inline copy of 005a75d0
-- [ ] `MusicByteStream::Release` · 005a76e0 · legions 00573d60
-- [ ] `MusicByteStream::~MusicByteStream` · 005a7720 · legions 00573da0
-- [ ] `MusicByteStream::Seek` · 005a7750 · legions 00573dd0
+- [-] `MusicByteStream::Release` · 005a76e0 · legions 00573d60 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::~MusicByteStream` · 005a7720 · legions 00573da0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `MusicByteStream::Seek` · 005a7750 · legions 00573dd0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 - [-] `MusicByteStream::Release` · 005a77e0 — inline copy of 005a76e0
-- [ ] `MusicByteStream::Clone` · 005a77f0 · legions 00573e70
+- [-] `MusicByteStream::Clone` · 005a77f0 · legions 00573e70 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 
 ### DirectXMusicLoader
-- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0
-- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080
+- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7850 · legions 00573ed0 — needs port (check): DirectMusic LoadFromObject, music segment from DBMusicObj; uncited
+- [ ] `DirectXMusicLoader::LoadFromObject` · 005a7a30 · legions 00574080 — needs port (check): DirectMusic LoadFromObject, music segment from DBMusicObj; uncited
 - [~] `DirectXMusicLoader::LoadFromObject` · 005a7ad0 · legions 00574100 — ac2-audio music/mod.rs (MusicObject::Wave), music_thread/playback.rs (Playback::wave), manager.rs: an EncodedWave is a DirectMusic segment with a wave track; it plays as a queue segment (primary by Track_ForcePrimary, stop at the MusicInfo's stop boundary on the default 120 bpm 4/4 clock, looping until stopped). Start timing flags not modelled; the file is decoded as RIFF WAVE (encoded.rs).
 - [-] `DirectXMusicLoader::LoadFromSoundInfo` · 005a7b70 — text source loader, admin build only
 - [~] `DirectXMusicLoader::LoadFromMusicInfo` · 005a7c20 · legions 005741e0 — ac2-audio playing.rs from_wave: an EncodedWave MusicInfo is a queue segment (QueuedWave), its length -1 (InitDXPSDFromMusicInfo: no length cap); terms as InitDXPSDFromMusicInfo; the wave voice starts on the queue's SegmentStart and ends on SegmentEnd (on_segment_started / on_segment_ended).
-- [ ] `DirectXMusicLoader::~DirectXMusicLoader` · 005a7e90 · legions 00574420
+- [-] `DirectXMusicLoader::~DirectXMusicLoader` · 005a7e90 · legions 00574420 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### MusicByteStream
-- [ ] `MusicByteStream::Write` · 005a7f60 · legions 005744f0
-- [ ] `MusicByteStream::Commit` · 005a7f70 · legions 00574500
+- [-] `MusicByteStream::Write` · 005a7f60 · legions 005744f0 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `MusicByteStream::Commit` · 005a7f70 · legions 00574500 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
 
 ### DirectXMusicLoader
-- [ ] `DirectXMusicLoader::LoadObjectFromFile` · 005a7f80 · legions 00574510
-- [ ] `DirectXMusicLoader::SetObject` · 005a7f90 · legions 00574520
-- [ ] `DirectXMusicLoader::GetObjectA` · 005a80e0 · legions 00574670
-- [ ] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10
-- [ ] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0
+- [-] `DirectXMusicLoader::LoadObjectFromFile` · 005a7f80 · legions 00574510 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::SetObject` · 005a7f90 · legions 00574520 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::GetObjectA` · 005a80e0 · legions 00574670 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::Release` · 005a84b0 · legions 00574a10 — DirectMusic loader and IStream COM plumbing (Rust music reads DBMusicObj directly)
+- [-] `DirectXMusicLoader::DirectXMusicLoader` · 005a8580 · legions 00574ae0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ## `portal/client/src/sound/directx/directxplayingsound.cpp.c` (19/32)
 
@@ -285,13 +285,13 @@ Legend and workflow: [README](README.md).
 - [x] `DirectXPlayingSound::OnSegmentStarted` · 005a6010 · legions 00572750 — ac2-audio: sets m_bHasStarted, which the admin decompile never reads: no effect ported (the start callback is a no-op)
 - [~] `DirectXPlayingSound::Update3DInfo` · 005a6030 · legions 00572770 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 - [x] `DirectXPlayingSound::GetIsPlaying` · 005a6170 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0
+- [-] `DirectXPlayingSound::GetIsActuallyPlaying` · 005a61a0 · legions 005728e0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [x] `DirectXPlayingSound::GetReadyToDie` · 005a61c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::GetVolume` · 005a61d0
+- [ ] `DirectXPlayingSound::GetVolume` · 005a61d0 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
 - [~] `DirectXPlayingSound::SetFrequencyInternal` · 005a61e0 · legions 00572920 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
 ### CMotionInterp
-- [ ] `CMotionInterp::GetVelocityScale` · 005a6260
+- [ ] `CMotionInterp::GetVelocityScale` · 005a6260 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
 
 ### DirectXPlayingSound
 - [x] `DirectXPlayingSound::GetIsLooping` · 005a6270 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -300,15 +300,15 @@ Legend and workflow: [README](README.md).
 - [x] `DirectXPlayingSound::GetIsSelfExclusive` · 005a6400 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::GetIsAllExclusive` · 005a6420 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::GetIsBudgeted` · 005a6430 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::GetEmitter` · 005a6450
-- [ ] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460
-- [ ] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80
+- [ ] `DirectXPlayingSound::GetEmitter` · 005a6450 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [ ] `DirectXPlayingSound::GetIsPrimaryTrack` · 005a6460 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [-] `DirectXPlayingSound::~DirectXPlayingSound` · 005a6470 · legions 00572b80 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `DirectXPlayingSound::DXInitialize` · 005a64d0 · legions 00572be0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::OnSegmentEnded` · 005a6600 · legions 00572d10 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `DirectXPlayingSound::UpdatePosition` · 005a6640 · legions 00572d50 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `DirectXPlayingSound::SetVolumeInternal` · 005a6790 · legions 00572ea0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `DirectXPlayingSound::SetFrequency` · 005a6920
-- [ ] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110
+- [ ] `DirectXPlayingSound::SetFrequency` · 005a6920 — needs port (check): playing voice volume, emitter, primary track, velocity scale and frequency; playing.rs has SetVolumeInternal and UpdatePosition, these getters are uncited
+- [-] `DirectXPlayingSound::GetAudioPathAndBuffers` · 005a69b0 · legions 00573110 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [~] `DirectXPlayingSound::PlayInternal` · 005a6b50 · legions 005731e0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `DirectXPlayingSound::StopInternal` · 005a6d50 · legions 005733e0 — ac2-audio: the stop timing's flags are the queue's boundary (sink Boundary: Grid 0x800, Beat 0x1000, Measure 0x2000, Marker 0x1000000, End 0x800000, Immediate 0); a forced stop (manager stop_sounds_for_emitter) is immediate: queue Stop(handle, 0) and the voice cut (playing.rs stop_at, the mixer's StopMusic). Not modelled: the disabled-device and KeepAlive branches (the voice ends at once when disabled), and a segment's play-out with no queue segment.
 - [x] `DirectXPlayingSound::SetVolume` · 005a6ee0 — ac2-audio/ac2-client: 3D emitters and FX sounds
@@ -322,7 +322,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/sound/directx/directxsounddevice.cpp.c` (5/34)
 
 ### DirectXSoundDevice
-- [ ] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640
+- [-] `DirectXSoundDevice::SetSoundFeatures` · 005a3e70 · legions 00570640 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [x] `DirectXSoundDevice::OnSegmentStart` · 005a3eb0 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 - [x] `DirectXSoundDevice::OnSegmentEnded` · 005a3ee0 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
 - [~] `DirectXSoundDevice::SetGrooveLevel` · 005a3f10 · legions 005706e0 — ac2-audio: the level is passed to MusicThread::set_groove_level as one byte (GUID_PerfMasterGrooveLevel); the device enable gate is not modelled
@@ -331,46 +331,46 @@ Legend and workflow: [README](README.md).
 - [~] `DirectXSoundInstance::Initialize` · 005a3f70 · legions 00570740 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `DirectXSoundInstance::Initialize` · 005a3ff0 · legions 005707c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [x] `DirectXSoundInstance::InitDXPSDFromMusicInfo` · 005a4070 · legions 00570840 — ac2-audio/ac2-client: ambient environments, groove
-- [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40
+- [ ] `DirectXSoundInstance::GetDataID` · 005a4270 · legions 00570a40 — needs port (check): playing sound lookup by handle and instance data id; uncited
 
 ### DirectXSoundDevice
 - [~] `DirectXSoundDevice::SetChannelVolume` · 005a4290 · legions 00570a60 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [~] `DirectXSoundDevice::UpdateListener` · 005a4440 · legions 00570c10 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [x] `DirectXSoundDevice::UseTime` · 005a45c0 · legions 00570d90 — ac2-audio: music queue events reach the playing sounds (OnSegmentEnded), then each sound's UseTime; DirectXSoundDevice::OnSegmentStart/UseTime
-- [ ] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0
-- [ ] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20
+- [-] `DirectXSoundDevice::RemovePlayingSound` · 005a4600 · legions 00570dd0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::RemoveSoundInstance` · 005a4650 · legions 00570e20 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### DirectXSoundInstance
-- [ ] `DirectXSoundInstance::~DirectXSoundInstance` · 005a46a0 · legions 00570e70
-- [ ] `DirectXSoundInstance::OnDeviceStateChanged` · 005a4750 · legions 00570f20
+- [-] `DirectXSoundInstance::~DirectXSoundInstance` · 005a46a0 · legions 00570e70 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `DirectXSoundInstance::OnDeviceStateChanged` · 005a4750 · legions 00570f20 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### DirectXSoundDevice
-- [ ] `DirectXSoundDevice::DebugPrintPlayingSounds` · 005a4810 · legions 00570fe0
+- [-] `DirectXSoundDevice::DebugPrintPlayingSounds` · 005a4810 · legions 00570fe0 — debug print of playing sounds
 
 ### DirectXSoundInstance
 - [x] `DirectXSoundInstance::InitDXPSDFromSoundInfo` · 005a4990 · legions 00571160 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [~] `DirectXSoundInstance::CreatePlayingSound` · 005a4ae0 · legions 00571290 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 
 ### DirectXSoundDevice
-- [ ] `DirectXSoundDevice::AddPlayingSound` · 005a4ba0 · legions 00571350
+- [-] `DirectXSoundDevice::AddPlayingSound` · 005a4ba0 · legions 00571350 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### DirectXSoundInstance
-- [ ] `DirectXSoundInstance::DirectXSoundInstance` · 005a4bf0 · legions 005713a0
-- [ ] `DirectXSoundInstance::DownloadToAudioPath` · 005a4c60 · legions 00571410
+- [-] `DirectXSoundInstance::DirectXSoundInstance` · 005a4bf0 · legions 005713a0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundInstance::DownloadToAudioPath` · 005a4c60 · legions 00571410 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### DirectXSoundDevice
-- [ ] `DirectXSoundDevice::CreateInstance` · 005a4cb0 · legions 00571460
-- [ ] `DirectXSoundDevice::CreateInstance` · 005a4d10 · legions 005714c0
-- [ ] `DirectXSoundDevice::DestroyDevice` · 005a4e10 · legions 005715c0
+- [-] `DirectXSoundDevice::CreateInstance` · 005a4cb0 · legions 00571460 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::CreateInstance` · 005a4d10 · legions 005714c0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::DestroyDevice` · 005a4e10 · legions 005715c0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [~] `DirectXSoundDevice::CreateDevice` · 005a5160 · legions 00571910 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `DirectXSoundDevice::Enable` · 005a52a0 · legions 00571a50 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `DirectXSoundDevice::Shutdown` · 005a53c0 · legions 00571b70
-- [ ] `DirectXSoundDevice::ReserveAudioPath` · 005a5430 · legions 00571be0
+- [-] `DirectXSoundDevice::Shutdown` · 005a53c0 · legions 00571b70 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::ReserveAudioPath` · 005a5430 · legions 00571be0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 - [~] `DirectXSoundDevice::Initialize` · 005a5500 · legions 00571cb0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `DirectXSoundDevice::CreateAudioPaths` · 005a55a0 · legions 00571d50
-- [ ] `DirectXSoundDevice::FreeAudioPath` · 005a5860 · legions 00571fa0
-- [ ] `DirectXSoundDevice::DirectXSoundDevice` · 005a58d0 · legions 00572010
-- [ ] `DirectXSoundDevice::OnDDDComplete` · 005a59f0 · legions 00572130
+- [-] `DirectXSoundDevice::CreateAudioPaths` · 005a55a0 · legions 00571d50 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::FreeAudioPath` · 005a5860 · legions 00571fa0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::DirectXSoundDevice` · 005a58d0 · legions 00572010 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
+- [-] `DirectXSoundDevice::OnDDDComplete` · 005a59f0 · legions 00572130 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### SoundDeviceFactory
 - [~] `SoundDeviceFactory::CreateDevice` · 005a5a80 · legions 005721c0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
@@ -400,7 +400,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/sound/directx/envinfo_win32.cpp.c` (0/61)
 
 ### PFileNode
-- [ ] `PFileNode::MakeSubNodeAsInt32` · 005a9780 · legions 00575dc0
+- [-] `PFileNode::MakeSubNodeAsInt32` · 005a9780 · legions 00575dc0 — PFileNode config helper (ac2-prefs replaces)
 
 ### EnvInfo_WIN32
 - [-] `EnvInfo_WIN32::Init` · 005a97e0 · legions 00575e20 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
@@ -471,32 +471,32 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/sound/directx/soundfactory_win32.cpp.c` (0/2)
 
 ### SoundFactory_WIN32
-- [ ] `SoundFactory_WIN32::MakeEncodedWave` · 005a5ac0
+- [-] `SoundFactory_WIN32::MakeEncodedWave` · 005a5ac0 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
 - [-] `SoundFactory_WIN32::MakeEnvInfo` · 005a5ae0 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port.
 
 ## `portal/client/src/sound/directx/wavefile.cpp.c` (0/5)
 
 ### std::strstreambuf
-- [ ] `std::strstreambuf::str` · 005a5b30 · legions 00572270
+- [-] `std::strstreambuf::str` · 005a5b30 · legions 00572270 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### WaveFile
-- [ ] `WaveFile::WaveFile` · 005a5b50 · legions 00572290
+- [-] `WaveFile::WaveFile` · 005a5b50 · legions 00572290 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 
 ### WaveFileStreamUtilities
-- [ ] `WaveFileStreamUtilities::WriteWaveHeaderChunk` · 005a5b70 · legions 005722b0
-- [ ] `WaveFileStreamUtilities::ReadChunk` · 005a5c40 · legions 00572380
+- [-] `WaveFileStreamUtilities::WriteWaveHeaderChunk` · 005a5b70 · legions 005722b0 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
+- [ ] `WaveFileStreamUtilities::ReadChunk` · 005a5c40 · legions 00572380 — needs port (check): WAV RIFF load and chunk read; uncited
 
 ### WaveFile
-- [ ] `WaveFile::Load` · 005a5db0
+- [ ] `WaveFile::Load` · 005a5db0 — needs port (check): WAV RIFF load and chunk read; uncited
 
-## `portal/client/src/sound/encodedwave.cpp.c` (0/6)
+## `portal/client/src/sound/encodedwave.cpp.c` (1/6)
 
 ### EncodedWave
-- [ ] `EncodedWave::Pack` · 005a32b0
-- [ ] `EncodedWave::Allocator` · 005a3330
-- [ ] `EncodedWave::EncodedWave` · 005a3340
-- [ ] `EncodedWave::GetDBOType` · 005a3370
-- [ ] `EncodedWave::UnPack` · 005a3380
+- [-] `EncodedWave::Pack` · 005a32b0 — DAT authoring: WAV to encoded, header writer, pack, compress (admin tooling; client reads the DAT)
+- [-] `EncodedWave::Allocator` · 005a3330 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `EncodedWave::EncodedWave` · 005a3340 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `EncodedWave::GetDBOType` · 005a3370 — DBO type tag constant (Rust DB type table)
+- [x] `EncodedWave::UnPack` · 005a3380 — crates/ac2-audio/src/music/library.rs:90 (EncodedWave::UnPack: decoded here)
 - [-] `EncodedWave::LoadFromFile` · 005a3420 — text source loader, admin build only
 
 ## `portal/client/src/sound/envinfo.cpp.c` (0/3)
@@ -510,13 +510,13 @@ Legend and workflow: [README](README.md).
 
 ### SoundManager
 - [~] `SoundManager::Initialize` · 005a1000 · legions 0056dcd0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `SoundManager::OnDDDComplete` · 005a10d0
+- [-] `SoundManager::OnDDDComplete` · 005a10d0 — DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
 
 ### PlaySoundData
 - [x] `PlaySoundData::PlaySoundData` · 005a1160 · legions 0056de30 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 
 ### SoundManager
-- [ ] `SoundManager::DebugPrintPlayingSounds` · 005a1190
+- [-] `SoundManager::DebugPrintPlayingSounds` · 005a1190 — debug print of playing sounds
 - [x] `SoundManager::SetGrooveLevel` · 005a11a0 · legions 0056de60 — ac2-audio: SetGrooveLevel/TweakGrooveLevel forward level+offset to MusicThread::set_groove_level (StylePerformance groove) and the sink
 - [x] `SoundManager::TweakGrooveLevel` · 005a11d0 — ac2-audio: SetGrooveLevel/TweakGrooveLevel forward level+offset to MusicThread::set_groove_level (StylePerformance groove) and the sink
 - [~] `SoundManager::InitPrefs` · 005a1210 · legions 0056de90 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
@@ -529,7 +529,7 @@ Legend and workflow: [README](README.md).
 - [~] `SoundManager::HandleChangeInternal` · 005a1d90 · legions 0056e9b0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `SoundManager::HandleApply` · 005a1fe0 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 - [~] `SoundManager::HandleChange` · 005a2120 — ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
-- [ ] `SoundManager::GetPlayingSoundFromHandle` · 005a2230
+- [ ] `SoundManager::GetPlayingSoundFromHandle` · 005a2230 — needs port (check): playing sound lookup by handle and instance data id; uncited
 - [x] `SoundManager::SoundManager` · 005a2680 · legions 0056f370 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::FlushSounds` · 005a27d0 · legions 0056f4c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundManager::AddSoundInstance` · 005a28d0 · legions 0056f5c0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
@@ -544,13 +544,13 @@ Legend and workflow: [README](README.md).
 ### MusicInfo
 - [x] `MusicInfo::MusicInfo` · 006b8a70 · legions 0064fa30 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `MusicInfo::GetDBOType` · 006b8aa0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `MusicInfo::GetSubDataIDs` · 006b8ab0
-- [ ] `MusicInfo::CopyInto` · 006b8ad0
+- [ ] `MusicInfo::GetSubDataIDs` · 006b8ab0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [-] `MusicInfo::CopyInto` · 006b8ad0 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `MusicInfo::TestBitMask` · 006b8b00 · legions 0064fac0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `MusicInfo::Allocate` · 006b8b10
+- [-] `MusicInfo::Allocate` · 006b8b10 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `MusicInfo::StreamPack` · 006b8b20 · legions 0064fae0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `MusicInfo::ToFileNode` · 006b8c00 — text source format (admin tools)
-- [ ] `MusicInfo::ParseFlags` · 006b8fb0
+- [ ] `MusicInfo::ParseFlags` · 006b8fb0 — needs port (check): implemented as crates/ac2-audio/src/data.rs flags and test() but uncited
 - [-] `MusicInfo::FromFileNode` · 006b9300 — text source format (admin tools)
 
 ## `portal/shared/src/sound/soundinfo.cpp.c` (3/9)
@@ -558,10 +558,10 @@ Legend and workflow: [README](README.md).
 ### SoundInfo
 - [x] `SoundInfo::SoundInfo` · 006b8090 · legions 0064f890 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [x] `SoundInfo::GetDBOType` · 006b80d0 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
-- [ ] `SoundInfo::GetSubDataIDs` · 006b80e0
-- [ ] `SoundInfo::CopyInto` · 006b8100
-- [ ] `SoundInfo::Allocate` · 006b8130
+- [ ] `SoundInfo::GetSubDataIDs` · 006b80e0 — needs port: GetSubDataIDs sub-object resolution for sound and music DIDs (AGENTS: DBOCache vtable slot); uncited
+- [-] `SoundInfo::CopyInto` · 006b8100 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
+- [-] `SoundInfo::Allocate` · 006b8130 — ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 - [x] `SoundInfo::StreamPack` · 006b8140 · legions 0064f940 — ac2-audio: SoundManager / DirectXPlayingSound / sound records
 - [-] `SoundInfo::ToFileNode` · 006b8230 — text source format (admin tools)
-- [ ] `SoundInfo::ParseFlags` · 006b84d0
+- [ ] `SoundInfo::ParseFlags` · 006b84d0 — needs port (check): implemented as crates/ac2-audio/src/data.rs flags and test() but uncited
 - [-] `SoundInfo::FromFileNode` · 006b8670 — text source format (admin tools)

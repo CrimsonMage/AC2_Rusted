@@ -20,6 +20,9 @@ pub struct ObjectParticleStart {
     pub placement: Ac2Transform,
     pub water_plane: bool,
     pub fire_and_forget: bool,
+    /// `FXManager::ParticleIsLooping` of the chosen `PSDesc`: only a looping system is kept on
+    /// the FX (and so stopped with it).
+    pub looping: bool,
 }
 
 /// A light an object's FX placed (`DoLightSourceFX`) on `emitter`.
@@ -53,6 +56,7 @@ pub(crate) fn particle_starts(
                 placement: node.placement,
                 water_plane: node.water_plane,
                 fire_and_forget: node.fire_and_forget,
+                looping: node.looping.get(pick).copied().unwrap_or(false),
             }
         })
         .collect()
@@ -88,6 +92,7 @@ mod tests {
         Ac2ParticleAttachment {
             placement: Ac2Transform::IDENTITY,
             particle_descs: descs.iter().map(|d| DataId::new(*d)).collect::<Arc<[_]>>(),
+            looping: vec![true; descs.len()].into(),
             water_plane: false,
             fire_and_forget: false,
             light,
@@ -101,6 +106,20 @@ mod tests {
             lifespan,
             fade_time: 0.25,
         }
+    }
+
+    /// `FXManager::DoParticleFX`: a non-looping system is started but not kept on the FX, so the
+    /// FX's stop leaves it to run out (only a looping system carries its handle).
+    #[test]
+    fn a_system_is_kept_on_the_fx_only_when_it_loops() {
+        let mut looping = attachment(&[9], None);
+        looping.looping = vec![true].into();
+        let mut finite = attachment(&[9], None);
+        finite.looping = vec![false].into();
+        let table = Ac2VisualFxParticles::from_entries([(7, vec![looping]), (8, vec![finite])]);
+        let mut random = Random::default();
+        assert!(particle_starts(3, 7, &table, &mut random)[0].looping);
+        assert!(!particle_starts(3, 8, &table, &mut random)[0].looping);
     }
 
     #[test]

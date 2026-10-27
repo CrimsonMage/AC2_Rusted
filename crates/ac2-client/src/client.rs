@@ -305,6 +305,7 @@ impl Client {
     pub fn apply_live_preferences(&mut self) -> Option<ac2_render::prefs::SceneOptions> {
         let prefs = self.prefs.take()?;
         self.apply_sound_preferences(prefs.bank());
+        self.apply_light_preferences(prefs.bank());
         self.camera
             .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
         let scene = prefs.scene_options();

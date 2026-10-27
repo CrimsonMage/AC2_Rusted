@@ -34,24 +34,24 @@ scripts/retail_catalog.py status
 
 | Crate | Functions | Done | Partial | To do | Skipped |
 |---|---:|---:|---:|---:|---:|
-| [ac2-core](ac2-core.md) | 589 | 18 | 4 | 166 | 401 |
-| [ac2-math](ac2-math.md) | 426 | 135 | 11 | 241 | 39 |
+| [ac2-core](ac2-core.md) | 589 | 21 | 4 | 12 | 552 |
+| [ac2-math](ac2-math.md) | 426 | 149 | 11 | 127 | 139 |
 | [ac2-dat](ac2-dat.md) | 507 | 42 | 7 | 67 | 391 |
-| [ac2-db](ac2-db.md) | 633 | 123 | 13 | 446 | 51 |
-| [ac2-net](ac2-net.md) | 556 | 229 | 20 | 307 | 0 |
+| [ac2-db](ac2-db.md) | 633 | 127 | 13 | 179 | 314 |
+| [ac2-net](ac2-net.md) | 556 | 229 | 20 | 83 | 224 |
 | [ac2-weenie](ac2-weenie.md) | 1904 | 615 | 172 | 632 | 485 |
-| [ac2-anim](ac2-anim.md) | 532 | 117 | 17 | 357 | 41 |
-| [ac2-assets](ac2-assets.md) | 785 | 102 | 13 | 549 | 121 |
+| [ac2-anim](ac2-anim.md) | 532 | 126 | 17 | 96 | 293 |
+| [ac2-assets](ac2-assets.md) | 785 | 118 | 14 | 232 | 421 |
 | [ac2-world](ac2-world.md) | 989 | 181 | 15 | 341 | 452 |
 | [ac2-render](ac2-render.md) | 781 | 109 | 58 | 257 | 357 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 8 | 76 |
-| [ac2-physics](ac2-physics.md) | 2124 | 397 | 88 | 1577 | 62 |
-| [ac2-smartbox](ac2-smartbox.md) | 262 | 85 | 34 | 140 | 3 |
-| [ac2-client](ac2-client.md) | 354 | 122 | 49 | 134 | 49 |
-| [ac2-ui](ac2-ui.md) | 2247 | 1071 | 355 | 710 | 111 |
-| [ac2-script](ac2-script.md) | 2468 | 1425 | 108 | 854 | 81 |
-| [ac2-gameplay](ac2-gameplay.md) | 499 | 184 | 33 | 270 | 12 |
-| [ac2-audio](ac2-audio.md) | 367 | 138 | 35 | 89 | 105 |
+| [ac2-physics](ac2-physics.md) | 2124 | 462 | 86 | 799 | 777 |
+| [ac2-smartbox](ac2-smartbox.md) | 262 | 91 | 35 | 90 | 46 |
+| [ac2-client](ac2-client.md) | 354 | 125 | 49 | 73 | 107 |
+| [ac2-ui](ac2-ui.md) | 2247 | 1095 | 355 | 457 | 340 |
+| [ac2-script](ac2-script.md) | 2468 | 1431 | 110 | 602 | 325 |
+| [ac2-gameplay](ac2-gameplay.md) | 499 | 198 | 33 | 54 | 214 |
+| [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |
 | [replaced](replaced.md) | 2058 | 36 | 0 | 0 | 2022 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

@@ -30,6 +30,9 @@ pub const DEVICE_SECTION: u32 = 0x4000_000B;
 
 /// `ID_Graphics_LandscapeDrawDistance`: the landscape's far radius (`far_radius_for_draw_distance`).
 pub const LANDSCAPE_DRAW_DISTANCE: u32 = 0x4000_0043;
+/// `LightSourceEffects` (`Render::m_Prefs.LightSourceEffects`): `FXManager::DoLightSourceFX`
+/// places no light while it is off.
+pub const LIGHT_SOURCE_EFFECTS: u32 = 0x4000_0061;
 /// `ID_Avatar_VisibleInFirstPerson`.
 pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
 /// `ID_Rendering_FullScreen`.
@@ -376,6 +379,15 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             short_distance: short,
             ..defaults.frill
         },
+    }
+}
+
+/// Whether FX light sources are placed (`LightSourceEffects`). A preference that is not
+/// registered keeps its default, on.
+pub fn light_source_effects(bank: &PreferenceBank) -> bool {
+    match bank.find(LIGHT_SOURCE_EFFECTS).map(|pref| &pref.value) {
+        Some(Value::Bool(on)) => *on,
+        _ => true,
     }
 }
 

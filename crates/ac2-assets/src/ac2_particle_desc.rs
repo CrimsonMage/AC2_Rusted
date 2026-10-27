@@ -44,7 +44,7 @@ pub struct Ac2ParticleKeyframe {
 }
 
 /// `PEmitterDesc`: one emitter of a particle system.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2ParticleEmitterDesc {
     pub max_particles: u32,
     pub origin: Ac2WaveformVec3,
@@ -81,7 +81,7 @@ pub struct Ac2ParticleEmitterDesc {
 }
 
 /// `PSDesc` (`0x39`): a particle system and the `MaterialInstance` its particles draw with.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2ParticleSystemDesc {
     pub max_particles: u32,
     /// `2` multiplies the object scale by the visual's particle scale.
@@ -95,6 +95,53 @@ pub struct Ac2ParticleSystemDesc {
     pub force_draw: bool,
     pub emitters: Arc<[Ac2ParticleEmitterDesc]>,
     pub material: Option<DataId>,
+}
+
+impl Ac2ParticleSystemDesc {
+    /// `PSDesc::ApproximateLifetime` (Legions 0x004F0D40; the admin 0x004FE570 disassembly
+    /// agrees): the longest an emitter runs, or -1 for a system that runs on without end. A
+    /// physics duration above zero is -1; an emitter with no emission limit and no time limit
+    /// is -1; each emitter ends at its lifespan (base, plus |amplitude| when the waveform is
+    /// not `NONE`) after its start, plus its emission span (the blasts times the birth rate,
+    /// never less than the time limit), less the fast-forward time. `FXManager::ParticleIsLooping`
+    /// is this value below zero.
+    pub fn approximate_lifetime(&self) -> f32 {
+        if self.physics_duration > 0.0 {
+            return -1.0;
+        }
+        let mut longest = 0.0_f32;
+        for emitter in self.emitters.iter() {
+            if emitter.emission_limit == 0 && emitter.time_limit == 0.0 {
+                return -1.0;
+            }
+            let lifespan = &emitter.lifespan;
+            let mut life = lifespan.base;
+            if lifespan.kind != ac2_math::waveform::kind::NONE {
+                life += lifespan.amplitude.abs();
+            }
+            // `DIV` by the blast count: a zero count is a retail fault; it is read as one here.
+            let blasts = if emitter.emission_limit == 0 {
+                0
+            } else {
+                emitter.emission_limit / emitter.blast_count.max(1)
+            };
+            let mut emitting = blasts as f32 * emitter.birth_rate;
+            if emitting < emitter.time_limit {
+                emitting = emitter.time_limit;
+            }
+            let end = ((life + emitter.start_time) - self.fast_forward_time) + emitting;
+            if longest < end {
+                longest = end;
+            }
+        }
+        longest
+    }
+
+    /// `FXManager::ParticleIsLooping`: the system runs until its FX stops it, so the FX keeps
+    /// its handle.
+    pub fn is_looping(&self) -> bool {
+        self.approximate_lifetime() < 0.0
+    }
 }
 
 impl ResourcePackedDecode for Ac2ParticleSystemDesc {
@@ -299,4 +346,76 @@ fn read_vec3(cursor: &mut ArchiveCursor<'_>) -> ResourceResult<Ac2WaveformVec3> 
         y: read_waveform(cursor)?,
         z: read_waveform(cursor)?,
     })
+}
+
+#[cfg(test)]
+mod lifetime_tests {
+    use super::*;
+    use ac2_math::waveform::kind;
+
+    fn emitter(emission_limit: u32, blast_count: u32, birth_rate: f32) -> Ac2ParticleEmitterDesc {
+        Ac2ParticleEmitterDesc {
+            emission_limit,
+            blast_count,
+            birth_rate,
+            lifespan: Ac2Waveform {
+                kind: kind::NONE,
+                base: 1.0,
+                ..Ac2Waveform::default()
+            },
+            ..Ac2ParticleEmitterDesc::default()
+        }
+    }
+
+    fn system(
+        physics_duration: f32,
+        emitters: Vec<Ac2ParticleEmitterDesc>,
+    ) -> Ac2ParticleSystemDesc {
+        Ac2ParticleSystemDesc {
+            physics_duration,
+            emitters: emitters.into(),
+            ..Ac2ParticleSystemDesc::default()
+        }
+    }
+
+    /// A physics duration above zero is never looping in the lifetime's sense: it returns -1.
+    #[test]
+    fn a_physics_duration_makes_the_system_loop() {
+        let desc = system(2.0, vec![emitter(10, 2, 0.5)]);
+        assert_eq!(desc.approximate_lifetime(), -1.0);
+        assert!(desc.is_looping());
+    }
+
+    /// No emission limit and no time limit: the emitter never stops, so the system loops.
+    #[test]
+    fn an_emitter_without_a_limit_loops() {
+        let desc = system(0.0, vec![emitter(0, 1, 0.5)]);
+        assert!(desc.is_looping());
+    }
+
+    /// Five blasts of 0.5 s after a 1 s lifespan end at 3.5 s.
+    #[test]
+    fn a_finite_emitter_ends_at_its_lifespan_plus_its_emission() {
+        let desc = system(0.0, vec![emitter(10, 2, 0.5)]);
+        assert!((desc.approximate_lifetime() - 3.5).abs() < 1e-6);
+        assert!(!desc.is_looping());
+    }
+
+    /// The emission span is never shorter than the time limit.
+    #[test]
+    fn the_time_limit_floors_the_emission_span() {
+        let mut short = emitter(4, 1, 0.1);
+        short.lifespan = Ac2Waveform::default();
+        short.time_limit = 2.0;
+        let desc = system(0.0, vec![short]);
+        assert!((desc.approximate_lifetime() - 2.0).abs() < 1e-6);
+    }
+
+    /// The longest emitter decides; an empty system lasts no time at all.
+    #[test]
+    fn the_longest_emitter_decides() {
+        let desc = system(0.0, vec![emitter(10, 2, 0.5), emitter(2, 1, 1.0)]);
+        assert!((desc.approximate_lifetime() - 3.5).abs() < 1e-6);
+        assert_eq!(system(0.0, Vec::new()).approximate_lifetime(), 0.0);
+    }
 }
