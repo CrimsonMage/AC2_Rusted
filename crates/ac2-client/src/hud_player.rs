@@ -257,8 +257,8 @@ impl HudView {
                 let mut bag = ac2_ui::MoneyBagUi::create(tree);
                 bag.set_money(tree, &player, frame.inventory.money.max(0) as u32);
                 *money = Some(bag);
-                let equipped = &frame.inventory.equipped;
-                let doll = ac2_ui::PaperDollUi::create(tree, layout, &player, id, equipped);
+                let equipped = player.equipped();
+                let doll = ac2_ui::PaperDollUi::create(tree, layout, &player, id, &equipped);
                 doll.follow_panel(tree);
                 *paper_doll = Some(doll);
             }

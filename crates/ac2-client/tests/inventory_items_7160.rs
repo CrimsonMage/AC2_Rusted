@@ -347,3 +347,77 @@ fn transmute_all_asks_the_server_to_transmute_the_container() {
         "{notices:?}"
     );
 }
+
+/// The entered world with the script VM attached (`AC2_DAT_DIR`), or `None` without the data.
+fn with_script_vm() -> Option<(
+    ac2_client::Client,
+    Rc<RefCell<legions_server_double::State>>,
+)> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
+    let store = ac2_db::ResourceStore::new(dataset.clone());
+    let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
+        .unwrap()
+        .unwrap();
+    let program = Arc::new(Program::from_stream(&wlib.stream));
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    let (mut client, server) = entered(spawn());
+    client.attach_scripts(
+        ScriptHost::new(program, Box::new(data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
+    Some((client, server))
+}
+
+/// The player's script answers the inventory IFuns from the `WM_Inventory` messages it is sent:
+/// after an equip, the worn list names the sword and an unequip puts it back.
+///
+/// Known Gap: a move into a side pack is not yet reflected by the script (the side pack's list
+/// the script keeps comes from the open answer, and `ContainerContents` to the container does
+/// not update it), so the frame's mirror answers there; the test does not assert it.
+#[test]
+fn the_script_answers_the_inventory_queries_after_moves() {
+    let Some((mut client, server)) = with_script_vm() else {
+        return;
+    };
+    open_the_pack(&mut client, &server);
+    assert_eq!(client.equipped_by_location(), Some(Vec::new()));
+    assert_eq!(client.do_i_have_item(SWORD), Some(true));
+    assert_eq!(client.is_on_inventory(SWORD), Some(false));
+    assert!(client
+        .inventory_ids()
+        .is_some_and(|ids| ids.contains(&SWORD)));
+
+    // Equip: the sword leaves the pack's list and is worn at the primary hand.
+    run(
+        &mut client,
+        &server,
+        Command::EquipItem {
+            item: SWORD,
+            location: PRIMARY_HAND,
+        },
+    );
+    assert_eq!(
+        client.equipped_by_location(),
+        Some(vec![(PRIMARY_HAND, SWORD)])
+    );
+    assert_eq!(client.do_i_have_item(SWORD), Some(true));
+    // `IsOnInventory` is the worn test: the sword is on the player now.
+    assert_eq!(client.is_on_inventory(SWORD), Some(true));
+
+    // Unequip into the pack's first slot: worn list empty again, the sword back in the pack.
+    run(
+        &mut client,
+        &server,
+        Command::UnequipItem {
+            item: SWORD,
+            target_slot: 0,
+        },
+    );
+    assert_eq!(client.equipped_by_location(), Some(Vec::new()));
+    assert_eq!(client.is_on_inventory(SWORD), Some(false));
+    assert_eq!(client.contents_info(0), Ok((vec![SWORD, POTIONS], 0, 2)));
+
+    let problems = client.take_script_problems();
+    assert!(problems.is_empty(), "{problems:?}");
+}

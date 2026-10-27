@@ -67,23 +67,11 @@ impl IngredientSource for ClientPlayer<'_> {
     }
 
     fn has_item(&self, object: u64) -> bool {
-        let inventory = &self.frame.inventory;
-        inventory.pack.items.contains(&object)
-            || inventory.pack.packs.contains(&object)
-            || inventory
-                .containers
-                .iter()
-                .any(|c| c.items.contains(&object) || c.packs.contains(&object))
-            || inventory.equipped.iter().any(|(_, i)| *i == object)
+        self.carries(object)
     }
 
     fn inventory(&self) -> Vec<u64> {
-        let inventory = &self.frame.inventory;
-        let mut items = inventory.pack.items.clone();
-        for container in &inventory.containers {
-            items.extend(container.items.iter().copied());
-        }
-        items
+        self.carried_ids()
     }
 
     fn item_icon(&self, object: u64) -> Option<u32> {

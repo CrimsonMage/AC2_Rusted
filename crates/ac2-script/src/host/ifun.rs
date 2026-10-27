@@ -54,6 +54,8 @@ pub enum OutValue {
     /// A list the call filled: the natives its items name, in order (items that are not natives
     /// are left out).
     Items(Vec<NativeObject>),
+    /// A 64-bit list the call filled (an `LList` of `InstanceID`s): its values, in order.
+    Values(Vec<u64>),
 }
 
 impl IFunArg {
@@ -156,7 +158,9 @@ impl ScriptHost {
                         ctx.push(r, tag::REF).map_err(bad)?;
                     }
                     // Results only: an input is a [`IFunArg::Filled`] or [`IFunArg::Vm`] native.
-                    OutValue::Vm(_) | OutValue::Items(_) => return Err(HostError::BadArguments),
+                    OutValue::Vm(_) | OutValue::Items(_) | OutValue::Values(_) => {
+                        return Err(HostError::BadArguments)
+                    }
                 }
             }
         }
@@ -248,6 +252,7 @@ impl ScriptHost {
     fn read_filled(&self, r: u32) -> Option<OutValue> {
         let native = self.vm.refs.heap(r).ok()?.native.clone()?;
         Some(match native {
+            NativeObject::List(list) if list.wide => OutValue::Values(list.items),
             NativeObject::List(list) => OutValue::Items(
                 list.items
                     .iter()

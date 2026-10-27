@@ -54,6 +54,7 @@ mod hud_shop;
 mod hud_status;
 #[cfg(feature = "window")]
 mod hud_view;
+mod inventory_queries;
 mod item_queries;
 mod loader;
 mod motion;

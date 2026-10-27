@@ -140,6 +140,12 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     IFUN_REQUEST_RAISE_SKILL,
     // The loot-all (`gmCWInterface::LootAllFromContainer`, see [`crate::gameplay`]).
     IFUN_LOOT_ALL_FROM_CONTAINER,
+    // The inventory queries (`gmCWInterface::DoIHaveItem`, `InqSimpleInvByLocTable`,
+    // `InqAllInventoryIIDList`, `IsOnInventory`, see [`crate::inventory_queries`]).
+    crate::inventory_queries::DO_I_HAVE_ITEM,
+    crate::inventory_queries::INQ_SIMPLE_INV_BY_LOC_TABLE,
+    crate::inventory_queries::INQ_ALL_INVENTORY_IID_LIST,
+    crate::inventory_queries::IS_ON_INVENTORY,
     // The crafting queries and requests (`ggmCWInterface::CallIFun_*`, see [`crate::craft`]).
     IFUN_CAN_CRAFT_SKILL_BE_RAISED,
     IFUN_CHECK_INGREDIENT,

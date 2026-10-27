@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 267 done, 114 partial, 1512 to do, 11 skipped.
+1904 retail functions: 269 done, 114 partial, 1510 to do, 11 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 - [ ] `ggmCObjMaint::CallEFun_DumpToString` · 00468280
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (71/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (72/301)
 
 ### PackObj
 - [ ] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0
@@ -668,7 +668,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruit` · 00458900 · legions 00459550
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620
 - [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0
-- [~] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760 — ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
+- [~] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [ ] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 - [x] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
@@ -731,7 +731,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0
 - [ ] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40
 - [ ] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0
-- [~] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0 — frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
+- [~] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -751,14 +751,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 - [~] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 - [x] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
-- [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
+- [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [~] `ggmCWInterface::CallIFun_InqSkillLevelByEnum` · 0045e7f0 · legions 0045f440 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [ ] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0
 - [x] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10
 - [~] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [ ] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0
+- [x] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0 — the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 - [x] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_IsSkillHarmful` · 0045f100 · legions 0045fd50 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_IsSkillTrainedByEnum` · 0045f1c0 · legions 0045fe10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090
 - [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (118/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (119/249)
 
 ### gmCWInterface
 - [ ] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0
@@ -979,10 +979,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetContentsInfo` · 00450570 · legions 004516b0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `gmCWInterface::GetContainerSegmentInfo` · 004505a0 · legions 004516e0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `gmCWInterface::GetPreferredInventoryLocation` · 004505d0 · legions 00451710 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
-- [~] `gmCWInterface::InqSimpleInvByLocTable` · 00450600 · legions 00451740 — frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
-- [~] `gmCWInterface::InqAllInventoryIIDList` · 00450620 · legions 00451760 — frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
-- [~] `gmCWInterface::DoIHaveItem` · 00450640 · legions 00451780 — ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
-- [ ] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0
+- [~] `gmCWInterface::InqSimpleInvByLocTable` · 00450600 · legions 00451740 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+- [~] `gmCWInterface::InqAllInventoryIIDList` · 00450620 · legions 00451760 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+- [~] `gmCWInterface::DoIHaveItem` · 00450640 · legions 00451780 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+- [x] `gmCWInterface::IsOnInventory` · 00450680 · legions 004517c0 — the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 - [~] `gmCWInterface::DragToMoneyBag` · 004506c0 · legions 00451800 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::DragFromMoneyBag` · 00450700 · legions 00451840 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `gmCWInterface::LootAllFromContainer` · 00450730 · legions 00451870 — Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced

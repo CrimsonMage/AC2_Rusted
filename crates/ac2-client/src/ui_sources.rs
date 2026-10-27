@@ -339,6 +339,18 @@ impl ShortcutSource for ClientPlayer<'_> {
 
     /// `gmCWInterface::DoIHaveItem`: in a pack the player lists or equipped.
     fn has_item(&self, item: u64) -> bool {
+        self.carries(item)
+    }
+}
+
+impl ClientPlayer<'_> {
+    /// `gmCWInterface::DoIHaveItem`: in a pack the player lists or equipped. The player's script
+    /// answers it, or the frame's mirror when the script says no: the script does not yet follow
+    /// every move into a side pack (see the inventory test's Known Gaps), so either can know it.
+    pub(crate) fn carries(&self, item: u64) -> bool {
+        if self.client.borrow_mut().do_i_have_item(item) == Some(true) {
+            return true;
+        }
         let inventory = &self.frame.inventory;
         inventory.pack.items.contains(&item)
             || inventory.pack.packs.contains(&item)
@@ -348,9 +360,35 @@ impl ShortcutSource for ClientPlayer<'_> {
                 .any(|c| c.items.contains(&item) || c.packs.contains(&item))
             || inventory.equipped.iter().any(|(_, i)| *i == item)
     }
-}
 
-impl ClientPlayer<'_> {
+    /// The items the player carries (`gmCWInterface::InqAllInventoryIIDList`): the script's list
+    /// with the frame's items it lacks.
+    pub(crate) fn carried_ids(&self) -> Vec<u64> {
+        let mut items = self.client.borrow_mut().inventory_ids().unwrap_or_default();
+        let inventory = &self.frame.inventory;
+        let frame_items = inventory
+            .pack
+            .items
+            .iter()
+            .chain(inventory.containers.iter().flat_map(|c| c.items.iter()))
+            .copied();
+        for item in frame_items {
+            if !items.contains(&item) {
+                items.push(item);
+            }
+        }
+        items
+    }
+
+    /// The worn items as `(location, item)` (`gmCWInterface::InqSimpleInvByLocTable`), the
+    /// script's answer, else the frame's.
+    pub(crate) fn equipped(&self) -> Vec<(u32, u64)> {
+        if let Some(worn) = self.client.borrow_mut().equipped_by_location() {
+            return worn;
+        }
+        self.frame.inventory.equipped.clone()
+    }
+
     /// A string of the UI table with one `value` variable.
     fn ui_string(&self, name: &str, value: Option<RenderVar>) -> String {
         let info = RenderInfo {

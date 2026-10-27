@@ -159,8 +159,8 @@ pub(crate) fn paper_doll_notice(
             item,
             location,
         } => {
-            let equipped = &player.frame.inventory.equipped;
-            doll.update_inventory(tree, player, code, item, location, equipped);
+            let equipped = player.equipped();
+            doll.update_inventory(tree, player, code, item, location, &equipped);
         }
         GameplayNotice::ItemUpdate(item) => doll.item_changed(tree, player, item),
         GameplayNotice::SelectionChanged(new) => doll.selection_changed(tree, old_selection, new),

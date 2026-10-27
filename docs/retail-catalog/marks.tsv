@@ -1013,9 +1013,10 @@ key	status	note
 00450570	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 004505a0	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 004505d0	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
-00450600	~	frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
-00450620	~	frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
-00450640	~	ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
+00450600	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+00450620	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+00450640	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
+00450680	x	the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 004506c0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00450700	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00450730	~	Loot All runs on the player's script: IFun 0xB400E8 sends WM_Inventory 0x68 after the wlib counts the corpse's lists, which the open answer fills (CPlayer 0x8C -> CInventorySystem); corpse_script_7160. Another character's corpse is refused with NotMine (1077, consumed by CInventorySystem's open handler); the CorpseUsagePermission (0x26A) fields and the CorpsePermissionBlob message (0x1BDF) stay untraced
@@ -1202,7 +1203,7 @@ key	status	note
 004582f0	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00458380	_	net: LeaveConsignment is raised by the close-all body (CStoreSystem 0x1C, from ViewStore and the consignment view), not by a WM_Store opcode of its own. DisplaySaleReminders (IFun 0xB4013D, id matches Legions) is not exercised
 00458500	~	ac2-weenie OnlineSession::emote and the chat shell's emote table (shell/mod.rs EmoteTable) send the emote id (WM_Communication emote, chat_7160); the StringInfo IFun 0xB400EC is not called; friends' status emote (gmFriendsUI::HandleStatusChange) not wired
-00458b10	~	ui_sources ClientPlayer::has_item and hud_ingredient has_item answer from the frame mirror (pack, containers, equipped). Not run on the VM for the same reason: it still holds an item moved out of the pack
+00458b10	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 00458bf0	_	IFun 0xB400C0 run by client_story.rs for each DoStory damage hook; Do3DDamage raised on the VM with HIT 0x40000008 (combat_7160)
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458ec0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
@@ -1226,7 +1227,7 @@ key	status	note
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 0045bc60	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 0045bd60	~	no native caller in the call graph; IFun 0xB400AA not wired
-0045c4a0	~	frame's inventory lists (ui_sources and hud_ingredient inventory()). Not run on the VM for the same reason: its list goes stale after a move
+0045c4a0	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
@@ -1242,11 +1243,12 @@ key	status	note
 0045e180	_	ac2-script host::ifun (ScriptHost::query) + ac2-client scripts_queries
 0045e2c0	~	read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 0045e450	x	client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
-0045e660	~	frame's equipped list (InventoryState from the server's Equipment; Equipment::locations). Not run on the VM: the player's script is not fed WM_Inventory (player_script.rs), so its table stays empty after an equip
+0045e660	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045e7f0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045e9c0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045eea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
+0045ef60	x	the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 0045f040	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f100	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045f1c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160

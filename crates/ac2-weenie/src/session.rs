@@ -588,17 +588,17 @@ impl OnlineSession {
                     .and_then(|t| self.receive_inventory(t, function, &arguments))
                 {
                     out.extend(events);
-                    // The open answer also reaches the player's script raw: the container's
-                    // lists the loot checks count are filled by its forwarder (CPlayer 0x8C ->
-                    // CInventorySystem's statics, which look the container up by IID).
-                    if function == ac2_net::protocol::script_function::OPEN_CONTAINER_DONE {
-                        if let Some(object) = target {
-                            out.push(SessionEvent::Interp {
-                                object,
-                                function,
-                                arguments,
-                            });
-                        }
+                    // The inventory's messages also reach the script raw, as retail delivers
+                    // them: the VM keeps the contents and equipment its IFuns read
+                    // (`DoIHaveItem`, `InqSimpleInvByLocTable`, ...). The open answer's lists
+                    // are counted by its forwarder too (CPlayer 0x8C -> CInventorySystem's
+                    // statics, which look the container up by IID).
+                    if let Some(object) = target {
+                        out.push(SessionEvent::Interp {
+                            object,
+                            function,
+                            arguments,
+                        });
                     }
                     return;
                 }
