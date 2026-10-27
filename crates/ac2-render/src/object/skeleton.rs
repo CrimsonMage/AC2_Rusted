@@ -332,6 +332,32 @@ pub struct ObjectSkeleton {
 }
 
 impl ObjectSkeleton {
+    /// The root group's model-space bones (`CPartArray::m_boneMatrices`, which carry no scale), as
+    /// the transforms `pose` builds them from: each bone's parent-relative local composed up its
+    /// chain. `root` is taken as `pose` takes it.
+    pub fn root_bones(&self, root: Option<&[Ac2Transform]>) -> Vec<Ac2Transform> {
+        let Some(group) = self.groups.first() else {
+            return Vec::new();
+        };
+        let locals = match root {
+            Some(root) if root.len() == group.bone_count() => root,
+            _ => &group.placement[..],
+        };
+        let mut model: Vec<Ac2Transform> = Vec::with_capacity(locals.len());
+        for (index, local) in locals.iter().enumerate() {
+            let local = Ac2Transform {
+                scale: ac2_math::Vec3::ONE,
+                ..*local
+            };
+            let bone = match group.parents[index].filter(|parent| *parent < index) {
+                Some(parent) => model[parent].compose(&local),
+                None => local,
+            };
+            model.push(bone);
+        }
+        model
+    }
+
     /// Every group's matrices with the root group's bones at `root` (parent-relative bone
     /// transforms, as the animation leaves `m_boneTransforms`) and the rest at placement frame 0;
     /// `root` of the wrong length is ignored. `CPartGroup::UpdateBones` then `RefreshMatrices`
@@ -390,4 +416,62 @@ pub fn blend_vertex(
         }
     }
     (p, n)
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use ac2_anim::Ac2Bone;
+    use ac2_math::{Quat, Vec3};
+
+    use super::*;
+
+    fn bone(parent: Option<usize>) -> Ac2Bone {
+        Ac2Bone { parent, name: 1 }
+    }
+
+    /// `CPartArray::UpdateBones`: a child bone's model-space origin is its parent's rotated
+    /// offset plus its own, and the bone matrices and `root_bones` agree on it.
+    #[test]
+    fn root_bones_compose_the_chain_the_matrices_pose() {
+        let setup = Ac2Setup {
+            meshes: Arc::from(Vec::new()),
+            bones: Arc::from(vec![bone(None), bone(Some(0))]),
+            placements: Arc::from(Vec::new()),
+            holding_points: Arc::from(Vec::new()),
+            connection_points: Arc::from(Vec::new()),
+            bounds_min: Vec3::ZERO,
+            bounds_max: Vec3::ZERO,
+        };
+        let skeleton = ObjectSkeleton {
+            groups: vec![SkeletonGroup::new(DataId::new(1), &setup, false, None)],
+        };
+        let root = [
+            Ac2Transform {
+                offset: Vec3::new(1.0, 2.0, 3.0),
+                scale: Vec3::ONE,
+                rotation: Quat::from_rotation_z(std::f32::consts::FRAC_PI_2),
+            },
+            Ac2Transform {
+                offset: Vec3::new(0.0, 4.0, 0.0),
+                scale: Vec3::ONE,
+                rotation: Quat::IDENTITY,
+            },
+        ];
+        let bones = skeleton.root_bones(Some(&root));
+        let posed = skeleton.pose(Some(&root));
+        let matrices = &posed[0].bones;
+        for (index, bone) in bones.iter().enumerate() {
+            let m = matrices[index];
+            let origin = Vec3::new(m[12], m[13], m[14]);
+            assert!(
+                origin.distance(bone.offset) < 1e-4,
+                "bone {index}: matrix origin {origin:?} vs chain {:?}",
+                bone.offset
+            );
+        }
+        // The child sits at the root's rotated (0, 4, 0): (-4, 0, 0) after a quarter turn about z.
+        assert!(bones[1].offset.distance(Vec3::new(-3.0, 2.0, 3.0)) < 1e-4);
+    }
 }

@@ -106,5 +106,5 @@ pub use ac2_visual_desc::{Ac2AppearanceHash, Ac2PartGroup, Ac2VisualDesc, Ac2Vis
 pub use ac2_visual_fx_particles::{resolve_ac2_visual_fx_particles, Ac2VisualFxParticles};
 pub use ac2_visual_fx_sounds::{resolve_ac2_visual_fx_sounds, Ac2VisualFxSounds};
 pub use ac2_visual_particles::{
-    resolve_ac2_visual_particles, Ac2ParticleAttachment, Ac2VisualParticles,
+    resolve_ac2_visual_particles, Ac2ParticleAnchor, Ac2ParticleAttachment, Ac2VisualParticles,
 };

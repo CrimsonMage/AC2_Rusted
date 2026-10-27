@@ -13,7 +13,7 @@ use ac2_dat::DatFileKind;
 use ac2_db::{
     CachedResource, ResourcePackedDecode, ResourceResult, ResourceStore, TypedResourceRef,
 };
-use ac2_math::Quat;
+use ac2_math::{Quat, Vec3};
 
 use crate::ac2_fx::{Ac2FxLight, Ac2FxObject, Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
@@ -23,13 +23,35 @@ const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
 const MAX_VISUAL_DESC_DEPTH: usize = 16;
 const MAX_FX_TABLE_DEPTH: usize = 8;
 
+/// Where a particle system attaches on its object, named against the visual's root Setup. The
+/// bone and holding transforms are kept unposed: the renderer composes them with the object's
+/// posed bones each frame (`CPartArray::QueueParticleSystems`, `FXManager::FireParticleFX`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Ac2ParticleAnchor {
+    /// Neither a holding point nor a bone: `m_bone_offset` in the object's space.
+    Object { offset: Vec3 },
+    /// `m_bone_name`: a root Setup bone (`None` when the Setup has no such bone), with
+    /// `m_bone_offset` in that bone's space.
+    Bone { bone: Option<usize>, offset: Vec3 },
+    /// `m_holding_location`: the Setup's holding point, its bone and location transform. `None`
+    /// when the Setup has no such point.
+    Holding {
+        location: Option<(usize, Ac2Transform)>,
+    },
+}
+
 /// One startup particle system of a visual.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2ParticleAttachment {
     /// `FXNode::m_psdesc_list`; retail picks one entry at random per firing.
     pub particle_descs: Arc<[DataId]>,
-    /// Object-local placement (AC axes): holding point or bone rest pose, then the bone offset.
+    /// Object-local placement (AC axes) at the rest pose: holding point or bone rest pose, then
+    /// the bone offset. Static world sources (`ac2_particle_sources`) use it.
     pub placement: Ac2Transform,
+    /// The node's attachment, to be posed per frame (see [`Ac2ParticleAnchor`]).
+    pub anchor: Ac2ParticleAnchor,
+    /// `m_remove_rotation`: the attachment keeps only its translation.
+    pub remove_rotation: bool,
     /// The node rides its cell's water plane (`FXManager::FireParticleFX`).
     pub water_plane: bool,
     /// `m_fire_and_forget` (see [`Ac2FxParticleNode::fire_and_forget`]).
@@ -116,6 +138,8 @@ pub fn resolve_ac2_visual_particles(
         let looping = looping_flags(store, &node.particle_descs)?;
         attachments.push(Ac2ParticleAttachment {
             placement: placement(setup.as_deref(), &rest, &node),
+            anchor: anchor(setup.as_deref(), &node),
+            remove_rotation: node.remove_rotation,
             particle_descs: node.particle_descs,
             water_plane: node.water_plane,
             fire_and_forget: node.fire_and_forget,
@@ -188,6 +212,33 @@ pub(crate) fn placement(
         placed.scale = ac2_math::Vec3::ONE;
     }
     placed
+}
+
+/// The unposed attachment of a node (see [`Ac2ParticleAnchor`]), by the same precedence as
+/// [`placement`]: a holding point, then a bone, then the object's offset.
+pub(crate) fn anchor(setup: Option<&Ac2Setup>, node: &Ac2FxParticleNode) -> Ac2ParticleAnchor {
+    if node.holding_location != 0 {
+        let location = setup.and_then(|setup| {
+            setup
+                .holding_points
+                .iter()
+                .find(|point| point.id == node.holding_location)
+                .map(|point| (point.bone, point.transform))
+        });
+        return Ac2ParticleAnchor::Holding { location };
+    }
+    match setup {
+        Some(setup) if node.bone_name != 0 => Ac2ParticleAnchor::Bone {
+            bone: setup
+                .bones
+                .iter()
+                .position(|candidate| candidate.name == node.bone_name),
+            offset: node.bone_offset,
+        },
+        _ => Ac2ParticleAnchor::Object {
+            offset: node.bone_offset,
+        },
+    }
 }
 
 /// `FXManager::ParticleIsLooping` for each of a node's systems, read on the loader thread (the

@@ -125,6 +125,9 @@ pub struct ObjectPose {
     pub skins: Vec<Option<u32>>,
     /// The deform matrices of every skinned group (`SceneTool::SetMatrixStack`).
     pub palette: Vec<Mat4>,
+    /// The root group's model-space bones (`CPartArray::m_boneMatrices`, no scale), for the
+    /// particle systems and objects a bone holds (`ObjectSkeleton::root_bones`).
+    pub bones: Vec<Ac2Transform>,
 }
 
 impl ObjectModel {
@@ -209,6 +212,7 @@ impl PoseRig {
             parts,
             skins,
             palette,
+            bones: self.skeleton.root_bones(root),
         })
     }
 }

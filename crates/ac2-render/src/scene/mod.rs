@@ -26,7 +26,7 @@ pub use loader::{
     BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
     LoadedObjectParticle, ParticleSource, Placement,
 };
-pub use particles::ParticleBatch;
+pub use particles::{ParticleAnchor, ParticleBatch};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
@@ -59,12 +59,14 @@ pub struct FramePlacement {
 }
 
 /// Where an object stands this frame, for the particle systems it runs: its emitter (the object's
-/// id), its frame and its total scale (`CPartArray::QueueParticleSystems`'s object matrix).
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// id), its frame, its total scale (`CPartArray::QueueParticleSystems`'s object matrix) and its
+/// root Setup's posed bones, which the systems and the holding points attach to.
+#[derive(Debug, Clone, PartialEq)]
 pub struct ObjectPlacement {
     pub emitter: u64,
     pub frame: Frame,
     pub scale: Vec3,
+    pub bones: Vec<Ac2Transform>,
 }
 
 /// What one frame draws, in order.
@@ -435,7 +437,7 @@ impl WorldScene {
     }
 
     /// `CPartArray::CreateParticleSystem` for an object FX: a system `handle` run by the object
-    /// `emitter` at `placement` (object space), its description `desc` loading on the loader
+    /// `emitter`, attached at `anchor` (posed with the object's bones each frame), its description `desc` loading on the loader
     /// thread. It starts at the scene's clock now and is drawn where the object is placed;
     /// `follow` is false for a fire-and-forget system, which stays where its object first stood.
     pub fn start_object_particle(
@@ -443,12 +445,12 @@ impl WorldScene {
         handle: u64,
         emitter: u64,
         desc: DataId,
-        placement: Ac2Transform,
+        anchor: ParticleAnchor,
         follow: bool,
     ) {
         if self
             .particles
-            .request_object(handle, emitter, placement, follow)
+            .request_object(handle, emitter, anchor, follow)
         {
             self.request(Request::ObjectParticle(handle, desc));
         }

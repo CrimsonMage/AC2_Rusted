@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 485 done, 99 partial, 762 to do, 778 skipped.
+2124 retail functions: 486 done, 102 partial, 758 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1278,7 +1278,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::pair<unsigned_long_const_,FXState>::~pair<unsigned_long_const_,FXState>` · 00505ce0 · legions 004f3fb0 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — fire-and-forget FX nodes: ac2-client keeps no handle; ac2-render scene/particles.rs starts the system unfollowed, placed once where its object first stood (PSManager::CreateAutonomousParticleSystem); water-plane riding and the holding and bone attachment of the autonomous frame not ported
+- [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — ac2-render scene/particles.rs fired(): posed bone or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: bone names in child part groups (FindBoneType recursion) are not searched, so those systems are not attached.
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0 — ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 - [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — needs port: FX manager effect
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (17/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (18/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2030,8 +2030,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::CacheAnimations` · 004eea70 · legions 004e13d0 — render plumbing
 - [ ] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0 — needs port: cite-only physics-object method
 - [ ] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — needs port: cite-only physics-object method
-- [ ] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — needs port: cite-only physics-object method
-- [ ] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — needs port: cite-only physics-object method
+- [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
+- [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — needs port: cite-only physics-object method
 - [~] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
 - [ ] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690 — needs port: cite-only physics-object method
@@ -2039,7 +2039,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [ ] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 - [ ] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — needs port: cite-only physics-object method
-- [x] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — CPartArray::QueueParticleSystems - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
+- [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation, bone missing = no system (real data: 27% of bone nodes name a bone outside the root Setup).
 - [ ] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — needs port: cite-only physics-object method
 - [-] `CPartArray::SetPartGroupData` · 004ef8f0 · legions 004e2230 — render plumbing
 
@@ -2049,7 +2049,7 @@ Legend and workflow: [README](README.md).
 ### CPartArray
 - [-] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — render plumbing
 - [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-- [ ] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — needs port: cite-only physics-object method
+- [~] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
 
 ### SmartArray<PSystemInstance>
 - [-] `SmartArray<PSystemInstance>::AddToEnd` · 004f0190 · legions 004e2ad0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -2825,7 +2825,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — needs port: cite-only physics-object method
+- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
 - [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetSphere` · 004f1e10 — needs port: cite-only physics-object method

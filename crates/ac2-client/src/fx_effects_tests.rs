@@ -133,7 +133,7 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
     let nodes = particles
         .get(STEP_FX)
         .expect("the footstep FX has particle nodes");
-    let queued = particle_starts(EMITTER, STEP_FX, &particles, &mut random);
+    let queued = particle_starts(EMITTER, STEP_FX, &particles, &mut random, None);
     assert!(!queued.is_empty(), "a particle system starts");
     assert_eq!(
         queued.len(),
@@ -212,7 +212,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
             Ac2AnimEvent::StartFx { fx, .. } => Some(fx),
             _ => None,
         })
-        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random))
+        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random, None))
         .enumerate()
         .map(|(index, mut start)| {
             start.handle = index as u64 + 1;
@@ -228,13 +228,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     let mut scene = WorldScene::new(world, 1);
     scene.set_clock(0.0);
     for start in &started {
-        scene.start_object_particle(
-            start.handle,
-            start.emitter,
-            start.desc,
-            start.placement,
-            true,
-        );
+        scene.start_object_particle(start.handle, start.emitter, start.desc, start.anchor, true);
     }
     scene.wait();
     assert_eq!(scene.object_particle_systems(), started.len());
@@ -242,6 +236,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
         emitter: EMITTER,
         frame: ac2_math::Frame::new(at, ac2_math::Quat::IDENTITY),
         scale: Vec3::ONE,
+        bones: Vec::new(),
     }];
     let camera = Camera {
         eye: at + Vec3::new(0.0, -4.0, 1.0),

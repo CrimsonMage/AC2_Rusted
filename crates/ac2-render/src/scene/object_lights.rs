@@ -161,6 +161,7 @@ mod tests {
             emitter,
             frame: Frame::new(Vec3::new(x, 0.0, 0.0), ac2_math::Quat::IDENTITY),
             scale: Vec3::ONE,
+            bones: Vec::new(),
         }
     }
 

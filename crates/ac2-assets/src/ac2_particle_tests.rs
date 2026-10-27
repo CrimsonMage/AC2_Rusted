@@ -10,8 +10,8 @@ use ac2_db::{CachedResource, ResourcePackedDecode, ResourceStore, TypedResourceR
 
 use crate::ac2_fx::Ac2FxTable;
 use crate::{
-    resolve_ac2_entity_visual, resolve_ac2_visual_meshes, resolve_ac2_visual_particles,
-    Ac2ParticleSystemDesc,
+    resolve_ac2_entity_visual, resolve_ac2_visual_fx_particles, resolve_ac2_visual_meshes,
+    resolve_ac2_visual_particles, Ac2ParticleAnchor, Ac2ParticleSystemDesc,
 };
 
 fn ac2_dataset() -> Option<(Arc<DatDataset>, ResourceStore)> {
@@ -276,4 +276,45 @@ fn every_fx_objects_entity_resolves_to_a_drawable_visual() {
         "{} FX object EntityDescs resolve to drawable visuals",
         entities.len()
     );
+}
+
+/// Every FX particle node of the human-scale visuals, by how it attaches: a posed bone, a holding
+/// point (found, or missing), the object's offset, and the water-plane and removed-rotation flags.
+/// Each kind the DAT uses must resolve in the real data.
+#[test]
+fn fx_particle_nodes_attach_to_bones_holding_points_and_water_in_the_dataset() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let (mut bone, mut missing_bone, mut holding, mut missing_holding) = (0, 0, 0, 0);
+    let (mut object, mut water, mut removed, mut fire) = (0, 0, 0, 0);
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let Some(table) = resolve_ac2_visual_fx_particles(&store, DataId::new(did))
+            .unwrap_or_else(|error| panic!("VisualDesc {did:08X}: {error}"))
+        else {
+            continue;
+        };
+        for (_, attachments) in table.entries_for_test() {
+            for attachment in attachments.iter() {
+                match attachment.anchor {
+                    Ac2ParticleAnchor::Object { .. } => object += 1,
+                    Ac2ParticleAnchor::Bone { bone: Some(_), .. } => bone += 1,
+                    Ac2ParticleAnchor::Bone { bone: None, .. } => missing_bone += 1,
+                    Ac2ParticleAnchor::Holding { location: Some(_) } => holding += 1,
+                    Ac2ParticleAnchor::Holding { location: None } => missing_holding += 1,
+                }
+                water += usize::from(attachment.water_plane);
+                removed += usize::from(attachment.remove_rotation);
+                fire += usize::from(attachment.fire_and_forget);
+            }
+        }
+    }
+    eprintln!(
+        "FX particle nodes: object {object}, bone {bone} (missing {missing_bone}), holding \
+         {holding} (missing {missing_holding}), water {water}, removed rotation {removed}, \
+         fire-and-forget {fire}"
+    );
+    assert!(bone > 0, "some FX attach to a posed bone");
+    assert!(holding > 0, "some FX attach to a holding point");
+    assert!(object > 0);
 }

@@ -5015,8 +5015,8 @@ key	status	note
 004eea70	-	render plumbing
 004eea80	_	needs port: cite-only physics-object method
 004eeaa0	_	needs port: cite-only physics-object method
-004eeac0	_	needs port: cite-only physics-object method
-004eeb10	_	needs port: cite-only physics-object method
+004eeac0	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
+004eeb10	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eec30	_	needs port: cite-only physics-object method
 004eec50	~	ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
 004eed30	_	needs port: cite-only physics-object method
@@ -5024,13 +5024,13 @@ key	status	note
 004eedd0	x	CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 004eee60	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 004eef20	_	needs port: cite-only physics-object method
-004eef90	x	CPartArray::QueueParticleSystems - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
+004eef90	~	ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation, bone missing = no system (real data: 27% of bone nodes name a bone outside the root Setup).
 004ef290	_	needs port: cite-only physics-object method
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	-	render plumbing
 004efb00	x	CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-004f0140	_	needs port: cite-only physics-object method
+004f0140	~	ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
@@ -5126,7 +5126,7 @@ key	status	note
 004f1da0	_	needs port: cite-only physics-object method
 004f1db0	_	needs port: cite-only physics-object method
 004f1dd0	_	needs port: cite-only physics-object method
-004f1de0	_	needs port: cite-only physics-object method
+004f1de0	~	ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
 004f1df0	_	needs port: cite-only physics-object method
 004f1e00	_	needs port: cite-only physics-object method
 004f1e10	_	needs port: cite-only physics-object method
@@ -5447,7 +5447,7 @@ key	status	note
 00505c30	_	needs port: FX manager effect
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
-00505dd0	~	fire-and-forget FX nodes: ac2-client keeps no handle; ac2-render scene/particles.rs starts the system unfollowed, placed once where its object first stood (PSManager::CreateAutonomousParticleSystem); water-plane riding and the holding and bone attachment of the autonomous frame not ported
+00505dd0	~	ac2-render scene/particles.rs fired(): posed bone or holding transform, bone offset only without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Not done: bone names in child part groups (FindBoneType recursion) are not searched, so those systems are not attached.
 005060e0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00506190	x	ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
 005061f0	_	needs port: FX manager effect

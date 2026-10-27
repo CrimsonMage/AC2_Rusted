@@ -471,6 +471,17 @@ impl Client {
         self.audio.as_mut().map(|audio| &mut audio.manager)
     }
 
+    /// The height of the water surface over the cell an object stands in (`None` without water,
+    /// or when the object is not in the world).
+    fn water_surface_under(&self, id: u64, player_id: Option<u64>) -> Option<f32> {
+        let cell = if Some(id) == player_id {
+            self.player.as_ref()?.position().cell_id
+        } else {
+            self.remotes.get(id)?.position()?.cell_id
+        };
+        self.terrain.water_surface_z(cell)
+    }
+
     /// After `CPhysics::UpdateAllAnimation`: each object's started and stopped effects, then
     /// its `FXManager::UseTime` for the step. The objects' part runs first and needs no sound
     /// device (`client_fx_objects`); the sound and particle parts run only with one.
@@ -500,6 +511,12 @@ impl Client {
             .filter_map(|(_, _, events)| lock_change(events))
             .next_back();
         self.fx_object_events(&events, now);
+        // The water surface under each emitter at this step (`FireParticleFX` reads it when a
+        // fire-and-forget node starts).
+        let water: HashMap<u64, Option<f32>> = events
+            .iter()
+            .map(|(id, _, _)| (*id, self.water_surface_under(*id, player_id)))
+            .collect();
         if let Some(audio) = self.audio.as_mut() {
             for (id, visual, events) in events {
                 let visual_data = self.remotes.body_data(visual);
@@ -535,8 +552,13 @@ impl Client {
                                 // `FXManager::DoTargettedFX`: an FX already running keeps its
                                 // systems and lights.
                                 if let Entry::Vacant(slot) = fx.particles.entry(effect) {
-                                    let mut starts =
-                                        particle_starts(id, effect, table, &mut self.random);
+                                    let mut starts = particle_starts(
+                                        id,
+                                        effect,
+                                        table,
+                                        &mut self.random,
+                                        water.get(&id).copied().flatten(),
+                                    );
                                     let mut handles = Vec::with_capacity(starts.len());
                                     for start in &mut starts {
                                         audio.particle_handles += 1;

@@ -251,7 +251,7 @@ impl ClientView {
                 start.handle,
                 start.emitter,
                 start.desc,
-                start.placement,
+                start.anchor,
                 !start.fire_and_forget,
             );
         }
@@ -271,12 +271,24 @@ impl ClientView {
         }
     }
 
-    /// Where each drawn object stands this frame, for the particle systems it runs.
-    fn object_placements(&self, frame: &ClientFrame) -> Vec<ObjectPlacement> {
-        drawn_objects(frame)
+    /// Where each drawn object stands this frame, with its posed root bones, for the particle
+    /// systems it runs and the holding points they attach to.
+    fn object_placements(
+        &self,
+        drawn: &[Drawn<'_>],
+        placed: &[Option<(u64, Mat4, Option<ObjectPose>)>],
+    ) -> Vec<ObjectPlacement> {
+        drawn
             .iter()
-            .filter_map(|drawn| {
+            .zip(placed)
+            .filter_map(|(drawn, placed)| {
                 let (_, scale) = self.scene.object_rig(drawn.key)?;
+                let bones = placed
+                    .as_ref()?
+                    .2
+                    .as_ref()
+                    .map(|pose| pose.bones.clone())
+                    .unwrap_or_default();
                 let [w, x, y, z] = drawn.rotation;
                 Some(ObjectPlacement {
                     emitter: drawn.id,
@@ -285,6 +297,7 @@ impl ClientView {
                         Quat::from_xyzw(x, y, z, w),
                     ),
                     scale: *scale,
+                    bones,
                 })
             })
             .collect()
@@ -299,13 +312,16 @@ impl ClientView {
             return false;
         };
         self.scene.set_clock(time);
-        let placements = self.object_placements(frame);
+        let drawn = drawn_objects(frame);
+        let placed: Vec<_> = drawn.iter().map(|drawn| self.placed(drawn)).collect();
+        let placements = self.object_placements(&drawn, &placed);
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
-        let objects = drawn_objects(frame)
+        let objects = drawn
             .iter()
-            .filter_map(|drawn| {
-                let (key, world, pose) = self.placed(drawn)?;
+            .zip(placed)
+            .filter_map(|(drawn, placed)| {
+                let (key, world, pose) = placed?;
                 let position = self.world_point(drawn.cell, drawn.origin);
                 Some(SceneObject {
                     key,

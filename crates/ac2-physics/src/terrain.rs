@@ -273,6 +273,13 @@ impl Terrain {
         };
     }
 
+    /// The height (AC z) of the water surface over `cell_id`'s block, `None` where it holds none
+    /// (`FXManager::FireParticleFX` and `DoCreateObjectFX` read it as the water plane's z). Reads
+    /// the resident block record only.
+    pub fn water_surface_z(&self, cell_id: u32) -> Option<f32> {
+        self.water_plane(cell_id).map(|plane| -plane.d)
+    }
+
     /// `CLandCell::InqWaterPlane` (`CLandBlockMesh::InqWaterPlane`): the cell's block water
     /// plane, `z = height`.
     pub(crate) fn water_plane(&self, cell_id: u32) -> Option<crate::vector::Plane> {

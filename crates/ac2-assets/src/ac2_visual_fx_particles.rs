@@ -14,7 +14,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
 use crate::ac2_fx::{Ac2FxParticleNode, Ac2FxTable};
 use crate::ac2_visual_desc::Ac2VisualDesc;
-use crate::ac2_visual_particles::{load, looping_flags, placement, Ac2ParticleAttachment};
+use crate::ac2_visual_particles::{anchor, load, looping_flags, placement, Ac2ParticleAttachment};
 use ac2_anim::Ac2Setup;
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -137,6 +137,8 @@ pub fn resolve_ac2_visual_fx_particles(
             let looping = looping_flags(store, &node.particle_descs)?;
             attachments.push(Ac2ParticleAttachment {
                 placement: placement(setup.as_deref(), &rest, &node),
+                anchor: anchor(setup.as_deref(), &node),
+                remove_rotation: node.remove_rotation,
                 particle_descs: node.particle_descs,
                 water_plane: node.water_plane,
                 fire_and_forget: node.fire_and_forget,

@@ -1,24 +1,24 @@
 //! `FXManager::DoParticleFX` and `FXManager::DoLightSourceFX`: the particle systems and lights an
 //! object's FX starts. Each node of the effect's visual FX entry starts one system (the node's
-//! `PSDesc` list picked at random, `FXNode::GetParticleID`) placed where the node says
-//! (`PHYSICSOBJREP::CreateParticleSystem`), and places its light at the node's offset
-//! (`CPartArray::CreateLightSource`). The renderer starts them on the object.
+//! `PSDesc` list picked at random, `FXNode::GetParticleID`) attached where the node says
+//! (`PHYSICSOBJREP::CreateParticleSystem`, or `FireParticleFX` for a fire-and-forget node), and
+//! places its light at the node's offset (`CPartArray::CreateLightSource`). The renderer starts
+//! them on the object and poses their attachment with the object's bones each frame.
 
-use ac2_anim::Ac2Transform;
-use ac2_assets::{Ac2FxLight, Ac2VisualFxParticles};
+use ac2_assets::{Ac2FxLight, Ac2ParticleAnchor, Ac2VisualFxParticles};
 use ac2_core::{DataId, Random};
+use ac2_render::scene::ParticleAnchor;
 
 /// A particle system an object's FX started: the handle that names it until it is stopped, the
-/// emitter (object) id, the FX, the chosen `PSDesc`, and the placement and water-plane flag of its
-/// node. A fire-and-forget node's system is placed once where its object stands.
+/// emitter (object) id, the FX, the chosen `PSDesc`, and where the system attaches on its object.
+/// A fire-and-forget node's system is placed once where its object stands.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ObjectParticleStart {
     pub handle: u64,
     pub emitter: u64,
     pub fx: u32,
     pub desc: DataId,
-    pub placement: Ac2Transform,
-    pub water_plane: bool,
+    pub anchor: ParticleAnchor,
     pub fire_and_forget: bool,
     /// `FXManager::ParticleIsLooping` of the chosen `PSDesc`: only a looping system is kept on
     /// the FX (and so stopped with it).
@@ -33,12 +33,15 @@ pub struct ObjectLightStart {
 }
 
 /// The systems `fx` starts on `emitter`, one per node of the visual's entry for it that has a
-/// `PSDesc`. The handles are left at zero for the caller to number.
+/// `PSDesc`. A node that attaches to a bone the object lacks starts none (`DoParticleFX`'s
+/// `CreateParticleSystem` returns zero). `water_z` is the water surface under the object now
+/// (`FXManager::FireParticleFX`'s water branch). The handles are left at zero for the caller.
 pub(crate) fn particle_starts(
     emitter: u64,
     fx: u32,
     table: &Ac2VisualFxParticles,
     random: &mut Random,
+    water_z: Option<f32>,
 ) -> Vec<ObjectParticleStart> {
     let Some(nodes) = table.get(fx) else {
         return Vec::new();
@@ -46,6 +49,10 @@ pub(crate) fn particle_starts(
     nodes
         .iter()
         .filter(|node| !node.particle_descs.is_empty())
+        .filter(|node| {
+            node.fire_and_forget
+                || !matches!(node.anchor, Ac2ParticleAnchor::Bone { bone: None, .. })
+        })
         .map(|node| {
             let pick = random.roll_dice(0, node.particle_descs.len() as i32 - 1) as usize;
             ObjectParticleStart {
@@ -53,8 +60,12 @@ pub(crate) fn particle_starts(
                 emitter,
                 fx,
                 desc: node.particle_descs[pick],
-                placement: node.placement,
-                water_plane: node.water_plane,
+                anchor: ParticleAnchor {
+                    anchor: node.anchor,
+                    remove_rotation: node.remove_rotation,
+                    water_plane: node.water_plane,
+                    water_z,
+                },
                 fire_and_forget: node.fire_and_forget,
                 looping: node.looping.get(pick).copied().unwrap_or(false),
             }
@@ -99,6 +110,7 @@ pub(crate) fn startup_light_starts(
 mod tests {
     use std::sync::Arc;
 
+    use ac2_anim::Ac2Transform;
     use ac2_assets::{Ac2LightSource, Ac2ParticleAttachment};
     use ac2_math::Vec3;
 
@@ -107,6 +119,8 @@ mod tests {
     fn attachment(descs: &[u32], light: Option<Ac2FxLight>) -> Ac2ParticleAttachment {
         Ac2ParticleAttachment {
             placement: Ac2Transform::IDENTITY,
+            anchor: Ac2ParticleAnchor::Object { offset: Vec3::ZERO },
+            remove_rotation: false,
             particle_descs: descs.iter().map(|d| DataId::new(*d)).collect::<Arc<[_]>>(),
             looping: vec![true; descs.len()].into(),
             water_plane: false,
@@ -135,8 +149,8 @@ mod tests {
         finite.looping = vec![false].into();
         let table = Ac2VisualFxParticles::from_entries([(7, vec![looping]), (8, vec![finite])]);
         let mut random = Random::default();
-        assert!(particle_starts(3, 7, &table, &mut random)[0].looping);
-        assert!(!particle_starts(3, 8, &table, &mut random)[0].looping);
+        assert!(particle_starts(3, 7, &table, &mut random, None)[0].looping);
+        assert!(!particle_starts(3, 8, &table, &mut random, None)[0].looping);
     }
 
     /// `DoStartupFX` with an object: the light-only node of each startup FX places its light at
@@ -168,7 +182,7 @@ mod tests {
             vec![attachment(&[], Some(light(2.0))), attachment(&[9], None)],
         )]);
         let mut random = Random::default();
-        assert_eq!(particle_starts(3, 7, &table, &mut random).len(), 1);
+        assert_eq!(particle_starts(3, 7, &table, &mut random, None).len(), 1);
         assert_eq!(
             light_starts(3, 7, &table),
             vec![ObjectLightStart {

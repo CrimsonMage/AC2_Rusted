@@ -10,9 +10,9 @@ use std::sync::Arc;
 use std::time::Instant;
 
 use ac2_anim::Ac2Transform;
-use ac2_assets::Ac2ParticleSystemDesc;
+use ac2_assets::{Ac2ParticleAnchor, Ac2ParticleSystemDesc};
 use ac2_core::DataId;
-use ac2_math::{Frame, Vec3};
+use ac2_math::{Frame, Quat, Vec3};
 
 use super::loader::{BlockKey, ParticleSource};
 use super::ObjectPlacement;
@@ -26,11 +26,23 @@ pub struct ParticleBatch {
     pub geometry: ParticleGeometry,
 }
 
+/// Where an object FX's system attaches, as the FX started it: the unposed anchor
+/// (`Ac2ParticleAnchor`, posed against the object's bones each frame), `m_remove_rotation`, the
+/// node's water-plane flag and the water surface height found under the object when the FX
+/// started (`FXManager::FireParticleFX`'s water branch; `None` without water).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ParticleAnchor {
+    pub anchor: Ac2ParticleAnchor,
+    pub remove_rotation: bool,
+    pub water_plane: bool,
+    pub water_z: Option<f32>,
+}
+
 /// A system an object's FX started: its emitter (the object), where it attaches, and the system
 /// once its description has loaded (`None` while it loads).
 struct ObjectSystem {
     emitter: u64,
-    placement: Ac2Transform,
+    anchor: ParticleAnchor,
     /// Kept on its object every frame; a fire-and-forget system is placed once, where its object
     /// stood when it started (`FXManager::FireParticleFX`).
     follow: bool,
@@ -47,17 +59,104 @@ pub(super) struct SceneParticles {
     clock: Option<f64>,
     systems: HashMap<BlockKey, Vec<ParticleSystem>>,
     objects: HashMap<u64, ObjectSystem>,
-    /// Where each emitter stands this frame: its frame and total scale.
-    placed: HashMap<u64, (Frame, Vec3)>,
+    /// Where each emitter stands this frame: its frame, total scale and root bones.
+    placed: HashMap<u64, PlacedObject>,
     /// The particles alive in the last frame's drawn systems.
     alive: usize,
 }
 
-/// `CPartArray::QueueParticleSystems`' placement: the system's frame is the object's frame with
-/// the attachment's offset in the object's space, scaled by the object's scale; a removed
-/// rotation keeps only the translation (already done by the attachment).
-fn attach(object: Frame, placement: Ac2Transform, scale: Vec3) -> Frame {
-    object.compose_frame(Frame::new(placement.offset * scale, placement.rotation))
+/// An object's frame, scale and root bones this frame (see [`ObjectPlacement`]).
+struct PlacedObject {
+    frame: Frame,
+    scale: Vec3,
+    bones: Vec<Ac2Transform>,
+}
+
+/// A root bone's model-space frame (`CPartArray::m_boneMatrices`); `None` past the Setup's bones.
+fn bone_frame(bones: &[Ac2Transform], index: usize) -> Option<Frame> {
+    bones
+        .get(index)
+        .map(|bone| Frame::new(bone.offset, bone.rotation))
+}
+
+/// `CPartArray::QueueParticleSystems`' connection for an attached system: its offset in the
+/// bone's space, the holding point's transform in its bone's space, or the object's offset. A
+/// bone that is not in the object's Setup is not an attachment, so `None` (the system is not
+/// placed). A removed rotation keeps only the translation.
+fn attached(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Option<Frame> {
+    let in_object = |offset: Vec3| Frame::new(offset, Quat::IDENTITY);
+    let connection = match anchor.anchor {
+        Ac2ParticleAnchor::Object { offset } => in_object(offset),
+        Ac2ParticleAnchor::Bone {
+            bone: Some(index),
+            offset,
+        } => bone_frame(bones, index).map_or(in_object(offset), |bone| {
+            bone.compose_frame(in_object(offset))
+        }),
+        Ac2ParticleAnchor::Bone { bone: None, .. } => return None,
+        Ac2ParticleAnchor::Holding {
+            location: Some((index, transform)),
+        } => {
+            let location = Frame::new(transform.offset, transform.rotation);
+            bone_frame(bones, index).map_or(location, |bone| bone.compose_frame(location))
+        }
+        // A missing holding point attaches to the first bone at the identity (`PHYSICSOBJREP::
+        // CreateParticleSystem` keeps the zero index and the identity matrix).
+        Ac2ParticleAnchor::Holding { location: None } => {
+            bone_frame(bones, 0).unwrap_or(Frame::IDENTITY)
+        }
+    };
+    Some(if anchor.remove_rotation {
+        Frame::new(connection.origin, Quat::IDENTITY)
+    } else {
+        connection
+    })
+}
+
+/// `FXManager::FireParticleFX`'s connection for a fire-and-forget system: a holding point's
+/// transform alone, the posed bone (its offset ignored) or the bone offset, and for a water-plane
+/// node no offset at all (the system stands at its object, on the water).
+fn fired(anchor: &ParticleAnchor, bones: &[Ac2Transform]) -> Frame {
+    match anchor.anchor {
+        Ac2ParticleAnchor::Holding {
+            location: Some((_, transform)),
+        } => Frame::new(transform.offset, transform.rotation),
+        Ac2ParticleAnchor::Holding { location: None } => Frame::IDENTITY,
+        Ac2ParticleAnchor::Bone {
+            bone: Some(index),
+            offset,
+        } => bone_frame(bones, index).unwrap_or(Frame::new(offset, Quat::IDENTITY)),
+        Ac2ParticleAnchor::Bone { bone: None, offset } => Frame::new(offset, Quat::IDENTITY),
+        Ac2ParticleAnchor::Object { .. } if anchor.water_plane => Frame::IDENTITY,
+        Ac2ParticleAnchor::Object { offset } => Frame::new(offset, Quat::IDENTITY),
+    }
+}
+
+/// The system's frame in the world: the object's frame (for fire-and-forget on water, standing at
+/// the water surface) composed with the connection, whose offset is scaled by the object's scale.
+/// `None` when an attached system has no bone to stand on.
+fn attach(
+    object: Frame,
+    bones: &[Ac2Transform],
+    anchor: &ParticleAnchor,
+    follow: bool,
+    scale: Vec3,
+) -> Option<Frame> {
+    let (base, connection) = if follow {
+        (object, attached(anchor, bones)?)
+    } else {
+        let mut base = object;
+        if let (true, Ac2ParticleAnchor::Object { .. }, Some(z)) =
+            (anchor.water_plane, anchor.anchor, anchor.water_z)
+        {
+            base.origin.z = z;
+        }
+        (base, fired(anchor, bones))
+    };
+    Some(base.compose_frame(Frame::new(
+        connection.origin * scale,
+        connection.orientation,
+    )))
 }
 
 impl SceneParticles {
@@ -105,13 +204,13 @@ impl SceneParticles {
         self.systems.remove(key);
     }
 
-    /// `CPartArray::CreateParticleSystem`: a system `handle` on `emitter`, at `placement`. Its
+    /// `CPartArray::CreateParticleSystem`: a system `handle` on `emitter`, at `anchor`. Its
     /// description still has to load; `false` when `handle` is already known.
     pub(super) fn request_object(
         &mut self,
         handle: u64,
         emitter: u64,
-        placement: Ac2Transform,
+        anchor: ParticleAnchor,
         follow: bool,
     ) -> bool {
         if self.objects.contains_key(&handle) {
@@ -122,7 +221,7 @@ impl SceneParticles {
             handle,
             ObjectSystem {
                 emitter,
-                placement,
+                anchor,
                 follow,
                 started,
                 stopped: false,
@@ -179,8 +278,16 @@ impl SceneParticles {
     /// The frame's object placements (`CPartArray::QueueParticleSystems`' object frames).
     pub(super) fn place_objects(&mut self, placements: &[ObjectPlacement]) {
         self.placed.clear();
-        self.placed
-            .extend(placements.iter().map(|p| (p.emitter, (p.frame, p.scale))));
+        self.placed.extend(placements.iter().map(|p| {
+            (
+                p.emitter,
+                PlacedObject {
+                    frame: p.frame,
+                    scale: p.scale,
+                    bones: p.bones.clone(),
+                },
+            )
+        }));
     }
 
     pub(super) fn alive(&self) -> usize {
@@ -213,10 +320,19 @@ impl SceneParticles {
                 continue;
             };
             if !entry.stopped && (entry.follow || !system.placed()) {
-                let Some((frame, scale)) = self.placed.get(&entry.emitter) else {
+                let Some(placed) = self.placed.get(&entry.emitter) else {
                     continue;
                 };
-                system.place(attach(*frame, entry.placement, *scale), *scale, 1.0);
+                let Some(frame) = attach(
+                    placed.frame,
+                    &placed.bones,
+                    &entry.anchor,
+                    entry.follow,
+                    placed.scale,
+                ) else {
+                    continue;
+                };
+                system.place(frame, placed.scale, 1.0);
             }
             draw(system, camera, &basis, now, &mut batches, &mut alive);
             if system.ready_to_die(now) {
@@ -267,4 +383,148 @@ fn draw(
         }
     };
     system.fill(basis, now, fade, &mut batches[index].geometry);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn bone(offset: Vec3, rotation: Quat) -> Ac2Transform {
+        Ac2Transform {
+            offset,
+            scale: Vec3::ONE,
+            rotation,
+        }
+    }
+
+    fn anchor(anchor: Ac2ParticleAnchor) -> ParticleAnchor {
+        ParticleAnchor {
+            anchor,
+            remove_rotation: false,
+            water_plane: false,
+            water_z: None,
+        }
+    }
+
+    /// Whether two quaternions are the same rotation (`q` and `-q` alike).
+    fn same_rotation(a: Quat, b: Quat) -> bool {
+        a.dot(b).abs() > 1.0 - 1e-5
+    }
+
+    fn object_at(origin: Vec3) -> Frame {
+        Frame::new(origin, Quat::IDENTITY)
+    }
+
+    /// `QueueParticleSystems`: an attached system stands at its offset in the bone's space, the
+    /// bone posed by the object's skeleton this frame.
+    #[test]
+    fn an_attached_system_follows_its_posed_bone() {
+        let bones = [
+            bone(Vec3::ZERO, Quat::IDENTITY),
+            bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY),
+        ];
+        let anchor = anchor(Ac2ParticleAnchor::Bone {
+            bone: Some(1),
+            offset: Vec3::new(0.0, 1.0, 0.0),
+        });
+        let frame = attach(
+            object_at(Vec3::new(10.0, 0.0, 0.0)),
+            &bones,
+            &anchor,
+            true,
+            Vec3::ONE,
+        )
+        .expect("the bone exists");
+        assert!(frame.origin.distance(Vec3::new(10.0, 1.0, 2.0)) < 1e-5);
+    }
+
+    /// A holding point's transform sits in its bone's space; a removed rotation keeps only the
+    /// translation, as `CreateParticleSystem` does with `m_remove_rotation`.
+    #[test]
+    fn a_holding_point_is_its_bones_space_and_rotation_can_be_removed() {
+        let turned = Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
+        let bones = [bone(Vec3::new(0.0, 0.0, 1.0), Quat::IDENTITY)];
+        let location = Ac2Transform {
+            offset: Vec3::new(0.0, 0.0, 0.5),
+            scale: Vec3::ONE,
+            rotation: turned,
+        };
+        let holding = anchor(Ac2ParticleAnchor::Holding {
+            location: Some((0, location)),
+        });
+        let kept = attach(Frame::IDENTITY, &bones, &holding, true, Vec3::ONE).unwrap();
+        assert!(kept.origin.distance(Vec3::new(0.0, 0.0, 1.5)) < 1e-5);
+        assert!(same_rotation(kept.orientation, turned));
+        let removed = ParticleAnchor {
+            remove_rotation: true,
+            ..holding
+        };
+        let frame = attach(Frame::IDENTITY, &bones, &removed, true, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 1.5)) < 1e-5);
+        assert!(same_rotation(frame.orientation, Quat::IDENTITY));
+    }
+
+    /// `CreateParticleSystem` with a bone the Setup lacks: no system at all.
+    #[test]
+    fn an_attached_system_without_its_bone_is_not_placed() {
+        let missing = anchor(Ac2ParticleAnchor::Bone {
+            bone: None,
+            offset: Vec3::ONE,
+        });
+        assert!(attach(Frame::IDENTITY, &[], &missing, true, Vec3::ONE).is_none());
+    }
+
+    /// `FireParticleFX`: a holding point's transform alone, without its bone's pose.
+    #[test]
+    fn a_fire_and_forget_holding_point_ignores_its_bone() {
+        let bones = [
+            bone(Vec3::ZERO, Quat::IDENTITY),
+            bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY),
+        ];
+        let location = Ac2Transform {
+            offset: Vec3::new(0.0, 0.0, 0.5),
+            scale: Vec3::ONE,
+            rotation: Quat::IDENTITY,
+        };
+        let fired = anchor(Ac2ParticleAnchor::Holding {
+            location: Some((1, location)),
+        });
+        let frame = attach(object_at(Vec3::ZERO), &bones, &fired, false, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 0.5)) < 1e-5);
+    }
+
+    /// `FireParticleFX` with a posed bone: the bone's frame, the bone offset not applied.
+    #[test]
+    fn a_fire_and_forget_bone_takes_the_posed_bone_not_its_offset() {
+        let bones = [bone(Vec3::new(0.0, 0.0, 2.0), Quat::IDENTITY)];
+        let fired = anchor(Ac2ParticleAnchor::Bone {
+            bone: Some(0),
+            offset: Vec3::new(5.0, 5.0, 5.0),
+        });
+        let frame = attach(object_at(Vec3::ZERO), &bones, &fired, false, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(0.0, 0.0, 2.0)) < 1e-5);
+    }
+
+    /// `FireParticleFX`'s water branch: the system stands at the object on the water surface, and
+    /// the node's offset is not applied; without water the object's own height stays.
+    #[test]
+    fn a_water_plane_system_stands_on_the_surface_under_its_object() {
+        let water = ParticleAnchor {
+            anchor: Ac2ParticleAnchor::Object {
+                offset: Vec3::new(0.0, 0.0, 9.0),
+            },
+            remove_rotation: false,
+            water_plane: true,
+            water_z: Some(3.0),
+        };
+        let object = object_at(Vec3::new(1.0, 2.0, 7.0));
+        let frame = attach(object, &[], &water, false, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(1.0, 2.0, 3.0)) < 1e-5);
+        let dry = ParticleAnchor {
+            water_z: None,
+            ..water
+        };
+        let frame = attach(object, &[], &dry, false, Vec3::ONE).unwrap();
+        assert!(frame.origin.distance(Vec3::new(1.0, 2.0, 7.0)) < 1e-5);
+    }
 }
