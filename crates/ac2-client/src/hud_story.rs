@@ -1,7 +1,7 @@
 //! `gmStoryUI` on the frame: the story slot's events draw the background and the story fields
 //! (`gmStoryUI::Play` shows a keyframe, `~gmStoryUI` hides them), and the skip key reaches the
 //! slot (`gmStoryUI::ListenToMessage` 0xffff0003 with `0x4000001E`). The story's music and voice
-//! are not played here: the `StopAudio` event is taken and dropped.
+//! play in the client (`Client::play_story_sounds`); the HUD only draws them.
 
 use ac2_ui::{StoryEvent, GLOBAL_KEY_PRESS, SKIP_STORY_MESSAGE};
 

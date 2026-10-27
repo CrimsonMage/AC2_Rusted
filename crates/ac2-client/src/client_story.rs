@@ -76,11 +76,17 @@ impl Client {
                         self.camera.set_mouse_look(false, subject.as_ref());
                     }
                 }
-                // The HUD draws the keyframes and hides the fields (`hud_story.rs`); the story's
-                // music and voice are not played yet (`gmStoryUI::Play`).
-                event @ (StoryEvent::Show(_) | StoryEvent::StopAudio | StoryEvent::Hide) => {
-                    self.story_queue.push(event);
+                // The keyframe's music and voice play (`gmStoryUI::Play`); the HUD draws the
+                // keyframe and hides the fields (`hud_story.rs`).
+                StoryEvent::Show(show) => {
+                    self.play_story_sounds(show.music, show.voice);
+                    self.story_queue.push(StoryEvent::Show(show));
                 }
+                StoryEvent::StopAudio => {
+                    self.stop_story_sounds();
+                    self.story_queue.push(StoryEvent::StopAudio);
+                }
+                StoryEvent::Hide => self.story_queue.push(StoryEvent::Hide),
                 StoryEvent::PlayScenesDone(ids) => {
                     let played = ids
                         .iter()

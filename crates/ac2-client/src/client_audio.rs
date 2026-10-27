@@ -8,7 +8,7 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 
 use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxSoundNode, Ac2VisualFxSounds};
-use ac2_audio::{Emitter, PlaySoundData, SoundManager};
+use ac2_audio::{Channel, Emitter, LoopingMode, PlaySoundData, SoundManager, SoundType};
 use ac2_core::Random;
 use ac2_physics::{PhysicsBody, Position, Vector};
 
@@ -175,6 +175,25 @@ pub(crate) struct ClientAudio {
     pub(crate) ambient: crate::client_ambient::ClientAmbient,
     /// The screen music's playing sound (`PlayingSoundContext` of the pregame screens).
     pregame_music: Option<u32>,
+    /// `gmStoryUI::_lastMusicCtx` and `_lastVoiceCtx`: the story's music and voice playing.
+    story_music: Option<u32>,
+    story_voice: Option<u32>,
+}
+
+/// One of the story's sounds (`gmStoryUI::Play`): the last one it played stops over two seconds
+/// (`PlayingSoundContext::Stop(ctx, 2.0)`), then `did` plays as `Type_ForceAllExclusive` on
+/// `Channel_Main`, looping when it is the music (`Looping_ForceOn`).
+fn replace_story_sound(manager: &mut SoundManager, last: &mut Option<u32>, did: u32, music: bool) {
+    if let Some(handle) = last.take() {
+        manager.stop_context(handle, 2.0);
+    }
+    let mut data = PlaySoundData::new(did);
+    data.kind = SoundType::ForceAllExclusive;
+    data.channel = Channel::Main;
+    if music {
+        data.looping = LoopingMode::ForceOn;
+    }
+    *last = manager.play(&data).filter(|handle| *handle != 0);
 }
 
 /// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener:
@@ -223,7 +242,37 @@ impl Client {
             objects: HashMap::new(),
             ambient: Default::default(),
             pregame_music: None,
+            story_music: None,
+            story_voice: None,
         });
+    }
+
+    /// `gmStoryUI::Play`'s sounds for a keyframe: its music and its voice, each replacing the
+    /// story's last one. Without a sound manager, nothing plays.
+    pub(crate) fn play_story_sounds(&mut self, music: Option<u32>, voice: Option<u32>) {
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        if let Some(did) = music {
+            replace_story_sound(&mut audio.manager, &mut audio.story_music, did, true);
+        }
+        if let Some(did) = voice {
+            replace_story_sound(&mut audio.manager, &mut audio.story_voice, did, false);
+        }
+    }
+
+    /// `gmStoryUI::Finish`: the story's music and voice fade out over two seconds and forget
+    /// their handles.
+    pub(crate) fn stop_story_sounds(&mut self) {
+        let Some(audio) = self.audio.as_mut() else {
+            return;
+        };
+        for handle in [audio.story_music.take(), audio.story_voice.take()]
+            .into_iter()
+            .flatten()
+        {
+            audio.manager.stop_context(handle, 2.0);
+        }
     }
 
     /// A pregame screen's music (`gmIntroUI`, `gmCharacterSelectionUI` and
