@@ -26,6 +26,7 @@ mod reporter;
 mod session;
 mod shell;
 mod social;
+mod story;
 mod tables;
 mod ui_data;
 mod usage;
@@ -67,6 +68,10 @@ pub use shell::{
 pub use social::{
     AllegianceMember, AllegianceProfile, FellowInfo, FellowshipInfo, Social, SocialContext,
     SocialRequest,
+};
+pub use story::{
+    Keyframe, SceneInfo, TRACK_AUDIO, TRACK_MOVIE, TRACK_SUBTITLE, TRACK_VIDEO, TRACK_VOICE,
+    UNDEFINED_DURATION,
 };
 pub use tables::{
     StringTableIds, TABLE_ENUM_CHANNELS, TABLE_ENUM_CHAT_WINDOW, TABLE_ENUM_COMMUNICATION,

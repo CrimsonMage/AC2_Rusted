@@ -130,7 +130,11 @@ pub mod ntype {
     pub const SELECTION_INFO: u32 = 0xAB;
     pub const UI_SAVE_LOCATIONS: u32 = 0x6F;
     pub const GM_RACE_SEX_INFO: u32 = 0xA2;
+    /// `gmKeyframe` (`CNativeFactory` 0x9F).
+    pub const GM_KEYFRAME: u32 = 0x9F;
     pub const GM_SCENE_INFO: u32 = 0xA3;
+    /// `gmSceneInfoList` (`List<gmSceneInfo>`, 0xA4): the scene lists the notices carry.
+    pub const GM_SCENE_INFO_LIST: u32 = 0xA4;
     pub const SKILL_UI_NODE: u32 = 0xAE;
     pub const EFFECT_UI_NODE: u32 = 0x98;
 }
@@ -213,6 +217,12 @@ pub enum NativeObject {
     Recipe(Box<ac2_weenie::Recipe>),
     /// `IngredientAdaptor`.
     Ingredient(Box<ac2_weenie::Ingredient>),
+    /// `gmSceneInfo`: a scene of a story (`ggmSceneInfo`'s efuns).
+    SceneInfo(Box<ac2_weenie::SceneInfo>),
+    /// `gmKeyframe`: one keyframe of a scene (`ggmKeyframe`'s efuns).
+    Keyframe(Box<ac2_weenie::Keyframe>),
+    /// `gmSceneInfoList`: the scenes in list order (`ggmSceneInfoList`'s efuns).
+    SceneList(Vec<ac2_weenie::SceneInfo>),
     /// `TurbineUserStatus`: a friend's name, location and mode (`gTurbineUserStatus`'s efuns).
     TurbineUserStatus(Box<ac2_weenie::FriendInfo>),
     /// `DamageTextBlob`.
@@ -354,6 +364,9 @@ impl NativeObject {
             ntype::MISSILE_PARAMETERS => {
                 NativeObject::MissileParameters(MissileParameters::default())
             }
+            ntype::GM_SCENE_INFO => NativeObject::SceneInfo(Box::default()),
+            ntype::GM_KEYFRAME => NativeObject::Keyframe(Box::default()),
+            ntype::GM_SCENE_INFO_LIST => NativeObject::SceneList(Vec::new()),
             other => NativeObject::Unbound(other),
         }
     }

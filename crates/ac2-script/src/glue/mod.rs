@@ -37,6 +37,7 @@ mod reserved_ids;
 mod shortcut;
 mod skill_node;
 mod social;
+mod story;
 mod string_info;
 mod string_text;
 mod ui_natives;
@@ -82,6 +83,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     places::register(efuns);
     social::register(efuns);
     quests::register(efuns);
+    story::register(efuns);
     ui_natives::register(efuns);
     craft_natives::register(efuns);
     friend_natives::register(efuns);

@@ -8,6 +8,7 @@ use ac2_net::protocol::{
 };
 
 use crate::social::{AllegianceProfile, FellowInfo, FellowshipInfo};
+use crate::story::SceneInfo;
 use crate::ui_data::{CraftSkill, DamageText, Shop};
 
 /// A `CM_*::SendNotice_*` notice, as plain data, in the order the scripts raise them.
@@ -125,6 +126,10 @@ pub enum GameplayNotice {
     UpdateQuests { code: u32, quest: Box<GmQuestInfo> },
     /// `CM_Quest::SendNotice_UpdateStoryQuests`.
     UpdateStoryQuests { code: u32, act: u32 },
+    /// `CM_Quest::SendNotice_PlaySequence`: the scenes of a skippable story, in list order.
+    PlaySequence(Vec<SceneInfo>),
+    /// `CM_UI::SendNotice_PortalScene(bEnter, scenes)`: the portal scene's playable scenes.
+    PortalScene { enter: bool, scenes: Vec<SceneInfo> },
     /// `CM_Character::SendNotice_UpdateEffect`: the effects changed (the strip asks again).
     UpdateEffect,
     /// `CM_Money::SendNotice_UpdateMoney`.

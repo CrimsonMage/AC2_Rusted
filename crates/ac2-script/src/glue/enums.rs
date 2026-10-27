@@ -148,6 +148,11 @@ fn inq_enum(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     finish_out(vm, ctx, out, value)
 }
 
+/// `EnumMapper::InqEnum(mapid, name)` without the out parameter: the value `name` maps to.
+pub(crate) fn inq_enum_value(data: &dyn ScriptData, mapid: u32, name: &[u8]) -> Option<u32> {
+    table(data, mapid).and_then(|t| enum_of(data, t, name))
+}
+
 /// `gEnumMapper::CallEFun_GetEnumByDIDW(did, name, out value)`.
 fn get_enum_by_did_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let call = Call::new(ctx);
