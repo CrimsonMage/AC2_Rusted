@@ -12,12 +12,21 @@ key	status	note
 00401c60	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 00401c70	-	GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
 00401c80	x	base virtual is empty; the stack UI is set up by ShopStackCall::Init (hud_shop.rs shop_stack_calls)
+00401e00	~	CharacterSet.turbine_chat is decoded (ac2-net) but the port keeps Turbine chat on: the double sends 0 and room chat must still work
 00401e30	~	no TurbineGun (GUN) step
 00401e70	x	
 00401f90	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00401fc0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 004021d0	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402240	~	admin-only forwarder of the async result; Legions answers through the chat response (CCliSendToRoomResult::HandleSendToRoomResult -> GameplayNotice::SendToRoomResult)
+00402830	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402840	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402850	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402860	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402870	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402880	x	Args (account, host, port, width, height) and Args::server_address, the window size
+00402890	~	Turbine::Client world name (+0x70): kept with the session event only; see RecvNotice_WorldName
+004028f0	~	stored by the world name path only; not shown
 00402940	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d00	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402d70	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -25,10 +34,13 @@ key	status	note
 00402e40	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00403030	x	
 00403d30	~	ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
+00403ff0	~	world name arrives as SessionEvent::WorldName; the UI slot retail calls (Turbine::Client vtable +0x70) is not identified, so it is not shown
 00404100	x	ac2-weenie OnlineSession::send_to_room / receive_chat over ac2-net turbine_chat (chatclient.dll's protocol)
 00404190	x	the session is the chat provider (ac2-weenie OnlineSession send_to_room / receive_chat over ac2-net turbine_chat)
 004042f0	x	
+00404410	~	gmClient::Init: same start-up as ac2 run(); see Turbine::Client::Init
 00404e10	~	ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
+00404f80	~	ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
 00405050	-	GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
 00405210	~	base virtual flushes the played list; the port sends no finish notice, the story slot ends its own sequence (client_story.rs)
 00405230	x	base virtual flushes its list; the story slot takes the scenes: client_story.rs GameplayNotice::PlaySequence
@@ -6240,8 +6252,18 @@ key	status	note
 0071fba0	x	
 0071fc00	x	ac2-client chargen_data.rs CharGenCapture::new (the --chargen file; relative names under the AC2 config directory)
 0071fc50	~	queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
-007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
+0071fde0	~	--language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
+0071fe30	-	destructor: Rust drop order in run()
+007201b0	x	cmdline.rs parse_args; ClientPrefs::load reads Preferences.ini before the frame loop (ac2 run())
+00720230	x	bin/ac2/instance.rs: exclusive lock on Turbine Client.lock in the AC2 config directory; a second client stops with a message (retail dialog text not known)
+007202b0	~	ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
+00720450	~	ac2-net NetClient::disconnect sends the logoff; leave order is session.rs (LogOffCharacter, CharExitGame, transport logoff); PacketController cleanup and error dialog not ported
+007205d0	~	cmdline.rs option table (retail names and short forms); no launch-line builder or help text
+007218f0	~	ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag or FILE), rodat, language (kept, not applied), chargen, prefs; other retail options not ported
 00722600	~	Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
+00722720	~	no Client object: state is Args, ClientPrefs and OnlineSession built in run()
+00722900	~	--language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
+00722c90	~	ac2 run(): DAT open, prefs, keymap, session, window; retail order (InitAuth, InitUI, InitNet, InitDatabase) is not one-to-one
 00722f20	~	headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 00723280	_	
 00723410	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)

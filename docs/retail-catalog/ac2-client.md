@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 113 done, 34 partial, 159 to do, 48 skipped.
+354 retail functions: 121 done, 47 partial, 137 to do, 49 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -33,7 +33,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [ ] `WinMain` · 004013a0 · legions 00401370
 
-## `ac2/client/src/main/gmclient.cpp.c` (18/92)
+## `ac2/client/src/main/gmclient.cpp.c` (24/92)
 
 ### PackObj
 - [ ] `PackObj::ALIGN_PTR` · 00401a60 · legions 00401980
@@ -87,7 +87,7 @@ Legend and workflow: [README](README.md).
 ### gmClient
 - [ ] `gmClient::InitWeenie` · 00401da0 · legions 00401d10
 - [ ] `gmClient::OnDDDEvent` · 00401dc0 · legions 00401d30
-- [ ] `gmClient::RecvNotice_CharacterSet` · 00401e00
+- [~] `gmClient::RecvNotice_CharacterSet` · 00401e00 — CharacterSet.turbine_chat is decoded (ac2-net) but the port keeps Turbine chat on: the double sends 0 and room chat must still work
 - [~] `gmClient::UseTime` · 00401e30 · legions 00401da0 — no TurbineGun (GUN) step
 
 ### PStringBase<char>
@@ -119,15 +119,15 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::~gmClient` · 00402650 · legions 004025a0
 
 ### Turbine::Client
-- [ ] `Turbine::Client::GetWidth` · 00402830 · legions 00402780
-- [ ] `Turbine::Client::GetHeight` · 00402840 · legions 00402790
-- [ ] `Turbine::Client::GetAccount` · 00402850 · legions 004027a0
-- [ ] `Turbine::Client::GetHostName` · 00402860 · legions 004027b0
-- [ ] `Turbine::Client::GetPort` · 00402870 · legions 004027c0
-- [ ] `Turbine::Client::SetPortA` · 00402880 · legions 004027d0
-- [ ] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0
+- [x] `Turbine::Client::GetWidth` · 00402830 · legions 00402780 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [x] `Turbine::Client::GetHeight` · 00402840 · legions 00402790 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [x] `Turbine::Client::GetAccount` · 00402850 · legions 004027a0 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [x] `Turbine::Client::GetHostName` · 00402860 · legions 004027b0 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [x] `Turbine::Client::GetPort` · 00402870 · legions 004027c0 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [x] `Turbine::Client::SetPortA` · 00402880 · legions 004027d0 — Args (account, host, port, width, height) and Args::server_address, the window size
+- [~] `Turbine::Client::GetWorldName` · 00402890 · legions 004027e0 — Turbine::Client world name (+0x70): kept with the session event only; see RecvNotice_WorldName
 - [ ] `Turbine::Client::SetHostName` · 004028a0 · legions 004027f0
-- [ ] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840
+- [~] `Turbine::Client::SetWorldName` · 004028f0 · legions 00402840 — stored by the world name path only; not shown
 
 ### CCliChatEvent
 - [-] `CCliChatEvent::CCliChatEvent` · 00402940 · legions 00402890 — COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
@@ -170,7 +170,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gmClient::OnCommandLineEvaluationDone` · 00403b60 · legions 00403ad0
 - [ ] `gmClient::RegisterForGunEvents` · 00403c10 · legions 00403b80
 - [~] `gmClient::InitKeymap` · 00403d30 · legions 00403c80 — ac2-ui controls.rs: the DAT key maps only; saved .keymap files are not read
-- [ ] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40
+- [~] `gmClient::RecvNotice_WorldName` · 00403ff0 · legions 00403f40 — world name arrives as SessionEvent::WorldName; the UI slot retail calls (Turbine::Client vtable +0x70) is not identified, so it is not shown
 - [ ] `gmClient::RecvNotice_GunReconnected` · 00404080
 
 ### gmClient::gmChatInterfaceProvider
@@ -189,10 +189,10 @@ Legend and workflow: [README](README.md).
 - [ ] `Turbine::Client::SetAccount` · 004043f0 · legions 00404320
 
 ### gmClient
-- [ ] `gmClient::Init` · 00404410 · legions 00404340
+- [~] `gmClient::Init` · 00404410 · legions 00404340 — gmClient::Init: same start-up as ac2 run(); see Turbine::Client::Init
 - [ ] `gmClient::StartupGUN` · 00404a40 · legions 00404820
 - [~] `gmClient::InitAuth` · 00404e10 · legions 00404bb0 — ac2-net Credential::from_ticket (empty -> Account, else Password); GUN ticket handler path elsewhere
-- [ ] `gmClient::Connect` · 00404f80 · legions 00404d20
+- [~] `gmClient::Connect` · 00404f80 · legions 00404d20 — ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
 
 ### gmNoticeHandler
 - [-] `gmNoticeHandler::RecvNotice_GUNResult_GetFriendsList` · 00405050 — GUN service result (GUN is gone); the friends list is not fed by a GUN answer here (ac2-weenie friends.rs)
@@ -292,7 +292,7 @@ Legend and workflow: [README](README.md).
 - [ ] `InitCliCrypto::Delete` · 00568db0 · legions 00538d40
 - [ ] `InitCliCrypto::Init` · 00568dd0 · legions 00538d60
 
-## `portal/client/src/main/client.cpp.c` (6/37)
+## `portal/client/src/main/client.cpp.c` (8/37)
 
 ### CChatEvent
 - [x] `CChatEvent::CreateForSend` · 0071f6b0 · legions 0069ffb0
@@ -329,18 +329,18 @@ Legend and workflow: [README](README.md).
 
 ### Turbine::Client
 - [~] `Turbine::Client::InitNet` · 0071fc50 · legions 006a0500 — queues 1, 2, 4, 5 registered by ClientNet/OnlineSession routing
-- [ ] `Turbine::Client::SetLanguage` · 0071fde0 · legions 006a0640
-- [ ] `Turbine::Client::~Client` · 0071fe30 · legions 006a0690
+- [~] `Turbine::Client::SetLanguage` · 0071fde0 · legions 006a0640 — --language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
+- [-] `Turbine::Client::~Client` · 0071fe30 · legions 006a0690 — destructor: Rust drop order in run()
 - [ ] `Turbine::Client::CleanupNet` · 00720090 · legions 006a08c0
-- [ ] `Turbine::Client::ParseArgs` · 007201b0 · legions 006a09e0
-- [ ] `Turbine::Client::IsAlreadyRunning` · 00720230 · legions 006a0a60
-- [ ] `Turbine::Client::Connect` · 007202b0 · legions 006a0ae0
-- [ ] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40
-- [ ] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0
-- [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag, or FILE), rodat; other args not ported
+- [x] `Turbine::Client::ParseArgs` · 007201b0 · legions 006a09e0 — cmdline.rs parse_args; ClientPrefs::load reads Preferences.ini before the frame loop (ac2 run())
+- [x] `Turbine::Client::IsAlreadyRunning` · 00720230 · legions 006a0a60 — bin/ac2/instance.rs: exclusive lock on Turbine Client.lock in the AC2 config directory; a second client stops with a message (retail dialog text not known)
+- [~] `Turbine::Client::Connect` · 007202b0 · legions 006a0ae0 — ac2-net connect to Args::server_address; the auto-unique-port and interface prefs (section 0x4000000F keys 0x40000070/71) are not read
+- [~] `Turbine::Client::Disconnect` · 00720450 · legions 006a0c40 — ac2-net NetClient::disconnect sends the logoff; leave order is session.rs (LogOffCharacter, CharExitGame, transport logoff); PacketController cleanup and error dialog not ported
+- [~] `Turbine::Client::BuildCommandLineArgs` · 007205d0 · legions 006a0db0 — cmdline.rs option table (retail names and short forms); no launch-line builder or help text
+- [~] `Turbine::Client::EvaluateCommandLineArg` · 007218f0 · legions 006a1eb0 — ac2 bin cmdline.rs: account (lowercased), host, port, width, height, glsticketdirect, glsticket (flag or FILE), rodat, language (kept, not applied), chargen, prefs; other retail options not ported
 - [~] `Turbine::Client::StartupTurbineChat` · 00722600 · legions 006a2a30 — Legions: a vtable slot, no direct caller in the DVD client. The port has the Turbine chat service on the game connection from logon (no chatclient.dll load, no AC2ClientChatManager)
-- [ ] `Turbine::Client::Client` · 00722720 · legions 006a2b30
-- [ ] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10
+- [~] `Turbine::Client::Client` · 00722720 · legions 006a2b30 — no Client object: state is Args, ClientPrefs and OnlineSession built in run()
+- [~] `Turbine::Client::GetLanguage` · 00722900 · legions 006a2d10 — --language is read into Args; the language id map and the local DAT choice are not ported (session language is 0)
 - [ ] `Turbine::Client::AppendOutputText` · 00722a20 · legions 006a2e10
 - [ ] `Turbine::Client::InitDatabase` · 00722a80 · legions 006a2e70
 
@@ -348,7 +348,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GenericTriggerScheduler<ClientTrigger>::FireTriggers` · 00722b90 · legions 006a2f60
 
 ### Turbine::Client
-- [ ] `Turbine::Client::Init` · 00722c90 · legions 006a3060
+- [~] `Turbine::Client::Init` · 00722c90 · legions 006a3060 — ac2 run(): DAT open, prefs, keymap, session, window; retail order (InitAuth, InitUI, InitNet, InitDatabase) is not one-to-one
 - [~] `Turbine::Client::UseTime` · 00722f20 — headless frame order in ac2-client Client::use_time; no render, sound, UI, triggers or DB cache step
 
 ## `portal/client/src/main/realclient.cpp.c` (0/3)

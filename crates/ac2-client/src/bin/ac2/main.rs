@@ -29,6 +29,7 @@
 //! check its data version, `1802` ([`ac2_net::RELAUNCH_VERSION`]).
 
 mod cmdline;
+mod instance;
 mod keys;
 mod pregame;
 
@@ -569,6 +570,11 @@ impl ApplicationHandler for App {
 }
 
 fn run(args: Args) -> Result<(), String> {
+    // `Turbine::Client::IsAlreadyRunning`: a second client stops here; the lock lasts for the run.
+    let _instance = instance::claim()?;
+    if let Some(language) = &args.language {
+        eprintln!("ac2: --language {language} is not applied yet (the language id is not mapped)");
+    }
     let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(&args.dat_dir))
         .map_err(|e| e.to_string())?;
     let store = Arc::new(ac2_db::ResourceStore::new(Arc::clone(&dataset)));

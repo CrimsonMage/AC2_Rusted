@@ -33,6 +33,9 @@ pub(crate) struct Args {
     /// size handed to `Turbine::Client::InitUI` and `Device::Init`; `None` keeps the default.
     pub width: Option<u32>,
     pub height: Option<u32>,
+    /// `language <string>` (`Turbine::Client::SetLanguage`, Legions 0x006A0640): the language
+    /// the client runs in. Read but not applied (the language id is not mapped yet).
+    pub language: Option<String>,
 }
 
 impl Args {
@@ -92,7 +95,7 @@ pub(crate) fn parse_args() -> Result<Args, String> {
 }
 
 /// The options with a value. `rodat` and `glsticket` take an optional one.
-const WITH_VALUE: [&str; 13] = [
+const WITH_VALUE: [&str; 14] = [
     "dat-dir",
     "server",
     "account",
@@ -106,6 +109,7 @@ const WITH_VALUE: [&str; 13] = [
     "glsticketdirect",
     "width",
     "height",
+    "language",
 ];
 
 /// Whether `name` is an option this program knows.
@@ -140,6 +144,7 @@ fn parse_from(
         ticket: String::new(),
         width: None,
         height: None,
+        language: None,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -184,6 +189,7 @@ fn parse_from(
             "radius" => args.radius = value.parse().map_err(|e| format!("--radius: {e}"))?,
             "width" => args.width = Some(window_size("width", &value)?),
             "height" => args.height = Some(window_size("height", &value)?),
+            "language" => args.language = Some(value),
             "host" => args.host = Some(value),
             "port" => args.port = Some(value),
             _ => args.ticket = value,
@@ -254,6 +260,13 @@ mod tests {
         assert_eq!(Credential::from_ticket(&args.ticket), Credential::Account);
         let args = parse("--server 127.0.0.1:9000 --port 9100").unwrap();
         assert_eq!(args.server_address().unwrap().to_string(), "127.0.0.1:9100");
+    }
+
+    #[test]
+    fn the_language_argument_is_kept() {
+        let args = parse("--language french --account A").unwrap();
+        assert_eq!(args.language.as_deref(), Some("french"));
+        assert_eq!(parse("--account A").unwrap().language, None);
     }
 
     #[test]
