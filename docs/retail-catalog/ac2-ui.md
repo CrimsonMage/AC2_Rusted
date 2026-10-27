@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 864 done, 308 partial, 1022 to do, 53 skipped.
+2247 retail functions: 865 done, 307 partial, 1022 to do, 53 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (26/53)
@@ -955,7 +955,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmIndicatorsUI::CleanupChildren` · 00438910 · legions 00439160 — ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
 - [x] `gmIndicatorsUI::gmIndicatorsUI` · 004389a0 · legions 004391f0 — ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (2/11)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmnetstatusui.cpp.c` (3/11)
 
 ### GraphTool
 - [ ] `GraphTool::GraphTool` · 0044d1a0 · legions 0044e370
@@ -976,7 +976,7 @@ Legend and workflow: [README](README.md).
 
 ### gmNetStatusUI
 - [x] `gmNetStatusUI::~gmNetStatusUI` · 0044d750 · legions 0044e920 — ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
-- [~] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-ui net_status.rs NetStatusUi::on_heartbeat with LinkSample::from_link (ac2-net LinkAverages). Partial: no client status-bar host calls it yet (IndicatorsUi is unused), and the bandwidth tooltip is joined on a second line rather than one StringInfo
+- [x] `gmNetStatusUI::OnHeartbeat` · 0044d800 · legions 0044e9d0 — ac2-client hud_player/hud_status: SessionEvent::LinkHeartbeat -> NetStatusUi::on_heartbeat (ac2-ui net_status.rs)
 - [~] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
 - [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 

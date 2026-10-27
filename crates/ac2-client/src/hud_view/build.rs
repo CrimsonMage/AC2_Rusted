@@ -82,6 +82,7 @@ impl HudView {
             vitals: None,
             effects: None,
             vitae: None,
+            net: None,
             backpack: None,
             paper_doll: None,
             player_race: None,
@@ -194,6 +195,7 @@ impl HudView {
                 self.quests = quests;
                 self.vitals = Some(vitals);
                 self.effects = effects;
+                self.net = Some(indicators.net);
                 self.vitae = Some(indicators.vitae);
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);

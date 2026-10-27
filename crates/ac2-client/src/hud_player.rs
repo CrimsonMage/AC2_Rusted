@@ -94,6 +94,7 @@ impl HudView {
             vitals,
             effects,
             vitae,
+            net,
             dialogs,
             death,
             game_dialogs,
@@ -233,6 +234,7 @@ impl HudView {
                 vitals: &mut *vitals,
                 effects: &mut *effects,
                 vitae: &mut *vitae,
+                net: &mut *net,
             }
             .player_loaded(tree, &player, &frame.player_vitals, frame.server_time);
             // `gmInventoryUI::SetupChildren`'s backpack over the player.
@@ -284,6 +286,19 @@ impl HudView {
                     event,
                 );
             }
+            // `gmNetStatusUI::OnHeartbeat`: the link averages the session closed this heartbeat.
+            if let SessionEvent::LinkHeartbeat(links) = event {
+                StatusBar {
+                    vitals: &mut *vitals,
+                    effects: &mut *effects,
+                    vitae: &mut *vitae,
+                    net: &mut *net,
+                }
+                .link_heartbeat(tree, &player, links);
+                // The indicator's state moved: the status bar is composed again.
+                *dirty = true;
+                continue;
+            }
             let SessionEvent::Notice(notice) = event else {
                 continue;
             };
@@ -334,6 +349,7 @@ impl HudView {
                 vitals: &mut *vitals,
                 effects: &mut *effects,
                 vitae: &mut *vitae,
+                net: &mut *net,
             }
             .notice(tree, &player, frame.server_time, notice);
             match notice {

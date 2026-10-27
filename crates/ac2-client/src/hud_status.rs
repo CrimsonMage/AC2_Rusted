@@ -1,7 +1,9 @@
 //! The status bar's frameworks that take the player's notices: `gmVitalsUI` (the vital meters),
-//! `gmEffectsUI` (the effect strip) and `gmVitaeStatusUI` (the vitae indicator).
+//! `gmEffectsUI` (the effect strip), `gmVitaeStatusUI` (the vitae indicator) and `gmNetStatusUI`
+//! (the net indicator, fed by the link heartbeat).
 
-use ac2_ui::{EffectsUi, UiTree, VitaeStatusUi, VitalsUi};
+use ac2_net::LinkAverages;
+use ac2_ui::{EffectsUi, LinkSample, NetStatusUi, UiTree, VitaeStatusUi, VitalsUi};
 use ac2_weenie::{GameplayNotice, PlayerVitals};
 
 use crate::ui_inventory::effect_entries;
@@ -12,6 +14,7 @@ pub(crate) struct StatusBar<'a> {
     pub vitals: &'a mut Option<VitalsUi>,
     pub effects: &'a mut Option<EffectsUi>,
     pub vitae: &'a mut Option<VitaeStatusUi>,
+    pub net: &'a mut Option<NetStatusUi>,
 }
 
 impl StatusBar<'_> {
@@ -34,6 +37,18 @@ impl StatusBar<'_> {
         }
         if let (Some(indicator), Some(v)) = (self.vitae.as_mut(), vitals.vitae) {
             indicator.update_vitae(tree, player, v.vitae, v.increment, v.cost);
+        }
+    }
+
+    /// `gmNetStatusUI::OnHeartbeat`: one world heartbeat's link averages (`SessionEvent::LinkHeartbeat`).
+    pub fn link_heartbeat(
+        &mut self,
+        tree: &mut UiTree,
+        player: &ClientPlayer<'_>,
+        links: &LinkAverages,
+    ) {
+        if let Some(net) = self.net.as_mut() {
+            net.on_heartbeat(tree, player, LinkSample::from_link(links));
         }
     }
 

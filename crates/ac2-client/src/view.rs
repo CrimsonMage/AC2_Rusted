@@ -681,6 +681,11 @@ impl ClientView {
         self.hud.examination_texts()
     }
 
+    /// The net indicator's tooltip and state (`gmNetStatusUI`), once a heartbeat has set them.
+    pub fn net_indicator(&self) -> Option<(String, u32)> {
+        self.hud.net_indicator()
+    }
+
     /// The shortcut bar's slots.
     pub fn shortcut_slots(&self) -> usize {
         self.hud.shortcut_slots()

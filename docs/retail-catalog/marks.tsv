@@ -874,7 +874,7 @@ key	status	note
 0044d3d0	~	ac2-ui net_status.rs: the graph history ring is kept (on_heartbeat / history); the blit into the render surface and GraphTool drawing are not ported
 0044d720	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
 0044d750	x	ac2-ui net_status.rs: ring resized to the graph width in push_column (AddNElements); destructor is Rust drop
-0044d800	~	ac2-ui net_status.rs NetStatusUi::on_heartbeat with LinkSample::from_link (ac2-net LinkAverages). Partial: no client status-bar host calls it yet (IndicatorsUi is unused), and the bandwidth tooltip is joined on a second line rather than one StringInfo
+0044d800	x	ac2-client hud_player/hud_status: SessionEvent::LinkHeartbeat -> NetStatusUi::on_heartbeat (ac2-ui net_status.rs)
 0044da90	~	ac2-ui net_status.rs: not ported, the draw_done message's DrawBandwidthGraph (drawing not ported)
 0044dab0	~	ac2-ui net_status.rs NetStatusUi::create: NetStatusField lookup and good/bad/ugly thresholds. Not: the CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 0044dc80	x	ac2-ui meter.rs

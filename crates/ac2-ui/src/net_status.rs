@@ -108,6 +108,11 @@ impl NetStatusUi {
         }
     }
 
+    /// The field, the element the tooltip and state go on (`m_field`).
+    pub fn field(&self) -> Option<usize> {
+        self.field
+    }
+
     /// The field's state.
     pub fn state(&self, tree: &UiTree) -> Option<u32> {
         Some(tree.get(self.field?)?.state())

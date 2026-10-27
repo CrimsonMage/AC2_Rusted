@@ -21,6 +21,15 @@ impl HudView {
         tree.get(element)?.text()
     }
 
+    /// The net indicator's tooltip and state (`gmNetStatusUI`'s field), once a heartbeat has
+    /// set them.
+    pub(crate) fn net_indicator(&self) -> Option<(String, u32)> {
+        let (tree, _) = self.hud.as_ref()?;
+        let net = self.net.as_ref()?;
+        let field = net.field()?;
+        Some((tree.tooltip_text(field)?, net.state(tree)?))
+    }
+
     /// The radar's `CoordinatesText` (the HUD has another element of that name).
     pub(crate) fn radar_coordinates(&self) -> Option<String> {
         let (tree, _) = self.hud.as_ref()?;
