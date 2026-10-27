@@ -58,6 +58,8 @@ const SLIDER_GREEN: u32 = 0x4000_0017;
 const SLIDER_BLUE: u32 = 0x4000_0018;
 const SLIDER_ALPHA: u32 = 0x4000_001a;
 const SLIDER_OPACITY: u32 = 0x4000_0015;
+/// The wind slider `UpdateSliderTracker` drives towards `PhysicsGlobals::windmag`.
+pub(crate) const SLIDER_WIND: u32 = 0x4000_000b;
 
 /// `RGBAColor::CapLow` then `CapHigh`: every channel into `[0, 1]`.
 fn cap_color(color: &mut [f32; 4]) {
@@ -225,9 +227,13 @@ impl AnimRep {
         self.with_modes(|modes, source| modes.do_element(element, source))
     }
 
-    /// `PHYSICSOBJREP::UpdateSliderTracker` (the wind slider is not driven): advance the
-    /// sliders, then read the colour and opacity back from them, capped to `[0, 1]`.
-    pub(crate) fn update_sliders(&mut self, quantum: f32) {
+    /// `PHYSICSOBJREP::UpdateSliderTracker`: the wind slider moves to the wind's magnitude
+    /// (`PhysicsGlobals::windmag`) over a second when it differs, the sliders advance, then the
+    /// colour and opacity are read back from them, capped to `[0, 1]`.
+    pub(crate) fn update_sliders(&mut self, quantum: f32, wind_magnitude: f32) {
+        if self.sliders.value(SLIDER_WIND) != wind_magnitude {
+            self.do_slider(0, SLIDER_WIND, wind_magnitude, 1.0);
+        }
         self.sliders.update(quantum);
         self.events.extend(self.sliders.take_events());
         let value = |slider| self.sliders.value(slider);

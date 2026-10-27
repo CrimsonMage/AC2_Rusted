@@ -95,7 +95,7 @@ impl PhysicsObj {
             || self.last_animation_update_time == 0.0;
         if refresh {
             self.last_animation_update_time = local_time;
-            self.anim.update_sliders(elapsed);
+            self.anim.update_sliders(elapsed, self.wind_magnitude);
         }
         let a = self.position.frame.global_to_local_vec(self.acceleration);
         let q = ld(quantum);

@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 77 done, 58 partial, 631 to do, 15 skipped.
+781 retail functions: 78 done, 58 partial, 630 to do, 15 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (4/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (5/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0
@@ -1190,7 +1190,7 @@ Legend and workflow: [README](README.md).
 - [ ] `GameTime::NotifyLightingRefreshed` · 0057c760 · legions 0054c030
 
 ### PhysicsGlobals
-- [ ] `PhysicsGlobals::SetWind` · 0057c780 · legions 0054c050
+- [x] `PhysicsGlobals::SetWind` · 0057c780 · legions 0054c050 — ac2-world RegionDesc::physics_wind (rain wind or the Perlin breeze); ac2-client sets it on the bodies each animation step
 
 ### FogInfo
 - [ ] `FogInfo::FogInfo` · 0057c7d0 · legions 0054c0a0

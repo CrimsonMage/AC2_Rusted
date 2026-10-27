@@ -2523,7 +2523,7 @@ key	status	note
 004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004f2440	~	ac2-physics anim_rep: sliders then m_animcolor/m_animopacity capped; the wind slider is not driven
+004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
@@ -3890,6 +3890,7 @@ key	status	note
 0057c500	x	
 0057c510	x	GameTime::UseTime, then unless blocking CObjectMaint::UseTime and the physics step
 0057c540	x	
+0057c780	x	ac2-world RegionDesc::physics_wind (rain wind or the Perlin breeze); ac2-client sets it on the bodies each animation step
 0057ca90	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 0057cab0	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 0057cad0	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests

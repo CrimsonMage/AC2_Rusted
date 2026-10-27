@@ -42,6 +42,10 @@ pub trait WorldData: Send + Sync {
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String>;
     /// The region's `GameTime`, if the world has one.
     fn game_clock(&self) -> Option<GameClock>;
+    /// The region (its weather and sky), held in memory by the frame thread.
+    fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
+        None
+    }
     /// Reads the WStates a weenie's script process may start from (package `pid`, entity
     /// `did`) into the shared cache, so `ScriptHost::create_weenie` on the frame thread finds
     /// them there.
@@ -135,6 +139,10 @@ impl WorldData for DatWorld {
 
     fn game_clock(&self) -> Option<GameClock> {
         Some(self.world.region()?.game_clock())
+    }
+
+    fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
+        self.world.region()
     }
 }
 

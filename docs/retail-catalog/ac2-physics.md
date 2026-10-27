@@ -2861,7 +2861,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0
 - [ ] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10
 - [ ] `PHYSICSOBJREP::UpdateMovement` · 004f2420 · legions 004e4d20
-- [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep: sliders then m_animcolor/m_animopacity capped; the wind slider is not driven
+- [~] `PHYSICSOBJREP::UpdateSliderTracker` · 004f2440 · legions 004e4d40 — ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
 - [ ] `PHYSICSOBJREP::UpdateFXScriptTracker` · 004f2540 · legions 004e4e40
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [ ] `PHYSICSOBJREP::GetTerrainType` · 004f2590

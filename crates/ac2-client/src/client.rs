@@ -134,6 +134,8 @@ pub struct Client {
     pub(crate) camera: CameraManager,
     pub(crate) scene: SceneCamera,
     pub(crate) game_clock: Option<GameClock>,
+    /// The region, for its weather (`PhysicsGlobals::SetWind`).
+    region: Option<Arc<ac2_world::RegionDesc>>,
     physics_clock: PhysicsClock,
     /// `PhysicsModule::m_tAnimationUpdateTime`.
     anim_clock: AnimationClock,
@@ -201,6 +203,7 @@ impl Client {
     /// A client over `session` reading `data` on two loader threads.
     pub fn new(session: OnlineSession, data: Arc<dyn WorldData>) -> Self {
         let game_clock = data.game_clock();
+        let region = data.region();
         let now = session.local_time();
         Self {
             session,
@@ -212,6 +215,7 @@ impl Client {
             camera: CameraManager::new(),
             scene: SceneCamera::default(),
             game_clock,
+            region,
             physics_clock: PhysicsClock::new(now),
             anim_clock: AnimationClock::new(now),
             random: ac2_core::Random::default(),
@@ -600,10 +604,16 @@ impl Client {
         self.portal.think(now, &mut self.random);
         // `PhysicsModule::UpdateAnimation` -> `CPhysics::UpdateAllAnimation`.
         if let Some(step) = self.anim_clock.advance(now) {
+            // `WorldRender::UpdateTimeOfDay`'s `PhysicsGlobals::SetWind`.
+            let wind = self.region.as_ref().map_or([0.0; 3], |region| {
+                region.physics_wind(self.session.cur_time())
+            });
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
+                body.physics.set_wind(wind);
                 body.physics.update_animation(step, now, &mut self.random);
             }
-            self.remotes.update_animation(step, now, &mut self.random);
+            self.remotes
+                .update_animation(step, now, wind, &mut self.random);
             self.animation_sounds(step, now);
         }
         self.audio_use_time(now);

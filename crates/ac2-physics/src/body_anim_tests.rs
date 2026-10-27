@@ -65,6 +65,26 @@ fn the_player_keeps_its_client_sliders_from_the_server() {
 }
 
 #[test]
+fn the_wind_slider_follows_the_wind_magnitude_over_a_second() {
+    // `PHYSICSOBJREP::UpdateSliderTracker`: DoSlider(0x4000000B, windmag, 1 s).
+    const WIND: u32 = 0x4000_000b;
+    let mut body = remote_body();
+    let mut random = Random::default();
+    body.set_wind([3.0, 4.0, 0.0]);
+    // The first update moves the time since 0, past the second the slider takes.
+    body.update_animation(0.0, 1.0, &mut random);
+    assert_eq!(body.slider_desired_value(WIND), 5.0);
+    assert_eq!(body.slider_value(WIND), 5.0);
+    // Calm: halfway down after half a second.
+    body.set_wind([0.0; 3]);
+    body.update_animation(0.5, 1.5, &mut random);
+    let half = body.slider_value(WIND);
+    assert!((half - 2.5).abs() < 1e-3, "{half}");
+    body.update_animation(0.5, 2.0, &mut random);
+    assert_eq!(body.slider_value(WIND), 0.0);
+}
+
+#[test]
 fn colour_and_opacity_sliders_set_the_animation_colour() {
     let mut body = remote_body();
     assert_eq!(body.anim_color(), [1.0; 4]);

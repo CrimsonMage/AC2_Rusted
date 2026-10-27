@@ -65,6 +65,8 @@ pub(crate) struct PhysicsObj {
     pub transient_state: u32,
     pub velocity: Vector,
     pub anim_velocity: Vector,
+    /// `PhysicsGlobals::windmag`: the wind's magnitude as last set (`PhysicsBody::set_wind`).
+    pub wind_magnitude: f32,
     pub acceleration: Vector,
     pub acceleration_field_vel: Vector,
     pub external_field: Vector,
@@ -125,6 +127,7 @@ impl PhysicsObj {
             transient_state: DEFAULT_TRANSIENT_STATE,
             velocity: Vector::ZERO,
             anim_velocity: Vector::ZERO,
+            wind_magnitude: 0.0,
             acceleration: Vector::ZERO,
             acceleration_field_vel: Vector::ZERO,
             external_field: Vector::ZERO,

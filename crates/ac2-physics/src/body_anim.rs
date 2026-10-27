@@ -42,6 +42,13 @@ impl PhysicsBody {
         self.object.update_animation(quantum, local_time, random);
     }
 
+    /// `PhysicsGlobals::SetWind` as this body sees it: the magnitude of `wind` (x, y, z),
+    /// which the body's wind slider follows (`PHYSICSOBJREP::UpdateSliderTracker`).
+    pub fn set_wind(&mut self, wind: [f32; 3]) {
+        let [x, y, z] = wind.map(f64::from);
+        self.object.wind_magnitude = (x * x + y * y + z * z).sqrt() as f32;
+    }
+
     /// `CPhysicsObj::UpdateViewerDistance`: the camera's distance to the body
     /// (`m_fViewDistance`, 1 until set; negative distances are 0).
     pub fn set_view_distance(&mut self, distance: f32) {

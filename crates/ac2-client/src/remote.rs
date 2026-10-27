@@ -523,10 +523,12 @@ impl Remotes {
         &mut self,
         step: f32,
         local_time: f64,
+        wind: [f32; 3],
         random: &mut ac2_core::Random,
     ) {
         for remote in self.objects.values_mut() {
             if let Some(body) = &mut remote.body {
+                body.set_wind(wind);
                 body.update_animation(step, local_time, random);
             }
         }

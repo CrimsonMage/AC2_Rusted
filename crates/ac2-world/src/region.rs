@@ -77,6 +77,26 @@ impl RegionDesc {
         self.sample_sky_environment_selected(server_time, None)
     }
 
+    /// `WorldRender::UpdateTimeOfDay`'s `PhysicsGlobals::SetWind` at a server time: the rain's
+    /// wind `(x, y, 0)` while it rains (`CDayDesc::GetRain`), else a Perlin breeze over the time
+    /// of day (`WAVEFORM_PERLIN`, amplitude 2, frequency 1, roughness 1, sampled at phases
+    /// 1000, 2000 and 3000 at time `time_of_day * 30`, scaled by 4, 4 and 0.5).
+    pub fn physics_wind(&self, server_time: f64) -> [f32; 3] {
+        let rain = self
+            .sample_sky_environment(server_time)
+            .map(|sample| sample.rain())
+            .unwrap_or_default();
+        if rain.amount() != 0.0 {
+            let [x, y] = rain.wind();
+            return [x, y, 0.0];
+        }
+        let time_of_day = self
+            .game_time
+            .calendar_at(server_time)
+            .map_or(0.0, |calendar| calendar.time_of_day as f32);
+        breeze(time_of_day)
+    }
+
     /// Calendar day of year and authored day name, for the optional weather simulation.
     pub fn weather_day_context_at(&self, server_time: f64) -> Option<(u32, &str)> {
         let calendar = self.game_time.calendar_at(server_time)?;
@@ -243,4 +263,41 @@ struct SkyTimeOfDay {
     world_fog: SkyFogDesc,
     replacements: Arc<[sky_objects::SkyObjectReplace]>,
     rain: SkyRain,
+}
+
+/// The dry-weather breeze of `WorldRender::UpdateTimeOfDay` at `time_of_day` (fraction of the
+/// day): the Perlin waveform's values at three phases, the time a `float` store of
+/// `time_of_day * 30`.
+fn breeze(time_of_day: f32) -> [f32; 3] {
+    let wave = ac2_math::Waveform {
+        kind: ac2_math::waveform::kind::PERLIN,
+        amplitude: 2.0,
+        frequency: 1.0,
+        roughness: 1.0,
+        ..ac2_math::Waveform::default()
+    };
+    let time = f64::from((f64::from(time_of_day) * 30.0) as f32);
+    let at = |phase: f32, scale: f32| {
+        (f64::from(wave.value_for_phase(phase, time)) * f64::from(scale)) as f32
+    };
+    [at(1000.0, 4.0), at(2000.0, 4.0), at(3000.0, 0.5)]
+}
+
+#[cfg(test)]
+mod wind_tests {
+    use super::breeze;
+
+    #[test]
+    fn the_breeze_is_a_gentle_wind_that_changes_over_the_day() {
+        let morning = breeze(0.25);
+        let evening = breeze(0.75);
+        assert_ne!(morning, evening);
+        for wind in [morning, evening] {
+            // Perlin values stay within the amplitude (2): x, y below 8, z below 1.
+            assert!(
+                wind[0].abs() <= 8.0 && wind[1].abs() <= 8.0 && wind[2].abs() <= 1.0,
+                "{wind:?}"
+            );
+        }
+    }
 }
