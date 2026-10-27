@@ -54,10 +54,29 @@ impl Client {
             crate::motion::apply(&mut body.physics, action);
             return;
         }
-        self.remotes.motion(object, action);
+        self.remotes.motion(object, action, None);
+    }
+
+    /// The position a targeted impulse on `object` pushes from: the target's, when the target
+    /// is another object in the world (`CPhysics::GetObjectA(target)` with `pCVar7 != this`).
+    fn impulse_source(&self, object: u64, target: u64) -> Option<ac2_physics::Position> {
+        if target == object {
+            return None;
+        }
+        match self.player.as_ref().filter(|p| p.id == target) {
+            Some(player) => Some(player.position()),
+            None => self.remotes.target_info(target).map(|(position, _, _)| position),
+        }
     }
 
     pub(crate) fn apply_remote(&mut self, event: &SessionEvent) {
+        let impulse_source = match event {
+            SessionEvent::ObjectAction {
+                object,
+                action: ObjectAction::AddTargetedImpulse { target, .. },
+            } => self.impulse_source(*object, *target),
+            _ => None,
+        };
         // `CPhysicsObj::RecvEvt_DoBehavior`: a behaviour that names a weenie emote is asked of the
         // object's weenie first, and a no leaves the body alone.
         let emote_refused = match event {
@@ -84,7 +103,7 @@ impl Client {
                 };
                 remotes.action(target, &mut cx);
                 if !emote_refused {
-                    remotes.motion(*object, action);
+                    remotes.motion(*object, action, impulse_source.clone());
                 }
             }
             // `CPhysicsObj::RecvEvt_Contain`: out of the world, into the inventory.
@@ -100,10 +119,9 @@ impl Client {
                 .as_mut()
                 .filter(|p| p.id == *object && !emote_refused)
             {
-                let started = player
-                    .body
-                    .as_mut()
-                    .is_some_and(|body| crate::motion::apply(&mut body.physics, action));
+                let started = player.body.as_mut().is_some_and(|body| {
+                    crate::motion::apply_from(&mut body.physics, action, impulse_source)
+                });
                 if let (true, ObjectAction::MoveTo { params, .. }) = (started, action) {
                     player.move_to_target = match params.target {
                         MoveTarget::Object(id) => Some(id),

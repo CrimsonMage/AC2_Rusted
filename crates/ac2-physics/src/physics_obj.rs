@@ -553,4 +553,7 @@ mod forces;
 #[path = "physics_obj_anim.rs"]
 mod anim;
 
+#[path = "physics_obj_impulse.rs"]
+mod impulse;
+
 pub use anim::DescSlider;

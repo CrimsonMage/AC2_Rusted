@@ -397,3 +397,63 @@ fn a_server_fx_starts_and_stops_through_the_animation_events() {
         ]
     );
 }
+
+/// A position in the body's cell at `origin`, upright.
+fn place_like(body: &PhysicsBody, origin: [f32; 3]) -> crate::position::Position {
+    crate::position::Position::new(
+        body.position().cell_id,
+        crate::frame::Frame::new(
+            crate::vector::Vector::new(origin[0], origin[1], origin[2]),
+            crate::vector::Quaternion::new(1.0, 0.0, 0.0, 0.0),
+        ),
+    )
+}
+
+/// `CPhysicsObj::AddImpulse`: the world direction adds to the velocity, and the body leaves
+/// contact so the next quantum falls from it.
+#[test]
+fn an_impulse_adds_to_the_velocity_and_leaves_contact() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    run(&mut body, &ground, 0.5);
+    assert!(body.movement_state().contact);
+    body.set_velocity([1.0, 0.0, 0.0]);
+    body.add_impulse([0.5, -2.0, 4.0]);
+    let state = body.movement_state();
+    assert_eq!(state.velocity, [1.5, -2.0, 4.0]);
+    assert!(!state.contact, "{state:?}");
+}
+
+/// `CPhysicsObj::AddTargetedImpulse`: the push points from the source to the body, `magnitude`
+/// long, with `vertical` added upward.
+#[test]
+fn a_targeted_impulse_pushes_away_from_its_source() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_velocity([0.0; 3]);
+    let source = place_like(&body, [67.0, 70.0, 50.0]);
+    body.add_targeted_impulse(&source, 5.0, false, 1.0);
+    let v = body.movement_state().velocity;
+    assert!((v[0] - 5.0).abs() < 1e-4, "{v:?}");
+    assert!(v[1].abs() < 1e-4 && (v[2] - 1.0).abs() < 1e-4, "{v:?}");
+}
+
+/// With falloff the magnitude is divided by the distance again: 5 at 3 m reads 5 / 3.
+#[test]
+fn a_targeted_impulse_with_falloff_weakens_with_distance() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_velocity([0.0; 3]);
+    let source = place_like(&body, [67.0, 70.0, 50.0]);
+    body.add_targeted_impulse(&source, 5.0, true, 0.0);
+    let v = body.movement_state().velocity;
+    assert!((v[0] - 5.0 / 3.0).abs() < 1e-4, "{v:?}");
+}
+
+/// A source on the body (within `F_EPSILON`) has no direction: only the vertical part applies.
+#[test]
+fn a_targeted_impulse_from_the_body_itself_is_vertical_only() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_velocity([0.0; 3]);
+    let source = place_like(&body, [70.0, 70.0, 50.0]);
+    body.add_targeted_impulse(&source, 5.0, false, 2.5);
+    assert_eq!(body.movement_state().velocity, [0.0, 0.0, 2.5]);
+}

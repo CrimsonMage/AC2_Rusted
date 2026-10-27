@@ -322,6 +322,56 @@ mod tests {
         }
     }
 
+    /// `ECM_Physics::RecvEvt_AddImpulse` (0x10098): the sender, then the direction (three
+    /// floats, x then y then z, each a 4-byte word) and the contact word; the whole block is
+    /// word-aligned, so no padding falls between the arguments.
+    #[test]
+    fn add_impulse_reads_the_direction_then_the_contact_word() {
+        let mut b = sender();
+        b.extend(1.0f32.to_le_bytes());
+        b.extend((-2.5f32).to_le_bytes());
+        b.extend(4.0f32.to_le_bytes());
+        b.extend(1u32.to_le_bytes());
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::ADD_IMPULSE, &mut r)
+            .unwrap()
+            .unwrap();
+        r.finish().unwrap();
+        assert_eq!((event.sender.id, event.sender.instance), (0x55, 2));
+        assert_eq!(
+            event.action,
+            ObjectAction::AddImpulse {
+                direction: [1.0, -2.5, 4.0],
+                contact: 1
+            }
+        );
+    }
+
+    /// `ECM_Physics::RecvEvt_AddTargetedImpulse` (0x10099): the target id (8 bytes), the
+    /// magnitude, the falloff word and the vertical float, each after the sender.
+    #[test]
+    fn add_targeted_impulse_reads_target_magnitude_falloff_and_vertical() {
+        let mut b = sender();
+        b.extend(0x1234_5678_9ABC_DEF0u64.to_le_bytes());
+        b.extend(3.0f32.to_le_bytes());
+        b.extend(1u32.to_le_bytes());
+        b.extend(0.25f32.to_le_bytes());
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::ADD_TARGETED_IMPULSE, &mut r)
+            .unwrap()
+            .unwrap();
+        r.finish().unwrap();
+        assert_eq!(
+            event.action,
+            ObjectAction::AddTargetedImpulse {
+                target: 0x1234_5678_9ABC_DEF0,
+                magnitude: 3.0,
+                falloff: 1,
+                vertical: 0.25
+            }
+        );
+    }
+
     #[test]
     fn move_to_ends_with_its_aligned_stamp_and_impulses_align_each_argument() {
         let mut b = sender();

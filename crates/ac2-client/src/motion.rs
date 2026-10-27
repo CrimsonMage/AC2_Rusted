@@ -180,6 +180,8 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         ObjectAction::MoveTo { params, .. } => {
             return body.recv_move_to(movement_parameters(params));
         }
+        // `CPhysicsObj::RecvEvt_AddImpulse`: knockback in world axes.
+        ObjectAction::AddImpulse { direction, .. } => body.add_impulse(*direction),
         ObjectAction::SetVelocityScale(scale) => body.set_velocity_scale(*scale),
         ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
         ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
@@ -199,6 +201,26 @@ pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
         _ => {}
     }
     false
+}
+
+/// [`apply`] with the position a targeted impulse pushes from: the target's position
+/// (`CPhysicsObj::AddTargetedImpulse` takes `CPhysics::GetObjectA(target)`). `None` (the target
+/// is not in the world, or it is the body itself) leaves the body alone.
+pub(crate) fn apply_from(body: &mut PhysicsBody, action: &ObjectAction, source: Option<Position>) -> bool {
+    if let (
+        ObjectAction::AddTargetedImpulse {
+            magnitude,
+            falloff,
+            vertical,
+            ..
+        },
+        Some(source),
+    ) = (action, source)
+    {
+        body.add_targeted_impulse(&source, *magnitude, *falloff != 0, *vertical);
+        return false;
+    }
+    apply(body, action)
 }
 
 #[cfg(test)]

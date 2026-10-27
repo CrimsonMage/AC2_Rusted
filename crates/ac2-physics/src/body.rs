@@ -464,6 +464,27 @@ impl PhysicsBody {
         self.object.velocity = Vector::new(velocity[0], velocity[1], velocity[2]);
     }
 
+    /// `ECM_Physics::RecvEvt_AddImpulse` -> `CPhysicsObj::AddImpulse`: a world-axis velocity
+    /// change (knockback); the body leaves contact.
+    pub fn add_impulse(&mut self, direction: [f32; 3]) {
+        let [x, y, z] = direction;
+        self.object.add_impulse(Vector::new(x, y, z));
+    }
+
+    /// `ECM_Physics::RecvEvt_AddTargetedImpulse` -> `CPhysicsObj::AddTargetedImpulse`: pushes
+    /// the body away from `source` (the target's position) with `magnitude`, falling off with
+    /// distance when `falloff`, and `vertical` added upward.
+    pub fn add_targeted_impulse(
+        &mut self,
+        source: &Position,
+        magnitude: f32,
+        falloff: bool,
+        vertical: f32,
+    ) {
+        self.object
+            .add_targeted_impulse(source, magnitude, falloff, vertical);
+    }
+
     /// `ECM_Physics::RecvEvt_SetVelocityScale` -> `CPhysicsObj::SetVelocityScale` ->
     /// `CMotionInterp::SetVelocityScale`: scales the walking and running speeds.
     pub fn set_velocity_scale(&mut self, scale: f32) {

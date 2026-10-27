@@ -413,9 +413,14 @@ impl Remotes {
 
     /// The server's motion events (`RecvEvt_DoMode`, `RecvEvt_SetMode`, the behaviour, layer
     /// and slider events) for the object's body.
-    pub(crate) fn motion(&mut self, id: u64, action: &ac2_net::protocol::ObjectAction) {
+    pub(crate) fn motion(
+        &mut self,
+        id: u64,
+        action: &ac2_net::protocol::ObjectAction,
+        impulse_source: Option<ac2_physics::Position>,
+    ) {
         if let Some(body) = self.objects.get_mut(&id).and_then(|r| r.body.as_mut()) {
-            crate::motion::apply(body, action);
+            crate::motion::apply_from(body, action, impulse_source);
         }
     }
 
