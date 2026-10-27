@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 466 done, 93 partial, 787 to do, 778 skipped.
+2124 retail functions: 483 done, 95 partial, 768 to do, 778 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -839,17 +839,17 @@ Legend and workflow: [README](README.md).
 - [-] `CCollisionManager::CCollisionManager` · 004fa110 · legions 004ec960 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [ ] `CCollisionManager::AddObjectCollision` · 004fa2f0 · legions 004ecb40 — needs port: collision reports and properties
 
-## `portal/shared/src/physobj/collision/collisionparameters.cpp.c` (0/15)
+## `portal/shared/src/physobj/collision/collisionparameters.cpp.c` (7/15)
 
 ### CollisionParameters
-- [ ] `CollisionParameters::SetBit` · 0069f9b0 · legions 0063c820 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::UpdatePlacementEthereal` · 0069f9c0 · legions 0063c830 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::UpdatePlacementSolid` · 0069f9f0 · legions 0063c860 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::UpdateMovementEthereal` · 0069fa20 · legions 0063c890 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::UpdateMovementSolid` · 0069fa50 · legions 0063c8c0 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::UpdatePhysicsType` · 0069fa80 · legions 0063c8f0 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::RemovePhysicsType` · 0069fab0 · legions 0063c920 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::AddToEtherealList` · 0069fae0 · legions 0063c950 — needs port: ethereal/collision parameter state
+- [~] `CollisionParameters::SetBit` · 0069f9b0 · legions 0063c820 — no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+- [x] `CollisionParameters::UpdatePlacementEthereal` · 0069f9c0 · legions 0063c830 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::UpdatePlacementSolid` · 0069f9f0 · legions 0063c860 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::UpdateMovementEthereal` · 0069fa20 · legions 0063c890 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::UpdateMovementSolid` · 0069fa50 · legions 0063c8c0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::UpdatePhysicsType` · 0069fa80 · legions 0063c8f0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::RemovePhysicsType` · 0069fab0 · legions 0063c920 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `CollisionParameters::AddToEtherealList` · 0069fae0 · legions 0063c950 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `CollisionParameters::FindInTempEtherealList` · 0069fb90 · legions 0063ca00 — needs port: ethereal/collision parameter state
 - [-] `CollisionParameters::CollisionParameters` · 0069fbe0 · legions 0063ca50 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CollisionParameters::~CollisionParameters` · 0069fc70 · legions 0063cae0 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -1116,32 +1116,32 @@ Legend and workflow: [README](README.md).
 ### ProfileListType
 - [-] `ProfileListType::ProfileListType` · 006a2d40 · legions 0063fc20 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (0/6)
+## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (1/6)
 
 ### EtherealPhysicsType
-- [ ] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — needs port: ethereal/collision parameter state
+- [x] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `EtherealPhysicsType::UpdateEthereality` · 006a4510 · legions 00641470 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetCameraEthereal` · 006a45e0 · legions 00641540 — needs port: ethereal/collision parameter state
 - [ ] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — needs port: ethereal/collision parameter state
 - [-] `EtherealPhysicsType::EtherealPhysicsType` · 006a4690 · legions 006415f0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (0/14)
+## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (7/14)
 
 ### EtherealWeenieType
-- [ ] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — needs port: ethereal/collision parameter state
-- [ ] `EtherealWeenieType::SetToSolid` · 006a46c0 · legions 00641620 — needs port: ethereal/collision parameter state
+- [~] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+- [x] `EtherealWeenieType::SetToSolid` · 006a46c0 · legions 00641620 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `EtherealWeenieType::NeedLOSCheck` · 006a46d0 · legions 00641630 — needs port: ethereal/collision parameter state
-- [ ] `EtherealWeenieType::FindInEtherealList` · 006a46f0 · legions 00641650 — needs port: ethereal/collision parameter state
-- [ ] `EtherealWeenieType::FindInSolidList` · 006a4740 · legions 006416a0 — needs port: ethereal/collision parameter state
+- [x] `EtherealWeenieType::FindInEtherealList` · 006a46f0 · legions 00641650 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `EtherealWeenieType::FindInSolidList` · 006a4740 · legions 006416a0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [-] `EtherealWeenieType::EtherealWeenieType` · 006a4790 · legions 006416f0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `EtherealWeenieType::~EtherealWeenieType` · 006a47c0 · legions 00641720 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `EtherealWeenieType::StreamPack` · 006a4800 · legions 00641760 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `EtherealWeenieType::InEtherealList` · 006a4860 · legions 006417c0 — needs port: ethereal/collision parameter state
-- [ ] `EtherealWeenieType::InSolidList` · 006a4880 · legions 006417e0 — needs port: ethereal/collision parameter state
+- [x] `EtherealWeenieType::InEtherealList` · 006a4860 · legions 006417c0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `EtherealWeenieType::InSolidList` · 006a4880 · legions 006417e0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [-] `EtherealWeenieType::CopyInto` · 006a48a0 · legions 00641800 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `EtherealWeenieType::AddToEtherealList` · 006a49b0 · legions 00641910 — needs port: ethereal/collision parameter state
-- [ ] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950 — needs port: ethereal/collision parameter state
+- [x] `EtherealWeenieType::AddToEtherealList` · 006a49b0 · legions 00641910 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990 — needs port: ethereal/collision parameter state
 
 ## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (5/10)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (144/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (146/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2171,7 +2171,7 @@ Legend and workflow: [README](README.md).
 - [x] `Position::slerp` · 004ddf50 · legions 004d09b0 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 
 ### EtherealPhysicsType
-- [ ] `EtherealPhysicsType::SetBit` · 004ddf90 · legions 004d09f0 — needs port: ethereal/collision parameter state
+- [x] `EtherealPhysicsType::SetBit` · 004ddf90 · legions 004d09f0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 
 ### CollisionParameters
 - [ ] `CollisionParameters::SetPhysicsPlacementType` · 004ddfe0 · legions 004d0a40 — needs port: ethereal/collision parameter state
@@ -2281,7 +2281,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::Interpermiable` · 004defc0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::InitDetectionList` · 004df050 · legions 004d1ab0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::DoIntersection` · 004df0b0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::IsBlocking` · 004df190 · legions 004d1bf0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::IsBlocking` · 004df190 · legions 004d1bf0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `CPhysicsObj::WithinDetectVolume` · 004df1f0 · legions 004d1c50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::SetTarget` · 004df300 · legions 004d1d60 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::ClearTarget` · 004df360 — needs port: cite-only physics-object method
@@ -2581,7 +2581,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
-- [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
+- [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs find_object_collisions: the ethereal filter via IsBlocking (collision_types.rs); the admin branch on the 0x250 slot, step/missile/temp-ignore lists not ported
 - [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60 — needs port: cite-only physics-object method

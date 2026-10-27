@@ -2555,7 +2555,7 @@ key	status	note
 0047c3f0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047c440	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047c460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047c510	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047c510	~	ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
 0047c560	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 0047c600	-	SmartArray container destructor (Vec drop)
 0047c640	-	hash table container; Rust map replaces it
@@ -2565,7 +2565,7 @@ key	status	note
 0047c9e0	_	needs port: CObjCell destructor unload (world hash and resident state)
 0047ca70	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047cb40	~	ac2-client: CellManager's block changes
-0047cb70	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+0047cb70	~	ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
 0047cbb0	-	copy assignment of plain data (Rust clone/move)
 0047cc40	-	copy assignment of plain data (Rust clone/move)
 0047cd90	x	
@@ -4433,7 +4433,7 @@ key	status	note
 004dde50	-	vector/frame math
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004ddf50	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
-004ddf90	_	needs port: ethereal/collision parameter state
+004ddf90	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 004ddfe0	_	needs port: ethereal/collision parameter state
 004de000	_	needs port: ethereal/collision parameter state
 004de020	x	
@@ -4535,7 +4535,7 @@ key	status	note
 004defc0	_	needs port: cite-only physics-object method
 004df050	_	needs port: cite-only physics-object method
 004df0b0	_	needs port: cite-only physics-object method
-004df190	_	needs port: cite-only physics-object method
+004df190	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 004df1f0	_	needs port: cite-only physics-object method
 004df300	_	needs port: cite-only physics-object method
 004df360	_	needs port: cite-only physics-object method
@@ -4807,7 +4807,7 @@ key	status	note
 004e6f30	_	needs port: cite-only physics-object method
 004e6f80	_	needs port: cite-only physics-object method
 004e6ff0	x	
-004e7580	~	ac2-physics objects.rs: static objects only; Interpermiable/CollisionParameters ethereal filter, missile proximity and temp ignore lists not ported
+004e7580	~	ac2-physics objects.rs find_object_collisions: the ethereal filter via IsBlocking (collision_types.rs); the admin branch on the 0x250 slot, step/missile/temp-ignore lists not ported
 004e79a0	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004e79e0	_	needs port: cite-only physics-object method
 004e7a60	_	needs port: cite-only physics-object method
@@ -12956,14 +12956,14 @@ key	status	note
 0069f1b0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 0069f200	-	admin/debug or text-file tooling
 0069f9a0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-0069f9b0	_	needs port: ethereal/collision parameter state
-0069f9c0	_	needs port: ethereal/collision parameter state
-0069f9f0	_	needs port: ethereal/collision parameter state
-0069fa20	_	needs port: ethereal/collision parameter state
-0069fa50	_	needs port: ethereal/collision parameter state
-0069fa80	_	needs port: ethereal/collision parameter state
-0069fab0	_	needs port: ethereal/collision parameter state
-0069fae0	_	needs port: ethereal/collision parameter state
+0069f9b0	~	no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+0069f9c0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069f9f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069fa20	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069fa50	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069fa80	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069fab0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+0069fae0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 0069fb90	_	needs port: ethereal/collision parameter state
 0069fbe0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 0069fc70	-	C++ constructor/destructor; Rust constructor and Drop replace it
@@ -13104,25 +13104,25 @@ key	status	note
 006a41d0	x	ac2-physics los (Terrain::los_check)
 006a4210	x	ac2-physics los (Terrain::los_check)
 006a4270	x	ac2-physics los (Terrain::los_check)
-006a44d0	_	needs port: ethereal/collision parameter state
+006a44d0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a4510	_	needs port: ethereal/collision parameter state
 006a4590	_	needs port: ethereal/collision parameter state
 006a45e0	_	needs port: ethereal/collision parameter state
 006a4630	_	needs port: ethereal/collision parameter state
 006a4690	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006a46b0	_	needs port: ethereal/collision parameter state
-006a46c0	_	needs port: ethereal/collision parameter state
+006a46b0	~	no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+006a46c0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a46d0	_	needs port: ethereal/collision parameter state
-006a46f0	_	needs port: ethereal/collision parameter state
-006a4740	_	needs port: ethereal/collision parameter state
+006a46f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+006a4740	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a4790	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a47c0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a4800	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-006a4860	_	needs port: ethereal/collision parameter state
-006a4880	_	needs port: ethereal/collision parameter state
+006a4860	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+006a4880	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a48a0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-006a49b0	_	needs port: ethereal/collision parameter state
-006a49f0	_	needs port: ethereal/collision parameter state
+006a49b0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+006a49f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a4a30	_	needs port: ethereal/collision parameter state
 006a4c10	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)

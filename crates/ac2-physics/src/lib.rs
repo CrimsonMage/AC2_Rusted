@@ -19,6 +19,9 @@ mod cells;
 mod collision_impact;
 #[cfg(test)]
 mod collision_impact_tests;
+mod collision_types;
+#[cfg(test)]
+mod collision_types_tests;
 mod constraint;
 mod envcell;
 #[cfg(test)]
@@ -67,6 +70,7 @@ pub use body::{
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use collision_impact::ImpactReport;
+pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use heading::Heading;

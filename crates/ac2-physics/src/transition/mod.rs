@@ -10,6 +10,7 @@ pub(crate) mod sphere_path;
 mod steps;
 
 use crate::cells::{find_collisions, CellSource, ObjCell};
+use crate::collision_types::CollisionParameters;
 use crate::find_cells::find_cells;
 use crate::fpu::{epsilon_squared, ld, st, F_EPSILON, LANDING_Z};
 use crate::landdefs::{adjust_to_outside, is_outside};
@@ -63,6 +64,8 @@ pub(crate) struct Transition {
     /// object was last tested at (`CPhysicsObj::m_physics_timestamp`).
     pub physics_timestamp: u32,
     pub object_stamps: std::collections::HashMap<u32, u32>,
+    /// The mover's collision parameters for this transition (`CTransition`'s object info).
+    pub collision: CollisionParameters,
 }
 
 /// The object traits `CPhysicsObj::transition` hands `CTransition` (`get_object_info`,
@@ -81,6 +84,8 @@ pub(crate) struct TransitionObject<'a> {
     pub frames_stationary_fall: i32,
     /// `m_fPhysicsContainmentRadius`.
     pub containment_radius: f32,
+    /// The body's collision parameters (`CollisionParameters`).
+    pub collision: &'a CollisionParameters,
 }
 
 impl Transition {
@@ -103,6 +108,7 @@ impl Transition {
         );
         transition.object_info.affected_by_gravity = object.affected_by_gravity;
         transition.object_info.containment_radius = object.containment_radius;
+        transition.collision = object.collision.clone();
         if let Some((cell_id, plane, is_water, is_landscape, is_environment)) = object.contact {
             transition.init_contact_plane(cell_id, plane, is_water, is_landscape, is_environment);
         }

@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use crate::bsp::{BspTree, ContactKind};
 use crate::cells::CellSource;
+use crate::collision_types::PhysicsTypeMask;
 use crate::fpu::{ld, st};
 use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
@@ -291,8 +292,6 @@ impl Transition {
         {
             return TransitionState::Ok;
         }
-        // `Interpermiable`: static objects are solid to the body (the collision-type filter of
-        // `CollisionParameters` is not ported), so the obstruction is never ethereal.
         let dynamic_mobile = object.is_dynamic() && object.is_mobile();
         if self.object_info.state & PREDETERMINED_TRANSITION_OI != 0 && !dynamic_mobile {
             return TransitionState::Ok;
@@ -304,7 +303,18 @@ impl Transition {
         if !object.can_collide(step, mover, &self.sphere_path.check_pos) {
             return TransitionState::Ok;
         }
-        self.sphere_path.obstruction_ethereal = false;
+        // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
+        // is ethereal to it. Outside a placement the transition passes through it; a placement
+        // keeps the overlap test with the obstruction marked ethereal. A static object's own
+        // blocking mask (`CreateStaticObjects`'s ethereal physics type) is not set, so it is zero.
+        let placement = self.sphere_path.placement_ethereal;
+        let ethereal = !self
+            .collision
+            .blocks(u64::from(id), PhysicsTypeMask::default(), placement);
+        if ethereal && !placement {
+            return TransitionState::Ok;
+        }
+        self.sphere_path.obstruction_ethereal = ethereal;
         let (p, scale, shape) = (object.position, object.scale, &object.shape);
         let mut ts = TransitionState::Ok;
         if object.state & HAS_PHYSICS_BSP_PS != 0 {

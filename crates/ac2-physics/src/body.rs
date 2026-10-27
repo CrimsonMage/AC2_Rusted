@@ -525,6 +525,12 @@ impl PhysicsBody {
         }
     }
 
+    /// The body's collision parameters (`CPhysicsObj::SetCollisionState`), for a script or the
+    /// client to set its ethereal and physics-type sets.
+    pub fn collision_mut(&mut self) -> &mut crate::collision_types::CollisionParameters {
+        &mut self.object.collision
+    }
+
     /// The collision impact minimums as the body holds them (`m_min_reported_impactXY`, `Z`).
     pub fn impact_minimums(&self) -> (f32, f32) {
         let m = self.object.impact_minimums;

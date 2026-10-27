@@ -93,6 +93,9 @@ pub(crate) struct PhysicsObj {
     /// speed the environment contact recorded (`m_impact_speed`), and the impact not yet taken
     /// by the collision report (`m_has_normal` with `m_collision_normal`).
     pub(crate) impact_minimums: crate::collision_impact::ImpactMinimums,
+    /// The body's `CollisionParameters` (`CPhysicsObj::SetCollisionState`): the ethereal and
+    /// physics-type sets the transition tests objects against.
+    pub(crate) collision: crate::collision_types::CollisionParameters,
     pub(crate) impact_speed: Option<f32>,
     pub(crate) impact_report: Option<crate::collision_impact::ImpactReport>,
     /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
@@ -163,6 +166,7 @@ impl PhysicsObj {
             jump_scale: 1.0,
             times_jumped: 0,
             impact_minimums: crate::collision_impact::ImpactMinimums::default(),
+            collision: crate::collision_types::CollisionParameters::default(),
             impact_speed: None,
             impact_report: None,
             element: ELEMENT_GROUND,

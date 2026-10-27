@@ -312,3 +312,28 @@ fn placing_near_the_ground_steps_down_onto_it() {
         SetPositionError::Ok
     );
 }
+
+#[test]
+fn an_ethereal_wall_is_passed_through_and_a_solid_one_stops_the_body() {
+    // The same wall, once ethereal to the walker (its id in the movement ethereal list) and
+    // once solid: only the ethereal one lets the body through.
+    let wall = || {
+        bsp_box(
+            position(80.0, 84.0, 0.0),
+            Vector::new(-3.0, 0.0, 0.0),
+            Vector::new(3.0, 2.0, 3.0),
+        )
+    };
+    let mut terrain = flat();
+    let id = terrain.insert_object(wall());
+    let mut body = walker(80.0, 80.0, 0.0);
+    body.collision_mut().add_to_ethereal_list(u64::from(id));
+    let path = walk_north(&mut body, &terrain, 3.0);
+    let last = *path.last().expect("steps");
+    assert!(last[1] > 86.0, "passed through the ethereal wall: {last:?}");
+
+    let world = world_with(wall());
+    let mut solid = walker(80.0, 80.0, 0.0);
+    let path = walk_north(&mut solid, &world, 3.0);
+    assert!(path.iter().all(|p| p[1] <= 84.0 - 0.39), "{path:?}");
+}

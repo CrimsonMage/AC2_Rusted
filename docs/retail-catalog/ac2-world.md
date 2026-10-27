@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 181 done, 17 partial, 339 to do, 452 skipped.
+989 retail functions: 179 done, 19 partial, 339 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (18/140)
@@ -636,7 +636,7 @@ Legend and workflow: [README](README.md).
 - [-] `CLightInfo::Allocator` · 0048ed70 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (12/53)
+## `portal/shared/src/cell/objcell.cpp.c` (10/53)
 
 ### DBObj
 - [-] `DBObj::SaveToFile` · 0047b860 — admin-only dump, save or error report
@@ -677,7 +677,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::DoIntersection` · 0047c3f0 · legions 004764c0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [x] `CObjCell::FindCellsLocal` · 0047c440 · legions 00476510 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047c460 · legions 00476530 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [x] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [~] `CObjCell::find_obj_collisions` · 0047c510 · legions 004765e0 — ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
 - [~] `CObjCell::TraceRayObjects` · 0047c560 · legions 00476630 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
 ### SmartArray<ObjectClearance>
@@ -695,7 +695,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — needs port: CObjCell destructor unload (world hash and resident state)
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
-- [x] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
+- [~] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs: the ethereal filter (IsBlocking against the mover's sets, collision.rs/collision_types.rs); the admin vtable branch on 0x250 and the step/missile/temp-ignore lists are not ported
 
 ### SmartArray<BBox>
 - [-] `SmartArray<BBox>::operator=` · 0047cbb0 · legions 00476ca0 — copy assignment of plain data (Rust clone/move)
