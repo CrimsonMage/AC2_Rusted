@@ -148,3 +148,17 @@ fn the_radar_plots_its_blips_and_turns_its_heading() {
     let hidden = format!("{:08x}", tokenize("ID_Radar_TT_CurLoc_Hidden"));
     assert_eq!(tree.tooltip_text(button), Some(hidden));
 }
+
+/// `gmRadarUI::LocationApplied`: the radar shows once its location is applied.
+#[test]
+fn the_radar_shows_once_its_location_is_applied() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    hud.radar.show(&mut hud.tree, false);
+    assert!(!hud.radar.shown(&hud.tree));
+    hud.radar.location_applied(&mut hud.tree);
+    assert!(hud.radar.shown(&hud.tree));
+}

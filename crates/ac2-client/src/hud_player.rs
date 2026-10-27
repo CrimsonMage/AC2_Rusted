@@ -180,6 +180,9 @@ impl HudView {
         if reload_radar {
             if let Ok(saved) = client.saved_window_locations() {
                 tree.apply_locations(&saved);
+                if let Some(radar) = radar.as_ref() {
+                    radar.location_applied(tree);
+                }
             }
         }
         // `gmCharacterUI::RecvNotice_ReloadOptions`: the page's values as the profile has them.

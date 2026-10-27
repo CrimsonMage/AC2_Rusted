@@ -437,6 +437,8 @@ key	status	note
 00424e20	x	ac2-ui stack.rs
 00424ed0	x	ac2-ui stack.rs
 00425000	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
+00425040	x	ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
+00425090	x	ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
 004250b0	x	ac2-ui radar.rs
 004250d0	x	ac2-ui radar.rs
 00425110	x	ac2-ui radar.rs

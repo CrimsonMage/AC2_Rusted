@@ -142,6 +142,12 @@ impl RadarUi {
         }
     }
 
+    /// `gmRadarUI::LocationApplied`: the framework's location is applied, then the radar shows
+    /// (`Show` with its field, whatever the saved flag said).
+    pub fn location_applied(&self, tree: &mut UiTree) {
+        self.show(tree, true);
+    }
+
     /// Whether the radar is shown (its field is visible; `gmRadarUI::Shown`).
     pub fn shown(&self, tree: &UiTree) -> bool {
         self.field

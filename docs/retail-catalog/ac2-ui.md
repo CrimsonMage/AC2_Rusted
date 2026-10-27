@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1005 done, 356 partial, 807 to do, 79 skipped.
+2247 retail functions: 1007 done, 356 partial, 805 to do, 79 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -359,7 +359,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
 - [ ] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0
 
-## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (26/35)
+## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (28/35)
 
 ### Position
 - [ ] `Position::get_heading` · 00424fe0 · legions 00424dd0
@@ -368,8 +368,8 @@ Legend and workflow: [README](README.md).
 - [x] `RadarInfo::RadarInfo` · 00425000 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
 ### gmRadarUI
-- [ ] `gmRadarUI::Show` · 00425040 · legions 00424e30
-- [ ] `gmRadarUI::LocationApplied` · 00425090 · legions 00424e80
+- [x] `gmRadarUI::Show` · 00425040 · legions 00424e30 — ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
+- [x] `gmRadarUI::LocationApplied` · 00425090 · legions 00424e80 — ac2-ui radar.rs show and location_applied (the radar field and heading ring); ac2-client hud_player.rs applies it after the saved locations; radar_tests the_radar_shows_once_its_location_is_applied
 - [x] `gmRadarUI::RecvNotice_SelectionChanged` · 004250b0 — ac2-ui radar.rs
 - [x] `gmRadarUI::DrawPoint` · 004250d0 · legions 00424ec0 — ac2-ui radar.rs
 - [x] `gmRadarUI::DrawL` · 00425110 · legions 00424f00 — ac2-ui radar.rs
