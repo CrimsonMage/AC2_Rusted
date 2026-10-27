@@ -61,7 +61,7 @@ pub(crate) fn pose(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<PartPose> {
 
 /// `BehaviorParams::StreamPack` over `BehaviorParams::SetDefaults`: the fields the pack bitfield
 /// names, the rest at their defaults.
-fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
+pub(crate) fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
     let has = |bit: u32| params.bitfield & bit != 0;
     let mut out = Ac2BehaviorParams::new(if has(0x1) { params.behavior } else { 0 });
     if has(0x2) {

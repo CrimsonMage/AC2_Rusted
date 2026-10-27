@@ -258,6 +258,10 @@ pub struct Vm {
     /// hover setters of `gCWPhysicsObject`), as the server event each one is: the object and
     /// the action, in order. The client applies them to the object's body.
     pub physics: Vec<(u64, ac2_net::protocol::ObjectAction)>,
+    /// The latent starts: `gCWPhysicsObject::CallEFun_DoMode` and `CallEFun_DoBehavior` stop
+    /// their context until the body reports the mode or behaviour done (`ModeDone` /
+    /// `BehaviorDone` with the context). The client starts each on the body with its context.
+    pub latent_physics: Vec<crate::host::LatentPhysics>,
     /// Each weenie's `CWDistributor::m_initData` (`WInitData::m_pid`, `m_did`), by object id.
     pub init_data: std::collections::HashMap<u64, (u32, u32)>,
     /// `CObjectMaint::GetPlayerID` (0 before the player exists).
@@ -318,6 +322,7 @@ impl Vm {
             shell_lines: Vec::new(),
             no_draw: Vec::new(),
             physics: Vec::new(),
+            latent_physics: Vec::new(),
             init_data: Default::default(),
             player: 0,
             repositories: Default::default(),

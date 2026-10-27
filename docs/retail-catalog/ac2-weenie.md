@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 746 done, 169 partial, 478 to do, 511 skipped.
+1904 retail functions: 750 done, 167 partial, 476 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (10/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (14/85)
 
 ### gCWPhysicsObject
 - [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — needs port: script efun do story on the physics object; no citation in crates/
@@ -2314,11 +2314,11 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_ApplyVisualDescToPhysicsObj` · 004b8510 — needs port: script efun apply visual desc to physics obj on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_CalculateDistance` · 004b8580 — needs port: script efun calculate distance on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600 — needs port: script efun combine and apply visual desc on the physics object; no citation in crates/
-- [~] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+- [x] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0 — needs port: script efun do behavior non latent on the physics object; no citation in crates/
 - [x] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [ ] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0 — needs port: script efun do intersection on the physics object; no citation in crates/
-- [~] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+- [x] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0 — needs port: script efun do mode non latent on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_DoSlider` · 004b8b60 — needs port: script efun do slider on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_DoSliderNonLatent` · 004b8c90 · legions 004ae810 — needs port: script efun do slider non latent on the physics object; no citation in crates/
@@ -2375,9 +2375,9 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWPhysicsObject::CallEFun_GetRemoteDoMotionValues` · 004ba750 — needs port: script efun get remote do motion values on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_GetStandardMotionValues` · 004ba800 — needs port: script efun get standard motion values on the physics object; no citation in crates/
 - [-] `gCWPhysicsObject::DetectionTableToLRHash` · 004ba8b0 · legions 004afbe0 — STL/container internals: a Rust collection replaces it
-- [ ] `gCWPhysicsObject::Resume_DoBehavior` · 004baa50 · legions 004afd80 — needs port: resume continuation of latent do behavior (the script waits and resumes here); no citation in crates/
+- [x] `gCWPhysicsObject::Resume_DoBehavior` · 004baa50 · legions 004afd80 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::Resume_DoIntersection` · 004baae0 · legions 004afe10 — needs port: resume continuation of latent do intersection (the script waits and resumes here); no citation in crates/
-- [ ] `gCWPhysicsObject::Resume_DoMode` · 004babb0 · legions 004afee0 — needs port: resume continuation of latent do mode (the script waits and resumes here); no citation in crates/
+- [x] `gCWPhysicsObject::Resume_DoMode` · 004babb0 · legions 004afee0 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::Resume_DoSlider` · 004bac40 · legions 004aff70 — needs port: resume continuation of latent do slider (the script waits and resumes here); no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_GetCollisionState` · 004bacd0 — needs port: script efun get collision state on the physics object; no citation in crates/
 - [ ] `gCWPhysicsObject::CallEFun_InqCurrentProperties` · 004bad70 — needs port: script efun inq current properties on the physics object; no citation in crates/
@@ -2874,10 +2874,10 @@ Legend and workflow: [README](README.md).
 - [x] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0 — needs port: physics object do targetted fx; no citation in crates/
-- [~] `CWPhysicsObject::DoBehavior` · 00530220 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+- [~] `CWPhysicsObject::DoBehavior` · 00530220 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
 - [ ] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360 — needs port: physics object do behavior non latent; no citation in crates/
 - [~] `CWPhysicsObject::ReleaseBehavior` · 005302f0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
-- [~] `CWPhysicsObject::DoMode` · 00530390 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
+- [~] `CWPhysicsObject::DoMode` · 00530390 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
 - [ ] `CWPhysicsObject::DoModeNonLatent` · 00530420 · legions 00514420 — needs port: physics object do mode non latent; no citation in crates/
 - [x] `CWPhysicsObject::SetMode` · 00530440 · legions 00514440 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `CWPhysicsObject::DoSlider` · 00530460 — needs port: physics object do slider; no citation in crates/

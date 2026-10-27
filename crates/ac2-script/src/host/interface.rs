@@ -5,6 +5,7 @@
 use ac2_net::protocol::ObjectAction;
 
 use crate::glue::{word64, Call};
+use crate::host::LatentPhysics;
 use crate::native::NativeObject;
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
@@ -101,20 +102,26 @@ fn stop_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 }
 
 /// `gCWPhysicsObject::CallEFun_DoMode(mode)` -> `CWPhysicsObject::DoMode` -> `CPhysicsObj::DoMode(
-/// cid, mode)`: the weenie's body animates toward the mode. Queued as the server's `DoMode`; the
-/// efun answers 1 for a weenie with an owner. Retail stops the context until the mode is reached
-/// (`ModeDone`); that wait is not modelled, so the script continues at once.
+/// cid, mode)`: the weenie's body animates toward the mode. The start is queued for the body with
+/// the context (`Vm::latent_physics`); the efun answers 1 for a weenie with an owner and the
+/// context stops until the mode is reached (`ModeDone`, `ScriptHost::resume_latent`).
 fn do_mode(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let id = match this_weenie(vm, ctx) {
         Ok(id) => id,
         Err(status) => return status,
     };
     let mode = Call::new(ctx).word(2);
-    if id != 0 {
-        vm.physics.push((id, ObjectAction::DoMode(mode)));
+    if id == 0 {
+        Call::new(ctx).ret(4, 0, tag::INT);
+        return InterpStatus::Success;
     }
-    Call::new(ctx).ret(4, u32::from(id != 0), tag::INT);
-    InterpStatus::Success
+    vm.latent_physics.push(LatentPhysics {
+        object: id,
+        context: ctx.cid,
+        action: ObjectAction::DoMode(mode),
+    });
+    Call::new(ctx).ret(4, 1, tag::INT);
+    InterpStatus::Interrupted
 }
 
 /// `gCWPhysicsObject::CallEFun_SetMode(mode)` -> `CWPhysicsObject::SetMode` -> `CPhysicsObj::SetMode`
@@ -134,10 +141,11 @@ fn set_mode(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 }
 
 /// `gCWPhysicsObject::CallEFun_DoBehavior(params)` -> `CWPhysicsObject::DoBehavior` ->
-/// `CPhysicsObj::DoBehavior(params)`: the `BehaviorParams` native in argument 2 is queued as the
-/// server's `DoBehavior`. Retail answers 0 for a weenie with a physics object (8 without one), and
-/// stops the context while the behaviour runs (not modelled here; see `do_mode`). An argument
-/// that is not a `BehaviorParams` crashes the script.
+/// `CPhysicsObj::DoBehavior(params)`: the `BehaviorParams` native in argument 2 starts the
+/// behaviour on the body with the context (`Vm::latent_physics`). Retail answers 0 for a weenie
+/// with a physics object (8 without one), and the context stops while the behaviour runs
+/// (`BehaviorDone`, `ScriptHost::resume_latent`). An argument that is not a `BehaviorParams`
+/// crashes the script.
 fn do_behavior(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let id = match this_weenie(vm, ctx) {
         Ok(id) => id,
@@ -148,11 +156,17 @@ fn do_behavior(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         Some(NativeObject::BehaviorParams(p)) => p.clone(),
         _ => return vm.bad_this(reference),
     };
-    if id != 0 {
-        vm.physics.push((id, ObjectAction::DoBehavior(params)));
+    if id == 0 {
+        Call::new(ctx).ret(4, 8, tag::INT);
+        return InterpStatus::Success;
     }
-    Call::new(ctx).ret(4, if id != 0 { 0 } else { 8 }, tag::INT);
-    InterpStatus::Success
+    vm.latent_physics.push(LatentPhysics {
+        object: id,
+        context: ctx.cid,
+        action: ObjectAction::DoBehavior(params),
+    });
+    Call::new(ctx).ret(4, 0, tag::INT);
+    InterpStatus::Interrupted
 }
 
 /// `gCWPhysicsObject::CallEFun_ReleaseBehavior(behavior, params)` -> `CWPhysicsObject::

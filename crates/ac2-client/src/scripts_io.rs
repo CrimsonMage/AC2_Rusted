@@ -34,6 +34,12 @@ impl Client {
         for (object, action) in physics {
             self.apply_script_physics(object, &action);
         }
+        let latent = self
+            .scripts
+            .as_mut()
+            .map(|scripts| scripts.host.take_latent_physics())
+            .unwrap_or_default();
+        self.start_latent_physics(latent, out);
         let owned = function.is_none_or(|f| !self.session.stand_in_handles(f));
         let Some(scripts) = self.scripts.as_mut() else {
             return;

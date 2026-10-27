@@ -474,30 +474,30 @@ impl Client {
     /// After `CPhysics::UpdateAllAnimation`: each object's started and stopped effects, then
     /// its `FXManager::UseTime` for the step.
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
+        // The player's events come first: its latent script physics finish on them.
+        let player_taken = self.player.as_mut().filter(|p| p.in_world).and_then(|p| {
+            let (id, visual) = (p.id, p.visual);
+            p.body
+                .as_mut()
+                .map(|body| (id, visual, body.physics.take_animation_events()))
+        });
+        let player_id = player_taken.as_ref().map(|(id, _, _)| *id);
+        if let Some((id, _, player_events)) = &player_taken {
+            let completions = crate::client_latent::completions(player_events);
+            self.finish_latent(*id, completions);
+        }
         let Some(audio) = self.audio.as_mut() else {
             // No sound device: the player's lock events still reach the movement module.
-            let lock = self
-                .player
-                .as_mut()
-                .filter(|p| p.in_world)
-                .and_then(|p| p.body.as_mut())
-                .and_then(|body| lock_change(&body.physics.take_animation_events()));
-            if let Some(locked) = lock {
-                self.lock_player_actions(locked);
+            if let Some((_, _, player_events)) = &player_taken {
+                if let Some(locked) = lock_change(player_events) {
+                    self.lock_player_actions(locked);
+                }
             }
             return;
         };
         let mut events = self.remotes.take_animation_events();
-        let player = self.player.as_mut().filter(|p| p.in_world);
-        let player_id = player.as_ref().map(|p| p.id);
-        if let Some(player) = player {
-            if let Some(body) = player.body.as_mut() {
-                events.push((
-                    player.id,
-                    player.visual,
-                    body.physics.take_animation_events(),
-                ));
-            }
+        if let Some(taken) = player_taken {
+            events.push(taken);
         }
         // The player's `LockActions` / `UnlockActions` events (`PlayerMovementModule::LockActions`)
         // count whatever the visual's sounds are.

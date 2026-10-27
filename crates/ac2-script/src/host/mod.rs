@@ -12,6 +12,7 @@ mod gun;
 mod ifun;
 mod interface;
 mod inventory_globals;
+mod latent;
 mod notices;
 mod notices_typed;
 mod popup;
@@ -35,6 +36,7 @@ use crate::wstate::WSTATE_BASE_DID;
 pub use crate::vm::DataRequest;
 pub use gun::{ChatRequest, ChatServices};
 pub use ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
+pub use latent::LatentPhysics;
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
 pub use skill_panel::SkillPanelData;
 

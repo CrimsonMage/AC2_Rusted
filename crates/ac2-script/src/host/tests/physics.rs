@@ -22,9 +22,9 @@ fn physics_mode_and_behavior_efuns_queue_their_server_events() {
         crate::native::NativeObject::BehaviorParams(Box::new(params.clone())),
     );
     assert_eq!(
-        efun_result(&mut host.vm, 0x0080_0015, &[0x31], 9, 4),
-        1,
-        "DoMode answers 1 for an owned weenie"
+        run_efun(&mut host.vm, 0x0080_0015, &[0x31], 9),
+        InterpStatus::Interrupted,
+        "DoMode stops the context until the mode is done"
     );
     assert_eq!(
         efun_result(&mut host.vm, 0x0080_0017, &[0x32], 9, 3),
@@ -32,9 +32,9 @@ fn physics_mode_and_behavior_efuns_queue_their_server_events() {
         "SetMode answers 1"
     );
     assert_eq!(
-        efun_result(&mut host.vm, 0x0080_001B, &[native], 9, 4),
-        0,
-        "DoBehavior answers 0"
+        run_efun(&mut host.vm, 0x0080_001B, &[native], 9),
+        InterpStatus::Interrupted,
+        "DoBehavior stops the context until the behaviour is done"
     );
     assert_eq!(
         efun_result(&mut host.vm, 0x0080_001E, &[0x41, native], 9, 5),
@@ -47,11 +47,24 @@ fn physics_mode_and_behavior_efuns_queue_their_server_events() {
         "StopBehavior answers 1"
     );
     assert_eq!(
+        host.take_latent_physics(),
+        vec![
+            LatentPhysics {
+                object: 0x55,
+                context: 1,
+                action: ObjectAction::DoMode(0x31),
+            },
+            LatentPhysics {
+                object: 0x55,
+                context: 1,
+                action: ObjectAction::DoBehavior(Box::new(params.clone())),
+            },
+        ]
+    );
+    assert_eq!(
         host.take_physics(),
         vec![
-            (0x55, ObjectAction::DoMode(0x31)),
             (0x55, ObjectAction::SetMode(0x32)),
-            (0x55, ObjectAction::DoBehavior(Box::new(params.clone()))),
             (
                 0x55,
                 ObjectAction::ReleaseBehavior {
@@ -98,4 +111,51 @@ fn look_at_efun_queues_the_look_for_the_owned_weenie() {
         InterpStatus::Success,
         "an undefined this crashes the script"
     );
+}
+
+/// `CWPhysicsObject::DoMode` is latent: the efun stops its context, and the body's `ModeDone`
+/// resumes it (`Resume_DoMode`), the error written to the out parameter.
+#[test]
+fn a_latent_mode_resumes_the_context_when_the_body_reports_it_done() {
+    use crate::vm::refs::{self, Target};
+    use crate::vm::{Program, ReferenceTable};
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let this = host
+        .vm
+        .refs
+        .create_native(0, crate::native::NativeObject::new_empty(0));
+    host.vm.owners.insert(this, 0x55);
+    let object = ReferenceTable::new_instance(0, 1);
+    let out = host.vm.refs.add(
+        refs::flags::FILLED | refs::flags::KIND_HEAP,
+        Target::Heap(Box::new(object)),
+    );
+    let mut ctx = Context::new(0x61, Some(this));
+    ctx.enter(0).unwrap();
+    ctx.push(0, tag::INT).unwrap();
+    ctx.push(out, tag::REF).unwrap();
+    ctx.push(0x31, tag::INT).unwrap();
+    ctx.push(this, tag::REF).unwrap();
+    assert_eq!(
+        host.vm.run_efun(0x0080_0015, &mut ctx),
+        InterpStatus::Interrupted
+    );
+    host.processes.insert(
+        0x55,
+        super::super::Process {
+            instance: this,
+            waiting: vec![ctx],
+        },
+    );
+    assert!(
+        host.resume_latent(0x55, 0x62, 0).is_none(),
+        "another context"
+    );
+    let outcome = host
+        .resume_latent(0x55, 0x61, 0)
+        .expect("the context waits for the mode");
+    assert_eq!(outcome.status, InterpStatus::Terminated);
+    assert_eq!(outcome.context, 0x61);
+    assert!(host.resume_latent(0x55, 0x61, 0).is_none(), "resumed once");
 }

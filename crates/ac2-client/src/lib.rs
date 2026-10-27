@@ -26,6 +26,7 @@ pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
+mod client_latent;
 mod client_locations;
 mod client_positions;
 pub use client_locations::{saved_windows, ui_save_locations};
