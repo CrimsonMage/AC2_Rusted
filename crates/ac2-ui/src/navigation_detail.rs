@@ -16,7 +16,7 @@ use ac2_world::{DetailMap, DetailMapRow};
 
 use crate::compose::UiPixels;
 use crate::element::UiTree;
-use crate::navigation::{MapNote, NavigationUi, TileKey};
+use crate::navigation::{MapNote, NavigationUi, TileKey, STATIC_MARKER_TYPE};
 use crate::navigation_map::{MapFrame, LAND_CELLS};
 use crate::token::{tokenize, STATELESS};
 
@@ -31,8 +31,8 @@ pub const PAN_STEP_SHIFT: i32 = 3;
 const TILE_ADJUST: [(i32, i32); 4] = [(1, 0), (0, 0), (1, 1), (0, 1)];
 /// `AddImageToState(tile, _mapDID, 0, stateless)`: the tile's draw mode.
 const TILE_DRAW_MODE: u32 = 0;
-/// `AddMapNotes`: a note's `MarkerInfo` is of `Static_MarkerType` (3).
-const NOTE_KIND: u32 = 3;
+/// `AddMapNotes`: a note's `MarkerInfo` is of `Static_MarkerType`.
+const NOTE_KIND: u32 = STATIC_MARKER_TYPE;
 /// `ListenToMessage`'s element data: the map field's press (`0x40000004`) and the map parent's
 /// press that switches to the macro view (`0x40000005`).
 pub const MAP_FIELD_PRESS: i32 = 0x4000_0004;

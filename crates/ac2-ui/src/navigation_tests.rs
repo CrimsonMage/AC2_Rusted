@@ -423,3 +423,76 @@ fn the_hovered_marker_s_tooltip_reads_into_the_note_text() {
         );
     }
 }
+
+#[test]
+fn the_overview_buttons_show_their_map_and_show_in_the_macro_view() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let nav = hud.navigation.take().expect("NavigationField");
+    // The four zoom buttons (`gmNavigationUI`'s constructor) are all in the layout.
+    let buttons = nav.overview_buttons;
+    assert!(buttons.iter().all(Option::is_some), "{buttons:?}");
+    // `SetupElementsForMapMode`: the buttons show in the macro view only.
+    let tree = &mut hud.tree;
+    let first = buttons[0].unwrap();
+    assert!(tree.get(first).unwrap().visible);
+    let mut nav = nav;
+    nav.setup_elements_for_map_mode(tree, false);
+    assert!(buttons
+        .iter()
+        .flatten()
+        .all(|&b| !tree.get(b).unwrap().visible));
+    nav.setup_elements_for_map_mode(tree, true);
+    assert!(buttons
+        .iter()
+        .flatten()
+        .all(|&b| tree.get(b).unwrap().visible));
+
+    // `gmNavigationUI::ListenToMessage` → `gmOverviewMapUI::ShowMap(Map_Omishan)`: the overview
+    // shows with the label and the client area in the Omishan map's state.
+    let gameplay = load_layout_by_enum(&store, 0x4100_0009).unwrap().unwrap();
+    let overview = OverviewMapUi::create(tree, &gameplay).expect("OverviewMap");
+    assert!(overview.message(tree, tokenize("NavigationZoomToOverviewOmishanButton")));
+    assert!(overview.is_shown(tree));
+    let client = overview.client_area().expect("OverviewMapClientArea");
+    let label = overview.label().expect("the label");
+    assert_eq!(tree.get(client).unwrap().state(), tokenize("OmishanMap"));
+    assert_eq!(tree.get(label).unwrap().state(), tokenize("OmishanMap"));
+    // Another button switches the map; a non-overview element is not taken.
+    assert!(overview.message(tree, tokenize("NavigationZoomToOverviewArramoraButton")));
+    assert_eq!(tree.get(client).unwrap().state(), tokenize("ArramoraMap"));
+    assert!(!overview.message(tree, tokenize("NavigateUpButton")));
+    hud.navigation = Some(nav);
+}
+
+#[test]
+fn a_flush_deletes_only_its_marker_type() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut nav = hud.navigation.take().expect("NavigationField");
+    let tree = &mut hud.tree;
+    // A static note (the tiles' `AddMapNotes`, type 3) and a server note of another type.
+    let static_note = note(3, 1, Some((10, 10)), false);
+    let other_note = note(7, 2, Some((20, 20)), true);
+    nav.reconcile_notes(tree, &[static_note, other_note]);
+    let elements = nav.note_elements();
+    assert_eq!(elements.len(), 2);
+    let (static_elem, other_elem) = (elements[0], elements[1]);
+
+    // `FlushMarkers(Static_MarkerType)` drops the static note's element and keeps the other.
+    nav.flush_marker_type(tree, 3);
+    assert_eq!(nav.note_elements(), vec![other_elem]);
+    assert!(tree
+        .get(static_elem)
+        .is_none_or(|e| e.parent_index().is_none()));
+    // `SetupElementsForMapMode` flushes the static type too, and keeps the other notes.
+    nav.setup_elements_for_map_mode(tree, true);
+    assert_eq!(nav.note_elements(), vec![other_elem]);
+    hud.navigation = Some(nav);
+}

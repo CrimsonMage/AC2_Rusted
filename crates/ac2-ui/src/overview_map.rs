@@ -8,12 +8,47 @@
 //!
 //! The label is the overview's first text element: its name is a token this layout does not
 //! expose under a known name.
+//!
+//! `gmNavigationUI::ListenToMessage` shows the overview for the panel's zoom buttons
+//! (`NavigationZoomToOverview*Button`): each calls `ShowMap` with its map's state. The Legions
+//! constructor binds four of them (Osteth, Omishan, Arramora, LinvakMassif); the fifth map state
+//! Legions carries (`KnorrMap`) has no button this module can name, so it is not wired.
 
 use std::sync::Arc;
 
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::token::tokenize;
+
+/// The overview's zoom buttons (`gmNavigationUI`'s `m_pOverviewOstethButton` and the others) and
+/// the map state each passes to `gmOverviewMapUI::ShowMap`.
+const MAP_BUTTONS: [(u32, u32); 4] = [
+    (
+        tokenize("NavigationZoomToOverviewOstethButton"),
+        tokenize("OstethMap"),
+    ),
+    (
+        tokenize("NavigationZoomToOverviewOmishanButton"),
+        tokenize("OmishanMap"),
+    ),
+    (
+        tokenize("NavigationZoomToOverviewArramoraButton"),
+        tokenize("ArramoraMap"),
+    ),
+    (
+        tokenize("NavigationZoomToOverviewLinvakMassifButton"),
+        tokenize("LinvakMassifMap"),
+    ),
+];
+
+/// The map state a zoom button shows (`gmNavigationUI::ListenToMessage`), `None` for an element
+/// that is not one of them.
+pub fn map_for_button(element_id: u32) -> Option<u32> {
+    MAP_BUTTONS
+        .iter()
+        .find(|(button, _)| *button == element_id)
+        .map(|&(_, map)| map)
+}
 
 /// `gmOverviewMapUI`'s state over its gameplay elements.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -80,9 +115,14 @@ impl OverviewMapUi {
         }
     }
 
-    /// `gmOverviewMapUI::ListenToMessage`: the close button's message hides the overview.
-    /// Returns whether `element_id` was the close button.
+    /// `gmOverviewMapUI::ListenToMessage`: the close button hides the overview. The navigation
+    /// panel's zoom buttons show their map (`gmNavigationUI::ListenToMessage` calls `ShowMap`
+    /// with the map's state). Returns whether `element_id` was one of these buttons.
     pub fn message(&self, tree: &mut UiTree, element_id: u32) -> bool {
+        if let Some(map) = map_for_button(element_id) {
+            self.show_map(tree, map);
+            return true;
+        }
         let is_close = element_id == tokenize("OverviewMapCloseButton") && self.close.is_some();
         if is_close {
             self.show(tree, false);

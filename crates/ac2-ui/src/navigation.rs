@@ -74,6 +74,9 @@ pub(crate) struct TileKey {
     pub(crate) images: [Option<(u32, u32)>; 4],
 }
 
+/// `Static_MarkerType`: the marker type of the tiles' map notes (`AddMapNotes`).
+pub(crate) const STATIC_MARKER_TYPE: u32 = 3;
+
 /// `gmNavigationUI`'s state over its toolbar elements.
 #[derive(Debug, Clone)]
 pub struct NavigationUi {
@@ -120,6 +123,9 @@ pub struct NavigationUi {
     pub(crate) sized: Option<((u32, u32), (i32, i32))>,
     /// The notes' elements, in arrival order.
     pub(crate) notes: Vec<PlacedNote>,
+    /// `m_pOverviewOstethButton`, `m_pOverviewOmishanButton`, `m_pOverviewArramoraButton` and
+    /// `m_pOverviewLinvakMassifButton`: shown in the macro view (`SetupElementsForMapMode`).
+    pub(crate) overview_buttons: [Option<usize>; 4],
 }
 
 impl NavigationUi {
@@ -152,6 +158,13 @@ impl NavigationUi {
             "NavigateDownButton",
         ]
         .map(|name| child(tree, name));
+        let overview_buttons = [
+            "NavigationZoomToOverviewOstethButton",
+            "NavigationZoomToOverviewOmishanButton",
+            "NavigationZoomToOverviewArramoraButton",
+            "NavigationZoomToOverviewLinvakMassifButton",
+        ]
+        .map(|name| child(tree, name));
         let macro_frame = MapFrame {
             origin: (int(MACRO_X), int(MACRO_Y)),
             size: (extent, extent),
@@ -180,6 +193,7 @@ impl NavigationUi {
             tile_key: None,
             sized: None,
             notes: Vec::new(),
+            overview_buttons,
         };
         panel.create_tiles(tree);
         panel.setup_elements_for_map_mode(tree, true);
@@ -254,11 +268,21 @@ impl NavigationUi {
     /// shown in the macro view, the layout state of `ParentField`, the player's marker moved into
     /// the map parent, and the scroll buttons.
     pub(crate) fn setup_elements_for_map_mode(&mut self, tree: &mut UiTree, macro_map: bool) {
+        self.flush_marker_type(tree, STATIC_MARKER_TYPE);
         if let Some(map) = self.map_field {
             tree.set_visible(map, macro_map);
+            // `UIElement::ClearTooltip(m_pMapField)`.
+            tree.set_tooltip(map, None);
         }
         if let Some(coords) = self.child(tree, "CoordinatesText") {
             tree.set_visible(coords, macro_map);
+        }
+        for button in self.overview_buttons.iter().flatten() {
+            set_visible_if(tree, *button, macro_map);
+        }
+        // `UIElement::ClearTooltip` on each detail tile (`m_ppDetailMaps`).
+        for tile in self.tiles.iter().flatten() {
+            tree.set_tooltip(*tile, None);
         }
         if let Some(parent) = self.parent {
             tree.set_state(
@@ -274,6 +298,19 @@ impl NavigationUi {
             tree.set_parent(marker, Some(map_parent));
         }
         self.auto_show_scroll_buttons(tree);
+    }
+
+    /// `gmNavigationUI::FlushMarkers`: the notes of one marker type (`MarkerInfo`'s type, the key
+    /// of `m_markers`) are deleted and dropped; the other types stay as they were.
+    pub(crate) fn flush_marker_type(&mut self, tree: &mut UiTree, kind: u32) {
+        let (gone, kept): (Vec<PlacedNote>, Vec<PlacedNote>) = std::mem::take(&mut self.notes)
+            .into_iter()
+            .partition(|placed| placed.note.kind == kind);
+        for placed in gone {
+            tree.set_parent(placed.element, None);
+            tree.delete(placed.element);
+        }
+        self.notes = kept;
     }
 
     /// `gmNavigationUI::AutoShowScrollButtons`: the four scroll buttons show while the panel is
@@ -477,7 +514,10 @@ impl NavigationUi {
             self.size_tiles(tree, images);
         }
         let mut notes = self.server_notes.clone();
-        notes.extend(self.tile_notes());
+        // `AddMapNotes` runs only for the detail tiles; the macro view has none of them.
+        if !self.map.macro_map {
+            notes.extend(self.tile_notes());
+        }
         self.reconcile_notes(tree, &notes);
         for placed in &self.notes {
             self.place_note(tree, placed);

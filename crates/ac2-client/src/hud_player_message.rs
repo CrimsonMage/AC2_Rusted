@@ -43,6 +43,7 @@ impl HudView {
             options,
             new_sale,
             now,
+            overview,
             paper_doll,
             pets,
             quests,
@@ -118,6 +119,11 @@ impl HudView {
             }
             if let Some(bar) = shortcuts.as_mut() {
                 bar.message(tree, player, message);
+            }
+            // `gmOverviewMapUI::ListenToMessage` (the close button) and the zoom buttons of
+            // `gmNavigationUI::ListenToMessage` (`ShowMap` with the button's map).
+            if let Some(overview) = overview.as_ref() {
+                overview.message(tree, message.element_id);
             }
             if let Some(panel) = fellowship.as_mut() {
                 panel.message(tree, message);
