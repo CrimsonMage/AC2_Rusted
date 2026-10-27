@@ -48,6 +48,13 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
     // `StopAttacking`).
     IFUN_DISMOUNT,
     IFUN_STOP_ATTACKING,
+    // The pet panel's requests (`gmCWInterface::RequestPet*`, `RequestSetPetName`).
+    IFUN_REQUEST_PET_ATTACK,
+    IFUN_REQUEST_PET_BUFF,
+    IFUN_REQUEST_PET_HEAL,
+    IFUN_REQUEST_PET_RETURN,
+    IFUN_REQUEST_PET_MODE,
+    IFUN_REQUEST_SET_PET_NAME,
     // The options page's setters and the upload (`gmCharacterUI::Apply`).
     IFUN_SET_AUTO_TARGET,
     IFUN_SET_ACCEPT_ALLEGIANCE,
@@ -202,6 +209,21 @@ pub const IFUN_DISMOUNT: u32 = 0x00B4_00E5;
 /// `gmCWInterface::StopAttacking(target)` (`ggmCWInterface::CallIFun_StopAttacking`: the
 /// `InstanceID`). `gmSelectionUI` calls it when the target is no longer selectable or is deleted.
 pub const IFUN_STOP_ATTACKING: u32 = 0x00B4_0104;
+/// `gmCWInterface::RequestPetAttack(target)` (`ggmCWInterface::CallIFun_RequestPetAttack`: the
+/// pet's `InstanceID`).
+pub const IFUN_REQUEST_PET_ATTACK: u32 = 0x00B4_0144;
+/// `gmCWInterface::RequestPetBuff` (`CallIFun_RequestPetBuff`: no arguments).
+pub const IFUN_REQUEST_PET_BUFF: u32 = 0x00B4_0145;
+/// `gmCWInterface::RequestPetHeal` (`CallIFun_RequestPetHeal`: no arguments).
+pub const IFUN_REQUEST_PET_HEAL: u32 = 0x00B4_0146;
+/// `gmCWInterface::RequestPetReturn` (`CallIFun_RequestPetReturn`: no arguments).
+pub const IFUN_REQUEST_PET_RETURN: u32 = 0x00B4_0147;
+/// `gmCWInterface::RequestPetMode(target, mode)` (`CallIFun_RequestPetMode`: the mode, then the
+/// pet's `InstanceID`).
+pub const IFUN_REQUEST_PET_MODE: u32 = 0x00B4_0148;
+/// `gmCWInterface::RequestSetPetName(target, name)` (`CallIFun_RequestSetPetName`: the name, a
+/// `PStringBase<unsigned short>`, then the pet's `InstanceID`).
+pub const IFUN_REQUEST_SET_PET_NAME: u32 = 0x00B4_0149;
 
 /// `gmCWInterface::AcceptTrade`'s IFun (`ggmCWInterface::CallIFun_AcceptTrade`: no
 /// arguments; `WM_Trade` stub 0x45 sends 0x35 with the instance packed).

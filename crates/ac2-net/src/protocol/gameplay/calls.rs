@@ -96,6 +96,14 @@ pub const CALLS: &[CallSpec] = &[
     call(0x8212_002D, ToServer, "WM_Player 0x2E", "UploadChatOptions", &[Reference, Reference, Reference, Reference, Reference]),
     call(0x8212_0031, ToServer, "WM_Player 0x32", "UploadUISettings", &[Reference, Reference]),
     call(0x8212_0033, ToServer, "WM_Player (0x33, not traced)", "gmCWInterface::Dismount (the script's call)", &[]),
+    // The pet panel's requests: the script's own calls (the WM ids are not traced). The values
+    // follow the VM's packing order: the mode before the pet, the name before the pet.
+    call(0x8212_0037, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestPetReturn (the script's call)", &[]),
+    call(0x8212_0038, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestSetPetName (the script's call): the name, the pet", &[Reference, LongInt]),
+    call(0x8212_003A, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestPetBuff (the script's call)", &[]),
+    call(0x8212_003B, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestPetAttack (the script's call): the pet's selection target", &[LongInt]),
+    call(0x8212_003C, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestPetHeal (the script's call)", &[]),
+    call(0x8212_0073, ToServer, "WM_Player (not traced)", "gmCWInterface::RequestPetMode (the script's call): the mode, the pet", &[Int, LongInt]),
     // Combat (`WM_Combat`, package 0x204).
     call(0x8204_0008, ToServer, "WM_Combat 0x16", "CCombatSystem 0x3 (RequestAttackStateChange: start, the selection)", &[LongInt]),
     call(0x8204_0010, ToServer, "WM_Combat 0x14", "CCombatSystem 0x10 (RequestAttackStateChange: stop)", &[]),

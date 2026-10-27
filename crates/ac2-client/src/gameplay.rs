@@ -172,6 +172,22 @@ pub enum Command {
     /// `gmCWInterface::StopAttacking(target)`: `gmSelectionUI` stops the attack on `target`
     /// (not selectable any more, or deleted).
     StopAttacking(u64),
+    /// `gmCWInterface::RequestPetAttack(target)`: the pet panel's attack button, on the selection.
+    PetAttack(u64),
+    /// `gmCWInterface::RequestPetBuff` / `RequestPetHeal` / `RequestPetReturn`: the panel's buttons.
+    PetBuff,
+    PetHeal,
+    PetReturn,
+    /// `gmCWInterface::RequestPetMode(pet, mode)`: the pet's wanted mode (`gmPetUI::Refresh`).
+    PetMode {
+        pet: u64,
+        mode: u32,
+    },
+    /// `gmCWInterface::RequestSetPetName(pet, name)`.
+    PetRename {
+        pet: u64,
+        name: String,
+    },
     /// `gmCWInterface::RequestResurrect`: the respawn request (the player's script's IFun
     /// 0xB4006B, which sends `WM_Death` 0x36 and so the server's lifestone teleport).
     RequestResurrect,
@@ -421,6 +437,23 @@ impl Client {
                 Command::StopAttacking(target) => self.own_ifun(
                     crate::scripts::IFUN_STOP_ATTACKING,
                     &[ac2_net::protocol::PackValue::LongInt(*target)],
+                ),
+                Command::PetAttack(target) => self.script_request(
+                    crate::scripts::IFUN_REQUEST_PET_ATTACK,
+                    &[IFunArg::Long(*target)],
+                ),
+                Command::PetBuff => self.script_request(crate::scripts::IFUN_REQUEST_PET_BUFF, &[]),
+                Command::PetHeal => self.script_request(crate::scripts::IFUN_REQUEST_PET_HEAL, &[]),
+                Command::PetReturn => {
+                    self.script_request(crate::scripts::IFUN_REQUEST_PET_RETURN, &[])
+                }
+                Command::PetMode { pet, mode } => self.script_request(
+                    crate::scripts::IFUN_REQUEST_PET_MODE,
+                    &[IFunArg::Long(*pet), IFunArg::Int(*mode)],
+                ),
+                Command::PetRename { pet, name } => self.script_request(
+                    crate::scripts::IFUN_REQUEST_SET_PET_NAME,
+                    &[IFunArg::Long(*pet), IFunArg::Text(name.clone())],
                 ),
                 Command::SetShortcutSet(set) => {
                     self.session.set_shortcut_set(*set);
