@@ -15,6 +15,7 @@ mod compose;
 mod tree;
 mod triggers;
 
+pub(crate) use asset::{decode_effects, decode_impulses};
 pub use asset::{
     Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AssetBone, Ac2ImpulseTrigger, Ac2WeenieHook,
 };

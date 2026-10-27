@@ -10,6 +10,7 @@ mod behavior;
 mod behavior_table;
 mod blend;
 mod dbanimator;
+mod fxscript;
 mod setup;
 
 pub use animation::{load_ac2_motion_animation, Ac2AnimMap, Ac2Animation, Ac2BoneTrack};
@@ -34,4 +35,5 @@ pub use dbanimator::{
     Ac2AssetBone, Ac2BoneTransform, Ac2Compositor, Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger,
     Ac2PoseInput, Ac2TrackTriggers, Ac2TrackerState, Ac2WeenieHook,
 };
+pub use fxscript::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};
 pub use setup::{Ac2Bone, Ac2Location, Ac2PlacementFrame, Ac2Setup, Ac2Transform};

@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 123 done, 13 partial, 449 to do, 48 skipped.
+633 retail functions: 123 done, 13 partial, 446 to do, 51 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -275,7 +275,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LookFile::~LookFile` · 004bfab0 · legions 004b3e50
 
 ### FxScript
-- [ ] `FxScript::GetDBOType` · 004bfb10
+- [-] `FxScript::GetDBOType` · 004bfb10 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### DiskConInitInfo
 - [ ] `DiskConInitInfo::~DiskConInitInfo` · 004bfb20 · legions 004b3ec0
@@ -299,8 +299,8 @@ Legend and workflow: [README](README.md).
 - [ ] `operator+` · 004bfc80 · legions 004b40c0
 
 ### FxScript
-- [ ] `FxScript::Allocator` · 004bfcd0
-- [ ] `FxScript::Allocate` · 004bfd30
+- [-] `FxScript::Allocator` · 004bfcd0 — editor text source / cache allocator (admin tools or Rust value type)
+- [-] `FxScript::Allocate` · 004bfd30 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### CThreadsafeDiskController
 - [ ] `CThreadsafeDiskController::InitFile` · 004bfd70 · legions 004b41b0

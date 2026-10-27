@@ -238,11 +238,14 @@ fn weight_at(keys: &[(f32, f32)], time: f32) -> f32 {
     (f * f64::from(keys[next].0) + (1.0 - f) * f64::from(keys[index].0)) as f32
 }
 
-/// `AnimInfo::StreamPack`.
-fn decode_info(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2AnimInfo, Malformed> {
-    let mut info = Ac2AnimInfo::default();
+/// The effect `Trigger` list (`FXNode::StreamPack` over `SmartArray<Trigger>`): a count, then
+/// each trigger. `AnimInfo` and `FxScript` both stream it this way.
+pub(crate) fn decode_effects(
+    cursor: &mut ArchiveCursor<'_>,
+) -> Result<Vec<Ac2AnimTrigger>, Malformed> {
+    let mut effects = Vec::new();
     for _ in 0..count(cursor, MAX_TRIGGERS, 28)? {
-        info.effects.push(Ac2AnimTrigger {
+        effects.push(Ac2AnimTrigger {
             fx: word(cursor)?,
             time: float(cursor)?,
             stop: word(cursor)? != 0,
@@ -252,6 +255,34 @@ fn decode_info(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2AnimInfo, Malformed>
             play: word(cursor)?,
         });
     }
+    Ok(effects)
+}
+
+/// The `ImpulseTrigger` list (`SmartArray<ImpulseTrigger>`): a count, then each impulse (a jump
+/// streams no velocity).
+pub(crate) fn decode_impulses(
+    cursor: &mut ArchiveCursor<'_>,
+) -> Result<Vec<Ac2ImpulseTrigger>, Malformed> {
+    let mut impulses = Vec::new();
+    for _ in 0..count(cursor, MAX_TRIGGERS, 12)? {
+        let jump = word(cursor)? != 0;
+        let impulse = if jump { [0.0; 3] } else { vec3(cursor)? };
+        impulses.push(Ac2ImpulseTrigger {
+            jump,
+            impulse,
+            num: word(cursor)?,
+            time: float(cursor)?,
+        });
+    }
+    Ok(impulses)
+}
+
+/// `AnimInfo::StreamPack`.
+fn decode_info(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2AnimInfo, Malformed> {
+    let mut info = Ac2AnimInfo {
+        effects: decode_effects(cursor)?,
+        ..Ac2AnimInfo::default()
+    };
     for _ in 0..count(cursor, MAX_TRIGGERS, 20)? {
         let hook_type = word(cursor)?;
         let hook_num = word(cursor)?;

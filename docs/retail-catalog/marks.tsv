@@ -2455,7 +2455,10 @@ key	status	note
 004bdd00	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 004bddb0	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 004bde10	-	Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
+004bfb10	-	editor text source / cache allocator (admin tools or Rust value type)
 004bfb90	x	
+004bfcd0	-	editor text source / cache allocator (admin tools or Rust value type)
+004bfd30	-	editor text source / cache allocator (admin tools or Rust value type)
 004bfeb0	~	ac2-weenie dat_iterations + session answer; internal.dat (slot 4) not opened; language id is configuration (EnumMapper 0x4000002A lookup not ported)
 004c00f0	~	the local_<name>.dat name (ac2_dat local_dat_for_language) at mount; the engine-only reload is not ported
 004c4ed0	x	
@@ -5649,6 +5652,14 @@ key	status	note
 0067def0	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 0067df60	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 00684b00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
+006859d0	x	ac2-anim fxscript.rs Ac2FxScript (decode, real-data test over the 22 DAT records)
+00685e20	-	editor text source / cache allocator (admin tools or Rust value type)
+00686360	-	editor text source / cache allocator (admin tools or Rust value type)
+006877a0	-	editor text source / cache allocator (admin tools or Rust value type)
+00688190	-	editor text source / cache allocator (admin tools or Rust value type)
+006884a0	-	editor text source / cache allocator (admin tools or Rust value type)
+006889e0	-	editor text source / cache allocator (admin tools or Rust value type)
+00688d60	-	editor text source / cache allocator (admin tools or Rust value type)
 00688fa0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689000	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689040	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate

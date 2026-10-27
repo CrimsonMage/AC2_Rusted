@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 107 done, 16 partial, 373 to do, 36 skipped.
+532 retail functions: 108 done, 16 partial, 367 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (3/67)
@@ -844,16 +844,16 @@ Legend and workflow: [README](README.md).
 - [ ] `DBAnimator::Allocate` · 0067a5a0
 - [ ] `DBAnimator::StreamPack` · 0067a5f0 · legions 00624040
 
-## `portal/shared/src/animsys/fxscript.cpp.c` (0/16)
+## `portal/shared/src/animsys/fxscript.cpp.c` (1/16)
 
 ### FxScript
-- [ ] `FxScript::StreamPack` · 006859d0 · legions 00628970
+- [x] `FxScript::StreamPack` · 006859d0 · legions 00628970 — ac2-anim fxscript.rs Ac2FxScript (decode, real-data test over the 22 DAT records)
 
 ### PetInfo
 - [ ] `PetInfo::operator=` · 00685a40 · legions 00418c10
 
 ### FxScript
-- [ ] `FxScript::ParsePeriodNode` · 00685e20
+- [-] `FxScript::ParsePeriodNode` · 00685e20 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### SmartArray<ImpulseTrigger>
 - [ ] `SmartArray<ImpulseTrigger>::operator=` · 00685e50 · legions 00628d60
@@ -862,7 +862,7 @@ Legend and workflow: [README](README.md).
 - [ ] `Trigger::Trigger` · 00685ee0 · legions 00628df0
 
 ### FxScript
-- [-] `FxScript::ToFileNode` · 00686360 — text source format (admin tools)
+- [-] `FxScript::ToFileNode` · 00686360 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### ParseHelper<EmpGenParse>
 - [ ] `ParseHelper<EmpGenParse>::Parse` · 00686db0 · legions 006b63b0
@@ -874,17 +874,17 @@ Legend and workflow: [README](README.md).
 - [ ] `SmartArray<ImpulseTrigger>::AddToEnd` · 006874d0 · legions 00629300
 
 ### FxScript
-- [ ] `FxScript::CopyInto` · 006877a0 · legions 006295d0
+- [-] `FxScript::CopyInto` · 006877a0 · legions 006295d0 — editor text source / cache allocator (admin tools or Rust value type)
 
 ### SmartArray<Trigger>
 - [ ] `SmartArray<Trigger>::AddToEnd` · 006877f0 · legions 00629620
 
 ### FxScript
 - [ ] `FxScript::GetTriggers` · 00687be0 · legions 00629a10
-- [ ] `FxScript::ParseImpulseNode` · 00688190
-- [ ] `FxScript::ParseEffectsNode` · 006884a0
-- [ ] `FxScript::ParseStopEffectsNode` · 006889e0
-- [-] `FxScript::FromFileNode` · 00688d60 — text source format (admin tools)
+- [-] `FxScript::ParseImpulseNode` · 00688190 — editor text source / cache allocator (admin tools or Rust value type)
+- [-] `FxScript::ParseEffectsNode` · 006884a0 — editor text source / cache allocator (admin tools or Rust value type)
+- [-] `FxScript::ParseStopEffectsNode` · 006889e0 — editor text source / cache allocator (admin tools or Rust value type)
+- [-] `FxScript::FromFileNode` · 00688d60 — editor text source / cache allocator (admin tools or Rust value type)
 
 ## `portal/shared/src/animsys/fxscripttracker.cpp.c` (0/7)
 
