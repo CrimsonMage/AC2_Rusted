@@ -2696,13 +2696,13 @@ key	status	note
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00482460	_	needs port: indoor env cell: visibility, lights, portals, rendering
 004825c0	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00482710	_	needs port: indoor env cell: visibility, lights, portals, rendering
+00482710	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
 00482a80	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00482b40	-	SmartArray container operation (Vec replaces it)
 00482c10	_	needs port: FileNode accessors (used by FromFileNode loaders; confirm DAT path)
 00482c30	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00482c40	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00482c80	_	needs port: indoor env cell: visibility, lights, portals, rendering
+00482c80	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
 00482d00	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00482da0	x	crates/ac2-world/src/ac2_env_cell.rs module decode in CEnvCell::StreamPack order
 00483190	-	SmartArray container operation (Vec replaces it)
@@ -5463,7 +5463,7 @@ key	status	note
 00506b00	-	admin/debug or text-file tooling
 00506be0	-	admin/debug or text-file tooling
 00507010	_	needs port: FX manager effect
-00507650	~	ac2-client client_audio.rs StopFx destroys the looping systems by handle (non-looping systems run out); FX lights and the fade of the FX's objects are still not stopped here
+00507650	~	ac2-client client_audio.rs stop_fx destroys the FX's looping particle systems by handle and stops its looping sounds (non-looping systems run out). Retail does not stop the FX's lights: a CPartArray LightSourceInstance carries no FX id, so each runs out by its lifespan (tests/fx_light_7160.rs stop_fx_leaves_the_startup_light_running). Still not ported: the FX objects DoCreateObjectFX made (m_object_ids: FadeAndDestroyObject 0.5 s, 3.0 s), the unhide of m_objects_to_unhide, and the restore colours
 00507d10	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00507db0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 00507df0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated

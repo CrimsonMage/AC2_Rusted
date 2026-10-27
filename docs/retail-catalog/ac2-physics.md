@@ -1306,7 +1306,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [ ] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — needs port: FX manager effect
-- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client client_audio.rs StopFx destroys the looping systems by handle (non-looping systems run out); FX lights and the fade of the FX's objects are still not stopped here
+- [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-client client_audio.rs stop_fx destroys the FX's looping particle systems by handle and stops its looping sounds (non-looping systems run out). Retail does not stop the FX's lights: a CPartArray LightSourceInstance carries no FX id, so each runs out by its lifespan (tests/fx_light_7160.rs stop_fx_leaves_the_startup_light_running). Still not ported: the FX objects DoCreateObjectFX made (m_object_ids: FadeAndDestroyObject 0.5 s, 3.0 s), the unhide of m_objects_to_unhide, and the restore colours
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated

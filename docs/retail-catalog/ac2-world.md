@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 181 done, 15 partial, 341 to do, 452 skipped.
+989 retail functions: 181 done, 17 partial, 339 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (18/140)
@@ -140,7 +140,7 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubObjects` · 00482460 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [ ] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — needs port: indoor env cell: visibility, lights, portals, rendering
+- [~] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
 - [ ] `CEnvCell::UpdateCellMaterial` · 00482a80 — needs port: indoor env cell: visibility, lights, portals, rendering
 
 ### SmartArray<CCellPortal>
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 ### CEnvCell
 - [-] `CEnvCell::Allocate` · 00482c30 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CEnvCell::Allocator` · 00482c40 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CEnvCell::DynamicLightVisibleCells` · 00482c80 · legions 0047cb20 — needs port: indoor env cell: visibility, lights, portals, rendering
+- [~] `CEnvCell::DynamicLightVisibleCells` · 00482c80 · legions 0047cb20 — Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
 - [ ] `CEnvCell::find_in_visible_cells` · 00482d00 · legions 0047cba0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [x] `CEnvCell::StreamPack` · 00482da0 — crates/ac2-world/src/ac2_env_cell.rs module decode in CEnvCell::StreamPack order
 
