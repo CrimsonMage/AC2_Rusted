@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1454 done, 111 partial, 573 to do, 330 skipped.
+2468 retail functions: 1470 done, 120 partial, 544 to do, 334 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1412,44 +1412,44 @@ Legend and workflow: [README](README.md).
 - [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (0/33)
+## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (16/33)
 
 ### BaseProperty
 - [ ] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0 — needs port: BaseProperty InqStringW (weenie property string)
 - [ ] `BaseProperty::SetStringW` · 0054b430 · legions 005293a0 — needs port: BaseProperty SetStringW (weenie property string)
 
 ### gBaseProperty
-- [ ] `gBaseProperty::CallEFun_GetGroupName` · 0054b480 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_GetPropertyName` · 0054b4f0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_GetPropertyType` · 0054b560 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [~] `gBaseProperty::CallEFun_GetGroupName` · 0054b480 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_GetPropertyName` · 0054b4f0 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_GetPropertyType` · 0054b560 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
 - [ ] `gBaseProperty::CallEFun_IsDefaultValue` · 0054b5d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
 - [ ] `gBaseProperty::CallEFun_IsReportedToWeenie` · 0054b640 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetBool` · 0054b6b0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetDataID` · 0054b740 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetFloat` · 0054b860 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetInteger` · 0054b8f0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetPackageID` · 0054ba10 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetStringW` · 0054bcc0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_SetVector` · 0054bd40 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqBool` · 0054bdd0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqDataID` · 0054be90 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqEnum` · 0054bf50 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqFloat` · 0054c010 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqPackageID` · 0054c250 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-- [ ] `gBaseProperty::CallEFun_InqVector` · 0054c650 — needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+- [x] `gBaseProperty::CallEFun_SetBool` · 0054b6b0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_SetDataID` · 0054b740 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_SetFloat` · 0054b860 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_SetInteger` · 0054b8f0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [-] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [x] `gBaseProperty::CallEFun_SetPackageID` · 0054ba10 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [-] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [~] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+- [x] `gBaseProperty::CallEFun_SetStringW` · 0054bcc0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_SetVector` · 0054bd40 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqBool` · 0054bdd0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqDataID` · 0054be90 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqEnum` · 0054bf50 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqFloat` · 0054c010 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [-] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [x] `gBaseProperty::CallEFun_InqPackageID` · 0054c250 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [-] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [~] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+- [~] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+- [x] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
+- [x] `gBaseProperty::CallEFun_InqVector` · 0054c650 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 
 ## `portal/shared/src/interp/glue/gbehaviorparams.cpp.c` (26/27)
 

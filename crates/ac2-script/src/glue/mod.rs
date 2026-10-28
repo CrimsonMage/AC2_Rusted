@@ -12,6 +12,7 @@
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
 mod act_info;
+mod base_property;
 mod behavior;
 mod chargen;
 mod collision;
@@ -74,6 +75,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     wlog::register(efuns);
     random::register(efuns);
     behavior::register(efuns);
+    base_property::register(efuns);
     collision::register(efuns);
     missile::register(efuns);
     math::register(efuns);
@@ -225,5 +227,7 @@ pub(crate) fn narrow(text: &[u16]) -> Vec<u8> {
 /// The tag glue writes on int results.
 pub(crate) const INT_RESULT: u8 = tag::BOOL;
 
+#[cfg(test)]
+mod base_property_tests;
 #[cfg(test)]
 mod tests;
