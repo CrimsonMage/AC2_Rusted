@@ -241,8 +241,8 @@ impl UiTree {
     fn scrollbar_page_press(&mut self, index: usize, widget: usize, at: (i32, i32)) {
         let w = self.screen_box(widget);
         let presses = [
-            (false, at.0 < w.x0, at.0 >= w.x1 + 1),
-            (true, at.1 < w.y0, at.1 >= w.y1 + 1),
+            (false, at.0 < w.x0, at.0 > w.x1),
+            (true, at.1 < w.y0, at.1 > w.y1),
         ];
         for (vertical, before, after) in presses {
             if before || after {
