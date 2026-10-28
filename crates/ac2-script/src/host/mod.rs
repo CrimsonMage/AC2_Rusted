@@ -23,6 +23,7 @@ pub mod port;
 pub mod queries;
 pub mod radar;
 mod skill_panel;
+pub mod ui_calls;
 
 use std::collections::HashMap;
 use std::sync::Arc;

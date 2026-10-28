@@ -498,16 +498,10 @@ impl Client {
             .is_some_and(|s| s.no_draw.contains(&id))
     }
 
-    /// Whether the UI's IFun (or server call) `function` is the script VM's.
-    pub(crate) fn scripts_own(&self, function: u32) -> bool {
-        self.scripts
-            .as_ref()
-            .is_some_and(|s| s.owned.contains(&function))
-            && self.session.player().is_some_and(|p| {
-                self.scripts
-                    .as_ref()
-                    .is_some_and(|s| s.running.contains(&p))
-            })
+    /// Whether the UI's IFun (or server call) `function` is the script VM's
+    /// (`ac2_script::host::ui_calls::scripts_own`).
+    pub(crate) fn scripts_own(&mut self, function: u32) -> bool {
+        ac2_script::host::ui_calls::scripts_own(self, function)
     }
 
     /// `ggmCWInterface::CallIFun_*`: the IFun on the player's process (a 0 return slot, the

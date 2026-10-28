@@ -4,8 +4,9 @@
 //! stopped for, handed to the loader threads. Also the UI's entries into the VM: IFun calls
 //! (`ggmCWInterface::CallIFun_*`) and the skill panels (`gSkillPanelManager`).
 
+use ac2_script::host::ui_calls;
 use ac2_script::host::{
-    ChatRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptNotice, SkillPanelData,
+    ChatRequest, DispatchOutcome, IFunArg, IFunResult, ScriptNotice, SkillPanelData,
 };
 use ac2_weenie::SessionEvent;
 
@@ -84,42 +85,14 @@ impl Client {
         args: &[IFunArg],
         out: &mut Vec<SessionEvent>,
     ) -> Result<IFunResult, String> {
-        self.ifun_return_into(function, args, IFunReturn::Word, out)
-    }
-
-    /// [`Client::ifun_into`] with the return slot's shape (`ulong64 *retval` takes two words).
-    pub(crate) fn ifun_return_into(
-        &mut self,
-        function: u32,
-        args: &[IFunArg],
-        ret: IFunReturn,
-        out: &mut Vec<SessionEvent>,
-    ) -> Result<IFunResult, String> {
-        let player = self.session.player().ok_or("no player")?;
-        let scripts = self.scripts.as_mut().ok_or("no script VM")?;
-        let result = scripts
-            .host
-            .query(player, function, args, ret)
-            .map_err(|e| format!("{e:?}"));
-        let outcome = result
-            .as_ref()
-            .map(|r| r.outcome.clone())
-            .map_err(Clone::clone);
-        self.script_outcome(player, None, outcome, out);
-        result
+        ui_calls::ifun_into(self, function, args, out)
     }
 
     /// A UI call into the player's script (`ggmCWInterface::CallIFun_*`: `function` with
-    /// `args`, e.g. `SetSelection` 0xB40002 with the object's id). Its server calls go out now;
-    /// its notices join the next frame's events. A call that stops for data finishes when the
-    /// data lands, and its `retval` is then not read.
+    /// `args`, e.g. `SetSelection` 0xB40002 with the object's id). See
+    /// `ac2_script::host::ui_calls::call_ifun`.
     pub fn call_ifun(&mut self, function: u32, args: &[IFunArg]) -> Result<IFunResult, String> {
-        let mut out = Vec::new();
-        let result = self.ifun_into(function, args, &mut out);
-        if let Some(scripts) = self.scripts.as_mut() {
-            scripts.produced.extend(out);
-        }
-        result
+        ui_calls::call_ifun(self, function, args)
     }
 
     /// `gSkillPanelManager`'s data for skill panel `panel` (`gmSkillTreeUI::LoadPanel`): its

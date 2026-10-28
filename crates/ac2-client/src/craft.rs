@@ -73,31 +73,13 @@ impl Client {
         args: &[IFunArg],
         ret: IFunReturn,
     ) -> Option<IFunResult> {
-        if !self.scripts_own(function) {
-            return None;
-        }
-        let mut produced = Vec::new();
-        let result = self
-            .ifun_return_into(function, args, ret, &mut produced)
-            .ok()?;
-        if let Some(scripts) = self.scripts.as_mut() {
-            scripts.produced.extend(produced);
-        }
-        Some(result)
+        ac2_script::host::ui_calls::script_query(self, function, args, ret)
     }
 
     /// A request's IFun on the player's script (a craft or skill request): its stub sends the
-    /// request; the events it raised come back.
+    /// request; the events it raised come back (`ui_calls::script_request`).
     pub(crate) fn script_request(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
-        let mut out = Vec::new();
-        if self.scripts_own(function) {
-            if let Err(e) = self.ifun_into(function, args, &mut out) {
-                if let Some(scripts) = self.scripts.as_mut() {
-                    scripts.problems.push(e);
-                }
-            }
-        }
-        out
+        ac2_script::host::ui_calls::script_request(self, function, args)
     }
 
     /// `gmCWInterface::InqCraftSkillList`: the player's craft skills, from the script.
