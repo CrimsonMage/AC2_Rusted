@@ -9,7 +9,7 @@ key	status	note
 00401810	-	engine factory: Rust builds the subsystems directly
 00401830	-	engine factory: Rust builds the subsystems directly
 00401850	_	needs port: notice handler::recv notice char gen verification; no citation in crates/
-00401860	_	needs port: notice handler::recv notice display admin string info; no citation in crates/
+00401860	-	admin-only: admin string info display (no admin tools in the client)
 00401870	-	admin/debug/logging tooling: not in the client
 00401880	_	needs port: notice handler::recv notice character set; no citation in crates/
 00401890	-	engine factory: Rust builds the subsystems directly
@@ -2940,13 +2940,13 @@ key	status	note
 00492be0	-	singleton accessor: Rust owns the handler directly
 00492bf0	x	implemented: cited at crates/ac2-weenie/src/session.rs:173
 00492c10	~	ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
-00492c20	_	needs port: server event CharacterSet (decode and handler); no citation in crates/
+00492c20	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00492c40	_	needs port: server event CharacterDeletion (decode and handler); no citation in crates/
-00492c60	_	needs port: server event CharacterError (decode and handler); no citation in crates/
+00492c60	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00492c90	_	needs port: server event CharGenVerification (decode and handler); no citation in crates/
 00492cb0	x	implemented: cited at crates/ac2-weenie/src/world.rs:377
-00492ce0	_	needs port: server event CreateObject (decode and handler); no citation in crates/
-00492d20	_	needs port: server event DestroyObject (decode and handler); no citation in crates/
+00492ce0	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
+00492d20	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00492d40	x	implemented: cited at crates/ac2-weenie/src/session.rs:166
 00492d90	x	implemented: cited at crates/ac2-net/src/protocol/string_info.rs:140
 00492db0	-	STL/container internals: a Rust collection replaces it
@@ -2965,7 +2965,7 @@ key	status	note
 00493320	-	admin/debug/logging tooling: not in the client
 004933b0	~	ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 004933c0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:17
-00493410	_	needs port: citation only in a test; port and cite in the client code
+00493410	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00493460	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:31
 00493500	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:35
 00493520	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:29
@@ -3005,7 +3005,7 @@ key	status	note
 00494f30	_	needs port: server event ClearTerrainModifiers (decode and handler); no citation in crates/
 00494fb0	x	ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
 00495060	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:95
-00495100	_	needs port: server event DeParent (decode and handler); no citation in crates/
+00495100	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 004951f0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:139
 00495260	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00495360	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
@@ -3014,12 +3014,12 @@ key	status	note
 00495620	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:130
 00495710	~	sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
 00495850	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:133
-00495a00	_	needs port: server event LeaveWorld (decode and handler); no citation in crates/
+00495a00	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00495ac0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:115
 00495b80	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:147
-00495c80	_	needs port: server event Parent (decode and handler); no citation in crates/
+00495c80	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00495da0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:103
-00495ea0	_	needs port: server event PositionCell (decode and handler); no citation in crates/
+00495ea0	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00495fa0	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 00496060	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 00496120	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
@@ -3032,7 +3032,7 @@ key	status	note
 00496620	x	ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 004966e0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 004967a0	x	ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-00496820	_	needs port: server event UpdateVisualDesc (decode and handler); no citation in crates/
+00496820	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00496910	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:108
 00496980	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:143
 004969f0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:145

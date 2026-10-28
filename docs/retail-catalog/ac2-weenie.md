@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 755 done, 171 partial, 468 to do, 510 skipped.
+1904 retail functions: 765 done, 171 partial, 457 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -12,7 +12,7 @@ Legend and workflow: [README](README.md).
 
 ### NoticeHandler
 - [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — needs port: notice handler::recv notice char gen verification; no citation in crates/
-- [ ] `NoticeHandler::RecvNotice_DisplayAdminStringInfo` · 00401860 · legions 00401b50 — needs port: notice handler::recv notice display admin string info; no citation in crates/
+- [-] `NoticeHandler::RecvNotice_DisplayAdminStringInfo` · 00401860 · legions 00401b50 — admin-only: admin string info display (no admin tools in the client)
 
 ### ArgumentParser
 - [-] `ArgumentParser::FinishOutputText` · 00401870 · legions 006af780 — admin/debug/logging tooling: not in the client
@@ -1353,12 +1353,12 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:58
 - [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:66
 
-## `portal/client/src/events/ecm_login.cpp.c` (8/21)
+## `portal/client/src/events/ecm_login.cpp.c` (9/21)
 
 ### ECM_Login
 - [~] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 - [x] `ECM_Login::RecvEvt_CharacterDeletion` · 004933c0 · legions 0048be10 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:17
-- [ ] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60 — needs port: citation only in a test; port and cite in the client code
+- [x] `ECM_Login::RecvEvt_CharacterError` · 00493410 · legions 0048be60 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Login::RecvEvt_PlayerDesc` · 00493460 · legions 0048beb0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:31
 - [x] `ECM_Login::SendEvt_ClientSceneRenderingComplete` · 00493500 · legions 0048bf50 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:35
 - [x] `ECM_Login::RecvEvt_CharGenVerification` · 00493520 · legions 0048bf70 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:29
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [-] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0 — STL/container internals: a Rust collection replaces it
 
-## `portal/client/src/events/ecm_physics.cpp.c` (37/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (42/59)
 
 ### TargetPosition
 - [-] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400 — constructor of plain data: Rust struct init replaces it
@@ -1401,7 +1401,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700 — needs port: server event ClearTerrainModifiers (decode and handler); no citation in crates/
 - [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
 - [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:95
-- [ ] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0 — needs port: server event DeParent (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Physics::RecvEvt_DestroyObject` · 004951f0 · legions 0048d9c0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:139
 - [x] `ECM_Physics::RecvEvt_DoFX` · 00495260 · legions 0048da30 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_DoFXScript` · 00495360 · legions 0048db30 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
@@ -1410,12 +1410,12 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_DoStory` · 00495620 · legions 0048ddf0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:130
 - [~] `ECM_Physics::RecvEvt_DoTargettedFX` · 00495710 · legions 0048dee0 — sound branch only: the target is ignored (FXManager::DoTargettedFX sound path = untargeted DoFX); the targeted visual part is not drawn
 - [x] `ECM_Physics::RecvEvt_InitializeMissile` · 00495850 · legions 0048e020 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:133
-- [ ] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0 — needs port: server event LeaveWorld (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_LeaveWorld` · 00495a00 · legions 0048e1d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Physics::RecvEvt_LookAt` · 00495ac0 · legions 0048e290 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:115
 - [x] `ECM_Physics::RecvEvt_LookAtDir` · 00495b80 · legions 0048e350 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:147
-- [ ] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450 — needs port: server event Parent (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_Parent` · 00495c80 · legions 0048e450 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Physics::RecvEvt_Position` · 00495da0 · legions 0048e570 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:103
-- [ ] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670 — needs port: server event PositionCell (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_PositionCell` · 00495ea0 · legions 0048e670 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Physics::RecvEvt_SetAccelerationScale` · 00495fa0 · legions 0048e770 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_SetGlobalModifier` · 00496060 · legions 0048e830 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `ECM_Physics::RecvEvt_SetHoverHeight` · 00496120 · legions 0048e8f0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
@@ -1428,7 +1428,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::RecvEvt_StopFX` · 00496620 · legions 0048edf0 — ac2-client motion.rs apply -> ac2-physics body.rs (set_velocity_scale, set_acceleration_scale, set_jump_scale, set_hover_height, do_fx, stop_fx; FX as StartFx/StopFx animation events for the FX sound part); ac2-net physics_event.rs decode; tests: motion_tests, physics_obj_tests, physics_event tests
 - [x] `ECM_Physics::RecvEvt_StopLayer` · 004966e0 · legions 0048eeb0 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
 - [x] `ECM_Physics::RecvEvt_StopMoveToCancelsBehaviors` · 004967a0 · legions 0048ef70 — ac2-client motion.rs apply (CPhysicsObj::RecvEvt_* on the player and remote bodies); motion_tests modes_behaviours_and_layers_reach_the_body, a_death_behavior_lays_the_body_in_the_dead_mode, only_the_player_moves_to
-- [ ] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0 — needs port: server event UpdateVisualDesc (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_UpdateVisualDesc` · 00496820 · legions 0048eff0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `ECM_Physics::SendEvt_CForceCreate` · 00496910 · legions 0048f0e0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:108
 - [x] `ECM_Physics::SendEvt_CLookAt` · 00496980 · legions 0048f150 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:143
 - [x] `ECM_Physics::SendEvt_CLookAtDir` · 004969f0 · legions 0048f1c0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:145
@@ -1489,19 +1489,19 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 
-## `portal/client/src/events/globaleventhandler.cpp.c` (4/21)
+## `portal/client/src/events/globaleventhandler.cpp.c` (8/21)
 
 ### GlobalEventHandler
 - [-] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590 — singleton accessor: Rust owns the handler directly
 - [x] `GlobalEventHandler::RecvEvt_AccountBooted` · 00492bf0 · legions 0048b5a0 — implemented: cited at crates/ac2-weenie/src/session.rs:173
 - [~] `GlobalEventHandler::RecvEvt_CharExitGame` · 00492c10 · legions 0048b5c0 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
-- [ ] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0 — needs port: server event CharacterSet (decode and handler); no citation in crates/
+- [x] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0 — needs port: server event CharacterDeletion (decode and handler); no citation in crates/
-- [ ] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610 — needs port: server event CharacterError (decode and handler); no citation in crates/
+- [x] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — needs port: server event CharGenVerification (decode and handler); no citation in crates/
 - [x] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660 — implemented: cited at crates/ac2-weenie/src/world.rs:377
-- [ ] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690 — needs port: server event CreateObject (decode and handler); no citation in crates/
-- [ ] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0 — needs port: server event DestroyObject (decode and handler); no citation in crates/
+- [x] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
+- [x] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `GlobalEventHandler::RecvEvt_DisplayStringInfo` · 00492d40 · legions 0048b6f0 — implemented: cited at crates/ac2-weenie/src/session.rs:166
 - [x] `GlobalEventHandler::RecvEvt_WorldName` · 00492d90 · legions 0048b740 — implemented: cited at crates/ac2-net/src/protocol/string_info.rs:140
 
