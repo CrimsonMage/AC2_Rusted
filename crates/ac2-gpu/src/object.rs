@@ -36,6 +36,10 @@ mod shadow;
 #[path = "object_stream_tests.rs"]
 mod stream_tests;
 
+#[cfg(test)]
+#[path = "streak_strip_tests.rs"]
+mod streak_strip_tests;
+
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 struct GpuVertex {
