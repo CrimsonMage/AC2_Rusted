@@ -14,14 +14,14 @@ use crate::physics_material::PhysicsMaterial;
 use crate::vector::Vector;
 
 use super::{
-    PhysicsObj, CONTACT_TS, LANDSCAPE_CONTACT_TS, ON_WALKABLE_TS, SLIDING_TS, STATIONARY_FALL_TS,
-    STATIONARY_STOP_TS, STATIONARY_STUCK_TS,
+    PhysicsObj, CONTACT_TS, LANDSCAPE_CONTACT_TS, MISC_ACTIVE_TS, ON_WALKABLE_TS, SLIDING_TS,
+    STATIONARY_FALL_TS, STATIONARY_STOP_TS, STATIONARY_STUCK_TS,
 };
 
-/// `TransientState` bits: `MOVEMENT_ACTIVE_TS`, `ANIMATION_ACTIVE_TS`, `MISC_ACTIVE_TS`.
+/// `TransientState` bits: `MOVEMENT_ACTIVE_TS`, `ANIMATION_ACTIVE_TS` (`MISC_ACTIVE_TS` is in
+/// `physics_obj`).
 pub(crate) const MOVEMENT_ACTIVE_TS: u32 = 0x80;
 pub(crate) const ANIMATION_ACTIVE_TS: u32 = 0x100;
-pub(crate) const MISC_ACTIVE_TS: u32 = 0x200;
 /// `TransientState` water contact (`contact_is_water`).
 const WATER_TS: u32 = 0x8;
 /// The property `CPhysicsObj::UpdateGravity` reads from a cell's material: a gravity vector.
@@ -109,7 +109,7 @@ impl PhysicsObj {
     /// `CPhysicsObj::movement_can_be_inactive`. A body in the world, mobile and without a
     /// parent stays active while any velocity, acceleration, omega or external field is not
     /// negligible, or a move-to, turn-to or interpolation runs; one with a missile manager
-    /// never rests. (`m_vVelocityField` and `m_vAccelerationField` are not modelled: zero.)
+    /// never rests.
     pub(crate) fn movement_can_be_inactive(
         &self,
         in_world: bool,
@@ -126,6 +126,8 @@ impl PhysicsObj {
             && at_rest(self.acceleration)
             && at_rest(self.omega)
             && at_rest(self.omega_acceleration)
+            && at_rest(self.velocity_field)
+            && at_rest(self.acceleration_field)
             && at_rest(self.external_field);
         if !still {
             return false;

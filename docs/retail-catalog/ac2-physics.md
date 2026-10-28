@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 682 done, 151 partial, 482 to do, 809 skipped.
+2124 retail functions: 734 done, 153 partial, 426 to do, 811 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1116,20 +1116,20 @@ Legend and workflow: [README](README.md).
 ### ProfileListType
 - [-] `ProfileListType::ProfileListType` · 006a2d40 · legions 0063fc20 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (3/6)
+## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (1/6)
 
 ### EtherealPhysicsType
 - [x] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 - [ ] `EtherealPhysicsType::UpdateEthereality` · 006a4510 · legions 00641470 — needs port: ethereal/collision parameter state
-- [x] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+- [ ] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [ ] `EtherealPhysicsType::SetCameraEthereal` · 006a45e0 · legions 00641540 — needs port: ethereal/collision parameter state
-- [x] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+- [ ] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [-] `EtherealPhysicsType::EtherealPhysicsType` · 006a4690 · legions 006415f0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (9/14)
+## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (8/14)
 
 ### EtherealWeenieType
-- [x] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+- [~] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [x] `EtherealWeenieType::SetToSolid` · 006a46c0 · legions 00641620 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `EtherealWeenieType::NeedLOSCheck` · 006a46d0 · legions 00641630 — needs port: ethereal/collision parameter state
 - [x] `EtherealWeenieType::FindInEtherealList` · 006a46f0 · legions 00641650 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (27/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (29/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2028,7 +2028,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::ApplyMaterialModifier` · 004ee9f0 · legions 004e1350 — ac2-render object/model.rs load_object_model_with
 - [-] `CPartArray::RemoveMaterialModifiers` · 004eea40 · legions 004e13a0 — render plumbing
 - [-] `CPartArray::CacheAnimations` · 004eea70 · legions 004e13d0 — render plumbing
-- [ ] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+- [x] `CPartArray::HasHoldingLocation` · 004eea80 · legions 004e13e0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [x] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — ac2-assets ac2_drawn_groups.rs rest_named_bones (the same search as ObjectSkeleton::named_bones; cross-checked against it in ac2-render fx_bone_tests)
 - [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
@@ -2049,7 +2049,7 @@ Legend and workflow: [README](README.md).
 ### CPartArray
 - [-] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — render plumbing
 - [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-- [~] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-physics held.rs find_holding_point over GroupHolding (the holder's Setup holding lists in CPartGroup search order, loaded on the loader thread, ac2-client world_data); the object's posed bone is read by the client view
+- [x] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 
 ### SmartArray<PSystemInstance>
 - [-] `SmartArray<PSystemInstance>::AddToEnd` · 004f0190 · legions 004e2ad0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -2074,7 +2074,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (14/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (16/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00 — needs port: cite-only physics-object method
@@ -2103,8 +2103,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPartGroup::BuildDefaultRenderBoundingBox` · 004f5070 · legions 004e7890 — render plumbing
 - [ ] `CPartGroup::CacheHasPhysicsBSP` · 004f50c0 · legions 004e78e0 — needs port: cite-only physics-object method
 - [x] `CPartGroup::FindObjCollisions` · 004f5110 · legions 004e7930 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CPartGroup::HasHoldingLocation` · 004f5180 · legions 004e79a0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
-- [ ] `CPartGroup::GetHoldingLocation` · 004f51f0 · legions 004e7a10 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+- [x] `CPartGroup::HasHoldingLocation` · 004f5180 · legions 004e79a0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+- [x] `CPartGroup::GetHoldingLocation` · 004f51f0 · legions 004e7a10 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [-] `CPartGroup::CacheAnimations` · 004f5270 · legions 004e7a90 — render plumbing
 - [ ] `CPartGroup::FindMatrixForBoneType` · 004f52b0 · legions 004e7ad0 — needs port: cite-only physics-object method
 - [x] `CPartGroup::FindBoneType` · 004f5320 · legions 004e7b40 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (191/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (228/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2247,15 +2247,15 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::IsDoingBehavior` · 004de9c0 — ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 - [x] `CPhysicsObj::GetSliderCurrentValue` · 004de9d0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::GetSliderDesiredValue` · 004de9e0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-- [ ] `CPhysicsObj::GetStandardMotionValues` · 004dea00 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [x] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+- [x] `CPhysicsObj::GetStandardMotionValues` · 004dea00 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 - [x] `CPhysicsObj::IsMovingTo` · 004dea10 · legions 004d1470 — CPhysicsObj::IsMovingTo - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::InterruptMoveTo` · 004dea20 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::GetLastDoMotionValues` · 004dea30 — ac2-physics PhysicsBody::last_do_motion_values (CMotionInterp last do-motion vector)
+- [x] `CPhysicsObj::GetLastDoMotionValues` · 004dea30 — ac2-physics PhysicsBody::last_do_motion_values
 - [ ] `CPhysicsObj::GetRemoteDoMotionValues` · 004dea50 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-- [ ] `CPhysicsObj::GetMotionInterpreter` · 004deab0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-- [ ] `CPhysicsObj::GetModeTracker` · 004deac0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [x] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+- [x] `CPhysicsObj::GetMotionInterpreter` · 004deab0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+- [x] `CPhysicsObj::GetModeTracker` · 004deac0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 - [x] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690 — ac2-physics interp (slice 3)
@@ -2349,7 +2349,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::get_vector_heading` · 004e0b10 — ac2-physics body_access.rs PhysicsBody::vector_heading / heading
 - [x] `CPhysicsObj::calc_heading` · 004e0b30 — ac2-physics body_access.rs PhysicsBody::calc_heading over Position::heading_to
 - [ ] `CPhysicsObj::HasBoneType` · 004e0b50 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+- [x] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, ac2-physics fx_follow.rs follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
 - [x] `CPhysicsObj::set_parent` · 004e0c00 · legions 004d3660 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_parent` · 004e0ca0 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2360,8 +2360,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetOpacity` · 004e0e00 — render plumbing
 - [x] `CPhysicsObj::GetParticleScale` · 004e0e10 · legions 004d3870 — CPhysicsObj::GetParticleScale - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::SetPhysicsContainmentRadius` · 004e0e30 · legions 004d3890 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CPhysicsObj::movement_can_be_inactive` · 004e0e90 · legions 004d38f0 — ac2-physics PhysicsBody::movement_can_be_inactive / misc_can_be_inactive; m_vVelocityField and m_vAccelerationField are not modelled (zero); missile/detection/collision-manager answers are passed in by the caller
-- [ ] `CPhysicsObj::animation_can_be_inactive` · 004e1150 — ac2-physics PhysicsBody::animation_can_be_inactive (not in the world's lists)
+- [x] `CPhysicsObj::movement_can_be_inactive` · 004e0e90 · legions 004d38f0 — ac2-physics PhysicsBody::movement_can_be_inactive (velocity, acceleration, omega, pusher fields, external field, move-to, turn-to, interpolation); has_parent and missile answers passed in
+- [x] `CPhysicsObj::animation_can_be_inactive` · 004e1150 — ac2-physics PhysicsBody::animation_can_be_inactive (not in the world's lists)
 - [x] `CPhysicsObj::set_movement_active` · 004e1170 · legions 004d3bd0 — CPhysicsObj::set_movement_active - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::set_animation_active` · 004e11f0 · legions 004d3c50 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [-] `CPhysicsObj::set_misc_active` · 004e1250 · legions 004d3cb0 — state-bit flag accessor
@@ -2391,18 +2391,18 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::set_state` · 004e17a0 — state-bit flag accessor
 - [ ] `CPhysicsObj::ReApplyPropertyCollection` · 004e1810 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::ApplyEtherealProperty` · 004e1820 · legions 004d4280 — value read from the bool getter; bit set only when true (SetBit)
-- [ ] `CPhysicsObj::ApplyRenderProperty` · 004e1880 · legions 004d42e0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-- [ ] `CPhysicsObj::ApplyPhysicsProperty` · 004e1a40 · legions 004d44a0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-- [ ] `CPhysicsObj::ApplyPusherProperty` · 004e1ad0 · legions 004d4530 — ac2-physics physics_obj_property.rs: kept; pusher values belong to the collision manager (UpdatePusherValues), returns false as retail
-- [ ] `CPhysicsObj::ApplyGameplayProperty` · 004e1b30 · legions 004d4590 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+- [x] `CPhysicsObj::ApplyRenderProperty` · 004e1880 · legions 004d42e0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+- [x] `CPhysicsObj::ApplyPhysicsProperty` · 004e1a40 · legions 004d44a0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+- [~] `CPhysicsObj::ApplyPusherProperty` · 004e1ad0 · legions 004d4530 — ac2-physics physics_obj_property.rs: kept; pusher values are the touched object's CollidePropertyList (CCollisionManager::AddPusherProperties), so nothing applies here, returns false as retail
+- [x] `CPhysicsObj::ApplyGameplayProperty` · 004e1b30 · legions 004d4590 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 - [ ] `CPhysicsObj::BuildOptionalProperties` · 004e1b80 · legions 004d45e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetObjectProperties` · 004e1bf0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::InqCurrentProperties` · 004e1c30 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
-- [ ] `CPhysicsObj::InqCurrentProperty` · 004e1c60 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+- [~] `CPhysicsObj::InqCurrentProperties` · 004e1c30 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+- [~] `CPhysicsObj::InqCurrentProperty` · 004e1c60 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
 - [~] `CPhysicsObj::get_object_info` · 004e1c90 · legions 004d46f0 — no admin moves or missiles
 - [x] `CPhysicsObj::AdjustPosition` · 004e1d70 · legions 004d47d0 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [x] `CPhysicsObj::CheckPositionInternal` · 004e1eb0 · legions 004d4910 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-- [ ] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0 — ac2-physics physics_obj_state.rs update_gravity (property 0x80000001 vector); run from set_position_checked via update_cell_material
+- [x] `CPhysicsObj::UpdateGravity` · 004e1f70 · legions 004d49c0 — ac2-physics physics_obj_state.rs update_gravity (property 0x80000001 vector); run from set_position_checked via update_cell_material
 - [ ] `CPhysicsObj::find_inside_position` · 004e1fb0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [~] `CPhysicsObj::EnterWorld` · 004e20b0 — ac2-client remote.rs
@@ -2495,7 +2495,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::Jump` · 004e3aa0 · legions 004d64f0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::CalcElement` · 004e3b90 · legions 004d65e0 — elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
-- [~] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870 — no pushers (CCollisionManager::UpdatePusherValues)
+- [x] `CPhysicsObj::CalcExternalForces` · 004e3e20 · legions 004d6870 — ac2-physics physics_obj_forces.rs calc_external_forces over the collision manager's pushers (UpdatePusherValues); the pusher sums are kept as m_vVelocityField/m_vAccelerationField. Pusher properties come from the touched object's CollidePropertyList (AddPusherProperties), not from the object's own physics material
 - [~] `CPhysicsObj::transition` · 004e4170 · legions 004d6bc0 — no admin moves or missiles
 - [-] `CPhysicsObj::ResetLightCache` · 004e4280 · legions 004d6cd0 — render plumbing
 - [-] `CPhysicsObj::get_landscape_coord` · 004e42f0 — state-bit flag accessor
@@ -2505,16 +2505,16 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetPlacementFrame` · 004e4410 — CPhysicsObj::SetPlacementFrame - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [~] `CPhysicsObj::set_velocity` · 004e4430 — the F_EPSILON change test and CullVelocity in anim_pose fire_impulse; kill_velocity and PhysicsBody::set_velocity assign directly
 - [x] `CPhysicsObj::set_heading` · 004e44e0
-- [ ] `CPhysicsObj::SetParent` · 004e4580 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::TopParent` · 004e4590 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::SetParent` · 004e4580 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::TopParent` · 004e4590 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [~] `CPhysicsObj::ApplyVisualDesc` · 004e45b0 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
-- [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
-- [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
-- [ ] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220 — ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
-- [ ] `CPhysicsObj::misc_can_be_inactive` · 004e4880 · legions 004d72d0 — ac2-physics PhysicsBody::misc_can_be_inactive; the collision-manager IsEmpty and detection IsActive answers are passed in by the caller
+- [x] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
+- [x] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+- [x] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220 — ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
+- [~] `CPhysicsObj::misc_can_be_inactive` · 004e4880 · legions 004d72d0 — ac2-physics PhysicsBody::misc_can_be_inactive; the collision-manager IsEmpty and detection IsActive answers are passed in by the caller
 - [x] `CPhysicsObj::ShouldMuteSound` · 004e48e0 · legions 004d7330 — CPhysicsObj::ShouldMuteSound - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-- [ ] `CPhysicsObj::ApplyPropertyGroup` · 004e4960 · legions 004d73b0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-- [ ] `CPhysicsObj::ApplyProperty` · 004e49b0 · legions 004d7400 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+- [x] `CPhysicsObj::ApplyPropertyGroup` · 004e4960 · legions 004d73b0 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+- [x] `CPhysicsObj::ApplyProperty` · 004e49b0 · legions 004d7400 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 - [~] `CPhysicsObj::UpdateCellMaterial` · 004e4a60 · legions 004d74b0 — ac2-physics update_cell_material: gravity from the cell's material (UpdateGravity); the collision manager's AddEnvironmentalProperties is the report path (contact_materials)
 - [ ] `CPhysicsObj::local_to_global` · 004e4af0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::StorePosition` · 004e4b60 — no adjust_to_outside
@@ -2550,12 +2550,12 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660 — render plumbing
 - [x] `CPhysicsObj::JumpLogic` · 004e56e0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
+- [x] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetScale` · 004e6690 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
-- [ ] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0 — ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
+- [x] `CPhysicsObj::SetScale` · 004e6690 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+- [x] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0 — ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
 - [~] `CPhysicsObj::HasMissileManager` · 004e6710 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [x] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170 — CPhysicsObj::is_newer_then_update - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780 — ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
@@ -2578,8 +2578,8 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::MissileInquireDirection` · 004e6de0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [~] `CPhysicsObj::MissileInquireCurrentVelocity` · 004e6e60 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [~] `CPhysicsObj::MissileRetarget` · 004e6eb0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
-- [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
+- [x] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
+- [x] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
 - [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 - [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
@@ -2588,19 +2588,19 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
 - [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 - [ ] `CPhysicsObj::Draw` · 004e7db0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
-- [ ] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::StickySetParent` · 004e8750 — admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
-- [ ] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::unparent_children` · 004e88a0 · legions 004db280 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [-] `CPhysicsObj::StickySetParent` · 004e8750 — admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
+- [x] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::unparent_children` · 004e88a0 · legions 004db280 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::GetTotalVisualDesc` · 004e88e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetAvailableModes` · 004e88f0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::IsModeAvailable` · 004e8950 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::LookUpInChildren` · 004e89c0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::LookUpInAllChildren` · 004e8a40 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::LookUpInChildren` · 004e89c0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::LookUpInAllChildren` · 004e8a40 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::SetMIDESC` · 004e8ac0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::SetVDescScale` · 004e8ae0 — needs port: cite-only physics-object method
-- [-] `CPhysicsObj::SetChildrenOpacity` · 004e8b00 · legions 004db4e0 — ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
-- [ ] `CPhysicsObj::DoSliderOnChild` · 004e8b60 · legions 004db540 — ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
+- [~] `CPhysicsObj::SetChildrenOpacity` · 004e8b00 · legions 004db4e0 — ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
+- [~] `CPhysicsObj::DoSliderOnChild` · 004e8b60 · legions 004db540 — ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
 - [x] `CPhysicsObj::LookAt` · 004e8bc0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [~] `CPhysicsObj::DoStory` · 004e8d10 · legions 004db6f0 — forwarder to StoryManager (AC2_Rusted-combat worker)
 - [ ] `CPhysicsObj::GetLocalVisualDesc` · 004e8d50 — needs port: cite-only physics-object method
@@ -2613,8 +2613,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [x] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
-- [ ] `CPhysicsObj::AddChild` · 004e9200 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::RemoveChild` · 004e92b0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::AddChild` · 004e9200 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::RemoveChild` · 004e92b0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::set_report_collisions` · 004e92e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AddToLOSList` · 004e9510 · legions 004dbd90 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::UpdateAnimation` · 004e9700 — ac2-physics anim_pose: distance-degraded update frames, TriggerUpdate fired (FX and weenie hooks as events, impulses); no look-at, FX scripts or FX manager
@@ -2643,7 +2643,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::GetLookAtZ` · 004eae10 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 - [x] `CPhysicsObj::IsInWorld` · 004eae20 — CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::IsInWorkspace` · 004eae30 — ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
-- [ ] `CPhysicsObj::GetCell` · 004eae40 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
+- [-] `CPhysicsObj::GetCell` · 004eae40 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 - [ ] `CPhysicsObj::GetFrame` · 004eae50 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::get_state` · 004eae60 — state-bit flag accessor
 - [-] `CPhysicsObj::is_dynamic` · 004eae70 — state-bit flag accessor
@@ -2684,12 +2684,12 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::is_inelastic` · 004eb100
 - [-] `CPhysicsObj::is_movement_frozen` · 004eb110 — state-bit flag accessor
 - [x] `CPhysicsObj::is_animation_frozen` · 004eb120 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::SetScale` · 004eb130 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+- [x] `CPhysicsObj::SetScale` · 004eb130 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 - [-] `CPhysicsObj::get_omega_velocity` · 004eb160 — state-bit flag accessor
 - [-] `CPhysicsObj::get_omega_accleration` · 004eb170 — state-bit flag accessor
 - [-] `CPhysicsObj::IsDummyObject` · 004eb180 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::GetDistanceToViewer` · 004eb190 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
-- [ ] `CPhysicsObj::HasParent` · 004eb1a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::HasParent` · 004eb1a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::get_update_time` · 004eb1b0
 - [ ] `CPhysicsObj::inc_update_time` · 004eb1c0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::GetPosition` · 004eb1d0 — CPhysicsObj::GetPosition - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2698,8 +2698,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetWorldMatrix` · 004eb210 · legions 004ddb50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetNumShadowObjects` · 004eb220 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::SetPhysicsCollideMask` · 004eb230 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
-- [ ] `CPhysicsObj::GetNumChildren` · 004eb250 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [ ] `CPhysicsObj::GetChild` · 004eb260 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::GetNumChildren` · 004eb250 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+- [x] `CPhysicsObj::GetChild` · 004eb260 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [~] `CPhysicsObj::AddToIntersection` · 004eb280 · legions 004ddbc0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::AddToIntersection_Targeted` · 004eb320 · legions 004ddc60 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::UpdateMovement` · 004eb370 — no player-distance range checks, parent or missile paths
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (84/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (98/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2769,9 +2769,9 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::IsDoingBehavior` · 004f1480 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetSliderCurrentValue` · 004f14a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::GetSliderDesiredValue` · 004f14c0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `PHYSICSOBJREP::GetMotionInterpreter` · 004f14e0 · legions 004e3e30 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-- [ ] `PHYSICSOBJREP::GetModeTracker` · 004f14f0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-- [ ] `PHYSICSOBJREP::GetSliderTracker` · 004f1500 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [x] `PHYSICSOBJREP::GetMotionInterpreter` · 004f14e0 · legions 004e3e30 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+- [x] `PHYSICSOBJREP::GetModeTracker` · 004f14f0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+- [x] `PHYSICSOBJREP::GetSliderTracker` · 004f1500 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 - [ ] `PHYSICSOBJREP::GetIID` · 004f1510 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetSeaFloorMultiplier` · 004f1540 · legions 004e3e70 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetWaterMultiplier` · 004f1560 · legions 004e3e90 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -2779,7 +2779,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::InterruptMoveTo` · 004f15a0 · legions 004e3ed0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `PHYSICSOBJREP::HandleBehaviorDone` · 004f15c0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HandleReleaseDone` · 004f15d0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0 — ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
+- [x] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0 — ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
 - [x] `PHYSICSOBJREP::IsMovingTo` · 004f15f0 · legions 004e3f20 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::IsTurningTo` · 004f1610 · legions 004e3f40 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
@@ -2808,12 +2808,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetHeightAboveWalkable` · 004f18f0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetDepth` · 004f1910 — ac2-physics body_access.rs PhysicsBody::depth
 - [x] `PHYSICSOBJREP::HasWater` · 004f1930 · legions 004e4260 — ac2-physics body_access.rs PhysicsBody::has_water
-- [ ] `PHYSICSOBJREP::GetCell` · 004f1950 · legions 004e4280 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
+- [-] `PHYSICSOBJREP::GetCell` · 004f1950 · legions 004e4280 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 - [x] `PHYSICSOBJREP::GetVectorHeading` · 004f1970 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetHeading` · 004f19d0 · legions 004e4300 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [~] `PHYSICSOBJREP::GetTriggerUpdate` · 004f1a00 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 - [x] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-- [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
+- [x] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
 - [ ] `PHYSICSOBJREP::GetTransitionCVel` · 004f1a70 · legions 004e43a0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::DoAnimation` · 004f1ad0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `PHYSICSOBJREP::GetComboCVel` · 004f1b00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2824,8 +2824,8 @@ Legend and workflow: [README](README.md).
 - [~] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — the named bone an FX attach point reads, live each frame (ac2-physics fx_follow.rs follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 - [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
-- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
+- [x] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+- [x] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetSphere` · 004f1e10 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
@@ -2866,7 +2866,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetTerrainType` · 004f2590 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::HasContact` · 004f25b0 — ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
-- [ ] `PHYSICSOBJREP::IsSlidingDown` · 004f25d0 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
+- [x] `PHYSICSOBJREP::IsSlidingDown` · 004f25d0 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
 - [x] `PHYSICSOBJREP::GetContactPlane` · 004f25e0 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetAnimVelocity` · 004f2620 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::IsThePlayer` · 004f2670 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2891,8 +2891,8 @@ Legend and workflow: [README](README.md).
 - [-] `SliderInterpolator::SliderInterpolator` · 004f2830 · legions 004e5110 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### PHYSICSOBJREP
-- [ ] `PHYSICSOBJREP::GetModeState` · 004f2860 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
-- [ ] `PHYSICSOBJREP::GetDesiredModeState` · 004f2880 · legions 004e5160 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+- [x] `PHYSICSOBJREP::GetModeState` · 004f2860 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+- [x] `PHYSICSOBJREP::GetDesiredModeState` · 004f2880 · legions 004e5160 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
 - [x] `PHYSICSOBJREP::GetAcceleration` · 004f28a0 · legions 004e5220 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetDesiredVelocity` · 004f28f0 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetOmegaAcceleration` · 004f2940 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -2906,10 +2906,10 @@ Legend and workflow: [README](README.md).
 
 ### PHYSICSOBJREP
 - [ ] `PHYSICSOBJREP::GetSliderInterpolator` · 004f2c30 · legions 004e5420 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetMotionValuesForElement` · 004f2cc0 · legions 004e54b0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-- [ ] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-- [ ] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-- [ ] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [x] `PHYSICSOBJREP::GetMotionValuesForElement` · 004f2cc0 · legions 004e54b0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+- [x] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+- [x] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+- [x] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 - [~] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f3280 · legions 004e5a40 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [ ] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460 — needs port: cite-only physics-object method

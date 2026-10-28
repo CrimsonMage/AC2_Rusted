@@ -74,6 +74,9 @@ pub(crate) struct PhysicsObj {
     pub acceleration: Vector,
     pub acceleration_field_vel: Vector,
     pub external_field: Vector,
+    /// `m_vVelocityField` and `m_vAccelerationField`: the pushers' sums of the last quantum.
+    pub velocity_field: Vector,
+    pub acceleration_field: Vector,
     pub omega: Vector,
     pub omega_acceleration: Vector,
     pub local_gravity: Vector,
@@ -164,6 +167,8 @@ impl PhysicsObj {
             acceleration: Vector::ZERO,
             acceleration_field_vel: Vector::ZERO,
             external_field: Vector::ZERO,
+            velocity_field: Vector::ZERO,
+            acceleration_field: Vector::ZERO,
             omega: Vector::ZERO,
             omega_acceleration: Vector::ZERO,
             local_gravity: GRAVITY,

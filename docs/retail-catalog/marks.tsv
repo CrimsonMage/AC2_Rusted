@@ -4501,15 +4501,15 @@ key	status	note
 004de9c0	x	ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 004de9d0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9e0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004de9f0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-004dea00	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004de9f0	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+004dea00	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 004dea10	x	CPhysicsObj::IsMovingTo - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004dea20	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004dea30	_	ac2-physics PhysicsBody::last_do_motion_values (CMotionInterp last do-motion vector)
+004dea30	x	ac2-physics PhysicsBody::last_do_motion_values
 004dea50	_	needs port: cite-only physics-object method
-004dea70	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-004deab0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-004deac0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004dea70	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+004deab0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+004deac0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004dead0	x	ac2-physics interp (slice 3)
 004deb70	x	ac2-physics interp (slice 3)
 004dec30	x	ac2-physics interp (slice 3)
@@ -4599,7 +4599,7 @@ key	status	note
 004e0b10	x	ac2-physics body_access.rs PhysicsBody::vector_heading / heading
 004e0b30	x	ac2-physics body_access.rs PhysicsBody::calc_heading over Position::heading_to
 004e0b50	_	needs port: cite-only physics-object method
-004e0b60	_	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+004e0b60	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004e0b90	~	FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, ac2-physics fx_follow.rs follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
 004e0c00	x	CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e0ca0	x	CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -4610,8 +4610,8 @@ key	status	note
 004e0e00	-	render plumbing
 004e0e10	x	CPhysicsObj::GetParticleScale - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e0e30	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004e0e90	_	ac2-physics PhysicsBody::movement_can_be_inactive / misc_can_be_inactive; m_vVelocityField and m_vAccelerationField are not modelled (zero); missile/detection/collision-manager answers are passed in by the caller
-004e1150	_	ac2-physics PhysicsBody::animation_can_be_inactive (not in the world's lists)
+004e0e90	x	ac2-physics PhysicsBody::movement_can_be_inactive (velocity, acceleration, omega, pusher fields, external field, move-to, turn-to, interpolation); has_parent and missile answers passed in
+004e1150	x	ac2-physics PhysicsBody::animation_can_be_inactive (not in the world's lists)
 004e1170	x	CPhysicsObj::set_movement_active - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e11f0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004e1250	-	state-bit flag accessor
@@ -4641,18 +4641,18 @@ key	status	note
 004e17a0	-	state-bit flag accessor
 004e1810	_	needs port: cite-only physics-object method
 004e1820	x	value read from the bool getter; bit set only when true (SetBit)
-004e1880	_	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-004e1a40	_	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-004e1ad0	_	ac2-physics physics_obj_property.rs: kept; pusher values belong to the collision manager (UpdatePusherValues), returns false as retail
-004e1b30	_	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+004e1880	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+004e1a40	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+004e1ad0	~	ac2-physics physics_obj_property.rs: kept; pusher values are the touched object's CollidePropertyList (CCollisionManager::AddPusherProperties), so nothing applies here, returns false as retail
+004e1b30	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 004e1b80	_	needs port: cite-only physics-object method
 004e1bf0	_	needs port: cite-only physics-object method
-004e1c30	_	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
-004e1c60	_	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+004e1c30	~	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+004e1c60	~	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004e1eb0	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-004e1f70	_	ac2-physics physics_obj_state.rs update_gravity (property 0x80000001 vector); run from set_position_checked via update_cell_material
+004e1f70	x	ac2-physics physics_obj_state.rs update_gravity (property 0x80000001 vector); run from set_position_checked via update_cell_material
 004e1fb0	_	needs port: cite-only physics-object method
 004e2030	~	ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 004e20b0	~	ac2-client remote.rs
@@ -4733,7 +4733,7 @@ key	status	note
 004e3a70	_	needs port: cite-only physics-object method
 004e3aa0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e3b90	~	elements go through ModeTracker::DoElement; the no-cell DoElement(GROUND) is not ported
-004e3e20	~	no pushers (CCollisionManager::UpdatePusherValues)
+004e3e20	x	ac2-physics physics_obj_forces.rs calc_external_forces over the collision manager's pushers (UpdatePusherValues); the pusher sums are kept as m_vVelocityField/m_vAccelerationField. Pusher properties come from the touched object's CollidePropertyList (AddPusherProperties), not from the object's own physics material
 004e4170	~	no admin moves or missiles
 004e4280	-	render plumbing
 004e42f0	-	state-bit flag accessor
@@ -4743,16 +4743,16 @@ key	status	note
 004e4410	x	CPhysicsObj::SetPlacementFrame - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e4430	~	the F_EPSILON change test and CullVelocity in anim_pose fire_impulse; kill_velocity and PhysicsBody::set_velocity assign directly
 004e44e0	x	
-004e4580	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e4590	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e4580	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e4590	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e45b0	~	ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
-004e4640	~	ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
-004e4730	_	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
-004e47d0	_	ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
-004e4880	_	ac2-physics PhysicsBody::misc_can_be_inactive; the collision-manager IsEmpty and detection IsActive answers are passed in by the caller
+004e4640	x	ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
+004e4730	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+004e47d0	x	ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
+004e4880	~	ac2-physics PhysicsBody::misc_can_be_inactive; the collision-manager IsEmpty and detection IsActive answers are passed in by the caller
 004e48e0	x	CPhysicsObj::ShouldMuteSound - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004e4960	_	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
-004e49b0	_	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+004e4960	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
+004e49b0	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 004e4a60	~	ac2-physics update_cell_material: gravity from the cell's material (UpdateGravity); the collision manager's AddEnvironmentalProperties is the report path (contact_materials)
 004e4af0	_	needs port: cite-only physics-object method
 004e4b60	~	no adjust_to_outside
@@ -4776,12 +4776,12 @@ key	status	note
 004e5660	-	render plumbing
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-004e5980	~	ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
+004e5980	x	ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e60f0	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e6650	_	needs port: cite-only physics-object method
-004e6690	_	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
-004e66a0	_	ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
+004e6690	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+004e66a0	x	ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
 004e6710	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e6720	x	CPhysicsObj::is_newer_then_update - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
@@ -4804,8 +4804,8 @@ key	status	note
 004e6de0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e6e60	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e6eb0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-004e6f30	_	ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
-004e6f80	_	ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
+004e6f30	x	ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
+004e6f80	x	ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
 004e6ff0	x	
 004e7580	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 004e79a0	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
@@ -4814,19 +4814,19 @@ key	status	note
 004e7af0	~	PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
 004e7c80	~	ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 004e7db0	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
-004e86c0	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e8750	_	admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
-004e8850	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e88a0	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e86c0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e8750	-	admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
+004e8850	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e88a0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e88e0	_	needs port: cite-only physics-object method
 004e88f0	_	needs port: cite-only physics-object method
 004e8950	_	needs port: cite-only physics-object method
-004e89c0	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e8a40	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e89c0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e8a40	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e8ac0	_	needs port: cite-only physics-object method
 004e8ae0	_	needs port: cite-only physics-object method
-004e8b00	-	ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
-004e8b60	_	ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
+004e8b00	~	ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
+004e8b60	~	ChildGraph::children_of lists the children; the slider/opacity call on each child body is made by the client (bodies are not reachable from the graph)
 004e8bc0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004e8d10	~	forwarder to StoryManager (AC2_Rusted-combat worker)
 004e8d50	_	needs port: cite-only physics-object method
@@ -4839,8 +4839,8 @@ key	status	note
 004e9040	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004e90c0	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
-004e9200	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e92b0	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e9200	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004e92b0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e92e0	_	needs port: cite-only physics-object method
 004e9510	_	needs port: cite-only physics-object method
 004e9700	~	ac2-physics anim_pose: distance-degraded update frames, TriggerUpdate fired (FX and weenie hooks as events, impulses); no look-at, FX scripts or FX manager
@@ -4869,7 +4869,7 @@ key	status	note
 004eae10	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004eae20	x	CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004eae30	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
-004eae40	_	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
+004eae40	-	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 004eae50	_	needs port: cite-only physics-object method
 004eae60	-	state-bit flag accessor
 004eae70	-	state-bit flag accessor
@@ -4910,12 +4910,12 @@ key	status	note
 004eb100	x	
 004eb110	-	state-bit flag accessor
 004eb120	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004eb130	_	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
+004eb130	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 004eb160	-	state-bit flag accessor
 004eb170	-	state-bit flag accessor
 004eb180	-	admin/debug or text-file tooling
 004eb190	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
-004eb1a0	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004eb1a0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004eb1b0	x	
 004eb1c0	_	needs port: cite-only physics-object method
 004eb1d0	x	CPhysicsObj::GetPosition - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -4924,8 +4924,8 @@ key	status	note
 004eb210	_	needs port: cite-only physics-object method
 004eb220	_	needs port: cite-only physics-object method
 004eb230	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
-004eb250	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004eb260	_	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004eb250	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
+004eb260	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004eb280	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004eb320	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004eb370	~	no player-distance range checks, parent or missile paths
@@ -5013,7 +5013,7 @@ key	status	note
 004ee9f0	x	ac2-render object/model.rs load_object_model_with
 004eea40	-	render plumbing
 004eea70	-	render plumbing
-004eea80	_	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+004eea80	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004eeaa0	x	ac2-assets ac2_drawn_groups.rs rest_named_bones (the same search as ObjectSkeleton::named_bones; cross-checked against it in ac2-render fx_bone_tests)
 004eeac0	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eeb10	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
@@ -5030,7 +5030,7 @@ key	status	note
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	-	render plumbing
 004efb00	x	CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-004f0140	~	ac2-physics held.rs find_holding_point over GroupHolding (the holder's Setup holding lists in CPartGroup search order, loaded on the loader thread, ac2-client world_data); the object's posed bone is read by the client view
+004f0140	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
@@ -5070,9 +5070,9 @@ key	status	note
 004f1480	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f14a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f14c0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004f14e0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-004f14f0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
-004f1500	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004f14e0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+004f14f0	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
+004f1500	x	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly
 004f1510	_	needs port: cite-only physics-object method
 004f1540	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1560	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5080,7 +5080,7 @@ key	status	note
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15c0	_	needs port: cite-only physics-object method
 004f15d0	_	needs port: cite-only physics-object method
-004f15e0	_	ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
+004f15e0	x	ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
 004f15f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1610	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1630	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
@@ -5109,12 +5109,12 @@ key	status	note
 004f18f0	_	needs port: cite-only physics-object method
 004f1910	x	ac2-physics body_access.rs PhysicsBody::depth
 004f1930	x	ac2-physics body_access.rs PhysicsBody::has_water
-004f1950	_	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
+004f1950	-	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 004f1970	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f19d0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004f1a20	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-004f1a40	_	ac2-physics PhysicsBody::is_sliding_down / local_velocity
+004f1a40	x	ac2-physics PhysicsBody::is_sliding_down / local_velocity
 004f1a70	_	needs port: cite-only physics-object method
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5125,8 +5125,8 @@ key	status	note
 004f1d70	~	Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 004f1da0	~	the named bone an FX attach point reads, live each frame (ac2-physics fx_follow.rs follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 004f1db0	_	needs port: cite-only physics-object method
-004f1dd0	_	ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
-004f1de0	~	ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
+004f1dd0	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+004f1de0	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f1df0	_	needs port: cite-only physics-object method
 004f1e00	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1e10	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
@@ -5167,7 +5167,7 @@ key	status	note
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2590	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f25b0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
-004f25d0	_	ac2-physics PhysicsBody::is_sliding_down / local_velocity
+004f25d0	x	ac2-physics PhysicsBody::is_sliding_down / local_velocity
 004f25e0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2620	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5186,8 +5186,8 @@ key	status	note
 004f2800	-	render plumbing
 004f2810	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f2830	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004f2860	_	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
-004f2880	_	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+004f2860	x	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+004f2880	x	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
 004f28a0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f28f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f2940	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5195,10 +5195,10 @@ key	status	note
 004f2a00	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f2ad0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f2c30	_	needs port: cite-only physics-object method
-004f2cc0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-004f2d20	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-004f2d70	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
-004f2df0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004f2cc0	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+004f2d20	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+004f2d70	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
+004f2df0	x	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody forwards
 004f2e70	~	ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 004f3280	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f3460	_	needs port: cite-only physics-object method
@@ -5245,8 +5245,8 @@ key	status	note
 004f5070	-	render plumbing
 004f50c0	_	needs port: cite-only physics-object method
 004f5110	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004f5180	_	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
-004f51f0	_	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+004f5180	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
+004f51f0	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f5270	-	render plumbing
 004f52b0	_	needs port: cite-only physics-object method
 004f5320	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
@@ -13109,11 +13109,11 @@ key	status	note
 006a4270	x	ac2-physics los (Terrain::los_check)
 006a44d0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4510	_	needs port: ethereal/collision parameter state
-006a4590	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+006a4590	_	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a45e0	_	needs port: ethereal/collision parameter state
-006a4630	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+006a4630	_	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a4690	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006a46b0	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
+006a46b0	~	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a46c0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a46d0	_	needs port: ethereal/collision parameter state
 006a46f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue

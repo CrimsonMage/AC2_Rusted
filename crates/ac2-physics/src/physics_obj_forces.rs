@@ -239,6 +239,8 @@ impl PhysicsObj {
         self.walk_on_air = sum.walk_on_air;
         let vf = sum.velocity;
         let af = sum.acceleration;
+        self.velocity_field = vf;
+        self.acceleration_field = af;
         self.external_field = Vector::ZERO;
         if self.has_contact() || self.desired_element() == ELEMENT_WATER {
             let f = self.acceleration_field_vel;
