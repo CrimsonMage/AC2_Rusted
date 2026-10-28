@@ -725,7 +725,7 @@ Legend and workflow: [README](README.md).
 - [-] `StreakEffectManager::~StreakEffectManager` · 005c1040 · legions 005882b0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [ ] `StreakEffectManager::DestroyStreakEffect` · 005c10d0 · legions 00588340 — needs port: streak effect (streak segments, fade, geometry)
 - [x] `StreakEffectManager::UpdateStreakEffects` · 005c1150 · legions 005883c0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
-- [x] `StreakEffectManager::RenderStreakEffects` · 005c11a0 · legions 00588410 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
+- [x] `StreakEffectManager::RenderStreakEffects` · 005c11a0 · legions 00588410 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `StreakEffectManager::CreateStreakEffect` · 005c1240 · legions 005884b0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [ ] `StreakEffectManager::StreakEffectManager` · 005c12d0 · legions 00588540 — needs port: streak effect manager init
 
