@@ -14,7 +14,7 @@ use ac2_net::protocol::{
 };
 
 use crate::objects::{create_object_bytes, object_event_bytes, weenie_object_bytes, ObjectSpawn};
-use crate::State;
+use crate::{words, State};
 
 /// The door, the lever and the ground item (type byte 0x80: dynamic objects, as the chest's are).
 pub const DOOR: u64 = 0x8000_0000_0000_0A05;
@@ -101,6 +101,18 @@ impl State {
     /// A physics mode event for `object` (`CPhysicsObj::RecvEvt_SetMode` or `RecvEvt_DoMode`).
     fn send_mode(&mut self, object: u64, mode: u32, opcode: u32) {
         self.send_event(&object_event_bytes(opcode, object, 1, &[mode]));
+    }
+
+    /// `CPhysicsObj::RecvEvt_Parent` (0x10087): the item `item` hangs from `holder` at its holding
+    /// location `location`, placed with placement frame `orientation` (a wielded item). The
+    /// parent's position stamp is newer than the item's, so the client takes the parent.
+    pub fn wield(&mut self, item: u64, holder: u64, location: u32, orientation: u32) {
+        let mut b = object_event_bytes(Opcode::PARENT, item, 1, &[]);
+        b.extend(holder.to_le_bytes());
+        b.extend(1u16.to_le_bytes());
+        b.extend(2u16.to_le_bytes());
+        words(&mut b, &[location, orientation]);
+        self.send_event(&b);
     }
 
     /// The door's `Open` bool quality (`gmboolstats.emp` 702) on the door.
