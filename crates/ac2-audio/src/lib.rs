@@ -10,6 +10,7 @@
 
 mod ambient;
 mod ambient_data;
+mod ambient_driver;
 mod ambient_objects;
 mod data;
 mod headless;
@@ -23,8 +24,12 @@ mod music_voice;
 mod output;
 mod play_data;
 mod playing;
+mod portal;
 pub mod prefs;
+mod rain;
+mod screen_sounds;
 mod sink;
+mod space;
 pub mod synth;
 
 #[cfg(test)]
@@ -40,6 +45,7 @@ pub use ambient::{AmbientSound, AMBIENT_EMITTERS};
 pub use ambient_data::{
     AmbientData, AmbientSoundInfo, ContinSoundInfo, IntermitSoundInfo, SoundDesc,
 };
+pub use ambient_driver::{is_outside, AmbientDriver, AmbientPoint, AmbientRequest};
 pub use data::{
     flags, sound_db_type, DatSounds, LoadedSound, MusicInfo, Pcm, SoundInfo, SoundSource, Wave,
     DB_TYPE_MUSIC_INFO, DB_TYPE_SOUND_INFO, DB_TYPE_WAVE,
@@ -54,7 +60,11 @@ pub use music_thread::{
 pub use output::SpeakerSink;
 pub use play_data::{Channel, LoopingMode, PlaySoundData, SoundType, Track};
 pub use playing::Emitter;
+pub use portal::{PortalCue, PortalSoundIds, PortalSounds};
+pub use rain::{RainSoundIds, RainSounds};
+pub use screen_sounds::ScreenSounds;
 pub use sink::{
     amplitude, millibels, Boundary, NullSink, RecordingSink, SinkCommand, SoundSink, Spatial,
     SILENT,
 };
+pub use space::{emitter, EnvCellPlace, SoundSpace};
