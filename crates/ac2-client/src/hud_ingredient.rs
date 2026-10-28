@@ -1,17 +1,12 @@
-//! `gmIngredientUI` on the frame: the ingredient panel's notices (`OpenIngredientPanel`, the add
-//! and execute answers, the craft skill, mount, inventory and deletions) and its messages run over
-//! the craft queries and the player's inventory; its requests go out as gameplay commands.
-
-use std::cell::RefCell;
+//! `gmIngredientUI`'s client side: the recipe and inventory queries (`ac2_ui::IngredientSource`)
+//! over the client's script and session, which the frame's ingredient pass (`Hud::frame`) reads.
+//! Its requests map to gameplay commands in [`ingredient_command`].
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{tokenize, IngredientCommand, IngredientSource};
-use ac2_weenie::{CraftSkill, Ingredient, Recipe, SessionEvent};
+use ac2_weenie::{CraftSkill, Ingredient, Recipe};
 
-use crate::client::Client;
-use crate::frame::ClientFrame;
 use crate::gameplay::Command;
-use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
 
 impl IngredientSource for ClientPlayer<'_> {
@@ -85,7 +80,7 @@ impl IngredientSource for ClientPlayer<'_> {
 }
 
 /// An ingredient request as the gameplay command it is.
-fn command(request: IngredientCommand) -> Command {
+pub(crate) fn ingredient_command(request: IngredientCommand) -> Command {
     match request {
         IngredientCommand::Add {
             recipe,
@@ -107,42 +102,5 @@ fn command(request: IngredientCommand) -> Command {
             spinner,
             ingredients,
         },
-    }
-}
-
-impl HudView {
-    /// The ingredient panel's notices and messages of the frame, then its requests as commands.
-    pub(crate) fn ingredient_frameworks(
-        &mut self,
-        client: &mut Client,
-        frame: &ClientFrame,
-        events: &[SessionEvent],
-    ) -> Vec<Command> {
-        let Some(strings) = self.panels.strings.clone() else {
-            return Vec::new();
-        };
-        if !frame.in_world {
-            return Vec::new();
-        }
-        let messages = self.panels.player_messages.clone();
-        let Some(panel) = self.panels.ingredient.as_mut() else {
-            return Vec::new();
-        };
-        let tree = match self.hud.as_mut() {
-            Some((tree, _)) => tree,
-            None => return Vec::new(),
-        };
-        let player = ClientPlayer {
-            client: RefCell::new(client),
-            frame,
-            strings: &strings.tables,
-            ui_table: strings.ui_table,
-            enums: &strings.enums,
-        };
-        panel
-            .frame_pass(tree, &player, events, &messages)
-            .into_iter()
-            .map(command)
-            .collect()
     }
 }

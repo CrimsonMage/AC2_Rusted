@@ -3,7 +3,7 @@
 //! notices, dialogs and request mapping live in `ac2_ui::inventory_notices`.
 
 use ac2_net::protocol::StringInfo;
-use ac2_ui::{InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, StackUi, UiTree};
+use ac2_ui::{InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot};
 
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
@@ -134,21 +134,6 @@ impl InventoryNoticeSource for ClientPlayer<'_> {
 
     fn render_wire(&self, info: &StringInfo) -> String {
         self.render_info(info)
-    }
-}
-
-/// A slot's request: the stack dialogs it opens (`ac2_ui::item_dialog`), then the rest as
-/// commands. Whether the examination panel opens.
-pub(crate) fn item_request(
-    request: ItemRequest,
-    tree: &mut UiTree,
-    stack: Option<&mut StackUi>,
-    player: &ClientPlayer<'_>,
-    commands: &mut Vec<Command>,
-) -> bool {
-    match ac2_ui::item_dialog(request, tree, stack, player) {
-        Some(request) => item_commands(request, commands),
-        None => false,
     }
 }
 

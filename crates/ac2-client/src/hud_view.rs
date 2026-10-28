@@ -220,11 +220,8 @@ impl HudView {
 
     /// `CM_UI::SendNotice_OpenExaminationPanel` (`gmExaminationUI::RecvNotice_OpenExaminationPanel`).
     pub(crate) fn open_examination(&mut self) {
-        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.panels.toolbar) {
-            toolbar.show(tree, ToolbarChild::Examination, true);
-            if tree.take_changed() {
-                self.dirty = true;
-            }
+        if let Some((tree, _)) = &mut self.hud {
+            self.panels.open_examination(tree, &mut self.dirty);
         }
     }
 
@@ -250,11 +247,8 @@ impl HudView {
 
     /// `ChatWindow::DoAssistedTell`: the entry line becomes a tell to `target`.
     pub(crate) fn assisted_tell(&mut self, target: &str) {
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.panels.chat) {
-            chat.assisted_tell(tree, target);
-            if tree.take_changed() {
-                self.dirty = true;
-            }
+        if let Some((tree, _)) = &mut self.hud {
+            self.panels.assisted_tell(tree, &mut self.dirty, target);
         }
     }
 

@@ -91,7 +91,7 @@ impl Client {
                     }
                 }
                 // The keyframe's music and voice play (`gmStoryUI::Play`); the HUD draws the
-                // keyframe and hides the fields (`hud_story.rs`).
+                // keyframe and hides the fields (`ac2_ui::Hud::frame`).
                 StoryEvent::Begin => self.story_queue.push(StoryEvent::Begin),
                 StoryEvent::Show(show) => {
                     self.play_story_sounds(show.music, show.voice);

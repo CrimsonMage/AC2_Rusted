@@ -66,13 +66,13 @@ impl ClientView {
             .then_some(crate::Command::UseSelection)
             .into_iter()
             .collect();
-        commands.extend(self.hud.items_3d_frame(client, frame, world_pick));
-        self.hud.story_frameworks(client);
-        commands.extend(self.hud.ingredient_frameworks(client, frame, events));
-        commands.extend(
-            self.hud
-                .frameworks(client, frame, events, script_notices, doll_pick),
-        );
+        commands.extend(self.hud.frameworks(
+            client,
+            frame,
+            events,
+            script_notices,
+            (doll_pick, world_pick),
+        ));
         commands
     }
 

@@ -49,6 +49,8 @@ pub(crate) struct PassOut {
     pub(crate) tells: Vec<String>,
     /// The help topics the panels asked to open (`KeyStone::OpenHelp` tokens), in order.
     pub(crate) help: Vec<u32>,
+    /// The story's show state for the gameplay panels (`gmStoryUI` begin `false`, hide `true`).
+    pub(crate) story_gameplay: Vec<bool>,
 }
 
 impl HudView {
@@ -62,7 +64,7 @@ impl HudView {
         frame: &ClientFrame,
         events: &[SessionEvent],
         script_notices: &[ScriptNotice],
-        doll_pick: Option<Option<u32>>,
+        picks: (Option<Option<u32>>, Option<Option<u64>>),
     ) -> Vec<Command> {
         let strings = self.panels.strings.clone();
         let player = strings.as_ref().map(|strings| ClientPlayer {
@@ -88,7 +90,8 @@ impl HudView {
             friend_target: friend,
             events,
             script_notices,
-            doll_pick,
+            doll_pick: picks.0,
+            world_pick: picks.1,
         };
         let requests = {
             let HudView {
@@ -111,15 +114,18 @@ impl HudView {
         };
         let mut out = PassOut::default();
         hud_request_commands(requests, &mut out);
-        if out.open_examination {
-            self.open_examination();
+        // The examination panel, the help topics and the tells (`FellowshipHelper`).
+        if let Some((tree, _)) = self.hud.as_mut() {
+            let effects = ac2_ui::HudEffects {
+                open_examination: out.open_examination,
+                help: std::mem::take(&mut out.help),
+                tells: std::mem::take(&mut out.tells),
+            };
+            self.panels.apply_effects(tree, &mut self.dirty, effects);
         }
-        for token in std::mem::take(&mut out.help) {
-            self.open_help(token);
-        }
-        // `FellowshipHelper::ListenToMessage`: a member's name into the chat line.
-        for name in out.tells {
-            self.assisted_tell(&name);
+        // The gameplay panels leave while a story plays and come back as they were after it.
+        for shown in std::mem::take(&mut out.story_gameplay) {
+            self.set_story_gameplay_shown(shown);
         }
         out.commands
     }

@@ -353,6 +353,22 @@ impl ClientPlayer<'_> {
 }
 
 impl ac2_ui::HudHost for ClientPlayer<'_> {
+    fn story_key(&self, data: u32) {
+        self.client.borrow_mut().story_key(data);
+    }
+
+    fn set_story_fades_on_hud(&self, fades: bool) {
+        self.client.borrow_mut().story_fades_on_hud = fades;
+    }
+
+    fn story_fade_done(&self) {
+        self.client.borrow_mut().story_fade_done();
+    }
+
+    fn take_story_events(&self) -> Vec<ac2_ui::StoryEvent> {
+        self.client.borrow_mut().take_story_events()
+    }
+
     fn show_radar_coords(&self) -> bool {
         self.client.borrow_mut().show_radar_coords()
     }

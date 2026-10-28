@@ -4,9 +4,9 @@
 
 use crate::{
     CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest, CraftCommand,
-    DialogRequest, ExaminationCall, ExternalContainerRequest, FriendsRequest, ItemRequest,
-    NewSaleRequest, PetAction, RadarRequest, SavedWindow, SecureTradeRequest, SelectionCall,
-    ShopRequest, SkillRequest, SocialCall,
+    DialogRequest, ExaminationCall, ExternalContainerRequest, FriendsRequest, IngredientCommand,
+    ItemRequest, NewSaleRequest, PetAction, RadarRequest, SavedWindow, SecureTradeRequest,
+    SelectionCall, ShopRequest, SkillRequest, SocialCall,
 };
 
 /// One request a HUD panel raised in a pass.
@@ -44,6 +44,11 @@ pub enum HudRequest {
     NewSale(NewSaleRequest),
     /// `gmCraftUI`: the craft panel's examination, recipe, raise and selection requests.
     Craft(CraftCommand),
+    /// `gmIngredientUI`: the ingredient panel's add and execute requests.
+    Ingredient(IngredientCommand),
+    /// `gmStoryUI`: the gameplay panels leave (`false`) at a story's begin and return (`true`) at
+    /// its hide; the client holds the show state.
+    StoryGameplay(bool),
     /// `gmShopCatalogUI`: the catalog's buttons and rows.
     Catalog(CatalogRequest),
     /// `gmShopConsignmentUI`: the consignment's requests the panel answers with the player

@@ -65,7 +65,6 @@ mod hud_help;
 #[cfg(feature = "window")]
 mod hud_ingredient;
 #[cfg(feature = "window")]
-mod hud_items_3d;
 #[cfg(feature = "window")]
 mod hud_navigation;
 mod hud_pets;
@@ -78,7 +77,6 @@ mod hud_player_message;
 mod hud_request;
 mod hud_shop;
 #[cfg(feature = "window")]
-mod hud_story;
 #[cfg(feature = "window")]
 mod hud_view;
 

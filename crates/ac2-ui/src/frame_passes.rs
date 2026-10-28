@@ -13,13 +13,15 @@ use ac2_world::GameDateTime;
 
 use crate::element::UiTree;
 use crate::friends_panel::{friend_event, FriendEvent};
+use crate::gameplay_story::StoryEvent;
 use crate::target_select::frame_selection_calls;
 use crate::token::tokenize;
 use crate::{
-    book_pass, BackpackUi, BookRequest, ChatSettings, FellowshipSource, Hud, HudRequest, HudSource,
-    InventorySource, Items3dUi, MapMarker, MessageInputs, MoneyBagUi, NameLook, OptionsHost,
-    OptionsSettings, PaperDollUi, SavedWindow, ShortcutCalls, StatusBar, TickInputs, UiStrings,
-    WindowPosition, PROFILE_LATENCY_INDICATOR_GRAPH,
+    book_pass, item_dialog, BackpackUi, BookRequest, ChatSettings, FellowshipSource, Hud,
+    HudRequest, HudSource, InventorySource, Items3dUi, MapMarker, MessageInputs, MoneyBagUi,
+    NameLook, OptionsHost, OptionsSettings, PaperDollUi, SavedWindow, ShortcutCalls, StatusBar,
+    TickInputs, UiMessage, UiStrings, WindowPosition, GLOBAL_KEY_PRESS,
+    PROFILE_LATENCY_INDICATOR_GRAPH, SKIP_STORY_MESSAGE,
 };
 
 /// What the client answers the frame's passes with: its options and saved places, the player's
@@ -52,6 +54,14 @@ pub trait HudHost {
     fn max_purchase_quantity(&self, item: u64) -> u32;
     /// The consignment charge the script returns (`consignment_charge`, 0 when unknown).
     fn consignment_charge(&self) -> f32;
+    /// `gmStoryUI::ListenToMessage` 0xffff0003: the skip key reaches the story slot.
+    fn story_key(&self, data: u32);
+    /// Whether the story background fades by its media (the slot then waits for its end).
+    fn set_story_fades_on_hud(&self, fades: bool);
+    /// The background's fade is done (`token_play`): the story starts or moves on.
+    fn story_fade_done(&self);
+    /// The story slot's drawn events since the last call (`Show`, `Hide`, `StopAudio`).
+    fn take_story_events(&self) -> Vec<StoryEvent>;
 }
 
 /// The player and the client's sinks for the frame's option and shortcut calls (`gmClientUI`'s
@@ -93,6 +103,9 @@ pub struct FrameInputs<'a> {
     /// The paper doll's pick from the scene as last drawn: `Some(mesh type)` once the pick is
     /// answered (`None` for no part).
     pub doll_pick: Option<Option<u32>>,
+    /// The object under the pointer for `gm3DItemsUI`'s target search (`Some` once the search the
+    /// last frame started is answered; `None` for no object inside).
+    pub world_pick: Option<Option<u64>>,
 }
 
 /// The reload pass's outputs for the passes after it.
@@ -129,7 +142,7 @@ impl Hud {
             self.display_backlog
                 .extend(crate::display_notices(input.events));
         }
-        let (Some(tree), Some(hosts), true) = (tree, hosts, input.in_world) else {
+        let (Some(tree), Some(hosts)) = (tree, hosts) else {
             return Vec::new();
         };
         let FrameHosts {
@@ -138,6 +151,20 @@ impl Hud {
             shortcuts,
         } = hosts;
         let mut requests = Vec::new();
+        // `gmStoryUI`: the skip key, the background's fade, then the slot's events.
+        self.story_pass(tree, player, &messages, &mut requests);
+        if !input.in_world {
+            return requests;
+        }
+        // `gm3DItemsUI`: a drop's target search finishes with `world_pick`, then the messages;
+        // the drops' stack dialogs open here and the rest are requests.
+        if let Some(items) = self.items_3d.as_mut() {
+            for request in items.frame_pass(tree, player, input.world_pick, &messages) {
+                if let Some(request) = item_dialog(request, tree, self.stack.as_mut(), player) {
+                    requests.push(HudRequest::Item(request));
+                }
+            }
+        }
         // `gmCraftUI`: the craft notices and messages, then its requests (`CraftUi::frame_pass`).
         if let Some(craft) = self.craft.as_mut() {
             let commands = craft.frame_pass(tree, player, input.events, &messages);
@@ -152,6 +179,11 @@ impl Hud {
                     requests.push(HudRequest::OpenHelp(tokenize("ID_Help_Book")));
                 }
             }
+        }
+        // `gmIngredientUI`: the recipe's notices and messages, then its requests.
+        if let Some(ingredient) = self.ingredient.as_mut() {
+            let commands = ingredient.frame_pass(tree, player, input.events, &messages);
+            requests.extend(commands.into_iter().map(HudRequest::Ingredient));
         }
         let (reload, reloads) = self.reload_pass(tree, dirty, player, input);
         requests.extend(reload);
@@ -212,6 +244,36 @@ impl Hud {
             *dirty = true;
         }
         requests
+    }
+
+    /// `gmStoryUI` on the frame: the skip key first, then the background's fade (its `token_play`
+    /// starts the story), then the events the slot made (the key's own teardown included), so a
+    /// story skipped this frame hides this frame. The gameplay panels leave at a story's begin
+    /// and return at its hide ([`HudRequest::StoryGameplay`]).
+    fn story_pass<P: HudHost>(
+        &mut self,
+        tree: &mut UiTree,
+        host: &P,
+        messages: &[UiMessage],
+        requests: &mut Vec<HudRequest>,
+    ) {
+        for message in messages {
+            if message.message == GLOBAL_KEY_PRESS && message.data as u32 == SKIP_STORY_MESSAGE {
+                host.story_key(SKIP_STORY_MESSAGE);
+            }
+        }
+        let Some(story) = self.story.as_mut() else {
+            return;
+        };
+        host.set_story_fades_on_hud(story.fades_by_media());
+        if messages.iter().any(|message| story.is_fade_done(message)) {
+            host.story_fade_done();
+        }
+        let events = host.take_story_events();
+        let strings = self.strings.clone();
+        for shown in story.frame_events(tree, events, strings.as_deref()) {
+            requests.push(HudRequest::StoryGameplay(shown));
+        }
     }
 
     /// The options and saved layout that reload this frame (`gmChatOptionsUI`, `gmGamePlayUI`,

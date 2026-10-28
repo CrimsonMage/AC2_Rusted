@@ -52,6 +52,8 @@ mod fellow_info;
 mod fellow_rows;
 mod fellowship;
 mod frame_passes;
+mod hud_effects;
+pub use hud_effects::HudEffects;
 mod game_dialogs;
 mod hud;
 pub use frame_passes::{FrameHosts, FrameInputs, HudHost, Reloads};

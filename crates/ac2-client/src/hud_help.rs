@@ -11,13 +11,22 @@
 use crate::hud_view::HudView;
 
 impl HudView {
-    /// `KeyStone::OpenHelp(token)`: the topic's page in the help window (token 0 is the default
-    /// page). The window reads the pages it already holds; no file is read here.
-    pub(crate) fn open_help(&mut self, token: u32) {
-        let (Some(help), Some((tree, _))) = (self.panels.help.as_mut(), self.hud.as_mut()) else {
-            return;
-        };
-        help.open(tree, self.panels.help_pages.as_ref(), token);
-        self.dirty = true;
+    /// The window pixel a `gm3DItemsUI` target search waits at (`StartFind3DTarget`), if one does.
+    pub(crate) fn world_pick_point(&self) -> Option<(i32, i32)> {
+        self.panels.items_3d.as_ref()?.wants_pick()?;
+        Some(self.pointer())
+    }
+
+    /// The gameplay panels' show state for a story: hidden at its start (the state they had is
+    /// kept), restored at its end.
+    pub(crate) fn set_story_gameplay_shown(&mut self, shown: bool) {
+        if shown {
+            if let Some(before) = self.story_hid_gameplay.take() {
+                self.set_gameplay_shown(before);
+            }
+        } else if self.story_hid_gameplay.is_none() {
+            self.story_hid_gameplay = Some(self.gameplay_shown);
+            self.set_gameplay_shown(false);
+        }
     }
 }

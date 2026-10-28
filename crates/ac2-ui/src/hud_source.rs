@@ -8,6 +8,7 @@ use crate::consignment::ConsignmentSource;
 use crate::craft::CraftSource;
 use crate::examination_effects::ExaminationSource;
 use crate::game_dialogs::DialogText;
+use crate::ingredient::IngredientSource;
 use crate::inventory_notices::InventoryNoticeSource;
 use crate::item_display::InventorySource;
 use crate::pets::PetSource;
@@ -38,6 +39,7 @@ pub trait HudSource:
     + QuestSource
     + ExaminationSource
     + CraftSource
+    + IngredientSource
 {
 }
 
@@ -58,5 +60,6 @@ impl<T> HudSource for T where
         + QuestSource
         + ExaminationSource
         + CraftSource
+        + IngredientSource
 {
 }
