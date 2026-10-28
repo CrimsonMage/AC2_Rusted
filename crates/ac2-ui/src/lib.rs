@@ -108,7 +108,7 @@ mod navigation_map;
 mod net_status;
 pub use book::{book_pass, BookRequest, BookUi};
 pub use help::{help_button_topic, load_help_pages, HelpPages, HELP_BUTTONS, KEYSTONE_PANEL_KEY};
-pub use help_window::HelpWindow;
+pub use help_window::{help_pass, HelpWindow};
 mod overview_map;
 mod panel;
 mod paper_doll;

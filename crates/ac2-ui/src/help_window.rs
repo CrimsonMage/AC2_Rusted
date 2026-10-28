@@ -18,13 +18,13 @@
 
 use crate::book::BookUi;
 use crate::element::UiTree;
-use crate::help::HelpPages;
+use crate::help::{help_button_topic, HelpPages, KEYSTONE_PANEL_KEY};
 use crate::help_view::{
     layout_blocks, HelpBlock, HelpLayout, HelpLink, HelpMetrics, HelpRequest, HelpView,
 };
 use crate::ksml::{KsmlDocument, KsmlFrame, KsmlNode};
 use crate::layout::LayoutDesc;
-use crate::mouse::{UiMessage, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::scrollbar::MSG_NEW_POSITION;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP, TEXT_LEFT_MARGIN};
 use std::sync::Arc;
@@ -54,6 +54,41 @@ pub struct HelpWindow {
     book: BookUi,
     view: HelpView,
     rows: Vec<Row>,
+}
+
+/// The help frameworks' messages: the key stone key toggles the window (`gmToolbarUI`'s
+/// `ShowKeyStone(!shown)`: the default page, token 0, when it opens), the window's own messages
+/// run ([`HelpWindow::message`]), and a panel's help button (its release) opens its topic.
+/// Returns whether the window changed.
+pub fn help_pass(
+    help: &mut HelpWindow,
+    tree: &mut UiTree,
+    pages: Option<&HelpPages>,
+    messages: &[UiMessage],
+) -> bool {
+    let mut changed = false;
+    for message in messages {
+        if message.message == GLOBAL_KEY_PRESS && message.data as u32 == KEYSTONE_PANEL_KEY {
+            if help.is_shown() {
+                help.close(tree);
+            } else {
+                help.open(tree, pages, 0);
+            }
+            changed = true;
+            continue;
+        }
+        if help.message(tree, pages, message) {
+            changed = true;
+            continue;
+        }
+        if message.message == MSG_BUTTON_RELEASE_ON {
+            if let Some(topic) = help_button_topic(message.element_id) {
+                help.open(tree, pages, tokenize(topic.id));
+                changed = true;
+            }
+        }
+    }
+    changed
 }
 
 impl HelpWindow {
