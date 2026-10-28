@@ -8974,7 +8974,7 @@ key	status	note
 005b5570	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b5610	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b5670	-	D3D device lifecycle/restore; wgpu replaces
-005b5710	~	ac2-client ClientPrefs::save_overall_graphics_quality: [Graphics] OverallGraphicsQuality written at once to the preferences file (retail: cwd Preferences.ini, else the device path; the port: the user configuration directory); tests: ac2-client prefs_7160 the_graphics_quality_is_written_at_once_and_reads_back_through_the_dat_names
+005b5710	x	ac2-render prefs::save_overall_graphics_quality over ac2-prefs PrefsFile::save_uint_now; ac2-client ClientPrefs wraps the file
 005b5860	_	needs port: overall graphics quality preset applied to the degrade levels
 005b5e70	-	D3D device lifecycle/restore; wgpu replaces
 005b5ee0	_	needs port: graphics preference apply (quality, degrade, device-independent effects)

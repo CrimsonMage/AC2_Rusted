@@ -12,8 +12,11 @@ use ac2_audio::prefs::{DISABLE_SOUND, FX_VOLUME};
 /// `ID_Rendering_FullScreen`, the display section's key.
 const FULL_SCREEN: u32 = 0x4000_0003;
 use ac2_audio::{Channel, NullSink, SoundManager};
-use ac2_client::{ClientPrefs, Close, OptionsWindow};
-use ac2_ui::{ClientPage, ClientPageText, DialogFactory, PageAction, UiTree};
+use ac2_client::ClientPrefs;
+use ac2_ui::{
+    ClientPage, ClientPageText, Close, DialogFactory, OptionsPrefs, OptionsWindow, PageAction,
+    UiTree,
+};
 
 /// No sounds: the page never loads one.
 struct NoSounds;
@@ -62,7 +65,13 @@ fn ok_writes_the_file_and_changes_the_live_sound_setting() {
         .expect("FX volume is registered")
         .set_float(0.25);
     let outcome = prefs.options_apply();
-    assert!(outcome.applied_sound(), "the sound section applies");
+    assert!(
+        outcome
+            .keys
+            .iter()
+            .any(|key| ac2_audio::prefs::SOUND_KEYS.contains(key)),
+        "the sound section applies"
+    );
     assert!(!outcome.verify_render);
     outcome.wait_saved().expect("the file is written");
     ac2_audio::prefs::apply(&mut live, prefs.bank());
@@ -98,10 +107,10 @@ fn cancel_changes_nothing() {
         .expect("registered")
         .set_float(0.1);
     let mut window = OptionsWindow::default();
-    assert_eq!(window.request_close(&prefs), Close::Confirm);
+    assert_eq!(window.request_close(prefs.file()), Close::Confirm);
     assert!(window.confirming());
     assert!(
-        window.answer(&mut prefs, false).is_none(),
+        window.answer(prefs.file_mut(), false).is_none(),
         "no applies nothing"
     );
     assert!(!window.confirming());

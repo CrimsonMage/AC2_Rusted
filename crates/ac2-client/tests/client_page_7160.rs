@@ -16,8 +16,8 @@ use ac2_client::ClientPrefs;
 use ac2_db::ResourceStore;
 use ac2_ui::{
     build_gameplay_hud, load_layout_by_enum, tokenize, ClientOptionsUi, ClientRequest,
-    DialogFactory, DialogOutcome, GameplayHud, PageAction, UiMessage, UiTree, DIALOG_CONFIRMATION,
-    DIALOG_TIMED, MSG_BUTTON_RELEASE_ON, SECTION_ORDER,
+    DialogFactory, DialogOutcome, GameplayHud, OptionsPrefs, PageAction, UiMessage, UiTree,
+    DIALOG_CONFIRMATION, DIALOG_TIMED, MSG_BUTTON_RELEASE_ON, SECTION_ORDER,
 };
 use common::*;
 use legions_server_double::Spawn;
@@ -73,7 +73,7 @@ fn page_over_hud(
         tables,
         prefs.bank(),
         prefs.names(),
-        ac2_client::pref_label,
+        ac2_ui::pref_label,
     )
     .expect("the client page");
     (hud, page)

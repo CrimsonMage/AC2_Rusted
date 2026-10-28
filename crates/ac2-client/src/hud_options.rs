@@ -15,7 +15,8 @@ use std::thread::JoinHandle;
 
 use ac2_render::prefs::SceneOptions;
 use ac2_ui::{
-    ClientOptionsUi, ClientRequest, DialogFactory, DialogOutcome, LayoutDesc, UiMessage, UiTree,
+    ClientOptionsUi, ClientRequest, DialogFactory, DialogOutcome, LayoutDesc, OptionsPrefs,
+    UiMessage, UiTree,
 };
 
 use crate::client::Client;
@@ -79,7 +80,7 @@ impl OptionsPages {
             (ui, pref_table),
             prefs.bank(),
             prefs.names(),
-            crate::pref_labels::pref_label,
+            ac2_ui::pref_label,
         );
     }
 

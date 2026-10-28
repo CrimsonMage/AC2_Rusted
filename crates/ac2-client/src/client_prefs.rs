@@ -1,21 +1,20 @@
-//! The client's preferences: `Preferences.ini` read at startup and written on a save, the
-//! subsystems' preferences registered in the bank, and the names read from the DAT's enum tables.
+//! The client's preferences: the DAT's name table, and the registrations of the subsystems
+//! (sound, render and smartbox) over the file the [`ac2_prefs::PrefsFile`] reads and writes.
 //!
-//! The frame thread never touches the file: [`ClientPrefs::load`] runs before the frame loop, and
-//! [`ClientPrefs::save`] builds the bytes on the caller and writes them on a worker thread.
-//!
-//! The registered sets are the sound manager's, the render's (graphics and avatar, and the
-//! display), and the camera's. The client network's keys and FX's are not registered yet (see
-//! `docs/retail-catalog`).
+//! The file IO is `ac2_prefs::PrefsFile` (read at startup, written on a worker thread on a save);
+//! the graphics quality's read and save are `ac2_render::prefs`. The client network's keys and
+//! FX's are not registered yet (see `docs/retail-catalog`).
 
 use std::io;
-use std::path::{Path, PathBuf};
+use std::ops::{Deref, DerefMut};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread::JoinHandle;
 
 use ac2_db::ResourceStore;
 use ac2_prefs::ini::text_of;
-use ac2_prefs::{paths, NameTable, PreferenceBank, Preferences};
+use ac2_prefs::{NameTable, PrefsFile};
+use ac2_render::prefs::SceneOptions;
 use ac2_script::data::{DatScriptData, EMAPPER_GROUP};
 use ac2_script::vm::ScriptData;
 
@@ -102,104 +101,67 @@ impl NameTable for DatNames {
     }
 }
 
-/// `Render::SaveOverallGraphicsQuality`'s section and key (literal in the client).
-const GRAPHICS_SECTION: &str = "Graphics";
-const GRAPHICS_QUALITY_KEY: &str = "OverallGraphicsQuality";
-/// `Preferences::InqBool(0x40000004, 0x40000073)`: the section and key the quality is read from.
-const GRAPHICS_SECTION_ID: u32 = 0x4000_0004;
-const GRAPHICS_QUALITY_ID: u32 = 0x4000_0073;
-
-/// The client's preferences: the bank, the session cache of the other values, the names they
-/// are written with, and the file they live in.
+/// The client's preferences: the file with the subsystems' preferences registered, over the DAT's
+/// names. The file's methods are reached through `Deref`.
 pub struct ClientPrefs {
-    bank: PreferenceBank,
-    cache: Preferences,
-    names: DatNames,
-    path: PathBuf,
+    file: PrefsFile<DatNames>,
 }
 
 impl ClientPrefs {
-    /// Reads `path` (an empty file when there is none) and registers the sound preferences. Runs
-    /// before the frame loop.
+    /// Reads `path` (an empty file when there is none) and registers the sound, render (graphics
+    /// and display) and camera preferences. Runs before the frame loop.
     pub fn load(path: PathBuf, store: Arc<ResourceStore>) -> io::Result<Self> {
-        let bytes = paths::read_or_empty(&path)?;
-        let names = DatNames::new(&store);
-        let mut bank = PreferenceBank::new(&bytes);
-        ac2_audio::prefs::register(&mut bank, &names);
-        ac2_render::prefs::register_graphics(&mut bank, &names);
-        ac2_render::prefs::register_device(&mut bank, &names);
-        ac2_smartbox::prefs::register(&mut bank, &names);
-        let cache = Preferences::new(&bytes);
-        Ok(Self {
-            bank,
-            cache,
-            names,
-            path,
-        })
+        let mut file = PrefsFile::load(path, DatNames::new(&store))?;
+        let (bank, names) = file.parts_mut();
+        ac2_audio::prefs::register(bank, names);
+        ac2_render::prefs::register_graphics(bank, names);
+        ac2_render::prefs::register_device(bank, names);
+        ac2_smartbox::prefs::register(bank, names);
+        Ok(Self { file })
     }
 
-    /// `Preferences::InqBool(0x40000004, 0x40000073)`: the saved graphics quality (the render
-    /// applies it when it is 1 to 5).
+    /// `Preferences::InqBool(0x40000004, 0x40000073)`: the saved graphics quality.
     pub fn overall_graphics_quality(&self) -> Option<u32> {
-        self.cache
-            .inq_bool(&self.names, GRAPHICS_SECTION_ID, GRAPHICS_QUALITY_ID)
+        ac2_render::prefs::overall_graphics_quality(&self.file)
     }
 
-    /// `Render::SetOverallGraphicsQuality`'s save: `Preferences::SetUInt32` for the session, then
-    /// `[Graphics] OverallGraphicsQuality` written into the file at once. The file is written on
-    /// a worker thread.
+    /// `Render::SaveOverallGraphicsQuality`'s save, on a worker thread.
     pub fn save_overall_graphics_quality(&mut self, level: u32) -> JoinHandle<io::Result<()>> {
-        self.cache
-            .set_uint32(GRAPHICS_SECTION_ID, GRAPHICS_QUALITY_ID, level);
-        let text = level.to_string();
-        self.bank
-            .write_file_value(GRAPHICS_SECTION, GRAPHICS_QUALITY_KEY, &text);
-        self.cache
-            .write_file_value(GRAPHICS_SECTION, GRAPHICS_QUALITY_KEY, &text);
-        self.write_file()
+        ac2_render::prefs::save_overall_graphics_quality(&mut self.file, level)
     }
 
-    /// `Render::SetOverallGraphicsQuality(level)`: the preset's values and defaults go into the
-    /// bank and the graphics section is applied (the file is written by
-    /// [`ClientPrefs::save_overall_graphics_quality`]). `false` for a level without a preset.
+    /// `Render::SetOverallGraphicsQuality(level)`: the preset's values go into the bank. `false`
+    /// for a level without a preset.
     pub fn set_overall_graphics_quality(&mut self, level: u32) -> bool {
-        ac2_render::prefs::apply_quality(&mut self.bank, level)
+        ac2_render::prefs::apply_quality(self.file.bank_mut(), level)
     }
 
-    /// The scene's graphics options as the bank holds them now: the draw distance and the frill
-    /// distance (`ac2_render::prefs::scene_options`). After an apply, the caller hands them to the
-    /// view with `ClientView::set_scene_options`.
-    pub fn scene_options(&self) -> ac2_render::prefs::SceneOptions {
-        ac2_render::prefs::scene_options(&self.bank)
+    /// The scene's graphics options as the bank holds them now (`ac2_render::prefs::scene_options`).
+    pub fn scene_options(&self) -> SceneOptions {
+        ac2_render::prefs::scene_options(self.file.bank())
     }
 
-    pub fn bank(&self) -> &PreferenceBank {
-        &self.bank
+    /// The file the preferences are read from and written to.
+    pub fn file(&self) -> &PrefsFile<DatNames> {
+        &self.file
     }
 
-    pub fn bank_mut(&mut self) -> &mut PreferenceBank {
-        &mut self.bank
+    /// The file, for the options page's actions (`ac2_ui::OptionsPrefs`).
+    pub fn file_mut(&mut self) -> &mut PrefsFile<DatNames> {
+        &mut self.file
     }
+}
 
-    pub fn names(&self) -> &DatNames {
-        &self.names
+impl Deref for ClientPrefs {
+    type Target = PrefsFile<DatNames>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.file
     }
+}
 
-    pub fn path(&self) -> &Path {
-        &self.path
-    }
-
-    /// `PreferenceBank::Save`: every preference is written into the file image, and the image is
-    /// written to the file on a worker thread (the caller does not wait for the disk).
-    pub fn save(&mut self) -> JoinHandle<io::Result<()>> {
-        self.bank.save(&self.names);
-        self.write_file()
-    }
-
-    /// The file image, written to the path on a worker thread.
-    fn write_file(&self) -> JoinHandle<io::Result<()>> {
-        let bytes = self.bank.file_bytes();
-        let path = self.path.clone();
-        std::thread::spawn(move || paths::write_atomic(&path, &bytes))
+impl DerefMut for ClientPrefs {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.file
     }
 }

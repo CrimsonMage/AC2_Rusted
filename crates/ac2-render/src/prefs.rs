@@ -16,7 +16,10 @@
 //! Levels 4 and 5 jump into the function's shared tail; the table lists the values that tail
 //! sets for them.
 
-use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, Value};
+use std::io;
+use std::thread::JoinHandle;
+
+use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, PrefsFile, Value};
 
 use crate::frill::FrillSettings;
 use crate::terrain::far_radius_for_draw_distance;
@@ -415,3 +418,27 @@ pub fn landscape_draw_distance(bank: &PreferenceBank) -> Option<u32> {
 #[cfg(test)]
 #[path = "prefs_tests.rs"]
 mod prefs_tests;
+
+/// `OverallGraphicsQuality` (key `0x40000073` in the graphics section): the saved quality level.
+pub const OVERALL_GRAPHICS_QUALITY: u32 = 0x4000_0073;
+/// `[Graphics] OverallGraphicsQuality` in the file (literal in the client).
+const OVERALL_GRAPHICS_QUALITY_FILE: (&str, &str) = ("Graphics", "OverallGraphicsQuality");
+
+/// `Preferences::InqBool(0x40000004, 0x40000073)`: the saved graphics quality (the render applies
+/// it when it is 1 to 5).
+pub fn overall_graphics_quality<N: NameTable>(file: &PrefsFile<N>) -> Option<u32> {
+    file.inq_bool(GRAPHICS_SECTION, OVERALL_GRAPHICS_QUALITY)
+}
+
+/// `Render::SaveOverallGraphicsQuality(level)`: the level is set for the session and written to
+/// the file at once, on a worker thread.
+pub fn save_overall_graphics_quality<N: NameTable>(
+    file: &mut PrefsFile<N>,
+    level: u32,
+) -> JoinHandle<io::Result<()>> {
+    file.save_uint_now(
+        (GRAPHICS_SECTION, OVERALL_GRAPHICS_QUALITY),
+        OVERALL_GRAPHICS_QUALITY_FILE,
+        level,
+    )
+}

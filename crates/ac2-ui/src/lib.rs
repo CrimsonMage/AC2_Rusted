@@ -74,6 +74,10 @@ mod items_3d_tests;
 mod journal_time;
 mod layout;
 mod menu;
+mod options_window;
+mod pref_labels;
+pub use options_window::{ApplyOutcome, Close, OptionsPrefs, OptionsWindow, PageOutcome};
+pub use pref_labels::pref_label;
 #[cfg(test)]
 mod menu_tests;
 #[cfg(test)]

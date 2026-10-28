@@ -9,6 +9,7 @@
 
 pub mod bank;
 pub mod cnum;
+pub mod file;
 pub mod gls_ticket;
 pub mod ini;
 pub mod names;
@@ -17,6 +18,7 @@ pub mod pref;
 pub mod store;
 
 pub use bank::PreferenceBank;
+pub use file::PrefsFile;
 pub use names::{NameTable, NoNames};
 pub use pref::{Choice, Kind, Pref, Value};
 pub use store::Preferences;

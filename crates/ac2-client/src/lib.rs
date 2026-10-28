@@ -30,7 +30,6 @@ mod client_latent;
 mod client_locations;
 mod client_positions;
 pub use client_locations::{saved_windows, ui_save_locations};
-mod client_options;
 mod client_prefs;
 mod clipboard;
 pub use help_content::{content_dir, resolve_content_dir, set_content_dir, CONTENT_DIR_ENV};
@@ -46,10 +45,8 @@ mod sound_space;
 pub use ac2_audio::{PortalSoundIds, RainSoundIds};
 pub use ac2_smartbox::fx_objects::FxLooks;
 pub use ac2_ui::add_map_note;
-pub use client_options::{ApplyOutcome, Close, OptionsWindow, PageOutcome};
 pub use client_prefs::{ClientPrefs, DatNames};
 pub use hud_options::OptionsEffect;
-pub use pref_labels::pref_label;
 pub use sound_ids::{portal_sound_ids, rain_sound_ids};
 pub use target_select::pick_targets;
 pub use window_presentation::WindowPresentation;
@@ -101,7 +98,6 @@ mod loader;
 mod motion;
 #[cfg(feature = "window")]
 mod paper_doll_scene;
-mod pref_labels;
 mod pregame;
 #[cfg(feature = "window")]
 pub mod pregame_scene;

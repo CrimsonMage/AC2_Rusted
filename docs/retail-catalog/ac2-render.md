@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 122 done, 57 partial, 245 to do, 357 skipped.
+781 retail functions: 123 done, 56 partial, 245 to do, 357 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -139,7 +139,7 @@ Legend and workflow: [README](README.md).
 - [-] `PixelFormatDesc::DetermineFormat` · 005ac870 — D3D device/resource plumbing; wgpu replaces
 - [-] `PixelFormatDesc::PixelFormatDesc` · 005acba0 · legions 00578a90 — D3D device/resource plumbing; wgpu replaces
 
-## `portal/client/src/render/core/render.cpp.c` (0/27)
+## `portal/client/src/render/core/render.cpp.c` (1/27)
 
 ### Render
 - [ ] `Render::HandleChange` · 005b30c0 · legions 0057da60 — needs port: graphics preference change handling (quality, degrade, device-independent effects)
@@ -175,7 +175,7 @@ Legend and workflow: [README](README.md).
 
 ### Render
 - [-] `Render::StartupRenderingSystem` · 005b5670 · legions 00580010 — D3D device lifecycle/restore; wgpu replaces
-- [~] `Render::SaveOverallGraphicsQuality` · 005b5710 · legions 005800b0 — ac2-client ClientPrefs::save_overall_graphics_quality: [Graphics] OverallGraphicsQuality written at once to the preferences file (retail: cwd Preferences.ini, else the device path; the port: the user configuration directory); tests: ac2-client prefs_7160 the_graphics_quality_is_written_at_once_and_reads_back_through_the_dat_names
+- [x] `Render::SaveOverallGraphicsQuality` · 005b5710 · legions 005800b0 — ac2-render prefs::save_overall_graphics_quality over ac2-prefs PrefsFile::save_uint_now; ac2-client ClientPrefs wraps the file
 - [ ] `Render::UpdateOverallGraphicsQuality` · 005b5860 — needs port: overall graphics quality preset applied to the degrade levels
 - [-] `Render::LinkRGRCallback` · 005b5e70 · legions 00580810 — D3D device lifecycle/restore; wgpu replaces
 - [ ] `Render::HandleApply` · 005b5ee0 · legions 00580880 — needs port: graphics preference apply (quality, degrade, device-independent effects)
