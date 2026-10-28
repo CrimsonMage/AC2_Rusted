@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1206 done, 368 partial, 162 to do, 511 skipped.
+2247 retail functions: 1206 done, 369 partial, 158 to do, 514 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -345,9 +345,9 @@ Legend and workflow: [README](README.md).
 
 ### gmPetUI
 - [x] `gmPetUI::UpdateState` · 00418cb0 · legions 00418a70 — ac2-ui pets.rs update_state: the PetPanel state (pets / nopets), the four buttons ghosted, the root drawn only with a pet listed and the UI on; tests in pets_tests.rs
-- [ ] `gmPetUI::RecvNotice_ReloadGameplayOptions` · 00418e20 — needs port (check): gmPetUI::RecvNotice_ReloadGameplayOptions behaviour; implemented area ac2-ui pets.rs but uncited
+- [-] `gmPetUI::RecvNotice_ReloadGameplayOptions` · 00418e20 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
 - [~] `gmPetUI::RecvNotice_RemovePet` · 00419130 — Legions 7160 routes no RemovePet here (slot 0x6c is a no-op stub), so the row stays; the typed notice is parsed in ac2-script
-- [ ] `gmPetUI::RecvNotice_SelectionChanged` · 004191d0 — needs port (check): gmPetUI::RecvNotice_SelectionChanged behaviour; implemented area ac2-ui pets.rs but uncited
+- [-] `gmPetUI::RecvNotice_SelectionChanged` · 004191d0 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
 - [-] `gmPetUI::~gmPetUI` · 00419430 · legions 00419270 — C++ destructor: the Rust drop and the HUD's tree own the panel's elements
 - [x] `gmPetUI::Refresh` · 00419580 · legions 004193c0 — ac2-ui pets.rs tick: the five-second pass, each row's wanted mode sent (PetAction::Mode -> Command::PetMode), the unsafe pet back to safe
 - [x] `gmPetUI::RecvNotice_PetIsUnderAttack` · 00419730 — ac2-ui pets.rs pet_under_attack: the Name state unsafe and the attack time; HUD routes PetIsUnderAttack (ac2-client hud_pets.rs)
@@ -357,7 +357,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0 — Legions 7160 routes no UpdatePetMode here (gmNoticeHandler slot 0x70 is a no-op stub); not ported as a notice, the typed notice is parsed in ac2-script
 - [~] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: the buttons (attack on the selection, return, heal, buff), the arrows, and a row press selecting its pet; the name edit (RequestSetPetName from the text) is not ported (the command is, see the CallIFun rows)
 - [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
-- [ ] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — needs port (check): gmPetUI::RecvNotice_UpdatePetName behaviour; implemented area ac2-ui pets.rs but uncited
+- [-] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
 
 ## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (28/35)
 
@@ -3390,14 +3390,14 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [ ] `UIElement_Scrollbar::SetAttribute_Int` · 005fa820 · legions 005bb350 — needs port (check): UIElement_Scrollbar::SetAttribute_Int behaviour; implemented area ac2-ui scrollbar.rs but uncited
 - [x] `UIElement_Scrollbar::MouseUp` · 005fa860 · legions 005bb390 — ac2-ui scrollbar.rs
-- [ ] `UIElement_Scrollbar::Global_Loop` · 005fa910 · legions 005bb440 — needs port (check): UIElement_Scrollbar::Global_Loop behaviour; implemented area ac2-ui scrollbar.rs but uncited
+- [~] `UIElement_Scrollbar::Global_Loop` · 005fa910 · legions 005bb440 — ac2-ui scrollbar.rs scrollbar_global_loop: a held track press pages again every page_interval (0.1 s) after page_first_interval (0.3 s), while the pointer has not reached the widget and the bar can move that way (test list_scroll_tests a_track_press_held_pages_again). Not: the smooth-movement animation (StartAnimation/StopAnimation: nothing in the ported code sets goal_x/y_position yet); retail arms the repeat time only for a vertical press, a horizontal-only press does not repeat here (retail would fire every frame from time 0)
 - [x] `UIElement_Scrollbar::Global_MouseMove` · 005fabe0 · legions 005bb710 — ac2-ui scrollbar.rs
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005facd0 · legions 005bb800 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [x] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [x] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900 — ac2-ui scrollbar.rs
 - [~] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [-] `UIElement_Scrollbar::Create` · 005fb0a0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
-- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: wheel, widget press/drag, touched position, and a track press pages once (scrollbar_page_press -> list_page_step); not modelled: repeating the page while held (Global_Loop timer), stop-location snapping on press
+- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: wheel, widget press/drag, touched position, a track press pages once and arms the held repeat (Global_Loop paging, vertical presses). Not modelled: the horizontal-only repeat
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [-] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 

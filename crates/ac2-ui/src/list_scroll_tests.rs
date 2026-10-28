@@ -53,6 +53,11 @@ fn rect(x0: i16, y0: i16, x1: i16, y1: i16) -> Rect {
 /// list scrolls 30 pixels (`paper - height`).
 /// Returns the tree, the list, the scroll bar and the layout.
 fn panel() -> (UiTree, usize, usize, Arc<LayoutDesc>) {
+    panel_with_widget(false)
+}
+
+/// The panel whose bar has a 5 pixel high thumb (`widget`).
+fn panel_with_widget(widget: bool) -> (UiTree, usize, usize, Arc<LayoutDesc>) {
     let list = element(
         "List",
         tokenize("listbox"),
@@ -68,7 +73,17 @@ fn panel() -> (UiTree, usize, usize, Arc<LayoutDesc>) {
         tokenize("scrollbar"),
         rect(40, 0, 49, 19),
         vec![],
-        vec![],
+        if widget {
+            vec![element(
+                "widget",
+                tokenize("field"),
+                rect(0, 0, 9, 4),
+                vec![],
+                vec![],
+            )]
+        } else {
+            vec![]
+        },
     );
     let panel = element(
         "Panel",
@@ -364,4 +379,25 @@ fn get_child_finds_a_direct_child_by_id_only() {
     // The list's items are its children, not the panel's.
     assert_eq!(tree.child(root, tokenize("Item")), None);
     assert!(tree.child_recursive(root, tokenize("Item")).is_some());
+}
+
+/// `UIElement_Scrollbar::MouseDown` pages once on a track press; `Global_Loop` pages again every
+/// `page_interval` after `page_first_interval` while the press is held and the pointer has not
+/// reached the widget.
+#[test]
+fn a_track_press_held_pages_again() {
+    let (mut tree, list, bar, _) = panel_with_widget(true);
+    tree.global_loop(1.0);
+    let track = tree.screen_box(bar);
+    tree.start_input(crate::UI_POINTER_X, (track.x0 + 1) as f32);
+    tree.start_input(crate::UI_POINTER_Y, (track.y1 - 1) as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    assert_eq!(view_y(&tree, list), 10, "the press pages once");
+    tree.global_loop(1.2);
+    assert_eq!(view_y(&tree, list), 10, "before the first interval");
+    tree.global_loop(1.31);
+    assert_eq!(view_y(&tree, list), 20, "held: the page repeats");
+    tree.stop_input(0x4000_0004);
+    tree.global_loop(2.0);
+    assert_eq!(view_y(&tree, list), 20, "released: no more pages");
 }

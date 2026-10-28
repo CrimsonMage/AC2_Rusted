@@ -30,10 +30,25 @@ const WIDGET_NORMAL: u32 = tokenize("normal");
 const LEFT: [u32; 2] = [0x4000_0004, 0x4000_0007];
 
 /// A scrollbar's drag (`m_nMouseWidgetXOffset`, `m_nMouseWidgetYOffset`, bit 0x10000).
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub(crate) struct ScrollbarState {
     pub dragging: bool,
     pub offset: (i32, i32),
+    /// A page press held on the track (`m_dwFlags` 0x20000 to 0x100000 and the next page time,
+    /// offset 0x228).
+    pub paging: Option<Paging>,
+}
+
+/// The page presses `UIElement_Scrollbar::MouseDown` flags on the track: which side of the
+/// widget the press was on, per axis, and when the next page is due.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub(crate) struct Paging {
+    pub next: f64,
+    /// Before and after the widget along x (0x20000, 0x40000) and y (0x80000, 0x100000).
+    pub before_x: bool,
+    pub after_x: bool,
+    pub before_y: bool,
+    pub after_y: bool,
 }
 
 impl UiTree {
@@ -228,6 +243,7 @@ impl UiTree {
         self.el_mut(index).scrollbar = Some(Box::new(ScrollbarState {
             dragging: true,
             offset: (px - w.x0, py - w.y0),
+            paging: None,
         }));
         self.set_state(widget, WIDGET_PRESSED);
         let root = self.root_of(index);
@@ -247,6 +263,89 @@ impl UiTree {
         for (vertical, before, after) in presses {
             if before || after {
                 self.scrollbar_page(index, vertical, after);
+            }
+        }
+        // The press arms the repeat: the next page is `page_first_interval` away (0.3 s by
+        // the constructor's default) when a vertical flag was set, as MouseDown's `0x180000`
+        // test does.
+        if presses[1].1 || presses[1].2 {
+            let first = self
+                .float_attribute(index, tokenize("page_first_interval"))
+                .unwrap_or(0.3);
+            let paging = Paging {
+                next: f64::from(first) + self.time,
+                before_x: presses[0].1,
+                after_x: presses[0].2,
+                before_y: presses[1].1,
+                after_y: presses[1].2,
+            };
+            self.el_mut(index).scrollbar = Some(Box::new(ScrollbarState {
+                paging: Some(paging),
+                ..ScrollbarState::default()
+            }));
+        }
+    }
+
+    /// `UIElement_Scrollbar::Global_Loop`'s paging half: while the press is held on the track and
+    /// its time has come, each flagged side whose widget edge the pointer has not reached, and
+    /// whose bar can still move that way, pages again; the next page is one `page_interval`
+    /// (0.1 s) after the one due. With no page due the time catches up to now.
+    pub(crate) fn scrollbar_global_loop(&mut self, index: usize) {
+        if !self.is_scrollbar(index) {
+            return;
+        }
+        let Some(paging) = self
+            .el(index)
+            .scrollbar
+            .as_ref()
+            .and_then(|state| state.paging)
+        else {
+            return;
+        };
+        let now = self.time;
+        if now < paging.next {
+            return;
+        }
+        let Some(widget) = self.widget(index) else {
+            return;
+        };
+        let w = self.screen_box(widget);
+        let (px, py) = self.pointer;
+        let own = self.scrollbar_position(index);
+        let horizontal = self.horizontal(index);
+        let axis = |tree: &Self, name: &str, mine: bool| -> Option<f32> {
+            tree.float_attribute(index, tokenize(name))
+                .or(mine.then_some(own))
+        };
+        let x_pos = axis(self, "x_position", horizontal);
+        let y_pos = axis(self, "y_position", !horizontal);
+        let can = |pos: Option<f32>, forward: bool| {
+            pos.is_none_or(|p| if forward { p < 1.0 } else { p > 0.0 })
+        };
+        let mut paged = false;
+        // Each side: (flag, pointer past the widget edge, axis, forward, bar can move).
+        let sides = [
+            (paging.before_x, px < w.x0, false, false, can(x_pos, false)),
+            (paging.after_x, px > w.x1, false, true, can(x_pos, true)),
+            (paging.before_y, py < w.y0, true, false, can(y_pos, false)),
+            (paging.after_y, py > w.y1, true, true, can(y_pos, true)),
+        ];
+        for (flag, past, vertical, forward, movable) in sides {
+            if flag && past && movable {
+                self.scrollbar_page(index, vertical, forward);
+                paged = true;
+            }
+        }
+        let interval = self
+            .float_attribute(index, tokenize("page_interval"))
+            .unwrap_or(0.1);
+        if let Some(state) = self.el_mut(index).scrollbar.as_mut() {
+            if let Some(p) = state.paging.as_mut() {
+                if paged {
+                    p.next += f64::from(interval);
+                } else if p.next < now {
+                    p.next = now;
+                }
             }
         }
     }

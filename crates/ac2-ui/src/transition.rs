@@ -179,6 +179,7 @@ impl UiTree {
         }
         self.update_transitions(index);
         self.button_global_loop(index);
+        self.scrollbar_global_loop(index);
         if self.get(index).is_some() && self.media_running(index) {
             self.update_media(index);
         }
