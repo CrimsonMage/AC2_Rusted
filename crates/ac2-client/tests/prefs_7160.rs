@@ -20,9 +20,10 @@ fn store() -> Option<Arc<ac2_db::ResourceStore>> {
     Some(Arc::new(ac2_db::ResourceStore::new(dataset)))
 }
 
+/// A file in its own directory per test (tests run in parallel and each removes its directory).
 fn temp_file(name: &str) -> PathBuf {
     std::env::temp_dir()
-        .join(format!("ac2-client-prefs-{}", std::process::id()))
+        .join(format!("ac2-client-prefs-{}-{name}", std::process::id()))
         .join(name)
 }
 
