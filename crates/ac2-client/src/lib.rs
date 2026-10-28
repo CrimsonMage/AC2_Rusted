@@ -56,7 +56,6 @@ mod hud_friends;
 pub use friends::{FriendEvent, FriendResult};
 mod gameplay;
 #[cfg(feature = "window")]
-mod hud_book;
 #[cfg(feature = "window")]
 mod hud_character;
 mod hud_chat_options;

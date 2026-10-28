@@ -14,11 +14,12 @@ use ac2_world::GameDateTime;
 use crate::element::UiTree;
 use crate::friends_panel::{friend_event, FriendEvent};
 use crate::target_select::frame_selection_calls;
+use crate::token::tokenize;
 use crate::{
-    BackpackUi, ChatSettings, FellowshipSource, Hud, HudRequest, HudSource, InventorySource,
-    Items3dUi, MapMarker, MessageInputs, MoneyBagUi, NameLook, OptionsHost, OptionsSettings,
-    PaperDollUi, SavedWindow, ShortcutCalls, StatusBar, TickInputs, UiStrings, WindowPosition,
-    PROFILE_LATENCY_INDICATOR_GRAPH,
+    book_pass, BackpackUi, BookRequest, ChatSettings, FellowshipSource, Hud, HudRequest, HudSource,
+    InventorySource, Items3dUi, MapMarker, MessageInputs, MoneyBagUi, NameLook, OptionsHost,
+    OptionsSettings, PaperDollUi, SavedWindow, ShortcutCalls, StatusBar, TickInputs, UiStrings,
+    WindowPosition, PROFILE_LATENCY_INDICATOR_GRAPH,
 };
 
 /// What the client answers the frame's passes with: its options and saved places, the player's
@@ -137,6 +138,16 @@ impl Hud {
             shortcuts,
         } = hosts;
         let mut requests = Vec::new();
+        // `gmBookUI`: the use notices show the book, then its messages turn the pages. Its help
+        // button opens the help topic; the copy button has no clipboard counterpart yet and is
+        // dropped.
+        if let Some(book) = self.book.as_mut() {
+            for request in book_pass(book, tree, player, input.events, &messages) {
+                if let BookRequest::OpenHelp = request {
+                    requests.push(HudRequest::OpenHelp(tokenize("ID_Help_Book")));
+                }
+            }
+        }
         let (reload, reloads) = self.reload_pass(tree, dirty, player, input);
         requests.extend(reload);
         self.map_pass(tree, player, input, reloads);

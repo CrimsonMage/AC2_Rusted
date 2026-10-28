@@ -5,7 +5,7 @@
 //! help button is released (`gmSkillUI`, `gmOptionUI`, ...). `gmToolbarUI::ListenToMessage` turns
 //! the key stone key (`0x400000BB`) into `ShowKeyStone(!shown)`: the default page (token 0) when
 //! it opens, `KeyStone::CloseHelp` when it closes. The book and the social panel return their
-//! help requests from their own messages ([`crate::hud_book`], [`crate::hud_player_message`]).
+//! help requests from their own messages ([`crate::hud_player_message`]).
 //! The frame's pass is [`ac2_ui::help_pass`].
 
 use crate::hud_view::HudView;

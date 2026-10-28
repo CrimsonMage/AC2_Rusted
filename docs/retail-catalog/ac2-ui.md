@@ -102,7 +102,7 @@ Legend and workflow: [README](README.md).
 
 ### gmBookUI
 - [x] `gmBookUI::CreateManagedElements` · 0041eaa0 · legions 0041e8c0 — ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
-- [x] `gmBookUI::Show` · 0041eb50 · legions 0041e970 — ac2-ui book.rs BookUi::show; book_pass shows it on the use notice (hud_book.rs delegates)
+- [x] `gmBookUI::Show` · 0041eb50 · legions 0041e970 — ac2-ui book.rs BookUi::show; book_pass runs in Hud::frame on the use notice (the client's hud_book.rs is gone)
 - [x] `gmBookUI::SynchSliderBar` · 0041ebc0 · legions 0041e9e0 — ac2-ui book.rs BookUi::sync_slider (BookSliderBar x position)
 - [x] `gmBookUI::PreviousPage` · 0041ec50 · legions 0041ea70 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
 - [x] `gmBookUI::NextPage` · 0041ec70 · legions 0041ea90 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
