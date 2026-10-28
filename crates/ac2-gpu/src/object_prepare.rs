@@ -121,6 +121,7 @@ impl ObjectRenderer {
                             pass,
                             backdrop == Some(instance_index),
                             instance.model.radius,
+                            instance.model.center,
                         );
                         if group.sky {
                             key = sky_depth(key);

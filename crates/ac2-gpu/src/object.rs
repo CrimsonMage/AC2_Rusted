@@ -51,6 +51,9 @@ mod stream_tests;
 #[path = "decal_draw_tests.rs"]
 mod decal_draw_tests;
 #[cfg(test)]
+#[path = "sky_role_tests.rs"]
+mod sky_role_tests;
+#[cfg(test)]
 #[path = "streak_strip_tests.rs"]
 mod streak_strip_tests;
 

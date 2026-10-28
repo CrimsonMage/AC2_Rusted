@@ -2,6 +2,24 @@
 
 use super::*;
 
+/// A model's vertex centre and the farthest vertex from its origin, in model space (each part's
+/// vertices placed by its transform): `GpuObjectModel::center` and `radius`.
+pub(crate) fn model_bounds(model: &ObjectModel) -> (Vec3, f32) {
+    let (mut sum, mut count, mut radius) = (Vec3::ZERO, 0.0_f32, 0.0_f32);
+    for part in &model.parts {
+        for v in part.vertices.iter() {
+            let position = part
+                .transform
+                .transform_point3(Vec3::from_array(v.position));
+            sum += position;
+            radius = radius.max(position.length());
+            count += 1.0;
+        }
+    }
+    let center = if count > 0.0 { sum / count } else { Vec3::ZERO };
+    (center, radius)
+}
+
 impl ObjectRenderer {
     pub fn upload(
         &mut self,
@@ -11,8 +29,6 @@ impl ObjectRenderer {
     ) -> GpuObjectModel {
         let device = &gpu.device;
         let mut parts = Vec::with_capacity(model.parts.len());
-        let (mut sum, mut count) = (Vec3::ZERO, 0.0_f32);
-        let mut radius = 0.0_f32;
         for part in &model.parts {
             let vertices: Vec<GpuVertex> = part
                 .vertices
@@ -36,14 +52,6 @@ impl ObjectRenderer {
                     }
                 })
                 .collect();
-            for v in part.vertices.iter() {
-                let position = part
-                    .transform
-                    .transform_point3(Vec3::from_array(v.position));
-                sum += position;
-                radius = radius.max(position.length());
-                count += 1.0;
-            }
             let mut indices = Vec::new();
             let mut batches = Vec::with_capacity(part.batches.len());
             for batch in &part.batches {
@@ -85,9 +93,10 @@ impl ObjectRenderer {
             });
         }
         let first_list = model.first_list();
+        let (center, radius) = model_bounds(model);
         GpuObjectModel {
             parts,
-            center: if count > 0.0 { sum / count } else { Vec3::ZERO },
+            center,
             first_list,
             radius,
         }

@@ -7,7 +7,10 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2]
+//! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS]
 //! ```
+//! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
+//! degrees above the horizon (the sky: `--look 0,60`).
 //! `--model-detail` and `--scenery-distance` set the headless scene's `ModelDetail` and
 //! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
 //! medium.
@@ -76,6 +79,8 @@ struct Args {
     time: Option<f64>,
     /// Idle models placed around the player in the headless scene (0: none).
     crowd: u32,
+    /// The fly camera's yaw (clockwise from north) and pitch (above the horizon), in degrees.
+    look: Option<(f32, f32)>,
     /// The headless scene's degrade settings (`ModelDetail`, `SceneryDrawDistance`).
     degrade: ac2_render::object::DegradeOptions,
 }
@@ -99,6 +104,7 @@ fn parse_args() -> Result<Args, String> {
         at: None,
         time: None,
         crowd: 0,
+        look: None,
         degrade: ac2_render::object::DegradeOptions::default(),
     };
     let mut it = std::env::args().skip(1);
@@ -131,6 +137,14 @@ fn parse_args() -> Result<Args, String> {
                 ));
             }
             "--time" => args.time = Some(value()?.parse().map_err(|e| format!("--time: {e}"))?),
+            "--look" => {
+                let text = value()?;
+                let (yaw, pitch) = text.split_once(',').ok_or("--look: yaw,pitch")?;
+                args.look = Some((
+                    yaw.parse().map_err(|e| format!("--look: {e}"))?,
+                    pitch.parse().map_err(|e| format!("--look: {e}"))?,
+                ));
+            }
             "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
             "--model-detail" => {
                 args.degrade.model_detail = value()?
@@ -276,7 +290,11 @@ fn snapshot(
         ..Default::default()
     });
     let model = models.get(args.model).filter(|_| !args.fly);
-    let fly = start_camera(&world, args.block);
+    let mut fly = start_camera(&world, args.block);
+    if let Some((yaw, pitch)) = args.look {
+        fly.yaw = yaw.to_radians();
+        fly.pitch = pitch.to_radians();
+    }
     let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
     let mut walk = walk::Walk::new(&world, Arc::clone(&store), 0.0);
     let mode = if model.is_some() {

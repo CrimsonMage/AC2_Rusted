@@ -1064,7 +1064,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0 — ac2-world region::sky_objects, ac2-render sky
 - [ ] `LScapeSky::Clear` · 00585870 · legions 00554f60 — needs port: landscape sky state (sky clear/fog)
 - [x] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0 — ac2-world region::sky_objects, ac2-render sky
-- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad; only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole), the moon keeps its authored alpha blend; lens flares and fixed_pos/height_mod not yet
 - [ ] `LScapeSky::LScapeSky` · 00585b30 · legions 00555220 — needs port: landscape sky state (sky clear/fog)
 - [-] `LScapeSky::~LScapeSky` · 00585b50 · legions 00555240 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet

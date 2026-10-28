@@ -3,7 +3,7 @@
 //! that hold the frame's draws, instances and bone matrices. One draw covers a run of instances
 //! that share a layer and its uniform, so the uniform carries only what all of them share.
 
-use ac2_math::Mat4;
+use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{LayerPass, PointLight, VertexProgram, MAX_POINT_LIGHTS};
 use bytemuck::{Pod, Zeroable};
 
@@ -152,28 +152,44 @@ const FLAG_SKY_VEIL: u32 = 1 << 17;
 /// Sky objects at least this wide (metres from their centre) are domes over the whole sky; the
 /// glow band and the sun are smaller.
 pub(crate) const SKY_DOME_RADIUS: f32 = 300.0;
+/// A dome is centred on the viewer: its vertices' mean lies within this fraction of its radius
+/// (a hemisphere's is about half; the night layer `0x040000B4`'s is 0.36). The moon and the sun
+/// are flat meshes set out at their radius (the moon `0x040000B6` spans 738 to 972 m, mean
+/// 802 m), so their mean lies near it and they are never domes.
+const SKY_DOME_CENTRED: f32 = 0.75;
 
 /// What a sky object's layer is in the modern sky.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum SkyRole {
     /// The day dome (`crate::sky_backdrop`): only its texture's detail.
     Backdrop,
-    /// A dome-sized alpha layer (the night layer `0x040000B4`): a tint over the atmosphere.
+    /// A dome-sized alpha layer centred on the viewer (the night layer `0x040000B4`): a tint over
+    /// the atmosphere.
     Veil,
     /// Drawn as authored; additive layers shine (`FLAG_SKY_EMISSIVE`).
     Layer,
 }
 
 impl SkyRole {
-    pub(crate) fn of(pass: &LayerPass, backdrop: bool, radius: f32) -> Self {
+    /// The role of `pass` of a sky object whose vertices reach `radius` from its origin and
+    /// average at `center` (model space). Only a viewer-centred dome is a veil: a distant
+    /// billboard such as the moon keeps its authored `SRCALPHA`, `INVSRCALPHA` blend, so it covers
+    /// the sky objects `LScapeSky::Draw` drew before it (the glow band) as retail did.
+    pub(crate) fn of(pass: &LayerPass, backdrop: bool, radius: f32, center: Vec3) -> Self {
         if backdrop {
             Self::Backdrop
-        } else if pass.source_blend == 5 && pass.dest_blend == 6 && radius >= SKY_DOME_RADIUS {
+        } else if pass.source_blend == 5 && pass.dest_blend == 6 && sky_dome(radius, center) {
             Self::Veil
         } else {
             Self::Layer
         }
     }
+}
+
+/// Whether a sky object whose vertices reach `radius` from its origin and average at `center` is a
+/// dome over the whole sky: wide, and centred on the viewer it is placed at.
+pub(crate) fn sky_dome(radius: f32, center: Vec3) -> bool {
+    radius >= SKY_DOME_RADIUS && center.length() <= radius * SKY_DOME_CENTRED
 }
 
 /// Marks a draw as a DAT sky object (`DrawGroup::sky`) in its `role`.

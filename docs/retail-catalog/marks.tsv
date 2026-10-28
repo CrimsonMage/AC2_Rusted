@@ -8401,7 +8401,7 @@ key	status	note
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 00585870	_	needs port: landscape sky state (sky clear/fog)
 005858b0	x	ac2-world region::sky_objects, ac2-render sky
-00585980	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
+00585980	~	sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad; only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole), the moon keeps its authored alpha blend; lens flares and fixed_pos/height_mod not yet
 00585b30	_	needs port: landscape sky state (sky clear/fog)
 00585b50	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
