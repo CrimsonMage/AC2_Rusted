@@ -7,7 +7,7 @@ use std::cell::RefCell;
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{CraftCommand, CraftSource};
-use ac2_weenie::{CraftSkill, GameplayNotice, Recipe, SessionEvent};
+use ac2_weenie::{CraftSkill, Recipe, SessionEvent};
 
 use crate::client::Client;
 use crate::frame::ClientFrame;
@@ -118,14 +118,10 @@ impl HudView {
             ui_table: strings.ui_table,
             enums: &strings.enums,
         };
-        for event in events {
-            if let SessionEvent::Notice(GameplayNotice::UpdateCraftPanel) = event {
-                craft.update_craft_panel(tree, &player);
-            }
-        }
-        for message in &messages {
-            craft.message(tree, &player, message);
-        }
-        craft.take_commands().into_iter().map(command).collect()
+        craft
+            .frame_pass(tree, &player, events, &messages)
+            .into_iter()
+            .map(command)
+            .collect()
     }
 }

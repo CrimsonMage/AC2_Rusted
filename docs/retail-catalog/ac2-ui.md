@@ -1468,7 +1468,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::RefreshCraftPanel` · 0044a8e0 · legions 0044b540 — ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
 - [~] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
 - [x] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790 — ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
-- [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — client hud_craft.rs craft_frameworks: CM_Craft UpdateCraftPanel refreshes the panel (craft_ui_7160 registry path)
+- [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; ac2-client hud_craft.rs delegates
 - [~] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (21/26)

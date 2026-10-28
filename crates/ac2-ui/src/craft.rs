@@ -23,7 +23,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use ac2_net::protocol::{ExaminationRequest, StringInfo};
-use ac2_weenie::{CraftSkill, Recipe};
+use ac2_weenie::{CraftSkill, GameplayNotice, Recipe, SessionEvent};
 
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
@@ -218,6 +218,27 @@ impl CraftUi {
     /// `gmCraftUI::RecvNotice_UpdateCraftPanel` (`CM_Craft::SendNotice_UpdateCraftPanel`).
     pub fn update_craft_panel(&mut self, tree: &mut UiTree, source: &dyn CraftSource) {
         self.refresh_panel(tree, source);
+    }
+
+    /// `gmCraftUI` on the frame: the craft notices in `events` refresh the panel
+    /// (`RecvNotice_UpdateCraftPanel`), then its `messages` run [`CraftUi::message`]. Returns the
+    /// requests the frame made, in order.
+    pub fn frame_pass(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn CraftSource,
+        events: &[SessionEvent],
+        messages: &[UiMessage],
+    ) -> Vec<CraftCommand> {
+        for event in events {
+            if let SessionEvent::Notice(GameplayNotice::UpdateCraftPanel) = event {
+                self.update_craft_panel(tree, source);
+            }
+        }
+        for message in messages {
+            self.message(tree, source, message);
+        }
+        self.take_commands()
     }
 
     /// `gmCraftUI::ListenToMessage`: the buttons and rows the panel answers.
