@@ -322,12 +322,12 @@ impl ClientView {
             .collect();
         self.renderer
             .prepare(gpu, &camera, aspect, time, scene_frame, objects);
-        self.position_external_container(frame, &camera, aspect);
+        let boxes = self.overlay_boxes(frame, &camera, aspect);
+        self.position_external_container(&boxes);
         self.hud.update_radar(radar_view(frame));
         self.hud.update_navigation(frame);
-        self.update_reticle(frame, &camera, aspect);
-        self.update_names(frame, &camera, aspect);
-        self.update_damage(frame, &camera, aspect);
+        self.update_reticle(frame, &boxes);
+        self.update_overlays(frame, &boxes);
         self.hud.finish_frame(gpu);
         self.hud.prepare(&gpu.queue);
         self.doll.prepare(gpu, time);

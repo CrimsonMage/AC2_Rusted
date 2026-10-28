@@ -152,6 +152,8 @@ mod newsale;
 mod newsale_tests;
 mod radar;
 mod reticle;
+mod world_overlays;
+pub use world_overlays::{radar_view, OverlayBox};
 mod scene_viewport;
 mod scrollbar;
 mod secure_trade;

@@ -16,6 +16,8 @@ pub mod object_fx;
 pub mod particles;
 pub mod portal;
 pub mod prefs;
+mod projector;
+pub use projector::Projector;
 pub mod rain;
 pub mod scene;
 pub mod selection;

@@ -14,7 +14,7 @@ use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayChild, GameplayHud, Modifiers, ReticleOutcome,
-    ReticleTarget, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
+    ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -381,51 +381,45 @@ impl HudView {
         }
     }
 
-    /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock.
-    pub(crate) fn update_damage(&mut self, places: &[ac2_ui::DamagePlace<'_>], selection: u64) {
-        let Some((tree, _)) = &mut self.hud else {
-            return;
-        };
-        self.panels.update_damage(tree, places, selection);
-        if tree.take_changed() {
-            self.dirty = true;
-        }
-    }
-
-    /// `gm3DTextUI::UpdateNames` after the reticle: the plates over `places`.
-    pub(crate) fn update_names(
+    /// `gm3DTextUI::UpdateNames` and `UpdateDamage` for this frame, over the projected boxes.
+    pub(crate) fn update_overlays(
         &mut self,
-        places: &[ac2_ui::NamePlace<'_>],
+        boxes: &[ac2_ui::OverlayBox],
+        blips: &[ac2_ui::RadarBlip],
         selection: u64,
         range: f32,
     ) {
         let Some((tree, _)) = &mut self.hud else {
             return;
         };
-        self.panels.update_names(tree, places, selection, range);
+        self.panels
+            .update_overlays(tree, boxes, blips, selection, range);
     }
 
-    /// `gmExternalContainerUI::PositionWindow` with the container's projected centre.
-    pub(crate) fn position_external_container(&mut self, clip: Option<[f32; 2]>) {
-        if let (Some((tree, _)), Some(panel)) = (&mut self.hud, &mut self.panels.external_container)
-        {
-            panel.position_window_clip(tree, clip);
-            self.dirty = true;
+    /// `gmExternalContainerUI::PositionWindow` over the container's box, when it wants a place.
+    pub(crate) fn position_external_container(&mut self, boxes: &[ac2_ui::OverlayBox]) {
+        let container = self.external_container_position();
+        let HudView {
+            hud, dirty, panels, ..
+        } = self;
+        if let Some((tree, _)) = hud {
+            panels.position_external_container_over(tree, dirty, container, boxes);
         }
     }
 
-    /// `gm3DTextUI::Update`'s reticle for this frame: the selection (id and name) and, when it
-    /// is drawn, its box and projection. Then the HUD is composed again or its surfaces moved.
+    /// `gm3DTextUI::Update`'s reticle for this frame: the selection (id and name) and, when it is
+    /// drawn, its box. Then the HUD is composed again or its surfaces moved.
     pub(crate) fn reticle(
         &mut self,
         selection: Option<(u64, Option<&str>)>,
         info: Option<&ac2_net::protocol::SelectionInfo>,
-        target: Option<ReticleTarget<'_>>,
+        selected: Option<&ac2_ui::OverlayBox>,
     ) -> ReticleOutcome {
         let Some((tree, _)) = &mut self.hud else {
             return ReticleOutcome::default();
         };
-        self.panels.update_reticle(tree, selection, info, target)
+        self.panels
+            .update_reticle_over(tree, selection, info, selected)
     }
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.
