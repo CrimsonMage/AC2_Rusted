@@ -60,6 +60,8 @@ pub(crate) struct HudView {
     pub(crate) vitals: Option<ac2_ui::VitalsUi>,
     pub(crate) effects: Option<ac2_ui::EffectsUi>,
     pub(crate) vitae: Option<ac2_ui::VitaeStatusUi>,
+    /// `gmPKStatusUI`, the PK indicator, fed by `CM_Character::SendNotice_UpdateFactionStatus`.
+    pub(crate) pk: Option<ac2_ui::PkStatusUi>,
     /// `gmNetStatusUI`, the net indicator, fed by each world heartbeat's link averages.
     pub(crate) net: Option<ac2_ui::NetStatusUi>,
     /// `gmInventoryUI`'s backpack, made once the player is in the world, over this layout.

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1096 done, 356 partial, 455 to do, 340 skipped.
+2247 retail functions: 1097 done, 355 partial, 455 to do, 340 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -980,11 +980,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
 - [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs create; client routes LinkHeartbeat (hud_player). Not modelled: CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (0/2)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (1/2)
 
 ### gmPKStatusUI
-- [~] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210 — ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not: the CWeenieObject notice registrations (0x460, 0x1040c), no notice registry in ac2-ui
-- [~] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0 — ac2-ui pk_status.rs update_faction_status: admin's status-to-state mapping (1 peace, 2 control, 3 factional, 4 ffa, else stateless). Legions 7160 has no such handler (no legions address); no notice feeds it yet
+- [~] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210 — ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not modelled: the two CWeenieObject notice registrations (0x460 is the faction notice, RecvNotice_UpdateFactionStatus; 0x1040c not traced)
+- [x] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
 

@@ -15,6 +15,7 @@ pub(crate) struct StatusBar<'a> {
     pub effects: &'a mut Option<EffectsUi>,
     pub vitae: &'a mut Option<VitaeStatusUi>,
     pub net: &'a mut Option<NetStatusUi>,
+    pub pk: &'a mut Option<ac2_ui::PkStatusUi>,
 }
 
 impl StatusBar<'_> {
@@ -93,6 +94,7 @@ impl StatusBar<'_> {
                 _ => {}
             }
         }
+        pk_notice(self.pk, tree, notice);
         if let Some(indicator) = self.vitae.as_mut() {
             match *notice {
                 GameplayNotice::UpdateVitae {
@@ -106,5 +108,57 @@ impl StatusBar<'_> {
                 _ => {}
             }
         }
+    }
+}
+
+/// `gmPKStatusUI::RecvNotice_UpdateFactionStatus`: the server's faction status (the
+/// `CM_Character::SendNotice_UpdateFactionStatus` notice) sets the PK indicator's state.
+pub(crate) fn pk_notice(
+    pk: &mut Option<ac2_ui::PkStatusUi>,
+    tree: &mut UiTree,
+    notice: &GameplayNotice,
+) {
+    if let (Some(indicator), GameplayNotice::UpdateFactionStatus(status)) = (pk.as_mut(), notice) {
+        indicator.update_faction_status(tree, *status);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The PK field takes each faction status's state, as the notice carries it (the Legions
+    /// `gmPKStatusUI::RecvNotice_UpdateFactionStatus`, at 0x0044E290, maps 1 to 4 and any other
+    /// value to `stateless`).
+    #[test]
+    fn the_faction_notice_sets_the_pk_field_state() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let store = std::sync::Arc::new(ac2_db::ResourceStore::new(dataset));
+        let mut hud = ac2_ui::build_gameplay_hud(&store, 1024, 768).unwrap();
+        let mut pk = Some(hud.indicators.pk.clone());
+        let field = |tree: &UiTree, pk: &Option<ac2_ui::PkStatusUi>| {
+            pk.as_ref().and_then(|p| p.state(tree))
+        };
+        let state = |name: &str| ac2_ui::tokenize(name);
+        pk_notice(
+            &mut pk,
+            &mut hud.tree,
+            &GameplayNotice::UpdateFactionStatus(2),
+        );
+        assert_eq!(field(&hud.tree, &pk), Some(state("control")));
+        pk_notice(
+            &mut pk,
+            &mut hud.tree,
+            &GameplayNotice::UpdateFactionStatus(4),
+        );
+        assert_eq!(field(&hud.tree, &pk), Some(state("ffa")));
+        pk_notice(
+            &mut pk,
+            &mut hud.tree,
+            &GameplayNotice::UpdateFactionStatus(9),
+        );
+        assert_eq!(field(&hud.tree, &pk), Some(state("stateless")));
     }
 }

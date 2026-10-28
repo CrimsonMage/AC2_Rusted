@@ -1300,8 +1300,8 @@ key	status	note
 0044ce40	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044ce90	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 0044cfc0	x	ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
-0044d040	~	ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not: the CWeenieObject notice registrations (0x460, 0x1040c), no notice registry in ac2-ui
-0044d0c0	~	ac2-ui pk_status.rs update_faction_status: admin's status-to-state mapping (1 peace, 2 control, 3 factional, 4 ffa, else stateless). Legions 7160 has no such handler (no legions address); no notice feeds it yet
+0044d040	~	ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not modelled: the two CWeenieObject notice registrations (0x460 is the faction notice, RecvNotice_UpdateFactionStatus; 0x1040c not traced)
+0044d0c0	x	PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 0044d1a0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
 0044d220	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
 0044d2a0	x	ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
@@ -2071,7 +2071,7 @@ key	status	note
 00469e30	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00469ed0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00469f10	~	raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+00469f10	x	PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 00469f60	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469fd0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a020	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
@@ -14788,7 +14788,7 @@ key	status	note
 00725190	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 007252b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00725340	~	raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+00725340	x	PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 007253d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725490	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725520	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs

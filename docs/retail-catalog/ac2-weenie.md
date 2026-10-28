@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 752 done, 172 partial, 470 to do, 510 skipped.
+1904 retail functions: 754 done, 170 partial, 470 to do, 510 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -34,7 +34,7 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Allegiance::SendNotice_UpdateAllegianceProfile` · 007280c0 — implemented: cited at crates/ac2-weenie/src/notice.rs:116
 - [x] `CM_Allegiance::SendNotice_Vassal_SwearDone` · 00728150 — implemented: cited at crates/ac2-weenie/src/notice.rs:122
 
-## `ac2/client/src/events/cm_character.cpp.c` (21/30)
+## `ac2/client/src/events/cm_character.cpp.c` (22/30)
 
 ### CM_Character
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -55,7 +55,7 @@ Legend and workflow: [README](README.md).
 - [-] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 - [x] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [~] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+- [x] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 - [x] `CM_Character::SendNotice_UpdateHeroStatus` · 007253d0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdateMountState` · 00725490 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdatePetMode` · 00725520 — ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
@@ -271,7 +271,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — needs port: script notice UpdateAllegianceProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 - [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — needs port: script notice Vassal_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (19/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (20/26)
 
 ### gCM_Character
 - [x] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -288,7 +288,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Character::CallEFun_SendNotice_SelectionChanged` · 00469e30 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateDeathState` · 00469e80 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateEffect` · 00469ed0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [~] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10 — raised as UpdateFactionStatus (typed); Legions gmPKStatusUI has no RecvNotice body (its constructor only registers ids), so the PK indicator (ac2-ui pk_status, admin mapping) is not fed
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateFactionStatus` · 00469f10 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateHeroStatus` · 00469f60 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateMountState` · 00469fd0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdatePetMode` · 0046a020 — ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs

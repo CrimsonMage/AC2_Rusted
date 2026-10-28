@@ -110,6 +110,7 @@ impl HudView {
             vitals: None,
             effects: None,
             vitae: None,
+            pk: None,
             net: None,
             backpack: None,
             paper_doll: None,
@@ -262,6 +263,7 @@ impl HudView {
                 self.effects = effects;
                 self.net = Some(indicators.net);
                 self.vitae = Some(indicators.vitae);
+                self.pk = Some(indicators.pk);
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
                 self.stack = stack;

@@ -331,6 +331,7 @@ impl HudView {
             money,
             net,
             paper_doll,
+            pk,
             player_loaded,
             secure_trade,
             skills,
@@ -360,6 +361,7 @@ impl HudView {
                 effects: &mut *effects,
                 vitae: &mut *vitae,
                 net: &mut *net,
+                pk: &mut *pk,
             }
             .player_loaded(tree, player, &frame.player_vitals, frame.server_time);
             // `gmInventoryUI::SetupChildren`'s backpack over the player.

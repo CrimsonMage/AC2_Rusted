@@ -41,6 +41,7 @@ impl HudView {
             now,
             paper_doll,
             pets,
+            pk,
             quests,
             secure_trade,
             shop,
@@ -78,6 +79,7 @@ impl HudView {
                     effects: &mut *effects,
                     vitae: &mut *vitae,
                     net: &mut *net,
+                    pk: &mut *pk,
                 }
                 .link_heartbeat(tree, player, links);
                 // The bandwidth graph moved: the status bar is composed again.
@@ -155,6 +157,7 @@ impl HudView {
                 effects: &mut *effects,
                 vitae: &mut *vitae,
                 net: &mut *net,
+                pk: &mut *pk,
             }
             .notice(tree, player, frame.server_time, notice);
             shortcut_checks.extend(shortcut_checks_of(notice));
