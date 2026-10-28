@@ -83,6 +83,7 @@ impl FrameTarget {
         let hdr = crate::HdrTarget::new(gpu, &tonemap, self.width, self.height);
         let mut encoder = gpu.device.create_command_encoder(&Default::default());
         hdr.render(
+            gpu,
             &mut encoder,
             {
                 let [r, g, b] = clear.map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));

@@ -4,7 +4,7 @@
 //! ```text
 //! world-viewer [--dat-dir DIR] [--block 7F7F] [--radius 2] [--fly]
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
-//! world-viewer ... --bench N [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
+//! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! ```
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
@@ -14,7 +14,10 @@
 //! (frame p50, p95 and max, the per-step p50s, peak RSS, the typed cache's bytes and entries, and
 //! the texture bytes uploaded). `--rgba-textures` decodes DXT textures to RGBA8 even where the
 //! GPU samples BC blocks, to compare the two. `--crowd N` adds N idle race and sex models on a
-//! grid around the player to both (a busy scene).
+//! grid around the player to both (a busy scene). `--gpu-times` adds each render pass's GPU p50
+//! and the frame's to the bench line (timestamp queries; off by default because asking the device
+//! for them raises the NVIDIA driver's resident memory by about 130 MB, which would skew the peak
+//! RSS). The line always ends with the allocator's VRAM bytes (0 on Metal and GL).
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -53,6 +56,8 @@ struct Args {
     snapshot: Option<PathBuf>,
     /// Timed frames after the warm-up (0: no bench).
     bench: u32,
+    /// Time each render pass on the GPU during the bench.
+    gpu_times: bool,
     /// Decode DXT textures to RGBA8 even on a BC-capable GPU (compares the two upload paths).
     rgba_textures: bool,
     fly: bool,
@@ -78,6 +83,7 @@ fn parse_args() -> Result<Args, String> {
         radius: 2,
         snapshot: None,
         bench: 0,
+        gpu_times: false,
         rgba_textures: false,
         fly: false,
         model: 0,
@@ -101,6 +107,7 @@ fn parse_args() -> Result<Args, String> {
             "--radius" => args.radius = value()?.parse().map_err(|e| format!("--radius: {e}"))?,
             "--snapshot" => args.snapshot = Some(value()?.into()),
             "--bench" => args.bench = value()?.parse().map_err(|e| format!("--bench: {e}"))?,
+            "--gpu-times" => args.gpu_times = true,
             "--fly" => args.fly = true,
             "--rgba-textures" => args.rgba_textures = true,
             "--model" => args.model = value()?.parse().map_err(|e| format!("--model: {e}"))?,
@@ -126,6 +133,9 @@ fn parse_args() -> Result<Args, String> {
     }
     if args.dat_dir.as_os_str().is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
+    }
+    if args.gpu_times && args.bench == 0 {
+        return Err("--gpu-times needs --bench".into());
     }
     if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
         return Err("--crowd needs --snapshot or --bench".into());
@@ -227,7 +237,13 @@ fn snapshot(
     args: &Args,
 ) {
     let (width, height) = (1280, 720);
-    let gpu = Gpu::headless().expect("GPU adapter");
+    // Only `--gpu-times` asks the device for timestamp queries.
+    let gpu = if args.gpu_times {
+        Gpu::headless_timed()
+    } else {
+        Gpu::headless()
+    }
+    .expect("GPU adapter");
     // As the client: DXT textures stay BC blocks when the GPU samples them.
     ac2_render::set_gpu_block_compression(gpu.block_compression() && !args.rgba_textures);
     let mut view = ClientView::new(

@@ -21,6 +21,7 @@ mod shadow_map;
 mod sky;
 mod terrain;
 mod texture;
+mod timing;
 mod tonemap;
 mod ui;
 mod ui_scenes;
@@ -49,6 +50,8 @@ pub struct Gpu {
     /// The driver's compiled pipelines, kept across runs (`load_pipeline_cache`), when the
     /// device supports it (Vulkan).
     pipeline_cache: Option<wgpu::PipelineCache>,
+    /// Per-pass GPU timing, on a device made by `headless_timed`.
+    pass_timer: Option<timing::PassTimer>,
 }
 
 #[derive(Debug)]
@@ -74,6 +77,17 @@ impl Gpu {
         compatible_surface: Option<&wgpu::Surface<'_>>,
         instance: wgpu::Instance,
     ) -> Result<Self, GpuError> {
+        Self::create(compatible_surface, instance, false)
+    }
+
+    /// `new`, with per-pass GPU timing when `pass_timing` and the adapter has timestamp queries.
+    /// Only measuring tools ask for it: the feature alone costs the NVIDIA driver about 130 MB of
+    /// resident memory, queries or not.
+    fn create(
+        compatible_surface: Option<&wgpu::Surface<'_>>,
+        instance: wgpu::Instance,
+        pass_timing: bool,
+    ) -> Result<Self, GpuError> {
         pollster::block_on(async {
             let adapter = instance
                 .request_adapter(&wgpu::RequestAdapterOptions {
@@ -85,9 +99,17 @@ impl Gpu {
                 .await
                 .map_err(GpuError::NoAdapter)?;
             // A pipeline cache where the driver keeps one; BC textures where the GPU samples them
-            // (the scene then loads DXT levels as blocks, `ac2_render::set_gpu_block_compression`).
+            // (the scene then loads DXT levels as blocks, `ac2_render::set_gpu_block_compression`);
+            // timestamp queries when pass timing was asked for.
+            let timing = if pass_timing {
+                wgpu::Features::TIMESTAMP_QUERY
+            } else {
+                wgpu::Features::empty()
+            };
             let required_features = adapter.features()
-                & (wgpu::Features::PIPELINE_CACHE | wgpu::Features::TEXTURE_COMPRESSION_BC);
+                & (wgpu::Features::PIPELINE_CACHE
+                    | wgpu::Features::TEXTURE_COMPRESSION_BC
+                    | timing);
             let (device, queue) = adapter
                 .request_device(&wgpu::DeviceDescriptor {
                     label: Some("ac2-gpu"),
@@ -96,12 +118,16 @@ impl Gpu {
                 })
                 .await
                 .map_err(GpuError::Device)?;
+            let pass_timer = required_features
+                .contains(wgpu::Features::TIMESTAMP_QUERY)
+                .then(|| timing::PassTimer::new(&device, &queue));
             Ok(Self {
                 device,
                 queue,
                 adapter,
                 instance,
                 pipeline_cache: None,
+                pass_timer,
             })
         })
     }
@@ -119,6 +145,29 @@ impl Gpu {
         self.device
             .features()
             .contains(wgpu::Features::TEXTURE_COMPRESSION_BC)
+    }
+
+    /// The timestamp writes for a render pass reported under `label`, while timing is on.
+    pub fn pass_timestamps(
+        &self,
+        label: &'static str,
+    ) -> Option<wgpu::RenderPassTimestampWrites<'_>> {
+        self.pass_timer.as_ref()?.writes(label)
+    }
+
+    /// The GPU milliseconds of each pass label since the last call, summed per label in
+    /// first-use order (empty while timing is off). Waits for the GPU.
+    pub fn read_pass_times(&self) -> Vec<(&'static str, f64)> {
+        self.pass_timer
+            .as_ref()
+            .map_or_else(Vec::new, |timer| timer.read(&self.device, &self.queue))
+    }
+
+    /// GPU memory the device's allocator holds, `(allocated, reserved)` bytes, on the backends
+    /// that report it (Vulkan, DX12; `None` on Metal and GL).
+    pub fn allocator_bytes(&self) -> Option<(u64, u64)> {
+        let report = self.device.generate_allocator_report()?;
+        Some((report.total_allocated_bytes, report.total_reserved_bytes))
     }
 
     /// The pipeline cache new pipelines compile through, once loaded.
@@ -181,5 +230,11 @@ impl Gpu {
     /// An offscreen device on the default backends.
     pub fn headless() -> Result<Self, GpuError> {
         Self::new(None, wgpu::Instance::default())
+    }
+
+    /// `headless` with per-pass GPU timing where the adapter has timestamp queries (benches):
+    /// `read_pass_times` must then be called every frame.
+    pub fn headless_timed() -> Result<Self, GpuError> {
+        Self::create(None, wgpu::Instance::default(), true)
     }
 }

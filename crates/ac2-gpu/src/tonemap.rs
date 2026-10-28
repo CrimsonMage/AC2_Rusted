@@ -83,15 +83,23 @@ impl HdrTarget {
 
     /// Records one pass into the scene target: colour cleared to `clear` (linear, with the
     /// coverage alpha) and depth to far, then `record`, limited to `viewport` (x, y, width,
-    /// height in pixels; `UIScene::Render`'s viewport) when there is one.
+    /// height in pixels; `UIScene::Render`'s viewport) when there is one. Timed as `scene`.
     pub fn render(
         &self,
+        gpu: &Gpu,
         encoder: &mut wgpu::CommandEncoder,
         clear: [f32; 4],
         viewport: Option<[u32; 4]>,
         record: impl FnOnce(&mut wgpu::RenderPass<'_>),
     ) {
-        let mut pass = begin(encoder, &self.color_view, &self.depth_view, clear);
+        let timestamps = gpu.pass_timestamps("scene");
+        let mut pass = begin(
+            encoder,
+            &self.color_view,
+            &self.depth_view,
+            clear,
+            timestamps,
+        );
         if let Some([x, y, w, h]) = viewport {
             pass.set_viewport(x as f32, y as f32, w as f32, h as f32, 0.0, 1.0);
             pass.set_scissor_rect(x, y, w, h);
@@ -105,6 +113,7 @@ fn begin<'a>(
     color: &'a wgpu::TextureView,
     depth: &'a wgpu::TextureView,
     [r, g, b, a]: [f32; 4],
+    timestamp_writes: Option<wgpu::RenderPassTimestampWrites<'a>>,
 ) -> wgpu::RenderPass<'a> {
     let color_load = wgpu::LoadOp::Clear(wgpu::Color {
         r: f64::from(r),
@@ -131,7 +140,7 @@ fn begin<'a>(
             }),
             stencil_ops: None,
         }),
-        timestamp_writes: None,
+        timestamp_writes,
         occlusion_query_set: None,
         multiview_mask: None,
     })

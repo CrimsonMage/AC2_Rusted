@@ -35,7 +35,7 @@ subsystem it reproduces. This file states the working rules.
   order, blend, fog and baked light come from the DATs and the decompile (`LScapeSky::Draw`,
   `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.
   It covers lighting (GGX for lit objects), sky, clouds, weather and the tone map.
-  Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one ACES tone map
+  Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one Khronos PBR Neutral tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. UI viewport scenes
   composite over their panel where they drew. Do not add a retail/modern switch.
 - Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a

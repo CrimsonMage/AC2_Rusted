@@ -237,7 +237,7 @@ impl StaticShadowMap {
             matrix: Mat4::ZERO,
         };
         let mut encoder = device.create_command_encoder(&Default::default());
-        drop(map.clear(&mut encoder));
+        drop(map.clear(gpu, &mut encoder));
         gpu.queue.submit([encoder.finish()]);
         map
     }
@@ -281,7 +281,11 @@ impl StaticShadowMap {
     }
 
     /// `StartShadowMap`'s clear to white.
-    fn clear<'e>(&self, encoder: &'e mut wgpu::CommandEncoder) -> wgpu::RenderPass<'e> {
+    fn clear<'e>(
+        &self,
+        gpu: &'e Gpu,
+        encoder: &'e mut wgpu::CommandEncoder,
+    ) -> wgpu::RenderPass<'e> {
         encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("ac2 static shadow map"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
@@ -294,7 +298,7 @@ impl StaticShadowMap {
                 },
             })],
             depth_stencil_attachment: None,
-            timestamp_writes: None,
+            timestamp_writes: gpu.pass_timestamps("shadow map"),
             occlusion_query_set: None,
             multiview_mask: None,
         })
@@ -310,7 +314,7 @@ impl StaticShadowMap {
         casters: impl FnOnce(&mut wgpu::CommandEncoder, &wgpu::TextureView, Mat4),
     ) {
         let mut encoder = gpu.device.create_command_encoder(&Default::default());
-        drop(self.clear(&mut encoder));
+        drop(self.clear(gpu, &mut encoder));
         casters(&mut encoder, &self.view, window.clip_matrix());
         let [r, g, b] = key.strength.map(|s| 1.0 - s);
         gpu.queue
@@ -328,7 +332,7 @@ impl StaticShadowMap {
                     },
                 })],
                 depth_stencil_attachment: None,
-                timestamp_writes: None,
+                timestamp_writes: gpu.pass_timestamps("shadow map"),
                 occlusion_query_set: None,
                 multiview_mask: None,
             });
@@ -345,7 +349,7 @@ impl StaticShadowMap {
     fn reset(&mut self, gpu: &Gpu) {
         if self.drawn.take().is_some() {
             let mut encoder = gpu.device.create_command_encoder(&Default::default());
-            drop(self.clear(&mut encoder));
+            drop(self.clear(gpu, &mut encoder));
             gpu.queue.submit([encoder.finish()]);
         }
     }

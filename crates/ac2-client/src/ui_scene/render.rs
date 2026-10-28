@@ -53,7 +53,7 @@ pub fn render_with_scenes(
     // `Turbine::Client::UseTime`'s clear, then the world in the scene target.
     if let (Some(world), Some(hdr)) = (world, &hdr) {
         let [r, g, b] = clear.map(|c| ac2_gpu::srgb_to_linear(c.clamp(0.0, 1.0)));
-        hdr.render(&mut encoder, [r, g, b, 1.0], None, world);
+        hdr.render(gpu, &mut encoder, [r, g, b, 1.0], None, world);
     }
     let mut pass_clear = Some(clear);
     let mut first = Some(first);
@@ -61,7 +61,7 @@ pub fn render_with_scenes(
     let mut pending: Option<[u32; 4]> = None;
     for (layer, owner, viewport) in views.iter() {
         {
-            let mut pass = begin_pass(&mut encoder, color, depth, pass_clear.take());
+            let mut pass = begin_pass(gpu, &mut encoder, color, depth, pass_clear.take());
             output_head(
                 &mut pass,
                 presenter,
@@ -91,13 +91,13 @@ pub fn render_with_scenes(
         }
         let rect = [x0, y0, x1 - x0, y1 - y0];
         // `UIScene::Render`: the scene alone, over nothing (coverage 0) and a cleared depth.
-        hdr.render(&mut encoder, [0.0; 4], Some(rect), |pass| {
+        hdr.render(gpu, &mut encoder, [0.0; 4], Some(rect), |pass| {
             scenes[*owner].draw(viewport.root, pass);
         });
         pending = Some(rect);
     }
     {
-        let mut pass = begin_pass(&mut encoder, color, depth, pass_clear.take());
+        let mut pass = begin_pass(gpu, &mut encoder, color, depth, pass_clear.take());
         output_head(
             &mut pass,
             presenter,
@@ -133,6 +133,7 @@ fn output_head(
 
 /// A pass over `color` (cleared to `clear`, else kept) with its depth cleared.
 fn begin_pass<'a>(
+    gpu: &'a Gpu,
     encoder: &'a mut wgpu::CommandEncoder,
     color: &wgpu::TextureView,
     depth: &wgpu::TextureView,
@@ -166,7 +167,7 @@ fn begin_pass<'a>(
             }),
             stencil_ops: None,
         }),
-        timestamp_writes: None,
+        timestamp_writes: gpu.pass_timestamps("ui"),
         occlusion_query_set: None,
         multiview_mask: None,
     })

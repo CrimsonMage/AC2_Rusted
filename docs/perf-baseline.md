@@ -81,6 +81,33 @@ Snapshot `--snapshot /tmp/crowd-100.png --walk 4 --crowd 100` shows the crowd: t
 in their bind pose (arms out) on the terrain in a grid around the player, several races and both
 sexes visible, the player in the middle.
 
+## GPU pass times and VRAM
+
+The bench line ends with `vram_allocated_bytes` and `vram_reserved_bytes`: what the device's
+allocator holds after the run (`Gpu::allocator_bytes`; Vulkan and DX12 report it, Metal and GL
+print 0). `--gpu-times` also times each render pass with timestamp queries (`Gpu::headless_timed`,
+`crates/ac2-gpu/src/timing.rs`) and adds `gpu_p50_ms` (the frame's summed passes) and one
+`gpu_<label>_p50_ms` per pass label: `scene` (the HDR world), `ui` (tone map and HUD) and
+`shadow map` (the static landscape map; 0 at p50 because it redraws only when its key changes).
+
+`--gpu-times` is a separate flag because asking the device for `TIMESTAMP_QUERY` alone raises
+the NVIDIA driver's resident memory by about 130 MB, queries issued or not: peak RSS 355 to 416 MB
+with the feature against 222 to 224 MB without it, same binary, three runs each. Compare
+`peak_rss_kib` only between runs without `--gpu-times`. The client never asks for the feature.
+
+Measured 2026-10-28 on an RTX 5060 Ti (NVIDIA driver, Vulkan), `profiling` profile, load average
+14 to 18 from other sessions:
+
+| Scenario | Bench line (tail) |
+|---|---|
+| `--walk 4 --bench 300` | `p50_ms=0.764 render_p50_ms=0.631 peak_rss_kib=223112 draws=35 vram_allocated_bytes=36528128 vram_reserved_bytes=201326592` |
+| `--walk 4 --bench 300 --gpu-times` | `p50_ms=0.750 render_p50_ms=0.624 gpu_p50_ms=0.407 gpu_scene_p50_ms=0.390 gpu_ui_p50_ms=0.018` |
+| `--walk 4 --crowd 400 --bench 300 --gpu-times` | `p50_ms=6.116 prepare_p50_ms=3.492 render_p50_ms=2.476 draws=2308 gpu_p50_ms=0.867 gpu_scene_p50_ms=0.841 vram_allocated_bytes=50174976` |
+
+The crowd's cost is on the CPU: of the 2.5 ms `render` step the GPU's passes take 0.87 ms, so the
+rest is recording and submitting 2308 draws, and `prepare` takes 3.5 ms more. Instanced draws
+(fewer, larger calls) are the first lever, ahead of any GPU-side work.
+
 ## Known gaps
 
 - The long-walk scenario did not travel far. The walker ended near its start (origin
