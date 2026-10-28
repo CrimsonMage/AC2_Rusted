@@ -7,7 +7,10 @@
 //! inlined where the frame stands.
 //!
 //! The text element takes one font and colour, so bold, italic and underline are not drawn: a
-//! styled run is drawn as plain text. Tabs are drawn as `(*) name` (checked) or `( ) name`, one
+//! styled run is drawn as plain text. The DAT has no face to use instead: the UI's font group
+//! (`0x4000000B`) holds two Latin faces at 12 and 16 pixels, a third 12-pixel face for more glyphs,
+//! and the two glyph fallbacks (`UIElement_Text::DetermineFont`), and an `Ac2Font` has no style
+//! flag. Retail's text renderer draws no underline either, so none is drawn. Tabs are drawn as `(*) name` (checked) or `( ) name`, one
 //! row of them. A press on a line follows the link or tab under the pointer.
 //!
 //! The text area scrolls by the slider (`BookSliderBar`, its `new_position` message), which is
@@ -21,7 +24,7 @@ use crate::help_view::{
 };
 use crate::ksml::{KsmlDocument, KsmlFrame, KsmlNode};
 use crate::layout::LayoutDesc;
-use crate::mouse::UiMessage;
+use crate::mouse::{UiMessage, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::scrollbar::MSG_NEW_POSITION;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP, TEXT_LEFT_MARGIN};
 use std::sync::Arc;
@@ -129,7 +132,13 @@ impl HelpWindow {
         pages: Option<&HelpPages>,
         message: &UiMessage,
     ) -> bool {
-        if !self.is_shown() || !self.owns(tree, message.element) {
+        if !self.is_shown() {
+            return false;
+        }
+        if self.wheel_message(tree, message) {
+            return true;
+        }
+        if !self.owns(tree, message.element) {
             return false;
         }
         if message.element_id == tokenize("BookCloseButton")
@@ -176,6 +185,36 @@ impl HelpWindow {
             return true;
         }
         false
+    }
+
+    /// A wheel turn over the text scrolls the page a notch (`HelpView::wheel`). The text element
+    /// does not scroll itself and the slider is not bound to it, so the turn is read here: the
+    /// tree broadcasts a wheel turn as a global mouse-down carrying its action. Returns whether the
+    /// turn was over the text.
+    fn wheel_message(&mut self, tree: &mut UiTree, message: &UiMessage) -> bool {
+        let action = message.data as u32;
+        if message.element.is_some()
+            || message.message != GLOBAL_MOUSE_DOWN
+            || !matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT)
+        {
+            return false;
+        }
+        let Some(text) = child(tree, &self.book, "BookClientAreaText") else {
+            return false;
+        };
+        let rect = tree.screen_box(text);
+        let (x, y) = tree.pointer();
+        if x < rect.x0 || x >= rect.x1 || y < rect.y0 || y >= rect.y1 {
+            return false;
+        }
+        // Wheel out turns the text down: a notch back up is positive.
+        let notches = if action == UI_WHEEL_IN { 1 } else { -1 };
+        let line = line_height(tree, text);
+        let content = self.rows.len() as i32 * line;
+        let view = rect.height();
+        self.view.wheel(notches, line, content, view);
+        self.sync_scroll(tree);
+        true
     }
 
     /// `BookCloseButton`: the window hides and forgets its page.
@@ -349,7 +388,7 @@ impl HelpWindow {
     /// The link under the pointer: the row at the pointer's height, the piece at its x.
     fn link_at(&self, tree: &UiTree, pointer: (i32, i32)) -> Option<HelpLink> {
         let text = child(tree, &self.book, "BookClientAreaText")?;
-        let rect = tree.get(text)?.rect();
+        let rect = tree.screen_box(text);
         let (x, y) = pointer;
         if x < rect.x0 || x >= rect.x1 || y < rect.y0 || y >= rect.y1 {
             return None;
@@ -365,6 +404,37 @@ impl HelpWindow {
                 return piece.link.clone();
             }
             left -= width + if row.tabs { gap } else { 0 };
+        }
+        None
+    }
+}
+
+#[cfg(test)]
+impl HelpWindow {
+    /// A point on the first link (or, with `tabs`, the first unchecked tab) of the text that is in
+    /// view, on screen, and the link there: where a press lands.
+    pub(crate) fn link_point(&self, tree: &UiTree, tabs: bool) -> Option<((i32, i32), HelpLink)> {
+        let text = child(tree, &self.book, "BookClientAreaText")?;
+        let rect = tree.screen_box(text);
+        let line = line_height(tree, text);
+        let gap = text_width(tree, text, TAB_GAP);
+        for (index, row) in self.rows.iter().enumerate() {
+            if row.tabs != tabs {
+                continue;
+            }
+            let mut left = margin_left(tree, text);
+            for piece in &row.pieces {
+                let width = text_width(tree, text, &piece.text);
+                let y = rect.y0 + index as i32 * line + line / 2 - self.view.scroll();
+                let shown = y >= rect.y0 && y < rect.y1;
+                // A checked tab (`(*)`) is already the one shown; pressing it changes nothing.
+                let checked = tabs && piece.text.starts_with("(*)");
+                if let (Some(link), true, false) = (&piece.link, shown, checked) {
+                    let x = rect.x0 + left + width / 2;
+                    return Some(((x, y), link.clone()));
+                }
+                left += width + if row.tabs { gap } else { 0 };
+            }
         }
         None
     }

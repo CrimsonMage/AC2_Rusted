@@ -87,6 +87,8 @@ pub struct HelpView {
     ticket: u64,
     /// The pending load for the main page, if any.
     pending: Option<u64>,
+    /// The page a pressed link asked for, which becomes the page shown when it loads.
+    pending_page: Option<String>,
     frames: Vec<HelpFrame>,
     /// The scroll position in pixels from the top of the page.
     scroll: i32,
@@ -104,6 +106,7 @@ impl HelpView {
         self.ticket += 1;
         self.pending = Some(self.ticket);
         self.page = Some(page.to_string());
+        self.pending_page = None;
         self.document = None;
         self.frames.clear();
         self.scroll = 0;
@@ -122,6 +125,7 @@ impl HelpView {
             None | Some("") => {
                 self.ticket += 1;
                 self.pending = Some(self.ticket);
+                self.pending_page = Some(page.clone());
                 Some(HelpRequest::Load {
                     ticket: self.ticket,
                     page: page.clone(),
@@ -153,6 +157,9 @@ impl HelpView {
                     return false;
                 }
                 self.pending = None;
+                if let Some(name) = self.pending_page.take() {
+                    self.page = Some(name);
+                }
                 self.document = Some(document);
                 self.scroll = 0;
                 true
