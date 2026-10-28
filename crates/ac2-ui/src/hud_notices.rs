@@ -116,12 +116,18 @@ pub fn notice_pass<P: HudSource>(
                     // `ProcessEffectIDNode`: the effect nodes ask the player's script first.
                     let expanded = expand_examination_effects(player, profile);
                     let items = player.examination_items(&expanded);
-                    panel.update_profile(tree, player, server_time, &items);
+                    panel.update_profile(
+                        tree,
+                        player,
+                        server_time,
+                        &items,
+                        (profile.request.extra[2], profile.available),
+                    );
                 }
             }
             GameplayNotice::ExaminationRequestChanged(request) => {
                 if let Some(panel) = hud.examination.as_mut() {
-                    panel.request_changed(tree, request.kind);
+                    panel.request_changed(tree, request.kind, request.extra[2]);
                 }
                 if let Some(skills) = hud.skills.as_mut() {
                     skills.examination_request_changed(

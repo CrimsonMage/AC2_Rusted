@@ -317,6 +317,10 @@ pub struct SelectionFrame {
     pub id: u64,
     /// The weenie's name, when its description carries one.
     pub name: Option<Arc<str>>,
+    /// `CWeenieObject::GetName(info, quantity)` of the selection (`gm3DTextUI::CheckName` passes
+    /// `gmCWInterface::GetQuantity`): the name, or "<quantity> <plural>" for a stack of more than
+    /// one. The HUD renders it from the string tables; `name` is the fallback.
+    pub name_info: Option<ac2_net::protocol::StringInfo>,
     /// The server's latest `SelectionInfo` for it (health and vigor for a creature).
     pub info: Option<SelectionInfo>,
     /// A player other than the local one: `CWInterface::IsPlayer` and not the player's own object.
@@ -846,9 +850,14 @@ impl Client {
         let selection = self.session.progress().selection;
         let id = selection.id?;
         let object = self.session.objects().get(id);
+        let tables = self.session.player_script().string_tables();
         Some(SelectionFrame {
             id,
             name: object.and_then(|o| o.name.clone()),
+            name_info: object.map(|o| {
+                let stats = ac2_weenie::ItemStats::of(&o.qualities);
+                stats.display_name(stats.quantity as u32, tables)
+            }),
             info: selection.info,
             other_player: Some(id) != self.session.player()
                 && object.is_some_and(|o| o.is_player()),

@@ -76,4 +76,7 @@ pub enum HudRequest {
     Dialog(DialogRequest),
     /// `gmGamePlayUI`'s logout: the game options go up, then the character logs off.
     LogOff,
+    /// `CM_UI::SendNotice_Logoff` (`gmGamePlayUI::RecvNotice_Logoff`): the game options go to
+    /// the server and the client closes (`Device::Done`).
+    Quit,
 }

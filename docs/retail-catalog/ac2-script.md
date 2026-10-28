@@ -568,14 +568,14 @@ Legend and workflow: [README](README.md).
 ### ByteStream
 - [-] `ByteStream::DiscardAllDebuggingInformation` · 006e5220 · legions 0066b6f0 — wlib debug-info section (debugger only)
 - [-] `ByteStream::PackSectionList` · 006e5310 · legions 0066b7e0 — compiled-wlib writer (client only reads wlib)
-- [-] `ByteStream::InqExportPackage` · 006e5450 — admin wlib tooling (no Legions match)
+- [-] `ByteStream::InqExportPackage` · 006e5450 — admin wlib tooling (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `ByteStream::LoadLineNumDebugSection` · 006e54e0 — text source loader, admin build only
 - [-] `ByteStream::LoadFrameDebugInfoSection` · 006e5690 — text source loader, admin build only
-- [-] `ByteStream::ValidationFailure` · 006e5760 — admin wlib tooling (no Legions match)
+- [-] `ByteStream::ValidationFailure` · 006e5760 — admin wlib tooling (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `ByteStream::IsDerivedFrom` · 006e5790 · legions 0066ba70 — ac2-script glue
 
 ### VersionTable
-- [-] `VersionTable::GetVersion` · 006e5820 — admin wlib version query (no Legions match)
+- [-] `VersionTable::GetVersion` · 006e5820 — admin wlib version query (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 - [~] `VersionTable::StreamPack` · 006e58e0 — ac2-script: unpack direction only
 
 ### ByteStream
@@ -645,7 +645,7 @@ Legend and workflow: [README](README.md).
 - [x] `ByteStream::UnPack` · 006e6f40 — ac2-script WLib/WState/ByteStream decode
 - [-] `ByteStream::IsCheckpointedMember` · 006e6fb0 · legions 0066ce00 — checkpoint member test (debugger/checkpoint)
 - [-] `ByteStream::LoadSourceFileDebugSection` · 006e7090 · legions 0066ce80 — wlib debug-info section (debugger only)
-- [-] `ByteStream::Open` · 006e7380 — admin wlib tooling (no Legions match)
+- [-] `ByteStream::Open` · 006e7380 — admin wlib tooling (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `ByteStream::LoadSection` · 006e74f0 — ac2-script WLib/WState/ByteStream decode
 
 ### PSmartArray<FrameDebugInfo>
@@ -1429,9 +1429,9 @@ Legend and workflow: [README](README.md).
 - [x] `gBaseProperty::CallEFun_SetEnum` · 0054b7d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetFloat` · 0054b860 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetInteger` · 0054b8f0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-- [-] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [-] `gBaseProperty::CallEFun_SetLongInteger` · 0054b980 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun [vtable-checked: not a slot of any located Legions vtable]
 - [x] `gBaseProperty::CallEFun_SetPackageID` · 0054ba10 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-- [-] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [-] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun [vtable-checked: not a slot of any located Legions vtable]
 - [x] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
@@ -1589,11 +1589,11 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (10/15)
 
 ### gCollisionProfile
-- [-] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
-- [-] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
-- [-] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
-- [-] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
-- [-] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
+- [-] `gCollisionProfile::CallEFun_GetNumEnvProperties` · 005489a0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics [vtable-checked: not a slot of any located Legions vtable]
+- [-] `gCollisionProfile::CallEFun_GetNumObjectProperties` · 00548a10 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics [vtable-checked: not a slot of any located Legions vtable]
+- [-] `gCollisionProfile::CallEFun_GetNumObjects` · 00548a80 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics [vtable-checked: not a slot of any located Legions vtable]
+- [-] `gCollisionProfile::CallEFun_GetNumSurfaceProperties` · 00548af0 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics [vtable-checked: not a slot of any located Legions vtable]
+- [-] `gCollisionProfile::CallEFun_GetNumWaterProperties` · 00548b60 — not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics [vtable-checked: not a slot of any located Legions vtable]
 - [x] `gCollisionProfile::CallEFun_IsEndCollision` · 00548bd0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [x] `gCollisionProfile::CallEFun_IsEndContact` · 00548c40 — ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
 - [x] `gCollisionProfile::CallEFun_FindObject` · 00548cb0 — ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
@@ -1677,7 +1677,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/interp/glue/gemailutils.cpp.c` (0/1)
 
 ### gEmailUtils
-- [-] `gEmailUtils::CallEFun_send_emailW` · 00547c90 — admin only: admin email tool (no Legions match)
+- [-] `gEmailUtils::CallEFun_send_emailW` · 00547c90 — admin only: admin email tool (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (7/28)
 
@@ -3747,10 +3747,10 @@ Legend and workflow: [README](README.md).
 - [ ] `WLinkMap::GetPackageName` · 006186a0 · legions 005d5080 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### WLibDB
-- [-] `WLibDB::I_GetPackageName` · 00618700 — admin wlib database (no Legions match)
+- [-] `WLibDB::I_GetPackageName` · 00618700 — admin wlib database (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ### WLinkMap
-- [-] `WLinkMap::GetPackageID` · 00618780 — admin wlib link map (no Legions match)
+- [-] `WLinkMap::GetPackageID` · 00618780 — admin wlib link map (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ### WLibDB
-- [-] `WLibDB::I_GetPackageID` · 006187f0 — admin wlib database (no Legions match)
+- [-] `WLibDB::I_GetPackageID` · 006187f0 — admin wlib database (no Legions match) [vtable-checked: not a slot of any located Legions vtable]

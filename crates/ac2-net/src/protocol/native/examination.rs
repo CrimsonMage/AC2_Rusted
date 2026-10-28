@@ -305,12 +305,15 @@ impl ExaminationDataNode {
     }
 }
 
-/// `ExaminationProfile::StreamPack`: the request it answers, then `PList<ExaminationDataNode>`
-/// (a count, then the nodes).
+/// `ExaminationProfile::StreamPack` (Legions 0x005C94A0): the request it answers, then
+/// `PList<ExaminationDataNode>` (a count, then the nodes), then the Legions word at `+0x38`
+/// (`available`: the filter-tab bits the profile has content for, which `gmExaminationUI` shows
+/// as its tabs' inactive state).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct ExaminationProfile {
     pub request: ExaminationRequest,
     pub nodes: Vec<ExaminationDataNode>,
+    pub available: u32,
 }
 
 impl ExaminationProfile {
@@ -319,7 +322,12 @@ impl ExaminationProfile {
         let nodes = (0..r.count()?)
             .map(|_| ExaminationDataNode::read(r))
             .collect::<Result<_, _>>()?;
-        Ok(Self { request, nodes })
+        let available = r.u32()?;
+        Ok(Self {
+            request,
+            nodes,
+            available,
+        })
     }
 
     pub(super) fn write(&self, w: &mut Writer) {
@@ -328,6 +336,7 @@ impl ExaminationProfile {
         for node in &self.nodes {
             node.write(w);
         }
+        w.u32(self.available);
     }
 
     /// The shared loop of the `ExaminationProfile::Add*` family (admin 0x00608800-0x00608EE0):
@@ -559,6 +568,7 @@ mod tests {
                     }),
                 },
             ],
+            available: 0x18C,
         };
         let bytes = round_trip(NativeObject::ExaminationProfile(profile));
         let mut expected = words(&[0x4000_0002, 0, 5, 0, 0x203, 6]);
@@ -569,6 +579,8 @@ mod tests {
         expected.extend(1.5f64.to_le_bytes());
         expected.extend(words(&[0x4000_0009, 5, 1, 1, 0x4100_0001, 0]));
         expected.extend(words(&[0x4000_0004, 6, 0x13, 4, 0x2300_0001, 0]));
+        // The Legions word after the nodes (`+0x38`).
+        expected.extend(words(&[0x18C]));
         assert_eq!(bytes, expected);
     }
 
@@ -581,6 +593,7 @@ mod tests {
                 appearance: 0,
                 value: ExaminationValue::Break,
             }],
+            available: 0,
         };
         profile.add_effect_id(55, 0x11, 1);
         profile.add_effect_id(77, 0x12, 2);
@@ -596,6 +609,7 @@ mod tests {
         expected.extend(words(&[0x4000_0006, 2]));
         expected.extend(words(&[0x4000_000C, 2, 0x12, 77]));
         expected.extend(words(&[0x4000_000C, 9, 0x13, 88]));
+        expected.extend(words(&[0]));
         assert_eq!(bytes, expected);
     }
 
@@ -604,6 +618,7 @@ mod tests {
         let mut profile = ExaminationProfile {
             request: ExaminationRequest::object(5),
             nodes: Vec::new(),
+            available: 0,
         };
         profile.add_int(-2, 0x11, 1);
         // `AddBool` keeps the int as passed, not normalised to 0 or 1.
@@ -633,6 +648,7 @@ mod tests {
         expected.extend(words(&[0x4000_0008, 7, 0x14, 0, 0x3FF8_0000]));
         expected.extend(words(&[0x4000_000A, 8, 0x15, 0xFFFF_FFFF, 0xFFFF_FFFF]));
         expected.extend(words(&[0x4000_0009, 9, 1, 2, 22, 2]));
+        expected.extend(words(&[0]));
         assert_eq!(bytes, expected);
     }
 

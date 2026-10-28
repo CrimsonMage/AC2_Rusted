@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 91 done, 36 partial, 89 to do, 46 skipped.
+262 retail functions: 92 done, 36 partial, 88 to do, 46 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -37,7 +37,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLostCell::RemoveObject` · 004da260 · legions 004cccc0
 - [x] `CLostCell::AddObject` · 004da2a0 · legions 004ccd00
 
-## `portal/client/src/objects/cobjmaint.cpp.c` (19/65)
+## `portal/client/src/objects/cobjmaint.cpp.c` (20/65)
 
 ### CObjectMaint
 - [x] `CObjectMaint::CreatePhysicsObj` · 004d4fb0 · legions 004c7930 — crates/ac2-weenie/src/appearance.rs:4 (CObjectMaint::CreatePhysicsObj applies the create's delta)
@@ -111,7 +111,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjectMaint::CreateObject` · 004d75a0 · legions 004ca010 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 - [~] `CObjectMaint::AddObjectToBeDestroyed` · 004d76d0 · legions 004ca140 — 25 s; no temporary ids (0.25 s)
 - [x] `CObjectMaint::DestroyObject` · 004d7730 · legions 004ca1a0
-- [ ] `CObjectMaint::FadeAndDestroyObject` · 004d7770 · legions 004ca1e0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [x] `CObjectMaint::FadeAndDestroyObject` · 004d7770 · legions 004ca1e0 — ac2-weenie World::fade_and_destroy_object (pending deletion at cur_time + destruction, only for an object in the table) with the fade slider in ac2-smartbox missile_follow.rs; FX objects keep their own FxObjects::fade_and_destroy (0.5, 3.0)
 - [x] `CObjectMaint::GotoLostCell` · 004d77e0 · legions 004ca250 — ac2-client remote.rs (lost-cell table)
 - [ ] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 - [ ] `CObjectMaint::AllocateTemporaryID` · 004d7c10 · legions 004ca680 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
@@ -238,7 +238,7 @@ Legend and workflow: [README](README.md).
 - [~] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — no dynamic first-person head-bone camera, no camera effects
 - [x] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [x] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
-- [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only
+- [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]
 - [~] `CameraManager::SetMapView` · 00576a10 · legions 005468d0 — ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance; SceneTool::m_bDisableDegrades not modelled
 - [ ] `CameraManager::GetTargetOffset` · 00576b00 · legions 005469c0 — needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
 - [x] `CameraManager::SetDefaults` · 00576b40 · legions 00546a30

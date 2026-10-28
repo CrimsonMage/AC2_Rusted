@@ -191,6 +191,20 @@ impl ParticleSystem {
         !(self.alive() != 0 && now - since <= RETIRE_WAIT)
     }
 
+    /// The tunnel clouds' discharge: `ParticleEmitter::DischargeParticle` on the system's first
+    /// emitter at `now`, `offset` from the system's origin, with no sweep.
+    pub fn discharge_offset(&mut self, now: f64, offset: Vec3) {
+        let mut context = SystemContext {
+            desc: &self.desc,
+            start_time: self.start_time,
+            frame: self.context_frame(),
+            rng: &mut self.rng,
+        };
+        if let Some(emitter) = self.emitters.first_mut() {
+            emitter.discharge_at(&mut context, now, now, offset);
+        }
+    }
+
     /// `RenderAtPosition` came back without drawing: the system waits until it is drawn again.
     pub fn set_disabled(&mut self, disabled: bool) {
         self.disabled = disabled;

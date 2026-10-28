@@ -7,6 +7,7 @@ mod degrade;
 #[cfg(test)]
 mod fx_bone_tests;
 mod lights;
+mod mesh_model;
 mod model;
 mod pass;
 #[cfg(test)]
@@ -26,6 +27,7 @@ pub use degrade::{
     DegradeOptions, DrawDetail, ObjectLod, PartDegrades, HIGH_DETAIL,
 };
 pub use lights::{ObjectEnvironment, ObjectLights, SunLight};
+pub use mesh_model::{load_mesh_model, particle_material_model};
 pub use model::{
     load_object_model, load_object_model_with, ObjectBatch, ObjectMaterial, ObjectModel,
     ObjectPart, ObjectPose, ObjectVertex, PoseRig,

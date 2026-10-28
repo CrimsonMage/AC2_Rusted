@@ -77,13 +77,32 @@ pub struct ClientView {
     deselect: bool,
     /// The inventory's paper doll scene (`gmPaperDollUI`).
     doll: crate::paper_doll_scene::PaperDollScene,
-    /// The portal space's fader (`PortalSpace::Effect`'s `DrawScreenQuad`).
-    fader: ac2_gpu::PortalFader,
+    /// The portal space: the fader and the tunnel (`PortalSpace::Effect::Render`).
+    portal: ac2_gpu::PortalDraw,
     /// The tone map the world and the paper doll reach the window through.
     presenter: ac2_gpu::ScenePresenter,
     /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
     /// the effect draws it).
     world_drawn: bool,
+}
+
+/// The portal space's draws, with the tunnel's materials (`PortalSpace::Effect::Initialize`'s
+/// `0x40000013` and `0x40000014`) decoded and uploaded here, at setup, not on the frame thread.
+fn portal_draw(
+    gpu: &Gpu,
+    format: wgpu::TextureFormat,
+    store: &ac2_db::ResourceStore,
+) -> ac2_gpu::PortalDraw {
+    let mut portal = ac2_gpu::PortalDraw::new(gpu, format);
+    let materials = crate::portal_materials(store);
+    let mut load = |did| ac2_render::load_material_image(store, did).ok().flatten();
+    portal.preload(
+        gpu,
+        DataId::new(materials.inner),
+        DataId::new(materials.outer),
+        &mut load,
+    );
+    portal
 }
 
 /// The landblock (x, y) of a cell id.
@@ -197,10 +216,13 @@ impl ClientView {
             block_size: world.block_size(),
             hud: HudView::new(Arc::clone(&store), gpu, format, size),
             deselect: false,
-            doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world)),
+            doll: crate::paper_doll_scene::PaperDollScene::new(
+                Arc::clone(&store),
+                Arc::clone(&world),
+            ),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu),
-            fader: ac2_gpu::PortalFader::new(gpu, format),
+            portal: portal_draw(gpu, format, &store),
             presenter: ac2_gpu::ScenePresenter::new(gpu, format),
             world_drawn: true,
         }
@@ -317,7 +339,12 @@ impl ClientView {
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
         profile_scope!("view.prepare");
         self.world_drawn = frame.portal.world_drawn();
-        self.fader.update(gpu, &frame.portal.draw);
+        self.portal.update(
+            gpu,
+            &frame.portal.draw,
+            frame.portal.tunnel.as_ref(),
+            aspect,
+        );
         let Some(camera) = self.camera(frame) else {
             return false;
         };
@@ -443,7 +470,7 @@ impl ClientView {
             roots,
             &[self.doll.scenes()],
             (world && self.world_drawn).then_some(draw_world),
-            |pass| self.fader.draw(pass),
+            |pass| self.portal.draw(pass),
         );
     }
 }

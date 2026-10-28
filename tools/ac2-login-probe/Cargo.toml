@@ -1,0 +1,19 @@
+[package]
+name = "ac2-login-probe"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+# Test tooling: runs only the network logon against an AC2 server and reports each stage. Never
+# shipped; it opens no window and loads no renderer or scripts.
+[lints]
+workspace = true
+
+[dependencies]
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-net = { path = "../../crates/ac2-net" }
+ac2-weenie = { path = "../../crates/ac2-weenie" }
+
+[dev-dependencies]
+legions-server-double = { path = "../legions-server-double" }

@@ -33,10 +33,13 @@ use crate::world::{World, WorldEvent, WorldState};
 mod gameplay;
 mod inventory;
 mod money;
+mod observer;
 mod progress;
 mod select;
 mod shell;
 mod trade;
+
+pub use observer::SessionTrace;
 
 /// Which listed character to enter the world with.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -232,6 +235,8 @@ pub struct OnlineSession {
     script_functions: std::collections::BTreeSet<u32>,
     /// The chat command line's state (`CPlayer`'s chat slots).
     chat: crate::shell::ChatState,
+    /// A tool's view of the logon stages ([`OnlineSession::set_observer`]).
+    observer: Option<Box<dyn FnMut(&SessionTrace) + Send>>,
 }
 
 impl OnlineSession {
@@ -286,6 +291,7 @@ impl OnlineSession {
             progress: Default::default(),
             script_functions: Default::default(),
             chat: Default::default(),
+            observer: None,
         })
     }
 
@@ -364,6 +370,12 @@ impl OnlineSession {
         self.world.add_object_to_be_destroyed(id);
     }
 
+    /// `CObjectMaint::FadeAndDestroyObject` (`CPhysicsObj::DeleteSelf`): the object is deleted
+    /// `destruction` seconds from now, at the next `use_time` after that.
+    pub fn fade_and_destroy_object(&mut self, id: u64, destruction: f64) -> bool {
+        self.world.fade_and_destroy_object(id, destruction)
+    }
+
     /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
     pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
         self.world.remove_object_to_be_destroyed(id);
@@ -415,12 +427,18 @@ impl OnlineSession {
 
     fn handle(&mut self, event: NetEvent, out: &mut Vec<SessionEvent>) {
         match event {
-            NetEvent::Connected { .. } => out.push(SessionEvent::Connected),
-            NetEvent::LoggedOn | NetEvent::TimeSync(_) | NetEvent::ServerSwitch { .. } => {}
-            NetEvent::ConnectionError { error, .. } => {
-                out.push(SessionEvent::ConnectionError(error.to_string()))
+            NetEvent::Connected { net_id, .. } => {
+                self.trace(SessionTrace::Connected { net_id });
+                out.push(SessionEvent::Connected)
+            }
+            NetEvent::LoggedOn => self.trace(SessionTrace::LoggedOn),
+            NetEvent::TimeSync(_) | NetEvent::ServerSwitch { .. } => {}
+            NetEvent::ConnectionError { world, error } => {
+                out.push(SessionEvent::ConnectionError(error.to_string()));
+                self.trace(SessionTrace::ConnectionError { world, error });
             }
             NetEvent::Disconnected(error) => {
+                self.trace(SessionTrace::Disconnected(error.clone()));
                 self.closed = true;
                 // The session is over: its world goes as at `CharExitGame`.
                 self.world.leave_world();
@@ -440,11 +458,18 @@ impl OnlineSession {
             NetEvent::Blob(blob) if blob.queue == QUEUE_DAT => {
                 // `CLCache::UseTime` -> `CLCache::OnServerInterrogation`: the language and each
                 // open DAT's iterations. This client patches no DATs beyond that answer.
-                if let Ok(ServerEvent::Dat(DatEvent::Interrogation(_))) =
+                if let Ok(ServerEvent::Dat(DatEvent::Interrogation(payload))) =
                     ServerEvent::decode(&blob.data, Build::default())
                 {
+                    self.trace(SessionTrace::Interrogation {
+                        payload_len: payload.len(),
+                    });
                     let response = interrogation_response(self.language, &self.dat_iterations);
                     self.client.net_mut().send_dat_event(response);
+                    self.trace(SessionTrace::InterrogationAnswered {
+                        language: self.language,
+                        dat_files: self.dat_iterations.len(),
+                    });
                 }
             }
             // `Turbine::Client::ProcessLogonEventQueue`: queue 4 hands `0x100D3` to the chat
@@ -464,7 +489,16 @@ impl OnlineSession {
     fn handle_world(&mut self, event: WorldEvent, out: &mut Vec<SessionEvent>) {
         let event = match event {
             WorldEvent::Dispatched(event) => event,
-            WorldEvent::Undecoded { opcode, error } => {
+            WorldEvent::Undecoded {
+                opcode,
+                length,
+                error,
+            } => {
+                self.trace(SessionTrace::Undecoded {
+                    opcode,
+                    length,
+                    error: error.clone(),
+                });
                 out.push(SessionEvent::Rejected(format!(
                     "undecoded event {opcode:#010x}: {error}"
                 )));
@@ -716,6 +750,14 @@ impl OnlineSession {
             arguments,
             encrypted,
         });
+    }
+
+    /// `CPhysicsObj::inc_update_time(stamp)` on the player's object (`HandleTeleportStart` bumps
+    /// `StampID::TELEPORT`), so the next position report carries the moved-on stamp.
+    pub fn inc_player_update_time(&mut self, stamp: usize) {
+        if let Some(id) = self.world.player() {
+            self.world.objects.inc_update_time(id, stamp);
+        }
     }
 
     /// The stamps come from the player's object as the server last set them

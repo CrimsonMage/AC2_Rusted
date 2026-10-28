@@ -756,6 +756,7 @@ impl Client {
                     .and_then(|p| p.body.as_ref().map(|b| (p.id, b.physics.object_view())))
                     .into_iter()
                     .collect();
+                self.missile_parent_positions();
                 let missile_events = self.remotes.step_quantum(
                     &mut self.terrain,
                     cur_time,

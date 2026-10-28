@@ -40,19 +40,19 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Character::SendNotice_AddMarker` · 007248b0 · legions 006a4270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [~] `CM_Character::SendNotice_AddPet` · 00724970 · legions 006a42e0 — ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 - [x] `CM_Character::SendNotice_ChangeRadarLook` · 00724a30 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-- [-] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
+- [-] `CM_Character::SendNotice_ChangeRadarShowCoordsPreference` · 00724ac0 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CM_Character::SendNotice_ClearMarkers` · 00724b50 · legions 006a43e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [x] `CM_Character::SendNotice_DisplayMessage` · 00724be0 · legions 006a4430 — retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 - [~] `CM_Character::SendNotice_PetIsUnderAttack` · 00724c70 — ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 - [x] `CM_Character::SendNotice_PulseMissed` · 00724d00 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [-] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
+- [-] `CM_Character::SendNotice_ReloadGameplayOptions` · 00724d90 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CM_Character::SendNotice_ReloadOptions` · 00724e20 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_RemoveMarker` · 00724eb0 · legions 006a45e0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [~] `CM_Character::SendNotice_RemovePet` · 00724f50 — ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
 - [x] `CM_Character::SendNotice_ResurrectionRequestedByOther` · 00724fe0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [-] `CM_Character::SendNotice_Select` · 00725070 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
+- [-] `CM_Character::SendNotice_Select` · 00725070 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CM_Character::SendNotice_SelectionChanged` · 00725100 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [-] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
+- [-] `CM_Character::SendNotice_SetShortcutHeight` · 00725190 — no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CM_Character::SendNotice_UpdateDeathState` · 00725220 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `CM_Character::SendNotice_UpdateEffect` · 007252b0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `CM_Character::SendNotice_UpdateFactionStatus` · 00725340 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
@@ -390,7 +390,7 @@ Legend and workflow: [README](README.md).
 
 ### gCM_Shortcut
 - [x] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
-- [-] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — No Legions 7160 counterpart: glue/efun_names.txt has no efun for it; the Legions 0x00468D60 is a different function
+- [-] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — No Legions 7160 counterpart: glue/efun_names.txt has no efun for it; the Legions 0x00468D60 is a different function [vtable-checked: not a slot of any located Legions vtable]
 
 ## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (9/12)
 
@@ -804,7 +804,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50 — needs port: script IFun result call create on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [x] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [-] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
+- [-] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620 — needs port: script IFun result get ignored list on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0 — needs port: script IFun result ignored add on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0 — needs port: script IFun result ignored delete on the client interface; no citation in crates/
@@ -1193,7 +1193,7 @@ Legend and workflow: [README](README.md).
 
 ### gmCWInterface
 - [ ] `gmCWInterface::ExpandText` · 004539e0 · legions 00454a60 — needs port: interface expand text; no citation in crates/
-- [-] `gmCWInterface::Result_GetFriendsList` · 00453b90 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart
+- [-] `gmCWInterface::Result_GetFriendsList` · 00453b90 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart [vtable-checked: not a slot of any located Legions vtable]
 - [x] `gmCWInterface::GUNEvent_FriendStart` · 00453bd0 · legions 00454c50 — ac2-client friends.rs gun_friend_event (list and status to the page through take_friend_events; the script IFuns run first); ac2-ui friends_panel.rs; tests friends_script_7160, friends_page_7160
 - [x] `gmCWInterface::Result_GetIgnoredList` · 00453c10 — implemented: cited at crates/ac2-weenie/src/shell/state.rs:191
 

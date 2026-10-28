@@ -92,7 +92,7 @@ fn every_gap_and_skip_row_says_why() {
         "every key action is handled or skipped (KeyStone is handled)"
     );
     assert_eq!(
-        skips, 8,
-        "admin-only keys: sound, benchmark, debug HUD, groove, exam tabs"
+        skips, 6,
+        "admin-only keys: sound, benchmark, debug HUD, groove"
     );
 }

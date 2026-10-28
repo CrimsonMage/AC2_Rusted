@@ -171,8 +171,8 @@ impl Hud {
             requests.extend(commands.into_iter().map(HudRequest::Craft));
         }
         // `gmBookUI`: the use notices show the book, then its messages turn the pages. Its help
-        // button opens the help topic; the copy button has no clipboard counterpart yet and is
-        // dropped.
+        // button opens the help topic; the copy button sends the text to the clipboard inside
+        // `book_pass`.
         if let Some(book) = self.book.as_mut() {
             for request in book_pass(book, tree, player, input.events, &messages) {
                 if let BookRequest::OpenHelp = request {

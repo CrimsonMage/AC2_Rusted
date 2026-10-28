@@ -109,8 +109,12 @@ impl Tunnel {
             let prev = make_safe_index(i as i64 - 1);
             let previous = self.portals[prev];
             let position = (f64::from(previous.position) + PORTAL_SPACING) as f32;
-            let rotation = ring_rotation(position, random_factor);
+            let mut rotation = ring_rotation(position, random_factor);
+            // The local matrix is the rotation with the translation (0, 3, 0): the `fstp` of the
+            // spacing lands on m[13] after the copy (the x87 chain's 0x0A6D56C store), so each
+            // ring sits 3 units along its own y from the one before.
             let radius = sine_radius().value(f64::from(position));
+            rotation.m[13] = PORTAL_SPACING as f32;
             self.portals[i] = Portal {
                 position,
                 radius,
@@ -140,15 +144,26 @@ impl Tunnel {
         indices
     }
 
-    /// `UpdateGeometry`: the vertices of the tunnel's rings, scaled by `scale` (1.0 for the
-    /// inner tunnel, 1.2 for the outer). Ring `b` of the buffer is the portal `first + b`, so
-    /// the rings run away from the camera; the ring's colour fades with its depth.
-    pub fn update_geometry(&self, first: usize, scale: f32) -> Vec<TunnelVertex> {
+    /// `UpdateGeometry(current, start, buffer, scale)`: the vertices of the tunnel's rings, scaled
+    /// by `scale` (1.0 for the inner tunnel, 1.2 for the outer). Ring step `k` (0..150) is portal
+    /// `current + k` (wrapping, `current` being `m_nLastPortalPassed`). The buffer fills from its
+    /// last ring backwards, so buffer ring `b` holds step `149 - b`. Within a ring the memory runs
+    /// the other way: vertex `m` (0..17) is point `16 - m` with `v = (16 - m) / 16`, so the
+    /// closing vertex (`v = 1`) is the ring's first. A step before the start (`k < start`) is
+    /// transparent; the others fade with their distance from the start (`X = k - start`, see
+    /// [`fade_color`]).
+    pub fn update_geometry(&self, current: usize, start: usize, scale: f32) -> Vec<TunnelVertex> {
         let mut vertices = Vec::with_capacity(PORTALS * RING_VERTICES);
         for ring in 0..PORTALS {
-            let portal = &self.portals[make_safe_index((first + ring) as i64)];
-            let color = fade_color(ring);
-            for j in 0..RING_VERTICES {
+            let step = PORTALS - 1 - ring;
+            let portal = &self.portals[make_safe_index((current + step) as i64)];
+            let color = if step < start {
+                0x00FF_FFFF
+            } else {
+                fade_color(step - start)
+            };
+            for m in 0..RING_VERTICES {
+                let j = RING_VERTICES - 1 - m;
                 let point = self.points[j % POINTS];
                 vertices.push(TunnelVertex {
                     position: project(portal, point, scale),
@@ -159,6 +174,12 @@ impl Tunnel {
         }
         vertices
     }
+}
+
+/// `Render`'s first portal of the tunnel: `(int)((1 - m_fTunnelVisibility) * 149)`, the
+/// visibility being the tunnel's fade in (0 nothing visible, 1 all of it).
+pub fn start_for_visibility(visibility: f32) -> usize {
+    ((1.0 - f64::from(visibility)) * 149.0) as usize
 }
 
 /// The ring's rotation: `GeneratePortals`' three Perlin waveforms at the portal's position
@@ -198,29 +219,35 @@ fn sine_radius() -> Waveform {
     }
 }
 
-/// One ring vertex's position: the point scaled by the portal's radius (the x and z; the y is
-/// unscaled), through the portal's matrix, divided by its `w`.
+/// One ring vertex's position (`UpdateGeometry`'s x87 chain): the point's x, scaled by the
+/// portal's radius and the ring's scale, is stored as a float (`fstp`), the y is unscaled, the z
+/// is scaled in extended precision; the matrix product and `1 / w` stay in extended precision,
+/// and the divided coordinates round to float at the store.
 fn project(portal: &Portal, point: [f32; 3], scale: f32) -> [f32; 3] {
     let radius = f64::from(portal.radius);
     let s = f64::from(scale);
-    let x = f64::from(point[0]) * radius * s;
+    let x = f64::from((f64::from(point[0]) * radius * s) as f32);
     let z = f64::from(point[2]) * radius * s;
-    let [px, py, pz, w] = portal.world.transform(x as f32, point[1], z as f32);
-    // `1.0 / w` is stored as float before the multiply.
-    let inverse = (1.0 / f64::from(w)) as f32;
-    [px * inverse, py * inverse, pz * inverse]
+    let [px, py, pz, w] = portal.world.transform_f64(x, f64::from(point[1]), z);
+    let inverse = 1.0 / w;
+    [
+        (px * inverse) as f32,
+        (py * inverse) as f32,
+        (pz * inverse) as f32,
+    ]
 }
 
-/// The ring's colour: the alpha byte of `ftol(255 * a)` for the ring's depth `x` (the ring
-/// index). Within the first sixteen rings the alpha is `0.8 + 0.2 (1 - x/15)`, beyond it
-/// `0.8 (1 - x/149)^2`. The byte is the low eight bits of the truncated value.
-pub(crate) fn fade_color(ring: usize) -> u32 {
-    let x = ring as f32;
-    let alpha = if ring < 16 {
-        0.8f32 + 0.2f32 * (1.0 - x * (1.0 / 15.0))
+/// The ring's colour for `X`, its distance in rings from the start (`X = k - start`, the counter
+/// `UpdateGeometry` compares with 16): `0.8 + 0.2 (1 - X/15)` below 16, `0.8 (1 - X/149)^2`
+/// beyond. The constants are the float literals of the image; the alpha stays in extended
+/// precision and the alpha byte is the low eight bits of `ftol(255 * alpha)`.
+pub(crate) fn fade_color(distance: usize) -> u32 {
+    let x = distance as f64;
+    let alpha = if distance < 16 {
+        f64::from(0.8f32) + f64::from(0.2f32) * (1.0 - x * f64::from(1.0f32 / 15.0))
     } else {
-        let t = 1.0 - x * (1.0f32 / 149.0);
-        0.8f32 * (t * t)
+        let t = 1.0 - x * f64::from(1.0f32 / 149.0);
+        f64::from(0.8f32) * (t * t)
     };
     let byte = (alpha * 255.0) as i32 as u32 & 0xFF;
     (byte << 24) | 0x00FF_FFFF

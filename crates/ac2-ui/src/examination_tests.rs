@@ -5,10 +5,11 @@ use std::sync::Arc;
 
 use ac2_db::ResourceStore;
 
-use crate::examination::ExaminationItem;
-use crate::token::tokenize;
+use crate::examination::{ExaminationCall, ExaminationItem};
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::token::{tokenize, MSG_MOUSE_PRESS};
 use crate::ui_string::{UiString, UiStrings};
-use crate::{build_gameplay_hud, ExaminationUi, SkillVar, UiTree};
+use crate::{build_gameplay_hud, ExaminationUi, SkillVar, ToolbarChild, UiTree};
 
 /// The strings as `id|var|var`, so a countdown's words show their variables.
 struct Strings;
@@ -76,6 +77,7 @@ fn a_countdown_shows_its_time_and_the_global_loop_counts_it_down() {
                 seconds: 61.0,
             },
         ],
+        (0x203, 0x203),
     );
     let shown = row_texts(tree, panel);
     assert!(shown.contains(&"Label".to_string()), "{shown:?}");
@@ -99,6 +101,159 @@ fn a_countdown_shows_its_time_and_the_global_loop_counts_it_down() {
     );
 
     // The next profile flushes the countdown with its rows.
-    panel.update_profile(tree, &strings, 1030.0, &[]);
+    panel.update_profile(tree, &strings, 1030.0, &[], (0x203, 0x203));
     assert!(row_texts(tree, panel).is_empty());
+}
+
+/// The state token of each filter tab, in the order General, Details, Effects, Usage.
+fn tab_states(tree: &UiTree) -> Vec<u32> {
+    ["GeneralTab", "DetailsTab", "EffectsTab", "UsageTab"]
+        .iter()
+        .map(|name| {
+            let field = tree
+                .roots()
+                .iter()
+                .find_map(|&r| tree.child_recursive(r, tokenize("ExaminationField")))
+                .expect("the examination field");
+            let tab = tree
+                .child_recursive(field, tokenize(name))
+                .unwrap_or_else(|| panic!("{name}"));
+            tree.get(tab).expect("tab").state()
+        })
+        .collect()
+}
+
+fn press(tree: &UiTree, name: &str) -> UiMessage {
+    let field = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("ExaminationField")))
+        .expect("the examination field");
+    UiMessage {
+        element_id: tokenize(name),
+        element: tree.child_recursive(field, tokenize(name)),
+        message: MSG_MOUSE_PRESS,
+        data: 0,
+        item: None,
+    }
+}
+
+fn key(action: u32) -> UiMessage {
+    UiMessage {
+        element_id: 0,
+        element: None,
+        message: GLOBAL_KEY_PRESS,
+        data: action as i32,
+        item: None,
+    }
+}
+
+/// Legions 0x00431170: a tab is active when the filter has its mask, inactive when the profile
+/// has content for it, else disabled; a fresh panel shows the General tab only.
+#[test]
+fn the_tabs_follow_the_filter_and_the_profile() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let panel = hud.examination.as_mut().expect("the examination panel");
+    let tree = &mut hud.tree;
+    let (active, inactive, disabled) = (
+        tokenize("active"),
+        tokenize("inactive"),
+        tokenize("disabled"),
+    );
+    assert_eq!(panel.filter(), 0x203);
+    assert_eq!(tab_states(tree), vec![active, disabled, disabled, disabled]);
+
+    // A profile for the General filter with content under Details and Usage.
+    panel.update_profile(tree, &Strings, 0.0, &[], (0x203, 0x18C | 0x60));
+    assert_eq!(tab_states(tree), vec![active, inactive, disabled, inactive]);
+    // A profile answering a Details and Effects filter.
+    panel.update_profile(tree, &Strings, 0.0, &[], (0x18C | 0x10, 0x203));
+    assert_eq!(tab_states(tree), vec![inactive, active, active, disabled]);
+}
+
+/// A press on an enabled tab sets the filter (a Ctrl press toggles its bits) and starts the
+/// examination again with it; a disabled tab does nothing; hidden, nothing happens.
+#[test]
+fn a_tab_press_sets_the_filter_and_restarts_the_examination() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let toolbar = &mut hud.toolbar;
+    let panel = hud.examination.as_mut().expect("the examination panel");
+    let tree = &mut hud.tree;
+
+    // Hidden: a press is ignored.
+    let details = press(tree, "DetailsTab");
+    panel.message(tree, &details, false);
+    assert!(panel.take_calls().is_empty());
+
+    toolbar.show(tree, ToolbarChild::Examination, true);
+    panel.follow_field(tree);
+    // Opening starts the examination with the panel's word.
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x203)]);
+
+    // Details has no content yet: disabled, so the press does nothing.
+    panel.message(tree, &details, false);
+    assert!(panel.take_calls().is_empty());
+    assert_eq!(panel.filter(), 0x203);
+
+    panel.update_profile(tree, &Strings, 0.0, &[], (0x203, 0x18C | 0x60));
+    panel.message(tree, &details, false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x18C)]);
+    assert_eq!(panel.filter(), 0x18C);
+
+    // Ctrl on Usage adds its bits; Ctrl on it again takes them away.
+    let usage = press(tree, "UsageTab");
+    panel.message(tree, &usage, true);
+    assert_eq!(
+        panel.take_calls(),
+        vec![ExaminationCall::Start(0x18C | 0x60)]
+    );
+    panel.message(tree, &usage, true);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x18C)]);
+
+    // The server's answer (the request changed) sets the filter the panel sends next.
+    panel.request_changed(tree, 0x4000_0002, 0x10);
+    assert_eq!(panel.filter(), 0x10);
+}
+
+/// The selection keys step to the next or previous tab that is not disabled, cycling.
+#[test]
+fn the_tab_keys_step_through_the_enabled_tabs() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let toolbar = &mut hud.toolbar;
+    let panel = hud.examination.as_mut().expect("the examination panel");
+    let tree = &mut hud.tree;
+    toolbar.show(tree, ToolbarChild::Examination, true);
+    panel.follow_field(tree);
+    panel.take_calls();
+
+    // Only the General tab is enabled: the keys choose it again.
+    panel.message(tree, &key(0x4100_006A), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x203)]);
+
+    // General, Details and Usage have content (Effects does not): next skips Effects.
+    panel.update_profile(tree, &Strings, 0.0, &[], (0x203, 0x18C | 0x60));
+    panel.message(tree, &key(0x4100_006A), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x18C)]);
+    panel.message(tree, &key(0x4100_006A), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x60)]);
+    // Past the last tab it wraps to the first.
+    panel.message(tree, &key(0x4100_006A), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x203)]);
+    // Previous from the first wraps to the last enabled one.
+    panel.message(tree, &key(0x4100_006B), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x60)]);
+    panel.message(tree, &key(0x4100_006B), false);
+    assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x18C)]);
 }

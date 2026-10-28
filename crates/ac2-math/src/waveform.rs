@@ -2,6 +2,8 @@
 //! seconds). `Waveform::GetValueForPhase` keeps each time-scaled term on the x87 stack and stores
 //! amplitude, phase and frequency to `float` before combining them; this follows the same order.
 
+use ac2_core::Random;
+
 /// `WaveformType` values.
 pub mod kind {
     pub const INVALID: u32 = 0;
@@ -48,10 +50,19 @@ impl Waveform {
         self.value_for_phase(0.0, time)
     }
 
-    /// `Waveform::GetValueForPhase`. `PERLIN` samples the shared [`crate::perlin`] table. `NOISE`
-    /// (the client's global dice) and `FRACTAL` (`PerlinNoise::fBm1`) are not reproduced; they
-    /// return the base.
+    /// `Waveform::GetValueForPhase` without the client's dice: `NOISE` has no roll, so it is the
+    /// base. Use [`Waveform::value_for_phase_with`] where the client's `Random` is at hand.
     pub fn value_for_phase(&self, phase: f32, time: f64) -> f32 {
+        self.evaluate(phase, time, None)
+    }
+
+    /// `Waveform::GetValueForPhase` with the client's `Random` for `NOISE`
+    /// (`Random::RollDice(-1, 1)`).
+    pub fn value_for_phase_with(&self, phase: f32, time: f64, random: &mut Random) -> f32 {
+        self.evaluate(phase, time, Some(random))
+    }
+
+    fn evaluate(&self, phase: f32, time: f64, dice: Option<&mut Random>) -> f32 {
         let term = |velocity: f32, value: f32| f64::from(velocity) * time + f64::from(value);
         if self.kind == kind::NONE {
             return term(self.base_velocity, self.base) as f32;
@@ -68,14 +79,31 @@ impl Waveform {
             kind::SQUARE if wave() < 0.0 => -f64::from(amplitude) + base,
             kind::SQUARE => f64::from(amplitude) + base,
             kind::BOUNCE => wave().abs() * f64::from(amplitude) + base,
-            // `PerlinNoise::Noise(frequency * phase + time)`: the sum is a float, then the noise
-            // times the amplitude plus the base.
+            // `PerlinNoise::Noise(frequency * phase + time)`: the product of two floats, plus the
+            // client time as a double; the noise times the amplitude plus the base.
             kind::PERLIN => {
-                let arg = (f64::from(frequency) * f64::from(phase) + f64::from(time as f32)) as f32;
-                f64::from(crate::perlin::shared().noise(f64::from(arg))) * f64::from(amplitude)
+                let arg = f64::from(frequency) * f64::from(phase) + time;
+                f64::from(crate::perlin::shared().noise(arg)) * f64::from(amplitude)
                     + f64::from(base as f32)
             }
-            kind::NOISE | kind::FRACTAL => f64::from(base as f32),
+            // `Random::RollDice(-1, 1) * amplitude + base` (the roll times the amplitude term, in
+            // extended precision, the base stored as a float).
+            kind::NOISE => match dice {
+                Some(random) => {
+                    let roll = random.roll_dice_f32(-1.0, 1.0);
+                    f64::from(roll) * f64::from(amplitude) + f64::from(base as f32)
+                }
+                None => f64::from(base as f32),
+            },
+            // `PerlinNoise::fBm1(frequency * phase + time, 1 - roughness, 2, 6) * amplitude + base`,
+            // where the roughness term is stored as a float before the subtraction.
+            kind::FRACTAL => {
+                let arg = f64::from(frequency) * f64::from(phase) + time;
+                let roughness = term(self.roughness_velocity, self.roughness) as f32;
+                let h = 1.0 - f64::from(roughness);
+                let fractal = crate::perlin::shared().fbm1(arg, h, 2.0, 6.0);
+                f64::from(fractal) * f64::from(amplitude) + f64::from(base as f32)
+            }
             kind::FRAMELOOP => frame_loop(amplitude, frequency, phase, time) + base,
             _ => base,
         };

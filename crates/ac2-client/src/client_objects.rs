@@ -487,13 +487,53 @@ impl Client {
 }
 
 impl Client {
-    /// What the missiles' bodies asked of the world in this quantum: a streak starts or stops on
-    /// the object (`CPhysicsObj::StartStreak` / `StopStreak`). The weenie's callbacks (out of
-    /// fuel, expired, errors) are not modelled: the client's weenie does not act on them.
+    /// What the missiles' bodies asked of the world in this quantum. A streak starts or stops on
+    /// the object (`CPhysicsObj::StartStreak` / `StopStreak`). `CPhysicsObj::DeleteSelf` fades the
+    /// body and has the object maintenance delete it (`CObjectMaint::FadeAndDestroyObject`).
+    /// The weenie's callbacks (slots `0x80`, `0x84`, `0x8c`) are `CWeenieObject`'s defaults in the
+    /// client image, which return at once, so there is nothing to run. A missile that sticks
+    /// (`StickySetParent`) needs the holder's bone matrices; see `Known Gaps` in the catalog.
     pub(crate) fn missile_events_taken(&mut self, events: &[(u64, ac2_physics::MissileEvent)]) {
-        for &(id, event) in events {
-            if let ac2_physics::MissileEvent::Streak { on } = event {
-                self.pending_streaks.push((id, on));
+        let follow = self.remotes.follow_missiles(events);
+        self.pending_streaks.extend(follow.streaks);
+        for (id, seconds) in follow.destroy {
+            self.session.fade_and_destroy_object(id, seconds);
+        }
+    }
+
+    /// `CPhysicsObj::m_posDrawing` of each missile that `HasParent`: where the holder's holding
+    /// location puts it, which `CMissileManager::InitPosition` starts the flight from. The child
+    /// graph is the session's object table; a missile without a parent has none.
+    pub(crate) fn missile_parent_positions(&mut self) {
+        let scale_of = |body: &ac2_physics::PhysicsBody| body.object_view().scale;
+        let launched: Vec<u64> = self
+            .remotes
+            .iter()
+            .filter(|(_, r)| r.body().is_some_and(|b| b.has_missile_manager()))
+            .map(|(id, _)| id)
+            .collect();
+        for id in launched {
+            let links = self.session.objects().links();
+            let placed = links
+                .parent_of(id)
+                .zip(links.info_of(id))
+                .and_then(|(holder, info)| {
+                    let holder_body = match self.player.as_ref().filter(|p| p.id == holder) {
+                        Some(player) => &player.body.as_ref()?.physics,
+                        None => self.remotes.get(holder)?.body()?,
+                    };
+                    let position = holder_body.drawing_position(self.render_interpolation);
+                    let point = self.holding_point(holder, info.location);
+                    ac2_physics::parent_drawing_position(
+                        &position,
+                        scale_of(holder_body),
+                        info,
+                        ac2_anim::Ac2Transform::IDENTITY,
+                        point.as_ref(),
+                    )
+                });
+            if let Some(body) = self.remotes.body_mut(id) {
+                body.set_parent_drawing_position(placed);
             }
         }
     }

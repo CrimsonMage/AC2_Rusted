@@ -21,6 +21,7 @@ mod tests {
         SelectionFrame {
             id: 7,
             name: name.map(Into::into),
+            name_info: None,
             info: None,
             other_player,
         }

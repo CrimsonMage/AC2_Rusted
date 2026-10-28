@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 196 done, 15 partial, 110 to do, 312 skipped.
+633 retail functions: 196 done, 15 partial, 128 to do, 294 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -537,7 +537,7 @@ Legend and workflow: [README](README.md).
 - [x] `BaseProperty::InqPropertyNameW` · 006b2380 · legions 0064b610 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [x] `BaseProperty::InqPropertyTypeW` · 006b2440 · legions 0064b6d0 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [ ] `BaseProperty::GetOutputString` · 006b2510 · legions 0064b7a0 — not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
-- [-] `BaseProperty::ValueFromFileNode` · 006b2650 — skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files
+- [-] `BaseProperty::ValueFromFileNode` · 006b2650 — skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files [vtable-checked: not a slot of any located Legions vtable]
 - [-] `BaseProperty::ToFileNode` · 006b26b0 — text source format (admin tools)
 - [-] `BaseProperty::FromFileNode` · 006b2790 — text source format (admin tools)
 
@@ -606,10 +606,10 @@ Legend and workflow: [README](README.md).
 - [-] `LongIntegerPropertyValue::ToFileNode` · 006b4370 — text source format (admin tools)
 
 ### PFileNode
-- [-] `PFileNode::SetNameAsInt64` · 006b43b0 — skip: admin/debug text or tool code (no client use in Legions); PFileNode::SetNameAsInt64 is the text file node
+- [-] `PFileNode::SetNameAsInt64` · 006b43b0 — skip: admin/debug text or tool code (no client use in Legions); PFileNode::SetNameAsInt64 is the text file node [vtable-checked: not a slot of any located Legions vtable]
 
 ### PackageIDPropertyValue
-- [-] `PackageIDPropertyValue::HasValidData` · 006b4400 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
+- [ ] `PackageIDPropertyValue::HasValidData` · 006b4400 — Legions has it: PackageIDPropertyValue vtable slot 10 at 0x0064cde0 (shifted by two; same size). Was skip
 
 ### BehaviorTracker
 - [ ] `BehaviorTracker::SetAnimationObj` · 006b4410 · legions 0064ce10 — needs port: BehaviorTracker::SetAnimationObj (animation object of the behaviour tracker)
@@ -634,7 +634,7 @@ Legend and workflow: [README](README.md).
 - [-] `WaveformPropertyValue::WaveformPropertyValue` · 006b46b0 · legions 0064d070 — skip: constructor/destructor of plain data; Rust struct init and Drop
 
 ### DataFilePropertyValue
-- [-] `DataFilePropertyValue::HasValidData` · 006b46d0 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
+- [ ] `DataFilePropertyValue::HasValidData` · 006b46d0 — Legions has it: DataFilePropertyValue vtable slot 10 at 0x0064d090 (shifted by two; same size). Was skip
 
 ### WaveformPropertyValue
 - [-] `WaveformPropertyValue::FromFileNode` · 006b46e0 — text source format (admin tools)
@@ -642,7 +642,7 @@ Legend and workflow: [README](README.md).
 - [x] `WaveformPropertyValue::InqWaveform` · 006b4730 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `WaveformPropertyValue::SetWaveform` · 006b4750 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `WaveformPropertyValue::Set` · 006b47a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [-] `WaveformPropertyValue::GetValueAsString` · 006b47c0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `WaveformPropertyValue::GetValueAsString` · 006b47c0 — Legions has it: vtable slot 12 of WaveformPropertyValue at 0x0064d130 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 - [-] `WaveformPropertyValue::Compare` · 006b47e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### Waveform
@@ -654,7 +654,7 @@ Legend and workflow: [README](README.md).
 
 ### PositionPropertyValue
 - [-] `PositionPropertyValue::PositionPropertyValue` · 006b4a20 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [-] `PositionPropertyValue::HasValidData` · 006b4a60 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
+- [ ] `PositionPropertyValue::HasValidData` · 006b4a60 — Legions has the slot (PositionPropertyValue vtable, near slot 8; Legions 0x0064db40 is 32 instructions against admin's 17, so it differs). Was skip
 - [-] `PositionPropertyValue::FromFileNode` · 006b4a70 — text source format (admin tools)
 - [-] `PositionPropertyValue::ToFileNode` · 006b4a90 — text source format (admin tools)
 - [x] `PositionPropertyValue::Set` · 006b4ab0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
@@ -681,12 +681,12 @@ Legend and workflow: [README](README.md).
 ### StringPropertyValue
 - [-] `StringPropertyValue::StringPropertyValue` · 006b4e40 · legions 0064d670 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `StringPropertyValue::Set` · 006b4e70 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [-] `StringPropertyValue::HasValidData` · 006b4e90 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
+- [ ] `StringPropertyValue::HasValidData` · 006b4e90 — Legions has it: StringPropertyValue vtable slot 10 at 0x0064d6c0 (shifted by two; same size). Was skip
 - [-] `StringPropertyValue::Copy` · 006b4eb0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `StringPropertyValue::FromFileNode` · 006b4f00 — text source format (admin tools)
 - [x] `StringPropertyValue::InqString` · 006b4f30 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [x] `StringPropertyValue::SetString` · 006b4f50 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
-- [-] `StringPropertyValue::GetValueAsString` · 006b4f70 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `StringPropertyValue::GetValueAsString` · 006b4f70 — Legions has it: vtable slot 12 of StringPropertyValue at 0x0064d770 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 - [-] `StringPropertyValue::Compare` · 006b4f90 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### StringInfoPropertyValue
@@ -696,7 +696,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfoPropertyValue::InqStringInfo` · 006b50e0 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 - [x] `StringInfoPropertyValue::SetStringInfo` · 006b5100 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 - [x] `StringInfoPropertyValue::Set` · 006b5120 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
-- [-] `StringInfoPropertyValue::HasValidData` · 006b5140 — skip: admin/debug text or tool code (no client use in Legions) (validity check, no Legions match)
+- [ ] `StringInfoPropertyValue::HasValidData` · 006b5140 — Legions has it: StringInfoPropertyValue vtable slot 10 at 0x0064d8e0 (shifted by two; same size). Was skip
 - [~] `StringInfoPropertyValue::StreamPack` · 006b5160 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### (free functions)
@@ -717,28 +717,28 @@ Legend and workflow: [README](README.md).
 - [~] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### BoolPropertyValue
-- [-] `BoolPropertyValue::GetValueAsString` · 006b5680 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `BoolPropertyValue::GetValueAsString` · 006b5680 — Legions has it: vtable slot 12 of BoolPropertyValue at 0x0064ddb0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### ColorPropertyValue
-- [-] `ColorPropertyValue::GetValueAsString` · 006b56b0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `ColorPropertyValue::GetValueAsString` · 006b56b0 — Legions has it: vtable slot 12 of ColorPropertyValue at 0x0064dde0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### FloatPropertyValue
-- [-] `FloatPropertyValue::GetValueAsString` · 006b56f0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `FloatPropertyValue::GetValueAsString` · 006b56f0 — Legions has it: vtable slot 12 of FloatPropertyValue at 0x0064de20 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### IntegerPropertyValue
-- [-] `IntegerPropertyValue::GetValueAsString` · 006b5720 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `IntegerPropertyValue::GetValueAsString` · 006b5720 — Legions has it: vtable slot 12 of IntegerPropertyValue at 0x0064de50 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### LongIntegerPropertyValue
-- [-] `LongIntegerPropertyValue::GetValueAsString` · 006b5740 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `LongIntegerPropertyValue::GetValueAsString` · 006b5740 — Legions has it: vtable slot 12 of LongIntegerPropertyValue at 0x0064de70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### StringPropertyValue
 - [-] `StringPropertyValue::ToFileNode` · 006b5770 — text source format (admin tools)
 
 ### StringInfoPropertyValue
-- [-] `StringInfoPropertyValue::GetValueAsString` · 006b57b0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `StringInfoPropertyValue::GetValueAsString` · 006b57b0 — Legions has it: vtable slot 12 of StringInfoPropertyValue at 0x0064dea0 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### VectorPropertyValue
-- [-] `VectorPropertyValue::GetValueAsString` · 006b5880 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `VectorPropertyValue::GetValueAsString` · 006b5880 — Legions has it: vtable slot 12 of VectorPropertyValue at 0x0064df70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### StringPropertyValue
 - [~] `StringPropertyValue::StreamPack` · 006b5950 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
@@ -751,7 +751,7 @@ Legend and workflow: [README](README.md).
 - [ ] `MasterProperty::GetSubDataIDs` · 006b5af0 — needs port: MasterProperty::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
 
 ### PositionPropertyValue
-- [-] `PositionPropertyValue::GetValueAsString` · 006b5b60 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `PositionPropertyValue::GetValueAsString` · 006b5b60 — Legions has it: vtable slot 12 of PositionPropertyValue at 0x0064e220 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ### MasterProperty
 - [ ] `MasterProperty::GetPropertyDesc` · 006b5bd0 · legions 0064e2d0 — needs port: MasterProperty::GetPropertyDesc
@@ -851,12 +851,12 @@ Legend and workflow: [README](README.md).
 ### DataFilePropertyValue
 - [-] `DataFilePropertyValue::FromFileNode` · 006b66e0 — text source format (admin tools)
 - [-] `DataFilePropertyValue::ToFileNode` · 006b6810 — text source format (admin tools)
-- [-] `DataFilePropertyValue::GetValueAsString` · 006b6900 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `DataFilePropertyValue::GetValueAsString` · 006b6900 — Legions has it: vtable slot 12 of DataFilePropertyValue at 0x0064eb80 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ## `portal/shared/src/property/value/enumpropertyvalue.cpp.c` (0/3)
 
 ### EnumPropertyValue
-- [-] `EnumPropertyValue::GetValueAsString` · 006b69f0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `EnumPropertyValue::GetValueAsString` · 006b69f0 — Legions has it: vtable slot 12 of EnumPropertyValue at 0x0064ec70 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 - [-] `EnumPropertyValue::FromFileNode` · 006b6a10 — text source format (admin tools)
 - [-] `EnumPropertyValue::ToFileNode` · 006b6b00 — text source format (admin tools)
 
@@ -865,7 +865,7 @@ Legend and workflow: [README](README.md).
 ### PackageIDPropertyValue
 - [-] `PackageIDPropertyValue::FromFileNode` · 006b6bf0 — text source format (admin tools)
 - [-] `PackageIDPropertyValue::ToFileNode` · 006b6ce0 — text source format (admin tools)
-- [-] `PackageIDPropertyValue::GetValueAsString` · 006b6db0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
+- [ ] `PackageIDPropertyValue::GetValueAsString` · 006b6db0 — Legions has it: vtable slot 12 of PackageIDPropertyValue at 0x0064ec90 (vtable audit); was skip: skip: admin/debug text or tool code (no client use in Legion
 
 ## `portal/shared/src/stringtable/metalanguage/metalanguage.cpp.c` (7/8)
 
@@ -970,7 +970,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringInfo::GetString` · 00650c70 · legions 005ffe10 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [x] `StringInfo::GetStringWithMetaTags` · 00650ce0 · legions 005ffe80 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
 - [x] `StringInfo::InqString` · 00650d00 · legions 005ffea0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
-- [-] `StringInfo::InqStringTableFile` · 00650da0 — skip: admin/debug text or tool code (no client use in Legions) (StringInfo::InqStringTableFile, table file name)
+- [-] `StringInfo::InqStringTableFile` · 00650da0 — skip: admin/debug text or tool code (no client use in Legions) (StringInfo::InqStringTableFile, table file name) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `StringInfo::SetLiteralValue` · 00650e30 · legions 005fffd0 — ac2-script glue::string_info (lookups via ScriptData)
 - [ ] `StringInfo::GetLiteralValue` · 00650ef0 · legions 00600090 — needs port: StringInfo::GetLiteralValue
 - [x] `StringInfo::SetVarInTable` · 00651000 · legions 006001a0 — ac2-db string_info over RenderInfo (StringTables trait); ac2-script glue::string_text
@@ -1149,9 +1149,9 @@ Legend and workflow: [README](README.md).
 
 ### StringTable
 - [x] `StringTable::GetString` · 00655170 — ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
-- [-] `StringTable::GetRawString` · 00655260 — admin 7148 only, not in Legions 7160
+- [-] `StringTable::GetRawString` · 00655260 — admin 7148 only, not in Legions 7160 [vtable-checked: not a slot of any located Legions vtable]
 - [x] `StringTable::GetString` · 00655420 — ac2-db string_info (plain_entry / render_entry; Legions vtable +0x5C/+0x58)
-- [-] `StringTable::SaveToFile` · 006557b0 — admin 7148 only, not in Legions 7160
+- [-] `StringTable::SaveToFile` · 006557b0 — admin 7148 only, not in Legions 7160 [vtable-checked: Legions StringTable vtable has no such slot]
 - [-] `StringTable::StringTable` · 00655d70 · legions 006046c0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [x] `StringTable::UnPack` · 00655de0 — ac2-db string_table.rs: all 10,598 Legions tables decode
 - [-] `StringTable::CopyInto` · 00655f90 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)

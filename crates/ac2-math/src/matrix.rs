@@ -60,26 +60,32 @@ impl Matrix4 {
         out
     }
 
-    /// `D3DXMatrixMultiply(out, self, rhs)`: `self * rhs`, each element a float sum of four
-    /// products in the order D3DX takes them.
+    /// `D3DXMatrixMultiply(out, self, rhs)`: `self * rhs`. Each element is a sum of four
+    /// products taken in double precision (the x87 intermediates), rounded to float at the store.
     pub fn multiply(&self, rhs: &Matrix4) -> Matrix4 {
         let mut out = [0.0f32; 16];
         for row in 0..4 {
             for col in 0..4 {
-                let a = |k: usize| self.m[row * 4 + k];
-                let b = |k: usize| rhs.m[k * 4 + col];
-                out[row * 4 + col] = a(0) * b(0) + a(1) * b(1) + a(2) * b(2) + a(3) * b(3);
+                let term =
+                    |k: usize| f64::from(self.m[row * 4 + k]) * f64::from(rhs.m[k * 4 + col]);
+                out[row * 4 + col] = (term(0) + term(1) + term(2) + term(3)) as f32;
             }
         }
         Matrix4 { m: out }
     }
 
-    /// The homogeneous point `(x, y, z, 1) * M`: `(x', y', z', w)`, before the perspective
-    /// divide. The tunnel divides each `x', y', z'` by `w`.
-    pub fn transform(&self, x: f32, y: f32, z: f32) -> [f32; 4] {
-        let m = &self.m;
-        let col = |j: usize| x * m[j] + y * m[4 + j] + z * m[8 + j] + m[12 + j];
+    /// The homogeneous point `(x, y, z, 1) * M` in double precision, before the perspective
+    /// divide (the tunnel's divide is taken from these, not from stored floats).
+    pub fn transform_f64(&self, x: f64, y: f64, z: f64) -> [f64; 4] {
+        let m = |i: usize| f64::from(self.m[i]);
+        let col = |j: usize| x * m(j) + y * m(4 + j) + z * m(8 + j) + m(12 + j);
         [col(0), col(1), col(2), col(3)]
+    }
+
+    /// [`Matrix4::transform_f64`] stored as float.
+    pub fn transform(&self, x: f32, y: f32, z: f32) -> [f32; 4] {
+        self.transform_f64(f64::from(x), f64::from(y), f64::from(z))
+            .map(|v| v as f32)
     }
 }
 

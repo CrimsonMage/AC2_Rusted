@@ -83,6 +83,36 @@ impl PerlinNoise {
     }
 }
 
+impl PerlinNoise {
+    /// `PerlinNoise::fBm1(x, H, lacunarity, octaves)` (`0x0062B180`): octave `i` is noise at
+    /// `x * lacunarity^i` weighted by `pow(lacunarity^i, -H)`. The loop runs while `i < octaves`
+    /// (six octaves at 6.0); a fractional octave count adds the next octave scaled by its
+    /// fraction. The octaves sum in extended precision (the weights are doubles, the accumulator
+    /// a double) and the result rounds to float once, at the return.
+    pub fn fbm1(&self, x: f64, h: f64, lacunarity: f64, octaves: f64) -> f32 {
+        let mut sum = 0.0f64;
+        let mut arg = x;
+        let mut power = 1.0f64; // lacunarity^i
+        let mut i = 0usize;
+        if octaves > 0.0 {
+            loop {
+                sum += f64::from(self.noise(arg)) * power.powf(-h);
+                arg *= lacunarity;
+                power *= lacunarity;
+                i += 1;
+                if (i as f64) >= octaves {
+                    break;
+                }
+            }
+        }
+        let remainder = octaves - octaves.trunc();
+        if remainder != 0.0 {
+            sum += f64::from(self.noise(arg)) * power.powf(-h) * remainder;
+        }
+        sum as f32
+    }
+}
+
 /// The client's shared `PerlinNoise` (`perlinNoise`, initialised on first use as `Noise` does).
 pub fn shared() -> &'static PerlinNoise {
     static SHARED: OnceLock<PerlinNoise> = OnceLock::new();
@@ -110,6 +140,34 @@ mod tests {
         // The noise is zero at the lattice points (t = 0) and continuous across them.
         assert_eq!(perlin.noise(0.0), 0.0);
         assert!((perlin.noise(1.0 - 1e-9) - perlin.noise(1.0)).abs() < 1e-4);
+    }
+
+    #[test]
+    fn fbm1_with_one_octave_is_the_noise_and_with_no_weight_decay_it_sums_the_octaves() {
+        let perlin = PerlinNoise::init();
+        let x = 2.375;
+        assert_eq!(perlin.fbm1(x, 0.7, 2.0, 1.0), perlin.noise(x));
+        // H = 0: every weight is 1; the octaves are at x, 2x, 4x, ...
+        let expected: f32 = (0..6).map(|i| perlin.noise(x * f64::from(1 << i))).sum();
+        assert!((perlin.fbm1(x, 0.0, 2.0, 6.0) - expected).abs() < 1e-4);
+    }
+
+    #[test]
+    fn the_waveform_noise_is_the_client_dice_within_its_amplitude() {
+        use crate::waveform::{kind, Waveform};
+        let noise = Waveform {
+            kind: kind::NOISE,
+            base: 1.0,
+            amplitude: 0.5,
+            ..Waveform::default()
+        };
+        let mut random = ac2_core::Random::default();
+        for _ in 0..200 {
+            let v = noise.value_for_phase_with(0.0, 0.0, &mut random);
+            assert!((0.5..=1.5).contains(&v), "{v}");
+        }
+        // Without the dice the noise is its base.
+        assert_eq!(noise.value(3.0), 1.0);
     }
 
     #[test]

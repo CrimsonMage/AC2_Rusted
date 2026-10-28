@@ -1,0 +1,298 @@
+//! `gmOptionUI` (Legions 0x00434FB0..0x004357B0): the option panel over its pages. Closing the
+//! panel (`Show(0)`) while a page has changes asks `ID_Option_ConfirmText`; yes applies the
+//! pages (`DoConfirm`), no recalls them. The Leave button asks `ID_Option_LogoutText` and the
+//! Quit button `ID_Option_QuitText`; while one of those is up the three buttons are ghosted
+//! (`UpdateButtons`). A yes to the quit question is `CM_UI::SendNotice_Logoff` (upload the game
+//! options, close the client), a yes to the leave question
+//! `CM_UI::SendNotice_EndCharacterSession` (the gameplay UI ends the session). The Assistance
+//! button opens the `AssistanceTab` page, the `CommandTab`'s messages close both questions, and
+//! the drop-down menus of the pages open up or down by their place in the panel
+//! (`DropDownMenu` `mouse_over`).
+
+use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
+use crate::element::UiTree;
+use crate::mouse::UiMessage;
+use crate::token::{tokenize, BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_OVER};
+use crate::ui_string::{UiString, UiStrings};
+
+/// What an answered question asks the HUD to do.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OptionAction {
+    /// `DoConfirm`: apply every page (yes) or recall them (no).
+    Confirm(bool),
+    /// `CM_UI::SendNotice_Logoff`.
+    Logoff,
+    /// `CM_UI::SendNotice_EndCharacterSession`.
+    EndCharacterSession,
+}
+
+/// `gmOptionUI`'s elements and question contexts (0 for none).
+#[derive(Debug, Clone)]
+pub struct OptionPanel {
+    field: usize,
+    leave: usize,
+    quit: usize,
+    assistance: usize,
+    confirm: u32,
+    quit_context: u32,
+    logout_context: u32,
+    shown: bool,
+}
+
+fn find(tree: &UiTree, name: &str) -> Option<usize> {
+    let id = tokenize(name);
+    tree.roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, id))
+}
+
+impl OptionPanel {
+    /// `gmOptionUI::gmOptionUI`: the field and the three buttons (all or nothing); hidden.
+    pub fn create(tree: &UiTree) -> Option<Self> {
+        let field = find(tree, "OptionField")?;
+        Some(Self {
+            field,
+            leave: tree.child_recursive(field, tokenize("LeaveButton"))?,
+            quit: tree.child_recursive(field, tokenize("QuitButton"))?,
+            assistance: tree.child_recursive(field, tokenize("AssistanceButton"))?,
+            confirm: 0,
+            quit_context: 0,
+            logout_context: 0,
+            shown: false,
+        })
+    }
+
+    pub fn confirm_context(&self) -> u32 {
+        self.confirm
+    }
+
+    pub fn quit_context(&self) -> u32 {
+        self.quit_context
+    }
+
+    pub fn logout_context(&self) -> u32 {
+        self.logout_context
+    }
+
+    /// Follows the field's visibility (the toolbar shows and hides it); true when it was shown
+    /// and is hidden now, which is `Show(0)`: the caller then runs [`OptionPanel::close`].
+    pub fn closing(&mut self, tree: &UiTree) -> bool {
+        let shown = tree.get(self.field).is_some_and(|e| e.visible);
+        let closing = self.shown && !shown;
+        self.shown = shown;
+        closing
+    }
+
+    fn ask(
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        id: &str,
+    ) -> u32 {
+        let text = strings.render_string(&UiString::ui(tokenize(id), Vec::new()));
+        dialogs.make_dialog(tree, &text, DIALOG_CONFIRMATION, false)
+    }
+
+    /// `gmOptionUI::Show(0)` after the field hid: changes in a page ask the confirmation
+    /// (`MakeConfirmDialog`), then the leave and quit questions close.
+    pub fn close(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        changed: bool,
+    ) {
+        if changed {
+            self.confirm = Self::ask(tree, dialogs, strings, "ID_Option_ConfirmText");
+        }
+        dialogs.close_dialog(tree, self.quit_context);
+        self.quit_context = 0;
+        dialogs.close_dialog(tree, self.logout_context);
+        self.logout_context = 0;
+        self.update_buttons(tree);
+    }
+
+    /// `gmOptionUI::UpdateButtons`: the three buttons are ghosted while a quit or leave question is up.
+    fn update_buttons(&self, tree: &mut UiTree) {
+        let ghosted = self.quit_context != 0 || self.logout_context != 0;
+        for button in [self.leave, self.quit, self.assistance] {
+            tree.set_bool(button, BUTTON_GHOSTED, ghosted);
+        }
+    }
+
+    /// `gmOptionUI::ListenToMessage` (the toolbar handles the close, help and option buttons).
+    pub fn message(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        message: &UiMessage,
+    ) {
+        let id = message.element_id;
+        if id == tokenize("DropDownMenu") && message.message == MSG_MOUSE_OVER {
+            if let Some(menu) = message.element {
+                let field = tree.screen_box(self.field);
+                let menu_box = tree.screen_box(menu);
+                let down = (menu_box.y0 + menu_box.y1) / 2 < (field.y0 + field.y1) / 2;
+                tree.set_bool(menu, tokenize("open_down"), down);
+                tree.set_bool(menu, tokenize("open_up"), !down);
+            }
+            return;
+        }
+        if message.message == MSG_BUTTON_RELEASE_ON {
+            if id == tokenize("LeaveButton") {
+                self.logout_context = Self::ask(tree, dialogs, strings, "ID_Option_LogoutText");
+                self.update_buttons(tree);
+            } else if id == tokenize("QuitButton") {
+                self.quit_context = Self::ask(tree, dialogs, strings, "ID_Option_QuitText");
+                self.update_buttons(tree);
+            } else if id == tokenize("AssistanceButton") {
+                if let Some(tab) = find(tree, "AssistanceTab") {
+                    tree.set_state(tab, crate::panel::PAGE_OPEN);
+                }
+            }
+        }
+        if id == tokenize("CommandTab") {
+            dialogs.close_dialog(tree, self.quit_context);
+            self.quit_context = 0;
+            dialogs.close_dialog(tree, self.logout_context);
+            self.logout_context = 0;
+            self.update_buttons(tree);
+        }
+    }
+
+    /// `gmOptionUI::RecvNotice_CloseConfirmationDialog`: the answers to this panel's questions.
+    pub fn dialog_outcomes(
+        &mut self,
+        tree: &mut UiTree,
+        outcomes: &[DialogOutcome],
+    ) -> Vec<OptionAction> {
+        let mut actions = Vec::new();
+        for outcome in outcomes {
+            let DialogOutcome::Confirmation { context, yes } = *outcome else {
+                continue;
+            };
+            if context == 0 {
+                continue;
+            }
+            if context == self.confirm {
+                self.confirm = 0;
+                actions.push(OptionAction::Confirm(yes));
+            } else if context == self.quit_context {
+                self.quit_context = 0;
+                self.update_buttons(tree);
+                if yes {
+                    actions.push(OptionAction::Logoff);
+                }
+            } else if context == self.logout_context {
+                self.logout_context = 0;
+                self.update_buttons(tree);
+                if yes {
+                    actions.push(OptionAction::EndCharacterSession);
+                }
+            }
+        }
+        actions
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+
+    use ac2_db::ResourceStore;
+
+    use super::*;
+    use crate::dialog::DIALOG_CONFIRMATION;
+    use crate::{build_gameplay_hud, ToolbarChild};
+
+    struct Text;
+
+    impl UiStrings for Text {
+        fn render_string(&self, string: &UiString) -> String {
+            format!("{:08x}", string.string_id)
+        }
+    }
+
+    fn release(name: &str) -> UiMessage {
+        UiMessage {
+            element_id: tokenize(name),
+            element: None,
+            message: MSG_BUTTON_RELEASE_ON,
+            data: 0,
+            item: None,
+        }
+    }
+
+    /// Leave and Quit ask their questions and ghost the buttons; a yes is the notice; closing
+    /// with changes asks to confirm and its answer is `DoConfirm`.
+    #[test]
+    fn the_questions_and_their_answers() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let store = Arc::new(ResourceStore::new(dataset));
+        let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+        let tree = &mut hud.tree;
+        let mut dialogs = DialogFactory::new(None);
+        let mut panel = hud.option_panel.take().expect("the option panel");
+
+        panel.message(tree, &mut dialogs, &Text, &release("LeaveButton"));
+        let leave = panel.logout_context();
+        assert_ne!(leave, 0);
+        assert_eq!(dialogs.shown(), Some((leave, DIALOG_CONFIRMATION)));
+        assert!(tree.bool_attribute(panel.leave, BUTTON_GHOSTED));
+        assert!(tree.bool_attribute(panel.quit, BUTTON_GHOSTED));
+        // The command tab closes the questions and unghosts the buttons.
+        panel.message(tree, &mut dialogs, &Text, &release("CommandTab"));
+        assert_eq!(panel.logout_context(), 0);
+        assert!(!tree.bool_attribute(panel.leave, BUTTON_GHOSTED));
+
+        panel.message(tree, &mut dialogs, &Text, &release("QuitButton"));
+        let quit = panel.quit_context();
+        dialogs.answer(tree, quit, true);
+        let outcomes = dialogs.take_outcomes();
+        assert_eq!(
+            panel.dialog_outcomes(tree, &outcomes),
+            vec![OptionAction::Logoff]
+        );
+        assert!(!tree.bool_attribute(panel.quit, BUTTON_GHOSTED));
+
+        panel.message(tree, &mut dialogs, &Text, &release("LeaveButton"));
+        let leave = panel.logout_context();
+        dialogs.answer(tree, leave, false);
+        let outcomes = dialogs.take_outcomes();
+        assert!(panel.dialog_outcomes(tree, &outcomes).is_empty());
+
+        panel.message(tree, &mut dialogs, &Text, &release("LeaveButton"));
+        let leave = panel.logout_context();
+        dialogs.answer(tree, leave, true);
+        let outcomes = dialogs.take_outcomes();
+        assert_eq!(
+            panel.dialog_outcomes(tree, &outcomes),
+            vec![OptionAction::EndCharacterSession]
+        );
+
+        // Shown then hidden: with changes the confirmation asks, without it does not.
+        hud.toolbar.show(tree, ToolbarChild::Option, true);
+        assert!(!panel.closing(tree));
+        hud.toolbar.show(tree, ToolbarChild::Option, false);
+        assert!(panel.closing(tree));
+        panel.close(tree, &mut dialogs, &Text, false);
+        assert_eq!(panel.confirm_context(), 0);
+        hud.toolbar.show(tree, ToolbarChild::Option, true);
+        panel.closing(tree);
+        hud.toolbar.show(tree, ToolbarChild::Option, false);
+        assert!(panel.closing(tree));
+        panel.close(tree, &mut dialogs, &Text, true);
+        let confirm = panel.confirm_context();
+        assert_ne!(confirm, 0);
+        dialogs.answer(tree, confirm, true);
+        let outcomes = dialogs.take_outcomes();
+        assert_eq!(
+            panel.dialog_outcomes(tree, &outcomes),
+            vec![OptionAction::Confirm(true)]
+        );
+        assert_eq!(panel.confirm_context(), 0);
+    }
+}

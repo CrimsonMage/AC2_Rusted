@@ -46,6 +46,8 @@ pub(crate) fn examine(kind: u32, data: u32, item: u64, commands: &mut Vec<Comman
 pub(crate) struct PassOut {
     pub(crate) commands: Vec<Command>,
     pub(crate) open_examination: bool,
+    /// The player confirmed the quit question: close the client after the commands go out.
+    pub(crate) quit: bool,
     pub(crate) tells: Vec<String>,
     /// The help topics the panels asked to open (`KeyStone::OpenHelp` tokens), in order.
     pub(crate) help: Vec<u32>,
@@ -114,6 +116,7 @@ impl HudView {
         };
         let mut out = PassOut::default();
         hud_request_commands(requests, &mut out);
+        self.panels.quit_requested |= out.quit;
         // The examination panel, the help topics and the tells (`FellowshipHelper`).
         if let Some((tree, _)) = self.hud.as_mut() {
             let effects = ac2_ui::HudEffects {

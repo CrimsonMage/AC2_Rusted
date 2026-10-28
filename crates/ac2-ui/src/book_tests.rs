@@ -188,3 +188,33 @@ fn help_asks_for_the_help_page_and_copy_gives_the_text() {
     assert!(text.contains("Alpha"), "{text:?}");
     assert!(text.contains("Beta"), "{text:?}");
 }
+
+/// The copy button puts the book's text on the clipboard (`SendBookToClipboard`), not back to
+/// the client as a request.
+#[test]
+fn the_copy_button_sends_the_book_to_the_clipboard() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let gameplay = load_layout_by_enum(&store, 0x4100_0009).unwrap().unwrap();
+    let tree = &mut hud.tree;
+    let clipboard = Arc::new(crate::MemoryClipboard::default());
+    tree.set_text_clipboard(clipboard.clone());
+    let mut book = BookUi::create(tree, &gameplay).expect("the Book template");
+    book.recv_use_book(
+        tree,
+        &Strings,
+        true,
+        tokenize("stateless"),
+        "Tome",
+        "<H>Ch</H>\nAlpha<BR>Beta",
+        0,
+    );
+    let copy = press(tokenize("BookCopyButton"), MSG_BUTTON_RELEASE_ON);
+    assert!(crate::book_pass(&mut book, tree, &Strings, &[], &[copy]).is_empty());
+    let text = crate::TextClipboard::text(&*clipboard).expect("the copied text");
+    assert!(text.starts_with("Tome\n\n"), "{text:?}");
+    assert!(text.contains("Alpha") && text.contains("Beta"), "{text:?}");
+}

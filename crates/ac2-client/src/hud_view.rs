@@ -74,6 +74,7 @@ impl HudView {
         modifiers: Modifiers,
     ) -> Vec<UiMessage> {
         self.panels.shift_held = modifiers.shift;
+        self.panels.ctrl_held = modifiers.ctrl;
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
@@ -415,6 +416,16 @@ impl HudView {
         };
         self.panels
             .update_reticle_over(tree, selection, info, color, selected)
+    }
+
+    pub(crate) fn take_quit_request(&mut self) -> bool {
+        std::mem::take(&mut self.panels.quit_requested)
+    }
+
+    /// A wire `StringInfo` rendered from the string tables, once they are loaded.
+    pub(crate) fn render_info(&self, info: &ac2_net::protocol::StringInfo) -> Option<String> {
+        let tables = self.panels.strings.as_ref()?;
+        Some(ac2_ui::UiText::new(&tables.tables, tables.ui_table, &tables.enums).render_info(info))
     }
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.

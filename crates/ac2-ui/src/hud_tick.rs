@@ -65,6 +65,7 @@ pub fn tick_pass<P: HudSource>(
         character,
         chat_options,
         examination,
+        option_panel,
         skills,
         shortcuts,
         ..
@@ -97,8 +98,43 @@ pub fn tick_pass<P: HudSource>(
             out.push(HudRequest::LogOff);
         }
     }
+    // `gmOptionUI::Show(0)`: closing the panel with changes asks first.
+    if let (Some(panel), Some(dialogs)) = (option_panel.as_mut(), dialogs.as_mut()) {
+        if panel.closing(tree) {
+            let changed = character.as_ref().is_some_and(|p| p.changed())
+                || options.changed(options_host)
+                || chat_options.as_ref().is_some_and(|p| p.changed());
+            panel.close(tree, dialogs, player, changed);
+        }
+    }
     if let Some(dialogs) = dialogs.as_mut() {
         let outcomes = dialogs.take_outcomes();
+        // `gmOptionUI::RecvNotice_CloseConfirmationDialog`.
+        if let Some(panel) = option_panel.as_mut() {
+            for action in panel.dialog_outcomes(tree, &outcomes) {
+                match action {
+                    crate::OptionAction::Confirm(yes) => {
+                        if let Some(page) = character.as_mut() {
+                            if yes {
+                                page.apply(tree);
+                            } else {
+                                page.recall(tree);
+                            }
+                        }
+                        if let Some(page) = chat_options.as_mut() {
+                            if yes {
+                                page.apply(tree);
+                            } else {
+                                page.recall(tree);
+                            }
+                        }
+                        options.confirm_close(yes);
+                    }
+                    crate::OptionAction::Logoff => out.push(HudRequest::Quit),
+                    crate::OptionAction::EndCharacterSession => game_dialogs.logout_key(),
+                }
+            }
+        }
         if death.take_resurrect(&outcomes) {
             out.push(HudRequest::Dialog(DialogRequest::RequestResurrect));
         }
@@ -223,7 +259,7 @@ pub fn tick_pass<P: HudSource>(
         );
     }
     // `gmExaminationUI::Show`: the panel follows its field; opening holds the request open.
-    // Legions passes the panel's filter word (+0xB8; its filter tabs are not modelled).
+    // Legions passes the panel's filter word (+0xB8; `examination_tabs`).
     if let Some(panel) = examination.as_mut() {
         panel.follow_field(tree);
         // The countdown rows' `TimeDisplay::ListenToMessage` on the global loop.

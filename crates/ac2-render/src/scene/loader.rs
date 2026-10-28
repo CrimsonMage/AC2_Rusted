@@ -14,7 +14,9 @@ use ac2_math::Mat4;
 use ac2_world::{ac2_block_particle_sources, Ac2ParticleSource, Ac2WorldSource};
 
 use super::interiors::{load_block_interiors, BlockInteriors};
-use crate::object::{load_object_model, load_water_model, ObjectModel, RenderSettings};
+use crate::object::{
+    load_object_model, load_water_model, particle_material_model, ObjectModel, RenderSettings,
+};
 use crate::terrain::{build_terrain_mesh, FarTerrain, FarVertices, TerrainHeights, TerrainMesh};
 use crate::{load_image, Image, TextureKey};
 
@@ -238,7 +240,7 @@ impl Worker {
         };
         if self.models.insert(material) {
             let store = self.world.resource_store().clone();
-            let model = particle_model(&store, material, &self.settings);
+            let model = particle_material_model(&store, material, &self.settings);
             if model.is_some() {
                 self.drawable.insert(material);
             }
@@ -399,7 +401,7 @@ impl Worker {
         };
         let material = enum_did(RAIN_MATERIAL_ENUM).unwrap_or(DataId::new(0));
         let model = (material.raw() != 0)
-            .then(|| particle_model(&store, material, &self.settings))
+            .then(|| particle_material_model(&store, material, &self.settings))
             .flatten();
         let splash = enum_did(RAIN_SPLASH_ENUM).and_then(|did| self.particle_desc(did));
         let ripples = enum_did(RAIN_RIPPLES_ENUM).and_then(|did| self.particle_desc(did));
@@ -407,7 +409,7 @@ impl Worker {
         for desc in splash.iter().chain(&ripples) {
             if let Some(material) = desc.material {
                 if self.models.insert(material) {
-                    let model = particle_model(&store, material, &self.settings);
+                    let model = particle_material_model(&store, material, &self.settings);
                     if model.is_some() {
                         self.drawable.insert(material);
                     }
@@ -487,7 +489,7 @@ impl Worker {
                 let model = self
                     .models
                     .insert(material)
-                    .then(|| particle_model(&store, material, &self.settings))
+                    .then(|| particle_material_model(&store, material, &self.settings))
                     .flatten();
                 if model.is_some() {
                     self.drawable.insert(material);
@@ -574,50 +576,4 @@ impl Drop for SceneLoader {
             let _ = worker.join();
         }
     }
-}
-
-/// The model a particle material draws through: one empty triangle with the material's drawn
-/// layers, which the renderer replaces by the frame's particles. `None` when the material has
-/// no drawn layer.
-fn particle_model(
-    store: &ac2_db::ResourceStore,
-    material: DataId,
-    settings: &RenderSettings,
-) -> Option<ObjectModel> {
-    use crate::object::{layer_drawn, ObjectBatch, ObjectMaterial, ObjectPart, ObjectVertex};
-    let layers: Vec<_> = ac2_assets::load_ac2_material(store, material)
-        .ok()
-        .flatten()?
-        .layers
-        .into_iter()
-        .filter(|layer| layer_drawn(layer, settings))
-        .collect();
-    if layers.is_empty() {
-        return None;
-    }
-    let vertex = ObjectVertex {
-        position: [0.0; 3],
-        normal: [0.0, 0.0, 1.0],
-        color: [1.0; 4],
-        uvs: [[0.0; 2]; 4],
-        tangents: [[0.0; 3]; 2],
-    };
-    Some(ObjectModel {
-        visual: material,
-        parts: vec![ObjectPart {
-            mesh: material,
-            transform: Mat4::IDENTITY,
-            vertices: Arc::from(vec![vertex; 3]),
-            batches: vec![ObjectBatch {
-                indices: Arc::from(vec![0, 1, 2]),
-                material: Arc::new(ObjectMaterial::new(layers)),
-            }],
-            degrades: None,
-            slot: (0, 0),
-            skin: None,
-            mesh_type: 0,
-        }],
-        degrade: None,
-        skeleton: None,
-    })
 }

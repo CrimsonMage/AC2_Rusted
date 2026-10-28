@@ -110,6 +110,8 @@ struct State {
     /// The character left the world (`CharExitGame`): the world gives way to character selection
     /// after this frame.
     leave_world: bool,
+    /// The quit question was confirmed: close once the frame after has sent the commands.
+    quitting: bool,
     /// Client time origin (`Timer::cur_time` for the interpreter, materials and input stamps).
     started: Instant,
     /// Whether the OS input method is enabled (`CIme`'s active state; see `sync_ime`).
@@ -432,6 +434,11 @@ impl App {
                 return;
             }
         };
+        // `Device::Done` after `RecvNotice_Logoff`'s `UploadGameOptions` went out.
+        if state.quitting {
+            event_loop.exit();
+            return;
+        }
         show_world_names(&state.window, &events);
         for saved in screenshot::finished(&mut state.screenshots) {
             // Retail's SaveScreenshot shows no chat line, on success or failure.
@@ -468,6 +475,7 @@ impl App {
         let script_notices = self.client.take_script_notices();
         let asked = view.frameworks(&mut self.client, &frame, &events, &script_notices);
         state.commands.extend(asked);
+        state.quitting |= view.take_quit_request();
         // The options pages' applies: the scene's options, and the window's fullscreen state (set
         // only by a verified display change).
         for effect in view.take_options_effects() {
@@ -643,6 +651,7 @@ impl ApplicationHandler for App {
             selection: SelectionUi::default(),
             commands: Vec::new(),
             leave_world: false,
+            quitting: false,
             controls: {
                 // The HUD's tree takes the UI actions (mouse over panels, the world's wheel).
                 let mut controls = self.controls.take().expect("controls");

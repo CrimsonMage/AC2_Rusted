@@ -82,8 +82,10 @@ impl Random {
             return lower;
         }
         let (lo, hi) = (lower.min(upper), lower.max(upper));
+        // `Random::RollDice(float, float)` (0x0060D3F0): `(hi - lo) * rand + lo` in extended
+        // precision, the span taken before the product, and rounded to float at the return.
         let r = self.rand() as f32;
-        (f64::from(hi - lo) * f64::from(r) + f64::from(lo)) as f32
+        ((f64::from(hi) - f64::from(lo)) * f64::from(r) + f64::from(lo)) as f32
     }
 
     /// `Random::Check`: a roll of `RollDice(0.0, 1.0)` that is at most `chance` (the compiled

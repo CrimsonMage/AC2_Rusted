@@ -16,19 +16,22 @@
 //! frame through [`ExaminationUi::global_loop`]. The countdown's thresholds are a day and a minute
 //! (1 and 60, as `TimeDisplay::Init` is called); the month threshold is 1 as the journal sets it.
 //!
+//! The Legions filter tabs are [`crate::examination_tabs`]: the panel keeps the request's third
+//! word as its filter (`+0xB8`), sends it with `StartExamination`, and the tabs' presses and the
+//! selection keys change it.
+//!
 //! Not modelled yet: icon descriptions drawn as layered icons (`SetIconDesc`: the first layer is
 //! shown, as the item icons do), an image's own size before it loads (the template's size is
-//! used), text that arrives later (`download_done`), and the Legions filter tabs: the panel's
-//! filter word (the request's third word, `+0xB8` in the panel) is kept at its default and not
-//! changed by tab clicks.
+//! used), and text that arrives later (`download_done`).
 
 use std::sync::Arc;
 
 use crate::element::UiTree;
+use crate::examination_tabs::{ExaminationTabs, DEFAULT_FILTER, NEXT_TAB_KEY, PREV_TAB_KEY};
 use crate::journal_time::QuestTimeDisplay;
 use crate::layout::LayoutDesc;
-use crate::mouse::UiMessage;
-use crate::token::tokenize;
+use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS};
+use crate::token::{tokenize, MSG_MOUSE_PRESS};
 use crate::ui_string::UiStrings;
 
 /// One laid-out item of a profile (`ExaminationDataNode` by type).
@@ -56,8 +59,8 @@ pub enum ExaminationItem {
 /// What the panel asks of the client.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ExaminationCall {
-    /// `gmCWInterface::StartExamination`.
-    Start,
+    /// `gmCWInterface::StartExamination` with the panel's filter word (`+0xB8`).
+    Start(u32),
     /// `gmCWInterface::StopExamination`.
     Stop,
 }
@@ -74,6 +77,9 @@ pub struct ExaminationUi {
     list: Option<usize>,
     /// `_currentRequest` (its type; 0 for none).
     request: u32,
+    /// `_currentRequest`'s third word (`+0x28`): what `Update` shows the tabs for. The panel's
+    /// own filter (`+0xB8`) follows it and then the tabs the player chooses.
+    request_filter: u32,
     shown: bool,
     cur: (i32, i32),
     next_y: i32,
@@ -81,6 +87,7 @@ pub struct ExaminationUi {
     row: Option<usize>,
     timers: Vec<QuestTimeDisplay>,
     calls: Vec<ExaminationCall>,
+    tabs: ExaminationTabs,
 }
 
 /// `TimeDisplay::Init`'s thresholds for a countdown row: months (1), days (1), minutes (60).
@@ -100,11 +107,13 @@ impl ExaminationUi {
             .roots()
             .iter()
             .find_map(|&r| tree.child_recursive(r, id("ExaminationField")));
+        let tabs = ExaminationTabs::new(tree, field);
         let mut ui = Self {
             layout: Arc::clone(layout),
             field,
             list: field.and_then(|f| tree.child_recursive(f, id("ExaminationListBox"))),
             request: 0,
+            request_filter: DEFAULT_FILTER,
             shown: false,
             cur: (0, 0),
             next_y: 0,
@@ -112,8 +121,12 @@ impl ExaminationUi {
             row: None,
             timers: Vec::new(),
             calls: Vec::new(),
+            tabs,
         };
-        ui.update(tree, 0);
+        // Legions 0x00431C40: the tabs start in the construction filter's state.
+        let filter = ui.tabs.filter();
+        ui.tabs.set_states(tree, filter, filter);
+        ui.update(tree, 0, filter);
         ui
     }
 
@@ -133,11 +146,12 @@ impl ExaminationUi {
         }
         self.shown = shown;
         if shown {
-            self.update(tree, self.request);
-            self.calls.push(ExaminationCall::Start);
+            self.update(tree, self.request, self.request_filter);
+            self.calls.push(ExaminationCall::Start(self.tabs.filter()));
         } else {
             self.calls.push(ExaminationCall::Stop);
-            self.update(tree, 0);
+            // `Update` of a cleared `ExaminationRequest`: its filter is the default word.
+            self.update(tree, 0, DEFAULT_FILTER);
         }
     }
 
@@ -150,12 +164,20 @@ impl ExaminationUi {
         self.shown_changed(tree, shown);
     }
 
-    /// `RecvNotice_ExaminationRequestChanged` (the request's type).
-    pub fn request_changed(&mut self, tree: &mut UiTree, kind: u32) {
+    /// `RecvNotice_ExaminationRequestChanged` (Legions 0x00431B00): the request's type, and its
+    /// third word becomes the panel's filter.
+    pub fn request_changed(&mut self, tree: &mut UiTree, kind: u32, filter: u32) {
         self.request = kind;
+        self.request_filter = filter;
+        self.tabs.set_filter(filter);
         if self.shown {
-            self.update(tree, kind);
+            self.update(tree, kind, filter);
         }
+    }
+
+    /// The panel's filter word (`+0xB8`).
+    pub fn filter(&self) -> u32 {
+        self.tabs.filter()
     }
 
     /// `gmExaminationUI::CleanupArray` and the list's flush (`Update`): the rows and the
@@ -184,9 +206,11 @@ impl ExaminationUi {
         tree.create_element(Arc::clone(&self.layout), desc, false)
     }
 
-    /// `gmExaminationUI::Update`: the empty row, or the pending row while a request waits.
-    fn update(&mut self, tree: &mut UiTree, kind: u32) {
+    /// `gmExaminationUI::Update`: the empty row, or the pending row while a request waits; the
+    /// tabs show the request's `filter` (the active ones, the rest disabled).
+    fn update(&mut self, tree: &mut UiTree, kind: u32, filter: u32) {
         self.start_rows(tree);
+        self.tabs.set_states(tree, filter, filter);
         let Some(list) = self.list else {
             return;
         };
@@ -221,15 +245,19 @@ impl ExaminationUi {
             .map_or(0, |e| e.rect.width())
     }
 
-    /// `RecvNotice_UpdateExaminationProfile`: the profile's items laid out at `now`.
+    /// `RecvNotice_UpdateExaminationProfile`: the profile's items laid out at `now`. `filter` is
+    /// the profile's request word and `available` the word packed after its nodes: they set the
+    /// tabs (Legions 0x00431200).
     pub fn update_profile(
         &mut self,
         tree: &mut UiTree,
         strings: &dyn UiStrings,
         now: f64,
         items: &[ExaminationItem],
+        (filter, available): (u32, u32),
     ) {
         self.start_rows(tree);
+        self.tabs.set_states(tree, filter, available);
         let clock = Clock { strings, now };
         for item in items {
             self.process_node(tree, clock, item);
@@ -361,8 +389,28 @@ impl ExaminationUi {
     }
 
     /// `gmExaminationUI::ListenToMessage`: the field's close button hides it (the toolbar's
-    /// panel children handle that), so only the shown state is followed here.
-    pub fn message(&mut self, tree: &mut UiTree, _message: &UiMessage) {
+    /// panel children handle that), so the shown state is followed; a press on a tab that is not
+    /// disabled chooses its filter (a Ctrl press toggles it), and the selection keys step
+    /// through the tabs (Legions 0x00431990 and 0x00431900). Either asks the player to start the
+    /// examination again with the new word.
+    pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, ctrl: bool) {
         self.follow_field(tree);
+        if !self.shown {
+            return;
+        }
+        let chosen = if message.element.is_none() && message.message == GLOBAL_KEY_PRESS {
+            match message.data as u32 {
+                NEXT_TAB_KEY => self.tabs.step(tree, true, ctrl),
+                PREV_TAB_KEY => self.tabs.step(tree, false, ctrl),
+                _ => None,
+            }
+        } else if message.message == MSG_MOUSE_PRESS {
+            self.tabs.press(tree, message.element_id, ctrl)
+        } else {
+            None
+        };
+        if let Some(filter) = chosen {
+            self.calls.push(ExaminationCall::Start(filter));
+        }
     }
 }

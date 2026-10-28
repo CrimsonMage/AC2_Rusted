@@ -1,6 +1,6 @@
 # ac2-anim: Animation system
 
-532 retail functions: 128 done, 17 partial, 94 to do, 293 skipped.
+532 retail functions: 128 done, 17 partial, 95 to do, 292 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/anim/charactersetup.cpp.c` (7/67)
@@ -111,7 +111,7 @@ Legend and workflow: [README](README.md).
 - [-] `CharacterSetup::GetConnectionPoint` · 0060fd80 · legions 005cf180 — trivial accessor / write-side pack size on setup records
 - [x] `CharacterSetup::GetPlacementFrame` · 0060fdc0 · legions 005cf1c0 — ac2-render object/skeleton.rs placement(): CharacterSetup::GetPlacementFrame bone transforms
 - [-] `CharacterSetup::GetPackSize` · 0060fe10 — trivial accessor / write-side pack size on setup records
-- [-] `CharacterSetup::Pack` · 00610060 — write-side/admin path with no Legions match (setups and anims are read-only in the DVD client)
+- [ ] `CharacterSetup::Pack` · 00610060 — Legions has it: vtable slot 3 of CharacterSetup at 0x005cf460 (vtable audit); was skip: write-side/admin path with no Legions match (setups and anim
 - [x] `CharacterSetup::UnPack` · 006105a0 · legions 005cf9a0 — ac2-anim setup.rs: CharacterSetup::UnPack decode order (file doc cites it)
 - [-] `CharacterSetup::ToFileNode` · 00610b60 — text source format (admin tools)
 - [-] `CharacterSetup::ToFileNodeSetinfo` · 00611390 — admin text source format (ToFileNode), admin tools
@@ -412,7 +412,7 @@ Legend and workflow: [README](README.md).
 - [-] `AnimAsset::SetNumScaleKeys` · 0069aca0 · legions 006396a0 — trivial setter / list append on plain struct during decode
 - [-] `AnimAsset::SetNumKeyFrames` · 0069ace0 · legions 006396e0 — trivial setter / list append on plain struct during decode
 - [ ] `AnimAsset::ReadBinaryAnim` · 0069ad90 · legions 00639790 — needs port (check): AnimAsset::ReadBinaryAnim not cited in Rust
-- [-] `AnimAsset::WriteBinaryAnim` · 0069af10 — write-side/admin path with no Legions match (setups and anims are read-only in the DVD client)
+- [-] `AnimAsset::WriteBinaryAnim` · 0069af10 — write-side/admin path with no Legions match (setups and anims are read-only in the DVD client) [vtable-checked: not a slot of any located Legions vtable]
 
 ### KeyframeLookupTable<AnimAssetScaleKey>
 - [ ] `KeyframeLookupTable<AnimAssetScaleKey>::StreamPack` · 0069afe0 — needs port (check): KeyframeLookupTable::StreamPack has no cited Rust decode
@@ -834,7 +834,7 @@ Legend and workflow: [README](README.md).
 - [x] `DBAnimator::GetTriggers` · 0067a490 · legions 00623f20 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `DBAnimator::GetHoldLoop` · 0067a4a0 · legions 00623f30 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `DBAnimator::GetPeriod` · 0067a4b0 · legions 00623f40 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-- [-] `DBAnimator::Refresh` · 0067a4c0 — write-side/admin path with no Legions match (setups and anims are read-only in the DVD client)
+- [-] `DBAnimator::Refresh` · 0067a4c0 — write-side/admin path with no Legions match (setups and anims are read-only in the DVD client) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `DBAnimator::CopyInto` · 0067a4d0 — DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 - [-] `DBAnimator::Destroy` · 0067a4f0 · legions 00623f80 — DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 - [-] `DBAnimator::LoadFromFile` · 0067a510 — text source loader, admin build only

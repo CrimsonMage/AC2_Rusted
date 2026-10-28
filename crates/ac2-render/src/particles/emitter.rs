@@ -236,6 +236,18 @@ impl Emitter {
         }
     }
 
+    /// `ParticleEmitter::DischargeParticle(now, birth, offset, zero sweep)`: the tunnel clouds'
+    /// explicit discharge, a particle at `offset` from the system's origin.
+    pub(crate) fn discharge_at(
+        &mut self,
+        context: &mut SystemContext<'_>,
+        now: f64,
+        birth: f64,
+        offset: Vec3,
+    ) {
+        self.discharge_particle(context, now, birth, offset, Vec3::ZERO);
+    }
+
     /// `ParticleEmitter::DischargeParticle`: a particle born at `birth`, aged to the emitter's
     /// last think. `offset` is where the system had moved since (zero for timed emission) and
     /// `sweep` the swept line's extent.

@@ -8,7 +8,9 @@ use ac2_math::waveform::kind;
 use ac2_math::Waveform;
 
 use super::effect::PortalSpace;
-use super::tunnel::{fade_color as fade, make_safe_index, Portal, Tunnel, PORTALS};
+use super::tunnel::{
+    fade_color as fade, make_safe_index, start_for_visibility, Portal, Tunnel, PORTALS,
+};
 
 fn close(a: f32, b: f32, tolerance: f32) -> bool {
     (a - b).abs() <= tolerance
@@ -93,9 +95,11 @@ fn a_ring_is_the_product_of_its_three_perlin_turns_then_the_previous_ring() {
     let z = perlin(0.35, p * 0.005);
     // mRotZ = (C * B) * A with C = RotateZ(z), B = RotateY(y), A = RotateX(x); the previous ring
     // is the identity, so the world is mRotZ itself.
-    let expected = Matrix4::rotate_z(z)
+    let mut expected = Matrix4::rotate_z(z)
         .multiply(&Matrix4::rotate_y(y))
         .multiply(&Matrix4::rotate_x(x));
+    // The local matrix carries the spacing as its y translation (m[13]).
+    expected.m[13] = 3.0;
     assert_eq!(
         tunnel.portals[0].world,
         expected.multiply(&Matrix4::identity())
@@ -112,20 +116,55 @@ fn a_ring_with_a_radius_scales_its_points_before_the_matrix() {
         world: Matrix4::identity(),
         has_particle: false,
     };
-    let inner = tunnel.update_geometry(0, 1.0);
+    let inner = tunnel.update_geometry(0, 0, 1.0);
+    // Portal 0 is ring step 0, which the buffer fills last: buffer ring 149.
+    let ring = 149 * 17;
+    // Memory runs backwards through the points: the ring's last vertex is point 0 (v = 0).
+    let last = inner[ring + 16];
     // Point 0 is (1, 0, 0): scaled by radius 2 and the inner scale 1.
-    let first = inner[0];
-    assert_eq!(first.position, [2.0, 0.0, 0.0]);
-    // The ring's texture coordinates: u is the portal's position, v is the point's eighth.
-    assert_eq!(first.uv, [3.0, 0.0]);
-    assert_eq!(inner[4].uv, [3.0, 0.25]);
-    assert!(close(inner[4].position[2], 2.0, 1e-6) && close(inner[4].position[0], 0.0, 1e-6));
-    // The closing vertex repeats point 0 at v = 1.
-    assert_eq!(inner[16].position, first.position);
-    assert_eq!(inner[16].uv, [3.0, 1.0]);
+    assert_eq!(last.position, [2.0, 0.0, 0.0]);
+    // The texture coordinates: u is the portal's position, v is the point's eighth.
+    assert_eq!(last.uv, [3.0, 0.0]);
+    // Memory vertex 4 is point 12 (v = 0.75): (cos 3pi/2, 0, sin 3pi/2) scaled by 2.
+    assert_eq!(inner[ring + 4].uv, [3.0, 0.75]);
+    assert!(
+        close(inner[ring + 4].position[2], -2.0, 1e-6)
+            && close(inner[ring + 4].position[0], 0.0, 1e-6)
+    );
+    // The closing vertex (memory 0) repeats point 0 at v = 1.
+    assert_eq!(inner[ring].position, last.position);
+    assert_eq!(inner[ring].uv, [3.0, 1.0]);
+    // Step 0 is at the start: full colour.
+    assert_eq!(last.color, 0xFFFF_FFFF);
     // The outer tunnel is 1.2 times the inner.
-    let outer = tunnel.update_geometry(0, 1.2);
-    assert!(close(outer[0].position[0], 2.4, 1e-5), "{:?}", outer[0]);
+    let outer = tunnel.update_geometry(0, 0, 1.2);
+    assert!(
+        close(outer[ring + 16].position[0], 2.4, 1e-5),
+        "{:?}",
+        outer[ring + 16]
+    );
+}
+
+#[test]
+fn the_steps_before_the_start_are_transparent_and_the_start_is_full() {
+    let tunnel = Tunnel::new();
+    let rings = |start: usize| {
+        let v = tunnel.update_geometry(0, start, 1.0);
+        (0..PORTALS).map(|b| v[b * 17].color).collect::<Vec<u32>>()
+    };
+    let colors = rings(40);
+    // Steps 0..40 are buffer rings 149 down to 110: transparent.
+    assert!(colors[110..].iter().all(|&c| c == 0x00FF_FFFF));
+    // Step 40 (buffer ring 109) is the start: full, and the next step fades a little.
+    assert_eq!(colors[109], 0xFFFF_FFFF);
+    assert!(colors[108] < 0xFFFF_FFFF && colors[108] > 0x00FF_FFFF);
+}
+
+#[test]
+fn the_start_is_the_visibility_run_in_reverse() {
+    assert_eq!(start_for_visibility(1.0), 0);
+    assert_eq!(start_for_visibility(0.0), 149);
+    assert_eq!(start_for_visibility(0.5), 74);
 }
 
 #[test]
@@ -175,4 +214,21 @@ fn after_many_wraps_the_portals_ahead_stay_in_order_beyond_the_camera() {
         .collect();
     assert!(ahead.iter().all(|&p| p > current), "{ahead:?} vs {current}");
     assert!(ahead.windows(2).all(|w| w[0] < w[1]), "{ahead:?}");
+}
+
+#[test]
+fn the_ring_steps_start_at_the_current_portal_and_the_start_is_only_a_depth() {
+    // `UpdateGeometry(current, start)`: step k is portal current + k; step k is transparent
+    // while k < start, whatever portal it is.
+    let mut tunnel = Tunnel::new();
+    tunnel.portals[7].position = 9.0;
+    tunnel.portals[10].position = 12.0;
+    let v = tunnel.update_geometry(7, 3, 1.0);
+    // Step 0 (buffer ring 149) is portal 7: transparent, before the start of 3 steps.
+    let ring = (PORTALS - 1) * 17;
+    assert_eq!(v[ring].uv[0], 9.0);
+    assert_eq!(v[ring].color, 0x00FF_FFFF);
+    // Step 3 (buffer ring 146) is portal 10 and the start: full colour.
+    assert_eq!(v[146 * 17].uv[0], 12.0);
+    assert_eq!(v[146 * 17].color, 0xFFFF_FFFF);
 }

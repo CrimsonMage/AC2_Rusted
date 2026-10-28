@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 324 done, 22 partial, 62 to do, 581 skipped.
+989 retail functions: 324 done, 22 partial, 69 to do, 574 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (29/140)
@@ -58,7 +58,7 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
 - [-] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
-- [-] `CEnvCell::BuildOptionalProperties` · 00480180 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::BuildOptionalProperties` · 00480180 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CEnvCell::GetPhysicsMaterialDID` · 004801b0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### SmartArray<unsigned_long>
@@ -104,9 +104,9 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
 - [x] `CEnvCell::LightIndices` · 00481030 · legions 0047aef0 — ac2-render object::cell / point_lights
 - [ ] `CEnvCell::TraceRayAgainstMesh` · 004813a0 · legions 0047b260 — needs port: CEnvCell::TraceRayAgainstMesh (exact render-mesh ray trace; physics holds no render mesh)
-- [-] `CEnvCell::ApplyPropertyCollection` · 00481580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::ApplyPropertyCollection` · 00481580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `CEnvCell::InqVisibleCells` · 00481630 · legions 0047b4f0 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [-] `CEnvCell::GetCellPlanes` · 00481680 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GetCellPlanes` · 00481680 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### IntrusiveSmartPointer<LightSource>
 - [-] `IntrusiveSmartPointer<LightSource>::~IntrusiveSmartPointer<LightSource>` · 00481710 · legions 0047b5d0 — intrusive pointer; Arc replaces it
@@ -132,16 +132,16 @@ Legend and workflow: [README](README.md).
 
 ### CEnvCell
 - [-] `CEnvCell::CEnvCell` · 004820d0 · legions 0047c000 — constructor (struct init; Rust builds it directly)
-- [-] `CEnvCell::HasLighting` · 004822c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CEnvCell::SetGatherTimestamp` · 004822d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CEnvCell::GetGatherTimestamp` · 004822e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::HasLighting` · 004822c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CEnvCell::SetGatherTimestamp` · 004822d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CEnvCell::GetGatherTimestamp` · 004822e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CEnvCell::GetDBOType` · 004822f0 — DBO type tag (Rust typed decoders)
 - [-] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CEnvCell::Destroy (own row)
 - [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [-] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
-- [-] `CEnvCell::UpdateCellMaterial` · 00482a80 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::UpdateCellMaterial` · 00482a80 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### SmartArray<CCellPortal>
 - [-] `SmartArray<CCellPortal>::SetNElements` · 00482b40 · legions 0047c9e0 — SmartArray container operation (Vec replaces it)
@@ -184,7 +184,7 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers; drawn by ac2-render scene interiors
 - [ ] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [-] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### PList<IconModAtom>
 - [-] `PList<IconModAtom>::GetPackSize` · 004848a0 — write path (client reads DATs only)
@@ -197,9 +197,9 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::GetVisible` · 00484e30 · legions 0047e710 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::CullCellGroupInternal` · 00484e70 · legions 0047e750 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::CullCellsInternal` · 00485290 · legions 0047eb70 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [-] `CEnvCell::DrawEnvironment` · 004856b0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CEnvCell::DrawPostEffects` · 00485770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CEnvCell::GatherVisibleInsideObjects` · 00485800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::DrawEnvironment` · 004856b0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CEnvCell::DrawPostEffects` · 00485770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CEnvCell::GatherVisibleInsideObjects` · 00485800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [~] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
@@ -224,7 +224,7 @@ Legend and workflow: [README](README.md).
 ### PList<PGDReplacementAtom>
 - [-] `PList<PGDReplacementAtom>::Pack` · 004866e0 · legions 0047ff70 — write path (client reads DATs only)
 - [-] `PList<PGDReplacementAtom>::GetPackSize` · 00486730 — write path (client reads DATs only)
-- [-] `PList<PGDReplacementAtom>::UnPack` · 00486770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `PList<PGDReplacementAtom>::UnPack` · 00486770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### ListNode<PGDReplacementAtom>
 - [-] `ListNode<PGDReplacementAtom>::ListNode<PGDReplacementAtom>` · 004868f0 · legions 00480180 — constructor (struct init; Rust builds it directly)
@@ -232,9 +232,9 @@ Legend and workflow: [README](README.md).
 ### CEnvCell
 - [x] `CEnvCell::Trace` · 00486af0 — ac2-physics los (Terrain::los_check)
 - [-] `CEnvCell::release_visible` · 00486b00 · legions 00480390 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [-] `CEnvCell::ReleaseVisibleCells` · 00486bd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::ReleaseVisibleCells` · 00486bd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CEnvCell::add_visible_cell` · 00486d10 · legions 004805a0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [-] `CEnvCell::CullCells` · 00486dd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::CullCells` · 00486dd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CEnvCell::grab_visible` · 00486ee0 · legions 00480740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CEnvCell::GrabVisibleCells` · 00486f10 · legions 00480770 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
@@ -244,7 +244,7 @@ Legend and workflow: [README](README.md).
 
 ### CEnvCell
 - [ ] `CEnvCell::BuildAndApplyAtomCollection` · 00487180 · legions 004809e0 — needs port: CEnvCell::BuildAndApplyAtomCollection (only its constants are present)
-- [-] `CEnvCell::ApplyProperty` · 00487270 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::ApplyProperty` · 00487270 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `CEnvCell::ComputeCellGroups` · 004873b0 · legions 00480be0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
@@ -321,7 +321,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlock
 - [-] `CLandBlock::CLandBlock` · 00489e40 · legions 00483750 — constructor (struct init; Rust builds it directly)
 - [x] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — Retail: static physics objects leave the world and the lists clear. ac2-physics Terrain::remove_block drops the block's cells and static objects (remove_object); flares, lights and portals are Rust ownership (Drop). Frills, object clearance and encounter lists are rebuilt on load
-- [-] `CLandBlock::GetPhysicsMaterial` · 0048a060 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlock::GetPhysicsMaterial` · 0048a060 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [x] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
 - [ ] `CLandBlock::RemoveDynamicObject` · 0048a330 · legions 00483c20 — needs port: landblock streaming: scenery, objects, cells, water, sound points
@@ -376,7 +376,7 @@ Legend and workflow: [README](README.md).
 - [x] `SurfaceInfo::SetToDefault` · 0048eef0 · legions 00487d10
 
 ### CLandBlockData
-- [-] `CLandBlockData::GetSubDataIDs` · 0048ef60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlockData::GetSubDataIDs` · 0048ef60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### SurfaceInfo
 - [-] `SurfaceInfo::SurfaceInfo` · 0048ef90 — constructor (struct init; Rust builds it directly)
@@ -404,10 +404,10 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlockData::GetNeighborHeightValue` · 0048f720 · legions 00488540
 - [x] `CLandBlockData::GetNormalFromTriangle` · 0048f830 · legions 00488650
 - [x] `CLandBlockData::CachePackValues` · 0048f980 · legions 004887a0
-- [-] `CLandBlockData::InitLoad` · 0048fa90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlockData::InitLoad` · 0048fa90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### PSmartArray<unsigned_char>
-- [-] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### (free functions)
 - [ ] `STREAMPACK` · 0048fb40 · legions 00488960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
@@ -549,10 +549,10 @@ Legend and workflow: [README](README.md).
 - [x] `CLandCell::find_terrain_poly` · 0047dd00 · legions 00477cc0
 - [x] `CLandCell::find_terrain_plane` · 0047dd60 · legions 00477d20 — crates/ac2-world/src/ac2_scene/geometry.rs CLandCell::find_terrain_plane
 - [x] `CLandCell::point_in_cell` · 0047ddc0
-- [-] `CLandCell::GetViewerDistance` · 0047de50 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CLandCell::GrabVisibleCells` · 0047dea0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CLandCell::ReleaseVisibleCells` · 0047deb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CLandCell::UpdateCellMaterial` · 0047dec0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::GetViewerDistance` · 0047de50 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CLandCell::GrabVisibleCells` · 0047dea0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CLandCell::ReleaseVisibleCells` · 0047deb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CLandCell::UpdateCellMaterial` · 0047dec0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CLandCell::GetPhysicsMaterialDID` · 0047df20 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### Ray
@@ -572,14 +572,14 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [-] `CLandCell::find_env_collisions` · 0047e670 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::find_env_collisions` · 0047e670 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<Plane>
 - [-] `SmartArray<Plane>::AddToEnd` · 0047ecb0 · legions 00478ce0 — SmartArray container operation (Vec replaces it)
 
 ### CLandCell
-- [-] `CLandCell::GetCellPlanes` · 0047ed10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::GetCellPlanes` · 0047ed10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### LScapeManager
 - [-] `LScapeManager::GetLandCell` · 0047ee60 · legions 00478e90 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
@@ -602,7 +602,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLightInfo::GetSunLitIndices` · 0048d290 · legions 00486bc0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 
 ### CLightInfo::LightCellInfo
-- [-] `CLightInfo::LightCellInfo::LightCellInfo` · 0048d300 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLightInfo::LightCellInfo::LightCellInfo` · 0048d300 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CLightInfo::LightCellInfo::~LightCellInfo` · 0048d310 · legions 00486c40 — destructor (Rust Drop)
 
 ### RLE
@@ -645,7 +645,7 @@ Legend and workflow: [README](README.md).
 - [x] `StreamDBObj::StreamPack` · 0047b870 · legions 00475960 — the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
 - [-] `StreamDBObj::GetPackSize` · 0047b8c0 — write path (client reads DATs only)
 - [-] `StreamDBObj::Pack` · 0047b8f0 — write path (client reads DATs only)
-- [-] `StreamDBObj::UnPack` · 0047b930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `StreamDBObj::UnPack` · 0047b930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### Cylsphere
 - [-] `Cylsphere::Cylsphere` · 0047b950 — constructor (struct init; Rust builds it directly)
@@ -658,7 +658,7 @@ Legend and workflow: [README](README.md).
 - [x] `CObjCell::GetVisible` · 0047ba10 · legions 00475b40 — crates/ac2-physics/src/cells.rs CObjCell::GetVisible resident cell
 - [ ] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [-] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [-] `CObjCell::GetViewerDistance` · 0047bb20 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CObjCell::GetViewerDistance` · 0047bb20 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -687,7 +687,7 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionVoyeur>_*>::~IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionVoyeur>_*>` · 0047c640 · legions 00476700 — hash table container; Rust map replaces it
 
 ### DetectionReportType
-- [-] `DetectionReportType::StreamPack` · 0047c8c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `DetectionReportType::StreamPack` · 0047c8c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### CObjCell
 - [-] `CObjCell::CObjCell` · 0047c8f0 · legions 004769d0 — constructor (struct init; Rust builds it directly)
@@ -798,7 +798,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (1/8)
 
 ### BlockMap
-- [-] `BlockMap::UnPack` · 006cf150 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `BlockMap::UnPack` · 006cf150 — Legions has it: vtable slot 4 of BlockMap at 0x00658d70 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [-] `BlockMap::Pack` · 006cf200 — write path (client reads DATs only)
 - [x] `BlockMap::GetValue` · 006cf2c0 · legions 00658ee0 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [-] `BlockMap::BlockMap` · 006cf300 · legions 00658f20 — constructor (struct init; Rust builds it directly)
@@ -900,7 +900,7 @@ Legend and workflow: [README](README.md).
 - [x] `CFogDesc::HasFog` · 00525030 · legions 0050e500 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [x] `CFogDesc::GetFogging` · 00525050 · legions 0050e520 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [-] `CFogDesc::Allocate` · 00525080 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [-] `CFogDesc::UnPack` · 005250d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `CFogDesc::UnPack` · 005250d0 — Legions has it: vtable slot 4 of CFogDesc at 0x0050e5a0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [-] `CFogDesc::ToFileNode` · 00525280 — text source format (admin tools)
 - [-] `CFogDesc::CheckDupAdd` · 005254d0 — text source format (admin tools)
 - [-] `CFogDesc::LoadFog` · 00525540 — text source loader, admin build only
@@ -939,7 +939,7 @@ Legend and workflow: [README](README.md).
 - [-] `LightFogInfo::LoadAmbientLight` · 006cb430 — text source loader, admin build only
 - [-] `LightFogInfo::LoadShadowColor` · 006cb5d0 — text source loader, admin build only
 - [-] `LightFogInfo::LoadCombine` · 006cb700 — text source loader, admin build only
-- [-] `LightFogInfo::SaveCombine` · 006cb930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `LightFogInfo::SaveCombine` · 006cb930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `LightFogInfo::FromFileNode` · 006cba90 — text source format (admin tools)
 - [-] `LightFogInfo::ToFileNode` · 006cbcc0 — text source format (admin tools)
 
@@ -953,15 +953,15 @@ Legend and workflow: [README](README.md).
 - [x] `BlockProperty::GetFloat` · 006cd320 · legions 00658240 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
 - [x] `BlockProperty::GetVector` · 006cd360 · legions 00658280 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
 - [x] `BlockProperty::GetColor` · 006cd3a0 · legions 006582c0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [-] `BlockProperty::GetEnum` · 006cd3e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `BlockProperty::GetEnum` · 006cd3e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `BlockProperty::BlockProperty` · 006cd420 — constructor (struct init; Rust builds it directly)
 - [-] `BlockProperty::~BlockProperty` · 006cd450 · legions 00658330 — destructor (Rust Drop)
 - [-] `BlockProperty::LoadName` · 006cd4a0 — text source loader, admin build only
-- [-] `BlockProperty::CheckGrow` · 006cd580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `BlockProperty::CheckGrow` · 006cd580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `BlockProperty::LoadBlockMap` · 006cd640 — text source loader, admin build only
 - [-] `BlockProperty::LoadValue` · 006cd710 — text source loader, admin build only
 - [-] `BlockProperty::LoadLinear` · 006cd950 — text source loader, admin build only
-- [-] `BlockProperty::Load` · 006ce070 — admin-only text/file loader (no Legions match)
+- [-] `BlockProperty::Load` · 006ce070 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/properties/propertydesc.cpp.c` (8/18)
 
@@ -1024,11 +1024,11 @@ Legend and workflow: [README](README.md).
 - [-] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CRegionDesc::Destroy and array frees
 - [-] `CRegionDesc::GetPackSize` · 0051e290 · legions 0050abd0 — write path (client reads DATs only)
 - [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — wired: the region's current sky GameTime DID loads with the region (ac2-world ac2_region) and ac2-client scripts.rs sync_script_clock feeds GameTime::current_game_time to the VM each frame. Not reproduced: the default-constructed GameTime fallback when no sky game time loads (every dataset region has one)
-- [-] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CRegionDesc::Allocate` · 0051e580 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0 — ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
-- [-] `CRegionDesc::SetRegionByGID` · 0051e6c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `CRegionDesc::SetRegion` · 0051e7a0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CRegionDesc::SetRegionByGID` · 0051e6c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `CRegionDesc::SetRegion` · 0051e7a0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `CRegionDesc::LoadCellMaps` · 0051e800 — text source loader, admin build only
 - [-] `CRegionDesc::LoadGameMap` · 0051ec30 — text source loader, admin build only
 - [-] `CRegionDesc::LoadFile` · 0051eeb0 — text source loader, admin build only
@@ -1053,10 +1053,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/regionemap.cpp.c` (0/4)
 
 ### RegionEmap
-- [-] `RegionEmap::GetSceneEnum` · 006bc6f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `RegionEmap::GetSurfaceEnum` · 006bc770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `RegionEmap::GetSkyObjectEnum` · 006bc7f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `RegionEmap::GetSkyObjectName` · 006bc870 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `RegionEmap::GetSceneEnum` · 006bc6f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `RegionEmap::GetSurfaceEnum` · 006bc770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `RegionEmap::GetSkyObjectEnum` · 006bc7f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `RegionEmap::GetSkyObjectName` · 006bc870 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/scene/lscapescene.cpp.c` (1/8)
 
@@ -1072,7 +1072,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeScene::GetSubDataIDs` · 006c33c0 · legions 00654a40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `LScapeScene::~LScapeScene` · 006c33e0 · legions 00654a60 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is a reset of three fields to defaults, no observable effect
 - [-] `LScapeScene::LoadSceneFile` · 006c3400 — text source loader, admin build only
-- [-] `LScapeScene::Load` · 006c34d0 — admin-only text/file loader (no Legions match)
+- [-] `LScapeScene::Load` · 006c34d0 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/scene/objectclearance.cpp.c` (17/17)
 
@@ -1122,7 +1122,7 @@ Legend and workflow: [README](README.md).
 - [x] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [x] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `CSceneDesc::Allocate` · 00523dc0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [-] `CSceneDesc::UnPack` · 00523e10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `CSceneDesc::UnPack` · 00523e10 — Legions has it: vtable slot 4 of CSceneDesc at 0x0050db50 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [-] `CSceneDesc::CheckDupAdd` · 00523ef0 — text source format (admin tools)
 - [-] `CSceneDesc::LoadSceneType` · 00523f60 — text source loader, admin build only
 - [-] `CSceneDesc::FromFileNode` · 00523fe0 — text source format (admin tools)
@@ -1136,8 +1136,8 @@ Legend and workflow: [README](README.md).
 - [x] `SceneEntity::GetSubGroupPtr` · 006c18b0 · legions 00653da0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [x] `SceneEntity::StreamPack` · 006c18c0 · legions 00653db0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `SceneEntity::~SceneEntity` · 006c1970 · legions 00653e50 — destructor (Rust Drop)
-- [-] `SceneEntity::PutSubObject` · 006c19c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [-] `SceneEntity::GetSubObject` · 006c1a90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SceneEntity::PutSubObject` · 006c19c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
+- [-] `SceneEntity::GetSubObject` · 006c1a90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [-] `SceneEntity::ToFileNode` · 006c1be0 — text source format (admin tools)
 - [-] `SceneEntity::FromFileNode` · 006c1c90 — text source format (admin tools)
 
@@ -1147,14 +1147,14 @@ Legend and workflow: [README](README.md).
 - [-] `SceneFile::SceneFile` · 006c1d10 · legions 00653e90 — constructor (struct init; Rust builds it directly)
 
 ### AMLook
-- [-] `AMLook::GetType` · 006c1d40 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `AMLook::GetType` · 006c1d40 — Legions has it: vtable slot 14 of AMLook at 0x00653ec0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 
 ### SceneFile
 - [-] `SceneFile::Destroy` · 006c1d50 · legions 00653ed0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `SceneFile::GetSubDataIDs` · 006c1dc0 · legions 00653f40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneFile::GetCorrectDegrade` · 006c1e10 · legions 00653f90 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneFile::Allocate` · 006c1e60 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [-] `SceneFile::CopyInto` · 006c1eb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `SceneFile::CopyInto` · 006c1eb0 — Legions has it: vtable slot 13 of SceneFile at 0x00654030 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [x] `SceneFile::StreamPack` · 006c1fa0 — crates/ac2-world/src/ac2_scene/format.rs SceneFile::StreamPack
 - [-] `SceneFile::ToFileNode` · 006c2150 — text source format (admin tools)
 - [-] `SceneFile::LoadSceneDegrade` · 006c2250 — text source loader, admin build only
@@ -1224,7 +1224,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneType::LoadName` · 006c2810 — text source loader, admin build only
 - [-] `SceneType::LoadSound` · 006c2880 — text source loader, admin build only
 - [-] `SceneType::LoadLScapeScene` · 006c2970 — text source loader, admin build only
-- [-] `SceneType::Load` · 006c29f0 — admin-only text/file loader (no Legions match)
+- [-] `SceneType::Load` · 006c29f0 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/sky/daydesc.cpp.c` (14/38)
 
@@ -1238,7 +1238,7 @@ Legend and workflow: [README](README.md).
 - [x] `CDayDesc::CalcLightVector` · 005259e0 · legions 0050e990
 - [-] `CDayDesc::Destroy` · 00525a90 · legions 0050ea40 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `CDayDesc::StreamPack` · 00525af0 · legions 0050eaa0 — crates/ac2-world/src/region/ac2_region.rs CDayDesc::StreamPack
-- [-] `CDayDesc::GetSubDataIDs` · 00525b60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `CDayDesc::GetSubDataIDs` · 00525b60 — Legions has it: vtable slot 7 of CDayDesc at 0x0050eb10 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [-] `CDayDesc::CheckDupAdd` · 00525bd0 — text source format (admin tools)
 - [-] `CDayDesc::SetInterpDir` · 00525c10 — admin day-table editor (no client path)
 - [x] `CDayDesc::GetBeforeTime` · 00525cb0 · legions 0050eb80
@@ -1350,10 +1350,10 @@ Legend and workflow: [README](README.md).
 - [-] `CMapNoteRow::GetSubDataIDs` · 006c81f0 · legions 00509bd0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 
 ### SkyObjectReplace
-- [-] `SkyObjectReplace::GetDiffuseColor` · 006c8210 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SkyObjectReplace::GetDiffuseColor` · 006c8210 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### MotionValues
-- [-] `MotionValues::GetMaxVertVel` · 006c8250 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `MotionValues::GetMaxVertVel` · 006c8250 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::SkyObjectReplace` · 006c8260 — constructor (struct init; Rust builds it directly)
@@ -1407,7 +1407,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeAlphaDesc
 - [-] `LScapeAlphaDesc::LoadTexture` · 006c4200 — text source loader, admin build only
-- [-] `LScapeAlphaDesc::Load` · 006c42e0 — admin-only text/file loader (no Legions match)
+- [-] `LScapeAlphaDesc::Load` · 006c42e0 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/surface/lscapematerialdesc.cpp.c` (1/4)
 
@@ -1415,7 +1415,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeMaterialDesc::LScapeMaterialDesc` · 006c3e30 — constructor (struct init; Rust builds it directly)
 - [x] `LScapeMaterialDesc::StreamPack` · 006c3e50 · legions 00654f00
 - [-] `LScapeMaterialDesc::LoadMaterial` · 006c3eb0 — text source loader, admin build only
-- [-] `LScapeMaterialDesc::Load` · 006c3f80 — admin-only text/file loader (no Legions match)
+- [-] `LScapeMaterialDesc::Load` · 006c3f80 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/surface/lscapesurfacetype.cpp.c` (4/11)
 
@@ -1436,7 +1436,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeSurfaceType
 - [-] `LScapeSurfaceType::LoadMatGroup` · 006c5da0 — text source loader, admin build only
-- [-] `LScapeSurfaceType::Load` · 006c5e10 — admin-only text/file loader (no Legions match)
+- [-] `LScapeSurfaceType::Load` · 006c5e10 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/surface/lscapevertexcolordesc.cpp.c` (2/4)
 
@@ -1444,7 +1444,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeVertexColorDesc::CalcVertexColor` · 006c36d0 · legions 00654a80
 - [-] `LScapeVertexColorDesc::LScapeVertexColorDesc` · 006c39a0 — constructor (struct init; Rust builds it directly)
 - [x] `LScapeVertexColorDesc::StreamPack` · 006c3a20 · legions 00654dd0
-- [-] `LScapeVertexColorDesc::Load` · 006c3b30 — admin-only text/file loader (no Legions match)
+- [-] `LScapeVertexColorDesc::Load` · 006c3b30 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/surface/materialgroup.cpp.c` (9/20)
 
@@ -1480,14 +1480,14 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialGroup::LoadVertexColor` · 006c5390 — text source loader, admin build only
 - [-] `MaterialGroup::LoadMaterial` · 006c5450 — text source loader, admin build only
 - [-] `MaterialGroup::LoadAlpha` · 006c54d0 — text source loader, admin build only
-- [-] `MaterialGroup::Load` · 006c5550 — admin-only text/file loader (no Legions match)
+- [-] `MaterialGroup::Load` · 006c5550 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/surface/surfacedesc.cpp.c` (6/24)
 
 ### CSurfaceDesc
 - [-] `CSurfaceDesc::Destroy` · 00522360 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `CSurfaceDesc::StreamPack` · 00522380 · legions 0050c820
-- [-] `CSurfaceDesc::GetSubDataIDs` · 00522480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CSurfaceDesc::GetSubDataIDs` · 00522480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CSurfaceDesc::GetVertexInfo` · 00522520 · legions 0050c9c0
 - [x] `CSurfaceDesc::GetRoadInfo` · 00522580 · legions 0050ca20
 - [x] `CSurfaceDesc::GetPhysicsMaterial` · 005225e0 · legions 0050ca80 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
@@ -1548,7 +1548,7 @@ Legend and workflow: [README](README.md).
 - [x] `CTerrainDesc::GetSurfaceType` · 00521c90 · legions 0050c420 — crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::GetSurfaceType
 - [-] `CTerrainDesc::Allocate` · 00521cc0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CTerrainDesc::Pack` · 00521cd0 — write path (client reads DATs only)
-- [-] `CTerrainDesc::GetScene` · 00521de0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CTerrainDesc::GetScene` · 00521de0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `CTerrainDesc::GetSoundType` · 00521ed0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `CTerrainDesc::UnPack` · 00522000 — crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::UnPack
 - [-] `CTerrainDesc::CheckDupAdd` · 00522140 — text source format (admin tools)
@@ -1562,7 +1562,7 @@ Legend and workflow: [README](README.md).
 - [x] `TerrainSceneInfo::unpack` · 006c6950 · legions 006563f0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `TerrainSceneInfo::~TerrainSceneInfo` · 006c69a0 · legions 00656440 — destructor (Rust Drop)
 - [-] `TerrainSceneInfo::LoadSceneName` · 006c69b0 — text source loader, admin build only
-- [-] `TerrainSceneInfo::Load` · 006c6a70 — admin-only text/file loader (no Legions match)
+- [-] `TerrainSceneInfo::Load` · 006c6a70 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/terrain/terraintype.cpp.c` (2/10)
 
@@ -1576,7 +1576,7 @@ Legend and workflow: [README](README.md).
 - [-] `TerrainType::LoadSurface` · 006c6280 — text source loader, admin build only
 - [-] `TerrainType::pack` · 006c6340 · legions 006560f0 — write path (client reads DATs only)
 - [x] `TerrainType::unpack` · 006c6460 · legions 00656210 — crates/ac2-world/src/ac2_terrain_desc.rs TerrainType::unpack
-- [-] `TerrainType::Load` · 006c65f0 — admin-only text/file loader (no Legions match)
+- [-] `TerrainType::Load` · 006c65f0 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/shared/src/region/water/waterdesc.cpp.c` (8/21)
 
@@ -1596,7 +1596,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWaterDesc::GetVertexColor` · 005213f0 · legions 0050c060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [x] `CWaterDesc::GetPhysicsMaterial` · 00521410 · legions 0050c080 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `CWaterDesc::Allocate` · 00521430 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [-] `CWaterDesc::UnPack` · 00521480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [ ] `CWaterDesc::UnPack` · 00521480 — Legions has it: vtable slot 4 of CWaterDesc at 0x0050c0f0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
 - [-] `CWaterDesc::ToFileNode` · 005215f0 — text source format (admin tools)
 - [-] `CWaterDesc::CheckDupAdd` · 00521780 — text source format (admin tools)
 - [-] `CWaterDesc::LoadID` · 005217f0 — text source loader, admin build only

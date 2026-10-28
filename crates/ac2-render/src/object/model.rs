@@ -447,7 +447,7 @@ fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
     store.load_cached_packed::<T>(TypedResourceRef::new(DatFileKind::Portal, did, 0))
 }
 
-fn object_vertices(mesh: &Ac2Mesh) -> Arc<[ObjectVertex]> {
+pub(crate) fn object_vertices(mesh: &Ac2Mesh) -> Arc<[ObjectVertex]> {
     mesh.vertices
         .iter()
         .enumerate()

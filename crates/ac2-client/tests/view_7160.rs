@@ -455,6 +455,7 @@ fn the_client_walks_with_w_and_draws_its_character() {
                     node(2, ExaminationValue::Break),
                     node(3, ExaminationValue::Int(42)),
                 ],
+                available: 0x203,
             },
         );
     }

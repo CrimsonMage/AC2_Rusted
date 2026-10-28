@@ -10,7 +10,17 @@
 
 use ac2_core::Random;
 
-use super::tunnel::{make_safe_index, Tunnel, PORTALS};
+use super::camera::{portal_camera, PortalCamera};
+use super::tunnel::{make_safe_index, start_for_visibility, Tunnel, TunnelVertex, PORTALS};
+
+/// The tunnel for one frame: the vertices of the inner and outer rings and the camera they are
+/// seen from.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TunnelFrame {
+    pub inner: Vec<TunnelVertex>,
+    pub outer: Vec<TunnelVertex>,
+    pub camera: PortalCamera,
+}
 
 /// `PortalSpace::Effect::StateType`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -286,6 +296,23 @@ impl PortalSpace {
             }
         }
         self.last_portal = passed;
+    }
+
+    /// The tunnel as `Render` draws it this frame: the inner and the outer rings (`UpdateGeometry`
+    /// at 1.0 and 1.2 from the start the visibility gives) and the camera.
+    pub fn tunnel_frame(&self) -> TunnelFrame {
+        let visibility = self.draw.tunnel_visibility;
+        let start = start_for_visibility(visibility);
+        TunnelFrame {
+            inner: self.tunnel.update_geometry(self.last_portal, start, 1.0),
+            outer: self.tunnel.update_geometry(self.last_portal, start, 1.2),
+            camera: portal_camera(
+                &self.tunnel,
+                self.last_portal,
+                self.current_position,
+                visibility,
+            ),
+        }
     }
 
     /// The tunnel's portals (`PortalSpace::Effect::m_pTunnelPortals`).

@@ -44,6 +44,7 @@ pub use ac2_smartbox::fx_objects::FxLooks;
 pub use ac2_ui::add_map_note;
 pub use ac2_ui::OptionsEffect;
 pub use client_prefs::{ClientPrefs, DatNames};
+pub use client_teleport::{portal_materials, PortalMaterials};
 pub use sound_ids::{portal_sound_ids, rain_sound_ids};
 pub use target_select::pick_targets;
 pub use window_presentation::WindowPresentation;

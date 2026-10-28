@@ -123,6 +123,7 @@ impl HudView {
                     craft,
                     ingredient,
                     examination,
+                    option_panel,
                     allegiance,
                     fellowship,
                     friends,
@@ -186,6 +187,7 @@ impl HudView {
                 self.panels.craft = craft;
                 self.panels.ingredient = ingredient;
                 self.panels.examination = examination;
+                self.panels.option_panel = option_panel;
                 self.panels.allegiance = allegiance;
                 self.panels.fellowship = fellowship;
                 self.panels.friends = friends;

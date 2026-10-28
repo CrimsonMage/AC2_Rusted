@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1229 done, 354 partial, 153 to do, 511 skipped.
+2247 retail functions: 1244 done, 341 partial, 168 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -15,9 +15,9 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-- [-] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — Legions has it: vtable slot 90 of gm3DTextUI at 0x004266e0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs selection_changed: the meters, the name and now the selection's radar-look colour (font_color_red/green/blue from the radar blip, white without a look; ac2-client view/overlays.rs). Not ported: the off-screen indicator (hidden) and the name's quantity (GetName(quantity))
+- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs; ac2-client SelectionFrame::name_info (display_name(quantity) = GetName(quantity)) rendered in view/overlays.rs. Not ported: the off-screen indicator; name plates still use the plain name
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -86,7 +86,7 @@ Legend and workflow: [README](README.md).
 - [~] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [~] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [x] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150 — ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
-- [-] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340 — admin 7148 only: PrecludeFromTop has no Legions 7160 handler (the bottom preclude is ac2-ui reticle.rs precluded_bottom); the C++ destructor is dropped with the Rust structs
+- [ ] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340 — Legions has it: gm3DTextUI notice vtable slot 141 at 0x0042b160 (or slot 142 at 0x0042b100; both match in size, pick by reading). Was skip
 - [~] `gm3DTextUI::RecvNotice_PrecludeFromBottom` · 0042b3a0 — ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
 - [-] `gm3DTextUI::~gm3DTextUI` · 0042b400 · legions 0042b1c0
 - [~] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
@@ -98,7 +98,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
-## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (9/19)
+## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (10/19)
 
 ### gmBookUI
 - [x] `gmBookUI::CreateManagedElements` · 0041eaa0 · legions 0041e8c0 — ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
@@ -126,7 +126,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: the text plus L" " (a space, Legions 0x9cbaf0, not an ellipsis) is measured; wider than a positive limit, characters come off until it fits and the text keeps the space
 - [~] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
 - [~] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
-- [~] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs BookUi::clipboard_text: title + L"\n\n" (Legions 0x9cbb28), page text, text after the first <T>, <H> -> empty (0x9c71f0), </H> -> newline, <BR> -> three newlines; BookRequest::Copy reaches the client but hud_book.rs drops it (no clipboard device wired)
+- [x] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs book_pass sends BookUi::clipboard_text to the tree's clipboard (UiTree::send_string_to_clipboard, the OS clipboard in the client); test book_tests.rs
 - [~] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 
 ## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (4/7)
@@ -152,15 +152,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (23/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (25/58)
 
 ### gmGamePlayUI
 - [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
 - [x] `gmGamePlayUI::SetErrorMsg` · 00407940 · legions 00407650 — ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
-- [-] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980 — admin 7148 only: sets a flag on EndCharacterSession; Legions 7160 has no match and registers no such notice (the logoff path is EndSession + LogOffCharacter)
-- [-] `gmGamePlayUI::RecvNotice_Logoff` · 00407990 — admin 7148 only (UploadGameOptions + Device::Done); Legions 7160 has no match. The logoff is EndSession (hud_game_dialogs.rs game_dialog_logout) and LogOffCharacter
+- [x] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980 — ac2-ui game_dialogs.rs logout_key (the Leave question's yes)
+- [x] `gmGamePlayUI::RecvNotice_Logoff` · 00407990 — ac2-ui HudRequest::Quit: UploadGameOptions, then the window closes (ac2-client hud_request.rs, main.rs quitting)
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
-- [-] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — admin 7148 only: unregisters a deleted weenie's notice handlers; Legions 7160 has no match and the port has no weenie notice handlers to unregister
+- [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — Legions has it: gmGamePlayUI notice vtable slot 10 at 0x004076d0 (vtable audit)
 - [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 - [x] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs: MakeResurrectDialog's prompt (ID_ResurrectionPrompt with the resurrecter's name, 0x4100000a) or the death dialog (0x41000018), closing the dialog up first (DeathPanel::offer / death dialog); tested in death tests
 
@@ -205,7 +205,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIFramework::Shown` · 00408e60 · legions 00408ba0 — needs port (check): UIFramework::Shown behaviour; implemented area ac2-ui hud.rs but uncited
 
 ### gmGamePlayUI
-- [-] `gmGamePlayUI::Create` · 00408e70 — admin 7148 factory (new gmGamePlayUI); Legions 7160 has no counterpart; the HUD is constructed directly by ac2-client
+- [-] `gmGamePlayUI::Create` · 00408e70 — admin 7148 factory (new gmGamePlayUI); Legions 7160 has no counterpart; the HUD is constructed directly by ac2-client [vtable-checked: not a slot of any located Legions vtable]
 - [~] `gmGamePlayUI::EndSession` · 00408e90 · legions 00408bd0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 - [~] `gmGamePlayUI::RecvNotice_FinishPlaySequence` · 00408f50 · legions 00408c90 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
 - [~] `gmGamePlayUI::RecvNotice_PlaySequence` · 00408fa0 · legions 00408ce0 — ac2-ui gameplay_story.rs (story slot, portal flag, teardown, PlayScenesDone); scene list from script natives and the HUD drawing pending
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 - [~] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
-- [-] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — no Legions 7160 counterpart: the DVD client's gmIngredientUI::DoClose closes the panel at once, with no close confirmation (admin only)
+- [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — Legions has it: gmIngredientUI notice vtable slot 124 at 0x00418640 (admin slot 123; Legions inserted one notice slot before it; same size and call count)
 
 ## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (6/6)
 
@@ -749,7 +749,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### ItemDisplay
-- [-] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180 — Legions has it: vtable slot 10 of ItemDisplay at 0x0042eaf0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -796,7 +796,7 @@ Legend and workflow: [README](README.md).
 - [-] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
-- [-] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — Legions has it: ItemDisplay notice vtable slot 146 at 0x0042eb10 (admin slot 145, shifted by one; same size and calls)
 - [~] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 - [x] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20 — ac2-ui item_display.rs / backpack.rs
@@ -804,8 +804,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40 — needs port (check): ItemDisplay::SetQuantity behaviour; implemented area ac2-ui item_display.rs but uncited
 - [x] `ItemDisplay::SetShortcutType` · 0042ef60 · legions 0042ee60 — ItemDisplay::SetShortcutType done: item_display.rs set_shortcut_type cites it
 - [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
-- [-] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
-- [-] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — Legions has it: vtable slot 14 of ItemDisplay at 0x0042eec0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+- [ ] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — Legions has it: vtable slot 11 of ItemDisplay at 0x0042eef0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 - [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 
 ## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (6/7)
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (8/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (10/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1032,10 +1032,10 @@ Legend and workflow: [README](README.md).
 - [-] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0 — C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 - [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
-- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; ExaminationHelpButton opens ID_Help_Examine (hud_help.rs)
+- [x] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message + examination_tabs.rs: tab presses (Ctrl toggles bits) and SELECTION_NEXT/PREV_EXAM_TAB_KEY choose the filter and restart the examination with it (Legions 0x00431990, 0x00431900); wired in hud_message.rs; tests examination_tests.rs
 - [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
 - [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
-- [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — field, list, timers and the hidden start; Legions filter tabs (four mask tabs, +0xB8 filter word) not modelled
+- [x] `gmExaminationUI::gmExaminationUI` · 004312e0 — ac2-ui examination.rs create: field, list, timers, hidden start, the four filter tabs (GeneralTab 0x203, DetailsTab 0x18C, EffectsTab 0x10, UsageTab 0x60) in the construction state (Legions 0x00431C40); ExaminationProfile now carries the trailing available-tabs word (ac2-net)
 - [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmnavigationui.cpp.c` (27/37)
@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
-- [-] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — Legions has it: gmShortcutUI notice vtable slot 101 at 0x004368b0 (admin slot 100, shifted by one; same size and calls)
 - [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [x] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970 — ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
 - [x] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0 — ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
@@ -1143,7 +1143,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
-- [-] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
+- [ ] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — Legions has it: vtable slot 10 of gmShortcutUI at 0x004377c0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 - [~] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — ac2-ui shortcut.rs make_element sets the slot icon from the shortcut info and check_item keeps the pending state. Not ported: the tooltip (the object's name with quantity, or ID_Item_TT_WaitingForServer while the weenie is unknown), SetIconDesc layers (first layer only) and the _pendingCreate append for a not-yet-created weenie (Legions 0x437830)
 - [-] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
@@ -1269,7 +1269,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI_DDCB` · 00441e50 — ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
 
 ### gmPaperDollUI
-- [-] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — admin-only mount flag (sets the paper doll token count); no Legions 7160 counterpart
+- [ ] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — Legions has it: vtable slot 45 of gmPaperDollUI at 0x004427e0 (vtable audit); was skip: admin-only mount flag (sets the paper doll token count); no 
 - [x] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled
@@ -1283,7 +1283,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0 — C++ destructors: the Rust state drops
 - [x] `gmPaperDollUI::ListenToMessage` · 00442870 · legions 004431c0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::ListenToMessage` · 00442890 · legions 004431e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-- [-] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — no Legions 7160 counterpart; the durability meter refreshes from the frame item list (AddItem, RecvNotice_ItemUpdate paths)
+- [ ] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — Legions has it: vtable slot 11 of gmPaperDollUI at 0x00443250 (vtable audit); was skip: no Legions 7160 counterpart; the durability meter refreshes 
 - [x] `gmPaperDollUI::RecvNotice_ItemUpdate` · 004429e0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::AddItem` · 00442af0 · legions 00443440 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RemoveItem` · 00442c70 · legions 004435c0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
@@ -1364,7 +1364,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310 — ac2-ui client_page.rs ClientPage::clear_confirmations; client_page tests
 - [x] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-ui client_page.rs verify_render_options: a timed dialog (type 0x40000005) once while open, text ID_Option_RenderText (DAT_00a4f870 = Tokenize string of the admin initializer). The DVD UI string table has no such entry (client_page_7160 test), so the port asks its own question
-- [-] `gmClientUI::MonitorChange` · 00446890 — admin 7148 only (IPreferenceMonitor Change/Reload forwarding to an expander); Legions 7160 has no match and the port's preferences have no monitors
+- [ ] `gmClientUI::MonitorChange` · 00446890 — Legions has it: gmClientUI IPreferenceMonitor vtable slot 1 at 0x004473d0 (vtable audit)
 - [x] `gmClientUI::Changed` · 004468d0 · legions 00447410 — ac2-ui client_options_page.rs update_buttons (Apply and Recall ghost while the bank holds no change, over ClientPage::buttons); ac2-client client_options.rs options_changed
 - [x] `gmClientUI::LookupExpander` · 00446910 · legions 00447450 — ac2-ui client_page.rs ClientPage::lookup_expander over SECTION_ORDER; client_page tests
 - [x] `gmClientUI::Dismantle` · 004469d0 · legions 00447510 — ac2-ui client_page.rs ClientPage::dismantle (expanders gone, questions closed); no monitors to detach in the port
@@ -1373,26 +1373,26 @@ Legend and workflow: [README](README.md).
 - [~] `gmClientUI::Apply` · 00446bf0 · legions 00447730 — ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, shadows, water) are stored, not applied
 - [x] `gmClientUI::Recall` · 00446ce0 · legions 00447820 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [~] `gmClientUI::Default` · 00446d10 · legions 00447850 — ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, shadows, water) are stored, not applied
-- [-] `gmClientUI::MonitorReload` · 00446d50 — admin 7148 only (IPreferenceMonitor Change/Reload forwarding to an expander); Legions 7160 has no match and the port's preferences have no monitors
+- [ ] `gmClientUI::MonitorReload` · 00446d50 — Legions has it: gmClientUI IPreferenceMonitor vtable slot 0 at 0x00447890 (vtable audit)
 - [x] `gmClientUI::RecvNotice_CloseConfirmationDialog` · 00446e80 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ListenToMessage` · 00446f40 · legions 00447a80 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [~] `gmClientUI::Construct` · 004470c0 · legions 00447c00 — ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
 - [~] `gmClientUI::gmClientUI` · 00447450 · legions 00447f90 — ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmoptionui.cpp.c` (0/11)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmoptionui.cpp.c` (10/11)
 
 ### gmOptionUI
-- [~] `gmOptionUI::gmOptionUI` · 004347e0 · legions 00434fb0 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
-- [~] `gmOptionUI::UpdateButtons` · 00434a20 · legions 004351f0 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
-- [~] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
-- [~] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
-- [~] `gmOptionUI::MakeQuitDialog` · 00434b40 · legions 00435310 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
-- [~] `gmOptionUI::MakeLogoutDialog` · 00434ba0 · legions 00435370 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
-- [~] `gmOptionUI::CloseDialog` · 00434c00 · legions 004353d0 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
+- [x] `gmOptionUI::gmOptionUI` · 004347e0 · legions 00434fb0 — ac2-ui option_panel.rs OptionPanel::create: the field and the three buttons, hidden; the pages are the HUD's
+- [x] `gmOptionUI::UpdateButtons` · 00434a20 · legions 004351f0 — ac2-ui option_panel.rs update_buttons: Leave, Quit and Assistance ghosted while a question is up
+- [x] `gmOptionUI::MakeConfirmDialog` · 00434aa0 · legions 00435270 — ac2-ui option_panel.rs: ID_Option_ConfirmText confirmation; tests there
+- [x] `gmOptionUI::DoConfirm` · 00434af0 · legions 004352c0 — ac2-ui option_panel.rs OptionAction::Confirm, run by hud_tick.rs: yes applies the character, chat option and client pages, no recalls them
+- [x] `gmOptionUI::MakeQuitDialog` · 00434b40 · legions 00435310 — ac2-ui option_panel.rs: ID_Option_QuitText on the QuitButton; yes closes the client after UploadGameOptions (HudRequest::Quit, ac2-client main.rs)
+- [x] `gmOptionUI::MakeLogoutDialog` · 00434ba0 · legions 00435370 — ac2-ui option_panel.rs: ID_Option_LogoutText on the LeaveButton; yes is EndCharacterSession (GameplayDialogs::logout_key)
+- [x] `gmOptionUI::CloseDialog` · 00434c00 · legions 004353d0 — ac2-ui option_panel.rs (CommandTab messages and Show close the questions)
 - [-] `gmOptionUI::~gmOptionUI` · 00434c30 · legions 00435400 — C++ destructor: the page's widgets and the OptionsWindow model drop with the owner
-- [~] `gmOptionUI::Show` · 00434d10 · legions 004354e0 — the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
-- [~] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0 — logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
-- [~] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
+- [x] `gmOptionUI::Show` · 00434d10 · legions 004354e0 — ac2-ui option_panel.rs closing/close, run by hud_tick.rs: hiding the panel with changes asks the confirmation
+- [x] `gmOptionUI::ListenToMessage` · 00434dd0 · legions 004355a0 — ac2-ui option_panel.rs message: LeaveButton, QuitButton, AssistanceButton (opens AssistanceTab), CommandTab, DropDownMenu open_up/open_down; close, help and option buttons are the toolbar's
+- [x] `gmOptionUI::RecvNotice_CloseConfirmationDialog` · 00434f70 — ac2-ui option_panel.rs dialog_outcomes (Legions 0x00435740)
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmjournalquestsui.cpp.c` (12/14)
 
@@ -1460,7 +1460,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10 — ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
 - [x] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 - [-] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00 — the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
-- [-] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — no Legions 7160 counterpart: the DVD client's gmCraftUI has no ExaminationRequestChanged notice (the examined row's highlight is admin only)
+- [ ] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — Legions has it: gmCraftUI notice vtable slot 69 at 0x0044af30 (vtable audit)
 - [x] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010 — ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
 - [x] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 - [x] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
@@ -2903,8 +2903,8 @@ Legend and workflow: [README](README.md).
 - [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
 - [x] `UIElementManager::StartDragandDrop` · 005e42e0 — ac2-ui drag.rs; shortcut.rs drop
 - [x] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500 — ac2-ui drag.rs; shortcut.rs drop
-- [-] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
-- [-] `UIElementManager::ActivateNext` · 005e4740 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+- [-] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
+- [-] `UIElementManager::ActivateNext` · 005e4740 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 - [-] `UIElementManager::DrawDirtyRegions` · 005e4970 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 - [-] `UIElementManager::GetObjectRegionInfo` · 005e4b10 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 - [~] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
@@ -2914,7 +2914,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00 — needs port (check): UIElementManager::HandleApply behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 - [~] `UIElementManager::StartInput` · 005e4e50 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::StopInput` · 005e4fc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [-] `UIElementManager::RegisterActivatable` · 005e50d0 · legions 005a5df0 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+- [-] `UIElementManager::RegisterActivatable` · 005e50d0 · legions 005a5df0 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
 
 ### Box2D
 - [ ] `Box2D::Subtract` · 005e5150 · legions 005a5e70 — needs port: Box2D::Subtract behaviour

@@ -59,6 +59,7 @@ pub fn splice_effects(
     ExaminationProfile {
         request: profile.request,
         nodes,
+        available: profile.available,
     }
 }
 
@@ -85,6 +86,7 @@ mod tests {
                 node(2, 8, ExaminationValue::Effect(55)),
                 node(3, 9, ExaminationValue::Break),
             ],
+            ..Default::default()
         };
         let mut calls = Vec::new();
         let spliced = splice_effects(&profile, |context, order, eid| {
@@ -105,6 +107,7 @@ mod tests {
         let profile = ExaminationProfile {
             request: ExaminationRequest::default(),
             nodes: vec![node(1, 0, ExaminationValue::Effect(4))],
+            ..Default::default()
         };
         let spliced = splice_effects(&profile, |_, _, _| Vec::new());
         assert!(spliced.nodes.is_empty());

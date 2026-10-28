@@ -250,6 +250,21 @@ fn a_destroyed_object_goes_at_the_next_object_maintenance() {
     assert!(world.use_time(11.0).is_empty());
 }
 
+/// `CObjectMaint::FadeAndDestroyObject`: the object is a pending deletion due `destruction`
+/// seconds on, removed by the `UseTime` that finds it due; an unknown id queues nothing.
+#[test]
+fn a_faded_object_is_destroyed_once_its_destruction_time_has_passed() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    world.use_time(10.0);
+    assert!(!world.fade_and_destroy_object(0x7000_0000_0000_0099, 0.5));
+    assert!(world.fade_and_destroy_object(npc, 0.5));
+    assert!(world.use_time(10.4).is_empty());
+    assert!(world.objects.get(npc).is_some());
+    assert_eq!(world.use_time(10.5), [WorldEvent::Destroyed(npc)]);
+    assert!(world.objects.get(npc).is_none());
+}
+
 #[test]
 fn an_object_out_of_view_is_destroyed_after_25_seconds_unless_it_comes_back() {
     let npc = 0x7000_0000_0000_0042;

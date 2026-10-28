@@ -43,6 +43,8 @@ pub struct Hud {
     /// `gmIngredientUI`: the ingredient panel of a recipe.
     pub ingredient: Option<IngredientUi>,
     pub examination: Option<ExaminationUi>,
+    /// `gmOptionUI`: the option panel's questions.
+    pub option_panel: Option<crate::OptionPanel>,
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
     /// `gmFriendsUI`: the friends page of the social toolbar.
@@ -151,6 +153,12 @@ pub struct Hud {
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
     /// frame's input last said.
     pub shift_held: bool,
+    /// Whether Ctrl is held (`GetKeyState(VK_LCONTROL / VK_RCONTROL)`, which toggles an
+    /// examination tab's bits), as the frame's input last said.
+    pub ctrl_held: bool,
+    /// The quit question was confirmed (`gmGamePlayUI::RecvNotice_Logoff`): the client closes
+    /// once the frame's commands are sent.
+    pub quit_requested: bool,
     /// The `0x4100000C` key was pressed this frame; the frameworks run it, where the client's
     /// story state is.
     pub hud_key_pending: bool,

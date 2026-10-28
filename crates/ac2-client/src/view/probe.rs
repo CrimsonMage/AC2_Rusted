@@ -45,7 +45,7 @@ impl ClientView {
             roots,
             &[],
             self.world_drawn.then_some(draw_world),
-            |pass| self.fader.draw(pass),
+            |pass| self.portal.draw(pass),
         );
     }
 

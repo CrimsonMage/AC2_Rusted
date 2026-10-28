@@ -15,6 +15,8 @@ mod character;
 mod character_options;
 mod friends;
 mod option_calls;
+mod option_panel;
+pub use option_panel::{OptionAction, OptionPanel};
 mod social_notices;
 mod social_page;
 pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
@@ -44,6 +46,7 @@ mod effects;
 mod element;
 mod examination;
 mod examination_effects;
+mod examination_tabs;
 pub use examination_effects::{expand_examination_effects, splice_effects, ExaminationSource};
 #[cfg(test)]
 mod examination_tests;

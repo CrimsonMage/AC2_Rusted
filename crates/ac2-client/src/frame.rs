@@ -108,6 +108,8 @@ pub struct PortalFrame {
     pub draw: ac2_render::portal::Draw,
     /// A teleport has started and its destination is not yet in.
     pub teleporting: bool,
+    /// The tunnel as drawn this frame (the rings and the camera), while the tunnel is drawn.
+    pub tunnel: Option<ac2_render::portal::TunnelFrame>,
 }
 
 impl PortalFrame {

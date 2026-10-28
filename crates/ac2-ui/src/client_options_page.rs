@@ -561,6 +561,15 @@ impl ClientOptionsUi {
         self.update_buttons(tree, bank);
     }
 
+    /// `gmOptionUI::DoConfirm` on this page: yes is `gmClientUI::Apply`, no `gmClientUI::Recall`.
+    pub fn confirm_close(&mut self, yes: bool) {
+        self.requests.push(if yes {
+            ClientRequest::Apply
+        } else {
+            ClientRequest::Answer(vec![PageAction::Recall])
+        });
+    }
+
     /// The requests since the last call (the caller answers them with the client's preferences).
     pub fn take_requests(&mut self) -> Vec<ClientRequest> {
         std::mem::take(&mut self.requests)

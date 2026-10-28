@@ -119,6 +119,20 @@ impl OptionsPages {
         host.with_prefs(&mut |prefs| page.message(tree, dialogs, prefs.bank_mut(), message));
     }
 
+    /// `gmClientUI::Changed` over the preferences (false before they are loaded).
+    pub fn changed(&self, host: &mut dyn OptionsHost) -> bool {
+        let mut changed = false;
+        host.with_prefs(&mut |prefs| changed = prefs.options_changed());
+        changed
+    }
+
+    /// `gmOptionUI::DoConfirm` on the client page.
+    pub fn confirm_close(&mut self, yes: bool) {
+        if let Some(page) = self.page.as_mut() {
+            page.confirm_close(yes);
+        }
+    }
+
     /// The confirmations' answers (the page's questions among them).
     pub fn outcomes(
         &mut self,

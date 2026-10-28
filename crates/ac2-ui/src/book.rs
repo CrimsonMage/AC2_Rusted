@@ -50,7 +50,8 @@ pub enum BookRequest {
 
 /// `gmBookUI` on the frame: the use notices in `events` show the book
 /// (`RecvNotice_UseBook`), then the book's `messages` run [`BookUi::message`]. Returns the
-/// requests in message order.
+/// requests in message order, except the copy button's: `gmBookUI::SendBookToClipboard` hands
+/// the book's text to the clipboard here (`Device::SendStringToClipboard`).
 pub fn book_pass(
     book: &mut BookUi,
     tree: &mut UiTree,
@@ -70,10 +71,17 @@ pub fn book_pass(
             book.recv_use_book(tree, strings, *show_controls, *mode, title, text, *image);
         }
     }
-    messages
-        .iter()
-        .filter_map(|message| book.message(tree, strings, message))
-        .collect()
+    let mut requests = Vec::new();
+    for message in messages {
+        match book.message(tree, strings, message) {
+            Some(BookRequest::Copy(text)) => {
+                tree.send_string_to_clipboard(&text);
+            }
+            Some(request) => requests.push(request),
+            None => {}
+        }
+    }
+    requests
 }
 
 /// `gmBookUI`'s state over its elements.

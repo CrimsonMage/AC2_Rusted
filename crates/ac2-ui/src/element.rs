@@ -353,6 +353,11 @@ impl UiTree {
         self.text_clipboard = clipboard;
     }
 
+    /// `Device::SendStringToClipboard`: replaces the clipboard's text; `false` when it refused.
+    pub fn send_string_to_clipboard(&self, text: &str) -> bool {
+        self.text_clipboard.set_text(text)
+    }
+
     /// Whether a read-only text element holds the copy focus: Ctrl+A, Ctrl+C reach it while no
     /// editable element is active (the client then passes typed characters through).
     pub fn text_copy_focus(&self) -> bool {

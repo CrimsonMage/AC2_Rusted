@@ -80,6 +80,52 @@ pub fn held_place(
     crate::children::update_child_frame(holder, holder_scale, &info, bone.compose(&point.transform))
 }
 
+/// `m_posDrawing` of a parented child (`CPhysicsObj::UpdateChild`), which
+/// `CMissileManager::InitPosition` reads through `GetDrawingPosition` while the missile
+/// `HasParent`: the holder's drawing position in its cell, then the child's holding matrix and
+/// offset. `bone` is the holder's posed root bone the holding location rides; the caller passes
+/// the identity when only the rest pose is known. `None` when the holder's Setup lacks the
+/// holding location.
+pub fn parent_drawing_position(
+    holder: &crate::position::Position,
+    holder_scale: crate::vector::Vector,
+    info: &crate::children::ChildInfo,
+    bone: Ac2Transform,
+    point: Option<&HoldPoint>,
+) -> Option<crate::position::Position> {
+    use crate::children::{holding_matrix, update_child_frame, HOLDING_LOCATION_ORIGIN};
+
+    let matrix = if info.location == HOLDING_LOCATION_ORIGIN {
+        Ac2Transform::IDENTITY
+    } else {
+        holding_matrix(info.location, bone, point?)
+    };
+    let from = &holder.frame;
+    let frame = Frame::new(
+        Vec3::new(from.origin.x, from.origin.y, from.origin.z),
+        ac2_math::Quat::from_xyzw(from.q.x, from.q.y, from.q.z, from.q.w),
+    );
+    let at = update_child_frame(
+        frame,
+        Vec3::new(holder_scale.x, holder_scale.y, holder_scale.z),
+        info,
+        matrix,
+    );
+    let q = at.orientation;
+    Some(crate::position::Position::new(
+        holder.cell_id,
+        crate::frame::Frame::new(
+            crate::vector::Vector::new(at.origin.x, at.origin.y, at.origin.z),
+            crate::vector::Quaternion {
+                w: q.w,
+                x: q.x,
+                y: q.y,
+                z: q.z,
+            },
+        ),
+    ))
+}
+
 #[cfg(test)]
 mod tests {
     use std::f32::consts::FRAC_PI_4;
@@ -88,8 +134,8 @@ mod tests {
     use ac2_math::{Frame, Quat, Vec3};
 
     use super::{
-        find_holding_point, has_holding_location, held_place, placement_order, GroupHolding,
-        HoldPoint,
+        find_holding_point, has_holding_location, held_place, parent_drawing_position,
+        placement_order, GroupHolding, HoldPoint,
     };
 
     #[test]
@@ -166,6 +212,54 @@ mod tests {
         assert!(
             (scaled.origin - Vec3::new(10.0, 2.0, 0.0)).length() < 1e-5,
             "{scaled:?}"
+        );
+    }
+
+    #[test]
+    fn a_parented_missile_starts_where_its_holder_holds_it() {
+        use crate::children::{ChildInfo, HOLDING_LOCATION_ORIGIN};
+        use crate::position::Position;
+        use crate::vector::{Quaternion, Vector};
+        let holder = Position::new(
+            0x7F7F_001C,
+            crate::frame::Frame::new(Vector::new(10.0, 20.0, 30.0), Quaternion::IDENTITY),
+        );
+        let at_origin = ChildInfo::holding(5, HOLDING_LOCATION_ORIGIN);
+        let placed = parent_drawing_position(
+            &holder,
+            Vector::new(1.0, 1.0, 1.0),
+            &at_origin,
+            Ac2Transform::IDENTITY,
+            None,
+        )
+        .expect("the holder's own origin needs no Setup location");
+        assert_eq!(placed.cell_id, 0x7F7F_001C);
+        assert_eq!(placed.frame.origin, Vector::new(10.0, 20.0, 30.0));
+
+        let at_hand = ChildInfo::holding(5, 7);
+        assert!(
+            parent_drawing_position(
+                &holder,
+                Vector::new(2.0, 2.0, 2.0),
+                &at_hand,
+                Ac2Transform::IDENTITY,
+                None
+            )
+            .is_none(),
+            "a location the Setup lacks places nothing"
+        );
+        let hand = point(0, Vec3::new(0.5, 0.0, 1.0));
+        let placed = parent_drawing_position(
+            &holder,
+            Vector::new(2.0, 2.0, 2.0),
+            &at_hand,
+            Ac2Transform::IDENTITY,
+            Some(&hand),
+        )
+        .expect("listed");
+        assert!(
+            (placed.frame.origin.x - 11.0).abs() < 1e-5
+                && (placed.frame.origin.z - 32.0).abs() < 1e-5
         );
     }
 }

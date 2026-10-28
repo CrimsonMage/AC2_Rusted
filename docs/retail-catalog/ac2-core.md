@@ -962,7 +962,7 @@ Legend and workflow: [README](README.md).
 ### Random
 - [x] `Random::rand` · 0060d2d0 · legions 005ce0a0 — ac2-ui media.rs / transition.rs
 - [x] `Random::RollDice` · 0060d3b0 · legions 005ce180 — ac2-ui media.rs / transition.rs
-- [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2-ui media.rs / transition.rs
+- [x] `Random::RollDice` · 0060d3f0 · legions 005ce1c0 — ac2-core random.rs roll_dice_f32: (hi - lo) * rand + lo in f64
 - [x] `Random::RollGaussianDice` · 0060d450 · legions 005ce220 — crates/ac2-script/src/glue/random.rs roll_gaussian (Random::RollGaussianDice, Leva)
 - [x] `Random::RollPercentile` · 0060d520 · legions 005ce2f0 — crates/ac2-script/src/glue/random.rs roll_percentile (Random::RollPercentile)
 

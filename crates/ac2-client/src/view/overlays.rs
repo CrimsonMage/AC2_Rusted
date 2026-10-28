@@ -53,8 +53,15 @@ impl ClientView {
     pub(super) fn update_reticle(&mut self, frame: &ClientFrame, boxes: &[OverlayBox]) {
         let selection = frame.selection.as_ref();
         let selected = selection.and_then(|s| boxes.iter().find(|b| b.id == s.id));
+        // `CheckName`: `GetName(quantity)`, rendered from the string tables when they are there.
+        let name = selection.and_then(|s| {
+            s.name_info
+                .as_ref()
+                .and_then(|info| self.hud.render_info(info))
+                .or_else(|| s.name.as_deref().map(str::to_owned))
+        });
         let outcome = self.hud.reticle(
-            selection.map(|s| (s.id, s.name.as_deref())),
+            selection.map(|s| (s.id, name.as_deref())),
             selection.and_then(|s| s.info.as_ref()),
             // `CheckName`: the selection's radar-look colour.
             selection.and_then(|s| {

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 775 done, 159 partial, 382 to do, 808 skipped.
+2124 retail functions: 782 done, 166 partial, 228 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [-] `BSPLEAF::Pack` · 0049f6e0 — DBO/archive serialisation of runtime state
 - [x] `BSPLEAF::sphere_intersects_poly` · 0049f770 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::sphere_intersects_solid` · 0049f7e0 — ac2-physics bsp/node.rs (Legions identical)
-- [-] `BSPLEAF::point_intersects_solid` · 0049f860 — admin-only: no Legions body for this BSP query
+- [ ] `BSPLEAF::point_intersects_solid` · 0049f860 — Legions has it: vtable slot 8 of BSPLEAF at 0x00496c50 (vtable audit); was skip: admin-only: no Legions body for this BSP query
 - [x] `BSPLEAF::hits_walkable` · 0049f870 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::find_walkable` · 0049f8f0 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70 — ac2-physics bsp: placement insert (Legions identical)
@@ -47,7 +47,7 @@ Legend and workflow: [README](README.md).
 - [x] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `BSPNODE::sphere_intersects_poly` · 0049d040 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::sphere_intersects_solid` · 0049d100 — ac2-physics bsp/node.rs (Legions identical)
-- [-] `BSPNODE::point_intersects_solid` · 0049d1e0 — admin-only: no Legions body for this BSP query
+- [ ] `BSPNODE::point_intersects_solid` · 0049d1e0 — Legions has it: vtable slot 8 of BSPNODE at 0x00494c00 (vtable audit); was skip: admin-only: no Legions body for this BSP query
 - [x] `BSPNODE::hits_walkable` · 0049d230 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::find_walkable` · 0049d2e0 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0 — ac2-physics bsp: placement insert (Legions identical)
@@ -64,7 +64,7 @@ Legend and workflow: [README](README.md).
 - [-] `PFileNode::GetLeafAsPString` · 0049dcb0 — admin/debug or text-file tooling
 
 ### BSPNODE
-- [-] `BSPNODE::GetNodeType` · 0049dd20 — admin-only: no Legions body for this BSP query
+- [-] `BSPNODE::GetNodeType` · 0049dd20 — admin-only: no Legions body for this BSP query [vtable-checked: not a slot of any located Legions vtable]
 - [-] `BSPNODE::ChildFromFileNode` · 0049dec0 — text source format
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
 - [-] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530 — no caller anywhere in the exe (only its own vtable recursion); not reached in play
@@ -114,7 +114,7 @@ Legend and workflow: [README](README.md).
 - [-] `MarkerHeap::expand` · 00632590 · legions 005e9ed0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### AStar
-- [ ] `AStar::MetaFind` · 00632600 · legions 005e9f40 — needs port: path search
+- [-] `AStar::MetaFind` · 00632600 · legions 005e9f40 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### PathSearchStats
 - [-] `PathSearchStats::RecordEnd` · 00632680 · legions 005e9fc0 — admin/debug or text-file tooling
@@ -125,45 +125,45 @@ Legend and workflow: [README](README.md).
 - [-] `MarkerHeap::heapify_up` · 00632870 · legions 005ea1b0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### AStar
-- [ ] `AStar::MetaEnqueue` · 006328d0 · legions 005ea210 — needs port: path search
-- [ ] `AStar::MetaDequeue` · 00632920 — needs port: path search
-- [ ] `AStar::MetaUpdate` · 006329a0 · legions 005ea2e0 — needs port: path search
-- [ ] `AStar::MetaAdd` · 00632a10 · legions 005ea350 — needs port: path search
+- [-] `AStar::MetaEnqueue` · 006328d0 · legions 005ea210 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `AStar::MetaDequeue` · 00632920 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `AStar::MetaUpdate` · 006329a0 · legions 005ea2e0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `AStar::MetaAdd` · 00632a10 · legions 005ea350 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### MarkerPool
 - [-] `MarkerPool::GetNewMarker` · 00632a90 · legions 005ea3d0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### AStar
-- [ ] `AStar::Relax` · 00632b10 · legions 005ea450 — needs port: path search
-- [ ] `AStar::FindPath` · 00632bd0 — needs port: path search
+- [-] `AStar::Relax` · 00632b10 · legions 005ea450 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `AStar::FindPath` · 00632bd0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ## `portal/shared/src/path/bsp/pathbspleaf.cpp.c` (0/22)
 
 ### PathBSPLeaf
 - [-] `PathBSPLeaf::PathBSPLeaf` · 006357d0 · legions 005ecad0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathBSPLeaf::FindNodeID` · 006357f0 — needs port: path search
+- [-] `PathBSPLeaf::FindNodeID` · 006357f0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### LM_UVTransform
 - [-] `LM_UVTransform::LoadFromFileNode` · 00635800 · legions 005ecb00 — admin/debug or text-file tooling
 
 ### gmWeenieDesc
-- [ ] `gmWeenieDesc::AdjLongInt` · 00635810 — needs port: gmWeenieDesc::AdjLongInt
+- [-] `gmWeenieDesc::AdjLongInt` · 00635810 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### PathBSPLeaf
 - [-] `PathBSPLeaf::PathBSPLeaf` · 00635820 · legions 005ecb20 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `PathBSPLeaf::Destroy` · 00635840 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `PathBSPLeaf::CopyTo` · 00635850 — path-map builder/editor
-- [ ] `PathBSPLeaf::GetNodesWithin` · 00635870 — needs port: path search
-- [ ] `PathBSPLeaf::GetNodesWithinXY` · 00635890 — needs port: path search
+- [-] `PathBSPLeaf::GetNodesWithin` · 00635870 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPLeaf::GetNodesWithinXY` · 00635890 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPLeaf::LabelAllLeaves` · 006358b0 — path-map builder/editor
 
 ### PathNodeEdge
 - [-] `PathNodeEdge::PathNodeEdge` · 006358d0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### PathBSPLeaf
-- [ ] `PathBSPLeaf::StreamPack` · 00635900 — needs port: path-map archive read
+- [-] `PathBSPLeaf::StreamPack` · 00635900 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPLeaf::ToFileNode` · 00635930 — text source format (admin tools)
-- [ ] `PathBSPLeaf::CheckNodesVsPlanes` · 00635950 — needs port: path search
+- [-] `PathBSPLeaf::CheckNodesVsPlanes` · 00635950 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPLeaf::FromFileNode` · 006359e0 — text source format (admin tools)
 
 ### PathNodeEdge
@@ -178,7 +178,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<PathNodeEdge>::AddToEnd` · 00635c20 · legions 005eced0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### PathBSPLeaf
-- [ ] `PathBSPLeaf::FindNodeList` · 00635ca0 — needs port: path search
+- [-] `PathBSPLeaf::FindNodeList` · 00635ca0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPLeaf::UpdateNodeIDs` · 00636120 — path-map builder/editor
 
 ## `portal/shared/src/path/bsp/pathbspnode.cpp.c` (0/45)
@@ -194,15 +194,15 @@ Legend and workflow: [README](README.md).
 - [-] `PathBSPNode::MakePosLeaf` · 006333c0 · legions 005eaa20 — path-map builder/editor
 - [-] `PathBSPNode::MakeNegLeaf` · 00633410 · legions 005eaa70 — path-map builder/editor
 - [-] `PathBSPNode::ReplaceLeafWithNode` · 00633460 · legions 005eaac0 — path-map builder/editor
-- [ ] `PathBSPNode::FindNodeID` · 00633540 — needs port: path search
+- [-] `PathBSPNode::FindNodeID` · 00633540 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::UpdateLeafToNode` · 006335a0 — path-map builder/editor
 - [-] `PathBSPNode::Transform` · 006335d0 — path-map builder/editor
-- [ ] `PathBSPNode::GetNodesWithin` · 00633700 · legions 005ead60 — needs port: path search
+- [-] `PathBSPNode::GetNodesWithin` · 00633700 · legions 005ead60 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::SplitSubNodeBySegment` · 00633750 — path-map builder/editor
 - [-] `PathBSPNode::MakePlaneFromSegment` · 006337d0 — path-map builder/editor
 - [-] `PathBSPNode::LabelAllLeaves` · 006338a0 · legions 005eaef0 — path-map builder/editor
-- [ ] `PathBSPNode::PosIsLeaf` · 006338e0 — needs port: path graph query
-- [ ] `PathBSPNode::NegIsLeaf` · 006338f0 — needs port: path graph query
+- [-] `PathBSPNode::PosIsLeaf` · 006338e0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPNode::NegIsLeaf` · 006338f0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::FindAndSplitNode` · 00633900 · legions 005eaf50 — path-map builder/editor
 - [-] `PathBSPNode::ReplaceLeafWithTree` · 00633a10 · legions 005eb060 — path-map builder/editor
 - [-] `PathBSPNode::RemoveLeafAndAddTree` · 00633a80 — path-map builder/editor
@@ -217,15 +217,15 @@ Legend and workflow: [README](README.md).
 - [-] `STREAMPACK_STREAMPACKOBJ` · 00633e30 · legions 005eb480 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### PathBSPNode
-- [ ] `PathBSPNode::StreamPack` · 00633e50 · legions 005eb4a0 — needs port: path-map archive read
+- [-] `PathBSPNode::StreamPack` · 00633e50 · legions 005eb4a0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::SplitBySegment` · 00633f50 — path-map builder/editor
 - [-] `PathBSPNode::CalcNodePolygons` · 006342e0 — path-map builder/editor
-- [ ] `PathBSPNode::GetNodesWithinXY` · 00634440 — needs port: path search
-- [ ] `PathBSPNode::FindNodeList` · 00634790 — needs port: path search
+- [-] `PathBSPNode::GetNodesWithinXY` · 00634440 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPNode::FindNodeList` · 00634790 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::MakeVerticalSplit` · 00634960 — path-map builder/editor
 - [-] `PathBSPNode::GetSplitSide` · 00634ac0 — path-map builder/editor
-- [ ] `PathBSPNode::ToSubNode` · 00634bc0 — needs port: path-map archive read
-- [ ] `PathBSPNode::FromSubNode` · 00634c30 — needs port: path-map archive read
+- [-] `PathBSPNode::ToSubNode` · 00634bc0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPNode::FromSubNode` · 00634c30 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### SmartArray<Plane>
 - [-] `SmartArray<Plane>::operator=` · 00634d80 · legions 005ec210 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -234,17 +234,17 @@ Legend and workflow: [README](README.md).
 - [-] `PathBSPNode::ToFileNode` · 00634df0 — text source format (admin tools)
 - [-] `PathBSPNode::FromFileNode` · 00634e80 — text source format (admin tools)
 - [-] `PathBSPNode::CalcNodesInVolume` · 00634f80 — path-map builder/editor
-- [ ] `PathBSPNode::CheckNodesVsPlanes` · 00635380 — needs port: path search
-- [ ] `PathBSPNode::GetPlanes` · 00635470 — needs port: path graph query
+- [-] `PathBSPNode::CheckNodesVsPlanes` · 00635380 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPNode::GetPlanes` · 00635470 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPNode::FindPlanePolys` · 00635530 — path-map builder/editor
 
 ## `portal/shared/src/path/bsp/pathbsptree.cpp.c` (0/6)
 
 ### PathBSPTree
-- [ ] `PathBSPTree::FindNodeID` · 00632de0 · legions 005ea720 — needs port: path search
-- [ ] `PathBSPTree::GetAndRemoveRoot` · 00632e00 · legions 005ea740 — needs port: path search
+- [-] `PathBSPTree::FindNodeID` · 00632de0 · legions 005ea720 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathBSPTree::GetAndRemoveRoot` · 00632e00 · legions 005ea740 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPTree::~PathBSPTree` · 00632e10 · legions 005ea750 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathBSPTree::StreamPack` · 00632e30 · legions 005ea770 — needs port: path-map archive read
+- [-] `PathBSPTree::StreamPack` · 00632e30 · legions 005ea770 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathBSPTree::ToFileNode` · 00632ed0 — text source format (admin tools)
 - [-] `PathBSPTree::FromFileNode` · 00632f90 — text source format (admin tools)
 
@@ -253,28 +253,28 @@ Legend and workflow: [README](README.md).
 ### PathFinder
 - [-] `PathFinder::SetHeight` · 00631090 · legions 005e8ac0 — path-map builder/editor
 - [-] `PathFinder::SetWidth` · 00631100 · legions 005e8b30 — path-map builder/editor
-- [ ] `PathFinder::SetStart` · 00631170 · legions 005e8ba0 — needs port: path search
-- [ ] `PathFinder::SetEnd` · 006311b0 · legions 005e8be0 — needs port: path search
-- [ ] `PathFinder::GetPackSize` · 006311f0 · legions 005e8c20 — needs port: path system
-- [ ] `PathFinder::Pack` · 00631220 · legions 005e8c50 — needs port: path system
-- [ ] `PathFinder::UnPack` · 006312f0 · legions 005e8d20 — needs port: path-map archive read
-- [ ] `PathFinder::SetStartPosition` · 00631450 · legions 005e8e80 — needs port: path search
-- [ ] `PathFinder::SetEndPosition` · 006314d0 · legions 005e8f00 — needs port: path search
-- [ ] `PathFinder::HasAnySolutions` · 00631690 — needs port: path search
-- [ ] `PathFinder::HasMarkerForSolution` · 006316a0 · legions 005e90d0 — needs port: path search
+- [-] `PathFinder::SetStart` · 00631170 · legions 005e8ba0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::SetEnd` · 006311b0 · legions 005e8be0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::GetPackSize` · 006311f0 · legions 005e8c20 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::Pack` · 00631220 · legions 005e8c50 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::UnPack` · 006312f0 · legions 005e8d20 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::SetStartPosition` · 00631450 · legions 005e8e80 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::SetEndPosition` · 006314d0 · legions 005e8f00 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::HasAnySolutions` · 00631690 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::HasMarkerForSolution` · 006316a0 · legions 005e90d0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### HashTable<unsigned_long,unsigned_long>
 - [-] `HashTable<unsigned_long,unsigned_long>::operator=` · 006316e0 · legions 00505890 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### PathFinder
-- [ ] `PathFinder::SetMarkerForSolution` · 006318b0 · legions 005e91f0 — needs port: path search
+- [-] `PathFinder::SetMarkerForSolution` · 006318b0 · legions 005e91f0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### Path
 - [-] `Path::operator=` · 00631960 · legions 005e92a0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### PathFinder
-- [ ] `PathFinder::InqSolution` · 00631b70 · legions 005e94b0 — needs port: path search
-- [ ] `PathFinder::SetupSolutions` · 00631c30 — needs port: path search
+- [-] `PathFinder::InqSolution` · 00631b70 · legions 005e94b0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder::SetupSolutions` · 00631c30 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### HashTable<unsigned_long,Path>
 - [-] `HashTable<unsigned_long,Path>::operator=` · 00631e80 · legions 005e97c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -291,19 +291,19 @@ Legend and workflow: [README](README.md).
 
 ### PathFinder_Normal
 - [-] `PathFinder_Normal::PathFinder_Normal` · 0062fc80 · legions 005e7e70 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathFinder_Normal::IsRandom` · 0062fcf0 · legions 005e7ee0 — needs port: path search
+- [-] `PathFinder_Normal::IsRandom` · 0062fcf0 · legions 005e7ee0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathFinder_Normal::operator=` · 0062fd10 · legions 005e7f00 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `PathFinder_Normal::VerifyData` · 0062fdb0 · legions 005e7fa0 — needs port: path search
-- [ ] `PathFinder_Normal::SetStartMarker` · 0062fdf0 · legions 005e7fe0 — needs port: path search
-- [ ] `PathFinder_Normal::CheckNode` · 0062fe20 · legions 005e8010 — needs port: path search
-- [ ] `PathFinder_Normal::IsAcceptable` · 0062ff60 · legions 005e8150 — needs port: path search
-- [ ] `PathFinder_Normal::GetCost` · 006300e0 · legions 005e82d0 — needs port: path search
-- [ ] `PathFinder_Normal::GetEstimate` · 00630170 · legions 005e8360 — needs port: path search
-- [ ] `PathFinder_Normal::UpdateMarker` · 006301d0 · legions 005e83c0 — needs port: path search
-- [ ] `PathFinder_Normal::Pack` · 00630200 · legions 005e83f0 — needs port: path system
-- [ ] `PathFinder_Normal::UnPack` · 006302e0 · legions 005e84d0 — needs port: path-map archive read
+- [-] `PathFinder_Normal::VerifyData` · 0062fdb0 · legions 005e7fa0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::SetStartMarker` · 0062fdf0 · legions 005e7fe0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::CheckNode` · 0062fe20 · legions 005e8010 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::IsAcceptable` · 0062ff60 · legions 005e8150 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::GetCost` · 006300e0 · legions 005e82d0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::GetEstimate` · 00630170 · legions 005e8360 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::UpdateMarker` · 006301d0 · legions 005e83c0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::Pack` · 00630200 · legions 005e83f0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathFinder_Normal::UnPack` · 006302e0 · legions 005e84d0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathFinder_Normal::PathFinder_Normal` · 00630470 · legions 005e8660 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathFinder_Normal::GetPackSize` · 00630490 · legions 005e8680 — needs port: path system
+- [-] `PathFinder_Normal::GetPackSize` · 00630490 · legions 005e8680 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathFinder_Normal::ToString` · 006304a0 — admin/debug or text-file tooling
 
 ## `portal/shared/src/path/obstacle/footprint.cpp.c` (0/10)
@@ -334,17 +334,17 @@ Legend and workflow: [README](README.md).
 - [x] `Position::localtoglobal` · 00636170 · legions 005ed420 — Position::localtoglobal - Position::local_to_global, ac2-physics position.rs
 
 ### Obstacle
-- [ ] `Obstacle::CheckIfSolid` · 006361c0 · legions 005ed470 — needs port: path obstacle geometry
-- [ ] `Obstacle::Within` · 00636350 · legions 005ed600 — needs port: path obstacle geometry
+- [-] `Obstacle::CheckIfSolid` · 006361c0 · legions 005ed470 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `Obstacle::Within` · 00636350 · legions 005ed600 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### PathExternalLink
 - [-] `PathExternalLink::operator=` · 00636640 · legions 005ed8f0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### Obstacle
-- [ ] `Obstacle::GetGlobalBoundingBox` · 006366a0 · legions 005ed950 — needs port: path obstacle geometry
-- [ ] `Obstacle::GetGlobalCornersFromBox` · 00636b10 · legions 005eddc0 — needs port: path obstacle geometry
-- [ ] `Obstacle::GetGlobalCornersFromCylinder` · 00636d30 · legions 005edfe0 — needs port: path obstacle geometry
-- [ ] `Obstacle::CheckIfSolid` · 00636ec0 · legions 005ee170 — needs port: path obstacle geometry
+- [-] `Obstacle::GetGlobalBoundingBox` · 006366a0 · legions 005ed950 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `Obstacle::GetGlobalCornersFromBox` · 00636b10 · legions 005eddc0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `Obstacle::GetGlobalCornersFromCylinder` · 00636d30 · legions 005edfe0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `Obstacle::CheckIfSolid` · 00636ec0 · legions 005ee170 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### SmartArray<PathExternalLink>
 - [-] `SmartArray<PathExternalLink>::AddToEnd` · 006370c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -363,7 +363,7 @@ Legend and workflow: [README](README.md).
 - [-] `PSmartArray<PathExternalLink>::StreamPack` · 00637690 · legions 005ee560 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
 ### ObstacleDesc
-- [ ] `ObstacleDesc::StreamPack` · 00637750 · legions 005ee620 — needs port: ObstacleDesc DAT record decode
+- [-] `ObstacleDesc::StreamPack` · 00637750 · legions 005ee620 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `ObstacleDesc::FromFileNode` · 00637860 — text source format (admin tools)
 
 ## `portal/shared/src/path/obstacle/pathexternallink.cpp.c` (0/5)
@@ -371,14 +371,14 @@ Legend and workflow: [README](README.md).
 ### PathExternalLink
 - [-] `PathExternalLink::PathExternalLink` · 00637b90 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `PathExternalLink::~PathExternalLink` · 00637be0 · legions 005ee780 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathExternalLink::StreamPack` · 00637c10 · legions 005ee7b0 — needs port: path-map archive read
+- [-] `PathExternalLink::StreamPack` · 00637c10 · legions 005ee7b0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathExternalLink::ToFileNode` · 00637c80 — text source format (admin tools)
 - [-] `PathExternalLink::FromFileNode` · 00637db0 — text source format (admin tools)
 
 ## `portal/shared/src/path/obstacle/undersideinfo.cpp.c` (0/8)
 
 ### UndersideInfo
-- [ ] `UndersideInfo::GetNumTotal` · 006386a0 — needs port: underside info
+- [-] `UndersideInfo::GetNumTotal` · 006386a0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `UndersideInfo::Destroy` · 006386d0 · legions 005eea20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `UndersideInfo::StreamPack` · 00638770 · legions 005eeac0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `UndersideInfo::UndersideInfo` · 00638810 · legions 005eeb60 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -394,8 +394,8 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/path/path.cpp.c` (0/6)
 
 ### Path
-- [ ] `Path::SmoothPositionList` · 0062b640 · legions 005e5560 — needs port: path system
-- [ ] `Path::StreamPack` · 0062b720 · legions 005e5640 — needs port: path-map archive read
+- [-] `Path::SmoothPositionList` · 0062b640 · legions 005e5560 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `Path::StreamPack` · 0062b720 · legions 005e5640 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### SmartArray<Position>
 - [-] `SmartArray<Position>::AddToEnd` · 0062b8f0 · legions 005e5810 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -403,27 +403,27 @@ Legend and workflow: [README](README.md).
 ### Path
 - [-] `Path::ToString` · 0062b950 · legions 005e5870 — admin/debug or text-file tooling
 - [-] `Path::ToStringW` · 0062b9f0 · legions 005e5910 — admin/debug or text-file tooling
-- [ ] `Path::TranslateToPositionList` · 0062ba40 · legions 005e5960 — needs port: path system
+- [-] `Path::TranslateToPositionList` · 0062ba40 · legions 005e5960 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ## `portal/shared/src/path/pathlink.cpp.c` (0/5)
 
 ### PathLink
-- [ ] `PathLink::Link` · 0062f020 · legions 005e7900 — needs port: path-map archive read
-- [ ] `PathLink::StreamPack` · 0062f040 · legions 005e7920 — needs port: path-map archive read
-- [ ] `PathLink::GetPortalConstrained` · 0062f0b0 — needs port: path search
+- [-] `PathLink::Link` · 0062f020 · legions 005e7900 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathLink::StreamPack` · 0062f040 · legions 005e7920 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathLink::GetPortalConstrained` · 0062f0b0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathLink::ToFileNode` · 0062f430 — text source format (admin tools)
 - [-] `PathLink::FromFileNode` · 0062f4e0 — text source format (admin tools)
 
 ## `portal/shared/src/path/pathlinkdata.cpp.c` (0/7)
 
 ### PathNode
-- [ ] `PathNode::FindGridPt` · 0062de20 · legions 005e6e20 — needs port: path search
+- [-] `PathNode::FindGridPt` · 0062de20 · legions 005e6e20 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### PathLinkData
-- [ ] `PathLinkData::Compress` · 0062de90 · legions 005e6e90 — needs port: path-map archive read
-- [ ] `PathLinkData::Uncompress` · 0062df00 · legions 005e6f00 — needs port: path-map archive read
+- [-] `PathLinkData::Compress` · 0062de90 · legions 005e6e90 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathLinkData::Uncompress` · 0062df00 · legions 005e6f00 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathLinkData::PathLinkData` · 0062df90 · legions 005e7020 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathLinkData::StreamPack` · 0062dfe0 · legions 005e7070 — needs port: path-map archive read
+- [-] `PathLinkData::StreamPack` · 0062dfe0 · legions 005e7070 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathLinkData::ToFileNode` · 0062e250 — text source format (admin tools)
 - [-] `PathLinkData::FromFileNode` · 0062e400 — text source format (admin tools)
 
@@ -448,27 +448,27 @@ Legend and workflow: [README](README.md).
 - [-] `PathMap::SavePathPolygon` · 0062c2b0 — admin/debug or text-file tooling
 - [-] `PathMap::ClearTable` · 0062c3b0 · legions 005e5f10 — admin/debug or text-file tooling
 - [-] `PathMap::ClearBSP` · 0062c430 · legions 005e5f90 — path-map builder/editor
-- [ ] `PathMap::GetNumLinks` · 0062c4b0 · legions 005e6010 — needs port: path graph query
+- [-] `PathMap::GetNumLinks` · 0062c4b0 · legions 005e6010 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::Dump` · 0062c4d0 · legions 005e6030 — admin/debug or text-file tooling
 - [-] `PathMap::ToFileNode` · 0062c630 — text source format (admin tools)
 - [-] `PathMap::Clear` · 0062ccc0 · legions 005e6230 — path-map builder/editor
-- [ ] `PathMap::GetPathNode` · 0062cd20 · legions 005e6290 — needs port: path search
-- [ ] `PathMap::GetNodesWithin` · 0062cd60 · legions 005e62d0 — needs port: path search
+- [-] `PathMap::GetPathNode` · 0062cd20 · legions 005e6290 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMap::GetNodesWithin` · 0062cd60 · legions 005e62d0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::~PathMap` · 0062cdd0 · legions 005e6340 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `PathMap::GetDBOType` · 0062ce80 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `PathMap::QueryPosition` · 0062ce90 · legions 005e6400 — needs port: path search
+- [-] `PathMap::QueryPosition` · 0062ce90 · legions 005e6400 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::AddPathNode` · 0062cf00 · legions 005e6470 — path-map builder/editor
 - [-] `PathMap::AddCellID` · 0062cf40 — path-map builder/editor
-- [ ] `PathMap::StreamPack` · 0062cf80 — needs port: path-map archive read
+- [-] `PathMap::StreamPack` · 0062cf80 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::LoadPathNode` · 0062d2e0 — text source loader, admin build only
 - [-] `PathMap::LoadCellID` · 0062d370 — text source loader, admin build only
 - [-] `PathMap::LoadPathBSP` · 0062d430 — text source loader, admin build only
-- [ ] `PathMap::GetBSP` · 0062d4c0 · legions 005e6820 — needs port: path graph query
-- [ ] `PathMap::GetNodePolygon` · 0062d530 · legions 005e6890 — needs port: path graph query
-- [ ] `PathMap::CheckNodePolygon` · 0062d580 · legions 005e68e0 — needs port: path search
-- [ ] `PathMap::GetNodesWithinXY` · 0062d8d0 · legions 005e6c30 — needs port: path search
+- [-] `PathMap::GetBSP` · 0062d4c0 · legions 005e6820 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMap::GetNodePolygon` · 0062d530 · legions 005e6890 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMap::CheckNodePolygon` · 0062d580 · legions 005e68e0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMap::GetNodesWithinXY` · 0062d8d0 · legions 005e6c30 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::PathMap` · 0062d950 · legions 005e6cb0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathMap::GetPathNode` · 0062d9d0 · legions 005e6d30 — needs port: path search
+- [-] `PathMap::GetPathNode` · 0062d9d0 · legions 005e6d30 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMap::SetNodePolygon` · 0062da30 · legions 005e6d90 — path-map builder/editor
 - [-] `PathMap::Allocate` · 0062dab0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `PathMap::LoadPathPolygon` · 0062dac0 — text source loader, admin build only
@@ -477,34 +477,34 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/path/pathmapdb.cpp.c` (0/8)
 
 ### PathMapDB
-- [ ] `PathMapDB::GetNumLinks` · 00630ca0 — needs port: path graph query
-- [ ] `PathMapDB::GetNumNodes` · 00630cc0 — needs port: path graph query
+- [-] `PathMapDB::GetNumLinks` · 00630ca0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMapDB::GetNumNodes` · 00630cc0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathMapDB::DumpPathMap` · 00630ce0 · legions 005e8710 — admin/debug or text-file tooling
-- [ ] `PathMapDB::GetMap` · 00630d30 · legions 005e8760 — needs port: path search
-- [ ] `PathMapDB::GetPathNode` · 00630d90 · legions 005e87c0 — needs port: path search
-- [ ] `PathMapDB::GetPathNode` · 00630de0 · legions 005e8810 — needs port: path search
-- [ ] `PathMapDB::GetPathNodeID` · 00630e60 · legions 005e8890 — needs port: path search
-- [ ] `PathMapDB::QueryPosition` · 00630e80 · legions 005e88b0 — needs port: path search
+- [-] `PathMapDB::GetMap` · 00630d30 · legions 005e8760 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMapDB::GetPathNode` · 00630d90 · legions 005e87c0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMapDB::GetPathNode` · 00630de0 · legions 005e8810 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMapDB::GetPathNodeID` · 00630e60 · legions 005e8890 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathMapDB::QueryPosition` · 00630e80 · legions 005e88b0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ## `portal/shared/src/path/pathnode.cpp.c` (0/13)
 
 ### PathNode
-- [ ] `PathNode::GetPathMapID` · 0062e6c0 · legions 005e72e0 — needs port: path system
-- [ ] `PathNode::NodeWithin` · 0062e6e0 · legions 005e7300 — needs port: path search
-- [ ] `PathNode::GetNodeData` · 0062e6f0 · legions 005e7310 — needs port: path search
-- [ ] `PathNode::CompressSize` · 0062e720 · legions 005e7340 — needs port: path-map archive read
-- [ ] `PathNode::UncompressSize` · 0062e7e0 · legions 005e7400 — needs port: path-map archive read
+- [-] `PathNode::GetPathMapID` · 0062e6c0 · legions 005e72e0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNode::NodeWithin` · 0062e6e0 · legions 005e7300 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNode::GetNodeData` · 0062e6f0 · legions 005e7310 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNode::CompressSize` · 0062e720 · legions 005e7340 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNode::UncompressSize` · 0062e7e0 · legions 005e7400 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### (free functions)
 - [-] `STREAMPACK_STREAMPACKOBJ` · 0062e880 · legions 005e74a0 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### PathNode
-- [ ] `PathNode::Link` · 0062e8a0 · legions 005e74c0 — needs port: path-map archive read
+- [-] `PathNode::Link` · 0062e8a0 · legions 005e74c0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathNode::~PathNode` · 0062e8d0 · legions 005e74f0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `PathNode::Distance` · 0062e900 · legions 005e7520 — needs port: path search
+- [-] `PathNode::Distance` · 0062e900 · legions 005e7520 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathNode::PathNode` · 0062e940 · legions 005e7560 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `PathNode::ToFileNode` · 0062e990 — text source format (admin tools)
-- [ ] `PathNode::StreamPack` · 0062eac0 — needs port: path-map archive read
+- [-] `PathNode::StreamPack` · 0062eac0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathNode::FromFileNode` · 0062ee50 — text source format (admin tools)
 
 ## `portal/shared/src/path/pathnodedata.cpp.c` (0/7)
@@ -516,9 +516,9 @@ Legend and workflow: [README](README.md).
 - [-] `PackObj::~PackObj` · 0062f6a0 · legions 004e01b0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### PathNodeData
-- [ ] `PathNodeData::Compress` · 0062f6b0 · legions 005e7d40 — needs port: path-map archive read
-- [ ] `PathNodeData::Uncompress` · 0062f720 · legions 005e7db0 — needs port: path-map archive read
-- [ ] `PathNodeData::StreamPack` · 0062f780 · legions 005e7e10 — needs port: path-map archive read
+- [-] `PathNodeData::Compress` · 0062f6b0 · legions 005e7d40 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNodeData::Uncompress` · 0062f720 · legions 005e7db0 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathNodeData::StreamPack` · 0062f780 · legions 005e7e10 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 - [-] `PathNodeData::ToFileNode` · 0062f7e0 — text source format (admin tools)
 - [-] `PathNodeData::FromFileNode` · 0062f9d0 — text source format (admin tools)
 
@@ -533,15 +533,15 @@ Legend and workflow: [README](README.md).
 - [-] `PathSearchStats::Clear` · 00630ee0 — path-map builder/editor
 
 ### PathSystem
-- [ ] `PathSystem::GetPathNode` · 00630f50 · legions 005e8980 — needs port: path search
+- [-] `PathSystem::GetPathNode` · 00630f50 · legions 005e8980 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ### PathMapDB
 - [-] `PathMapDB::ClearPathMaps` · 00630f70 · legions 005e89a0 — admin/debug or text-file tooling
 
 ### PathSystem
-- [ ] `PathSystem::FindPath_Internal` · 00630fa0 · legions 00512634 — needs port: path search
-- [ ] `PathSystem::InqPathNodeDataByNodeID` · 00630ff0 · legions 005e8a20 — needs port: path search
-- [ ] `PathSystem::InqPathNodeDataByPosition` · 00631050 · legions 005e8a80 — needs port: path search
+- [-] `PathSystem::FindPath_Internal` · 00630fa0 · legions 00512634 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathSystem::InqPathNodeDataByNodeID` · 00630ff0 · legions 005e8a20 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
+- [-] `PathSystem::InqPathNodeDataByPosition` · 00631050 · legions 005e8a80 — unreachable in the Legions client: the path system is entered only through the gPathSystem and gPathFinder efuns, and no Legions wlib function calls any of them (efun_coverage scan; the other call sites of PathMapDB and PathSystem in the image are those efun wrappers). Nothing in movement or physics calls it, so there is no retail path to wire it into
 
 ## `portal/shared/src/physics/cellarray.cpp.c` (1/1)
 
@@ -908,8 +908,8 @@ Legend and workflow: [README](README.md).
 
 ### DetectionBlockType
 - [-] `DetectionBlockType::~DetectionBlockType` · 006a2fc0 · legions 0063fea0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `DetectionBlockType::AddObject` · 006a3090 · legions 0063ff70 — needs port: object detection
-- [ ] `DetectionBlockType::AddRayInfo` · 006a3100 · legions 0063ffe0 — needs port: object detection
+- [-] `DetectionBlockType::AddObject` · 006a3090 · legions 0063ff70 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `DetectionBlockType::AddRayInfo` · 006a3100 · legions 0063ffe0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### PHashTable<InstanceID,DetectionObjRay>
 - [-] `PHashTable<InstanceID,DetectionObjRay>::StreamPack` · 006a3190 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -935,16 +935,16 @@ Legend and workflow: [README](README.md).
 - [-] `PackObj::Pack` · 004fa580 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
 ### CDetectionManager
-- [ ] `CDetectionManager::InqDetectors` · 004fa5b0 · legions 004ecdd0 — needs port: object detection
-- [ ] `CDetectionManager::CheckDetection` · 004fa5e0 · legions 004ece00 — needs port: object detection
+- [-] `CDetectionManager::InqDetectors` · 004fa5b0 · legions 004ecdd0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CheckDetection` · 004fa5e0 · legions 004ece00 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### DetectionCylsphere
 - [-] `DetectionCylsphere::DetectionCylsphere` · 004fa6a0 · legions 004ecec0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### CDetectionManager
 - [-] `CDetectionManager::StreamPack` · 004fa6f0 · legions 004ecef0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `CDetectionManager::FindCellList` · 004fa750 · legions 004ecf50 — needs port: object detection
-- [ ] `CDetectionManager::CheckLOSToOrigin` · 004fa7b0 · legions 004ecfb0 — needs port: object detection
+- [-] `CDetectionManager::FindCellList` · 004fa750 · legions 004ecf50 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CheckLOSToOrigin` · 004fa7b0 · legions 004ecfb0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionInfo>_*>
 - [-] `IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionInfo>_*>::~IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionInfo>_*>` · 004fa990 · legions 004ed190 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -953,32 +953,32 @@ Legend and workflow: [README](README.md).
 - [-] `InstantDetectionState::InstantDetectionState` · 004faa80 · legions 004ed280 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### CDetectionManager
-- [ ] `CDetectionManager::CleanupGlobalDetection` · 004fac30 · legions 004ed430 — needs port: object detection
-- [ ] `CDetectionManager::UpdateCellListInternal` · 004facd0 · legions 004ed4d0 — needs port: object detection
-- [ ] `CDetectionManager::NumTargetedDetectionCylSpheres` · 004fae20 · legions 004ed620 — needs port: object detection
-- [ ] `CDetectionManager::NumTargetedDetectionCylSpheres` · 004faed0 · legions 004ed6d0 — needs port: object detection
-- [ ] `CDetectionManager::NumGlobalDetectionCylSpheres` · 004faf80 — needs port: object detection
-- [ ] `CDetectionManager::HandleLeaveWorld` · 004fb030 · legions 004ed830 — needs port: object detection
-- [ ] `CDetectionManager::GetTargetBasePos` · 004fb0a0 · legions 004ed8a0 — needs port: object detection
-- [ ] `CDetectionManager::CheckOrigin` · 004fb220 · legions 004eda20 — needs port: object detection
-- [ ] `CDetectionManager::DoLOSCheck` · 004fb360 · legions 004edb60 — needs port: object detection
-- [ ] `CDetectionManager::IsActive` · 004fb8a0 · legions 004ee0a0 — needs port: object detection
-- [ ] `CDetectionManager::HasDetectionCylsphere` · 004fb8c0 — needs port: object detection
-- [ ] `CDetectionManager::DestroyDetectionCylsphere` · 004fb910 · legions 004ee110 — needs port: object detection
-- [ ] `CDetectionManager::DeleteAllTargetedDetectionCylspheres` · 004fb970 — needs port: object detection
-- [ ] `CDetectionManager::CleanupDetectionCylsphere` · 004fb9f0 · legions 004ee1f0 — needs port: object detection
-- [ ] `CDetectionManager::ClearPendingDeletions` · 004fba80 · legions 004ee280 — needs port: object detection
-- [ ] `CDetectionManager::ReportGlobalDetection` · 004fbad0 · legions 004ee2d0 — needs port: object detection
-- [ ] `CDetectionManager::RemoveContext` · 004fbc80 · legions 004ee480 — needs port: object detection
-- [ ] `CDetectionManager::CalcPositions` · 004fbcb0 · legions 004ee4b0 — needs port: object detection
-- [ ] `CDetectionManager::DoDetect` · 004fbe20 · legions 004ee620 — needs port: object detection
+- [-] `CDetectionManager::CleanupGlobalDetection` · 004fac30 · legions 004ed430 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::UpdateCellListInternal` · 004facd0 · legions 004ed4d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::NumTargetedDetectionCylSpheres` · 004fae20 · legions 004ed620 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::NumTargetedDetectionCylSpheres` · 004faed0 · legions 004ed6d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::NumGlobalDetectionCylSpheres` · 004faf80 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::HandleLeaveWorld` · 004fb030 · legions 004ed830 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::GetTargetBasePos` · 004fb0a0 · legions 004ed8a0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CheckOrigin` · 004fb220 · legions 004eda20 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::DoLOSCheck` · 004fb360 · legions 004edb60 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::IsActive` · 004fb8a0 · legions 004ee0a0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::HasDetectionCylsphere` · 004fb8c0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::DestroyDetectionCylsphere` · 004fb910 · legions 004ee110 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::DeleteAllTargetedDetectionCylspheres` · 004fb970 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CleanupDetectionCylsphere` · 004fb9f0 · legions 004ee1f0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::ClearPendingDeletions` · 004fba80 · legions 004ee280 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::ReportGlobalDetection` · 004fbad0 · legions 004ee2d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::RemoveContext` · 004fbc80 · legions 004ee480 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CalcPositions` · 004fbcb0 · legions 004ee4b0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::DoDetect` · 004fbe20 · legions 004ee620 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `CDetectionManager::~CDetectionManager` · 004fc380 · legions 004eeb80 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `CDetectionManager::RemoveTargetedDetectionSpheres` · 004fc450 · legions 004eec50 — needs port: object detection
-- [ ] `CDetectionManager::ReceiveDetectionUpdate` · 004fc4d0 · legions 004eecd0 — needs port: object detection
-- [ ] `CDetectionManager::GetState` · 004fc5a0 · legions 004eeda0 — needs port: object detection
-- [ ] `CDetectionManager::InitIntersection` · 004fc640 · legions 004eee40 — needs port: object detection
-- [ ] `CDetectionManager::GetProfileList` · 004fc680 · legions 004eee80 — needs port: object detection
-- [ ] `CDetectionManager::DoIntersection` · 004fc6a0 · legions 004eeea0 — needs port: object detection
+- [-] `CDetectionManager::RemoveTargetedDetectionSpheres` · 004fc450 · legions 004eec50 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::ReceiveDetectionUpdate` · 004fc4d0 · legions 004eecd0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::GetState` · 004fc5a0 · legions 004eeda0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::InitIntersection` · 004fc640 · legions 004eee40 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::GetProfileList` · 004fc680 · legions 004eee80 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::DoIntersection` · 004fc6a0 · legions 004eeea0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### PHashTable<unsigned_long,DetectionCylsphere>
 - [-] `PHashTable<unsigned_long,DetectionCylsphere>::StreamPack` · 004fc7f0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -988,11 +988,11 @@ Legend and workflow: [README](README.md).
 
 ### CDetectionManager
 - [-] `CDetectionManager::CDetectionManager` · 004fcc80 · legions 004ef4a0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `CDetectionManager::InitializeGlobalDetection` · 004fcd60 · legions 004ef580 — needs port: object detection
-- [ ] `CDetectionManager::UpdateCellList` · 004fcdf0 · legions 004ef610 — needs port: object detection
-- [ ] `CDetectionManager::CreateDetectionCylsphere` · 004fce40 · legions 004ef660 — needs port: object detection
-- [ ] `CDetectionManager::CheckDetection` · 004fd010 · legions 004ef830 — needs port: object detection
-- [ ] `CDetectionManager::CheckDetection` · 004fd090 · legions 004ef8b0 — needs port: object detection
+- [-] `CDetectionManager::InitializeGlobalDetection` · 004fcd60 · legions 004ef580 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::UpdateCellList` · 004fcdf0 · legions 004ef610 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CreateDetectionCylsphere` · 004fce40 · legions 004ef660 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CheckDetection` · 004fd010 · legions 004ef830 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `CDetectionManager::CheckDetection` · 004fd090 · legions 004ef8b0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### PSmartArray<DetectionBlockType>
 - [-] `PSmartArray<DetectionBlockType>::StreamPack` · 004fd120 · legions 004ef940 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -1024,17 +1024,17 @@ Legend and workflow: [README](README.md).
 - [-] `DetectionParameters::SetShapeCylinder` · 006a0f50 · legions 0063dd80 — plain detection parameter setter/getter; Rust struct field replaces it
 - [-] `DetectionParameters::SetBasePosition` · 006a0fa0 · legions 0063ddd0 — plain detection parameter setter/getter; Rust struct field replaces it
 - [-] `DetectionParameters::GetOriginPos` · 006a0fc0 · legions 0063ddf0 — plain detection parameter setter/getter; Rust struct field replaces it
-- [ ] `DetectionParameters::InTargetList` · 006a0fe0 · legions 0063de10 — needs port: detection parameters
-- [ ] `DetectionParameters::InExcludeList` · 006a1030 · legions 0063de60 — needs port: detection parameters
-- [ ] `DetectionParameters::SingleTargetedObject` · 006a1080 · legions 0063deb0 — needs port: detection parameters
+- [-] `DetectionParameters::InTargetList` · 006a0fe0 · legions 0063de10 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `DetectionParameters::InExcludeList` · 006a1030 · legions 0063de60 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `DetectionParameters::SingleTargetedObject` · 006a1080 · legions 0063deb0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `DetectionParameters::DetectionParameters` · 006a10d0 · legions 0063df00 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `DetectionParameters::~DetectionParameters` · 006a1240 · legions 0063e070 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `DetectionParameters::StreamPack` · 006a12c0 · legions 0063e0f0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `DetectionParameters::SetDetectionObjectType` · 006a14f0 · legions 0063e320 — plain detection parameter setter/getter; Rust struct field replaces it
 - [-] `DetectionParameters::SetOriginPoint` · 006a1510 · legions 0063e340 — plain detection parameter setter/getter; Rust struct field replaces it
 - [-] `DetectionParameters::CopyInto` · 006a1530 · legions 0063e360 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `DetectionParameters::AddTarget` · 006a1770 · legions 0063e5a0 — needs port: detection parameters
-- [ ] `DetectionParameters::AddExcludeObject` · 006a17b0 · legions 0063e5e0 — needs port: detection parameters
+- [-] `DetectionParameters::AddTarget` · 006a1770 · legions 0063e5a0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `DetectionParameters::AddExcludeObject` · 006a17b0 · legions 0063e5e0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ## `portal/shared/src/physobj/detect/detectionprofile.cpp.c` (0/10)
 
@@ -1079,21 +1079,21 @@ Legend and workflow: [README](README.md).
 - [~] `DetectionVolume::CreateBBox` · 006a2650 · legions 0063f400 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
 - [~] `DetectionVolume::CreateCylinder` · 006a26f0 · legions 0063f4a0 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
 - [~] `DetectionVolume::CreateSphere` · 006a2750 · legions 0063f500 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
-- [ ] `DetectionVolume::CreateSphereCone` · 006a27b0 · legions 0063f560 — needs port: object detection
-- [ ] `DetectionVolume::CreateSpherePlaneCone` · 006a2810 · legions 0063f5c0 — needs port: object detection
+- [-] `DetectionVolume::CreateSphereCone` · 006a27b0 · legions 0063f560 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `DetectionVolume::CreateSpherePlaneCone` · 006a2810 · legions 0063f5c0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `DetectionVolume::~DetectionVolume` · 006a2880 · legions 0063f630 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ## `portal/shared/src/physobj/detect/instantdetectionstate.cpp.c` (0/14)
 
 ### InstantDetectionState
 - [-] `InstantDetectionState::StreamPack` · 006a3410 · legions 00640370 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `InstantDetectionState::GetBlock` · 006a34a0 · legions 00640400 — needs port: object detection
+- [-] `InstantDetectionState::GetBlock` · 006a34a0 · legions 00640400 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `InstantDetectionState::InstantDetectionState` · 006a34e0 · legions 00640440 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `InstantDetectionState::Init` · 006a3550 · legions 006404b0 — needs port: object detection
+- [-] `InstantDetectionState::Init` · 006a3550 · legions 006404b0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `InstantDetectionState::~InstantDetectionState` · 006a3590 · legions 006404f0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `InstantDetectionState::RemoveObjectsInUnloadedBlock` · 006a3650 · legions 006405b0 — needs port: object detection
-- [ ] `InstantDetectionState::PruneObjects` · 006a3760 · legions 006406c0 — needs port: object detection
-- [ ] `InstantDetectionState::UpdateProfiles` · 006a38b0 · legions 00640810 — needs port: object detection
+- [-] `InstantDetectionState::RemoveObjectsInUnloadedBlock` · 006a3650 · legions 006405b0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `InstantDetectionState::PruneObjects` · 006a3760 · legions 006406c0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `InstantDetectionState::UpdateProfiles` · 006a38b0 · legions 00640810 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ### SmartArray<DetectionBlockType>
 - [-] `SmartArray<DetectionBlockType>::operator=` · 006a3a10 · legions 00640970 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -1101,9 +1101,9 @@ Legend and workflow: [README](README.md).
 
 ### InstantDetectionState
 - [-] `InstantDetectionState::operator=` · 006a3af0 · legions 00640a50 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `InstantDetectionState::CreateBlockListInfo` · 006a3b70 · legions 00640ad0 — needs port: object detection
-- [ ] `InstantDetectionState::FindCreateBlockRay` · 006a3be0 · legions 00640b40 — needs port: object detection
-- [ ] `InstantDetectionState::AddBlockRay` · 006a3cc0 · legions 00640c20 — needs port: object detection
+- [-] `InstantDetectionState::CreateBlockListInfo` · 006a3b70 · legions 00640ad0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `InstantDetectionState::FindCreateBlockRay` · 006a3be0 · legions 00640b40 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `InstantDetectionState::AddBlockRay` · 006a3cc0 · legions 00640c20 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ## `portal/shared/src/physobj/detect/profilelisttype.cpp.c` (0/3)
 
@@ -1538,7 +1538,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager
 - [x] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [x] `InterpolationManager::Blip` · 0050e340 · legions 004fc3b0 — ac2-physics interp (slice 3)
-- [-] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430 — admin-only: no Legions body (a debugger accessor of the received motion vector)
+- [-] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430 — admin-only: no Legions body (a debugger accessor of the received motion vector) [vtable-checked: not a slot of any located Legions vtable]
 - [x] `InterpolationManager::DoImpulseLogic` · 0050e8b0 · legions 004fc920 — ac2-physics interp (slice 3)
 
 ### _STL::deque<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::allocator<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>
@@ -1570,15 +1570,15 @@ Legend and workflow: [README](README.md).
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680 — needs port: cite-only physics-object method
 - [x] `CMotionInterp::SetMIDESC` · 005096c0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
-- [-] `CMotionInterp::GetBehaviorTableID` · 00509720 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
-- [-] `CMotionInterp::SetPhysobjRep` · 00509730 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::GetBehaviorTableID` · 00509720 — Legions has it: vtable slot 11 of CMotionInterp at 0x004f7760 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
+- [ ] `CMotionInterp::SetPhysobjRep` · 00509730 — Legions has it: vtable slot 8 of CMotionInterp at 0x004f7770 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::SetTerrainType` · 00509770 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [-] `CMotionInterp::GetPhysObj` · 00509780 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::GetPhysObj` · 00509780 — Legions has it: vtable slot 10 of CMotionInterp at 0x004f77c0 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
 - [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
 - [x] `CMotionInterp::IsMovingTo` · 005097d0 — ac2-physics moveto (slice 3)
 - [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
-- [-] `CMotionInterp::ReachedPersistentTarget` · 005097f0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0 — Legions has it: vtable slot 46 of CMotionInterp at 0x004f7830 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800 — ac2-physics interp (slice 3)
 - [x] `CMotionInterp::GetDesiredModeState` · 00509910 — CMotionInterp::GetDesiredModeState - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::UpdateTargetInfo` · 00509930 — ac2-physics moveto (slice 3)
@@ -1587,22 +1587,22 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::HandleMoveToCallback` · 00509970 — CMotionInterp::HandleMoveToCallback - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::HitGround` · 00509980 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CMotionInterp::LeaveGround` · 00509a10 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [-] `CMotionInterp::GetMaxSpeed` · 00509a60 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
-- [-] `CMotionInterp::SetLocalDesiredVelocity` · 00509a70 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::GetMaxSpeed` · 00509a60 — Legions has it: vtable slot 47 of CMotionInterp at 0x004f7aa0 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
+- [ ] `CMotionInterp::SetLocalDesiredVelocity` · 00509a70 — Legions has it: vtable slot 53 of CMotionInterp at 0x004f7ab0 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::IsAffectedByGravity` · 00509a90
 - [x] `CMotionInterp::ResetHoverHeight` · 00509aa0 — CMotionInterp::ResetHoverHeight - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::GetHoverHeight` · 00509ab0
-- [-] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0 — Legions has it: vtable slot 61 of CMotionInterp at 0x004f7b20 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::TurnTo` · 00509af0
 - [x] `CMotionInterp::StopTurnTo` · 00509b40 · legions 004f7b80
-- [x] `CMotionInterp::StopInterpolating` · 00509b70 — ac2-physics interp (slice 3)
-- [-] `CMotionInterp::IsInterpolating` · 00509b80 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
-- [-] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [x] `CMotionInterp::StopInterpolating` · 00509b70 — teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
+- [ ] `CMotionInterp::IsInterpolating` · 00509b80 — Legions has it: vtable slot 31 of CMotionInterp at 0x004f7bc0 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
+- [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0 — Legions has it: vtable slot 52 of CMotionInterp at 0x004f7be0 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [ ] `CMotionInterp::MakeInterpolationManager` · 00509bc0 · legions 004f7c00 — needs port: cite-only physics-object method
 - [x] `CMotionInterp::MakeConstraintManager` · 00509bf0 · legions 004f7c30 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `CMotionInterp::HandleLeaveWorld` · 00509c90 · legions 004f7cd0 — needs port: cite-only physics-object method
 - [x] `CMotionInterp::ConstrainTo` · 00509cb0 · legions 004f7cf0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-- [x] `CMotionInterp::UnConstrain` · 00509cd0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
+- [x] `CMotionInterp::UnConstrain` · 00509cd0 — teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
 - [x] `CMotionInterp::GetConstraintFactor` · 00509ce0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [-] `CMotionInterp::GetInterpolationValuesForDebugDisplay` · 00509d00 — admin/debug or text-file tooling
 
@@ -1632,7 +1632,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810 — ac2-physics MovementState turning_to / turn_to_degrees
 - [x] `CMotionInterp::GetAcceleration` · 0050b7f0
 - [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
-- [-] `CMotionInterp::GetAccelerationScale` · 0050b810 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [ ] `CMotionInterp::GetAccelerationScale` · 0050b810 — Legions has it: vtable slot 63 of CMotionInterp at 0x004f9850 (vtable audit); was skip: admin-only PHYSICSOBJREP forwarding accessor (no Legions bod
 - [x] `CMotionInterp::CMotionInterp` · 0050b820 · legions 004f9860
 
 ## `portal/shared/src/physobj/minterp/motioninterpdesc.cpp.c` (4/25)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (239/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (246/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2263,8 +2263,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [~] `CPhysicsObj::MissileInitPlaceAndFire` · 004decb0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [x] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
-- [~] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10 — queued as MissileEvent::{OutOfFuel,Expired} (PhysicsBody::take_missile_events); the weenie slots 0x80/0x84 are not modelled in the client
-- [~] `CPhysicsObj::MissileReportExpired` · 004ded30 — queued as MissileEvent::{OutOfFuel,Expired} (PhysicsBody::take_missile_events); the weenie slots 0x80/0x84 are not modelled in the client
+- [x] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10 — queued as MissileEvent::{OutOfFuel,Expired}, handed out by Remotes::follow_missiles; the weenie slots 0x80/0x84 are CWeenieObject defaults in the Legions image (0x401b60: xor eax,eax; ret) with no overriding class, so the client has nothing to run
+- [x] `CPhysicsObj::MissileReportExpired` · 004ded30 — queued as MissileEvent::{OutOfFuel,Expired}, handed out by Remotes::follow_missiles; the weenie slots 0x80/0x84 are CWeenieObject defaults in the Legions image (0x401b60: xor eax,eax; ret) with no overriding class, so the client has nothing to run
 - [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded80 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::NumGlobalDetectionCylSpheres` · 004deda0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
@@ -2283,10 +2283,10 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::DoIntersection` · 004df0b0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [x] `CPhysicsObj::IsBlocking` · 004df190 · legions 004d1bf0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [~] `CPhysicsObj::WithinDetectVolume` · 004df1f0 · legions 004d1c50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [ ] `CPhysicsObj::SetTarget` · 004df300 · legions 004d1d60 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::ClearTarget` · 004df360 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::SetTarget` · 004df300 · legions 004d1d60 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
+- [x] `CPhysicsObj::ClearTarget` · 004df360 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
 - [ ] `CPhysicsObj::GetTargetID` · 004df370 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetTargetQuantum` · 004df3b0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::SetTargetQuantum` · 004df3b0 — forwarders to TargetManager (made on first use): ac2-smartbox TargetHub::{set_target,clear_target,set_target_quantum} over ac2-physics target.rs TargetManager
 - [ ] `CPhysicsObj::GetTargetQuantum` · 004df3d0 — needs port: cite-only physics-object method
 
 ### TargetInfo
@@ -2407,7 +2407,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::SetPlacementPosition` · 004e2030 · legions 004d4a80 — ac2-physics: the drawn position slerp / previous position only (PhysicsBody::drawing_position)
 - [~] `CPhysicsObj::EnterWorld` · 004e20b0 — ac2-client remote.rs
 - [~] `CPhysicsObj::EnterWorldSimple` · 004e2100 — ac2-client remote.rs over PhysicsBody::place (flags 0x11)
-- [~] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0 — teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
+- [~] `CPhysicsObj::HandleTeleportStart` · 004e2160 · legions 004d4bb0 — StopInterpolating, UnConstrain and the TELEPORT stamp ported; TargetManager::ClearTarget and NotifyVoyeurOfEvent (Teleported) have no port yet
 - [-] `CPhysicsObj::OnCellAddedToFreelist` · 004e21c0 — retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
 - [-] `CPhysicsObj::OnCellRemovedFromFreelist` · 004e21d0 — retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
 - [x] `CPhysicsObj::LeaveVisibility` · 004e21e0 · legions 004d4c30 — ac2-client remote.rs
@@ -2450,7 +2450,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::LockActions` · 004e2790 · legions 004d51e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::UnLockActions` · 004e27e0 · legions 004d5230 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::CacheAnimations` · 004e2800 — render plumbing
-- [ ] `CPhysicsObj::DeleteSelf` · 004e2810 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::DeleteSelf` · 004e2810 — ac2-physics MissileEvent::DeleteSelf -> ac2-smartbox Remotes::delete_self (the opacity slider 0x40000015 over the fade; destruction time is the delay, or the fade when the delay is not positive, as the admin 0x4d7770 body compares) -> OnlineSession::fade_and_destroy_object; ac2-client missile_events_taken
 - [ ] `CPhysicsObj::ClearFXTarget` · 004e2860 · legions 004d52b0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::SetFXTarget` · 004e2890 · legions 004d52e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::InqCellObjects` · 004e28b0 — needs port: cite-only physics-object method
@@ -2589,7 +2589,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 - [~] `CPhysicsObj::Draw` · 004e7db0 — _bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); lights, selection, shadow colour elsewhere or not ported
 - [x] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [-] `CPhysicsObj::StickySetParent` · 004e8750 — admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
+- [~] `CPhysicsObj::StickySetParent` · 004e8750 — Legions has it (vtable slot 0x3f0 = 0x4db130, the admin body: nearest bone of the new parent, BoneIndex child, parent set; the earlier admin-only note was wrong). The detonation queues MissileEvent::StickTo and Remotes::follow_missiles hands it to the client, which does not apply it: the client's holder follow (view/held.rs) places holding-location children only, and the parent's posed bone matrices live in ac2-render
 - [x] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::unparent_children` · 004e88a0 · legions 004db280 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::GetTotalVisualDesc` · 004e88e0 — needs port: cite-only physics-object method
@@ -2605,7 +2605,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::DoStory` · 004e8d10 · legions 004db6f0 — forwarder to StoryManager (AC2_Rusted-combat worker)
 - [ ] `CPhysicsObj::GetLocalVisualDesc` · 004e8d50 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::RecvEvt_InitializeMissile` · 004e8d80 · legions 004db760 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
-- [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — PhysicsBody::recv_retarget_missile ports it; no client wire opcode decodes a retarget event yet
+- [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — PhysicsBody::recv_retarget_missile ports it. No wire event reaches it: ECM_Physics has no RecvEvt_RetargetMissile in either build, the slot (0x614) has no call site, and its only users are the script efuns (gCWPhysicsObject::CallEFun_MissileRetarget) that no wlib function calls, so there is no opcode to decode
 - [~] `CPhysicsObj::MissileInitialize` · 004e8e40 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [~] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [~] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
@@ -2691,7 +2691,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::GetDistanceToViewer` · 004eb190 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 - [x] `CPhysicsObj::HasParent` · 004eb1a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::get_update_time` · 004eb1b0
-- [ ] `CPhysicsObj::inc_update_time` · 004eb1c0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::inc_update_time` · 004eb1c0 — teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
 - [x] `CPhysicsObj::GetPosition` · 004eb1d0 — CPhysicsObj::GetPosition - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::GetDrawingPosition` · 004eb1e0 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 - [~] `CPhysicsObj::SetTerrainType` · 004eb1f0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
@@ -3088,7 +3088,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/story/storymanager.cpp.c` (2/15)
 
 ### StoryManager
-- [ ] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — needs port: story missile creation
+- [~] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
 
 ### SmartArray<InstanceID>
 - [-] `SmartArray<InstanceID>::RemoveOrderedByIndex` · 005149b0 · legions 005029c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -3097,18 +3097,18 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveSmartPointer<SmartPointerData<PhysicsStory>_>::create` · 00514a30 · legions 00502a40 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### StoryManager
-- [ ] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — needs port: story missile creation
-- [ ] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — needs port: story hook dispatch
+- [~] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
 - [-] `StoryManager::StoryManager` · 00514ca0 · legions 00502cb0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::~StoryManager` · 00514cd0 · legions 00502ce0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::StreamPack` · 00514d20 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `StoryManager::CreateAndParentMissiles` · 00514dd0 · legions 00502de0 — needs port: story missile creation
+- [~] `StoryManager::CreateAndParentMissiles` · 00514dd0 · legions 00502de0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
 - [x] `StoryManager::DoStoryHook` · 00514ff0 · legions 00503000 — StoryManager::DoStoryHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-- [ ] `StoryManager::DoCurrentStoryHooks` · 005152e0 · legions 005032f0 — needs port: story hook dispatch
-- [ ] `StoryManager::FinishStory` · 00515370 · legions 00503380 — needs port: story hook dispatch
-- [ ] `StoryManager::DoStory` · 005153b0 · legions 005033c0 — needs port: story hook dispatch
+- [~] `StoryManager::DoCurrentStoryHooks` · 005152e0 · legions 005032f0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::FinishStory` · 00515370 · legions 00503380 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::DoStory` · 005153b0 · legions 005033c0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
 - [x] `StoryManager::HandleAnimHook` · 005154b0 · legions 005034c0 — StoryManager::HandleAnimHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-- [ ] `StoryManager::HandleBehaviorDone` · 005154f0 · legions 00503500 — needs port: story hook dispatch
+- [~] `StoryManager::HandleBehaviorDone` · 005154f0 · legions 00503500 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
 
 ## `portal/shared/src/physobj/target/targetmanager.cpp.c` (15/25)
 

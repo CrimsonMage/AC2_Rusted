@@ -568,7 +568,7 @@ Legend and workflow: [README](README.md).
 - [x] `Proto_UI::SendCharGenResult` · 004c9d40 · legions 004be320 — ac2-net ClientEvent::CharGenResult (queue 8) / ac2-weenie OnlineSession::create_character; CharGenData::Save capture in ac2-client
 - [x] `Proto_UI::SendDeleteCharacter` · 004c9e00 · legions 004be3e0
 - [x] `Proto_UI::SendEnterWorld` · 004c9e70 · legions 004be450
-- [-] `Proto_UI::SendAdminRestoreCharacter` · 004c9ef0 · legions 004be4d0 — admin-only (admin account restore); no legions address
+- [-] `Proto_UI::SendAdminRestoreCharacter` · 004c9ef0 · legions 004be4d0 — admin-only (admin account restore); no legions address [vtable-checked: not a slot of any located Legions vtable]
 
 ## `portal/client/src/http/connectioncache.cpp.c` (0/8)
 
@@ -785,7 +785,7 @@ Legend and workflow: [README](README.md).
 ### NetAuthenticator
 - [-] `NetAuthenticator::~NetAuthenticator` · 004c5100 · legions 004b94e0 — ctor/dtor/operator= of plain data or container: Rust owns the state
 - [x] `NetAuthenticator::SetToAuthType` · 004c5170 · legions 004b9550
-- [-] `NetAuthenticator::SetAdminAccountOverride` · 004c51e0 — admin-only (admin account restore); no legions address
+- [-] `NetAuthenticator::SetAdminAccountOverride` · 004c51e0 — admin-only (admin account restore); no legions address [vtable-checked: not a slot of any located Legions vtable]
 - [x] `NetAuthenticator::StreamPack` · 004c5200 · legions 004b95c0
 
 ## `portal/shared/src/newnet/netblob.cpp.c` (6/10)

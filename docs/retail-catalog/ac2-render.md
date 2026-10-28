@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 138 done, 57 partial, 226 to do, 360 skipped.
+781 retail functions: 142 done, 55 partial, 226 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -325,7 +325,7 @@ Legend and workflow: [README](README.md).
 - [x] `SurfaceWindow::FillArea` · 005b0530 · legions 0057c050 — SurfaceWindow::FillArea cited in ac2-ui radar.rs:9 (blip pixels filled as areas)
 - [x] `SurfaceWindow::FillArea` · 005b05e0 · legions 0057c100 — SurfaceWindow::FillArea cited in ac2-ui radar.rs:9 (blip pixels filled as areas)
 - [x] `SurfaceWindow::DrawLine` · 005b0620 · legions 0057c140 — ac2-ui tree_view.rs
-- [-] `SurfaceWindow::DrawBox` · 005b0910 — admin-only/tool/debug code, not in the client (no legions match; admin drawing)
+- [-] `SurfaceWindow::DrawBox` · 005b0910 — admin-only/tool/debug code, not in the client (no legions match; admin drawing) [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `SurfaceWindow::DrawTextA` · 005b09a0 · legions 0057c430 — needs port: text drawn onto a software surface (glyph coverage, colour)
 - [-] `SurfaceWindow::NotColorBits` · 005b0b40 · legions 0057c5c0 — D3D device/resource plumbing; wgpu replaces
 - [ ] `SurfaceWindow::GetColorFromPoint` · 005b0d80 · legions 0057c800 — needs port: read surface colour at a pixel
@@ -773,7 +773,7 @@ Legend and workflow: [README](README.md).
 
 ### SceneTool
 - [-] `SceneTool::StartupDebugHUD` · 0056a630 · legions 0053aa70 — admin-only/tool/debug code, not in the client (debug HUD)
-- [-] `SceneTool::ShowDebugHUD` · 0056a7f0 — admin-only/tool/debug code, not in the client (SceneTool::ShowDebugHUD: test notes no handler in Legions)
+- [-] `SceneTool::ShowDebugHUD` · 0056a7f0 — admin-only/tool/debug code, not in the client (SceneTool::ShowDebugHUD: test notes no handler in Legions) [vtable-checked: not a slot of any located Legions vtable]
 - [ ] `SceneTool::SetGammaBrightness` · 0056a810 · legions 0053ac30 — needs port: gamma and brightness applied to the scene
 - [ ] `SceneTool::InitFromGlobalPreferences` · 0056a830 · legions 0053ac50 — needs port: scene tool InitFromGlobalPreferences
 - [-] `SceneTool::InitTextureTargets` · 0056a910 · legions 0053ad30 — D3D device/resource plumbing; wgpu replaces
@@ -1162,7 +1162,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f030 · legions 0055e6a0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f070 · legions 0055e6e0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 
-## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (4/14)
+## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (8/14)
 
 ### CDataMesh
 - [ ] `CDataMesh::GetByEnum` · 00585e60 · legions 00555550 — needs port: data mesh lookup by enum
@@ -1170,16 +1170,16 @@ Legend and workflow: [README](README.md).
 ### PortalSpace::Effect
 - [~] `PortalSpace::Effect::Effect` · 00585e90 · legions 00555580 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::MakeSafePortalIndex` · 00585f40 · legions 00555630 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-- [x] `PortalSpace::Effect::GeneratePortals` · 00585f90 · legions 00555680 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-- [~] `PortalSpace::Effect::StartNow` · 00586220 · legions 00555910 — sound: ac2-audio portal.rs (PortalSounds) plays the enter sound and the two tunnel loops (StartNow) and the exit sound, stopping the loops (StopNow); ac2-client sound_ids.rs resolves the DIDs from the DAT sound enum 0x40000002 (0x40000018/1d/1e/1c) and client_audio.rs reports the effect's cues; geometry and fader timing remain in ac2-render (see the notes above)
-- [-] `PortalSpace::Effect::Destroy` · 00586650 · legions 00555d40 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
+- [x] `PortalSpace::Effect::GeneratePortals` · 00585f90 · legions 00555680 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
+- [x] `PortalSpace::Effect::StartNow` · 00586220 · legions 00555910 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
+- [~] `PortalSpace::Effect::Destroy` · 00586650 · legions 00555d40 — materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
 - [x] `PortalSpace::Effect::Start` · 00586720 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
-- [~] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
-- [~] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — sound: ac2-audio portal.rs (PortalSounds) plays the enter sound and the two tunnel loops (StartNow) and the exit sound, stopping the loops (StopNow); ac2-client sound_ids.rs resolves the DIDs from the DAT sound enum 0x40000002 (0x40000018/1d/1e/1c) and client_audio.rs reports the effect's cues; geometry and fader timing remain in ac2-render (see the notes above)
-- [~] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
-- [~] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50 — the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
-- [-] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
+- [x] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30 — ac2-render portal/tunnel.rs update_geometry(current, start, scale): ring base is m_nLastPortalPassed, start is the transparent depth, memory order reversed (closing vertex first), x stored as float, 1/w in f64; alpha ramp verified (0.8+0.2(1-X/15), 0.8(1-X/149)^2)
+- [x] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
+- [x] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
+- [~] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50 — ac2-gpu portal_tunnel.rs draws the rings (outer then inner, textured); the background mesh (0x40000016 CBaseMesh::DrawMesh) and the clouds (ParticleSystem 0x40000015) are not drawn yet
+- [~] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490 — materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
+- [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
 ## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (8/36)

@@ -96,7 +96,7 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
                 }
             },
             HudRequest::Examination(call) => out.commands.push(match call {
-                ExaminationCall::Start => Command::StartExamination(0),
+                ExaminationCall::Start(filter) => Command::StartExamination(filter),
                 ExaminationCall::Stop => Command::StopExamination,
             }),
             HudRequest::Social(call) => match call {
@@ -117,6 +117,11 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
                 DialogRequest::ClearResurrection => Command::ClearResurrectionRequest,
                 DialogRequest::RequestResurrect => Command::RequestResurrect,
             }),
+            HudRequest::Quit => {
+                // `gmGamePlayUI::RecvNotice_Logoff`: `UploadGameOptions`, then `Device::Done`.
+                out.commands.push(Command::UploadGameOptions);
+                out.quit = true;
+            }
             HudRequest::LogOff => {
                 out.commands.push(Command::UploadGameOptions);
                 out.commands.push(Command::LogOffCharacter);

@@ -122,6 +122,8 @@ pub struct GameplayHud {
     pub ingredient: Option<IngredientUi>,
     /// `gmExaminationUI`.
     pub examination: Option<ExaminationUi>,
+    /// `gmOptionUI`: the option panel's questions.
+    pub option_panel: Option<crate::OptionPanel>,
     /// `gmSocialUI`'s `gmAllegianceUI` (its player set once in the world) and `gmFellowshipUI`.
     pub allegiance: Option<AllegianceUi>,
     pub fellowship: Option<FellowshipUi>,
@@ -290,6 +292,7 @@ pub fn build_gameplay_hud(
     let examination = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
+    let option_panel = crate::OptionPanel::create(&tree);
     let allegiance = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| AllegianceUi::create(&tree, toolbar, 0));
@@ -386,6 +389,7 @@ pub fn build_gameplay_hud(
         craft,
         ingredient,
         examination,
+        option_panel,
         allegiance,
         fellowship,
         friends,

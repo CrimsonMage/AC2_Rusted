@@ -71,6 +71,7 @@ fn selecting_and_examining_an_object_round_trips_through_the_double() {
             appearance: 0x11,
             value: ExaminationValue::Int(12),
         }],
+        available: 0x203,
     };
     {
         let mut s = state.borrow_mut();

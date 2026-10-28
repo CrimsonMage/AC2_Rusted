@@ -76,6 +76,12 @@ impl ClientView {
         commands
     }
 
+    /// Whether the player confirmed the quit question (`gmGamePlayUI::RecvNotice_Logoff`); the
+    /// window closes after the frame that sends `UploadGameOptions`.
+    pub fn take_quit_request(&mut self) -> bool {
+        self.hud.take_quit_request()
+    }
+
     /// `CM_UI::SendNotice_OpenExaminationPanel`: the examination panel shows.
     pub fn open_examination(&mut self) {
         self.hud.open_examination();

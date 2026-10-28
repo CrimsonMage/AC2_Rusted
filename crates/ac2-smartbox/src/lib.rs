@@ -11,6 +11,7 @@ pub mod camera;
 mod camera_mouse;
 pub mod cells;
 pub mod fx_objects;
+pub mod missile_follow;
 mod player;
 pub mod prefs;
 pub mod remotes;

@@ -33,8 +33,12 @@ pub enum WorldState {
 pub enum WorldEvent {
     /// A decoded event reached `DispatchEvent`.
     Dispatched(ServerEvent),
-    /// A blob that failed to decode: its opcode and the reason.
-    Undecoded { opcode: u32, error: String },
+    /// A blob that failed to decode: its opcode, its length in bytes and the reason.
+    Undecoded {
+        opcode: u32,
+        length: usize,
+        error: String,
+    },
     /// `CPhysicsObj::RecvEvt_Position` accepted an update for `id` (before its `Dispatched`).
     PositionApplied { id: u64, applied: PositionApplied },
     /// `VisualOrderingQueue::IsHeavilyBlocked`: ask the server to re-create the object
@@ -164,6 +168,19 @@ impl World {
                 self.destruction.to_destroy.insert(object, due);
             }
         }
+    }
+
+    /// `CObjectMaint::FadeAndDestroyObject`: an object in the table is deleted `destruction`
+    /// seconds from now (its fade is the caller's, a slider on the body); `false` when the table
+    /// has no such object. `CObjectMaint::DestroyObject` is the same with no delay.
+    pub fn fade_and_destroy_object(&mut self, id: u64, destruction: f64) -> bool {
+        if self.objects.get(id).is_none() {
+            return false;
+        }
+        self.destruction
+            .pending
+            .insert(id, self.cur_time + destruction);
+        true
     }
 
     /// `CBookKeep::RemoveObjectToBeDestroyed`: the object (and its children) came back.
@@ -373,6 +390,7 @@ impl World {
             Err(error) => {
                 self.out.push(WorldEvent::Undecoded {
                     opcode: Self::opcode(&blob),
+                    length: blob.data.len(),
                     error: error.to_string(),
                 });
                 return;

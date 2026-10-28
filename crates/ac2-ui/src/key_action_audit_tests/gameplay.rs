@@ -470,16 +470,16 @@ pub(super) const ROWS: &[Row] = &[
     (
         0x4100_006A,
         "SELECTION_NEXT_EXAM_TAB_KEY",
-        "no handler in Legions 7160 (admin gmExaminationUI only)",
-        "none (admin-only)",
-        Status::Skip,
+        "gmExaminationUI::ListenToMessage (Legions 0x00431900: the next enabled filter tab)",
+        "examination_tabs.rs step",
+        Status::Handled,
     ),
     (
         0x4100_006B,
         "SELECTION_PREV_EXAM_TAB_KEY",
-        "no handler in Legions 7160 (admin gmExaminationUI only)",
-        "none (admin-only)",
-        Status::Skip,
+        "gmExaminationUI::ListenToMessage (Legions 0x00431900: the previous enabled filter tab)",
+        "examination_tabs.rs step",
+        Status::Handled,
     ),
     (
         0x4100_0036,

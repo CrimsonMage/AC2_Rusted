@@ -75,6 +75,11 @@ fn selecting_an_object_fills_the_frame_selection() {
         Some(SelectionFrame {
             id: NPC,
             name: client.session().objects().get(NPC).unwrap().name.clone(),
+            // A single object: `GetName(quantity)` is its own name.
+            name_info: Some(
+                ac2_weenie::ItemStats::of(&client.session().objects().get(NPC).unwrap().qualities)
+                    .name
+            ),
             info: Some(info),
             other_player: false,
         })

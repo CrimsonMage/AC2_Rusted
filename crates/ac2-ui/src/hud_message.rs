@@ -126,6 +126,15 @@ pub fn message_pass<P: HudSource>(
         if let Some(overview) = hud.overview.as_ref() {
             overview.message(tree, message.element_id);
         }
+        // `gmOptionUI::ListenToMessage`: leave, quit, assistance and the command tab.
+        if let (Some(panel), Some(dialogs)) = (hud.option_panel.as_mut(), hud.dialogs.as_mut()) {
+            panel.message(tree, dialogs, player, message);
+        }
+        // `gmExaminationUI::ListenToMessage`: the filter tabs and the tab keys.
+        if let Some(panel) = hud.examination.as_mut() {
+            panel.message(tree, message, hud.ctrl_held);
+            out.extend(panel.take_calls().into_iter().map(HudRequest::Examination));
+        }
         if let Some(panel) = hud.fellowship.as_mut() {
             panel.message(tree, message);
         }

@@ -430,6 +430,7 @@ mod tests {
         let profile = ExaminationProfile {
             request: ExaminationRequest::object(8),
             nodes: vec![],
+            available: 0,
         };
         let out = script.receive(ScriptMessage::ExaminationProfile(profile.clone()), 1);
         assert_eq!(

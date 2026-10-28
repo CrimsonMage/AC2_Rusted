@@ -1,7 +1,7 @@
 //! The portal space drawn headless on the real DATs (`AC2_DAT_DIR`) against the Legions 7160
 //! server double: the town block is drawn, then the player is teleported to the 0299 interior
-//! and the frame in the portal space's tunnel phase is drawn without the world (the fader and
-//! the HUD only). Writes `target/ac2-snapshots/portal_town.png` and `portal_tunnel.png`; skipped
+//! and the frame in the portal space's tunnel phase is drawn without the world: the tunnel's
+//! textured rings, the fader and the HUD. Writes `target/ac2-snapshots/portal_town.png` and `portal_tunnel.png`; skipped
 //! without a GPU adapter.
 
 #![cfg(feature = "window")]
@@ -45,7 +45,7 @@ fn mean_luminance(rgba: &[u8]) -> f32 {
 }
 
 #[test]
-fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
+fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
@@ -89,6 +89,8 @@ fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    // The tunnel's materials, from the DAT's enum map (the view uploads them itself).
+    let portal_mats = ac2_client::portal_materials(&store);
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
         .unwrap()
         .expect("the script library");
@@ -169,5 +171,28 @@ fn the_tunnel_phase_draws_no_world_only_the_fader_and_the_hud() {
     assert!(
         tunnel_mean < town_mean * 0.8,
         "the world is not drawn in the tunnel ({tunnel_mean} vs {town_mean})"
+    );
+    // The rings are textured with the DAT's materials (0x40000013 inner, 0x40000014 outer): both
+    // resolve to an image, and the tunnel's pixels vary (a flat fill would not).
+    assert!(
+        portal_mats.inner != 0 && portal_mats.outer != 0,
+        "the tunnel materials"
+    );
+    for material in [portal_mats.inner, portal_mats.outer] {
+        let image = ac2_render::load_material_image(&store, ac2_core::DataId::new(material));
+        assert!(
+            matches!(image, Ok(Some(_))),
+            "material {material:#x} has no texture"
+        );
+    }
+    let colours: std::collections::HashSet<[u8; 3]> = tunnel_rgba
+        .chunks_exact(4)
+        .map(|px| [px[0], px[1], px[2]])
+        .collect();
+    eprintln!("tunnel distinct colours {}", colours.len());
+    assert!(
+        colours.len() > 500,
+        "the rings are flat ({} colours)",
+        colours.len()
     );
 }

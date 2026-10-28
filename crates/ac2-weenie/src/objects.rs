@@ -307,6 +307,13 @@ impl ObjectTable {
         self.objects.get(&id)
     }
 
+    /// `CPhysicsObj::inc_update_time(stamp)`: the object's `ushort` stamp moves on by one.
+    pub(crate) fn inc_update_time(&mut self, id: u64, stamp: usize) {
+        if let Some(object) = self.objects.get_mut(&id) {
+            object.update_times[stamp] = object.update_times[stamp].wrapping_add(1);
+        }
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &RemoteObject> {
         self.objects.values()
     }

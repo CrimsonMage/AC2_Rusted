@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 150 done, 15 partial, 122 to do, 139 skipped.
+426 retail functions: 153 done, 13 partial, 107 to do, 153 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -88,7 +88,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/bvolume.cpp.c` (0/1)
 
 ### CHILDINFO
-- [ ] `CHILDINFO::StreamPack` · 00737cb0 · legions 006b3870 — needs port: CHILDINFO stream layout
+- [-] `CHILDINFO::StreamPack` · 00737cb0 · legions 006b3870 — DBO/archive serialisation: nothing in the client image calls it (CHILDLIST::StreamPack has no caller); the wire carries the parent and location in PhysicsDesc, decoded by ac2-net
 
 ## `portal/shared/src/geometry/cellportal.cpp.c` (3/11)
 
@@ -127,10 +127,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/detectionobjray.cpp.c` (0/4)
 
 ### DetectionObjRay
-- [ ] `DetectionObjRay::StreamPack` · 0062abb0 · legions 005e4c90 — needs port: DetectionObjRay stream layout
+- [-] `DetectionObjRay::StreamPack` · 0062abb0 · legions 005e4c90 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `DetectionObjRay::DetectionObjRay` · 0062ac10 · legions 005e4cf0 — ctor/dtor: Rust struct construction and Drop
 - [-] `DetectionObjRay::~DetectionObjRay` · 0062ac40 · legions 005e4d20 — ctor/dtor: Rust struct construction and Drop
-- [ ] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60 — needs port: detection ray list append (ordering)
+- [-] `DetectionObjRay::AddRay` · 0062ac80 · legions 005e4d60 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ## `portal/shared/src/geometry/frame.cpp.c` (7/19)
 
@@ -284,12 +284,12 @@ Legend and workflow: [README](README.md).
 - [~] `Matrix4::RotateAngles` · 0061c0c0 · legions 005d7d20 — the forward row CameraManager::UpdateCamera reads (ac2-client camera.rs)
 - [ ] `Matrix4::LookAt` · 0061c1a0 · legions 005d7e00 — needs port: LookAt matrix convention
 
-## `portal/shared/src/geometry/perlinnoise.cpp.c` (2/3)
+## `portal/shared/src/geometry/perlinnoise.cpp.c` (3/3)
 
 ### PerlinNoise
 - [x] `PerlinNoise::Init` · 0062b040 · legions 005e4f60 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 - [x] `PerlinNoise::Noise` · 0062b0f0 · legions 005e5010 — ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
-- [ ] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0 — needs port: PerlinNoise::fBm1 for FRACTAL waveforms (not reproduced)
+- [x] `PerlinNoise::fBm1` · 0062b180 · legions 005e50a0 — ac2-math perlin.rs fbm1: double accumulator and weights (no float casts), the fractional octave, float at the return
 
 ## `portal/shared/src/geometry/plane.cpp.c` (2/16)
 
@@ -524,11 +524,11 @@ Legend and workflow: [README](README.md).
 - [-] `SphCone::SphCone` · 00736bd0 · legions 006b27b0 — ctor/dtor: Rust struct construction and Drop
 - [-] `SphCone::SphCone` · 00736c20 · legions 006b2800 — ctor/dtor: Rust struct construction and Drop
 - [-] `SphCone::SphCone` · 00736c60 · legions 006b2840 — ctor/dtor: Rust struct construction and Drop
-- [ ] `SphCone::AngleCheck` · 00736cb0 · legions 006b2890 — needs port: sphere-cone angle test, intersections and stream layout
-- [ ] `SphCone::Intersects` · 00736d50 · legions 006b2930 — needs port: sphere-cone angle test, intersections and stream layout
-- [ ] `SphCone::Intersects` · 00736ee0 · legions 006b2ac0 — needs port: sphere-cone angle test, intersections and stream layout
-- [ ] `SphCone::Intersects` · 00737150 · legions 006b2d30 — needs port: sphere-cone angle test, intersections and stream layout
-- [ ] `SphCone::StreamPack` · 00737290 · legions 006b2e70 — needs port: sphere-cone angle test, intersections and stream layout
+- [-] `SphCone::AngleCheck` · 00736cb0 · legions 006b2890 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphCone::Intersects` · 00736d50 · legions 006b2930 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphCone::Intersects` · 00736ee0 · legions 006b2ac0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphCone::Intersects` · 00737150 · legions 006b2d30 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphCone::StreamPack` · 00737290 · legions 006b2e70 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ## `portal/shared/src/geometry/sphere.cpp.c` (15/15)
 
@@ -558,15 +558,15 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/sphplanecone.cpp.c` (0/9)
 
 ### SphPlaneCone
-- [ ] `SphPlaneCone::BuildBoundingBox` · 00737310 · legions 006b2ef0 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
-- [ ] `SphPlaneCone::Intersects` · 007373b0 · legions 006b2f90 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
+- [-] `SphPlaneCone::BuildBoundingBox` · 00737310 · legions 006b2ef0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphPlaneCone::Intersects` · 007373b0 · legions 006b2f90 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 - [-] `SphPlaneCone::SphPlaneCone` · 007373f0 · legions 006b2fd0 — ctor/dtor: Rust struct construction and Drop
 - [-] `SphPlaneCone::SphPlaneCone` · 00737450 · legions 006b3010 — ctor/dtor: Rust struct construction and Drop
 - [-] `SphPlaneCone::SphPlaneCone` · 007374b0 · legions 006b3070 — ctor/dtor: Rust struct construction and Drop
-- [ ] `SphPlaneCone::CheckAngle` · 00737510 · legions 006b30d0 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
-- [ ] `SphPlaneCone::Intersects` · 00737610 · legions 006b31d0 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
-- [ ] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
-- [ ] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790 — needs port: sphere-plane-cone bounds, angle check, intersections and stream layout
+- [-] `SphPlaneCone::CheckAngle` · 00737510 · legions 006b30d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphPlaneCone::Intersects` · 00737610 · legions 006b31d0 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphPlaneCone::Intersects` · 007379a0 · legions 006b3560 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
+- [-] `SphPlaneCone::StreamPack` · 00737bd0 · legions 006b3790 — unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList), whose callers are CWPhysicsObject::DoIntersection (the DoIntersection efun, which no Legions wlib function calls) and the CObjCell/CLandBlock walk that detection itself starts; vtable slot 0x460 (CreateDetectionCylsphere) has no call site in the image. No retail path creates it
 
 ## `portal/shared/src/geometry/transform.cpp.c` (4/13)
 
@@ -667,13 +667,13 @@ Legend and workflow: [README](README.md).
 ### CVertexArray
 - [-] `CVertexArray::FromFileNode` · 00730df0 — text source format (admin tools)
 
-## `portal/shared/src/geometry/waveform.cpp.c` (0/10)
+## `portal/shared/src/geometry/waveform.cpp.c` (2/10)
 
 ### Waveform
 - [ ] `Waveform::SetDefaults` · 00622c40 · legions 005de010 — needs port: waveform defaults and upper bound
 - [ ] `Waveform::GetUpperBounds` · 00622c70 · legions 005de040 — needs port: waveform defaults and upper bound
-- [~] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
-- [~] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform; NOISE/PERLIN/FRACTAL return the base (client RNG and PerlinNoise not reproduced)
+- [x] `Waveform::GetValueForPhase` · 00622cf0 · legions 005de0c0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
+- [x] `Waveform::GetValue` · 00622f10 · legions 005de2e0 — ac2-math waveform.rs: all kinds; NOISE = RollDice(-1,1) * amplitude + base, FRACTAL = fBm1(freq*phase + time, 1 - roughness, 2, 6) * amplitude + base, checked against the admin disassembly (kind table 0x622EEC)
 - [-] `Waveform::Waveform` · 00622f30 · legions 005de300 — ctor/dtor: Rust struct construction and Drop
 - [-] `Waveform::Waveform` · 00622f60 · legions 005de330 — ctor/dtor: Rust struct construction and Drop
 - [-] `Waveform::Waveform` · 00622fa0 · legions 005de370 — ctor/dtor: Rust struct construction and Drop
