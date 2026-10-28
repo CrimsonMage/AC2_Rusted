@@ -126,16 +126,26 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_ListBox::UpdateControls`: each bound scroll bar's position is the view's share
-    /// of the paper, unless the scroll bar is driving the view.
+    /// `UIElement_ListBox::UpdateControls` (admin 0x005F38D0), unless the scroll bar is driving
+    /// the view: each bound bar takes the list's share of the paper as its widget size (at most
+    /// one) and the view's share of the scroll as its position, with its layout held until both
+    /// are set (`allow_updating`), and is disabled when the list shows the whole paper. The
+    /// buttons the list names are ghosted at the ends (`HandleButtonGhosting`): up and left at a
+    /// view of zero, down and right once the view reaches the end.
     pub(crate) fn list_update_controls(&mut self, list: usize) {
+        if self
+            .el(list)
+            .attributes
+            .get(&tokenize("allow_control_updating"))
+            == Some(&AttributeValue::Bool(false))
+        {
+            return;
+        }
         let Some(state) = self.el(list).list.as_ref() else {
             return;
         };
-        if state.from_scrollbar {
-            return;
-        }
-        let (paper, view) = (state.paper, state.view);
+        let (paper, view, from_scrollbar) = (state.paper, state.view, state.from_scrollbar);
+        let (mut total, mut size) = (paper.1, box_extent(self.el(list).rect, true));
         for (vertical, bar) in [
             (true, self.list_scrollbar(list, true)),
             (false, self.list_scrollbar(list, false)),
@@ -143,18 +153,54 @@ impl UiTree {
             let Some(bar) = bar else {
                 continue;
             };
+            let extent = box_extent(self.el(list).rect, vertical);
             let (paper_extent, at) = if vertical {
                 (paper.1, view.1)
             } else {
                 (paper.0, view.0)
             };
-            let range = scroll_range(paper_extent, box_extent(self.el(list).rect, vertical));
+            (total, size) = (paper_extent.max(extent), extent);
+            if from_scrollbar {
+                continue;
+            }
+            let range = scroll_range(paper_extent, extent);
             let share = if range <= 0 {
                 0.0
             } else {
                 (f64::from(at) / f64::from(range)).clamp(0.0, 1.0)
             };
+            let widget_size = (extent as f32 / total as f32).min(1.0);
+            let size_id = if vertical {
+                "y_widget_size"
+            } else {
+                "x_widget_size"
+            };
+            let attrs = &mut self.el_mut(bar).attributes;
+            attrs.insert(tokenize("allow_updating"), AttributeValue::Bool(false));
+            attrs.insert(tokenize("disabled"), AttributeValue::Bool(false));
+            attrs.insert(tokenize(size_id), AttributeValue::Float(widget_size));
             self.scrollbar_set_position(bar, share as f32);
+            self.el_mut(bar)
+                .attributes
+                .insert(tokenize("allow_updating"), AttributeValue::Bool(true));
+            self.scrollbar_update_layout(bar);
+            if paper_extent <= extent {
+                self.el_mut(bar)
+                    .attributes
+                    .insert(tokenize("disabled"), AttributeValue::Bool(true));
+                self.scrollbar_update_layout(bar);
+            }
+        }
+        // `HandleButtonGhosting`, by the last bar's totals as retail's single bar.
+        for (name, ghosted) in [
+            ("up_button", view.1 == 0),
+            ("down_button", total <= view.1 + size),
+            ("left_button", view.0 == 0),
+            ("right_button", total <= view.0 + size),
+        ] {
+            if let Some(button) = self.named_element(list, name, None, "unique_msg") {
+                self.set_bool(button, tokenize("ghosted"), ghosted);
+            }
         }
     }
 

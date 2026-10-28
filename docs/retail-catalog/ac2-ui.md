@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1263 done, 343 partial, 145 to do, 496 skipped.
+2247 retail functions: 1265 done, 343 partial, 144 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [-] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (64/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (65/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3190,7 +3190,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::GetLeftCol` · 005f1c50 · legions 005b2780 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::GetTopRow` · 005f1c70 · legions 005b27a0 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::KeepViewInBounds` · 005f1c90 · legions 005b27c0 — ac2-ui list_box.rs
-- [-] `UIElement_ListBox::HandleButtonGhosting` · 005f1d40 · legions 005b2870 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
+- [x] `UIElement_ListBox::HandleButtonGhosting` · 005f1d40 · legions 005b2870 — ac2-ui list_scroll.rs list_update_controls: the named button's ghosted flag (set_bool), looked up in the list's root with unique_msg (scrollbar.rs named_element)
 - [x] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0 — named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
 - [-] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [-] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90 — m_bitField is typed fields in ListBoxState (multiop, from_scrollbar) and attributes; no mask test needed
@@ -3234,7 +3234,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::VerticalLineIncrement` · 005f3760 · legions 005b4290 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 - [x] `UIElement_ListBox::HorizontalLineDecrement` · 005f37e0 · legions 005b4310 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 - [x] `UIElement_ListBox::HorizontalLineIncrement` · 005f3850 · legions 005b4380 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
-- [x] `UIElement_ListBox::UpdateControls` · 005f38d0 · legions 005b4400 — UIElement_ListBox::UpdateControls done: list_scroll.rs list_update_controls
+- [x] `UIElement_ListBox::UpdateControls` · 005f38d0 · legions 005b4400 — ac2-ui list_scroll.rs list_update_controls: widget size min(1, extent/paper), position, allow_updating held while set, disabled when the list shows the whole paper; ghosts the list's buttons at the ends; list_scroll_tests the_bar_sizes_its_widget_and_hides_when_the_list_shows_everything
 - [x] `UIElement_ListBox::UpdateAndDraw` · 005f3af0 · legions 005b4620 — ac2-ui list_goal.rs: UiTree::list_update_and_draw (layout, KeepViewInBounds, UpdateControls, redraw)
 - [x] `UIElement_ListBox::ResizeTo` · 005f3b20 · legions 005b4650 — ac2-ui place.rs resize_to: a list lays out again, keeps its view in bounds and updates its controls (list_relayout)
 - [x] `UIElement_ListBox::SetSelectedItemByID` · 005f3b60 · legions 005b4690 — ac2-ui list_goal.rs: UiTree::list_set_selected_item_by_id
@@ -3369,14 +3369,14 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Resizebar::Create` · 005f83c0 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 - [~] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 
-## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (11/28)
+## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (12/28)
 
 ### UIElement_Scrollbar
 - [ ] `UIElement_Scrollbar::SetAttribute_ID` · 005f9a20 · legions 005ba550 — needs port (check): UIElement_Scrollbar::SetAttribute_ID behaviour; implemented area ac2-ui scrollbar.rs but uncited
 - [x] `UIElement_Scrollbar::BroadcastMessageOnRoot` · 005f9a80 · legions 005ba5b0 — ac2-ui scrollbar.rs
-- [ ] `UIElement_Scrollbar::HandleHideButton` · 005f9aa0 · legions 005ba5d0 — needs port (check): UIElement_Scrollbar::HandleHideButton behaviour; implemented area ac2-ui scrollbar.rs but uncited
+- [x] `UIElement_Scrollbar::HandleHideButton` · 005f9aa0 · legions 005ba5d0 — ac2-ui scrollbar.rs scrollbar_show: the bar's up/down/left/right buttons shown or hidden with it
 - [ ] `UIElement_Scrollbar::HandleFillChild` · 005f9ae0 · legions 005ba610 — needs port (check): UIElement_Scrollbar::HandleFillChild behaviour; implemented area ac2-ui scrollbar.rs but uncited
-- [~] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+- [~] `UIElement_Scrollbar::UpdateLayout` · 005f9b30 · legions 005ba660 — ac2-ui scrollbar.rs scrollbar_update_layout: proportional widget size (x/y_widget_size of the track, min_widget_width/height), placement by the position, a disabled hide_when_disabled bar hidden with its buttons and any other bar shown again. Not: the left/right/top/bottom fill children (their geometry sits in registers the decompile lost)
 - [ ] `UIElement_Scrollbar::StartAnimation` · 005fa050 · legions 005bab80 — needs port (check): UIElement_Scrollbar::StartAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
 - [ ] `UIElement_Scrollbar::StopAnimation` · 005fa170 · legions 005baca0 — needs port (check): UIElement_Scrollbar::StopAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
 - [x] `UIElement_Scrollbar::ResizeTo` · 005fa1b0 · legions 005bace0 — ac2-ui scrollbar.rs

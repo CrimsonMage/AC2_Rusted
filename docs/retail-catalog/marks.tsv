@@ -9989,7 +9989,7 @@ key	status	note
 005f1c50	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f1c70	x	ac2-ui list_box.rs
 005f1c90	x	ac2-ui list_box.rs
-005f1d40	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
+005f1d40	x	ac2-ui list_scroll.rs list_update_controls: the named button's ghosted flag (set_bool), looked up in the list's root with unique_msg (scrollbar.rs named_element)
 005f1db0	x	named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
 005f1e50	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f1f60	-	m_bitField is typed fields in ListBoxState (multiop, from_scrollbar) and attributes; no mask test needed
@@ -10033,7 +10033,7 @@ key	status	note
 005f3760	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 005f37e0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 005f3850	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
-005f38d0	x	UIElement_ListBox::UpdateControls done: list_scroll.rs list_update_controls
+005f38d0	x	ac2-ui list_scroll.rs list_update_controls: widget size min(1, extent/paper), position, allow_updating held while set, disabled when the list shows the whole paper; ghosts the list's buttons at the ends; list_scroll_tests the_bar_sizes_its_widget_and_hides_when_the_list_shows_everything
 005f3af0	x	ac2-ui list_goal.rs: UiTree::list_update_and_draw (layout, KeepViewInBounds, UpdateControls, redraw)
 005f3b20	x	ac2-ui place.rs resize_to: a list lays out again, keeps its view in bounds and updates its controls (list_relayout)
 005f3b60	x	ac2-ui list_goal.rs: UiTree::list_set_selected_item_by_id
@@ -10204,9 +10204,9 @@ key	status	note
 005f98c0	x	ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
 005f9a20	_	needs port (check): UIElement_Scrollbar::SetAttribute_ID behaviour; implemented area ac2-ui scrollbar.rs but uncited
 005f9a80	x	ac2-ui scrollbar.rs
-005f9aa0	_	needs port (check): UIElement_Scrollbar::HandleHideButton behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005f9aa0	x	ac2-ui scrollbar.rs scrollbar_show: the bar's up/down/left/right buttons shown or hidden with it
 005f9ae0	_	needs port (check): UIElement_Scrollbar::HandleFillChild behaviour; implemented area ac2-ui scrollbar.rs but uncited
-005f9b30	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005f9b30	~	ac2-ui scrollbar.rs scrollbar_update_layout: proportional widget size (x/y_widget_size of the track, min_widget_width/height), placement by the position, a disabled hide_when_disabled bar hidden with its buttons and any other bar shown again. Not: the left/right/top/bottom fill children (their geometry sits in registers the decompile lost)
 005fa050	_	needs port (check): UIElement_Scrollbar::StartAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
 005fa170	_	needs port (check): UIElement_Scrollbar::StopAnimation behaviour; implemented area ac2-ui scrollbar.rs but uncited
 005fa1b0	x	ac2-ui scrollbar.rs

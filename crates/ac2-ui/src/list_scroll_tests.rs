@@ -414,3 +414,58 @@ fn a_resized_list_updates_its_scroll_bar() {
     let share = tree.scrollbar_position(bar);
     assert!((share - 0.5).abs() < 1e-6, "10 of 20: {share}");
 }
+
+/// `UIElement_ListBox::UpdateControls` and `UIElement_Scrollbar::UpdateLayout`: a proportional
+/// widget takes the list's share of the paper, a list that shows everything disables its bar,
+/// and a `hide_when_disabled` bar hides then; the list's own buttons ghost at the ends.
+#[test]
+fn the_bar_sizes_its_widget_and_hides_when_the_list_shows_everything() {
+    let (mut tree, list, bar, _) = panel_with_widget(true);
+    let attrs = &mut tree.el_mut(bar).attributes;
+    attrs.insert(tokenize("proportional"), AttributeValue::Bool(true));
+    attrs.insert(tokenize("hide_when_disabled"), AttributeValue::Bool(true));
+    let up = tree
+        .child_recursive(tree.root_of(list), tokenize("Bar"))
+        .unwrap();
+    // The bar itself stands in as the list's up button (only its id matters).
+    tree.el_mut(list)
+        .attributes
+        .insert(tokenize("up_button"), AttributeValue::Id(tokenize("Bar")));
+    tree.list_set_view(list, None, Some(10));
+    tree.list_set_view(list, None, Some(0));
+    let widget = tree.child_recursive(bar, tokenize("widget")).unwrap();
+    // 20 of the 50 pixel paper: the widget is 2/5 of the 20 pixel track.
+    assert_eq!(tree.get(widget).unwrap().rect().height(), 8);
+    assert!(tree.get(bar).unwrap().visible());
+    assert!(tree.bool_attribute(up, tokenize("ghosted")), "at the top");
+    tree.list_set_view(list, None, Some(10));
+    assert!(!tree.bool_attribute(up, tokenize("ghosted")));
+    // Down to one item: everything shows, the bar is disabled and hidden.
+    for _ in 0..4 {
+        tree.list_remove_item(list, 0);
+    }
+    assert!(tree.bool_attribute(bar, tokenize("disabled")));
+    assert!(!tree.get(bar).unwrap().visible());
+    // More items again: enabled and shown.
+    let item_desc = Arc::clone(layout_item(&tree, list));
+    for _ in 0..4 {
+        let item = tree
+            .create_element(
+                Arc::clone(&tree.get(list).unwrap().layout),
+                Arc::clone(&item_desc),
+                false,
+            )
+            .unwrap();
+        tree.list_add_item(list, item);
+    }
+    assert!(!tree.bool_attribute(bar, tokenize("disabled")));
+    assert!(tree.get(bar).unwrap().visible());
+}
+
+fn layout_item(tree: &UiTree, list: usize) -> &Arc<ElementDesc> {
+    tree.get(list)
+        .unwrap()
+        .layout
+        .element(tokenize("Item"))
+        .unwrap()
+}

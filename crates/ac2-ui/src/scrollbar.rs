@@ -8,8 +8,9 @@
 //! `HandleMoveSteps`). Every move broadcasts `new_position`.
 //!
 //! The wheel steps a stop-located bar, or moves the lists and texts it drives a line
-//! (`HandleMouseWheel`). A disabled bar takes nothing. Not modelled yet: proportional widgets,
-//! the fill children, paging by holding the track and smooth movement.
+//! (`HandleMouseWheel`). A disabled bar takes nothing; with `hide_when_disabled` it hides with its
+//! buttons. A `proportional` widget is sized to its share of the track (`UpdateLayout`). Not
+//! modelled yet: the fill children and smooth movement (`goal_x_position`).
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -75,15 +76,31 @@ impl UiTree {
     /// scroll bar with that id in the whole UI, in any root. With `unique_msg` it is
     /// `GetUniqueMatchElement` (slot 0x48): a bar of the owner's own root only.
     pub(crate) fn named_scrollbar(&self, owner: usize, attribute: &str) -> Option<usize> {
+        self.named_element(owner, attribute, Some(SCROLLBAR), "unique_msg")
+    }
+
+    /// The element `owner` names by id in `attribute`, looked up as `GetScrollbar` does: in
+    /// `owner`'s own root when its `unique` flag is set, else the first with that id (and `kind`,
+    /// when given) anywhere.
+    pub(crate) fn named_element(
+        &self,
+        owner: usize,
+        attribute: &str,
+        kind: Option<u32>,
+        unique: &str,
+    ) -> Option<usize> {
         let AttributeValue::Id(id) = self.el(owner).attributes.get(&tokenize(attribute))? else {
             return None;
         };
-        if self.bool_attribute(owner, tokenize("unique_msg")) {
+        if *id == 0 {
+            return None;
+        }
+        if self.bool_attribute(owner, tokenize(unique)) {
             return self.child_recursive(self.root_of(owner), *id);
         }
         self.slots.iter().enumerate().find_map(|(index, slot)| {
             let el = slot.as_ref()?;
-            (el.desc.kind == SCROLLBAR && el.id() == *id).then_some(index)
+            (kind.is_none_or(|k| el.desc.kind == k) && el.id() == *id).then_some(index)
         })
     }
 
@@ -126,7 +143,11 @@ impl UiTree {
             .insert(NUM_STOP_LOCATIONS, AttributeValue::Int(stops));
     }
 
-    /// `UIElement_Scrollbar::UpdateLayout`: the widget along the track by the position.
+    /// `UIElement_Scrollbar::UpdateLayout` (admin 0x005F9B30): an enabled bar sizes its widget
+    /// (a `proportional` bar to `x_widget_size` / `y_widget_size` of the track, at least
+    /// `min_widget_width` / `min_widget_height`; otherwise its own size) and places it along the
+    /// track by the position. A disabled `hide_when_disabled` bar then hides with its buttons;
+    /// any other bar not shown is shown again, with its buttons (`HandleHideButton`).
     pub(crate) fn scrollbar_update_layout(&mut self, index: usize) {
         if !self.is_scrollbar(index) {
             return;
@@ -136,22 +157,67 @@ impl UiTree {
         {
             return;
         }
-        let Some(widget) = self.widget(index) else {
-            return;
-        };
+        let disabled = self.bool_attribute(index, tokenize("disabled"));
+        if let (Some(widget), false) = (self.widget(index), disabled) {
+            self.scrollbar_place_widget(index, widget);
+        }
+        let hide = self.bool_attribute(index, tokenize("hide_when_disabled"));
+        let visible = self.el(index).visible;
+        if disabled && hide && visible {
+            self.scrollbar_show(index, false);
+        } else {
+            let parent_shown = self
+                .el(index)
+                .parent
+                .is_none_or(|p| self.get(p).is_some_and(|e| e.visible));
+            if !(visible && parent_shown) {
+                self.scrollbar_show(index, true);
+            }
+        }
+    }
+
+    /// `UpdateLayout`'s widget size and place.
+    fn scrollbar_place_widget(&mut self, index: usize, widget: usize) {
         let (track, w) = (self.el(index).rect, self.el(widget).rect);
+        let (width, height) = if self.bool_attribute(index, tokenize("proportional")) {
+            let share = |id: &str| match self.el(index).attributes.get(&tokenize(id)) {
+                Some(AttributeValue::Float(v)) => f64::from(*v),
+                _ => 1.0,
+            };
+            let min = |id: &str| self.int(index, tokenize(id)).unwrap_or(0);
+            (
+                ((f64::from(track.width()) * share("x_widget_size")) as i32)
+                    .max(min("min_widget_width")),
+                ((f64::from(track.height()) * share("y_widget_size")) as i32)
+                    .max(min("min_widget_height")),
+            )
+        } else {
+            (w.width(), w.height())
+        };
+        if (width, height) != (w.width(), w.height()) {
+            self.resize_to(widget, width, height);
+            self.changed = true;
+        }
         let position = f64::from(self.scrollbar_position(index));
         let (mut x, mut y) = (w.x0, w.y0);
         if self.horizontal(index) {
-            let avail = track.width() - w.width();
-            x = (f64::from(avail) * position) as i32;
+            x = (f64::from(track.width() - width) * position) as i32;
         } else {
-            let avail = track.height() - w.height();
-            y = (f64::from(avail) * position) as i32;
+            y = (f64::from(track.height() - height) * position) as i32;
         }
         if (x, y) != (w.x0, w.y0) {
             self.move_to(widget, x, y);
             self.changed = true;
+        }
+    }
+
+    /// The bar and the buttons it names shown or hidden (`SetVisible`, `HandleHideButton`).
+    fn scrollbar_show(&mut self, index: usize, shown: bool) {
+        self.set_visible(index, shown);
+        for name in ["up_button", "down_button", "left_button", "right_button"] {
+            if let Some(button) = self.named_element(index, name, None, "unique_msg") {
+                self.set_visible(button, shown);
+            }
         }
     }
 
