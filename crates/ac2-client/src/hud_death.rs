@@ -1,37 +1,10 @@
-//! `gmGamePlayUI`'s death panel in the HUD: the frame's `UpdateDeathState` notices raise and close
-//! the resurrect dialog, and its button asks the respawn (`RecvNotice_CloseResurrectDialog` calls
+//! `gmGamePlayUI`'s death panel in the HUD: the frame's notices are run by `ac2_ui::death_notices`,
+//! and the death dialog's button asks the respawn (`RecvNotice_CloseResurrectDialog` calls
 //! `gmCWInterface::RequestResurrect`). The panel is [`ac2_ui::DeathPanel`].
 
-use ac2_ui::{DeathPanel, DialogFactory, DialogOutcome, UiStrings, UiTree};
-use ac2_weenie::{GameplayNotice, SessionEvent};
+use ac2_ui::{DeathPanel, DialogOutcome};
 
 use crate::gameplay::Command;
-
-/// `RecvNotice_UpdateDeathState` and `RecvNotice_ResurrectionRequestedByOther` for the frame's
-/// notices, in order. The offer's prompt is rendered with the resurrecter's name.
-pub(crate) fn death_notices(
-    death: &mut DeathPanel,
-    tree: &mut UiTree,
-    dialogs: &mut Option<DialogFactory>,
-    strings: &dyn UiStrings,
-    events: &[SessionEvent],
-) {
-    let Some(dialogs) = dialogs.as_mut() else {
-        return;
-    };
-    for event in events {
-        match event {
-            SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => {
-                death.notice(tree, dialogs, strings, *dead);
-            }
-            SessionEvent::Notice(GameplayNotice::ResurrectionRequestedByOther(name)) => {
-                let prompt = strings.render_string(&ac2_ui::resurrection_prompt(name));
-                death.recv_resurrection_requested(tree, dialogs, &prompt);
-            }
-            _ => {}
-        }
-    }
-}
 
 /// The dialogs' answers: the death dialog's button asks the respawn.
 pub(crate) fn death_answers(

@@ -274,7 +274,7 @@ pub use consignment::{ConsignmentRequest, ConsignmentSource, ConsignmentUi};
 pub use controls::{ControlFrame, Controls};
 pub use craft::{CraftCommand, CraftSource, CraftUi, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL};
 pub use damage_text::{DamagePlace, DamageTexts};
-pub use death::{resurrection_prompt, you_died_string, DeathPanel, OfferAnswer};
+pub use death::{death_notices, resurrection_prompt, you_died_string, DeathPanel, OfferAnswer};
 pub use dialog::{
     DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_RESURRECT,
     DIALOG_TIMED, DIALOG_WAIT, LAYOUT_DIALOGS,

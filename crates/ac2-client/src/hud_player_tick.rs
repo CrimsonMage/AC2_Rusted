@@ -8,7 +8,7 @@ use crate::frame::ClientFrame;
 use crate::gameplay::Command;
 use crate::hud_character::character_commands;
 use crate::hud_chat_options::chat_options_commands;
-use crate::hud_death::{death_answers, death_notices};
+use crate::hud_death::death_answers;
 use crate::hud_game_dialogs::{game_dialog_answers, game_dialog_logout, game_dialog_notices};
 use crate::hud_player::{examine, PassOut};
 use crate::hud_view::HudView;
@@ -72,7 +72,7 @@ impl HudView {
                 crate::ui_inventory::secure_trade_split(split, tree, stack.as_mut(), player);
             }
         }
-        death_notices(death, tree, dialogs, player, events);
+        ac2_ui::death_notices(death, tree, dialogs, player, events);
         game_dialog_notices(
             game_dialogs,
             tree,

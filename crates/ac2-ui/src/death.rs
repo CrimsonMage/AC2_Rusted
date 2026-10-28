@@ -13,6 +13,7 @@
 //! and makes the death dialog again.
 
 use ac2_net::protocol::StringInfo;
+use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_RESURRECT};
 use crate::element::UiTree;
@@ -143,6 +144,32 @@ impl DeathPanel {
         if self.context != 0 {
             dialogs.close_dialog(tree, self.context);
             self.context = 0;
+        }
+    }
+}
+
+/// `RecvNotice_UpdateDeathState` and `RecvNotice_ResurrectionRequestedByOther` for the frame's
+/// notices, in order. The offer's prompt is rendered with the resurrecter's name.
+pub fn death_notices(
+    death: &mut DeathPanel,
+    tree: &mut UiTree,
+    dialogs: &mut Option<DialogFactory>,
+    strings: &dyn UiStrings,
+    events: &[SessionEvent],
+) {
+    let Some(dialogs) = dialogs.as_mut() else {
+        return;
+    };
+    for event in events {
+        match event {
+            SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => {
+                death.notice(tree, dialogs, strings, *dead);
+            }
+            SessionEvent::Notice(GameplayNotice::ResurrectionRequestedByOther(name)) => {
+                let prompt = strings.render_string(&resurrection_prompt(name));
+                death.recv_resurrection_requested(tree, dialogs, &prompt);
+            }
+            _ => {}
         }
     }
 }
