@@ -15,6 +15,7 @@ mod character;
 mod character_options;
 mod friends;
 mod option_calls;
+mod social_notices;
 mod social_page;
 pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
 mod friends_panel;
@@ -343,6 +344,10 @@ pub use skill_tree::{
     SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,
     ROOT_MISSILE_PANEL, ROOT_NONCOMBAT_PANEL,
+};
+pub use social_notices::{
+    allegiance_calls, allegiance_notice, fellowship_calls, fellowship_notice,
+    social_dialog_outcomes, SocialCall, SocialSource,
 };
 pub use social_page::{SocialAction, SocialPanel, SOCIAL_HELP_TOPIC};
 pub use stack::{StackUi, StackUiDone};

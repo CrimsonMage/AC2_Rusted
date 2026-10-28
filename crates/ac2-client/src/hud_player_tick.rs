@@ -95,7 +95,7 @@ impl HudView {
                 &outcomes,
                 &mut commands,
             );
-            crate::ui_social::dialog_outcomes(
+            ac2_ui::social_dialog_outcomes(
                 tree,
                 fellowship.as_mut(),
                 allegiance.as_mut(),

@@ -123,7 +123,7 @@ impl HudView {
                 );
             }
             if let Some(dialogs) = dialogs.as_mut() {
-                crate::ui_social::fellowship_notice(
+                ac2_ui::fellowship_notice(
                     fellowship.as_mut(),
                     mini_fellow.as_mut(),
                     tree,
@@ -142,7 +142,7 @@ impl HudView {
                 panel.recv_gameplay_notice(tree, player, notice);
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
-                crate::ui_social::allegiance_notice(page, tree, dialogs, player, notice);
+                ac2_ui::allegiance_notice(page, tree, dialogs, player, notice);
             }
             if let Some(doll) = paper_doll.as_mut() {
                 let old = *item_selection;
