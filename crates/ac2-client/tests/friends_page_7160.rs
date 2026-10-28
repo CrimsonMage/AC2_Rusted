@@ -51,7 +51,7 @@ fn the_list_lists_the_online_friends_then_the_offline_ones() {
     );
     assert_eq!(page.listed(), ["Tomas", "Ilse"]);
 
-    // A status with a location moves Ilse into the online section, in the GUN list's order.
+    // A status with a mode (not 0) moves Ilse into the online section, in the GUN list's order.
     page.recv_status(&mut hud.tree, &friend("Ilse", "Yaraq", 2));
     assert_eq!(page.listed(), ["Ilse", "Tomas"]);
 

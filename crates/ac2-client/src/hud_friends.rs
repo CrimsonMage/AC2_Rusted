@@ -16,8 +16,9 @@ pub(crate) fn friend_target(selection: Option<&SelectionFrame>) -> Option<&str> 
         .and_then(|s| s.name.as_deref())
 }
 
-/// The page's notice (`gmFriendsUI::RecvNotice_GUNResult_*`): an added friend asks for the list
-/// again; a removed one leaves the rows; a status or the list is shown.
+/// The page's notice (`gmFriendsUI::RecvNotice_GUNResult_*`, `RecvNotice_LocalStatus`): an added
+/// friend asks for the list again; a removed one leaves the rows; a status or the list is shown;
+/// the server's own status selects the drop-down.
 pub(crate) fn friends_notice(
     panel: &mut FriendsPanel,
     tree: &mut UiTree,
@@ -31,6 +32,7 @@ pub(crate) fn friends_notice(
         GameplayNotice::FriendRemoved(name) => panel.recv_removed(tree, name),
         GameplayNotice::FriendStatus(friend) => panel.recv_status(tree, friend),
         GameplayNotice::FriendsList(list) => panel.recv_list(tree, list),
+        GameplayNotice::LocalStatus(status) => panel.recv_local_status(tree, *status),
         _ => {}
     }
 }

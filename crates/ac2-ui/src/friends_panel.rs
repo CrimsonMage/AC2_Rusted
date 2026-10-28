@@ -5,20 +5,23 @@
 //! ask the client (`gmFriendsUI::HandleAddButton`, `HandleRemoveButton`); the status drop-down
 //! asks for the GUN status and its emote (`gmFriendsUI::HandleStatusChange`).
 //!
-//! Online and offline come from the friend's location: retail's `m_onlineList` and `m_offlineList`
-//! are filled by code that Legions 7160 does not carry in this page, so an empty location (the GUN
-//! status's "offline or unknown", see [`FriendInfo`]) lists the friend offline.
+//! Online and offline come from the friend's mode: `gmFriendsUI::RecvNotice_GUNResult_FriendStatus`
+//! and `RecvNotice_GUNResult_GetFriendsList` list a friend with `m_Mode == 0` offline and any other
+//! mode online. A row's state and text follow `BuildUIList`: an away friend (`MODE_AWAY`) shows
+//! the AFK message after the name and the `token_awayfromkeyboard` state, a do-not-disturb friend
+//! (`MODE_DO_NOT_DISTURB`, when not away) the DND message and `token_donotdisturb`, an online
+//! friend `token_online`, an offline one `token_offline`.
 //!
 //! The status drop-down (`StatusDropDownMenu`, a `UIElement_Menu`) is filled with the status names
 //! when the page is made; a new selection in it is the status request ([`status_request`]).
 //!
-//! Not modelled yet: `RecvNotice_LocalStatus` setting the drop-down from the server's status, the
-//! GUN mode bits of an away or do-not-disturb friend (not traced), the IsMoving reset of the
-//! drop-down (`ListenToMessage`'s global 0xFFFF0005), and the row tooltips.
+//! The server's own status (`CM_Friends::SendNotice_LocalStatus`) selects the drop-down entry
+//! ([`FriendsPanel::recv_local_status`]). Not modelled yet: the IsMoving reset of the drop-down
+//! (`ListenToMessage`'s global 0xFFFF0005), and the row tooltips.
 
 use std::sync::Arc;
 
-use ac2_weenie::FriendInfo;
+use ac2_weenie::{FriendInfo, MODE_AWAY, MODE_DO_NOT_DISTURB};
 
 use crate::element::UiTree;
 use crate::friends::{FriendsRequest, FriendsUi};
@@ -57,6 +60,17 @@ const STATUS_NAMES: [&str; 3] = [
     "ID_FriendStatus_AwayFromKeyboard",
 ];
 
+/// `gmFriendsUI::BuildUIList`'s row states (`token_online`, `token_donotdisturb`,
+/// `token_awayfromkeyboard`, `token_offline`).
+const STATE_ONLINE: &str = "token_online";
+const STATE_DO_NOT_DISTURB: &str = "token_donotdisturb";
+const STATE_AWAY: &str = "token_awayfromkeyboard";
+const STATE_OFFLINE: &str = "token_offline";
+
+/// The status messages a row appends to its name (`ID_FriendStatus_*Message`, the UI table).
+const AWAY_MESSAGE: &str = "ID_FriendStatus_AwayFromKeyboardMessage";
+const DO_NOT_DISTURB_MESSAGE: &str = "ID_FriendStatus_DoNotDisturbMessage";
+
 /// The friends page's state: the model, and the page's elements.
 #[derive(Debug, Clone)]
 pub struct FriendsPanel {
@@ -73,6 +87,10 @@ pub struct FriendsPanel {
     status: Option<usize>,
     /// The friend rows as listed: the row element and the friend's name, in list order.
     rows: Vec<(usize, String)>,
+    /// The away and do-not-disturb messages, read while the tree is built (the text is frozen
+    /// once the HUD is made).
+    away_text: Option<String>,
+    do_not_disturb_text: Option<String>,
 }
 
 impl FriendsPanel {
@@ -101,6 +119,15 @@ impl FriendsPanel {
             tree.menu_set_selected_index(menu, Some(0));
             tree.menu_drop_selection_messages(menu);
         }
+        // The toolbar's string table (the UI table, `0x41000018`, as its drop-down entries use).
+        let message = |name: &str| {
+            tree.text_data
+                .as_ref()
+                .and_then(|data| data.string(layout.string_table, id(name)))
+                .map(|units| String::from_utf16_lossy(&units))
+        };
+        let away_text = message(AWAY_MESSAGE);
+        let do_not_disturb_text = message(DO_NOT_DISTURB_MESSAGE);
         Self {
             layout: Arc::clone(layout),
             model: FriendsUi::default(),
@@ -110,6 +137,8 @@ impl FriendsPanel {
             remove,
             status,
             rows: Vec::new(),
+            away_text,
+            do_not_disturb_text,
         }
     }
 
@@ -121,6 +150,11 @@ impl FriendsPanel {
     /// The friends model (the list in the order the GUN service gave it).
     pub fn model(&self) -> &FriendsUi {
         &self.model
+    }
+
+    /// The friend rows' elements, top first (the marker rows are not among them).
+    pub fn row_roots(&self) -> Vec<usize> {
+        self.rows.iter().map(|(root, _)| *root).collect()
     }
 
     /// The friend rows as listed, top first: each row's friend name.
@@ -139,6 +173,18 @@ impl FriendsPanel {
     pub fn recv_status(&mut self, tree: &mut UiTree, status: &FriendInfo) {
         self.model.recv_status(status);
         self.build(tree);
+    }
+
+    /// `gmFriendsUI::RecvNotice_LocalStatus`: the server's status (a [`STATUS_TABLE`] mode) selects
+    /// its drop-down entry. The selection is broadcast, as retail's `SetSelectedIndex` is, so the
+    /// page's status change (`HandleStatusChange`) follows through [`FriendsPanel::message`].
+    pub fn recv_local_status(&mut self, tree: &mut UiTree, status: u32) {
+        let Some(index) = STATUS_TABLE.iter().position(|(mode, _)| *mode == status) else {
+            return;
+        };
+        if let Some(menu) = self.status {
+            tree.menu_set_selected_index(menu, Some(index));
+        }
     }
 
     /// `gmFriendsUI::RecvNotice_GUNResult_AddFriend`: the request for the list again.
@@ -241,23 +287,23 @@ impl FriendsPanel {
             .model
             .friends()
             .iter()
-            .filter(|f| !f.location.is_empty())
+            .filter(|f| f.is_online())
             .cloned()
             .collect();
         let offline: Vec<FriendInfo> = self
             .model
             .friends()
             .iter()
-            .filter(|f| f.location.is_empty())
+            .filter(|f| !f.is_online())
             .cloned()
             .collect();
         self.add_marker(tree, list, "OnlineFriendsMarker");
         for friend in &online {
-            self.add_row(tree, list, friend, "normal");
+            self.add_online_row(tree, list, friend);
         }
         self.add_marker(tree, list, "OfflineFriendsMarker");
         for friend in &offline {
-            self.add_row(tree, list, friend, "offline");
+            self.add_row(tree, list, friend, STATE_OFFLINE, None);
         }
         self.update_remove(tree);
     }
@@ -271,7 +317,27 @@ impl FriendsPanel {
         }
     }
 
-    fn add_row(&mut self, tree: &mut UiTree, list: usize, friend: &FriendInfo, state: &str) {
+    /// An online friend's row (`BuildUIList`'s online branch): away before do-not-disturb, the
+    /// message appended to the name.
+    fn add_online_row(&mut self, tree: &mut UiTree, list: usize, friend: &FriendInfo) {
+        let (state, suffix) = if friend.mode & MODE_AWAY != 0 {
+            (STATE_AWAY, self.away_text.clone())
+        } else if friend.mode & MODE_DO_NOT_DISTURB != 0 {
+            (STATE_DO_NOT_DISTURB, self.do_not_disturb_text.clone())
+        } else {
+            (STATE_ONLINE, None)
+        };
+        self.add_row(tree, list, friend, state, suffix);
+    }
+
+    fn add_row(
+        &mut self,
+        tree: &mut UiTree,
+        list: usize,
+        friend: &FriendInfo,
+        state: &str,
+        suffix: Option<String>,
+    ) {
         let Some(desc) = self.layout.find_element(id("FriendTemplate")) else {
             return;
         };
@@ -279,7 +345,8 @@ impl FriendsPanel {
             return;
         };
         if let Some(name) = tree.child_recursive(root, id("FriendName")) {
-            tree.set_text(name, &friend.name);
+            let text = format!("{}{}", friend.name, suffix.unwrap_or_default());
+            tree.set_text(name, &text);
         }
         tree.set_state(root, id(state));
         tree.list_add_item(list, root);
