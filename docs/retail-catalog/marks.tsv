@@ -10759,7 +10759,7 @@ key	status	note
 0060cce0	-	assignment or comparison of plain data (operator=, ==, <)
 0060cd70	-	assignment or comparison of plain data (operator=, ==, <)
 0060cd80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-0060cdb0	_	needs port: vendor sale lookup (UIShop::InqSale)
+0060cdb0	x	ac2-weenie ui_data.rs Shop::inq_sale (first sale with the ordinal, list order)
 0060cdf0	-	assignment or comparison of plain data (operator=, ==, <)
 0060ce30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060ce90	-	assignment or comparison of plain data (operator=, ==, <)

@@ -53,6 +53,38 @@ pub struct Shop {
     pub store_size: i32,
 }
 
+impl Shop {
+    /// `UIShop::InqSale`: the first sale (in list order) whose ordinal is `ordinal`; the retail
+    /// call copies it out and returns false when no sale has that ordinal.
+    pub fn inq_sale(&self, ordinal: u32) -> Option<&ShopSale> {
+        self.sales.iter().find(|sale| sale.ordinal == ordinal)
+    }
+}
+
+#[cfg(test)]
+mod shop_tests {
+    use super::*;
+
+    fn sale(ordinal: u32, stock: i32) -> ShopSale {
+        ShopSale {
+            ordinal,
+            stock,
+            ..ShopSale::default()
+        }
+    }
+
+    #[test]
+    fn inq_sale_finds_the_first_sale_with_the_ordinal() {
+        let shop = Shop {
+            sales: vec![sale(1, 5), sale(2, 6), sale(2, 7)],
+            ..Shop::default()
+        };
+        assert_eq!(shop.inq_sale(2).map(|s| s.stock), Some(6));
+        assert_eq!(shop.inq_sale(3), None);
+        assert_eq!(Shop::default().inq_sale(0), None);
+    }
+}
+
 /// `CraftSkillAdaptor`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CraftSkill {

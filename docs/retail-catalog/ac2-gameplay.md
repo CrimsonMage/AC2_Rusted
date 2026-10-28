@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 213 done, 30 partial, 41 to do, 215 skipped.
+499 retail functions: 214 done, 30 partial, 40 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -414,10 +414,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmSceneInfo::Set` · 0060a280 · legions 005caf90 — ac2-script/src/glue/story.rs Set and AddKeyframe (gmSceneInfo::Set, AddKeyframe)
 - [-] `gmSceneInfo::gmSceneInfo` · 0060a2d0 · legions 005cafe0 — constructor of plain data
 
-## `ac2/shared/src/shop/uishop.cpp.c` (2/5)
+## `ac2/shared/src/shop/uishop.cpp.c` (3/5)
 
 ### UIShop
-- [ ] `UIShop::InqSale` · 0060cdb0 · legions 005cdbb0 — needs port: vendor sale lookup (UIShop::InqSale)
+- [x] `UIShop::InqSale` · 0060cdb0 · legions 005cdbb0 — ac2-weenie ui_data.rs Shop::inq_sale (first sale with the ordinal, list order)
 
 ### List<UIShopSale>
 - [-] `List<UIShopSale>::operator=` · 0060cdf0 · legions 005cdbf0 — assignment or comparison of plain data (operator=, ==, <)
