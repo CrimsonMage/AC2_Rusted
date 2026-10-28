@@ -10,17 +10,13 @@
 
 use ac2_net::protocol::ServerPosition;
 use ac2_physics::{Frame, Heading, PhysicsBody, Position, Quaternion, Vector};
-use ac2_smartbox::remotes::{LocalObject, ObjectRecord, ResidencyEffect};
+use ac2_smartbox::remotes::{LocalObject, MoveOutcome, ObjectRecord, ResidencyEffect};
 use ac2_weenie::{OnlineSession, RemoteObject};
 
-pub(crate) use ac2_smartbox::remotes::{is_entity_desc, look_snapshot, visible};
+pub(crate) use ac2_smartbox::remotes::{is_entity_desc, look_snapshot};
 
 use crate::frame::FxFollow;
 use crate::world_data::BodyData;
-
-/// `CPhysicsObj::RecvEvt_Position`: beyond this distance from the player (metres) an object is
-/// out of physics range (`HandleOutOfPhysicsRange`) and snaps to its positions.
-const PHYSICS_RANGE: f32 = 96.0;
 
 /// The client's residency of the objects other than the player: the smartbox table over the
 /// client's body payload.
@@ -159,40 +155,17 @@ impl RemoteCalls for Remotes {
 
     fn moved(&mut self, id: u64, update: &ServerPosition, teleported: bool, cx: &mut Context<'_>) {
         let received = received_position(update);
-        let Some(remote) = self.get_mut(id) else {
-            return;
-        };
-        if remote.body.is_none() {
-            // Still being created: the newest position is where it will appear.
-            remote.stored = Some(received);
-            return;
-        }
-        if !visible(cx.terrain, received.cell_id) {
-            let mut effects = Vec::new();
-            self.leave_visibility(id, received, &|id| record(cx.session, id), &mut effects);
-            apply_effects(cx.session, effects);
-            return;
-        }
-        let mut out_of_range = false;
-        if let Some(player) = cx.player {
-            let d = player.offset_to(&received);
-            let (x, y, z) = (f64::from(d.x), f64::from(d.y), f64::from(d.z));
-            remote.player_distance = (z * z + y * y + x * x).sqrt() as f32;
-            // `HandleInPhysicsRange` / `HandleOutOfPhysicsRange`.
-            remote.active = remote.player_distance <= PHYSICS_RANGE;
-            out_of_range = !remote.active;
-        }
-        // A teleport, or an object out of range or out of the world, snaps there
-        // (`StopInterpolating`, `SyncPositionSimple`); otherwise it interpolates there.
-        if teleported || out_of_range || !remote.in_world {
-            if let Some(body) = &mut remote.body {
-                body.stop_interpolating();
-            }
-            let effects =
-                self.sync_position_simple(id, received, &|id| record(cx.session, id), cx.terrain);
-            apply_effects(cx.session, effects);
-        } else {
-            interpolate_to(self, id, update, received, cx);
+        let outcome = self.receive_position(
+            id,
+            received,
+            teleported,
+            cx.player,
+            &|id| record(cx.session, id),
+            cx.terrain,
+        );
+        match outcome {
+            MoveOutcome::Placed(effects) => apply_effects(cx.session, effects),
+            MoveOutcome::Interpolate => interpolate_to(self, id, update, received, cx),
         }
     }
 

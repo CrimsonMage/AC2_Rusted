@@ -22,6 +22,10 @@ use crate::BodyData;
 /// `FXManager::DoCreateObjectFX`'s `CollisionParameters` bit for an FX object.
 pub const FX_OBJECT_COLLISION_BIT: u32 = 0x10;
 
+/// `CPhysicsObj::RecvEvt_Position`: beyond this distance from the player (metres) an object is
+/// out of physics range (`HandleOutOfPhysicsRange`) and snaps to its positions.
+const PHYSICS_RANGE: f32 = 96.0;
+
 /// `CPhysicsObj::SyncPositionSimple`'s placement flags.
 pub const SYNC_POSITION_FLAGS: u32 = 0x1010;
 
@@ -39,6 +43,17 @@ pub struct ObjectRecord {
     pub visual: Option<u32>,
     /// The `EntityDesc` DID from its create (`RemoteObject::entity`).
     pub entity: Option<u32>,
+}
+
+/// What a received position did (`CPhysicsObj::RecvEvt_Position` for an object other than the
+/// player): the residency placed it, or the body interpolates to it.
+#[derive(Debug, PartialEq, Eq)]
+pub enum MoveOutcome {
+    /// The body walks to the position (`InterpolateTo`); the client makes that call.
+    Interpolate,
+    /// The residency placed the object (or only stored its position); these session changes
+    /// follow.
+    Placed(Vec<ResidencyEffect>),
 }
 
 /// A client-made object (`CObjectMaint::CreateTemporaryObject`), such as an FX's, with no
@@ -655,6 +670,50 @@ impl<B> Remotes<B> {
         if !placed {
             self.remove_from_lost_cell(id);
         }
+    }
+
+    /// `CPhysicsObj::RecvEvt_Position` for an object other than the player, up to the walk: a
+    /// position for an object still being created is stored; one outside a resident cell leaves
+    /// visibility there; otherwise the physics range is updated, and a teleport, an object out of
+    /// range or out of the world snaps there (`SyncPositionSimple`). The rest interpolates.
+    pub fn receive_position(
+        &mut self,
+        id: u64,
+        received: Position,
+        teleported: bool,
+        player: Option<Position>,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+    ) -> MoveOutcome {
+        let Some(remote) = self.get_mut(id) else {
+            return MoveOutcome::Placed(Vec::new());
+        };
+        if remote.body.is_none() {
+            // Still being created: the newest position is where it will appear.
+            remote.stored = Some(received);
+            return MoveOutcome::Placed(Vec::new());
+        }
+        if !visible(terrain, received.cell_id) {
+            let mut effects = Vec::new();
+            self.leave_visibility(id, received, records, &mut effects);
+            return MoveOutcome::Placed(effects);
+        }
+        let mut out_of_range = false;
+        if let Some(player) = player {
+            let d = player.offset_to(&received);
+            let (x, y, z) = (f64::from(d.x), f64::from(d.y), f64::from(d.z));
+            remote.player_distance = (z * z + y * y + x * x).sqrt() as f32;
+            // `HandleInPhysicsRange` / `HandleOutOfPhysicsRange`.
+            remote.active = remote.player_distance <= PHYSICS_RANGE;
+            out_of_range = !remote.active;
+        }
+        if teleported || out_of_range || !remote.in_world {
+            if let Some(body) = &mut remote.body {
+                body.stop_interpolating();
+            }
+            return MoveOutcome::Placed(self.sync_position_simple(id, received, records, terrain));
+        }
+        MoveOutcome::Interpolate
     }
 
     /// `CObjectMaint::ReleaseObjCell` for a released block: each object of the block in the
