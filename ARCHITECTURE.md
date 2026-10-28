@@ -51,6 +51,8 @@ ac2-core → ac2-prefs → ac2-math → ac2-dat → ac2-db → ac2-net
 so it needs no DAT access). `ac2-script`, `ac2-gameplay` and `ac2-audio` slot in when
 they are built: script after `ac2-weenie`, gameplay after script, audio after `ac2-world`
 (it needs only `ac2-db` so far; `ac2-client` drives it).
+`ac2-script` also depends on `ac2-anim` (the latent mode and behaviour completions,
+`ac2_script::host::latent::completions`), which precedes it in the order.
 `ac2-ui` depends on `ac2-script` (the saved window locations are `UISaveLocations`, the
 script's native layout, `ac2_ui::window_locations`); script sits before ui in the order.
 

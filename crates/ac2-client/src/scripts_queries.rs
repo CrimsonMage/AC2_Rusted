@@ -78,6 +78,10 @@ impl ScriptPort for Client {
         self.session.send_to_room(room, text, flags);
     }
 
+    fn push_outbox(&mut self, events: Vec<SessionEvent>) {
+        self.script_outbox.extend(events);
+    }
+
     fn request_script_data(&mut self, read: DataRequest) {
         self.loader.request(Request::ScriptData(read));
     }

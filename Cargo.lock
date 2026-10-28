@@ -195,6 +195,7 @@ dependencies = [
 name = "ac2-script"
 version = "0.1.0"
 dependencies = [
+ "ac2-anim",
  "ac2-assets",
  "ac2-core",
  "ac2-dat",

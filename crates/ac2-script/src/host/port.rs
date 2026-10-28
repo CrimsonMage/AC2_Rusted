@@ -93,6 +93,10 @@ pub trait ScriptPort {
     /// the object.
     fn object_appearance(&self, id: u64) -> Option<Appearance>;
 
+    /// Events the script boundary hands to the session's story flow (a latent completion's
+    /// output, `CPhysicsObj::HandleModeDone`'s resumes), after the frame's own events.
+    fn push_outbox(&mut self, events: Vec<SessionEvent>);
+
     /// Asks the loader for object `id`'s script state (package `package`, entity DID `did`); its
     /// answer comes back as `script_state_loaded`.
     fn request_script_state(&mut self, id: u64, package: u32, did: u32);

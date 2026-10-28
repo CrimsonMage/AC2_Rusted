@@ -10,6 +10,7 @@ use ac2_net::protocol::ObjectAction;
 use super::port::ScriptPort;
 use super::{DispatchOutcome, ScriptHost};
 use crate::vm::{tag, Fault};
+use ac2_anim::Ac2AnimEvent;
 use ac2_weenie::SessionEvent;
 
 /// `gCWPhysicsObject::CallEFun_DoMode` (the efun the context waits in, `m_efun` 0x800015).
@@ -87,4 +88,34 @@ pub fn resume<P: ScriptPort + ?Sized>(
         return;
     };
     super::outcome::outcome(port, object, None, Ok(outcome), out);
+}
+
+/// The (context, error) of each script-owned mode or behaviour a body reports done this step
+/// (`CPhysicsObj::HandleModeDone` / `HandleBehaviorDone`; context 0 is no script's).
+pub fn completions(events: &[Ac2AnimEvent]) -> Vec<(u32, u32)> {
+    events
+        .iter()
+        .filter_map(|event| match *event {
+            Ac2AnimEvent::ModeDone { context, error }
+            | Ac2AnimEvent::BehaviorDone { context, error }
+                if context != 0 =>
+            {
+                Some((context, error))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// The frame's completions on object `object`'s body: each waiting context resumes
+/// ([`resume`]), and what they produce goes to the story flow (`push_outbox`).
+pub fn finish<P: ScriptPort + ?Sized>(port: &mut P, object: u64, completions: Vec<(u32, u32)>) {
+    if completions.is_empty() {
+        return;
+    }
+    let mut out = Vec::new();
+    for (context, error) in completions {
+        resume(port, object, context, error, &mut out);
+    }
+    port.push_outbox(out);
 }

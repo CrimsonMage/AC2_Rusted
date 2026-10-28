@@ -457,8 +457,8 @@ impl Client {
         });
         let player_id = player_taken.as_ref().map(|(id, _, _)| *id);
         if let Some((id, _, player_events)) = &player_taken {
-            let completions = crate::client_latent::completions(player_events);
-            self.finish_latent(*id, completions);
+            let completions = ac2_script::host::latent::completions(player_events);
+            ac2_script::host::latent::finish(self, *id, completions);
         }
         let mut events = self.remotes.take_animation_events();
         if let Some(taken) = player_taken {
