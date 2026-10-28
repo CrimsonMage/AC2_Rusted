@@ -145,10 +145,12 @@ impl Items3dUi {
         let Some(item) = s.item(selection) else {
             return;
         };
-        match item.icon_layers.first() {
-            Some(&layer) => tree.set_image(icon, layer, 0),
-            None if item.icon != 0 => tree.set_image(icon, item.icon, 0),
-            None => return,
+        if !item.icon_layers.is_empty() {
+            tree.set_icon_desc(icon, &item.icon_layers);
+        } else if item.icon != 0 {
+            tree.set_image(icon, item.icon, 0);
+        } else {
+            return;
         }
         tree.set_bool(icon, tokenize("dragable"), true);
         let attributes = &mut tree.el_mut(icon).attributes;

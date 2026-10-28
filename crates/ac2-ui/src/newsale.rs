@@ -200,10 +200,10 @@ impl NewSaleUi {
         };
         if let Some(icon) = self.child(tree, "NewSaleIcon") {
             match &slot {
-                Some(slot) => {
-                    let image = slot.icon_layers.first().copied().unwrap_or(slot.icon);
-                    tree.set_image(icon, image, 2);
+                Some(slot) if !slot.icon_layers.is_empty() => {
+                    tree.set_icon_desc(icon, &slot.icon_layers);
                 }
+                Some(slot) => tree.set_image(icon, slot.icon, 2),
                 None => tree.clear_image(icon),
             }
         }

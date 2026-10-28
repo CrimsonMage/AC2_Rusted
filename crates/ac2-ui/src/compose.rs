@@ -187,11 +187,15 @@ impl UiTree {
             return;
         };
         if let Some(mode) = el.image {
-            if let Some(image) = images.get(&mode.file) {
-                let scale = matches!(
-                    el.attributes.get(&crate::token::SIZE_IMAGE_TO_OWNER),
-                    Some(crate::layout::AttributeValue::Bool(true))
-                );
+            let scale = matches!(
+                el.attributes.get(&crate::token::SIZE_IMAGE_TO_OWNER),
+                Some(crate::layout::AttributeValue::Bool(true))
+            );
+            if let Some(layers) = &el.icon_layers {
+                if let Some(icon) = crate::icon_desc::composite(layers, images) {
+                    surface.draw_graphic(&icon, mode, scale, el.alpha_value, me, clip);
+                }
+            } else if let Some(image) = images.get(&mode.file) {
                 surface.draw_graphic(image, mode, scale, el.alpha_value, me, clip);
             }
         }

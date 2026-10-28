@@ -97,6 +97,8 @@ pub struct UiElement {
     pub(crate) visible: bool,
     pub(crate) image: Option<UiImage>,
     pub(crate) alpha_image: Option<u32>,
+    /// The icon description's layers (`SetIconDesc`), drawn in place of `image` alone.
+    pub(crate) icon_layers: Option<std::sync::Arc<[crate::icon_desc::IconLayer]>>,
     /// `m_alphaValue` (-1 until `SetImage` sets it): the constant alpha of value-alpha images.
     pub(crate) alpha_value: f32,
     pub(crate) attributes: HashMap<u32, AttributeValue>,
@@ -419,6 +421,11 @@ impl UiTree {
                     .map(|image| image.file)
                     .into_iter()
                     .chain(el.alpha_image)
+                    .chain(
+                        el.icon_layers
+                            .iter()
+                            .flat_map(|l| l.iter().map(|l| l.image).filter(|&i| i != 0)),
+                    )
             })
             .collect()
     }
@@ -495,6 +502,7 @@ impl UiTree {
             visible: false,
             image: None,
             alpha_image: None,
+            icon_layers: None,
             alpha_value: -1.0,
             attributes: HashMap::new(),
             text,
@@ -740,6 +748,7 @@ impl UiTree {
     /// `UIRegion::ClearImage`.
     pub fn clear_image(&mut self, index: usize) {
         let el = self.el_mut(index);
+        el.icon_layers = None;
         if el.image.take().is_some() {
             self.changed = true;
         }
@@ -777,6 +786,7 @@ impl UiTree {
             el.alpha_value = alpha;
         }
         el.image = Some(UiImage { file, draw_mode });
+        el.icon_layers = None;
         self.changed = true;
     }
 

@@ -28,8 +28,8 @@ fn id(name: &str) -> u32 {
 pub struct ItemSlot {
     /// `GetIconID`.
     pub icon: u32,
-    /// The icon description's layer images, bottom first (`GetTotalIconDesc`); empty for none.
-    pub icon_layers: Vec<u32>,
+    /// The icon description's layers, bottom first (`GetTotalIconDesc`); empty for none.
+    pub icon_layers: Vec<crate::IconLayer>,
     /// `GetPotentiallyPluralizedName` at the shown quantity, rendered.
     pub name: String,
     /// `GetQuantity`, `GetStackable`, `GetMaxStackSize`.
@@ -293,9 +293,12 @@ impl ItemDisplay {
                 tree.set_tooltip(self.icon, None);
             }
             Some(slot) => {
-                match slot.icon_layers.first() {
-                    Some(&layer) => tree.set_image(self.icon, layer, 0),
-                    None => tree.set_image(self.icon, slot.icon, 0),
+                // `ItemDisplay::Update`: the icon description when the item has one
+                // (`SetIconDesc`), else its icon id.
+                if slot.icon_layers.is_empty() {
+                    tree.set_image(self.icon, slot.icon, 0);
+                } else {
+                    tree.set_icon_desc(self.icon, &slot.icon_layers);
                 }
                 self.waiting = false;
                 background_state = if pending { id("pending") } else { STATELESS };

@@ -16,7 +16,7 @@ impl InventorySource for ClientPlayer<'_> {
             icon_layers: frame
                 .icon_layers
                 .iter()
-                .map(|&(_, image, _)| image)
+                .map(|&(_, image, shift_color)| ac2_ui::IconLayer { image, shift_color })
                 .collect(),
             name: self.render_info(&frame.name),
             quantity: frame.stats.quantity.max(0) as u32,

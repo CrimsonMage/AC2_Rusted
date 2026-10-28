@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 197 done, 14 partial, 0 to do, 574 skipped.
+785 retail functions: 199 done, 14 partial, 0 to do, 572 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -73,14 +73,14 @@ Legend and workflow: [README](README.md).
 - [-] `gmWeenieDesc::RemoveString` · 00603c00 — vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
 - [-] `gmWeenieDesc::Dump` · 00603c60 · legions 005c4b40 — debug dump of the description's fields (Legions 0x005C4B40); no client caller outside tools
 
-## `portal/client/src/image/graphic.cpp.c` (4/12)
+## `portal/client/src/image/graphic.cpp.c` (6/12)
 
 ### RenderSurfaceLocal
 - [x] `RenderSurfaceLocal::GetGlobalOrLocal` · 00568050 · legions 00537fe0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### Graphic
 - [-] `Graphic::Graphic` · 005680a0 · legions 00538030 — ctor/dtor of plain data; Rust constructs and drops values
-- [-] `Graphic::Incorporate` · 005680c0 · legions 00538050 — ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
+- [x] `Graphic::Incorporate` · 005680c0 · legions 00538050 — ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
 - [-] `Graphic::SetToDefaultGraphic` · 005680f0 · legions 00538080 — ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
 - [-] `Graphic::GetWidth` · 005681e0 · legions 00538170 — accessor of a Rust typed field
 - [-] `Graphic::GetHeight` · 00568200 · legions 00538190 — accessor of a Rust typed field
@@ -93,7 +93,7 @@ Legend and workflow: [README](README.md).
 - [~] `Graphic::Graphic` · 00568380 · legions 00538310 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [-] `Graphic::Graphic` · 00568430 · legions 005383c0 — ctor/dtor of plain data; Rust constructs and drops values
 - [x] `Graphic::Draw` · 00568470 · legions 00538400 — ac2-ui compose.rs / element.rs set_image
-- [-] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0 — ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
+- [x] `Graphic::InitFromIconLayerDesc` · 00568920 · legions 005388b0 — ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
 
 ## `portal/client/src/render/material/layermodifier.cpp.c` (7/46)
 

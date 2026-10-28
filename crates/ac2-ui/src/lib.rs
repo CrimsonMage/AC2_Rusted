@@ -238,6 +238,7 @@ mod target_select;
 pub use target_select::{
     frame_selection_calls, select_key_calls, SelectionCall, SelectionObject, SelectionSource,
 };
+mod icon_desc;
 #[cfg(test)]
 mod tests;
 mod text;
@@ -335,6 +336,7 @@ pub use hud::{
     build_gameplay_hud, load_layout_by_enum, load_ui_images, GameplayHud, GAMEPLAY_ROOTS,
     LAYOUT_GAMEPLAY, LAYOUT_STATUSBAR, LAYOUT_TOOLBAR, UILAYOUT_GROUP,
 };
+pub use icon_desc::IconLayer;
 pub use indicators::IndicatorsUi;
 pub use ingredient::{IngredientCommand, IngredientSource, IngredientUi};
 pub use input::{

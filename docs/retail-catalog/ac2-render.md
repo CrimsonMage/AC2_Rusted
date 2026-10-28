@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 151 done, 54 partial, 218 to do, 358 skipped.
+781 retail functions: 152 done, 54 partial, 217 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -291,7 +291,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderSurface::LoadFromFile` · 005b2170 — text source loader, admin build only
 - [-] `RenderSurface::Unlock` · 005b2370 · legions 0057d9f0 — D3D device/resource plumbing; wgpu replaces
 
-## `portal/client/src/render/core/surface/surfacewindow.cpp.c` (4/25)
+## `portal/client/src/render/core/surface/surfacewindow.cpp.c` (5/25)
 
 ### SurfaceWindow
 - [-] `SurfaceWindow::End` · 005aed30 · legions 0057a7b0 — D3D device/resource plumbing; wgpu replaces
@@ -320,7 +320,7 @@ Legend and workflow: [README](README.md).
 ### SurfaceWindow
 - [-] `SurfaceWindow::Unlock` · 005af950 · legions 0057b490 — D3D device/resource plumbing; wgpu replaces
 - [~] `SurfaceWindow::Blit` · 005af9c0 · legions 0057b500 — A8R8G8B8 only; colour key and format conversion not modelled
-- [ ] `SurfaceWindow::Multiply` · 005b00a0 · legions 0057bbd0 — needs port: surface multiply blend
+- [x] `SurfaceWindow::Multiply` · 005b00a0 · legions 0057bbd0 — ac2-ui icon_desc.rs multiply: each channel as byte/255 (RGBAColor::SetColor32's float) times the ARGB shift colour's, stored trunc(x * 255)
 - [ ] `SurfaceWindow::Fill` · 005b0350 · legions 0057be70 — needs port: whole-surface colour fill
 - [x] `SurfaceWindow::FillArea` · 005b0530 · legions 0057c050 — SurfaceWindow::FillArea cited in ac2-ui radar.rs:9 (blip pixels filled as areas)
 - [x] `SurfaceWindow::FillArea` · 005b05e0 · legions 0057c100 — SurfaceWindow::FillArea cited in ac2-ui radar.rs:9 (blip pixels filled as areas)
