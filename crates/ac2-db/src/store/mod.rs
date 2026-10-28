@@ -566,9 +566,65 @@ impl ResourceStore {
         DecodeContext::new(reference.qualified_data_id(), T::TYPE_NAME)
             .ensure_resource_type(T::RESOURCE_TYPE)?;
         let key = reference.resource_key();
-        if let Some(cached) = self.typed_cache.get::<T>(key) {
-            return Ok(Some(cached));
+        let typed_key = TypedCacheKey::of::<T>(key);
+        // In-flight dedupe, as the body loads have it: concurrent first gets of one DID (the
+        // loader threads asking for the same neighbour landblock) read and decode it once.
+        loop {
+            if let Some(cached) = self.typed_cache.get::<T>(key) {
+                return Ok(Some(cached));
+            }
+            match self.decode_flights.join(typed_key, T::TYPE_NAME) {
+                DecodeFlightJoin::Completed(Some(flight_value)) => {
+                    let Some(decoded) = downcast_flight_value::<T>(&flight_value.value) else {
+                        continue;
+                    };
+                    return Ok(Some(self.typed_cache.insert_with_retained_bytes(
+                        key,
+                        decoded,
+                        flight_value.retained_bytes,
+                    )));
+                }
+                DecodeFlightJoin::Completed(None) => return Ok(None),
+                DecodeFlightJoin::Retry => continue,
+                DecodeFlightJoin::Loader(flight) => {
+                    match self.decode_packed_from_record::<T>(key) {
+                        Ok(Some((decoded, retained_bytes))) => {
+                            let cached = self.typed_cache.insert_with_retained_bytes(
+                                key,
+                                decoded,
+                                retained_bytes,
+                            );
+                            let flight_value = FlightValue {
+                                value: cached.value_arc(),
+                                retained_bytes,
+                                _cache_pin: Some(cached.pin()),
+                            };
+                            self.decode_flights
+                                .complete(typed_key, &flight, Some(flight_value));
+                            return Ok(Some(cached));
+                        }
+                        Ok(None) => {
+                            self.decode_flights.complete(typed_key, &flight, None);
+                            return Ok(None);
+                        }
+                        Err(error) => {
+                            self.decode_failures.record(key, T::TYPE_NAME, &error);
+                            self.decode_flights.fail(typed_key, &flight);
+                            return Err(error);
+                        }
+                    }
+                }
+            }
         }
+    }
+
+    fn decode_packed_from_record<T>(
+        &self,
+        key: ResourceKey,
+    ) -> ResourceResult<Option<(Arc<T>, usize)>>
+    where
+        T: ResourcePackedDecode,
+    {
         let Some(input) = self.read_record_for_decode(
             key.file_kind(),
             key.data_id(),
@@ -587,11 +643,7 @@ impl ResourceStore {
         let decoded = T::decode_packed(qdid, pack_version, bytes)?;
         let retained_bytes = decoded.cache_retained_bytes();
         drop(input);
-        Ok(Some(self.typed_cache.insert_with_retained_bytes(
-            key,
-            Arc::new(decoded),
-            retained_bytes,
-        )))
+        Ok(Some((Arc::new(decoded), retained_bytes)))
     }
 
     pub(crate) fn typed_cache_handle(&self) -> TypedResourceCache {

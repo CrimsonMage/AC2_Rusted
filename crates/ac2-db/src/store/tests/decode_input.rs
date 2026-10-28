@@ -194,6 +194,68 @@ fn packed_decoder_receives_record_bytes_without_a_dbobj_header() {
     assert_eq!(decoded.0, packed_bytes);
 }
 
+/// Counts its decodes, slowly enough that concurrent first gets overlap.
+#[derive(Debug)]
+struct SlowPackedCount;
+
+static SLOW_PACKED_DECODES: AtomicUsize = AtomicUsize::new(0);
+
+impl ResourcePackedDecode for SlowPackedCount {
+    const TYPE_NAME: &'static str = "slow counted packed decode";
+    const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::FixtureA;
+
+    fn decode_packed(_: QualifiedDataId, _: u16, _: &[u8]) -> ResourceResult<Self> {
+        SLOW_PACKED_DECODES.fetch_add(1, Ordering::SeqCst);
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        Ok(Self)
+    }
+
+    fn cache_retained_bytes(&self) -> usize {
+        1
+    }
+}
+
+/// One `Arc` per DID with in-flight dedupe: loader threads asking for the same packed record at
+/// once read and decode it once and share the result.
+#[test]
+fn concurrent_packed_loads_join_one_read_and_decode() {
+    let did = 0x2200_0B07;
+    let store = Arc::new(store_for(FixtureEntry {
+        did,
+        bytes: vec![1, 2, 3, 4],
+        flags: 0,
+        version: 1,
+        date_stamp: 0,
+    }));
+    let barrier = Arc::new(std::sync::Barrier::new(4));
+    let loads: Vec<_> = (0..4)
+        .map(|_| {
+            let (store, barrier) = (Arc::clone(&store), Arc::clone(&barrier));
+            std::thread::spawn(move || {
+                barrier.wait();
+                store
+                    .load_cached_packed::<SlowPackedCount>(body_reference(did))
+                    .expect("packed decode should succeed")
+                    .expect("packed record should exist")
+            })
+        })
+        .collect();
+    let loaded: Vec<_> = loads
+        .into_iter()
+        .map(|load| load.join().expect("loader finishes"))
+        .collect();
+    assert_eq!(SLOW_PACKED_DECODES.load(Ordering::SeqCst), 1);
+    assert!(loaded
+        .iter()
+        .all(|value| CachedResource::ptr_eq(value, &loaded[0])));
+    let reads = store
+        .dataset()
+        .read_telemetry(DatFileKind::Portal)
+        .expect("portal DAT")
+        .total_read_requests;
+    assert_eq!(reads, 1, "one DAT read for four concurrent gets");
+}
+
 fn body_payload(did: u32, body_len: usize) -> Vec<u8> {
     let mut payload = did.to_le_bytes().to_vec();
     payload.extend((0..body_len).map(|index| index as u8));
