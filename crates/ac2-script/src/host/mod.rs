@@ -18,6 +18,7 @@ mod inventory_globals;
 pub mod inventory_queries;
 pub mod item_queries;
 pub mod latent;
+pub mod lifecycle;
 mod notices;
 mod notices_typed;
 pub mod outcome;

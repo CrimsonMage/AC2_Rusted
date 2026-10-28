@@ -5,12 +5,20 @@
 
 use ac2_net::protocol::ObjectAction;
 use ac2_physics::CollisionParameters;
-use ac2_weenie::SessionEvent;
+use ac2_weenie::{Appearance, SessionEvent, WeenieQualities};
 
 use super::item_queries::ItemLook;
 use super::latent::LatentPhysics;
 use super::outcome::ScriptState;
 use super::{DataRequest, DispatchOutcome, ScriptHost};
+
+/// The script facts the session keeps for an object (`CWDistributor::Construct`'s inputs): its
+/// script package and its entity DID, when it has them.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ScriptIdentity {
+    pub package: Option<u32>,
+    pub entity: Option<u32>,
+}
 
 pub trait ScriptPort {
     /// The player's object id, when the session has one (`OnlineSession::player`).
@@ -73,4 +81,19 @@ pub trait ScriptPort {
 
     /// A DAT read the VM stopped for, handed to the loader; its answer resumes the waiting calls.
     fn request_script_data(&mut self, read: DataRequest);
+
+    /// The script package and entity DID the session has for object `id`, `None` when it has no
+    /// such object.
+    fn script_identity(&self, id: u64) -> Option<ScriptIdentity>;
+
+    /// A copy of object `id`'s qualities as the session keeps them, `None` without the object.
+    fn object_qualities(&self, id: u64) -> Option<WeenieQualities>;
+
+    /// A copy of object `id`'s local visual description as the session keeps it, `None` without
+    /// the object.
+    fn object_appearance(&self, id: u64) -> Option<Appearance>;
+
+    /// Asks the loader for object `id`'s script state (package `package`, entity DID `did`); its
+    /// answer comes back as `script_state_loaded`.
+    fn request_script_state(&mut self, id: u64, package: u32, did: u32);
 }

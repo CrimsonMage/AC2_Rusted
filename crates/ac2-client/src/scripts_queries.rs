@@ -7,13 +7,13 @@ use ac2_net::protocol::ObjectAction;
 use ac2_net::protocol::{EffectUiNode, GameplayOptionsProfile, ShortcutInfo};
 use ac2_physics::CollisionParameters;
 use ac2_script::host::item_queries::{ItemDisplay, ItemLook, ItemQueries};
-use ac2_script::host::port::ScriptPort;
+use ac2_script::host::port::{ScriptIdentity, ScriptPort};
 use ac2_script::host::queries::ScriptQueries;
 use ac2_script::host::LatentPhysics;
 use ac2_script::host::{
     DataRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptHost, ScriptState,
 };
-use ac2_weenie::SessionEvent;
+use ac2_weenie::{Appearance, SessionEvent, WeenieQualities};
 
 use crate::loader::Request;
 
@@ -80,6 +80,28 @@ impl ScriptPort for Client {
 
     fn request_script_data(&mut self, read: DataRequest) {
         self.loader.request(Request::ScriptData(read));
+    }
+
+    fn script_identity(&self, id: u64) -> Option<ScriptIdentity> {
+        self.session.objects().get(id).map(|o| ScriptIdentity {
+            package: o.script_package,
+            entity: o.entity,
+        })
+    }
+
+    fn object_qualities(&self, id: u64) -> Option<WeenieQualities> {
+        self.session.objects().get(id).map(|o| o.qualities.clone())
+    }
+
+    fn object_appearance(&self, id: u64) -> Option<Appearance> {
+        self.session
+            .objects()
+            .get(id)
+            .map(|o| (*o.appearance).clone())
+    }
+
+    fn request_script_state(&mut self, id: u64, package: u32, did: u32) {
+        self.loader.request(Request::ScriptState(id, package, did));
     }
 
     fn push_produced(&mut self, events: Vec<SessionEvent>) {

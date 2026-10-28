@@ -22,6 +22,7 @@ use ac2_physics::{
     AnimationClock, Frame, Heading, MovementInput, MovementState, PhysicsBody, PhysicsClock,
     Position, Quaternion, SetPositionError, Terrain, Vector, PHYSICS_QUANTUM,
 };
+use ac2_script::host::lifecycle::ScriptLifecycle;
 use ac2_weenie::{
     ActiveAction, BodyFacts, BodyState, CellPosition, MovementCommands, MovementModule,
     OnlineSession, SessionEvent, WorldEntry,
