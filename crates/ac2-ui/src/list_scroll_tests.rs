@@ -355,3 +355,13 @@ fn a_page_message_pages_the_list_the_bar_drives() {
     tree.scrollbar_page(bar, true, false);
     assert_eq!(view_y(&tree, list), 0);
 }
+
+#[test]
+fn get_child_finds_a_direct_child_by_id_only() {
+    let (tree, list, bar, _) = panel();
+    let root = tree.get(list).unwrap().parent_index().unwrap();
+    assert_eq!(tree.child(root, tokenize("Bar")), Some(bar));
+    // The list's items are its children, not the panel's.
+    assert_eq!(tree.child(root, tokenize("Item")), None);
+    assert!(tree.child_recursive(root, tokenize("Item")).is_some());
+}

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1151 done, 369 partial, 348 to do, 379 skipped.
+2247 retail functions: 1186 done, 372 partial, 285 to do, 404 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2707,59 +2707,59 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Node::AddParent` · 00735c00 · legions 006b18a0 — ac2-ui tree_view.rs
 - [x] `UIElement_Node::AddChild` · 00735c30 · legions 006b18d0 — ac2-ui tree_view.rs
 
-## `portal/client/src/uielement/prim/uiregion.cpp.c` (8/31)
+## `portal/client/src/uielement/prim/uiregion.cpp.c` (14/31)
 
 ### UIRegion
-- [ ] `UIRegion::SetObject` · 005e2540 · legions 005a32d0 — needs port (check): UIRegion::SetObject behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::SetAlphaImage` · 005e2580 · legions 005a3310 — needs port (check): UIRegion::SetAlphaImage behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::ClearAlphaImage` · 005e2590 · legions 005a3320 — needs port (check): UIRegion::ClearAlphaImage behaviour; implemented area ac2-ui element.rs but uncited
+- [-] `UIRegion::SetObject` · 005e2540 · legions 005a32d0 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::SetAlphaImage` · 005e2580 · legions 005a3310 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::ClearAlphaImage` · 005e2590 · legions 005a3320 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 
 ### CMotionInterp
 - [~] `CMotionInterp::SetAccelerationScale` · 005e25b0 · legions 005a3340 — ac2-physics motion_interp.rs set_velocity_scale / set_acceleration_scale (reached from the server and script events); the collision impact minimum CPhysicsObj::SetVelocityScale also sets is not modelled
 
 ### UIRegion
 - [~] `UIRegion::NotifyMouseMove` · 005e25c0 · legions 005a3350 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIRegion::GetObjectA` · 005e26d0 · legions 005a3460 — needs port (check): UIRegion::GetObjectA behaviour; implemented area ac2-ui element.rs but uncited
+- [-] `UIRegion::GetObjectA` · 005e26d0 · legions 005a3460 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 - [x] `UIRegion::GetObjectX0` · 005e26f0 · legions 005a3480 — UIRegion::GetObjectX0 done: meter.rs object_origin (corner in surface)
-- [ ] `UIRegion::GetObjectY0` · 005e2720 · legions 005a34b0 — needs port (check): UIRegion::GetObjectY0 behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetScreenX0` · 005e2750 · legions 005a34e0 — needs port (check): UIRegion::GetScreenX0 behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetScreenY0` · 005e2790 · legions 005a3520 — needs port (check): UIRegion::GetScreenY0 behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetObjectBox` · 005e27d0 · legions 005a3560 — needs port (check): UIRegion::GetObjectBox behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetSurface` · 005e2860 · legions 005a3620 — needs port (check): UIRegion::GetSurface behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetSurfaceObjAbsX` · 005e2890 · legions 005a3650 — needs port (check): UIRegion::GetSurfaceObjAbsX behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetSurfaceObjAbsY` · 005e28c0 · legions 005a3680 — needs port (check): UIRegion::GetSurfaceObjAbsY behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::MakeRootDirtyHere` · 005e28f0 · legions 005a36b0 — needs port (check): UIRegion::MakeRootDirtyHere behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::ForceDraw` · 005e2930 · legions 005a36f0 — needs port (check): UIRegion::ForceDraw; ac2-gpu ui.rs replace_pixels cites it
+- [x] `UIRegion::GetObjectY0` · 005e2720 · legions 005a34b0 — ac2-ui place.rs: the root's object origin (Element::object) that screen_box starts from
+- [x] `UIRegion::GetScreenX0` · 005e2750 · legions 005a34e0 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
+- [x] `UIRegion::GetScreenY0` · 005e2790 · legions 005a3520 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
+- [x] `UIRegion::GetObjectBox` · 005e27d0 · legions 005a3560 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
+- [-] `UIRegion::GetSurface` · 005e2860 · legions 005a3620 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::GetSurfaceObjAbsX` · 005e2890 · legions 005a3650 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::GetSurfaceObjAbsY` · 005e28c0 · legions 005a3680 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::MakeRootDirtyHere` · 005e28f0 · legions 005a36b0 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
+- [-] `UIRegion::ForceDraw` · 005e2930 · legions 005a36f0 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 - [ ] `UIRegion::SetParent_Internal` · 005e2980 · legions 005a3740 — needs port (check): UIRegion::SetParent_Internal behaviour; implemented area ac2-ui element.rs but uncited
 - [x] `UIRegion::GetClipBox` · 005e2a30 · legions 005a37f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [ ] `UIRegion::GetScreenClipBox` · 005e2b50 · legions 005a3910 — needs port (check): UIRegion::GetScreenClipBox behaviour; implemented area ac2-ui element.rs but uncited
 - [x] `UIRegion::SetVisible` · 005e2c30 · legions 005a39f0 — UIRegion::SetVisible done: element.rs set_visible
-- [ ] `UIRegion::SetImage` · 005e2cc0 · legions 005a3a80 — needs port (check): UIRegion::SetImage behaviour; implemented area ac2-ui element.rs but uncited
+- [-] `UIRegion::SetImage` · 005e2cc0 · legions 005a3a80 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 - [x] `UIRegion::ClearImage` · 005e2d30 · legions 005a3af0 — UIRegion::ClearImage done: element.rs clear_image
 - [x] `UIRegion::MoveTo` · 005e2da0 · legions 005a3b60 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIRegion::ResizeTo` · 005e2e70 · legions 005a3c30 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIRegion::DrawHere` · 005e2f50 · legions 005a3d10 — A8R8G8B8 only; colour key and format conversion not modelled
-- [ ] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00 — needs port (check): UIRegion::~UIRegion lifecycle (create/teardown: listeners, children, surfaces); ac2-ui element.rs
-- [ ] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0 — needs port (check): UIRegion::MouseOver behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0 — needs port (check): UIRegion::MouseOverTop behaviour; implemented area ac2-ui element.rs but uncited
+- [-] `UIRegion::~UIRegion` · 005e3140 · legions 005a3f00 — region construction and teardown: Element construction in UiTree::create_element and Drop
+- [x] `UIRegion::MouseOver` · 005e31e0 · legions 005a3fa0 — ac2-ui element.rs: Element::mouse_over / mouse_over_top flags set by the mouse pass (mouse.rs)
+- [x] `UIRegion::MouseOverTop` · 005e31f0 · legions 005a3fb0 — ac2-ui element.rs: Element::mouse_over / mouse_over_top flags set by the mouse pass (mouse.rs)
 - [x] `UIRegion::NotifyMouseDown` · 005e3220 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-- [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180 — needs port (check): UIRegion::UIRegion empty-box ctor; element.rs comment only
+- [-] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180 — region construction and teardown: Element construction in UiTree::create_element and Drop
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (56/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (68/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — needs port (check): UIRectangleObject::SetColor behaviour; implemented area ac2-gpu ui.rs but uncited
 
 ### UIElement
-- [ ] `UIElement::GetType` · 005e8b60 · legions 005a97c0 — needs port (check): UIElement::GetType behaviour; implemented area ac2-ui element.rs but uncited
+- [x] `UIElement::GetType` · 005e8b60 · legions 005a97c0 — ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
 
 ### UISurfaceObject
 - [ ] `UISurfaceObject::GetObjectWidth` · 005e8b70 · legions 005a97d0 — needs port (check): UISurfaceObject::GetObjectWidth behaviour; implemented area ac2-gpu ui.rs but uncited
 
 ### UIElement
-- [ ] `UIElement::GetParent` · 005e8b80 · legions 005a97e0 — needs port (check): UIElement::GetParent behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetID` · 005e8b90 · legions 005a97f0 — needs port (check): UIElement::GetID behaviour; implemented area ac2-ui element.rs but uncited
+- [x] `UIElement::GetParent` · 005e8b80 · legions 005a97e0 — ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
+- [x] `UIElement::GetID` · 005e8b90 · legions 005a97f0 — ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
 - [x] `UIElement::SetZLevel` · 005e8ba0 · legions 005a9800 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### UISurfaceObject
@@ -2773,7 +2773,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::StartMovement` · 005e8ce0 · legions 005a9940 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [x] `UIElement::StopMovement` · 005e8d40 · legions 005a99a0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [x] `UIElement::MouseMoveElement` · 005e8d60 · legions 005a99c0 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
-- [ ] `UIElement::GetChild` · 005e8e00 · legions 005a9a60 — needs port (check): cited from a caller or a neighbouring helper, not the generic element code; verify and cite, or port
+- [x] `UIElement::GetChild` · 005e8e00 · legions 005a9a60 — ac2-ui meter.rs: UiTree::child (the first direct child with the element id)
 - [x] `UIElement::GetChildRecursive` · 005e8e30 · legions 005a9a90 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::GetStringTableID` · 005e8e70 · legions 005a9ad0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement::SetMediaIndex` · 005e8e80 · legions 005a9ae0 — ac2-ui media.rs / transition.rs
@@ -2798,8 +2798,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::Deactivate` · 005e94c0 · legions 005aa120 — ac2-ui input.rs / text_edit.rs: typing into text elements
 
 ### UIRegion
-- [ ] `UIRegion::GetScreenX1` · 005e94f0 · legions 005aa150 — needs port (check): UIRegion::GetScreenX1 behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIRegion::GetScreenY1` · 005e9510 · legions 005aa170 — needs port (check): UIRegion::GetScreenY1 behaviour; implemented area ac2-ui element.rs but uncited
+- [x] `UIRegion::GetScreenX1` · 005e94f0 · legions 005aa150 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
+- [x] `UIRegion::GetScreenY1` · 005e9510 · legions 005aa170 — ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
 
 ### UIElement
 - [~] `UIElement::UIElement` · 005e9530 · legions 005aa190 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
@@ -2821,13 +2821,13 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::SetIconDesc` · 005e9ab0 · legions 005aa710 — needs port (check): UIElement::SetIconDesc behaviour; implemented area ac2-ui element.rs but uncited
 - [~] `UIElement::UpdateTransitions` · 005e9b80 · legions 005aa7e0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 - [x] `UIElement::GetAttribute_ID` · 005e9f00 · legions 005aaad0 — UIElement::GetAttribute_ID done: story_quests.rs attribute_id
-- [ ] `UIElement::GetAttribute_InstanceID` · 005e9f60 · legions 005aab30 — needs port (check): UIElement::GetAttribute_InstanceID behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetAttribute_StringID` · 005e9fa0 · legions 005aab70 — needs port (check): UIElement::GetAttribute_StringID behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetAttribute_Int` · 005ea000 · legions 005aabd0 — needs port (check): UIElement::GetAttribute_Int behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetAttribute_Float` · 005ea060 · legions 005aac30 — needs port (check): UIElement::GetAttribute_Float behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetAttribute_Bool` · 005ea0c0 · legions 005aac90 — needs port (check): UIElement::GetAttribute_Bool behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::GetAttribute_DataID` · 005ea120 · legions 005aacf0 — needs port (check): cited from a caller or a neighbouring helper, not the generic element code; verify and cite, or port
-- [ ] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50 — needs port (check): UIElement::GetAttribute_Unicode behaviour; implemented area ac2-ui element.rs but uncited
+- [x] `UIElement::GetAttribute_InstanceID` · 005e9f60 · legions 005aab30 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [x] `UIElement::GetAttribute_StringID` · 005e9fa0 · legions 005aab70 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [x] `UIElement::GetAttribute_Int` · 005ea000 · legions 005aabd0 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [x] `UIElement::GetAttribute_Float` · 005ea060 · legions 005aac30 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [x] `UIElement::GetAttribute_Bool` · 005ea0c0 · legions 005aac90 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [x] `UIElement::GetAttribute_DataID` · 005ea120 · legions 005aacf0 — ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
+- [~] `UIElement::GetAttribute_Unicode` · 005ea180 · legions 005aad50 — Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
 - [x] `UIElement::MouseDown` · 005ea220 · legions 005aadf0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement::ResetMedia` · 005ea2c0 · legions 005aae90 — ac2-ui media.rs / transition.rs
 - [x] `UIElement::SetImage` · 005ea430 · legions 005ab000 — ac2-ui compose.rs / element.rs set_image
@@ -2853,7 +2853,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement::DrawStart` · 005ebdd0 · legions 005ac9a0 — needs port (check): UIElement::DrawStart behaviour; implemented area ac2-ui element.rs but uncited
 - [ ] `UIElement::DrawDone` · 005ebe10 · legions 005ac9e0 — needs port (check): UIElement::DrawDone behaviour; implemented area ac2-ui element.rs but uncited
 - [x] `UIElement::GetPositionFromDesc` · 005ebe50 · legions 005aca20 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIElement::~UIElement` · 005ec020 · legions 005acbf0 — needs port (check): UIElement::~UIElement lifecycle (create/teardown: listeners, children, surfaces); ac2-ui element.rs
+- [-] `UIElement::~UIElement` · 005ec020 · legions 005acbf0 — element teardown: Drop of the arena slot (UiTree::delete)
 - [x] `UIElement::SetAttribute_ID` · 005ec240 · legions 005ace10 — UIElement::SetAttribute_ID done: element.rs set_attribute_id
 - [x] `UIElement::SetAttribute_InstanceID` · 005ec2e0 · legions 005aceb0 — UIElement::SetAttribute_InstanceID done: panel.rs set_instance_attribute
 - [ ] `UIElement::SetAttribute_StringID` · 005ec380 · legions 005acf50 — needs port (check): UIElement::SetAttribute_StringID behaviour; implemented area ac2-ui element.rs but uncited
@@ -2861,8 +2861,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetAttribute_Float` · 005ec4d0 · legions 005ad0a0 — UIElement::SetAttribute_Float done: meter.rs set_float
 - [~] `UIElement::SetAttribute_Bool` · 005ec570 · legions 005ad140 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [ ] `UIElement::SetAttribute_DataID` · 005ec660 · legions 005ad230 — needs port (check): UIElement::SetAttribute_DataID behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::SetAttribute_ASCII` · 005ec700 · legions 005ad2d0 — needs port (check): UIElement::SetAttribute_ASCII behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::SetAttribute_Unicode` · 005ec7a0 · legions 005ad370 — needs port (check): UIElement::SetAttribute_Unicode behaviour; implemented area ac2-ui element.rs but uncited
+- [~] `UIElement::SetAttribute_ASCII` · 005ec700 · legions 005ad2d0 — Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
+- [~] `UIElement::SetAttribute_Unicode` · 005ec7a0 · legions 005ad370 — Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
 - [x] `UIElement::GetOriginalPosition` · 005ec870 · legions 005ad440 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::GetParentOriginalPosition` · 005ec8a0 · legions 005ad470 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::ListenToMessage` · 005ec9d0 · legions 005ad5a0 — ac2-ui media.rs / transition.rs
@@ -2972,18 +2972,18 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/system/uilistener.cpp.c` (0/12)
 
 ### UIListener
-- [ ] `UIListener::GetListenerElementNumberRegistered` · 005e7f80 · legions 005a8be0 — needs port (check): UIListener::GetListenerElementNumberRegistered behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::GetListenerNumberRegistered` · 005e7fd0 · legions 005a8c30 — needs port (check): UIListener::GetListenerNumberRegistered behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::UnregisterForAllGlobalMessages` · 005e8010 · legions 005a8c70 — needs port (check): UIListener::UnregisterForAllGlobalMessages behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::IncrementMessage` · 005e8110 · legions 005a8d70 — needs port (check): UIListener::IncrementMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::DecrementMessage` · 005e8180 · legions 005a8de0 — needs port (check): UIListener::DecrementMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::UnregisterForAllMessages` · 005e81f0 · legions 005a8e50 — needs port (check): UIListener::UnregisterForAllMessages behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::DecrementElementMessage` · 005e8340 · legions 005a8fa0 — needs port (check): UIListener::DecrementElementMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::UIListener` · 005e8510 · legions 005a9170 — needs port (check): UIListener::UIListener lifecycle (create/teardown: listeners, children, surfaces); ac2-ui mouse.rs / element.rs
-- [ ] `UIListener::~UIListener` · 005e8560 · legions 005a91c0 — needs port (check): UIListener::~UIListener lifecycle (create/teardown: listeners, children, surfaces); ac2-ui mouse.rs / element.rs
-- [ ] `UIListener::IncrementElementMessage` · 005e89b0 · legions 005a9610 — needs port (check): UIListener::IncrementElementMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::RegisterForMessage` · 005e8a60 · legions 005a96c0 — needs port (check): UIListener::RegisterForMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
-- [ ] `UIListener::RegisterForGlobalMessage` · 005e8ae0 · legions 005a9740 — needs port (check): UIListener::RegisterForGlobalMessage behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
+- [-] `UIListener::GetListenerElementNumberRegistered` · 005e7f80 · legions 005a8be0 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::GetListenerNumberRegistered` · 005e7fd0 · legions 005a8c30 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::UnregisterForAllGlobalMessages` · 005e8010 · legions 005a8c70 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::IncrementMessage` · 005e8110 · legions 005a8d70 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::DecrementMessage` · 005e8180 · legions 005a8de0 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::UnregisterForAllMessages` · 005e81f0 · legions 005a8e50 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::DecrementElementMessage` · 005e8340 · legions 005a8fa0 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::UIListener` · 005e8510 · legions 005a9170 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::~UIListener` · 005e8560 · legions 005a91c0 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::IncrementElementMessage` · 005e89b0 · legions 005a9610 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::RegisterForMessage` · 005e8a60 · legions 005a96c0 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
+- [-] `UIListener::RegisterForGlobalMessage` · 005e8ae0 · legions 005a9740 — per-listener registration counts and tables: UiTree::broadcast queues UiMessage values and the panels hear them from the tree's message list, so there is no listener object (see UIElementManager::RegisterForMessage)
 
 ## `portal/client/src/uielement/types/text/glyph.cpp.c` (3/7)
 
@@ -2996,7 +2996,7 @@ Legend and workflow: [README](README.md).
 - [x] `Glyph::IsNewLine` · 005fceb0 · legions 005bd9e0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `Glyph::Glyph` · 005fcec0 · legions 005bd9f0 — needs port (check): Glyph::Glyph overload (newline width); text.rs new() cites it, overload ambiguous
 
-## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (6/24)
+## `portal/client/src/uielement/types/text/glyphlist.cpp.c` (18/24)
 
 ### LinebreakUtils
 - [x] `LinebreakUtils::IsWhiteSpace` · 005fbe40 · legions 005bc970 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
@@ -3006,19 +3006,19 @@ Legend and workflow: [README](README.md).
 - [x] `LinebreakUtils::CanBreakLineAt` · 005fbf30 · legions 005bca60 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 
 ### GlyphList
-- [ ] `GlyphList::FindCurrentLine` · 005fbfb0 · legions 005bcae0 — needs port (check): GlyphList::FindCurrentLine behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindLineFromY` · 005fc040 · legions 005bcb70 — needs port (check): GlyphList::FindLineFromY behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindNextLine` · 005fc0d0 · legions 005bcc00 — needs port (check): GlyphList::FindNextLine behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindPrevLine` · 005fc130 · legions 005bcc60 — needs port (check): GlyphList::FindPrevLine behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::GetGlyphLineHeight` · 005fc190 · legions 005bccc0 — needs port (check): GlyphList::GetGlyphLineHeight behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::GetGlyphLineWidth` · 005fc1d0 · legions 005bcd00 — needs port (check): GlyphList::GetGlyphLineWidth behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindNextWord` · 005fc240 · legions 005bcd70 — needs port (check): GlyphList::FindNextWord behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindPrevWord` · 005fc2b0 · legions 005bcde0 — needs port (check): GlyphList::FindPrevWord behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindPixelsFromPos` · 005fc320 · legions 005bce50 — needs port (check): GlyphList::FindPixelsFromPos behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::FindPosFromLineAndPixels` · 005fc3a0 · legions 005bced0 — needs port (check): GlyphList::FindPosFromLineAndPixels behaviour; implemented area ac2-ui text.rs but uncited
+- [x] `GlyphList::FindCurrentLine` · 005fbfb0 · legions 005bcae0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindLineFromY` · 005fc040 · legions 005bcb70 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindNextLine` · 005fc0d0 · legions 005bcc00 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindPrevLine` · 005fc130 · legions 005bcc60 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::GetGlyphLineHeight` · 005fc190 · legions 005bccc0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::GetGlyphLineWidth` · 005fc1d0 · legions 005bcd00 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindNextWord` · 005fc240 · legions 005bcd70 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindPrevWord` · 005fc2b0 · legions 005bcde0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindPixelsFromPos` · 005fc320 · legions 005bce50 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
+- [x] `GlyphList::FindPosFromLineAndPixels` · 005fc3a0 · legions 005bced0 — ac2-ui glyph_find.rs: TextState::find_current_line / find_line_from_y (past the bottom = last line, checked against the machine code) / find_next_line / find_prev_line / find_next_word / find_prev_word / find_pixels_from_pos / find_pos_from_line_and_pixels; GlyphLine heights and widths are GlyphLine::height / width
 - [ ] `GlyphList::FindXYFromPosition` · 005fc5f0 · legions 005bd120 — needs port (check): GlyphList::FindXYFromPosition behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::Flush` · 005fc6d0 · legions 005bd200 — needs port (check): GlyphList::Flush behaviour; implemented area ac2-ui text.rs but uncited
-- [ ] `GlyphList::Delete` · 005fc710 · legions 005bd240 — needs port (check): GlyphList::Delete behaviour; implemented area ac2-ui text.rs but uncited
+- [x] `GlyphList::Flush` · 005fc6d0 · legions 005bd200 — ac2-ui text.rs: TextState::clear
+- [x] `GlyphList::Delete` · 005fc710 · legions 005bd240 — ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 - [~] `GlyphList::AddText` · 005fc7e0 · legions 005bd310 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [-] `GlyphList::GlyphList` · 005fc930 · legions 005bd460 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 - [-] `GlyphList::~GlyphList` · 005fc960 · legions 005bd490 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — needs port (check): StringDownload::OnTopLevelRequestFinished behaviour; implemented area ac2-ui text_data.rs but uncited
 - [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — needs port (check): StringDownload::StringDownload lifecycle (create/teardown: listeners, children, surfaces); ac2-ui text_data.rs
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (39/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (44/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3052,14 +3052,14 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::SetAtrb_OneLine` · 005edbf0 · legions 005ae7e0 — needs port (check): UIElement_Text::SetAtrb_OneLine behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [~] `UIElement_Text::GetPercentageV` · 005edc40 · legions 005ae830 — vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
 - [ ] `UIElement_Text::GetPercentageH` · 005edcc0 · legions 005ae8b0 — needs port (check): UIElement_Text::GetPercentageH behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
-- [ ] `UIElement_Text::ClampPosition` · 005edd40 · legions 005ae930 — needs port (check): UIElement_Text::ClampPosition behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
-- [ ] `UIElement_Text::MoveUpDown` · 005edd80 · legions 005ae970 — needs port (check): UIElement_Text::MoveUpDown behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
-- [ ] `UIElement_Text::MoveBeginEndLine` · 005edf30 · legions 005aeb20 — needs port (check): UIElement_Text::MoveBeginEndLine behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [x] `UIElement_Text::ClampPosition` · 005edd40 · legions 005ae930 — ac2-ui text_edit.rs: UiTree::set_cursor clamps the position to 0..=len
+- [x] `UIElement_Text::MoveUpDown` · 005edd80 · legions 005ae970 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
+- [x] `UIElement_Text::MoveBeginEndLine` · 005edf30 · legions 005aeb20 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
 - [x] `UIElement_Text::SetSelecting` · 005edfd0 · legions 005aebc0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::SetSelectionStart` · 005ee010 · legions 005aec00 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::SetSelectionEnd` · 005ee070 · legions 005aec60 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::GetSelection` · 005ee0d0 · legions 005aecc0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
-- [ ] `UIElement_Text::GetTotalLines` · 005ee130 · legions 005aed20 — needs port (check): UIElement_Text::GetTotalLines behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [x] `UIElement_Text::GetTotalLines` · 005ee130 · legions 005aed20 — ac2-ui text_attr.rs: UiTree::text_line_count
 
 ### GlyphLine
 - [-] `GlyphLine::GlyphLine` · 005ee140 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
@@ -3097,7 +3097,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::RecalculateGlyphList` · 005eff20 · legions 005b0a50 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [x] `UIElement_Text::SetViewY` · 005f0080 · legions 005b0bb0 — UIElement_Text::SetViewY done: text_attr.rs set_text_view_y
 - [x] `UIElement_Text::DrawStart` · 005f00a0 · legions 005b0bd0 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-- [x] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0 — UIElement_Text::DeterminePositionFromXY done: text.rs position_at
+- [x] `UIElement_Text::DeterminePositionFromXY` · 005f00b0 · legions 005b0be0 — ac2-ui glyph_find.rs: TextState::move_begin_end_line (the penultimate and last lines end at the end of the text: FindNextLine overwrites the line the last-line test reads), move_up_down (pixel column kept across lines, justification offsets, stays on the first/last line), position_at
 - [~] `UIElement_Text::SetCursorPosition` · 005f01d0 · legions 005b0d00 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [~] `UIElement_Text::MouseDown` · 005f0200 · legions 005b0d30 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [x] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
@@ -3106,13 +3106,13 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::DetermineAndSetNewPage` · 005f04f0 · legions 005b1020 — needs port (check): UIElement_Text::DetermineAndSetNewPage behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [ ] `UIElement_Text::ScrollToPosition` · 005f0590 · legions 005b10c0 — needs port (check): UIElement_Text::ScrollToPosition behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [x] `UIElement_Text::ScrollHorizontalView` · 005f05f0 · legions 005b1120 — UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
-- [ ] `UIElement_Text::DeleteSection` · 005f06a0 · legions 005b11d0 — needs port (check): UIElement_Text::DeleteSection behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [x] `UIElement_Text::DeleteSection` · 005f06a0 · legions 005b11d0 — ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
 - [x] `UIElement_Text::VerticalPageDecrement` · 005f0730 · legions 005b1260 — UIElement_Text::VerticalPageDecrement done: text_attr.rs page_text
 - [ ] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270 — needs port (check): UIElement_Text::VerticalPageIncrement; text_attr.rs page_text, cite lacks class prefix
 - [x] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280 — UIElement_Text::ScrollToHome done: chat_window.rs scroll_log
 - [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
 - [~] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
-- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
+- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: UiTree::move_cursor: home/end, line home/end, word, left/right, up/down by pixel column (glyph_find.rs); not modelled: page up/down (DetermineAndSetNewPage), IME
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600 — needs port (check): UIElement_Text::MoveCursorToEnd behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [x] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry

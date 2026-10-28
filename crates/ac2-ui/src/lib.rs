@@ -52,6 +52,9 @@ mod fellow_info;
 mod fellow_rows;
 mod fellowship;
 mod frame_passes;
+mod glyph_find;
+#[cfg(test)]
+mod glyph_find_tests;
 mod hud_effects;
 pub use hud_effects::HudEffects;
 mod game_dialogs;

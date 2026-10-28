@@ -170,14 +170,22 @@ impl TextState {
         self.dirty = true;
     }
 
-    /// `GlyphList::DeleteSection` of `start..end`; the cursor moves to `start`.
+    /// `UIElement_Text::DeleteSection` / `GlyphList::Delete` of `start..end`: both ends clamped
+    /// to the text, nothing removed unless a glyph lies between them; a cursor after `start` moves
+    /// back by the glyphs removed, and the text is laid out again.
     pub(crate) fn delete_range(&mut self, start: usize, end: usize) {
         let end = end.min(self.glyphs.len());
-        if start < end {
-            self.glyphs.drain(start..end);
-            self.dirty = true;
+        if start >= end {
+            return;
         }
-        self.cursor = start.min(self.glyphs.len());
+        self.glyphs.drain(start..end);
+        self.dirty = true;
+        if start < self.cursor {
+            self.cursor = self
+                .cursor
+                .saturating_sub(end - start)
+                .min(self.glyphs.len());
+        }
     }
 
     /// `GlyphList::AddText` at the cursor, which moves past the new glyphs.
@@ -195,36 +203,6 @@ impl TextState {
             self.cursor += 1;
         }
         self.dirty = true;
-    }
-
-    /// `UIElement_Text::DeterminePositionFromXY`: the line at `y` (element pixels, from the top
-    /// margin on), then the glyph boundary nearest `x` in that line. Justification is not
-    /// applied, so the position is right for left-justified text.
-    pub(crate) fn position_at(&self, x: i32, y: i32) -> usize {
-        let len = self.glyphs.len();
-        let (start, end) = if self.lines.is_empty() {
-            (0, len)
-        } else {
-            let mut top = self.margins[0] - self.view.1;
-            let mut line = self.lines.len() - 1;
-            for (i, l) in self.lines.iter().enumerate() {
-                if y < top + l.height {
-                    line = i;
-                    break;
-                }
-                top += l.height;
-            }
-            let end = self.lines.get(line + 1).map_or(len, |next| next.index);
-            (self.lines[line].index.min(len), end.min(len))
-        };
-        let mut left = self.margins[2] - self.view.0;
-        for (i, glyph) in self.glyphs[start..end].iter().enumerate() {
-            if glyph.ch == 10 || x < left + glyph.width / 2 {
-                return start + i;
-            }
-            left += glyph.width;
-        }
-        end
     }
 
     /// `UIElement_Text::AddText_Internal` / `GlyphList::AddText` at the end, in the current

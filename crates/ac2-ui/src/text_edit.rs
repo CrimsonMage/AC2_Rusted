@@ -260,58 +260,22 @@ impl UiTree {
             return false;
         };
         let cursor = text.cursor as isize;
-        let units: Vec<u16> = text.glyphs.iter().map(|g| g.ch).collect();
-        let white = |c: u16| matches!(c, 9 | 13 | 32);
-        let line = text
-            .lines
-            .iter()
-            .rposition(|l| l.index as isize <= cursor)
-            .unwrap_or(0);
-        let line_start = |i: usize| text.lines.get(i).map_or(0, |l| l.index) as isize;
-        let line_end = |i: usize| {
-            text.lines
-                .get(i + 1)
-                .map_or(units.len() as isize, |l| l.index as isize)
-        };
+        let len = text.glyphs.len() as isize;
+        // The searches are `GlyphList`'s (`glyph_find.rs`); a move one of them refuses is no move.
         let target = match direction {
-            Direction::Home => 0,
-            Direction::End => units.len() as isize,
-            Direction::LineHome => line_start(line),
-            Direction::LineEnd => line_end(line),
-            Direction::Left => cursor - 1,
-            Direction::Right => cursor + 1,
-            Direction::WordLeft => {
-                let mut i = cursor;
-                while i > 0 && white(units[i as usize - 1]) {
-                    i -= 1;
-                }
-                while i > 0 && !white(units[i as usize - 1]) {
-                    i -= 1;
-                }
-                i
-            }
-            Direction::WordRight => {
-                let mut i = cursor;
-                while (i as usize) < units.len() && !white(units[i as usize]) {
-                    i += 1;
-                }
-                while (i as usize) < units.len() && white(units[i as usize]) {
-                    i += 1;
-                }
-                i
-            }
-            Direction::Up | Direction::Down => {
-                let to = if direction == Direction::Up {
-                    line.checked_sub(1)
-                } else {
-                    (line + 1 < text.lines.len()).then_some(line + 1)
-                };
-                let Some(to) = to else {
-                    return false;
-                };
-                let column = cursor - line_start(line);
-                (line_start(to) + column).min(line_end(to))
-            }
+            Direction::Home => Some(0),
+            Direction::End => Some(len),
+            Direction::LineHome => text.move_begin_end_line(true, cursor).map(|p| p as isize),
+            Direction::LineEnd => text.move_begin_end_line(false, cursor).map(|p| p as isize),
+            Direction::Left => Some(cursor - 1),
+            Direction::Right => Some(cursor + 1),
+            Direction::WordLeft => text.find_prev_word(cursor).map(|p| p as isize),
+            Direction::WordRight => text.find_next_word(cursor).map(|p| p as isize),
+            Direction::Up => text.move_up_down(true, cursor).map(|p| p as isize),
+            Direction::Down => text.move_up_down(false, cursor).map(|p| p as isize),
+        };
+        let Some(target) = target else {
+            return false;
         };
         self.set_cursor(index, target, shift);
         self.scroll_to_cursor(index);

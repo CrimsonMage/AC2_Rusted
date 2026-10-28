@@ -184,7 +184,9 @@ fn a_read_only_selectable_text_copies_but_is_not_edited() {
 fn a_press_and_drag_selects_from_the_press_until_the_release() {
     let (mut tree, entry) = editable_entry();
     type_text(&mut tree, "abcdef");
-    // Glyphs are 3 pixels wide: x 3 is in front of "b", x 10 after "d" and before "e".
+    // Glyphs are 3 pixels wide and a position is the boundary nearest the pixel
+    // (`FindPosFromLineAndPixels`: a glyph is passed once more than half of it is behind): x 3 is
+    // in front of "b", x 11 is in the right half of "d", so after it.
     let move_to = |tree: &mut UiTree, x: i32| {
         tree.start_input(UI_POINTER_X, x as f32);
         tree.start_input(UI_POINTER_Y, 5.0);
@@ -192,7 +194,7 @@ fn a_press_and_drag_selects_from_the_press_until_the_release() {
     move_to(&mut tree, 3);
     tree.start_input(LEFT, 1.0);
     assert_eq!(tree.selection(entry), None);
-    move_to(&mut tree, 10);
+    move_to(&mut tree, 11);
     assert_eq!(tree.selection(entry), Some((1, 4)));
     assert_eq!(
         tree.selected_text(entry),
@@ -368,8 +370,8 @@ fn a_drag_held_below_a_multi_line_text_scrolls_it_and_extends_the_selection() {
         tree.global_loop(now);
     }
     let (start, end) = tree.selection(entry).unwrap();
-    // The anchor is where the press landed (x 1 is in front of the first glyph's right half).
-    assert_eq!(start, 1);
+    // The anchor is where the press landed (x 1 is in the left half of the first glyph).
+    assert_eq!(start, 0);
     assert!(
         end >= units.len() - 3,
         "selection reaches the last visible line"
