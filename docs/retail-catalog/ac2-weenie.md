@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 754 done, 170 partial, 470 to do, 510 skipped.
+1904 retail functions: 755 done, 171 partial, 468 to do, 510 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (123/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (124/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -697,14 +697,14 @@ Legend and workflow: [README](README.md).
 - [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310 — needs port: script IFun get icon id on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0 — needs port: script IFun get last selection on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetLatencyIndicatorGraph` · 0045a820 · legions 0045b470 — needs port: script IFun get latency indicator graph on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetMaxContainerSize` · 0045a8c0 · legions 0045b510 — needs port: script IFun get max container size on the client interface; no citation in crates/
+- [~] `ggmCWInterface::CallIFun_GetMaxContainerSize` · 0045a8c0 · legions 0045b510 — ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
 - [ ] `ggmCWInterface::CallIFun_GetMaxDurabilityLevel` · 0045a960 · legions 0045b5b0 — needs port: script IFun get max durability level on the client interface; no citation in crates/
 - [~] `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` · 0045aa00 · legions 0045b650 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [ ] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730 — needs port: script IFun get max stack size on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0 — needs port: script IFun get missile information from wsl on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00 — needs port: script IFun get potentially pluralized name on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_GetPreferredInventoryLocation` · 0045ae80 · legions 0045bad0 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
-- [ ] `ggmCWInterface::CallIFun_GetQuantity` · 0045af20 · legions 0045bb70 — needs port: script IFun get quantity on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetQuantity` · 0045af20 · legions 0045bb70 — ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
 - [ ] `ggmCWInterface::CallIFun_GetRadarMask` · 0045afc0 · legions 0045bc10 — needs port: script IFun get radar mask on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetSelection` · 0045b060 · legions 0045bcb0 — needs port: script IFun get selection on the client interface; no citation in crates/
 - [ ] `ggmCWInterface::CallIFun_GetShortcutHeight` · 0045b120 · legions 0045bd70 — needs port: script IFun get shortcut height on the client interface; no citation in crates/
@@ -991,7 +991,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetDurabilityLevel` · 004507a0 · legions 004518e0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetIconID` · 00450800 · legions 00451940 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
-- [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ItemStats::capacity: int 280 default 12; the EffectSystem pass is not applied
+- [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
 - [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — needs port: interface get available experience; no citation in crates/
 - [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1024,7 +1024,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::Result_CallCreate` · 00450e20 · legions 00451f60 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [~] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
-- [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
+- [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
 - [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
 - [x] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090 — ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound

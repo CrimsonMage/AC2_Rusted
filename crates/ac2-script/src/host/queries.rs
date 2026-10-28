@@ -102,21 +102,33 @@ pub trait ScriptQueries: ScriptPort {
         ret: IFunReturn,
     ) -> Result<IFunResult, String> {
         let player = self.player_id().ok_or("no player")?;
+        self.query_object(player, function, args, ret)
+    }
+
+    /// [`ScriptQueries::query`] on object `id`'s process instead of the player's (the item
+    /// queries ask each item's own script): the same routing and the same stop check.
+    fn query_object(
+        &mut self,
+        id: u64,
+        function: u32,
+        args: &[IFunArg],
+        ret: IFunReturn,
+    ) -> Result<IFunResult, String> {
         let scripts = self.script_host().ok_or("no script VM")?;
         let result = scripts
-            .query(player, function, args, ret)
+            .query(id, function, args, ret)
             .map_err(|e| format!("{e:?}"));
         let outcome = result
             .as_ref()
             .map(|r| r.outcome.clone())
             .map_err(Clone::clone);
         let mut out = Vec::new();
-        self.route_outcome(player, None, outcome, &mut out);
+        self.route_outcome(id, None, outcome, &mut out);
         self.push_produced(out);
         let result = result?;
         if result.outcome.status != InterpStatus::Terminated {
             return Err(format!(
-                "{function:#010x}: {:?} {:?}",
+                "{id:#x} {function:#010x}: {:?} {:?}",
                 result.outcome.status, result.outcome.fault
             ));
         }

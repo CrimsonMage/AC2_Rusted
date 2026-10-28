@@ -3,7 +3,8 @@
 //! written against its [`ScriptPort`]; the client answers that port here and keeps these
 //! delegates for its callers.
 
-use ac2_net::protocol::{GameplayOptionsProfile, ShortcutInfo};
+use ac2_net::protocol::{EffectUiNode, GameplayOptionsProfile, ShortcutInfo};
+use ac2_script::host::item_queries::{ItemDisplay, ItemLook, ItemQueries};
 use ac2_script::host::port::ScriptPort;
 use ac2_script::host::queries::ScriptQueries;
 use ac2_script::host::{DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptHost};
@@ -38,6 +39,20 @@ impl ScriptPort for Client {
         if let Some(scripts) = self.scripts.as_mut() {
             scripts.produced.extend(events);
         }
+    }
+
+    fn item_look(&self, id: u64) -> Option<ItemLook> {
+        self.session.objects().get(id).map(|o| ItemLook {
+            icon_layers: o.appearance.icon.clone(),
+            value: o.qualities.weenie.as_ref().and_then(|w| w.value),
+        })
+    }
+
+    fn object_int(&self, id: u64, key: u32) -> Option<i32> {
+        self.session
+            .objects()
+            .get(id)
+            .and_then(|o| o.qualities.inq_int(key))
     }
 }
 
@@ -157,5 +172,33 @@ impl Client {
 
     pub fn chat_settings(&mut self) -> Result<ChatSettings, String> {
         ScriptQueries::chat_settings(self)
+    }
+
+    pub fn item_display(&mut self, id: u64) -> Result<ItemDisplay, String> {
+        ItemQueries::item_display(self, id)
+    }
+
+    pub fn container_capacity(&mut self, id: u64) -> Result<u32, String> {
+        ItemQueries::container_capacity(self, id)
+    }
+
+    pub fn contents_info(&mut self, segment: u32) -> Result<(Vec<u64>, u32, u32), String> {
+        ItemQueries::contents_info(self, segment)
+    }
+
+    pub fn container_segment_info(&mut self, segment: u32) -> Result<(u32, u32), String> {
+        ItemQueries::container_segment_info(self, segment)
+    }
+
+    pub fn effect_list(&mut self) -> Result<Vec<EffectUiNode>, String> {
+        ItemQueries::effect_list(self)
+    }
+
+    pub fn coin_max_stack_size(&mut self) -> Option<i32> {
+        ItemQueries::coin_max_stack_size(self)
+    }
+
+    pub fn melts_to_money(&self, item: u64) -> bool {
+        ItemQueries::melts_to_money(self, item)
     }
 }

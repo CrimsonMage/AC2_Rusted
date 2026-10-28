@@ -91,7 +91,6 @@ mod hud_story;
 #[cfg(feature = "window")]
 mod hud_view;
 mod inventory_queries;
-mod item_queries;
 mod loader;
 mod motion;
 #[cfg(feature = "window")]
@@ -131,6 +130,7 @@ mod world_data;
 
 /// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).
 pub use ac2_net::protocol::EffectUiNode as EffectNode;
+pub use ac2_script::host::item_queries::ItemDisplay;
 pub use audio::{play_ui_sounds, sound_manager};
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
@@ -153,7 +153,6 @@ pub use hud_shop::{
     catalog_commands, catalog_notice, consignment_notice, consignment_requests, new_sale_commands,
     shop_commands, shop_notice, shop_stack_calls,
 };
-pub use item_queries::ItemDisplay;
 pub use pregame::{
     pregame_event, pregame_notice, pregame_requests, pregame_requests_capturing, PregameOutcome,
 };
