@@ -269,10 +269,17 @@ impl ClientView {
     /// The frame's camera, while the player is in the world.
     pub fn camera(&self, frame: &ClientFrame) -> Option<Camera> {
         let camera = frame.camera?;
+        // `WorldRender::Render`: in portal space (`InPortalSpace`) the world's camera takes
+        // `SetFOV(m_fWorldFOVScale * mFOV)`, the product stored as a float in degrees.
+        let fov = if frame.portal.in_portal_space {
+            (f64::from(frame.portal.draw.world_fov_scale) * f64::from(camera.fov)) as f32
+        } else {
+            camera.fov
+        };
         Some(Camera {
             eye: self.world_point(camera.cell, camera.origin),
             target: self.world_point(camera.cell, camera.target),
-            fov_y: camera.fov.to_radians(),
+            fov_y: fov.to_radians(),
             near: NEAR,
             far: FAR,
         })
@@ -344,30 +351,21 @@ impl ClientView {
         self.portal.update(
             gpu,
             &frame.portal.draw,
+            frame.portal.camera.as_ref(),
             frame.portal.tunnel.as_ref(),
             &frame.portal.clouds,
             aspect,
             time,
         );
-        if frame.portal.tunnel.is_some() {
-            // The post chain's occlusion reads the depth of the portal pass.
-            self.presenter.set_camera(ac2_gpu::AoCamera {
-                fov_y: ac2_gpu::TUNNEL_FOV_Y,
-                near: ac2_gpu::TUNNEL_NEAR,
-                far: ac2_gpu::TUNNEL_FAR,
-            });
-        }
         let Some(camera) = self.camera(frame) else {
             return false;
         };
         self.scene.set_clock(time);
-        if frame.portal.tunnel.is_none() {
-            self.presenter.set_camera(ac2_gpu::AoCamera {
-                fov_y: camera.fov_y,
-                near: camera.near,
-                far: camera.far,
-            });
-        }
+        self.presenter.set_camera(ac2_gpu::AoCamera {
+            fov_y: camera.fov_y,
+            near: camera.near,
+            far: camera.far,
+        });
         let drawn = drawn_objects(frame);
         let mut frames: Vec<Frame> = drawn.iter().map(|drawn| self.drawn_frame(drawn)).collect();
         // Each object's pose is its own (`CPartArray::UpdateBones` per object), so the poses are

@@ -61,12 +61,15 @@ pub fn render_with_scenes(
                 world(pass);
             }
         });
+        // The occlusion reads the world's depth, so it is recorded before the portal pass clears
+        // it: the world keeps its occlusion while it fades under the portal space.
+        presenter.occlusion(gpu, &mut encoder, hdr, world.is_some());
         if let Some(portal) = portal {
             hdr.render_over(gpu, &mut encoder, portal);
         }
         // Bloom and eye adaptation over the world and portal alone, before any viewport scene
         // draws in.
-        presenter.post(gpu, &mut encoder, hdr);
+        presenter.post_chain(gpu, &mut encoder, hdr);
     }
     let mut pass_clear = Some(clear);
     let mut head = true;

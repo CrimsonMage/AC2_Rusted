@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 145 done, 52 partial, 226 to do, 358 skipped.
+781 retail functions: 146 done, 51 partial, 226 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1162,7 +1162,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f030 · legions 0055e6a0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 - [ ] `LScapeTerrainMesh::Refresh` · 0058f070 · legions 0055e6e0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 
-## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (11/14)
+## `portal/client/src/smartbox/worldrender/portalspace.cpp.c` (12/14)
 
 ### CDataMesh
 - [ ] `CDataMesh::GetByEnum` · 00585e60 · legions 00555550 — needs port: data mesh lookup by enum
@@ -1177,7 +1177,7 @@ Legend and workflow: [README](README.md).
 - [x] `PortalSpace::Effect::UpdateGeometry` · 00586740 · legions 00555e30 — ac2-render portal/tunnel.rs update_geometry(current, start, scale): ring base is m_nLastPortalPassed, start is the transparent depth, memory order reversed (closing vertex first), x stored as float, 1/w in f64; alpha ramp verified (0.8+0.2(1-X/15), 0.8(1-X/149)^2)
 - [x] `PortalSpace::Effect::StopNow` · 00586eb0 · legions 005565a0 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
 - [x] `PortalSpace::Effect::Think` · 00586f50 · legions 00556640 — ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
-- [~] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50 — ac2-gpu portal_space.rs: fader, background mesh 0x40000016 at the eye with the opacity as alpha, outer then inner rings, discharge loop (ac2-render portal/clouds.rs, has_particle reset in GeneratePortals) and cloud particles, all into the HDR scene target from the portal camera; not yet: SetFOV(mFarDistance*m_fCameraFOVScale) is unresolved (fixed 65 degrees), lights/fog/sun taken as an unlit white-ambient environment
+- [x] `PortalSpace::Effect::Render` · 00587360 · legions 00556a50 — ac2-gpu portal_space.rs, ac2-render portal/: fader, background mesh 0x40000016 at the eye with the opacity as alpha, outer then inner rings, discharge loop (portal/clouds.rs; has_particle reset in GeneratePortals) and cloud particles, into the HDR scene target from the portal camera; SetFOV(mFOV * m_fCameraFOVScale) on SceneCamera's defaults (65 degrees, 0.1, 2000; the decompile's mFarDistance is the recovered export's mFOV); UnlinkAllLights + DisableSunlight (SetAmbient black, vtable +0x4c) + FOGMODE_NONE as a no-light, black-ambient, unfogged environment
 - [x] `PortalSpace::Effect::~Effect` · 00587da0 · legions 00557490 — materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 - [x] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
@@ -1238,4 +1238,4 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::GatherOutdoorObjects` · 0057ea20 · legions 0054e2f0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::CreateLandscapePointLightDecals` · 0057eb10 · legions 0054e3e0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::RenderSkeletonEffects` · 0057ef60 · legions 0054e830 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
-- [~] `WorldRender::Render` · 0057f960 · legions 0054f230 — the portal gate and the fader in ac2-client (view.rs, view_portal.rs; WorldRender::Render's world gate); the tunnel's own draw (materials 0x40000013/0x40000014 from the DAT, the background mesh, the clouds) is not ported
+- [~] `WorldRender::Render` · 0057f960 · legions 0054f230 — the portal gate (InPortalSpace), the world's SetFOV(m_fWorldFOVScale * mFOV) in portal space (ac2-client view.rs camera), and PortalSpace::Effect::Render after the world (ac2-client ui_scene/render.rs); not all of the world pass is traced here

@@ -5,7 +5,9 @@
 //! background opacity as its alpha), the tunnel rings (the outer, then the inner, textured with
 //! their materials from the DAT), the clouds' particles (`ParticleSystem::Render`), and the fader
 //! last otherwise. The mesh and the particles draw through the object renderer with no lights,
-//! sun or fog (`UnlinkAllLights`, `DisableSunlight`, `FOGMODE_NONE`).
+//! sun or fog: `Render` calls `UnlinkAllLights` (no scene lights), `DisableSunlight` (the sun's
+//! direction zeroed and the device ambient set to black, `RenderDevice` vtable `+0x4c`, the same
+//! slot `SetAmbientLight` calls) and `SetFogProperties(FOGMODE_NONE)`.
 //!
 //! The models, their images and the ring textures are uploaded by [`PortalDraw::preload`] at
 //! setup, never on the frame thread: a frame only uses what was uploaded.
@@ -14,19 +16,15 @@ use ac2_core::DataId;
 use ac2_math::Mat4;
 use ac2_render::object::{ObjectEnvironment, ObjectLights};
 use ac2_render::particles::ParticleGeometry;
-use ac2_render::portal::{Draw, PortalModels, Tunnel, TunnelFrame};
+use ac2_render::portal::{
+    camera_fov_y, Draw, PortalCamera, PortalModels, Tunnel, TunnelFrame, CAMERA_FAR, CAMERA_NEAR,
+};
 use ac2_render::Image;
 
 use crate::{
     DrawGroup, Gpu, GpuObjectModel, ObjectInstance, ObjectRenderer, PortalTunnel, ScreenQuad,
     TextureCache, TextureKey, HDR_FORMAT,
 };
-
-/// The tunnel's field of view (the client's camera, 65 degrees; `Render`'s
-/// `SetFOV(mFarDistance * m_fCameraFOVScale)` is not yet resolved).
-pub const TUNNEL_FOV_Y: f32 = 65.0 * std::f32::consts::PI / 180.0;
-pub const TUNNEL_NEAR: f32 = 1.0;
-pub const TUNNEL_FAR: f32 = 2000.0;
 
 /// The portal space's draws: the fader, the background mesh, the tunnel with its textures and the
 /// clouds.
@@ -50,11 +48,12 @@ pub struct PortalDraw {
     clouds_drawn: bool,
 }
 
-/// No lights, no sun and no fog: the materials draw as their own colour.
+/// No lights, no sun, black ambient and no fog (`UnlinkAllLights`, `DisableSunlight`,
+/// `SetFogProperties(FOGMODE_NONE)`): what draws is what the materials add themselves.
 fn unlit() -> ObjectEnvironment {
     ObjectEnvironment {
         lights: ObjectLights {
-            ambient: [1.0; 3],
+            ambient: [0.0; 3],
             sun: None,
         },
         fog: None,
@@ -133,9 +132,9 @@ impl PortalDraw {
         let camera = ac2_render::Camera {
             eye: ac2_math::Vec3::ZERO,
             target: ac2_math::Vec3::Y,
-            fov_y: TUNNEL_FOV_Y,
-            near: TUNNEL_NEAR,
-            far: TUNNEL_FAR,
+            fov_y: camera_fov_y(1.0),
+            near: CAMERA_NEAR,
+            far: CAMERA_FAR,
         };
         self.prepare_objects(gpu, &camera, 1.0, 0.0);
         self.background_drawn = false;
@@ -178,13 +177,14 @@ impl PortalDraw {
         );
     }
 
-    /// The frame's portal state at client time `time`: the fader, and the camera, background,
-    /// tunnel and `clouds` (`tunnel`, while the effect draws the tunnels) once the materials are
-    /// uploaded (`aspect` for the projection).
+    /// The frame's portal state at client time `time`: the fader, and from `camera` (while the
+    /// effect is drawn) the background mesh, the `tunnel` rings (while it draws the tunnels, once
+    /// the materials are uploaded) and the `clouds` (`aspect` for the projection).
     pub fn update(
         &mut self,
         gpu: &Gpu,
         draw: &Draw,
+        camera: Option<&PortalCamera>,
         tunnel: Option<&TunnelFrame>,
         clouds: &ParticleGeometry,
         aspect: f32,
@@ -201,13 +201,13 @@ impl PortalDraw {
         self.tunnel_drawn = false;
         self.background_drawn = false;
         self.clouds_drawn = false;
-        let Some(tunnel) = tunnel else {
+        let Some(camera) = camera else {
             return;
         };
-        let camera = tunnel
-            .camera
-            .to_render_camera(TUNNEL_FOV_Y, TUNNEL_NEAR, TUNNEL_FAR);
-        if let Some((inner, outer)) = &self.materials {
+        // `SetFOV(mFOV * m_fCameraFOVScale)` on `SceneCamera`'s defaults.
+        let camera =
+            camera.to_render_camera(camera_fov_y(draw.camera_fov_scale), CAMERA_NEAR, CAMERA_FAR);
+        if let (Some(tunnel), Some((inner, outer))) = (tunnel, &self.materials) {
             let view_proj = camera.view_projection(aspect).to_cols_array();
             self.tunnel.update(
                 gpu,

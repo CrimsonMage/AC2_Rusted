@@ -411,6 +411,8 @@ pub struct ScenePresenter {
     post: std::cell::RefCell<Option<PostChain>>,
     /// The world camera's projection for the occlusion, once the view has set it.
     camera: std::cell::Cell<Option<AoCamera>>,
+    /// The eye adaptation is held: the exposure does not move ([`Self::hold_adaptation`]).
+    held: std::cell::Cell<bool>,
 }
 
 impl ScenePresenter {
@@ -422,7 +424,14 @@ impl ScenePresenter {
             ao_pipelines: AoPipelines::new(gpu),
             post: std::cell::RefCell::new(None),
             camera: std::cell::Cell::new(None),
+            held: std::cell::Cell::new(false),
         }
+    }
+
+    /// Holds the eye adaptation where it is (`true`) or lets it follow the scene again: renders
+    /// compared pixel for pixel keep one exposure.
+    pub fn hold_adaptation(&self, held: bool) {
+        self.held.set(held);
     }
 
     /// The world camera's projection for the next [`Self::post`] (its ambient occlusion).
@@ -430,9 +439,8 @@ impl ScenePresenter {
         self.camera.set(Some(camera));
     }
 
-    /// Records the world's post chain (bloom and eye adaptation) over `hdr`, once per frame after
-    /// the world drew into it and before [`Self::draw_world`].
-    pub fn post(&self, gpu: &Gpu, encoder: &mut wgpu::CommandEncoder, hdr: &HdrTarget) {
+    /// The post chain for `hdr`, made when the target's size changes.
+    fn chain(&self, gpu: &Gpu, hdr: &HdrTarget) -> std::cell::Ref<'_, Option<PostChain>> {
         let mut post = self.post.borrow_mut();
         if !post.as_ref().is_some_and(|chain| chain.fits(hdr)) {
             *post = Some(PostChain::new(
@@ -443,15 +451,39 @@ impl ScenePresenter {
                 hdr,
             ));
         }
-        if let Some(chain) = post.as_ref() {
-            chain.record(
-                gpu,
-                &self.post_pipelines,
-                &self.ao_pipelines,
-                encoder,
-                self.camera.get(),
-            );
+        drop(post);
+        self.post.borrow()
+    }
+
+    /// Records the ambient occlusion from `hdr`'s depth as it stands (the world's camera when
+    /// `world`, else none: no occlusion). Call it once per frame after the world drew and before
+    /// anything clears the depth (the portal space's pass), then [`Self::post_chain`].
+    pub fn occlusion(
+        &self,
+        gpu: &Gpu,
+        encoder: &mut wgpu::CommandEncoder,
+        hdr: &HdrTarget,
+        world: bool,
+    ) {
+        let camera = if world { self.camera.get() } else { None };
+        if let Some(chain) = self.chain(gpu, hdr).as_ref() {
+            chain.record_occlusion(gpu, &self.ao_pipelines, encoder, camera);
         }
+    }
+
+    /// Records the bloom and eye adaptation over `hdr`, once per frame after everything drew
+    /// into it and before [`Self::draw_world`].
+    pub fn post_chain(&self, gpu: &Gpu, encoder: &mut wgpu::CommandEncoder, hdr: &HdrTarget) {
+        if let Some(chain) = self.chain(gpu, hdr).as_ref() {
+            chain.record(gpu, &self.post_pipelines, encoder, self.held.get());
+        }
+    }
+
+    /// The whole post chain for a world drawn alone: [`Self::occlusion`] then
+    /// [`Self::post_chain`].
+    pub fn post(&self, gpu: &Gpu, encoder: &mut wgpu::CommandEncoder, hdr: &HdrTarget) {
+        self.occlusion(gpu, encoder, hdr, true);
+        self.post_chain(gpu, encoder, hdr);
     }
 
     /// Tone maps the world in `hdr` over the whole output with the post chain's bloom and

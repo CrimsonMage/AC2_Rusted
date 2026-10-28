@@ -9,6 +9,22 @@ use ac2_math::{Quat, Vec3};
 
 use super::tunnel::{make_safe_index, Portal, Tunnel};
 
+/// `SceneCamera::SceneCamera`'s defaults, which `Render`'s `SceneCamera` keeps: the near and far
+/// distances and the vertical field of view in degrees (`mNearDistance` 0.1, `mFarDistance`
+/// 2000, `mFOV` 65). `Render` calls `SetFOV(mFOV * m_fCameraFOVScale)`; the decompile labels the
+/// operand `camera.mFarDistance`, but the recovered export names it `local_f8.mFOV`.
+pub const CAMERA_NEAR: f32 = 0.1;
+pub const CAMERA_FAR: f32 = 2000.0;
+pub const CAMERA_FOV_DEGREES: f32 = 65.0;
+
+/// `SetFOV(mFOV * m_fCameraFOVScale)` in radians: the product in extended precision, stored as a
+/// float in degrees (`SceneCamera::mFOV`), then the projection's `fov * pi / 360` half angle
+/// doubled.
+pub fn camera_fov_y(scale: f32) -> f32 {
+    let degrees = (f64::from(CAMERA_FOV_DEGREES) * f64::from(scale)) as f32;
+    f64::from(degrees).to_radians() as f32
+}
+
 /// The fade-in distance: the camera backs away `(1 - visibility) * 100` units.
 const FADE_DISTANCE: f32 = 100.0;
 

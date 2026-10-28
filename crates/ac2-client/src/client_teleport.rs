@@ -159,6 +159,7 @@ impl Client {
             phase: self.portal.phase(),
             draw: *drawn,
             teleporting: self.teleporting,
+            camera: self.portal.camera(),
             tunnel: drawn.tunnels.then(|| self.portal.tunnel_frame()),
             clouds: self.portal.cloud_geometry().clone(),
         }

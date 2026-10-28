@@ -135,3 +135,13 @@ fn an_instant_start_records_its_sound_at_once() {
     effect.exit(true, 3.0);
     assert_eq!(effect.take_sounds(), [PortalSound::Stop]);
 }
+
+#[test]
+fn the_camera_takes_scene_cameras_sixty_five_degrees_times_the_scale() {
+    use super::camera_fov_y;
+    // `SceneCamera::SceneCamera`'s `mFOV` is 65 degrees, the vertical field of view
+    // `SetupPerspectiveProjection` takes; `Render` scales it by `m_fCameraFOVScale`.
+    assert!(close(camera_fov_y(1.0), 65f32.to_radians()));
+    // Shutdown phase 0 widens the view to 2.4 times at its end (`t * t * 1.4 + 1`).
+    assert!(close(camera_fov_y(2.4), (65.0f32 * 2.4).to_radians()));
+}

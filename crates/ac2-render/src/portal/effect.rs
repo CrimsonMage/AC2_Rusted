@@ -18,13 +18,11 @@ use super::clouds::PortalClouds;
 use super::tunnel::{make_safe_index, start_for_visibility, Tunnel, TunnelVertex, PORTALS};
 use crate::particles::{CameraBasis, ParticleGeometry};
 
-/// The tunnel for one frame: the vertices of the inner and outer rings and the camera they are
-/// seen from.
+/// The tunnel for one frame: the vertices of the inner and outer rings.
 #[derive(Debug, Clone, PartialEq)]
 pub struct TunnelFrame {
     pub inner: Vec<TunnelVertex>,
     pub outer: Vec<TunnelVertex>,
-    pub camera: PortalCamera,
 }
 
 /// `PortalSpace::Effect::StateType`.
@@ -181,13 +179,8 @@ impl PortalSpace {
         let visibility = self.draw.tunnel_visibility;
         self.clouds
             .discharge(&mut self.tunnel, self.last_portal, visibility, now, random);
-        let camera = portal_camera(
-            &self.tunnel,
-            self.last_portal,
-            self.current_position,
-            visibility,
-        );
-        if let Some(basis) = CameraBasis::look_at(camera.eye, camera.target()) {
+        let camera = self.camera();
+        if let Some(basis) = camera.and_then(|c| CameraBasis::look_at(c.eye, c.target())) {
             self.cloud_geometry = self.clouds.geometry(now, &basis);
         }
     }
@@ -350,20 +343,27 @@ impl PortalSpace {
     }
 
     /// The tunnel as `Render` draws it this frame: the inner and the outer rings (`UpdateGeometry`
-    /// at 1.0 and 1.2 from the start the visibility gives) and the camera.
+    /// at 1.0 and 1.2 from the start the visibility gives).
     pub fn tunnel_frame(&self) -> TunnelFrame {
         let visibility = self.draw.tunnel_visibility;
         let start = start_for_visibility(visibility);
         TunnelFrame {
             inner: self.tunnel.update_geometry(self.last_portal, start, 1.0),
             outer: self.tunnel.update_geometry(self.last_portal, start, 1.2),
-            camera: portal_camera(
+        }
+    }
+
+    /// `Render`'s camera (`SetRenderPosition`), the one the background, the rings and the clouds
+    /// are seen from; `None` while the effect is inactive and draws nothing.
+    pub fn camera(&self) -> Option<PortalCamera> {
+        (self.phase != Phase::Inactive).then(|| {
+            portal_camera(
                 &self.tunnel,
                 self.last_portal,
                 self.current_position,
-                visibility,
-            ),
-        }
+                self.draw.tunnel_visibility,
+            )
+        })
     }
 
     /// The tunnel's portals (`PortalSpace::Effect::m_pTunnelPortals`).

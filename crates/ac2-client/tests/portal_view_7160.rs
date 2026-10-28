@@ -188,27 +188,55 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     let tunnel_rgba = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("portal_tunnel.png", &tunnel_rgba);
     let tunnel_mean = mean_luminance(&tunnel_rgba);
-    // The background mesh and the clouds each contribute pixels: the frame differs without them.
-    let mut without = |edit: &dyn Fn(&mut ac2_client::ClientFrame)| {
+    // The background mesh and the clouds each contribute only the pixels they cover. The frame is
+    // rendered until the eye adaptation settles, then the adaptation is held so that every
+    // comparison render keeps one exposure: pixels move by more than `TOLERANCE` levels only
+    // where something was removed (plus the bloom around it). A render of the same frame
+    // measures what is left of the drift.
+    let render = |view: &mut ClientView, edit: &dyn Fn(&mut ac2_client::ClientFrame)| {
         let mut frame = tunnel.clone();
         edit(&mut frame);
         assert!(view.prepare(&gpu, &frame, aspect, 0.0));
         view.render(&gpu, &target.color_view, &target.depth_view, true);
         target.read_rgba(&gpu.device, &gpu.queue)
     };
-    let no_background = without(&|f| f.portal.draw.background = false);
-    let no_clouds = without(&|f| f.portal.clouds = Default::default());
+    for _ in 0..40 {
+        render(&mut view, &|_| {});
+    }
+    view.hold_exposure(true);
+    const TOLERANCE: u8 = 1;
     let differing = |a: &[u8], b: &[u8]| {
         a.chunks_exact(4)
             .zip(b.chunks_exact(4))
-            .filter(|(x, y)| x != y)
+            .filter(|(x, y)| (0..3).any(|c| x[c].abs_diff(y[c]) > TOLERANCE))
             .count()
     };
-    let background_pixels = differing(&tunnel_rgba, &no_background);
-    let cloud_pixels = differing(&tunnel_rgba, &no_clouds);
-    eprintln!("background pixels {background_pixels}, cloud pixels {cloud_pixels}");
-    assert!(background_pixels > 500, "the background mesh draws");
-    assert!(cloud_pixels > 50, "the cloud particles draw");
+    let full = render(&mut view, &|_| {});
+    let again = render(&mut view, &|_| {});
+    let no_background = render(&mut view, &|f| f.portal.draw.background = false);
+    let no_clouds = render(&mut view, &|f| f.portal.clouds = Default::default());
+    view.hold_exposure(false);
+    let total = (SIZE.0 * SIZE.1) as usize;
+    let drift = differing(&full, &again);
+    let background_pixels = differing(&full, &no_background);
+    let cloud_pixels = differing(&full, &no_clouds);
+    eprintln!("cloud vertices {}", tunnel.portal.clouds.vertices.len());
+    eprintln!("drift {drift}, background pixels {background_pixels}, cloud pixels {cloud_pixels} of {total}");
+    assert!(
+        drift < total / 1000,
+        "the render is stable ({drift} pixels drift)"
+    );
+    // The background is a dome about the eye (`DrawMesh` at the camera's position): it shows
+    // through the translucent rings over most of the frame, everywhere but the opaque HUD.
+    assert!(
+        background_pixels > total / 2,
+        "the background mesh fills the view behind the rings ({background_pixels})"
+    );
+    // The clouds are a few particles near the tunnel's far end: some pixels, never the frame.
+    assert!(
+        cloud_pixels > 200 && cloud_pixels < total / 10,
+        "the cloud particles draw a part of the frame ({cloud_pixels})"
+    );
     eprintln!("town mean {town_mean:.1}, tunnel mean {tunnel_mean:.1}");
     // The world is not drawn (`world_drawn` above); the tunnel's brightness is its own, so the
     // town's is not a bound on it.

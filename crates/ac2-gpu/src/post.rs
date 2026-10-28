@@ -342,18 +342,29 @@ impl PostChain {
         (self.width, self.height) == (hdr.width, hdr.height)
     }
 
-    /// Records the frame's bloom and adaptation after the world drew into the scene target.
-    pub(crate) fn record(
+    /// Records the occlusion from the scene target's depth for `camera` (none: no occlusion).
+    pub(crate) fn record_occlusion(
         &self,
         gpu: &Gpu,
-        pipes: &PostPipelines,
         ao_pipes: &AoPipelines,
         encoder: &mut wgpu::CommandEncoder,
         camera: Option<AoCamera>,
     ) {
         self.ao.record(gpu, ao_pipes, encoder, camera);
+    }
+
+    /// Records the frame's bloom and adaptation after the scene drew into the scene target. A
+    /// `held` adaptation takes no time step, so the exposure stays where it is.
+    pub(crate) fn record(
+        &self,
+        gpu: &Gpu,
+        pipes: &PostPipelines,
+        encoder: &mut wgpu::CommandEncoder,
+        held: bool,
+    ) {
         let now = Instant::now();
         let (step, instant) = match self.last.replace(Some(now)) {
+            Some(_) if held => (0.0, 0.0),
             Some(last) => ((now - last).as_secs_f32().min(MAX_STEP_SECONDS), 0.0),
             None => (0.0, 1.0),
         };

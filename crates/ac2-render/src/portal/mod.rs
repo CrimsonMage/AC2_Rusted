@@ -14,7 +14,9 @@ pub mod tunnel;
 mod tunnel_tests;
 
 pub use assets::{load_clouds_desc, load_portal_models, portal_settings, PortalModels};
-pub use camera::{portal_camera, PortalCamera};
+pub use camera::{
+    camera_fov_y, portal_camera, PortalCamera, CAMERA_FAR, CAMERA_FOV_DEGREES, CAMERA_NEAR,
+};
 pub use clouds::PortalClouds;
 pub use effect::{Draw, Phase, PortalSound, PortalSpace, TunnelFrame};
 pub use tunnel::{Portal, Tunnel, TunnelVertex};

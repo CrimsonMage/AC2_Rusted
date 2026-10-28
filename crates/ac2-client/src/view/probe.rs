@@ -25,6 +25,13 @@ fn find(
 }
 
 impl ClientView {
+    /// Holds the eye adaptation where it is, or lets it follow the scene again
+    /// ([`ac2_gpu::ScenePresenter::hold_adaptation`]): renders compared pixel for pixel keep one
+    /// exposure.
+    pub fn hold_exposure(&self, held: bool) {
+        self.presenter.hold_adaptation(held);
+    }
+
     /// [`ClientView::render`] with no UI viewport scenes (the paper doll left out).
     pub fn render_without_scenes(
         &self,
