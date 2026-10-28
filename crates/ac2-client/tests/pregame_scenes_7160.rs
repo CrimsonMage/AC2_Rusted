@@ -48,11 +48,9 @@ impl Rig {
     /// character selection.
     fn new(chargen: bool) -> Option<Self> {
         let mut rig = Self::at_intro(chargen)?;
-        while rig.view.mode() != MODE_CHARACTER_SELECTION {
-            rig.frame();
-            std::thread::sleep(std::time::Duration::from_millis(1));
-            assert!(rig.t < 60.0, "no character selection");
-        }
+        rig.wait_for("no character selection", |r| {
+            r.view.mode() == MODE_CHARACTER_SELECTION
+        });
         Some(rig)
     }
 
@@ -101,11 +99,7 @@ impl Rig {
             server,
             t: 0.0,
         };
-        while rig.view.mode() != MODE_INTRO {
-            rig.frame();
-            std::thread::sleep(std::time::Duration::from_millis(1));
-            assert!(rig.t < 60.0, "no intro");
-        }
+        rig.wait_for("no intro", |r| r.view.mode() == MODE_INTRO);
         Some(rig)
     }
 
@@ -119,6 +113,17 @@ impl Rig {
         self.gpu.queue.submit([]);
         let _ = self.gpu.device.poll(wgpu::PollType::Poll);
         self.t += STEP;
+    }
+
+    /// Frames until `ready` holds, within a wall-clock budget. The loads run on worker threads
+    /// in wall time, so a budget counted in frames of sim time (`STEP`) is not one under load.
+    fn wait_for(&mut self, what: &str, ready: impl Fn(&Self) -> bool) {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(180);
+        while !ready(self) {
+            assert!(std::time::Instant::now() < deadline, "{what}");
+            self.frame();
+            std::thread::sleep(std::time::Duration::from_millis(1));
+        }
     }
 
     fn element(&self, name: &str) -> (i32, i32) {
@@ -266,10 +271,9 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
         return;
     };
     rig.click("CreateButton");
-    while rig.view.mode() != MODE_AVATAR_SELECTION {
-        rig.frame();
-        assert!(rig.t < 70.0, "no avatar selection");
-    }
+    rig.wait_for("no avatar selection", |r| {
+        r.view.mode() == MODE_AVATAR_SELECTION
+    });
     let (full, ui) = rig.draw();
     save("pregame_scene_avatar_selection.png", &full);
     let viewport = rig.viewport("AvatarSelectionViewport");
@@ -312,10 +316,9 @@ fn character_generation_shows_the_avatars_and_the_chosen_one() {
     rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);
     assert_eq!(rig.view.ui().unwrap().selected_animation(), Some(avatar));
     let started = rig.t;
-    while rig.view.mode() != MODE_AVATAR_MODIFICATION {
-        rig.frame();
-        assert!(rig.t < started + 30.0, "the selected animation never ended");
-    }
+    rig.wait_for("the selected animation never ended", |r| {
+        r.view.mode() == MODE_AVATAR_MODIFICATION
+    });
     eprintln!("the selected animation took {:.2} s", rig.t - started);
     assert!(rig.t - started > 0.25, "the animation played");
     let camera = rig
@@ -424,21 +427,18 @@ fn the_modification_camera_answers_zoom_and_rotation() {
         return;
     };
     rig.click("CreateButton");
-    while rig.view.mode() != MODE_AVATAR_SELECTION {
-        rig.frame();
-        assert!(rig.t < 70.0, "no avatar selection");
-    }
+    rig.wait_for("no avatar selection", |r| {
+        r.view.mode() == MODE_AVATAR_SELECTION
+    });
     let _ = rig.draw();
     let viewport = rig.viewport("AvatarSelectionViewport");
     let picks = rig.picks(&viewport);
     rig.point(picks[0].0);
     rig.frame();
     rig.view.input(&[(LEFT, 1.0, true), (LEFT, 1.0, false)]);
-    let started = rig.t;
-    while rig.view.mode() != MODE_AVATAR_MODIFICATION {
-        rig.frame();
-        assert!(rig.t < started + 30.0, "no avatar modification");
-    }
+    rig.wait_for("no avatar modification", |r| {
+        r.view.mode() == MODE_AVATAR_MODIFICATION
+    });
     let camera = |rig: &Rig| {
         rig.view
             .ui()
@@ -556,15 +556,11 @@ fn the_intro_data_patch_credits_and_controls_screens_draw() {
     let (patch, _) = rig.draw_now();
     save("pregame_data_patch.png", &patch);
     assert!(lit(&patch) > (SIZE.0 * SIZE.1 / 10) as usize);
-    while rig.view.mode() != MODE_CHARACTER_SELECTION {
-        rig.frame();
-        assert!(rig.t < 60.0, "no character selection");
-    }
+    rig.wait_for("no character selection", |r| {
+        r.view.mode() == MODE_CHARACTER_SELECTION
+    });
     rig.click("CreditsButton");
-    while rig.view.mode() != MODE_CREDITS {
-        rig.frame();
-        assert!(rig.t < 70.0, "no credits");
-    }
+    rig.wait_for("no credits", |r| r.view.mode() == MODE_CREDITS);
     let shown = rig.t + 9.0;
     while rig.t < shown {
         rig.frame();
@@ -574,15 +570,11 @@ fn the_intro_data_patch_credits_and_controls_screens_draw() {
     assert!(lit(&credits) > 2000, "credits text and a picture");
     // A key press ends the credits; the options button opens the controls screen.
     rig.view.input(&[(KEY, 1.0, true), (KEY, 1.0, false)]);
-    while rig.view.mode() != MODE_CHARACTER_SELECTION {
-        rig.frame();
-        assert!(rig.t < 100.0, "the credits never closed");
-    }
+    rig.wait_for("the credits never closed", |r| {
+        r.view.mode() == MODE_CHARACTER_SELECTION
+    });
     rig.click("OptionsButton");
-    while rig.view.mode() != MODE_KEYBOARD {
-        rig.frame();
-        assert!(rig.t < 110.0, "no controls screen");
-    }
+    rig.wait_for("no controls screen", |r| r.view.mode() == MODE_KEYBOARD);
     let (controls, _) = rig.draw();
     save("pregame_keyboard.png", &controls);
     assert!(lit(&controls) > (SIZE.0 * SIZE.1 / 10) as usize);
