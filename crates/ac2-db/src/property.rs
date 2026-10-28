@@ -17,19 +17,19 @@ const MASTER_PROPERTY_DID: DataId = DataId::new(0x3400_0000);
 const MAX_ITEMS: usize = 1 << 16;
 
 // `MasterProperty::AllocatePropertyValue` type enums.
-const TYPE_BOOL: u32 = 0x4000_0001;
-const TYPE_INTEGER: u32 = 0x4000_0002;
-const TYPE_FLOAT: u32 = 0x4000_0003;
-const TYPE_VECTOR: u32 = 0x4000_0004;
-const TYPE_COLOR: u32 = 0x4000_0005;
-const TYPE_STRING: u32 = 0x4000_0006;
-const TYPE_ENUM: u32 = 0x4000_0007;
-const TYPE_DATA_FILE: u32 = 0x4000_0008;
-const TYPE_WAVEFORM: u32 = 0x4000_0009;
-const TYPE_STRING_INFO: u32 = 0x4000_000A;
-const TYPE_PACKAGE_ID: u32 = 0x4000_000B;
-const TYPE_LONG_INTEGER: u32 = 0x4000_000D;
-const TYPE_POSITION: u32 = 0x4000_000E;
+pub(crate) const TYPE_BOOL: u32 = 0x4000_0001;
+pub(crate) const TYPE_INTEGER: u32 = 0x4000_0002;
+pub(crate) const TYPE_FLOAT: u32 = 0x4000_0003;
+pub(crate) const TYPE_VECTOR: u32 = 0x4000_0004;
+pub(crate) const TYPE_COLOR: u32 = 0x4000_0005;
+pub(crate) const TYPE_STRING: u32 = 0x4000_0006;
+pub(crate) const TYPE_ENUM: u32 = 0x4000_0007;
+pub(crate) const TYPE_DATA_FILE: u32 = 0x4000_0008;
+pub(crate) const TYPE_WAVEFORM: u32 = 0x4000_0009;
+pub(crate) const TYPE_STRING_INFO: u32 = 0x4000_000A;
+pub(crate) const TYPE_PACKAGE_ID: u32 = 0x4000_000B;
+pub(crate) const TYPE_LONG_INTEGER: u32 = 0x4000_000D;
+pub(crate) const TYPE_POSITION: u32 = 0x4000_000E;
 
 /// The property group of ethereal properties (`CPhysicsObj::ApplyProperty`'s `0x40000003` case):
 /// a bool property of this group sets the bit `BasePropertyDesc::m_data` names in a body's

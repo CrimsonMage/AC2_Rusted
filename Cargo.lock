@@ -112,6 +112,7 @@ version = "0.1.0"
 dependencies = [
  "ac2-core",
  "ac2-dat",
+ "ac2-math",
  "concurrent-queue",
  "flate2",
  "log",

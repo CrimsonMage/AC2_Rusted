@@ -10,6 +10,9 @@
 //! [`ResourceBodyDecode`], [`ResourceBodyDecodeWith`], and [`ResourcePackedDecode`]. This crate
 //! does not expose raw DAT records, metadata proxies, filename lookup, or semantic loaders.
 
+mod base_property;
+#[cfg(test)]
+mod base_property_tests;
 mod body_decode;
 mod db_type;
 mod ddd;
@@ -48,6 +51,7 @@ mod typed_cache;
 mod typed_ref;
 mod worker_lanes;
 
+pub use base_property::{BaseProperty, BasePropertyValue, PropertyPosition, RgbaColor};
 pub use body_decode::ResourceBodyDecodeWith;
 pub use body_decode::{ResourceBodyDecode, ResourceDbObjBody, ResourceDbObjDecodeContext};
 pub use db_type::ResourceTypeId;

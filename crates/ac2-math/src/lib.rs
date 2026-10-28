@@ -8,7 +8,7 @@ pub mod matrix;
 pub mod perlin;
 pub mod waveform;
 
-pub use frame::Frame;
+pub use frame::{AFrame, Frame};
 pub use geometry::{BBox, Plane, Sphere};
 pub use glam::{EulerRot, Mat4, Quat, Vec2, Vec3, Vec4};
 pub use waveform::Waveform;

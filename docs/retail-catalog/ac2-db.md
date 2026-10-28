@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 127 done, 13 partial, 178 to do, 315 skipped.
+633 retail functions: 154 done, 13 partial, 152 to do, 314 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -511,7 +511,7 @@ Legend and workflow: [README](README.md).
 ### CharUtils
 - [x] `CharUtils::IsVowel` · 006bc600 · legions 006515a0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
-## `portal/shared/src/property/baseproperty.cpp.c` (0/22)
+## `portal/shared/src/property/baseproperty.cpp.c` (2/22)
 
 ### BaseProperty
 - [ ] `BaseProperty::IsReportedToWeenie` · 006b1f50 · legions 0064b1e0 — needs port: BaseProperty::IsReportedToWeenie (reporter flag)
@@ -523,14 +523,14 @@ Legend and workflow: [README](README.md).
 - [-] `DiskConBase::IsExpandable` · 006b2000 · legions 0064b290 — skip: DAT writing/saving/packing (tools only) (DiskConBase::IsExpandable is the DAT growth check)
 
 ### BaseProperty
-- [ ] `BaseProperty::SetPropertyType` · 006b2010 · legions 0064b2a0 — needs port: BaseProperty::SetPropertyType
+- [x] `BaseProperty::SetPropertyType` · 006b2010 · legions 0064b2a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [ ] `BaseProperty::GetSubDataIDs` · 006b2060 · legions 0064b2f0 — needs port: BaseProperty::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
 - [-] `BaseProperty::BaseProperty` · 006b20f0 · legions 0064b380 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::~BaseProperty` · 006b2110 · legions 0064b3a0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::operator=` · 006b2130 · legions 0064b3c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [~] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410 — value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
 - [ ] `BaseProperty::InqPropertyBit` · 006b21e0 · legions 0064b470 — needs port: BaseProperty::InqPropertyBit
-- [-] `BaseProperty::Compare` · 006b2210 · legions 0064b4a0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
+- [x] `BaseProperty::Compare` · 006b2210 · legions 0064b4a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [~] `BaseProperty::StreamPack` · 006b2250 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `BaseProperty::BaseProperty` · 006b22c0 · legions 0064b550 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [ ] `BaseProperty::SetPropertyNameW` · 006b2310 · legions 0064b5a0 — needs port: BaseProperty::SetPropertyNameW (wide property name)
@@ -555,12 +555,12 @@ Legend and workflow: [README](README.md).
 - [ ] `BasePropertyDesc::StreamPack` · 006b7070 · legions 0064ef20 — needs port: BasePropertyDesc::StreamPack (typed load of property descriptions)
 - [-] `BasePropertyDesc::FromFileNode` · 006b7100 — text source format (admin tools)
 
-## `portal/shared/src/property/masterproperty.cpp.c` (1/130)
+## `portal/shared/src/property/masterproperty.cpp.c` (26/130)
 
 ### BoolPropertyValue
 - [-] `BoolPropertyValue::ToFileNode` · 006b3d50 — text source format (admin tools)
-- [ ] `BoolPropertyValue::InqBool` · 006b3d80 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; BoolPropertyValue::InqBool (typed accessor)
-- [ ] `BoolPropertyValue::Set` · 006b3da0 — needs port: typed property value setter (runtime property updates)
+- [x] `BoolPropertyValue::InqBool` · 006b3d80 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `BoolPropertyValue::Set` · 006b3da0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `BoolPropertyValue::Compare` · 006b3dc0 · legions 0064cc80 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `BoolPropertyValue::Copy` · 006b3e00 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
@@ -569,38 +569,38 @@ Legend and workflow: [README](README.md).
 - [~] `ColorPropertyValue::StreamPack` · 006b3e60 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `ColorPropertyValue::FromFileNode` · 006b3e70 — text source format (admin tools)
 - [-] `ColorPropertyValue::ToFileNode` · 006b3e90 — text source format (admin tools)
-- [ ] `ColorPropertyValue::InqColor` · 006b3eb0 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; ColorPropertyValue::InqColor (typed accessor)
-- [ ] `ColorPropertyValue::SetColor` · 006b3ee0 — needs port: typed property value setter (runtime property updates)
-- [ ] `ColorPropertyValue::Set` · 006b3f10 — needs port: typed property value setter (runtime property updates)
+- [x] `ColorPropertyValue::InqColor` · 006b3eb0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `ColorPropertyValue::SetColor` · 006b3ee0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `ColorPropertyValue::Set` · 006b3f10 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `ColorPropertyValue::Compare` · 006b3f30 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `ColorPropertyValue::Copy` · 006b3f70 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### DataFilePropertyValue
-- [ ] `DataFilePropertyValue::Set` · 006b3fd0 — needs port: typed property value setter (runtime property updates)
+- [x] `DataFilePropertyValue::Set` · 006b3fd0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `DataFilePropertyValue::Compare` · 006b3ff0 · legions 0064c8e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `DataFilePropertyValue::Copy` · 006b4030 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### EnumPropertyValue
-- [ ] `EnumPropertyValue::Set` · 006b4060 — needs port: typed property value setter (runtime property updates)
+- [x] `EnumPropertyValue::Set` · 006b4060 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `EnumPropertyValue::Compare` · 006b4080 · legions 0064cad0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `EnumPropertyValue::Copy` · 006b40c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
 ### FloatPropertyValue
-- [ ] `FloatPropertyValue::Set` · 006b40f0 — needs port: typed property value setter (runtime property updates)
+- [x] `FloatPropertyValue::Set` · 006b40f0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `FloatPropertyValue::Compare` · 006b4110 · legions 0064cbf0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `FloatPropertyValue::Copy` · 006b4150 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `FloatPropertyValue::ToFileNode` · 006b4180 — text source format (admin tools)
 
 ### IntegerPropertyValue
-- [ ] `IntegerPropertyValue::Set` · 006b41c0 — needs port: typed property value setter (runtime property updates)
+- [x] `IntegerPropertyValue::Set` · 006b41c0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `IntegerPropertyValue::Compare` · 006b41e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `IntegerPropertyValue::Copy` · 006b4220 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `IntegerPropertyValue::ToFileNode` · 006b4250 — text source format (admin tools)
 
 ### LongIntegerPropertyValue
-- [ ] `LongIntegerPropertyValue::InqLongInteger` · 006b4280 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; LongIntegerPropertyValue::InqLongInteger (typed accessor)
-- [ ] `LongIntegerPropertyValue::SetLongInteger` · 006b42a0 — needs port: typed property value setter (runtime property updates)
-- [ ] `LongIntegerPropertyValue::Set` · 006b42c0 — needs port: typed property value setter (runtime property updates)
+- [x] `LongIntegerPropertyValue::InqLongInteger` · 006b4280 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `LongIntegerPropertyValue::SetLongInteger` · 006b42a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `LongIntegerPropertyValue::Set` · 006b42c0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `LongIntegerPropertyValue::Compare` · 006b42e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `LongIntegerPropertyValue::Copy` · 006b4330 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `LongIntegerPropertyValue::ToFileNode` · 006b4370 — text source format (admin tools)
@@ -615,7 +615,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BehaviorTracker::SetAnimationObj` · 006b4410 · legions 0064ce10 — needs port: BehaviorTracker::SetAnimationObj (animation object of the behaviour tracker)
 
 ### PackageIDPropertyValue
-- [ ] `PackageIDPropertyValue::Set` · 006b4420 — needs port: typed property value setter (runtime property updates)
+- [x] `PackageIDPropertyValue::Set` · 006b4420 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `PackageIDPropertyValue::Compare` · 006b4440 · legions 0064ce40 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `PackageIDPropertyValue::Copy` · 006b4480 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
@@ -623,9 +623,9 @@ Legend and workflow: [README](README.md).
 - [-] `VectorPropertyValue::VectorPropertyValue` · 006b44b0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `VectorPropertyValue::FromFileNode` · 006b44e0 — text source format (admin tools)
 - [-] `VectorPropertyValue::ToFileNode` · 006b4500 — text source format (admin tools)
-- [ ] `VectorPropertyValue::InqVector` · 006b4520 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; VectorPropertyValue::InqVector (typed accessor)
-- [ ] `VectorPropertyValue::SetVector` · 006b4540 — needs port: typed property value setter (runtime property updates)
-- [ ] `VectorPropertyValue::Set` · 006b4560 — needs port: typed property value setter (runtime property updates)
+- [x] `VectorPropertyValue::InqVector` · 006b4520 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `VectorPropertyValue::SetVector` · 006b4540 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `VectorPropertyValue::Set` · 006b4560 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `VectorPropertyValue::Compare` · 006b4580 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `VectorPropertyValue::Copy` · 006b4600 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [~] `VectorPropertyValue::StreamPack` · 006b4650 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
@@ -639,9 +639,9 @@ Legend and workflow: [README](README.md).
 ### WaveformPropertyValue
 - [-] `WaveformPropertyValue::FromFileNode` · 006b46e0 — text source format (admin tools)
 - [-] `WaveformPropertyValue::ToFileNode` · 006b4710 — text source format (admin tools)
-- [ ] `WaveformPropertyValue::InqWaveform` · 006b4730 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; WaveformPropertyValue::InqWaveform (typed accessor)
-- [ ] `WaveformPropertyValue::SetWaveform` · 006b4750 — needs port: typed property value setter (runtime property updates)
-- [ ] `WaveformPropertyValue::Set` · 006b47a0 — needs port: typed property value setter (runtime property updates)
+- [x] `WaveformPropertyValue::InqWaveform` · 006b4730 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `WaveformPropertyValue::SetWaveform` · 006b4750 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `WaveformPropertyValue::Set` · 006b47a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `WaveformPropertyValue::GetValueAsString` · 006b47c0 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
 - [-] `WaveformPropertyValue::Compare` · 006b47e0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
@@ -657,7 +657,7 @@ Legend and workflow: [README](README.md).
 - [-] `PositionPropertyValue::HasValidData` · 006b4a60 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
 - [-] `PositionPropertyValue::FromFileNode` · 006b4a70 — text source format (admin tools)
 - [-] `PositionPropertyValue::ToFileNode` · 006b4a90 — text source format (admin tools)
-- [ ] `PositionPropertyValue::Set` · 006b4ab0 — needs port: typed property value setter (runtime property updates)
+- [x] `PositionPropertyValue::Set` · 006b4ab0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `PositionPropertyValue::Compare` · 006b4ad0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [~] `PositionPropertyValue::StreamPack` · 006b4b80 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
@@ -680,12 +680,12 @@ Legend and workflow: [README](README.md).
 
 ### StringPropertyValue
 - [-] `StringPropertyValue::StringPropertyValue` · 006b4e40 · legions 0064d670 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `StringPropertyValue::Set` · 006b4e70 — needs port: typed property value setter (runtime property updates)
+- [x] `StringPropertyValue::Set` · 006b4e70 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `StringPropertyValue::HasValidData` · 006b4e90 — skip: admin/debug text or tool code (no client use in Legions) (HasValidData)
 - [-] `StringPropertyValue::Copy` · 006b4eb0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 - [-] `StringPropertyValue::FromFileNode` · 006b4f00 — text source format (admin tools)
-- [ ] `StringPropertyValue::InqString` · 006b4f30 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; StringPropertyValue::InqString (typed accessor)
-- [ ] `StringPropertyValue::SetString` · 006b4f50 — needs port: typed property value setter (runtime property updates)
+- [x] `StringPropertyValue::InqString` · 006b4f30 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `StringPropertyValue::SetString` · 006b4f50 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [-] `StringPropertyValue::GetValueAsString` · 006b4f70 — skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
 - [-] `StringPropertyValue::Compare` · 006b4f90 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 
@@ -710,8 +710,8 @@ Legend and workflow: [README](README.md).
 
 ### PositionPropertyValue
 - [-] `PositionPropertyValue::Copy` · 006b5410 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [ ] `PositionPropertyValue::InqPosition` · 006b5480 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; PositionPropertyValue::InqPosition (typed accessor)
-- [ ] `PositionPropertyValue::SetPosition` · 006b54a0 — needs port: typed property value setter (runtime property updates)
+- [x] `PositionPropertyValue::InqPosition` · 006b5480 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
+- [x] `PositionPropertyValue::SetPosition` · 006b54a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 
 ### MasterProperty
 - [~] `MasterProperty::AllocatePropertyValue` · 006b54c0 · legions 0064dbf0 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)

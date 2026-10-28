@@ -10,6 +10,7 @@ workspace = true
 
 [dependencies]
 ac2-core = { path = "../ac2-core" }
+ac2-math = { path = "../ac2-math" }
 ac2-dat = { path = "../ac2-dat" }
 flate2 = "1.1.2"
 log = "0.4"
