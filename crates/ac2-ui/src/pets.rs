@@ -4,15 +4,23 @@
 //! the `NextMode` / `PreviousMode` arrows. The four buttons under the panel (`AttackButton`,
 //! `ReturnButton`, `HealButton`, `BuffButton`) act on the selection or the pet.
 //!
-//! The pet notices reach the panel as `CM_Character::SendNotice_AddPet`, `PetIsUnderAttack` and
-//! `UpdatePetMode` (Legions 7160's `gmPetUI::RecvNotice_UpdatePetMode`, which is the only pet
-//! notice handler the Legions decompile names). `RemovePet` and `UpdatePetName` have no Legions
-//! handler identified, so the panel does not change for them. The mode table and the request
-//! timer follow the admin 7148 build (`ModeTable` from its static initializer,
-//! `gmPetUI::Refresh`'s five-second cycle).
+//! The pet notices reach the panel as `CM_Character::SendNotice_AddPet`, `RemovePet`,
+//! `UpdatePetMode`, `UpdatePetName`, `PetIsUnderAttack` and the selection (`SelectionChanged`).
+//! Legions 7160 has every handler in the notice vtable of `gmPetUI` (0x9ca2e8: AddPet 0x419810,
+//! PetIsUnderAttack 0x419570, ReloadGameplayOptions 0x418c00, RemovePet 0x418f70,
+//! SelectionChanged 0x419010, UpdatePetMode 0x4199b0, UpdatePetName 0x41a1e0); the Legions
+//! decompile names only `UpdatePetMode`, the rest were read from the disassembly beside admin
+//! 7148's named bodies and match them. The mode table and the request timer follow the admin
+//! 7148 build (`ModeTable` from its static initializer, `gmPetUI::Refresh`'s five-second cycle).
 //!
-//! Not modelled yet: the pet's icon image (`AddImageToState`), the list's height for its rows, the
-//! name edit (`RequestSetPetName` is a command, see `ac2-client`), and removing a pet's row.
+//! A right press (`0x40000005`) on a row makes its `Name` editable and active with the text
+//! selected; when it deactivates, a name that differs (case-insensitively) from the stored one is
+//! requested (`RequestSetPetName`) and the row shows the stored name again until the server's
+//! `UpdatePetName` arrives. The server's name has its first `(...)` removed
+//! (`AddPet` and `UpdatePetName`).
+//!
+//! Not modelled yet: the list's height for its rows, and the row's `petid` attribute on the name
+//! (nothing reads it back here).
 
 use std::sync::Arc;
 
@@ -42,6 +50,9 @@ pub const PET_MODES: [(u32, &str); 9] = [
 const UNIQUE: &str = "Unique";
 /// `gmPetUI::Refresh`'s wait between two passes, and the time a pet stays unsafe.
 const REFRESH_INTERVAL: f64 = 5.0;
+
+/// `RIGHT_MOUSE_BUTTON` (`0x40000005`): the press that starts a name edit.
+const RIGHT_BUTTON: i32 = 0x4000_0005;
 
 fn id(name: &str) -> u32 {
     tokenize(name)
@@ -89,6 +100,11 @@ pub enum PetAction {
         pet: u64,
         mode: u32,
     },
+    /// `gmCWInterface::RequestSetPetName(pet, name)`: a name edit that changed the name.
+    Rename {
+        pet: u64,
+        name: String,
+    },
 }
 
 /// One pet's row (`PetInfo` in the `_pets` table).
@@ -102,6 +118,8 @@ struct PetRow {
     next_mode: u32,
     /// When the pet was last attacked (`PetInfo::lastAttacked`), 0 for never.
     last_attacked: f64,
+    /// `PetInfo::name`: the name as the panel shows it (the server's, `(...)` removed).
+    name: String,
 }
 
 /// `gmPetUI`'s state.
@@ -120,6 +138,11 @@ pub struct PetUi {
     show_pet_ui: bool,
     /// `_lastUpdate`: when `Refresh` last ran.
     last_update: f64,
+    /// `_iidCurrentSelection` (0 for `INVALID_IID`): the selected pet's row.
+    selection: u64,
+    /// Whether the panel listens for the edited name's `deactivated` (`RegisterForMessage` in
+    /// `ListenToMessage`'s right press).
+    editing: bool,
 }
 
 impl PetUi {
@@ -136,6 +159,8 @@ impl PetUi {
             shown: false,
             show_pet_ui: true,
             last_update: 0.0,
+            selection: 0,
+            editing: false,
         };
         ui.update_state(tree);
         ui
@@ -157,6 +182,14 @@ impl PetUi {
     pub fn set_show_pet_ui(&mut self, tree: &mut UiTree, show: bool) {
         self.show_pet_ui = show;
         self.update_state(tree);
+    }
+
+    /// The pet's name as the panel keeps it (`PetInfo::name`).
+    pub fn name_of(&self, pet: u64) -> Option<&str> {
+        self.pets
+            .iter()
+            .find(|p| p.id == pet)
+            .map(|p| p.name.as_str())
     }
 
     /// The pets' ids, in the order added.
@@ -182,9 +215,11 @@ impl PetUi {
         }
     }
 
-    /// `gmPetUI::RecvNotice_AddPet`: a `PetTemplate` row for the pet, its name and mode shown and
-    /// its wanted mode the same as the server's. A pet already listed is not listed twice.
-    pub fn add_pet(&mut self, tree: &mut UiTree, pet: u64, name: &str, mode: u32) {
+    /// `gmPetUI::RecvNotice_AddPet`: a `PetTemplate` row for the pet, its mode shown and its
+    /// wanted mode the same as the server's, then `RecvNotice_UpdatePetName` for the name, the
+    /// `Icon` image (`AddImageToState(icon, 0, stateless)`) when there is one, and `UpdateState`.
+    /// A pet already listed is not listed twice.
+    pub fn add_pet(&mut self, tree: &mut UiTree, pet: u64, name: &str, icon: u32, mode: u32) {
         let (Some(list), Some(desc)) = (self.list, self.layout.find_element(id("PetTemplate")))
         else {
             return;
@@ -195,13 +230,6 @@ impl PetUi {
         let Some(root) = tree.create_element(Arc::clone(&self.layout), desc, false) else {
             return;
         };
-        if let Some(name_text) = tree.child_recursive(root, id("Name")) {
-            tree.set_text(name_text, name);
-            tree.set_state(name_text, id("safe"));
-        }
-        if let Some(mode_text) = tree.child_recursive(root, id("Mode")) {
-            tree.set_state(mode_text, id(mode_state(mode)));
-        }
         tree.list_add_item(list, root);
         self.pets.push(PetRow {
             id: pet,
@@ -209,8 +237,78 @@ impl PetUi {
             mode,
             next_mode: mode,
             last_attacked: 0.0,
+            name: String::new(),
         });
+        if let Some(mode_text) = tree.child_recursive(root, id("Mode")) {
+            tree.set_state(mode_text, id(mode_state(mode)));
+        }
+        if let Some(name_text) = tree.child_recursive(root, id("Name")) {
+            tree.set_state(name_text, id("safe"));
+        }
+        self.update_pet_name(tree, pet, name);
+        if icon != 0 {
+            if let Some(image) = tree.child_recursive(root, id("Icon")) {
+                tree.set_image(image, icon, 0);
+            }
+        }
         self.update_state(tree);
+    }
+
+    /// `gmPetUI::RecvNotice_RemovePet`: the pet leaves the table and its row leaves the list;
+    /// `UpdateState` runs whether or not the pet was listed.
+    pub fn remove_pet(&mut self, tree: &mut UiTree, pet: u64) {
+        if let Some(at) = self.pets.iter().position(|p| p.id == pet) {
+            let row = self.pets.remove(at);
+            if let Some(list) = self.list {
+                tree.list_delete_item(list, row.root);
+            }
+        }
+        self.update_state(tree);
+    }
+
+    /// `gmPetUI::RecvNotice_UpdatePetName`: the server's name with its first `(...)` removed
+    /// (only when the `(` is not the first character and a `)` follows it) is the pet's name and
+    /// the row's `Name` text. A pet not listed is ignored.
+    pub fn update_pet_name(&mut self, tree: &mut UiTree, pet: u64, name: &str) {
+        let Some(row) = self.pets.iter_mut().find(|p| p.id == pet) else {
+            return;
+        };
+        row.name = strip_parenthetical(name);
+        let (root, shown) = (row.root, row.name.clone());
+        if let Some(text) = tree.child_recursive(root, id("Name")) {
+            tree.set_text(text, &shown);
+        }
+    }
+
+    /// `gmPetUI::RecvNotice_SelectionChanged`: the old selection's row goes `unselected` (and its
+    /// name stops being editable when the selection moved elsewhere), then the new selection's
+    /// row, when it is a listed pet, goes `selected`.
+    pub fn selection_changed(&mut self, tree: &mut UiTree, new: u64) {
+        if self.selection != 0 {
+            if let Some(root) = self
+                .pets
+                .iter()
+                .find(|p| p.id == self.selection)
+                .map(|p| p.root)
+            {
+                tree.set_state(root, id("unselected"));
+                if new != self.selection {
+                    // The row has no `Name` element: retail returns without moving on.
+                    let Some(name) = tree.child_recursive(root, id("Name")) else {
+                        return;
+                    };
+                    if tree.is_text_editable(name) {
+                        tree.set_bool(name, id("editable"), false);
+                        self.editing = false;
+                    }
+                }
+            }
+            self.selection = 0;
+        }
+        if let Some(root) = self.pets.iter().find(|p| p.id == new).map(|p| p.root) {
+            tree.set_state(root, id("selected"));
+            self.selection = new;
+        }
     }
 
     /// `gmPetUI::RecvNotice_PetIsUnderAttack`: the pet's name turns `unsafe`, and it stays so
@@ -269,9 +367,54 @@ impl PetUi {
         } else if message.message == MSG_MOUSE_PRESS {
             if let Some(row) = message.element.and_then(|e| self.row_of(tree, e)) {
                 actions.push(PetAction::Select(row.id));
+                if message.data == RIGHT_BUTTON {
+                    self.begin_name_edit(tree, row.root);
+                }
+            }
+        } else if self.editing
+            && message.element_id == id("Name")
+            && message.message == id("deactivated")
+        {
+            if let Some(element) = message.element {
+                actions.extend(self.end_name_edit(tree, element));
             }
         }
         actions
+    }
+
+    /// `ListenToMessage`'s right press on a row (after `SetSelection`): the name is editable, its
+    /// text selected, and it becomes the active element; the panel then listens for its
+    /// `deactivated`.
+    fn begin_name_edit(&mut self, tree: &mut UiTree, root: usize) {
+        let Some(name) = tree.child_recursive(root, id("Name")) else {
+            return;
+        };
+        tree.set_bool(name, id("editable"), true);
+        tree.select_all(name);
+        tree.activate(name);
+        self.editing = true;
+    }
+
+    /// `ListenToMessage` on the name's `deactivated`: no longer editable, no longer listened to;
+    /// a text that differs from the selected pet's stored name (ignoring case) is requested, and
+    /// the row shows the stored name again.
+    fn end_name_edit(&mut self, tree: &mut UiTree, name: usize) -> Option<PetAction> {
+        tree.set_bool(name, id("editable"), false);
+        self.editing = false;
+        let text = tree.get(name).and_then(|e| e.text()).unwrap_or_default();
+        let stored = self
+            .pets
+            .iter()
+            .find(|p| p.id == self.selection)?
+            .name
+            .clone();
+        let renamed = name_differs(&stored, &text).then_some(PetAction::Rename {
+            pet: self.selection,
+            name: text,
+        });
+        tree.clear_text(name);
+        tree.set_text(name, &stored);
+        renamed
     }
 
     /// The row whose element `element` is (or is inside).
@@ -332,15 +475,35 @@ impl PetUi {
     }
 }
 
+/// `_wcsicmp(stored, edited) != 0`.
+pub(crate) fn name_differs(stored: &str, edited: &str) -> bool {
+    stored.to_lowercase() != edited.to_lowercase()
+}
+
+/// `RecvNotice_UpdatePetName`'s name: the first `(` (not at index 0) and the first `)` after it
+/// bound a `(...)` that is removed wherever it occurs in the name (`PStringBase::replace`).
+fn strip_parenthetical(name: &str) -> String {
+    let chars: Vec<char> = name.chars().collect();
+    let open = chars.iter().position(|&c| c == '(');
+    let close = chars.iter().position(|&c| c == ')');
+    match (open, close) {
+        (Some(open), Some(close)) if open > 0 && close > open => {
+            let part: String = chars[open..=close].iter().collect();
+            name.replace(&part, "")
+        }
+        _ => name.to_owned(),
+    }
+}
+
 /// What the pet panel reads from the player: the server's strings, rendered (a pet's name).
 pub trait PetSource {
     /// A string the server sent, rendered.
     fn render_wire(&self, info: &StringInfo) -> String;
 }
 
-/// `gmPetUI`'s notices: `AddPet` lists the pet, `PetIsUnderAttack` marks it unsafe and
-/// `UpdatePetMode` takes the server's mode. `RemovePet` and `UpdatePetName` change nothing in
-/// the panel (see the module notes).
+/// `gmPetUI`'s notices: `AddPet` lists the pet, `RemovePet` unlists it, `PetIsUnderAttack` marks
+/// it unsafe, `UpdatePetMode` takes the server's mode, `UpdatePetName` its name and
+/// `SelectionChanged` marks the selected pet's row.
 pub fn pet_notice<S: PetSource>(
     panel: &mut PetUi,
     tree: &mut UiTree,
@@ -350,8 +513,16 @@ pub fn pet_notice<S: PetSource>(
 ) {
     match notice {
         GameplayNotice::AddPet {
-            pet, name, mode, ..
-        } => panel.add_pet(tree, *pet, &source.render_wire(name), *mode),
+            pet,
+            name,
+            icon,
+            mode,
+        } => panel.add_pet(tree, *pet, &source.render_wire(name), *icon, *mode),
+        GameplayNotice::RemovePet(pet) => panel.remove_pet(tree, *pet),
+        GameplayNotice::UpdatePetName { pet, name } => {
+            panel.update_pet_name(tree, *pet, &source.render_wire(name));
+        }
+        GameplayNotice::SelectionChanged(new) => panel.selection_changed(tree, *new),
         GameplayNotice::PetIsUnderAttack(pet) => panel.pet_under_attack(tree, *pet, now),
         GameplayNotice::UpdatePetMode { pet, mode } => panel.update_pet_mode(tree, *pet, *mode),
         _ => {}

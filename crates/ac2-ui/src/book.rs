@@ -430,7 +430,8 @@ impl BookUi {
         false
     }
 
-    /// `gmBookUI::SendBookToClipboard`: the title, a newline and the page text, with the markup
+    /// `gmBookUI::SendBookToClipboard`: the title, a blank line (`L"\n\n"`, Legions 0x9cbb28) and the
+    /// page text, with the markup
     /// as the clipboard shows it (`<H>` dropped, `</H>` a newline, `<BR>` three newlines).
     fn clipboard_text(&self, tree: &UiTree) -> String {
         let element_text = |index: Option<usize>| {
@@ -444,7 +445,7 @@ impl BookUi {
         let mut book = if title.is_empty() {
             String::new()
         } else {
-            format!("{title}\n")
+            format!("{title}\n\n")
         };
         book.push_str(&body);
         if let Some(tail) = book.find("<T>") {
@@ -484,17 +485,23 @@ pub(crate) fn segments(book: &str) -> Vec<(Option<String>, String)> {
         .collect()
 }
 
-/// `gmBookUI::TruncateText`: the text shortened from its end until it fits `limit` pixels.
+/// `gmBookUI::TruncateText`: the text plus a space (`L" "`, Legions 0x9cbaf0: no ellipsis) is
+/// measured; when it is wider than `limit` (a positive limit), characters come off the end until
+/// the text plus the space fits, and the text keeps that space. A text that fits is unchanged.
 fn truncate_to_width(tree: &UiTree, field: usize, text: &str, limit: i32) -> String {
+    let width_of = |shown: &str| {
+        tree.text_size_with_margins(field, &format!("{shown} "))
+            .map_or(0, |(w, _)| w)
+    };
+    if limit <= 0 || width_of(text) <= limit {
+        return text.to_owned();
+    }
     let mut kept: Vec<char> = text.chars().collect();
     loop {
-        let shown: String = kept.iter().collect();
-        let width = tree
-            .text_size_with_margins(field, &format!("{shown} "))
-            .map_or(0, |(w, _)| w);
-        if width <= limit || kept.is_empty() || limit <= 0 {
-            return shown;
-        }
         kept.pop();
+        let shown: String = kept.iter().collect();
+        if width_of(&shown) <= limit || kept.is_empty() {
+            return format!("{shown} ");
+        }
     }
 }

@@ -77,6 +77,10 @@ pub fn consignment_notice(
             panel.recv_update_consignment(tree, source, shop)
         }
         GameplayNotice::LeaveConsignment => panel.recv_leave_consignment(tree, dialogs, now),
+        GameplayNotice::UpdateMountState(mounted) => panel.recv_update_mount_state(*mounted),
+        GameplayNotice::SelectionChanged(selection) => {
+            panel.recv_selection_changed(tree, *selection)
+        }
         _ => {}
     }
 }

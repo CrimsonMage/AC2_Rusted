@@ -6,8 +6,9 @@
 //! it and sets the label's and the client area's state to the map's (`SetState`). The close
 //! button hides it (`ListenToMessage`); the help button opens the help page, which is not ported.
 //!
-//! The label is the overview's first text element: its name is a token this layout does not
-//! expose under a known name.
+//! The label is `Panel_Label_OverviewMap` (`gmOverviewMapUI`'s `m_pLabel`; the admin 7148 tree's
+//! `Tokenize` initializer names Legions's `DAT_00a4db14`). The help button is a generic help
+//! button (`OverviewMapHelpButton` opens `ID_Help_OverviewMap`, `ac2-client` `hud_help.rs`).
 //!
 //! `gmNavigationUI::ListenToMessage` shows the overview for the panel's zoom buttons
 //! (`NavigationZoomToOverview*Button`): each calls `ShowMap` with its map's state. The Legions
@@ -70,7 +71,7 @@ impl OverviewMapUi {
         let field = tree.create_root(Arc::clone(gameplay), tokenize("OverviewMap"))?;
         tree.set_visible(field, false);
         let client_area = tree.child_recursive(field, tokenize("OverviewMapClientArea"));
-        let label = first_text(tree, field);
+        let label = tree.child_recursive(field, tokenize("Panel_Label_OverviewMap"));
         Some(Self {
             field,
             label,
@@ -129,20 +130,4 @@ impl OverviewMapUi {
         }
         is_close
     }
-}
-
-/// The first text element under `root`, in the tree's order: the overview's label.
-fn first_text(tree: &UiTree, root: usize) -> Option<usize> {
-    for &child in tree.children(root) {
-        if tree
-            .get(child)
-            .is_some_and(|e| e.kind() == crate::token::TEXT)
-        {
-            return Some(child);
-        }
-        if let Some(found) = first_text(tree, child) {
-            return Some(found);
-        }
-    }
-    None
 }

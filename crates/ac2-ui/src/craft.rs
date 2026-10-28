@@ -61,6 +61,14 @@ pub(crate) const TOKEN_SELECTED: u32 = tokenize("selected");
 pub(crate) const TOKEN_ENABLED: u32 = tokenize("enabled");
 pub(crate) const TOKEN_DISABLED: u32 = tokenize("disabled");
 pub(crate) const SELECTED_LEVEL: u32 = tokenize("SelectedLevel");
+/// A skill row's rating text and its states, the rating's string (`ID_Craft_Rating`) and the
+/// ellipsis the long names end in (`ID_Ellipsis`); the symbols' initializers are in the admin
+/// 7148 tree (`Tokenize`), the Legions addresses were matched by position in the same functions.
+pub(crate) const LEVEL: u32 = tokenize("Level");
+pub(crate) const TOKEN_BUFF: u32 = tokenize("buff");
+pub(crate) const TOKEN_DEBUFF: u32 = tokenize("debuff");
+pub(crate) const CRAFT_RATING: u32 = tokenize("ID_Craft_Rating");
+pub(crate) const ELLIPSIS: u32 = tokenize("ID_Ellipsis");
 /// The level text's strings (`ID_Craft_SkillLevelNormal`, `..Buffed`, `..Debuffed`), the raise
 /// text's (`ID_Craft_CantRaise`, `ID_Craft_AvailableXPRaise`) and their variables (`level`,
 /// `value`, `xp`, `cost`). The string ids are the names's tokens, as the UI table keys them.

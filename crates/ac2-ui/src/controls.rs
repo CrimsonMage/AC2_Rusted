@@ -285,6 +285,22 @@ impl Controls {
         }
     }
 
+    /// `CM_UI::SendNotice_UpdateCanMouseLook` reaching `gmCameraUI`, one per argument sent: a dialog
+    /// or a story holding the slot (`false`) or letting go (`true`). The camera's states follow
+    /// in the next frame.
+    pub fn update_can_mouse_look(&mut self, notices: impl IntoIterator<Item = bool>) {
+        for allowed in notices {
+            if let CameraUiEffect::States {
+                mouse_look,
+                first_person,
+            } = self.camera_ui.recv_notice_update_can_mouse_look(allowed)
+            {
+                self.pending.mouse_look_state = Some(mouse_look);
+                self.pending.first_person_state = Some(first_person);
+            }
+        }
+    }
+
     /// `gmCameraUI`'s handling of one UI action; actions it ignores go to [`ControlFrame::ui`].
     fn camera_ui_action(&mut self, ui: u32, value: f32, start: bool, now: f64) {
         match self.camera_ui.action(ui, start) {

@@ -198,6 +198,16 @@ impl ClientView {
         self.hud.panels.options.take_effects()
     }
 
+    /// The `CM_UI::SendNotice_UpdateCanMouseLook` arguments the dialogs sent since the last call.
+    pub fn take_mouse_look_notices(&mut self) -> Vec<bool> {
+        self.hud
+            .panels
+            .dialogs
+            .as_mut()
+            .map(ac2_ui::DialogFactory::take_mouse_look_notices)
+            .unwrap_or_default()
+    }
+
     /// The target changed size.
     pub fn resize(&mut self, width: u32, height: u32) {
         self.hud.resize(width, height);

@@ -449,3 +449,22 @@ fn default_asks_first_and_a_yes_resets_the_page() {
         "the default came back"
     );
 }
+
+/// `gmClientUI::VerifyRenderOptions` asks `ID_Option_RenderText` (the `Tokenize` string of the
+/// admin tree's initializer for `DAT_00a4f870`); the DVD's UI table does not carry it, while the
+/// other two questions are there.
+#[test]
+fn the_render_verification_question_is_the_one_the_ui_table_lacks() {
+    let Some(store) = dataset_store() else {
+        return;
+    };
+    let hud = build_gameplay_hud(&store, 1024, 768).expect("the HUD");
+    let text = hud.tree.text_data().expect("the text data");
+    let table = hud.ui_table.expect("the UI string table");
+    assert!(text
+        .string(table, tokenize("ID_Option_RecallText"))
+        .is_some());
+    assert!(text
+        .string(table, tokenize("ID_Option_RenderText"))
+        .is_none());
+}

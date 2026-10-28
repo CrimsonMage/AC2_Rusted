@@ -766,10 +766,11 @@ fn set_button_tooltip(tree: &mut UiTree, modify: usize, name: &str, text: String
 }
 
 /// `UIElement_Text::TruncateText`: while the text is wider than the element (its width plus
-/// one), its last character goes and the ellipsis is added, until it fits.
-fn truncate_text(tree: &mut UiTree, index: usize, ellipsis: &str) {
+/// one), its last character goes and the ellipsis is added, until it fits. True when the text
+/// was cut.
+pub(crate) fn truncate_text(tree: &mut UiTree, index: usize, ellipsis: &str) -> bool {
     let Some(text) = tree.get(index).and_then(|e| e.text()) else {
-        return;
+        return false;
     };
     let limit = tree.get(index).map_or(0, |e| e.rect().width());
     let mut kept: Vec<char> = text.chars().collect();
@@ -785,5 +786,7 @@ fn truncate_text(tree: &mut UiTree, index: usize, ellipsis: &str) {
     }
     if shown != text {
         tree.set_text(index, &shown);
+        return true;
     }
+    false
 }

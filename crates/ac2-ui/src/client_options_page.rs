@@ -45,9 +45,10 @@ pub const PREF_LABEL_TABLE: u32 = 0x4000_0008;
 /// The confirmations' texts (`ID_Option_RecallText`, `ID_Option_DefaultText`).
 const RECALL_TEXT: &str = "ID_Option_RecallText";
 const DEFAULT_TEXT: &str = "ID_Option_DefaultText";
-/// The render verification's question (`VerifyRenderOptions`); its string ID is not identified,
-/// so the question is this port's own text when the table has none under the name below.
-const RENDER_TEXT: &str = "ID_Option_VerifyRenderText";
+/// The render verification's question (`VerifyRenderOptions` sets string `DAT_00a4f870`, the
+/// `Tokenize("ID_Option_RenderText")` of the admin 7148 tree's initializer). The DVD's UI string
+/// table has no such string, so retail's dialog had no text; this port asks in its own words.
+const RENDER_TEXT: &str = "ID_Option_RenderText";
 const RENDER_FALLBACK: &str = "Keep these display settings?";
 
 /// What the page asks the client to do with the bank.

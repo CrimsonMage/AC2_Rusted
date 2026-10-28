@@ -414,6 +414,11 @@ impl App {
         state.controls.set_text_mode(view.text_mode(), stamp, now);
         state.controls.set_copy_text(view.text_copy_focus());
         state.controls.ui_messages(&messages, now);
+        let notices = view.take_mouse_look_notices();
+        let notices = notices
+            .into_iter()
+            .chain(self.client.take_mouse_look_notices());
+        state.controls.update_can_mouse_look(notices);
         for message in &messages {
             state.selection.message(message);
         }

@@ -56,6 +56,13 @@ impl UiTree {
             .or_else(|| self.copy_focus.filter(|&index| self.get(index).is_some()))
     }
 
+    /// `UIElement_Text`'s `editable` attribute (`GetAttribute_Bool(Text_editable)`).
+    pub(crate) fn is_text_editable(&self, index: usize) -> bool {
+        self.get(index)
+            .and_then(|e| e.text.as_ref())
+            .is_some_and(|t| t.editable)
+    }
+
     /// Whether the active element takes typing (the input manager's text mode).
     pub fn text_mode(&self) -> bool {
         self.active.is_some_and(|index| {

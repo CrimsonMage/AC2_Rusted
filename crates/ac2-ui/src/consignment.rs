@@ -103,6 +103,9 @@ pub struct ConsignmentUi {
     pub(crate) confirm_context: u32,
     /// `m_timeDormant`, on the global loop's clock.
     pub(crate) dormant_since: f64,
+    /// The mount state (`RecvNotice_UpdateMountState`); retail reads it only to redraw the
+    /// player's portrait (`RecvNotice_LocalVisualDescUpdate`), which is not modelled.
+    pub(crate) mounted: bool,
     requests: Vec<ConsignmentRequest>,
     stack_calls: Vec<ShopStackCall>,
 }
@@ -123,6 +126,7 @@ impl ConsignmentUi {
             stack_context: 0,
             confirm_context: 0,
             dormant_since: 0.0,
+            mounted: false,
             requests: Vec::new(),
             stack_calls: Vec::new(),
         }
@@ -360,6 +364,19 @@ impl ConsignmentUi {
         self.ghost_collect(tree);
         if let Some(item) = self.selected_item() {
             self.requests.push(ConsignmentRequest::Select(item));
+        }
+    }
+
+    /// `gmShopConsignmentUI::RecvNotice_UpdateMountState`: the flag is kept.
+    pub fn recv_update_mount_state(&mut self, mounted: bool) {
+        self.mounted = mounted;
+    }
+
+    /// `gmShopConsignmentUI::RecvNotice_SelectionChanged`: while shown, a selection that is not
+    /// the selected sale's item clears the sale's selection (`Select(null)`).
+    pub fn recv_selection_changed(&mut self, tree: &mut UiTree, selection: u64) {
+        if self.shown && self.selected.is_some() && self.selected_item() != Some(selection) {
+            self.select(tree, None);
         }
     }
 

@@ -8,14 +8,16 @@ use ac2_weenie::{CraftSkill, Recipe};
 
 use crate::craft::{
     CraftSource, CraftUi, AVAILABLE_XP_RAISE, BACK_BUTTON, CANT_RAISE, CATEGORY_HEADER,
-    CATEGORY_LIST, CATEGORY_TEMPLATE, ENTRY_TEMPLATE, FORWARD_BUTTON, NAME, RAISE_CRAFT_BUTTON,
-    RECIPE_BUTTON, RECIPE_HEADER, RECIPE_ICON, RECIPE_LIST, RECIPE_TEMPLATE, SELECTED_FIELD,
-    SELECTED_ICON, SELECTED_LEVEL, SELECTED_NAME, SKILL_LEVEL_BUFFED, SKILL_LEVEL_DEBUFFED,
-    SKILL_LEVEL_NORMAL, SKILL_LIST, STATE_CATEGORY, STATE_RECIPE, STATE_SKILL, TOKEN_COST,
-    TOKEN_DID, TOKEN_DISABLED, TOKEN_ENABLED, TOKEN_LEVEL, TOKEN_SELECTED, TOKEN_VALUE, TOKEN_XP,
+    CATEGORY_LIST, CATEGORY_TEMPLATE, CRAFT_RATING, ELLIPSIS, ENTRY_TEMPLATE, FORWARD_BUTTON,
+    LEVEL, NAME, RAISE_CRAFT_BUTTON, RECIPE_BUTTON, RECIPE_HEADER, RECIPE_ICON, RECIPE_LIST,
+    RECIPE_TEMPLATE, SELECTED_FIELD, SELECTED_ICON, SELECTED_LEVEL, SELECTED_NAME,
+    SKILL_LEVEL_BUFFED, SKILL_LEVEL_DEBUFFED, SKILL_LEVEL_NORMAL, SKILL_LIST, STATE_CATEGORY,
+    STATE_RECIPE, STATE_SKILL, TOKEN_BUFF, TOKEN_COST, TOKEN_DEBUFF, TOKEN_DID, TOKEN_DISABLED,
+    TOKEN_ENABLED, TOKEN_LEVEL, TOKEN_SELECTED, TOKEN_VALUE, TOKEN_XP,
 };
 use crate::element::UiTree;
-use crate::token::BUTTON_GHOSTED;
+use crate::skill_tree::truncate_text;
+use crate::token::{BUTTON_GHOSTED, STATELESS};
 
 impl CraftUi {
     /// `UIFramework::CreateElement(0x41000003, template)`: a template of the toolbar layout.
@@ -181,9 +183,34 @@ impl CraftUi {
             tree.set_state(name, state);
             let text = source.text(&skill.name);
             tree.set_text(name, &text);
+            Self::ellipsize(tree, source, name, text);
+            // The row's rating: `ID_Craft_Rating` with the level, buffed or debuffed against the
+            // raw level (Legions 0x44a640 builds it itself, not through `MakeLevelText`).
+            if let Some(level) = tree.child_recursive(row, LEVEL) {
+                let difference = i64::from(skill.level) - i64::from(skill.raw_level);
+                tree.set_state(
+                    level,
+                    match difference.signum() {
+                        -1 => TOKEN_DEBUFF,
+                        1 => TOKEN_BUFF,
+                        _ => STATELESS,
+                    },
+                );
+                let rating = source.ui_text(CRAFT_RATING, &[(TOKEN_VALUE, i64::from(skill.level))]);
+                tree.set_text(level, &rating);
+                if self.selected_skill == skill.did {
+                    self.select_element(tree, row);
+                }
+            }
         }
-        if self.selected_skill == skill.did {
-            self.select_element(tree, row);
+    }
+
+    /// The name's cut when it is wider than its element (`UIElement_Text::TruncateText` with
+    /// `ID_Ellipsis`), the full name then its tooltip.
+    fn ellipsize(tree: &mut UiTree, source: &dyn CraftSource, name: usize, full: String) {
+        let ellipsis = source.ui_text(ELLIPSIS, &[]);
+        if truncate_text(tree, name, &ellipsis) {
+            tree.set_tooltip(name, Some(full));
         }
     }
 
@@ -207,6 +234,7 @@ impl CraftUi {
         if let Some(text) = tree.child_recursive(row, NAME) {
             let string = source.text(name);
             tree.set_text(text, &string);
+            Self::ellipsize(tree, source, text, string);
             if self.selected_category == category {
                 self.select_element(tree, row);
             }
@@ -233,8 +261,20 @@ impl CraftUi {
         let image = self.recipe_icon(source, recipe);
         set_icon(tree, icon, image, 0);
         if let Some(text) = tree.child_recursive(row, NAME) {
+            // A recipe still on its use-again time (`m_timeUseAgain`, a double, above 0) is
+            // disabled.
+            let waiting = f64::from_bits(recipe.time_use_again) > 0.0;
+            tree.set_state(
+                text,
+                if waiting {
+                    TOKEN_DISABLED
+                } else {
+                    TOKEN_ENABLED
+                },
+            );
             let string = source.text(&recipe.name);
             tree.set_text(text, &string);
+            Self::ellipsize(tree, source, text, string);
             if self.selected_recipe == recipe.did {
                 self.select_element(tree, row);
             }

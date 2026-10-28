@@ -39,8 +39,10 @@ pub enum CameraUiEffect {
 /// `gmCameraUI`'s state.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CameraUi {
-    /// `m_canMouseLook`: set, it holds mouse look off.
-    pub mouse_look_blocked: bool,
+    /// `m_canMouseLook`: despite the name, a count of the things holding mouse look off
+    /// (`RecvNotice_UpdateCanMouseLook` adds one for 0 and takes one for non-zero); mouse look
+    /// may be on only at 0.
+    pub can_mouse_look: i32,
     pub can_first_person: bool,
     pub want_mouse_look: bool,
     pub want_first_person: bool,
@@ -50,7 +52,7 @@ impl Default for CameraUi {
     /// The constructor's values.
     fn default() -> Self {
         Self {
-            mouse_look_blocked: false,
+            can_mouse_look: 0,
             can_first_person: true,
             want_mouse_look: false,
             want_first_person: false,
@@ -62,9 +64,16 @@ impl CameraUi {
     /// `UpdateCamera`.
     pub fn update_camera(&self) -> CameraUiEffect {
         CameraUiEffect::States {
-            mouse_look: !self.mouse_look_blocked && self.want_mouse_look,
+            mouse_look: self.can_mouse_look == 0 && self.want_mouse_look,
             first_person: self.can_first_person && self.want_first_person,
         }
+    }
+
+    /// `gmCameraUI::RecvNotice_UpdateCanMouseLook`: the count moves by one (up for 0, down for
+    /// non-zero), then `UpdateCamera`.
+    pub fn recv_notice_update_can_mouse_look(&mut self, allowed: bool) -> CameraUiEffect {
+        self.can_mouse_look += if allowed { -1 } else { 1 };
+        self.update_camera()
     }
 
     /// `ListenToMessage` for a UI action starting or stopping.
@@ -97,5 +106,36 @@ impl CameraUi {
             UI_WHEEL_OUT if start => Some(CameraUiEffect::Zoom { zoom_in: false }),
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_can_mouse_look_notices_count_and_hold_mouse_look_off() {
+        let mut camera = CameraUi {
+            want_mouse_look: true,
+            ..CameraUi::default()
+        };
+        let states = |mouse_look| CameraUiEffect::States {
+            mouse_look,
+            first_person: false,
+        };
+        // Two holders (a dialog and a story): mouse look stays off until both let go.
+        assert_eq!(
+            camera.recv_notice_update_can_mouse_look(false),
+            states(false)
+        );
+        assert_eq!(
+            camera.recv_notice_update_can_mouse_look(false),
+            states(false)
+        );
+        assert_eq!(
+            camera.recv_notice_update_can_mouse_look(true),
+            states(false)
+        );
+        assert_eq!(camera.recv_notice_update_can_mouse_look(true), states(true));
     }
 }

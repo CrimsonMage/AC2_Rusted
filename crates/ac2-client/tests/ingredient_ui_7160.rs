@@ -225,6 +225,48 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     panel.execute_done(tree, &source, 1);
     assert!(panel.root().is_some());
 
+    // The root is `RealIngredientField`; the recipe's name and description are in `RecipeLabel`
+    // and `RecipeMiscText`.
+    let element = |tree: &UiTree, name: &str| {
+        tree.child_recursive(root, tokenize(name))
+            .unwrap_or_else(|| panic!("{name} in the panel"))
+    };
+    assert_eq!(
+        tree.get(root).unwrap().id(),
+        tokenize("RealIngredientField")
+    );
+    let record = source.recipe(RECIPE).expect("the recipe");
+    let label = element(tree, "RecipeLabel");
+    assert_eq!(
+        tree.get(label).unwrap().text().unwrap_or_default(),
+        format!("string {:08x}", record.name.string_id)
+    );
+    element(tree, "RecipeMiscText");
+    // `UpdateCraftButton`: mounted, the button is ghosted with the disabled caption and the
+    // mounted tooltip; dismounted, the caption and the clear tooltip come back.
+    let button = element(tree, "CraftButton");
+    let caption = element(tree, "CraftButtonText");
+    let text_of = |tree: &UiTree, index: usize| tree.get(index).unwrap().text().unwrap_or_default();
+    panel.mount_state(tree, true);
+    assert_eq!(
+        tree.get(button).unwrap().attribute(tokenize("ghosted")),
+        Some(&AttributeValue::Bool(true))
+    );
+    assert_eq!(
+        text_of(tree, caption),
+        format!("string {:08x} 0", tokenize("ID_Craft_CraftButton_Disabled"))
+    );
+    assert_eq!(
+        tree.tooltip_text(button),
+        Some(format!("string {:08x} 0", tokenize("ID_Craft_TT_Mounted")))
+    );
+    panel.mount_state(tree, false);
+    assert_eq!(
+        text_of(tree, caption),
+        format!("string {:08x} 0", tokenize("ID_Craft_CraftButton"))
+    );
+    assert_eq!(tree.tooltip_text(button), None);
+
     // An add answer puts the object in its slot when it succeeds, and frees the slot when not.
     let object = 0x8000_0000_0000_9001;
     let ordinal = ingredients.first().map(|i| i.id).unwrap_or(1);
@@ -264,6 +306,17 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
             );
         }
     }
+    // The close button closes the panel (not while a craft is pending).
+    let close = ac2_ui::UiMessage {
+        element_id: tokenize("IngredientCloseButton"),
+        element: tree.child_recursive(root, tokenize("IngredientCloseButton")),
+        message: tokenize("mouse_release_on"),
+        data: 0,
+        item: None,
+    };
+    assert!(close.element.is_some(), "the layout has the close button");
+    panel.message(tree, &source, &close);
+    assert!(!tree.get(root).unwrap().visible());
     drop(source);
     assert!(client.take_script_problems().is_empty());
 }

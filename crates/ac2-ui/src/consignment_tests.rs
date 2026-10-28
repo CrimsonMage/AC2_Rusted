@@ -445,3 +445,28 @@ fn the_close_button_leaves_the_consignment() {
     );
     assert!(!panel.is_shown());
 }
+
+/// `gmShopConsignmentUI::RecvNotice_SelectionChanged`: the selected sale stays selected while the
+/// player's selection is its item, and clears when the selection is another.
+#[test]
+fn another_selection_clears_the_selected_sale() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    open(&mut hud, &mut panel);
+    let row = row_of(&panel, POTION_SALE);
+    panel.message(
+        &mut hud.tree,
+        &mut hud.dialogs,
+        &Pack,
+        &press_row(row, 0x4000_0004),
+        1.0,
+    );
+    panel.take_requests();
+    panel.recv_selection_changed(&mut hud.tree, POTIONS);
+    assert_eq!(panel.selected_item(), Some(POTIONS));
+    panel.recv_selection_changed(&mut hud.tree, SWORD);
+    assert_eq!(panel.selected_item(), None);
+    panel.recv_update_mount_state(true);
+    assert!(panel.mounted);
+}

@@ -15,6 +15,7 @@ pub(crate) fn pet_commands(actions: Vec<PetAction>, commands: &mut Vec<Command>)
             PetAction::Heal => Command::PetHeal,
             PetAction::Return => Command::PetReturn,
             PetAction::Mode { pet, mode } => Command::PetMode { pet, mode },
+            PetAction::Rename { pet, name } => Command::PetRename { pet, name },
         });
     }
 }

@@ -184,7 +184,7 @@ fn help_asks_for_the_help_page_and_copy_gives_the_text() {
     let Some(BookRequest::Copy(text)) = book.message(tree, &Strings, &copy) else {
         panic!("copy gives the book's text");
     };
-    assert!(text.starts_with("Tome\n"), "{text:?}");
+    assert!(text.starts_with("Tome\n\n"), "{text:?}");
     assert!(text.contains("Alpha"), "{text:?}");
     assert!(text.contains("Beta"), "{text:?}");
 }

@@ -77,7 +77,7 @@ fn the_panel_lists_pets_and_ghosts_its_buttons_until_one_is_listed() {
     );
     ui.show(&mut tree, true);
     assert!(!tree.get(panel).is_some_and(|e| e.visible()), "no pet yet");
-    ui.add_pet(&mut tree, PET, "Rex", IDLE);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
     assert_eq!(ui.pets(), vec![PET]);
     assert!(tree.get(panel).is_some_and(|e| e.visible()));
     assert_eq!(tree.get(panel).map(|e| e.state()), Some(tokenize("pets")));
@@ -87,7 +87,7 @@ fn the_panel_lists_pets_and_ghosts_its_buttons_until_one_is_listed() {
         Some(crate::layout::AttributeValue::Bool(false))
     );
     // A pet already listed is not listed twice.
-    ui.add_pet(&mut tree, PET, "Rex", IDLE);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
     assert_eq!(ui.pets().len(), 1);
     // The UI option off ghosts the buttons again.
     ui.set_show_pet_ui(&mut tree, false);
@@ -102,7 +102,7 @@ fn a_pet_under_attack_is_unsafe_until_five_quiet_seconds_pass() {
     };
     let mut tree = UiTree::new(1024, 768);
     let mut ui = PetUi::create(&mut tree, &layout);
-    ui.add_pet(&mut tree, PET, "Rex", IDLE);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
     let panel = panel_root(&tree);
     // The row's name is the first `Name` below the list.
     let row = tree.list_items(element(&tree, panel, "PetPanelListBox"))[0];
@@ -128,8 +128,8 @@ fn the_buttons_ask_the_script_and_the_arrows_want_a_mode_sent_by_refresh() {
     let mut tree = UiTree::new(1024, 768);
     let mut ui = PetUi::create(&mut tree, &layout);
     ui.show(&mut tree, true);
-    ui.add_pet(&mut tree, PET, "Rex", IDLE);
-    ui.add_pet(&mut tree, OTHER, "Mo", DEFENSIVE);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
+    ui.add_pet(&mut tree, OTHER, "Mo", 0, DEFENSIVE);
     let panel = panel_root(&tree);
     // The buttons ask: attack on the selection (none gives 0), return, heal and buff.
     let attack = release(&tree, panel, "AttackButton");
@@ -199,7 +199,7 @@ fn a_pet_mode_notice_moves_a_row_that_was_following_the_server() {
     let mut ui = PetUi::create(&mut tree, &layout);
     let panel = panel_root(&tree);
     ui.show(&mut tree, true);
-    ui.add_pet(&mut tree, PET, "Rex", AGGRESSIVE);
+    ui.add_pet(&mut tree, PET, "Rex", 0, AGGRESSIVE);
     let mode_state = |tree: &UiTree| {
         let row = tree.list_items(element(tree, panel, "PetPanelListBox"))[0];
         let mode = tree.child_recursive(row, tokenize("Mode")).unwrap();
@@ -224,4 +224,97 @@ fn a_pet_mode_notice_moves_a_row_that_was_following_the_server() {
             mode: 0x4000_0002
         }]
     );
+}
+
+fn row_name(tree: &UiTree, panel: usize) -> (usize, usize) {
+    let row = tree.list_items(element(tree, panel, "PetPanelListBox"))[0];
+    (row, tree.child_recursive(row, tokenize("Name")).unwrap())
+}
+
+/// `gmPetUI::RecvNotice_UpdatePetName` (and `AddPet`, which calls it): the first `(...)` of the
+/// server's name is removed when the `(` is not first; `RemovePet` takes the row out. (The
+/// tests have no font, so the name is read from the panel's table.)
+#[test]
+fn names_lose_their_parenthetical_and_a_removed_pet_leaves_the_list() {
+    let Some(layout) = gameplay() else {
+        return;
+    };
+    let mut tree = UiTree::new(1024, 768);
+    let mut ui = PetUi::create(&mut tree, &layout);
+    let panel = panel_root(&tree);
+    ui.show(&mut tree, true);
+    ui.add_pet(&mut tree, PET, "Rex (Lvl 3)", 0, IDLE);
+    assert_eq!(ui.name_of(PET), Some("Rex "));
+    ui.update_pet_name(&mut tree, PET, "(odd) Rex");
+    assert_eq!(ui.name_of(PET), Some("(odd) Rex"), "a `(` first is kept");
+    ui.update_pet_name(&mut tree, PET, "Max (a) (b)");
+    assert_eq!(ui.name_of(PET), Some("Max  (b)"));
+    // A pet not listed is ignored.
+    ui.update_pet_name(&mut tree, OTHER, "Zed");
+    assert_eq!(ui.name_of(OTHER), None);
+    ui.remove_pet(&mut tree, PET);
+    let list = element(&tree, panel, "PetPanelListBox");
+    assert!(tree.list_items(list).is_empty());
+    assert!(ui.pets().is_empty());
+    assert_eq!(tree.get(panel).map(|e| e.state()), Some(tokenize("nopets")));
+}
+
+/// `gmPetUI::RecvNotice_SelectionChanged` marks the selected pet's row; a right press makes the
+/// name editable and a changed name is requested when it deactivates.
+#[test]
+fn selection_marks_a_row_and_a_right_press_edits_the_name() {
+    let Some(layout) = gameplay() else {
+        return;
+    };
+    let mut tree = UiTree::new(1024, 768);
+    let mut ui = PetUi::create(&mut tree, &layout);
+    let panel = panel_root(&tree);
+    ui.show(&mut tree, true);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
+    let (row, name) = row_name(&tree, panel);
+    ui.selection_changed(&mut tree, PET);
+    assert_eq!(tree.get(row).map(|e| e.state()), Some(tokenize("selected")));
+    let press = UiMessage {
+        element_id: 0,
+        element: Some(row),
+        message: MSG_MOUSE_PRESS,
+        data: 0x4000_0005,
+        item: None,
+    };
+    assert_eq!(
+        ui.message(&mut tree, &press, None),
+        vec![PetAction::Select(PET)]
+    );
+    assert!(tree.is_text_editable(name));
+    assert_eq!(tree.active(), Some(name));
+    // The field is empty here (no font), so leaving it differs from the stored name: requested.
+    let deactivated = UiMessage {
+        element_id: tokenize("Name"),
+        element: Some(name),
+        message: tokenize("deactivated"),
+        data: 0,
+        item: None,
+    };
+    assert_eq!(
+        ui.message(&mut tree, &deactivated, None),
+        vec![PetAction::Rename {
+            pet: PET,
+            name: String::new()
+        }]
+    );
+    assert!(!tree.is_text_editable(name));
+    // A second `deactivated` is not listened to any more.
+    assert!(ui.message(&mut tree, &deactivated, None).is_empty());
+    // Another selection ends the row's selected look.
+    ui.selection_changed(&mut tree, OTHER);
+    assert_eq!(
+        tree.get(row).map(|e| e.state()),
+        Some(tokenize("unselected"))
+    );
+}
+
+#[test]
+fn an_edited_name_is_compared_ignoring_case() {
+    assert!(!super::pets::name_differs("Rex", "REX"));
+    assert!(super::pets::name_differs("Rex", "Max"));
 }

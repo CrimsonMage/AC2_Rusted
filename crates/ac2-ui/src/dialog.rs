@@ -75,6 +75,8 @@ pub struct DialogFactory {
     shown: Option<Shown>,
     queue: VecDeque<DialogInfo>,
     outcomes: Vec<DialogOutcome>,
+    /// The `CM_UI::SendNotice_UpdateCanMouseLook` arguments sent since the last take.
+    mouse_look_notices: Vec<bool>,
 }
 
 impl DialogFactory {
@@ -86,6 +88,7 @@ impl DialogFactory {
             shown: None,
             queue: VecDeque::new(),
             outcomes: Vec::new(),
+            mouse_look_notices: Vec::new(),
         }
     }
 
@@ -111,6 +114,8 @@ impl DialogFactory {
                 self.shown = Some(self.create(tree, info));
             }
         }
+        // MakeDialog ends with `CM_UI::SendNotice_UpdateCanMouseLook(0)`, queued or not.
+        self.mouse_look_notices.push(false);
         self.context
     }
 
@@ -127,6 +132,8 @@ impl DialogFactory {
             self.dialog_done(tree);
         } else if let Some(at) = self.queue.iter().position(|i| i.context == context) {
             self.queue.remove(at);
+            // CloseDialog's queue branch sends `SendNotice_UpdateCanMouseLook(1)`.
+            self.mouse_look_notices.push(true);
         }
     }
 
@@ -171,6 +178,8 @@ impl DialogFactory {
         if let Some(root) = shown.root {
             tree.remove_root(root);
         }
+        // DialogDone sends `SendNotice_UpdateCanMouseLook(1)` once the shown dialog is gone.
+        self.mouse_look_notices.push(true);
         if let Some(next) = self.queue.pop_front() {
             self.shown = Some(self.create(tree, next));
         }
@@ -221,7 +230,14 @@ impl DialogFactory {
         self.queue.iter().map(|i| i.context).collect()
     }
 
-    /// `CM_UI::SendNotice_UpdateCanMouseLook`: mouse look is allowed while no dialog is up.
+    /// The `CM_UI::SendNotice_UpdateCanMouseLook` arguments the factory sent since the last call
+    /// (`false` from `MakeDialog`, `true` from `DialogDone` and a queued `CloseDialog`), for
+    /// `gmCameraUI::RecvNotice_UpdateCanMouseLook`.
+    pub fn take_mouse_look_notices(&mut self) -> Vec<bool> {
+        std::mem::take(&mut self.mouse_look_notices)
+    }
+
+    /// Whether no dialog is up (the notices' net effect).
     pub fn can_mouse_look(&self) -> bool {
         self.shown.is_none()
     }

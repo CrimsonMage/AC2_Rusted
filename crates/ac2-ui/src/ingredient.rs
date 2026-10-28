@@ -1,5 +1,5 @@
-//! `gmIngredientUI`: the ingredient panel of a recipe on the gameplay layout (`IngredientField`,
-//! found as the top-level element that holds `IngredientListBox`). It opens on the recipe's
+//! `gmIngredientUI`: the ingredient panel of a recipe on the gameplay layout (`RealIngredientField`,
+//! the element `CreateManagedElements` makes). It opens on the recipe's
 //! `OpenIngredientPanel` (`Init`): the recipe's name, cost, difficulty and spinner range, and a
 //! slot per ingredient the recipe asks for (`ingredient_slots.rs`). The spinner sets the value the
 //! recipe is made at (`UpdateRecipeFromSpinnerChange`), the craft button executes it
@@ -11,9 +11,11 @@
 //!
 //! The panel's height follows its ingredient count (`AutoSizeIngredientUI`).
 //!
-//! Not modelled yet: the difficulty text and the name's colour (the colour attribute is not in the
-//! tree; the string ids are the decompile's `ID_Craft_*` literals), the typed spinner entry, the close button (its element name is not
-//! in the layout the decompile names), and the 15 second dormancy that destroys the panel.
+//! The strings are the `Tokenize` initializers of the admin 7148 tree matched by position to
+//! Legions's `DAT_` symbols in the same functions (the Legions initializers are not decompiled).
+//!
+//! Not modelled yet: the name's colour (the colour attribute is not in the tree), and the 15
+//! second dormancy that destroys the panel.
 
 use std::sync::Arc;
 
@@ -21,7 +23,7 @@ use ac2_net::protocol::StringInfo;
 use ac2_weenie::{CraftSkill, GameplayNotice, Ingredient, Recipe, SessionEvent};
 
 use crate::element::UiTree;
-use crate::layout::{ElementDesc, LayoutDesc};
+use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, BUTTON_GHOSTED, MAX_HEIGHT, MIN_HEIGHT, MIN_WIDTH};
 
@@ -39,8 +41,25 @@ pub(crate) const CRAFT_BUTTON: u32 = tokenize("CraftButton");
 pub(crate) const COST_FIELD: u32 = tokenize("CostField");
 /// `ID_Craft_Cost`: the cost text, with its `value`.
 pub(crate) const CRAFT_COST: u32 = tokenize("ID_Craft_Cost");
-pub(crate) const LABEL_TEXT: u32 = tokenize("Label");
-pub(crate) const MISC_TEXT: u32 = tokenize("TextField");
+/// The elements `CreateManagedElements` looks up by DAT id (`RealIngredientField` is the root made
+/// from the layout, `RecipeLabel` and `RecipeMiscText` the texts, `CraftButtonText` the craft
+/// button's caption, `IngredientCloseButton` the close button); the names are the `Tokenize`
+/// strings of the admin 7148 initializers for Legions's `DAT_00a46a44`, `00a468d0`, `00a469f4`,
+/// `00a46770` and `00a469d4`.
+pub(crate) const ROOT_FIELD: u32 = tokenize("RealIngredientField");
+pub(crate) const LABEL_TEXT: u32 = tokenize("RecipeLabel");
+pub(crate) const MISC_TEXT: u32 = tokenize("RecipeMiscText");
+pub(crate) const CRAFT_BUTTON_TEXT: u32 = tokenize("CraftButtonText");
+pub(crate) const CLOSE_BUTTON: u32 = tokenize("IngredientCloseButton");
+/// The craft button's caption and tooltips (`UpdateCraftButton`: `DAT_00a467c0`, `00a468a0`,
+/// `00a468f4`, `00a46a58`, `00a46aa4`).
+pub(crate) const CRAFT_BUTTON_LABEL: u32 = tokenize("ID_Craft_CraftButton");
+pub(crate) const CRAFT_BUTTON_DISABLED: u32 = tokenize("ID_Craft_CraftButton_Disabled");
+pub(crate) const TT_INVALID_SPINNER: u32 = tokenize("ID_Craft_TT_InvalidSpinner");
+pub(crate) const TT_TOO_HARD: u32 = tokenize("ID_Craft_TT_TooHard");
+pub(crate) const TT_MOUNTED: u32 = tokenize("ID_Craft_TT_Mounted");
+/// Seconds a typed spinner value waits before it is taken (`ListenToMessage`: `Timer::cur_time + 2.0`).
+pub(crate) const SPINNER_TYPING_WAIT: f64 = 2.0;
 pub(crate) const TOKEN_ID: u32 = tokenize("id");
 pub(crate) const TOKEN_DRAGABLE: u32 = tokenize("dragable");
 pub(crate) const TOKEN_PENDING: u32 = tokenize("pending");
@@ -134,6 +153,23 @@ pub struct IngredientUi {
     pub(crate) slots: Vec<Slot>,
     pub(crate) mask: u32,
     pub(crate) commands: Vec<IngredientCommand>,
+    /// `m_spinnerValueEdited` and `m_timeToUpdateSpinnerValue`: typed text waits two seconds.
+    pub(crate) spinner_edited: bool,
+    pub(crate) spinner_update_at: f64,
+    /// The frame's time (`Timer::cur_time`).
+    pub(crate) now: f64,
+    /// The craft button's caption and tooltips, rendered when the panel opens.
+    pub(crate) button_text: ButtonText,
+}
+
+/// The strings `UpdateCraftButton` shows.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct ButtonText {
+    pub craft: String,
+    pub disabled: String,
+    pub invalid_spinner: String,
+    pub too_hard: String,
+    pub mounted: String,
 }
 
 impl IngredientUi {
@@ -156,7 +192,9 @@ impl IngredientUi {
         source: &dyn IngredientSource,
         events: &[SessionEvent],
         messages: &[UiMessage],
+        now: f64,
     ) -> Vec<IngredientCommand> {
+        self.now = now;
         for event in events {
             match event {
                 SessionEvent::ObjectRemoved(object) => self.object_removed(tree, *object),
@@ -167,6 +205,7 @@ impl IngredientUi {
         for message in messages {
             self.message(tree, source, message);
         }
+        self.tick(tree, source);
         self.take_commands()
     }
 
@@ -232,10 +271,7 @@ impl IngredientUi {
         let Some(layout) = self.layout.clone() else {
             return false;
         };
-        let Some(id) = root_element_id(&layout) else {
-            return false;
-        };
-        self.root = tree.create_root(layout, id);
+        self.root = tree.create_root(layout, ROOT_FIELD);
         // `gmIngredientUI::CreateManagedElements`: `gmIngredientUI_DDCB` on the list.
         if let Some(list) = self.child(tree, INGREDIENT_LIST) {
             tree.set_drag_drop_check(list, Some(crate::DragCheck::IngredientDrop));
@@ -268,6 +304,7 @@ impl IngredientUi {
         };
         self.recipe = recipe;
         self.pending = false;
+        self.button_text = Self::render_button_text(source);
         if let Some(list) = self.child(tree, INGREDIENT_LIST) {
             tree.list_flush(list);
         }
@@ -297,9 +334,14 @@ impl IngredientUi {
             let text = source.text(&record.name);
             tree.set_text(label, &text);
         }
+        // The misc text is the charges line (`ID_Craft_Charges`) while the recipe has charges, else
+        // it is hidden; the recipe's description is not shown here.
         if let Some(misc) = self.child(tree, MISC_TEXT) {
-            let text = source.text(&record.description);
-            tree.set_text(misc, &text);
+            if record.charges > 0 {
+                let text = source.string_with_value(CRAFT_CHARGES, record.charges);
+                tree.set_text(misc, &text);
+            }
+            tree.set_visible(misc, record.charges > 0);
         }
         let (mask, ingredients) = source.ingredients(recipe, self.spinner);
         self.mask = mask;
@@ -341,12 +383,57 @@ impl IngredientUi {
         }
     }
 
-    /// `gmIngredientUI::UpdateCraftButton`: the button is ghosted while a craft is pending, while
-    /// the spinner is out of range, or while the difficulty is past the skill's cutoff.
+    /// `gmIngredientUI::UpdateCraftButton`: the button is ghosted while a craft is pending (nothing
+    /// else changes); while mounted, while the spinner is out of range and while the difficulty is
+    /// past the skill's cutoff it is ghosted with the disabled caption and the reason as its
+    /// tooltip; otherwise a ghosted button gets its caption back, no tooltip, and is enabled.
     pub(crate) fn update_craft_button(&self, tree: &mut UiTree) {
-        let out_of_range = self.spinner < self.min_spinner || self.spinner > self.max_spinner;
-        let ghosted = self.pending || self.mounted || out_of_range || self.difficulty_too_high();
-        self.set_button_ghosted(tree, CRAFT_BUTTON, ghosted);
+        let Some(button) = self.child(tree, CRAFT_BUTTON) else {
+            return;
+        };
+        let was_ghosted = tree.bool_attribute(button, BUTTON_GHOSTED);
+        if self.pending {
+            tree.set_bool(button, BUTTON_GHOSTED, true);
+            return;
+        }
+        let text = &self.button_text;
+        let reason = if self.mounted {
+            &text.mounted
+        } else if self.spinner < self.min_spinner || self.max_spinner < self.spinner {
+            &text.invalid_spinner
+        } else if self.difficulty_too_high() {
+            &text.too_hard
+        } else {
+            if !was_ghosted {
+                return;
+            }
+            tree.set_bool(button, BUTTON_GHOSTED, false);
+            self.set_craft_caption(tree, &text.craft);
+            tree.set_tooltip(button, None);
+            return;
+        };
+        tree.set_bool(button, BUTTON_GHOSTED, true);
+        self.set_craft_caption(tree, &text.disabled);
+        tree.set_tooltip(button, Some(reason.clone()));
+    }
+
+    /// `UIElement_Text::SetStringInfo(m_craftButtonText, ..)`.
+    fn set_craft_caption(&self, tree: &mut UiTree, caption: &str) {
+        if let Some(element) = self.child(tree, CRAFT_BUTTON_TEXT) {
+            tree.set_text(element, caption);
+        }
+    }
+
+    /// The craft button's strings, rendered from the UI table.
+    fn render_button_text(source: &dyn IngredientSource) -> ButtonText {
+        let render = |id| source.string_with_value(id, 0);
+        ButtonText {
+            craft: render(CRAFT_BUTTON_LABEL),
+            disabled: render(CRAFT_BUTTON_DISABLED),
+            invalid_spinner: render(TT_INVALID_SPINNER),
+            too_hard: render(TT_TOO_HARD),
+            mounted: render(TT_MOUNTED),
+        }
     }
 
     /// `gmIngredientUI::AutoSizeIngredientUI`: the panel is as wide as its `min_width` and as tall
@@ -428,6 +515,34 @@ impl IngredientUi {
         }
         self.update_craft_button(tree);
         self.update_ingredients(tree, source);
+    }
+
+    /// The spinner text taken as the value (`wcstol` base 0), kept within the range, then
+    /// `UpdateRecipeFromSpinnerChange`: the commit of a typed value.
+    pub(crate) fn commit_spinner_text(&mut self, tree: &mut UiTree, source: &dyn IngredientSource) {
+        let text = self
+            .child(tree, SPINNER_VALUE)
+            .and_then(|e| tree.get(e).and_then(|e| e.text()))
+            .unwrap_or_default();
+        let value = wcstol_base0(&text);
+        let value = if value < i64::from(self.min_spinner) {
+            self.min_spinner
+        } else if i64::from(self.max_spinner) < value {
+            self.max_spinner
+        } else {
+            value as u32
+        };
+        self.spinner = value;
+        self.spinner_changed(tree, source);
+    }
+
+    /// `gmIngredientUI::ListenToMessage` on the global loop (`0xffff0005`): typed text that has
+    /// waited its two seconds is taken. (The 15 s dormancy destroy is not modelled.)
+    pub fn tick(&mut self, tree: &mut UiTree, source: &dyn IngredientSource) {
+        if self.shown && self.spinner_edited && self.spinner_update_at < self.now {
+            self.spinner_edited = false;
+            self.commit_spinner_text(tree, source);
+        }
     }
 
     /// The spinner's up and down buttons (`ListenToMessage`): the value moves within its range,
@@ -554,6 +669,37 @@ impl IngredientUi {
     }
 }
 
+/// `wcstol(text, 0, 0)` on a 32-bit `long`: leading white space, a sign, then `0x` hex, a leading
+/// 0 octal or decimal digits up to the first other character; no digits is 0; it saturates.
+pub(crate) fn wcstol_base0(text: &str) -> i64 {
+    let text = text.trim_start();
+    let (negative, rest) = match text.strip_prefix('-') {
+        Some(rest) => (true, rest),
+        None => (false, text.strip_prefix('+').unwrap_or(text)),
+    };
+    let (radix, digits) =
+        if let Some(hex) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
+            if hex.chars().next().is_some_and(|c| c.is_ascii_hexdigit()) {
+                (16, hex)
+            } else {
+                (10, rest)
+            }
+        } else if rest.starts_with('0') {
+            (8, rest)
+        } else {
+            (10, rest)
+        };
+    let mut value: i64 = 0;
+    for c in digits.chars() {
+        let Some(digit) = c.to_digit(radix) else {
+            break;
+        };
+        value = (value * i64::from(radix) + i64::from(digit)).min(i64::from(i32::MAX) + 1);
+    }
+    let value = if negative { -value } else { value };
+    value.clamp(i64::from(i32::MIN), i64::from(i32::MAX))
+}
+
 /// `ID_Craft_Charges`: the charges line when a craft leaves charges.
 const CRAFT_CHARGES: u32 = tokenize("ID_Craft_Charges");
 
@@ -570,19 +716,21 @@ pub(crate) fn scale(value: f64, min: f64, max: f64, scaled_min: f64, scaled_max:
     (scaled_max - scaled_min) * ((v - min) / (max - min)) + scaled_min
 }
 
-/// The top-level element of the gameplay layout that holds the ingredient list: the panel's root.
-fn root_element_id(layout: &LayoutDesc) -> Option<u32> {
-    fn holds(element: &ElementDesc, id: u32) -> bool {
-        element.id == id
-            || element
-                .states
-                .iter()
-                .flat_map(|state| state.children.iter())
-                .any(|child| holds(child, id))
+#[cfg(test)]
+mod tests {
+    use super::wcstol_base0;
+
+    /// `wcstol(text, 0, 0)`: the spinner's typed text.
+    #[test]
+    fn typed_spinner_text_reads_like_wcstol_base_zero() {
+        assert_eq!(wcstol_base0("12"), 12);
+        assert_eq!(wcstol_base0("  -7x"), -7);
+        assert_eq!(wcstol_base0("0x1F"), 31);
+        assert_eq!(wcstol_base0("010"), 8);
+        assert_eq!(wcstol_base0("0x"), 0);
+        assert_eq!(wcstol_base0("abc"), 0);
+        assert_eq!(wcstol_base0(""), 0);
+        assert_eq!(wcstol_base0("99999999999"), i64::from(i32::MAX));
+        assert_eq!(wcstol_base0("-99999999999"), i64::from(i32::MIN));
     }
-    layout
-        .elements
-        .iter()
-        .find(|element| holds(element, INGREDIENT_LIST))
-        .map(|element| element.id)
 }

@@ -118,6 +118,11 @@ fn dialogs_queue_show_one_at_a_time_and_report_the_answer() {
     dialogs.close_dialog(&mut tree, 2);
     assert!(dialogs.shown().is_none() && tree.roots().is_empty());
     assert!(dialogs.can_mouse_look());
+    // MakeDialog sent 0 twice; the first dialog's DialogDone and the second's sent 1.
+    assert_eq!(
+        dialogs.take_mouse_look_notices(),
+        vec![false, false, true, true]
+    );
 }
 
 #[test]

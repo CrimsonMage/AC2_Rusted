@@ -290,7 +290,7 @@ pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use catalog::{CatalogRequest, CatalogUi};
 pub use character::{CharacterRequest, CharacterUi};
 pub use character_options::{
-    OptionSetting, OptionsSettings, Setter, PROFILE_LATENCY_INDICATOR_GRAPH,
+    OptionSetting, OptionsSettings, Setter, PROFILE_HIDE_PET_UI, PROFILE_LATENCY_INDICATOR_GRAPH,
 };
 pub use chat::{
     ChatHistory, ChatRequest, ChatSettings, ChatStrings, ChatUi, Modifiers, CHAT_STRING_TABLE,

@@ -196,9 +196,10 @@ pub struct Client {
     /// Whether the HUD's background has a fade to report (`StoryView::fades_by_media`): the
     /// story waits for its `token_play` ([`Client::story_fade_done`]) instead of starting at once.
     pub(crate) story_fades_on_hud: bool,
-    /// Whether mouse look may be on: a story holding the slot turns it off
-    /// (`CM_UI::SendNotice_UpdateCanMouseLook`).
-    pub(crate) mouse_look_allowed: bool,
+    /// The `CM_UI::SendNotice_UpdateCanMouseLook` arguments the story slot sent since the last
+    /// take (`gmStoryUI`'s constructor 0, its destructor 1); the frame's owner passes them on to
+    /// `gmCameraUI::RecvNotice_UpdateCanMouseLook` (`ac2_ui::Controls::update_can_mouse_look`).
+    pub(crate) mouse_look_notices: Vec<bool>,
     /// The client's preferences (`Preferences.ini`): the bank the options pages write, and the file.
     pub(crate) prefs: Option<crate::client_prefs::ClientPrefs>,
     /// `Turbine::Client`'s world name (`Turbine::Client::SetWorldName`, from the world-name
@@ -281,7 +282,7 @@ impl Client {
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
             story_fades_on_hud: false,
-            mouse_look_allowed: true,
+            mouse_look_notices: Vec::new(),
             world_name: String::new(),
             prefs: None,
         }
@@ -447,6 +448,11 @@ impl Client {
         Ok(events)
     }
 
+    /// The mouse-look notices the story slot sent since the last call.
+    pub fn take_mouse_look_notices(&mut self) -> Vec<bool> {
+        std::mem::take(&mut self.mouse_look_notices)
+    }
+
     /// `PlayerMovementModule::LockActions` (`m_lock_actions`): the player's movement keys do
     /// nothing while a behaviour that locks actions plays. The animation's `LockActions` and
     /// `UnlockActions` events for the player set it (`client_audio`).
@@ -460,7 +466,6 @@ impl Client {
     fn input_handlers(&mut self, input: &FrameInput) {
         let subject = self.camera_subject(false);
         if let Some(state) = input.mouse_look_state {
-            let state = state && self.mouse_look_allowed;
             self.camera.set_mouse_look(state, subject.as_ref());
         }
         if let Some(state) = input.first_person_state {

@@ -10,9 +10,9 @@ use ac2_weenie::Ingredient;
 use crate::drag::MSG_STOP_DRAG_ITEM;
 use crate::element::UiTree;
 use crate::ingredient::{
-    IngredientCommand, IngredientSource, IngredientUi, Slot, AUTO_POPULATE, CRAFT_BUTTON,
-    INGREDIENT_LABEL, INGREDIENT_LIST, INGREDIENT_TEMPLATE, ITEM_ICON, TOKEN_DRAGABLE, TOKEN_ID,
-    TOKEN_PENDING, TOKEN_STATELESS,
+    IngredientCommand, IngredientSource, IngredientUi, Slot, AUTO_POPULATE, CLOSE_BUTTON,
+    CRAFT_BUTTON, INGREDIENT_LABEL, INGREDIENT_LIST, INGREDIENT_TEMPLATE, ITEM_ICON,
+    SPINNER_TYPING_WAIT, SPINNER_VALUE, TOKEN_DRAGABLE, TOKEN_ID, TOKEN_PENDING, TOKEN_STATELESS,
 };
 use crate::layout::AttributeValue;
 use crate::mouse::UiMessage;
@@ -308,7 +308,22 @@ impl IngredientUi {
         source: &dyn IngredientSource,
         message: &UiMessage,
     ) {
+        // `ListenToMessage` answers nothing while the panel is not shown.
+        if !self.shown {
+            return;
+        }
         let element_id = message.element_id;
+        if element_id == SPINNER_VALUE {
+            // The typed value: leaving the field takes it at once, any other message of the
+            // field (typing) starts the two second wait.
+            if message.message == tokenize("deactivated") {
+                self.commit_spinner_text(tree, source);
+            } else {
+                self.spinner_edited = true;
+                self.spinner_update_at = self.now + SPINNER_TYPING_WAIT;
+            }
+            return;
+        }
         if message.message == MSG_STOP_DRAG_ITEM {
             let Some(dragged) = message.item else {
                 return;
@@ -340,6 +355,8 @@ impl IngredientUi {
             self.auto_populate(tree, source);
         } else if element_id == CRAFT_BUTTON {
             self.execute(tree);
+        } else if element_id == CLOSE_BUTTON && !self.pending {
+            self.close(tree);
         }
     }
 

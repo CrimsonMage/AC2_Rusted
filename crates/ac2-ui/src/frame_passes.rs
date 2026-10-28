@@ -20,7 +20,7 @@ use crate::{
     book_pass, item_dialog, BackpackUi, BookRequest, ChatSettings, FellowshipSource, Hud,
     HudRequest, HudSource, InventorySource, Items3dUi, MapMarker, MessageInputs, MoneyBagUi,
     NameLook, OptionsHost, OptionsSettings, PaperDollUi, SavedWindow, ShortcutCalls, StatusBar,
-    TickInputs, UiMessage, UiStrings, WindowPosition, GLOBAL_KEY_PRESS,
+    TickInputs, UiMessage, UiStrings, WindowPosition, GLOBAL_KEY_PRESS, PROFILE_HIDE_PET_UI,
     PROFILE_LATENCY_INDICATOR_GRAPH, SKIP_STORY_MESSAGE,
 };
 
@@ -182,7 +182,8 @@ impl Hud {
         }
         // `gmIngredientUI`: the recipe's notices and messages, then its requests.
         if let Some(ingredient) = self.ingredient.as_mut() {
-            let commands = ingredient.frame_pass(tree, player, input.events, &messages);
+            let commands =
+                ingredient.frame_pass(tree, player, input.events, &messages, input.server_time);
             requests.extend(commands.into_iter().map(HudRequest::Ingredient));
         }
         let (reload, reloads) = self.reload_pass(tree, dirty, player, input);
@@ -370,6 +371,13 @@ impl Hud {
         if let (true, Some(net)) = (reload_radar, self.net.as_mut()) {
             if let Some(settings) = host.options_settings() {
                 net.set_graph_enabled(settings.bits & PROFILE_LATENCY_INDICATOR_GRAPH != 0);
+                *dirty = true;
+            }
+        }
+        // `gmPetUI::RecvNotice_ReloadGameplayOptions`: `UpdateState` with `GetShowPetUI`.
+        if let (true, Some(pets)) = (reload_radar, self.pets.as_mut()) {
+            if let Some(settings) = host.options_settings() {
+                pets.set_show_pet_ui(tree, settings.bits & PROFILE_HIDE_PET_UI == 0);
                 *dirty = true;
             }
         }

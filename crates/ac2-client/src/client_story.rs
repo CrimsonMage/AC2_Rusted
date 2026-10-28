@@ -82,14 +82,9 @@ impl Client {
     ) {
         for event in events {
             match event {
-                // `CM_UI::SendNotice_UpdateCanMouseLook`: the camera stops mouse look at once.
-                StoryEvent::MouseLook(allowed) => {
-                    self.mouse_look_allowed = allowed;
-                    if !allowed {
-                        let subject = self.camera_subject(false);
-                        self.camera.set_mouse_look(false, subject.as_ref());
-                    }
-                }
+                // `CM_UI::SendNotice_UpdateCanMouseLook`: `gmCameraUI` counts it and updates the
+                // camera (the frame's owner passes the notice on).
+                StoryEvent::MouseLook(allowed) => self.mouse_look_notices.push(allowed),
                 // The keyframe's music and voice play (`gmStoryUI::Play`); the HUD draws the
                 // keyframe and hides the fields (`ac2_ui::Hud::frame`).
                 StoryEvent::Begin => self.story_queue.push(StoryEvent::Begin),
