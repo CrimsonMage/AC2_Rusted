@@ -239,14 +239,14 @@ fn body_state(state: &MovementState, actively_moving: bool) -> BodyState {
 }
 
 impl Client {
-    /// A client over `session` reading `data` on two loader threads.
+    /// A client over `session` reading `data` on [`ac2_db::WORLD_LOADER_THREADS`] loader threads.
     pub fn new(session: OnlineSession, data: Arc<dyn WorldData>) -> Self {
         let game_clock = data.game_clock();
         let region = data.region();
         let now = session.local_time();
         Self {
             session,
-            loader: Loader::new(data, 2),
+            loader: Loader::new(data, ac2_db::WORLD_LOADER_THREADS),
             terrain: Terrain::new(),
             cells: CellManager::default(),
             player: None,

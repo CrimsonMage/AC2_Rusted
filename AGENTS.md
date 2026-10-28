@@ -25,7 +25,9 @@ game rules and server-visible behaviour exactly retail.
   in-flight dedupe, and free on last drop. The typed cache keeps released values only while their
   bytes fit `ResourceCacheConfig::free_byte_budget` (`DEFAULT_FREE_CACHE_BUDGET_BYTES`), reaping
   the oldest released first on the inserting worker (`TypedResourceCache::trim_if_over_budget`),
-  never on a frame-loop timer. The frame thread must never decode or read files.
+  never on a frame-loop timer. The frame thread must never decode or read files. DAT-reading
+  threads are fixed counts (four steady readers in the world), never scaled with the core count;
+  `crates/ac2-db/src/loader_pool.rs` lists them and says why.
   Still reproduce: (1) sub-object resolution, where `DBOCache::GetIfInMemory` calls a vtable slot to
   load an unloaded object's dependent DIDs on first fetch; (2) the main-thread pump of finished
   async requests that `AsyncCache::UseTime` performs, as a per-frame time-budgeted drain of a

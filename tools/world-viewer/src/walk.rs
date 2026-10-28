@@ -31,7 +31,6 @@ const ENTER_WORLD_FLAGS: u32 = 0x11;
 const DROP_HEIGHT: f32 = 1.0;
 /// Frame-thread time a frame spends taking finished block loads.
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
-const LOADER_THREADS: usize = 2;
 /// The player's object id in the synthetic frame.
 const PLAYER_ID: u64 = 1;
 
@@ -111,7 +110,7 @@ impl Walk {
             block_size: world.block_size(),
             terrain: Terrain::new(),
             cells: CellManager::default(),
-            pool: BlockPool::new(Arc::clone(world) as _, LOADER_THREADS),
+            pool: BlockPool::new(Arc::clone(world) as _, ac2_db::WORLD_LOADER_THREADS),
             player: None,
             loading: None,
             entry: None,

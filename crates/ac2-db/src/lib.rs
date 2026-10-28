@@ -67,7 +67,7 @@ pub use deferred_work::spawn_deferred_on;
 pub use deferred_work::{spawn_deferred, DeferredResult};
 pub use error::{ResourceError, ResourceResult};
 pub use key::ResourceKey;
-pub use loader_pool::LoaderPool;
+pub use loader_pool::{LoaderPool, WORLD_LOADER_THREADS};
 pub use ownership_stats::ResourceOwnershipStats;
 pub use ownership_stats::{
     ResourceOwnershipLane, ResourceOwnershipTypeStats, ResourceScopeOverlapStats,

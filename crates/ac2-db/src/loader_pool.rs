@@ -2,11 +2,37 @@
 //! the workers run the work function on each (every DAT read and decode belongs there, never on
 //! the caller's thread), and the caller drains finished results on its own thread, in arrival
 //! order, within whatever budget it keeps.
+//!
+//! # DAT-reading threads
+//!
+//! Retail read the DATs on one worker (`ThreadedCache::ThreadedCache` starts a single thread;
+//! `ThreadedCache::WorkerExecuteGetRequest` reads, the main thread decodes). Here decoding runs
+//! on the readers too, so there are a few of them, but their counts are fixed, never scaled with
+//! the core count: the DAT read study (`docs/dat-read-study.md`) measured cold-cache read time
+//! halving from one thread to two and nothing gained past four, while every thread adds a
+//! contender for the B-tree lookup lock. The readers in the client:
+//!
+//! - `ac2-loader` ([`WORLD_LOADER_THREADS`], `ac2_client::loader`): landblocks, cells, bodies,
+//!   script data, ambient sound data and points, motion and entity descriptions.
+//! - `ac2-scene-loader` (1, `ac2_render::scene::loader`): one thread on purpose, its requests are
+//!   served in order so an image arrives before every later load that samples it.
+//! - `ac2-sound-loader` (1, `ac2_audio::loader`): `SoundInfo`/`DBWave` gets.
+//! - Single-thread one-off or bursty readers: `ac2 ui images`, `ac2 chat text` (`ac2_ui`),
+//!   `ac2 ui strings`, `ac2 hud`, `ac2 pregame`, `ac2 pregame scenes` (`ac2_client`).
+//!
+//! In the world that is four steady readers (two loaders, scene, sound); the one-off readers run
+//! at startup and login. The frame helpers (`install_frame_workers`, `frame_worker_count`) are
+//! for frame work and never read DATs. The world viewer's block pool uses
+//! [`WORLD_LOADER_THREADS`] as the client does.
 
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 use std::time::Duration;
+
+/// Threads of the client's world loader pool (`ac2-loader`), and of the world viewer's block pool
+/// that stands in for it: see the module notes for why it is fixed at two.
+pub const WORLD_LOADER_THREADS: usize = 2;
 
 /// Worker threads over one work function. Dropping the pool stops the queue and joins the
 /// workers, so requests still running finish first.
