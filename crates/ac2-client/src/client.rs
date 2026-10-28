@@ -38,12 +38,9 @@ use crate::remote::Remotes;
 use crate::scene::SceneCamera;
 use crate::world_data::{BodyData, WorldData};
 
-/// `SetPositionSimple(p, sliding = 1)`'s flags (`SyncPositionSimple(pos, 1)`): `0x1000` and
-/// `SLIDE_SPF`.
-pub const SYNC_POSITION_FLAGS: u32 = 0x1010;
-/// `CPhysicsObj::EnterWorldSimple(pos, sliding = 1)`'s `SetPositionStruct` flags: `PLACEMENT`
-/// and `SLIDE_SPF`.
-pub const ENTER_WORLD_FLAGS: u32 = 0x11;
+/// `SetPositionSimple(p, sliding = 1)`'s flags and `EnterWorldSimple`'s: the residency's
+/// (`ac2_smartbox::remotes`) constants, re-exported for the client's own placements.
+pub use ac2_smartbox::remotes::{ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS};
 /// `SmartBox::mInitialCameraHeight`: the look-at point sits at this fraction of the height.
 const INITIAL_CAMERA_HEIGHT: f32 = 0.75;
 /// `SmartBox::UpdatePlayer`'s camera step on world entry.

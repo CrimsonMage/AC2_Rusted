@@ -12,8 +12,8 @@ use std::sync::Arc;
 use ac2_anim::{Ac2AnimEvent, FxScripts};
 use ac2_core::Random;
 use ac2_physics::{
-    CellSource, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position, StaticObject, Terrain,
-    Vector,
+    CellSource, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position, SetPositionError,
+    StaticObject, Terrain, Vector,
 };
 use ac2_world::Ac2MotionInterpDesc;
 
@@ -21,6 +21,34 @@ use crate::BodyData;
 
 /// `FXManager::DoCreateObjectFX`'s `CollisionParameters` bit for an FX object.
 pub const FX_OBJECT_COLLISION_BIT: u32 = 0x10;
+
+/// `CPhysicsObj::SyncPositionSimple`'s placement flags.
+pub const SYNC_POSITION_FLAGS: u32 = 0x1010;
+
+/// `CPhysicsObj::EnterWorldSimple`'s placement flags.
+pub const ENTER_WORLD_FLAGS: u32 = 0x11;
+
+/// The session facts a residency call reads about one object (`RemoteObject`).
+#[derive(Clone, Copy, Debug)]
+pub struct ObjectRecord {
+    /// The object's position in the server's table; `None` when it has none.
+    pub position: Option<Position>,
+    /// The object has a parent: it is held or contained.
+    pub held: bool,
+}
+
+/// The session's view of the objects, by id: `None` for an object the session does not have.
+pub type Records<'a> = &'a dyn Fn(u64) -> Option<ObjectRecord>;
+
+/// A session change a residency call asks for. The client applies them, in order, once the call
+/// returns.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ResidencyEffect {
+    /// `CBookKeep::AddObjectToBeDestroyed` (`CPhysicsObj::LeaveWorld`).
+    QueueDestroy(u64),
+    /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
+    CancelDestroy(u64),
+}
 
 /// One object other than the player.
 #[derive(Debug)]
@@ -439,6 +467,171 @@ impl<B: AsRef<BodyData>> Remotes<B> {
         let radius = (f64::from(data.radius) * scale) as f32;
         let height = (f64::from(data.shape.height) * scale) as f32;
         Some((body.position(), radius, height))
+    }
+}
+
+impl<B> Remotes<B> {
+    /// `CPhysicsObj::RecvEvt_Action`'s table part: an object the session no longer places leaves
+    /// the world and its lost cell.
+    pub fn object_action(&mut self, id: u64, records: Records<'_>) {
+        let placed = records(id).is_some_and(|r| r.position.is_some());
+        let Some(remote) = self.get_mut(id) else {
+            return;
+        };
+        if !placed && remote.in_world {
+            remote.in_world = false;
+        }
+        if !placed {
+            self.remove_from_lost_cell(id);
+        }
+    }
+
+    /// `CObjectMaint::ReleaseObjCell` for a released block: each object of the block in the
+    /// world leaves visibility, unless it is held.
+    pub fn release_block(&mut self, block: u32, records: Records<'_>) -> Vec<ResidencyEffect> {
+        let leaving: Vec<(u64, Position)> = self
+            .iter()
+            .filter(|(_, r)| r.in_world())
+            .filter_map(|(id, r)| Some((id, r.position()?)))
+            .filter(|(_, p)| p.cell_id & 0xFFFF_0000 == block)
+            .collect();
+        let mut effects = Vec::new();
+        for (id, position) in leaving {
+            let held = records(id).is_some_and(|r| r.held);
+            if !held {
+                self.leave_visibility(id, position, records, &mut effects);
+            }
+        }
+        effects
+    }
+
+    /// `CObjectMaint::InitObjCell` for a resident block: the objects waiting in its lost cells
+    /// enter the world at their stored positions.
+    pub fn resident_block(
+        &mut self,
+        block: u32,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+    ) -> Vec<ResidencyEffect> {
+        let mut effects = Vec::new();
+        for cell in self.lost_cells_in(block) {
+            let Some(objects) = self.take_lost_cell(cell) else {
+                continue;
+            };
+            for id in objects {
+                let Some(remote) = self.get_mut(id) else {
+                    continue;
+                };
+                remote.lost_cell = None;
+                if let Some(position) = remote.position() {
+                    self.enter_world(id, position, records, terrain, &mut effects);
+                }
+            }
+        }
+        effects
+    }
+
+    /// `CPhysicsObj::SyncPositionSimple(pos, sliding = 1)`: in the world, `SetPositionSimple`;
+    /// out of it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding).
+    pub fn sync_position_simple(
+        &mut self,
+        id: u64,
+        position: Position,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+    ) -> Vec<ResidencyEffect> {
+        let mut effects = Vec::new();
+        let Some(remote) = self.get_mut(id) else {
+            return effects;
+        };
+        let Some(body) = &mut remote.body else {
+            remote.stored = Some(position);
+            return effects;
+        };
+        if remote.in_world {
+            if body.place(position, SYNC_POSITION_FLAGS, terrain) == SetPositionError::NoCell {
+                self.leave_visibility(id, position, records, &mut effects);
+            }
+        } else {
+            self.enter_world(id, position, records, terrain, &mut effects);
+        }
+        effects
+    }
+
+    /// `CPhysicsObj::EnterWorldSimple(pos, 1)` -> `EnterWorld(sps)`: placed, the object is in
+    /// the world (`HandleEnterWorld`: out of its lost cell, no longer to be destroyed); with no
+    /// resident cell it leaves visibility there instead.
+    fn enter_world(
+        &mut self,
+        id: u64,
+        position: Position,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+        effects: &mut Vec<ResidencyEffect>,
+    ) -> bool {
+        let Some(remote) = self.get_mut(id) else {
+            return false;
+        };
+        let Some(body) = &mut remote.body else {
+            return false;
+        };
+        if remote.in_world || position.cell_id == 0 {
+            return false;
+        }
+        match body.place(position, ENTER_WORLD_FLAGS, terrain) {
+            SetPositionError::Ok => {
+                remote.in_world = true;
+                self.remove_from_lost_cell(id);
+                effects.push(ResidencyEffect::CancelDestroy(id));
+                true
+            }
+            SetPositionError::NoCell => {
+                self.leave_visibility(id, position, records, effects);
+                false
+            }
+            _ => false,
+        }
+    }
+
+    /// `CPhysicsObj::LeaveVisibility(pos)`: `LeaveWorld` (queued for destruction), the position
+    /// stored, and into the lost cell of `pos` (`CBookKeep::GotoLostCell`).
+    pub fn leave_visibility(
+        &mut self,
+        id: u64,
+        position: Position,
+        records: Records<'_>,
+        effects: &mut Vec<ResidencyEffect>,
+    ) {
+        self.leave_world(id, effects);
+        let Some(remote) = self.get_mut(id) else {
+            return;
+        };
+        match &mut remote.body {
+            Some(body) => body.set_position(position),
+            None => remote.stored = Some(position),
+        }
+        let held = records(id).is_some_and(|r| r.held);
+        if position.cell_id != 0 && !held {
+            self.remove_from_lost_cell(id);
+            if let Some(remote) = self.get_mut(id) {
+                remote.lost_cell = Some(position.cell_id);
+            }
+            self.push_lost_cell(position.cell_id, id);
+        }
+    }
+
+    /// `CPhysicsObj::LeaveWorld`: out of the world (`HandleLeaveWorld`), or, already out, out of
+    /// its lost cell; either way queued for destruction (`CBookKeep::AddObjectToBeDestroyed`).
+    fn leave_world(&mut self, id: u64, effects: &mut Vec<ResidencyEffect>) {
+        let Some(remote) = self.get_mut(id) else {
+            return;
+        };
+        if remote.in_world {
+            remote.in_world = false;
+        } else {
+            self.remove_from_lost_cell(id);
+        }
+        effects.push(ResidencyEffect::QueueDestroy(id));
     }
 }
 

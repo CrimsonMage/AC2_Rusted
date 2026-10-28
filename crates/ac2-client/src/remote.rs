@@ -9,13 +9,12 @@
 //! destruction is cancelled.
 
 use ac2_net::protocol::ServerPosition;
-use ac2_physics::{Frame, Heading, Position, Quaternion, SetPositionError, Vector};
-use ac2_smartbox::remotes::{Remote, FX_OBJECT_COLLISION_BIT};
-use ac2_weenie::RemoteObject;
+use ac2_physics::{Frame, Heading, Position, Quaternion, Vector};
+use ac2_smartbox::remotes::{ObjectRecord, Remote, ResidencyEffect, FX_OBJECT_COLLISION_BIT};
+use ac2_weenie::{OnlineSession, RemoteObject};
 
 pub(crate) use ac2_smartbox::remotes::{is_entity_desc, look_snapshot, visible};
 
-use crate::client::{ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS};
 use crate::frame::FxFollow;
 use crate::world_data::BodyData;
 
@@ -45,6 +44,25 @@ pub(crate) fn received_position(update: &ServerPosition) -> Position {
     );
     frame.set_heading(Heading::from_degrees(update.heading_degrees));
     Position::new(update.position.cell, frame)
+}
+
+/// The session facts of object `id` that the residency's calls read.
+fn record(session: &OnlineSession, id: u64) -> Option<ObjectRecord> {
+    let object = session.objects().get(id)?;
+    Some(ObjectRecord {
+        position: table_position(object),
+        held: object.parent.is_some(),
+    })
+}
+
+/// Applies the destroy queue changes a residency call made, in order.
+fn apply_effects(session: &mut OnlineSession, effects: Vec<ResidencyEffect>) {
+    for effect in effects {
+        match effect {
+            ResidencyEffect::QueueDestroy(id) => session.add_object_to_be_destroyed(id),
+            ResidencyEffect::CancelDestroy(id) => session.remove_object_to_be_destroyed(id),
+        }
+    }
 }
 
 fn table_position(object: &RemoteObject) -> Option<Position> {
@@ -112,7 +130,13 @@ impl RemoteCalls for Remotes {
         if self.tracks(id) {
             if let (Some(position), false) = (position, held) {
                 if position.cell_id != 0 {
-                    sync_position_simple(self, id, position, cx);
+                    let effects = self.sync_position_simple(
+                        id,
+                        position,
+                        &|id| record(cx.session, id),
+                        cx.terrain,
+                    );
+                    apply_effects(cx.session, effects);
                 }
             }
             return;
@@ -160,7 +184,9 @@ impl RemoteCalls for Remotes {
             return;
         }
         if !visible(cx.terrain, received.cell_id) {
-            leave_visibility(self, id, received, cx);
+            let mut effects = Vec::new();
+            self.leave_visibility(id, received, &|id| record(cx.session, id), &mut effects);
+            apply_effects(cx.session, effects);
             return;
         }
         let mut out_of_range = false;
@@ -178,7 +204,9 @@ impl RemoteCalls for Remotes {
             if let Some(body) = &mut remote.body {
                 body.stop_interpolating();
             }
-            sync_position_simple(self, id, received, cx);
+            let effects =
+                self.sync_position_simple(id, received, &|id| record(cx.session, id), cx.terrain);
+            apply_effects(cx.session, effects);
         } else {
             interpolate_to(self, id, update, received, cx);
         }
@@ -196,20 +224,7 @@ impl RemoteCalls for Remotes {
     }
 
     fn action(&mut self, id: u64, cx: &mut Context<'_>) {
-        let placed = cx
-            .session
-            .objects()
-            .get(id)
-            .is_some_and(|o| o.position.is_some());
-        let Some(remote) = self.get_mut(id) else {
-            return;
-        };
-        if !placed && remote.in_world {
-            remote.in_world = false;
-        }
-        if !placed {
-            self.remove_from_lost_cell(id);
-        }
+        self.object_action(id, &|id| record(cx.session, id));
     }
 
     fn add_local(
@@ -243,39 +258,13 @@ impl RemoteCalls for Remotes {
     }
 
     fn block_released(&mut self, block: u32, cx: &mut Context<'_>) {
-        let leaving: Vec<(u64, Position)> = self
-            .iter()
-            .filter(|(_, r)| r.in_world())
-            .filter_map(|(id, r)| Some((id, r.position()?)))
-            .filter(|(_, p)| p.cell_id & 0xFFFF_0000 == block)
-            .collect();
-        for (id, position) in leaving {
-            let held = cx
-                .session
-                .objects()
-                .get(id)
-                .is_some_and(|o| o.parent.is_some());
-            if !held {
-                leave_visibility(self, id, position, cx);
-            }
-        }
+        let effects = self.release_block(block, &|id| record(cx.session, id));
+        apply_effects(cx.session, effects);
     }
 
     fn block_resident(&mut self, block: u32, cx: &mut Context<'_>) {
-        for cell in self.lost_cells_in(block) {
-            let Some(objects) = self.take_lost_cell(cell) else {
-                continue;
-            };
-            for id in objects {
-                let Some(remote) = self.get_mut(id) else {
-                    continue;
-                };
-                remote.lost_cell = None;
-                if let Some(position) = remote.position() {
-                    enter_world(self, id, position, cx);
-                }
-            }
-        }
+        let effects = self.resident_block(block, &|id| record(cx.session, id), cx.terrain);
+        apply_effects(cx.session, effects);
     }
 }
 
@@ -338,95 +327,15 @@ fn try_create(remotes: &mut Remotes, id: u64, cx: &mut Context<'_>) {
         .is_some_and(|o| o.parent.is_some());
     if let (Some(position), false) = (stored, held) {
         if position.cell_id != 0 {
-            sync_position_simple(remotes, id, position, cx);
+            let effects = remotes.sync_position_simple(
+                id,
+                position,
+                &|id| record(cx.session, id),
+                cx.terrain,
+            );
+            apply_effects(cx.session, effects);
         }
     }
-}
-
-/// `CPhysicsObj::SyncPositionSimple(pos, sliding = 1)`: in the world, `SetPositionSimple`;
-/// out of it, `ReEnterVisibility(pos)` (`EnterWorldSimple`, sliding).
-fn sync_position_simple(remotes: &mut Remotes, id: u64, position: Position, cx: &mut Context<'_>) {
-    let Some(remote) = remotes.get_mut(id) else {
-        return;
-    };
-    let Some(body) = &mut remote.body else {
-        remote.stored = Some(position);
-        return;
-    };
-    if remote.in_world {
-        if body.place(position, SYNC_POSITION_FLAGS, cx.terrain) == SetPositionError::NoCell {
-            leave_visibility(remotes, id, position, cx);
-        }
-    } else {
-        enter_world(remotes, id, position, cx);
-    }
-}
-
-/// `CPhysicsObj::EnterWorldSimple(pos, 1)` -> `EnterWorld(sps)`: placed, the object is in
-/// the world (`HandleEnterWorld`: out of its lost cell, no longer to be destroyed); with no
-/// resident cell it leaves visibility there instead.
-fn enter_world(remotes: &mut Remotes, id: u64, position: Position, cx: &mut Context<'_>) -> bool {
-    let Some(remote) = remotes.get_mut(id) else {
-        return false;
-    };
-    let Some(body) = &mut remote.body else {
-        return false;
-    };
-    if remote.in_world || position.cell_id == 0 {
-        return false;
-    }
-    match body.place(position, ENTER_WORLD_FLAGS, cx.terrain) {
-        SetPositionError::Ok => {
-            remote.in_world = true;
-            remotes.remove_from_lost_cell(id);
-            cx.session.remove_object_to_be_destroyed(id);
-            true
-        }
-        SetPositionError::NoCell => {
-            leave_visibility(remotes, id, position, cx);
-            false
-        }
-        _ => false,
-    }
-}
-
-/// `CPhysicsObj::LeaveVisibility(pos)`: `LeaveWorld` (queued for destruction), the position
-/// stored, and into the lost cell of `pos` (`CBookKeep::GotoLostCell`).
-fn leave_visibility(remotes: &mut Remotes, id: u64, position: Position, cx: &mut Context<'_>) {
-    leave_world(remotes, id, cx);
-    let Some(remote) = remotes.get_mut(id) else {
-        return;
-    };
-    match &mut remote.body {
-        Some(body) => body.set_position(position),
-        None => remote.stored = Some(position),
-    }
-    let held = cx
-        .session
-        .objects()
-        .get(id)
-        .is_some_and(|o| o.parent.is_some());
-    if position.cell_id != 0 && !held {
-        remotes.remove_from_lost_cell(id);
-        if let Some(remote) = remotes.get_mut(id) {
-            remote.lost_cell = Some(position.cell_id);
-        }
-        remotes.push_lost_cell(position.cell_id, id);
-    }
-}
-
-/// `CPhysicsObj::LeaveWorld`: out of the world (`HandleLeaveWorld`), or, already out, out of
-/// its lost cell; either way queued for destruction (`CBookKeep::AddObjectToBeDestroyed`).
-fn leave_world(remotes: &mut Remotes, id: u64, cx: &mut Context<'_>) {
-    let Some(remote) = remotes.get_mut(id) else {
-        return;
-    };
-    if remote.in_world {
-        remote.in_world = false;
-    } else {
-        remotes.remove_from_lost_cell(id);
-    }
-    cx.session.add_object_to_be_destroyed(id);
 }
 
 /// `CPhysicsObj::RecvEvt_Position` for an object other than the player, after the stamps
