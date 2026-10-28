@@ -19,6 +19,9 @@ pub mod ifun {
     /// `ggmCWInterface::CallIFun_DoUIDamage` (`gmCWInterface::DoUIDamage`): attacker, target, skill,
     /// attack result, target and attacker health change, target and attacker PK change.
     pub const DO_UI_DAMAGE: u32 = 0x00B4_00C0;
+    /// `ggmCWInterface::CallIFun_SpecialAttackEnded` (`gmCWInterface::SpecialAttackEnded`): the
+    /// story's client attack context.
+    pub const SPECIAL_ATTACK_ENDED: u32 = 0x00B4_00C2;
     /// `ggmCWInterface::CallIFun_HandlePlayScenesDone` (`gmCWInterface::HandlePlayScenesDone`):
     /// the played `List<gmSceneInfo>`.
     pub const PLAY_SCENES_DONE: u32 = 0x00B4_0090;

@@ -3098,7 +3098,7 @@ Legend and workflow: [README](README.md).
 
 ### StoryManager
 - [~] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — ac2-physics story.rs cleanup lets the story go; not ported: the pending missiles' destruction, the faded objects' restore, the player's client attack context end (weenie +0xbc)
+- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — ac2-physics story.rs cleanup returns StoryStep::Cleanup for a story that was not null (in order with the hooks); ac2-client client_story.rs cleanup_story: SpecialAttackEnded with the client attack context on the player. Not yet: destroying m_pendingMissiles, restoring m_fadedObjects (DoSlider 0x40000015 to 1 over 0.5 s); no story missiles are made
 - [-] `StoryManager::StoryManager` · 00514ca0 · legions 00502cb0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::~StoryManager` · 00514cd0 · legions 00502ce0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::StreamPack` · 00514d20 — DBO/archive serialisation of runtime state; the client does not read it from the DAT

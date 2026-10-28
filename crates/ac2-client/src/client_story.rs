@@ -5,6 +5,7 @@
 
 use ac2_anim::Ac2AnimEvent;
 use ac2_net::protocol::{ObjectAction, PhysicsStory, StoryHook};
+use ac2_physics::StoryStep;
 use ac2_script::host::interface_calls::InterfaceCalls;
 use ac2_script::host::IFunArg;
 use ac2_script::native::{FxAndBehavior, NativeObject};
@@ -212,9 +213,31 @@ impl Client {
         if manager.current().is_some() {
             self.stories.insert(object, manager);
         }
-        for (story, hook) in due {
-            self.do_story_hook(object, &story, &hook);
+        self.story_steps(object, due);
+    }
+
+    /// The manager's steps on `object`, in order: each hook reached
+    /// ([`Client::do_story_hook`]) and each story cleaned up ([`Client::cleanup_story`]).
+    fn story_steps(&mut self, object: u64, steps: Vec<StoryStep>) {
+        for step in steps {
+            match step {
+                StoryStep::Hook(story, hook) => self.do_story_hook(object, &story, &hook),
+                StoryStep::Cleanup(story) => self.cleanup_story(object, &story),
+            }
         }
+    }
+
+    /// `StoryManager::CleanupStory` of a story that was not null: on the player
+    /// (`CPhysicsObj::IsThePlayer`) the script hears its special attack ended
+    /// (`gmCWInterface::SpecialAttackEnded` with the story's client attack context). The
+    /// pending missiles and faded objects are not made yet, so there are none to undo.
+    fn cleanup_story(&mut self, object: u64, story: &PhysicsStory) {
+        if self.session.player() != Some(object) {
+            return;
+        }
+        let context = story.client_attack_context.unwrap_or(0);
+        // A call that fails leaves the script's bookkeeping out; the problem is in the scripts.
+        let _ = self.call_ifun(ifun::SPECIAL_ATTACK_ENDED, &[IFunArg::Int(context)]);
     }
 
     /// The body a story plays on: the player's, or a remote object's.
@@ -254,9 +277,7 @@ impl Client {
             if manager.current().is_some() {
                 self.stories.insert(*object, manager);
             }
-            for (story, hook) in due {
-                self.do_story_hook(*object, &story, &hook);
-            }
+            self.story_steps(*object, due);
         }
     }
 

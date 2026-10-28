@@ -5,13 +5,24 @@
 //! the rest when the behaviour is done (`HandleBehaviorDone` -> `FinishStory`). A story without a
 //! behaviour fires every hook at once.
 //!
-//! The manager only orders the hooks; what a hook does (`DoStoryHook`: the effects, the target's
-//! reaction, the weenie's damage) is the owner's.
+//! The manager only orders the hooks and the cleanups; what a hook does (`DoStoryHook`: the
+//! effects, the target's reaction, the weenie's damage) and what a cleanup undoes
+//! (`CleanupStory`: the pending missiles, the faded weapons, the player's special attack) are the
+//! owner's, in the order of the [`StoryStep`]s.
 
 use ac2_net::protocol::{BehaviorParams, PhysicsStory, StoryHook};
 
 /// `WeenieHook::mHookType` of a story hook in an animation (`StoryManager::HandleAnimHook`).
 pub const STORY_ANIM_HOOK: u32 = 0x4000_0002;
+
+/// What the manager asks of its owner, in order.
+#[derive(Debug, Clone, PartialEq)]
+pub enum StoryStep {
+    /// `StoryManager::DoStoryHook`: the hook is reached, with the story it belongs to.
+    Hook(PhysicsStory, StoryHook),
+    /// `StoryManager::CleanupStory` of a story that was not null: what it set up is undone.
+    Cleanup(PhysicsStory),
+}
 
 /// `StoryManager`: the current story, the next of its hooks, the animation hooks reached and the
 /// behaviour context.
@@ -54,7 +65,7 @@ impl StoryManager {
         &mut self,
         story: PhysicsStory,
         run: impl FnOnce(&BehaviorParams, u32) -> bool,
-    ) -> Vec<(PhysicsStory, StoryHook)> {
+    ) -> Vec<StoryStep> {
         let mut due = Vec::new();
         if self.current.as_ref().is_some_and(|s| !is_null(s)) {
             due.extend(self.finish());
@@ -75,7 +86,7 @@ impl StoryManager {
             self.context = 1;
         }
         if !run(&behavior, self.context) {
-            self.cleanup();
+            due.extend(self.cleanup());
             return due;
         }
         due.extend(self.current_hooks());
@@ -83,7 +94,7 @@ impl StoryManager {
     }
 
     /// `StoryManager::HandleAnimHook`: a story hook in the animation moves the story on.
-    pub fn handle_anim_hook(&mut self, hook_type: u32) -> Vec<(PhysicsStory, StoryHook)> {
+    pub fn handle_anim_hook(&mut self, hook_type: u32) -> Vec<StoryStep> {
         if hook_type != STORY_ANIM_HOOK || self.current.as_ref().is_none_or(is_null) {
             return Vec::new();
         }
@@ -93,24 +104,19 @@ impl StoryManager {
 
     /// `StoryManager::HandleBehaviorDone`: the story's behaviour ended; done, its remaining hooks
     /// fire (`FinishStory`); failed, the story is dropped (`CleanupStory`).
-    pub fn handle_behavior_done(
-        &mut self,
-        context: u32,
-        error: u32,
-    ) -> Vec<(PhysicsStory, StoryHook)> {
+    pub fn handle_behavior_done(&mut self, context: u32, error: u32) -> Vec<StoryStep> {
         if context != self.context || self.current.is_none() {
             return Vec::new();
         }
         if error == 0 {
             self.finish()
         } else {
-            self.cleanup();
-            Vec::new()
+            self.cleanup().into_iter().collect()
         }
     }
 
     /// `StoryManager::DoCurrentStoryHooks`: the hooks whose animation hook has been reached.
-    fn current_hooks(&mut self) -> Vec<(PhysicsStory, StoryHook)> {
+    fn current_hooks(&mut self) -> Vec<StoryStep> {
         let mut due = Vec::new();
         let Some(story) = self.current.as_ref().filter(|s| !is_null(s)) else {
             return due;
@@ -119,7 +125,7 @@ impl StoryManager {
             if self.animation_hook < hook.anim_hook.unwrap_or(0) {
                 break;
             }
-            due.push((story.clone(), *hook));
+            due.push(StoryStep::Hook(story.clone(), *hook));
             self.next_hook += 1;
         }
         due
@@ -127,7 +133,7 @@ impl StoryManager {
 
     /// `StoryManager::FinishStory`: every remaining hook fires, one animation hook at a time,
     /// then the story is cleaned up.
-    fn finish(&mut self) -> Vec<(PhysicsStory, StoryHook)> {
+    fn finish(&mut self) -> Vec<StoryStep> {
         let mut due = Vec::new();
         while let Some(story) = self.current.as_ref().filter(|s| !is_null(s)) {
             if self.next_hook >= story.hooks.len() {
@@ -136,15 +142,19 @@ impl StoryManager {
             self.animation_hook += 1;
             due.extend(self.current_hooks());
         }
-        self.cleanup();
+        due.extend(self.cleanup());
         due
     }
 
-    /// `StoryManager::CleanupStory`: the story is let go.
-    fn cleanup(&mut self) {
-        self.current = None;
+    /// `StoryManager::CleanupStory`: the story is let go; one that was not null asks its owner to
+    /// undo what it set up.
+    fn cleanup(&mut self) -> Option<StoryStep> {
         self.next_hook = 0;
         self.animation_hook = 0;
+        self.current
+            .take()
+            .filter(|story| !is_null(story))
+            .map(StoryStep::Cleanup)
     }
 }
 

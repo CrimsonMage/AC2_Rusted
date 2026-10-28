@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 959 done, 161 partial, 127 to do, 657 skipped.
+1904 retail functions: 961 done, 159 partial, 127 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (185/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (186/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -841,7 +841,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
-- [~] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
+- [x] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — ac2-client client_story.rs cleanup_story calls IFun 0xB400C2 through the script host (StoryManager::CleanupStory -> gmCWInterface::SpecialAttackEnded); combat_7160 asserts the script's EndSpecialAttack
 - [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [~] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140 — ac2-script InterfaceCalls start_examination: the wrapper pushes one word it never sets (decompile shows the caller's stack slot), sent as 0; the examination panel itself uses the session stand-in (Command::StartExamination)
 - [x] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [-] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (174/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (175/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -1122,7 +1122,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — ac2-client client_story.rs story_fx_info -> ac2-script interface_calls fx_and_behavior_info on the player's process
 - [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [~] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
+- [x] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — ac2-client client_story.rs cleanup_story: StoryManager::CleanupStory on the player calls IFun 0xB400C2 (queries ifun::SPECIAL_ATTACK_ENDED) with the story's client attack context; the script ends the bar's attack (EndSpecialAttack); combat_7160 a_special_attack_story_ends_the_attack_when_it_is_cleaned_up
 - [x] `gmCWInterface::StopAttackingIfAutoMoving` · 00451f90 · legions 00453110 — gmCWInterface::StopAttackingIfAutoMoving (vtable slot 0xC0 of the player's weenie): the IFun 0xB400C3 call (ggmCWInterface::CallIFun_StopAttackingIfAutoMoving, admin 00463660) runs in ac2-client Command::StopAttackingIfAutoMoving, no arguments
 - [x] `gmCWInterface::InqRadarLook` · 00451fb0 · legions 00453130 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [x] `gmCWInterface::IsSkillHarmful` · 00451ff0 · legions 00453170 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160

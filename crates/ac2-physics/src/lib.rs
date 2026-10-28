@@ -164,7 +164,7 @@ pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use pushers::{PusherSum, PusherValues, Pushers};
 pub use shapes::cylsphere::CylSphere;
-pub use story::{StoryManager, STORY_ANIM_HOOK};
+pub use story::{StoryManager, StoryStep, STORY_ANIM_HOOK};
 pub use target::{
     TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus, TargetVoyeur,
 };

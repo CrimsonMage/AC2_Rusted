@@ -3,7 +3,7 @@
 
 use ac2_net::protocol::{BehaviorParams, PhysicsStory, StoryHook};
 
-use super::{StoryManager, STORY_ANIM_HOOK};
+use super::{StoryManager, StoryStep, STORY_ANIM_HOOK};
 
 fn swing() -> BehaviorParams {
     BehaviorParams {
@@ -32,8 +32,23 @@ fn story(behavior: Option<BehaviorParams>, hooks: Vec<StoryHook>) -> PhysicsStor
     }
 }
 
-fn targets(due: &[(PhysicsStory, StoryHook)]) -> Vec<u64> {
-    due.iter().filter_map(|(_, hook)| hook.target).collect()
+fn targets(due: &[StoryStep]) -> Vec<u64> {
+    due.iter()
+        .filter_map(|step| match step {
+            StoryStep::Hook(_, hook) => hook.target,
+            StoryStep::Cleanup(_) => None,
+        })
+        .collect()
+}
+
+/// The attackers of the stories cleaned up, in order.
+fn cleaned(due: &[StoryStep]) -> Vec<u64> {
+    due.iter()
+        .filter_map(|step| match step {
+            StoryStep::Cleanup(story) => story.attacker,
+            StoryStep::Hook(..) => None,
+        })
+        .collect()
 }
 
 #[test]
@@ -43,6 +58,10 @@ fn a_story_without_a_behaviour_fires_every_hook_at_once() {
         panic!("no behaviour runs")
     });
     assert_eq!(targets(&due), [1, 2]);
+    assert!(
+        matches!(due.last(), Some(StoryStep::Cleanup(_))),
+        "cleaned up after its hooks"
+    );
     assert!(manager.current().is_none());
 }
 
@@ -77,14 +96,18 @@ fn hooks_wait_for_the_animation_to_reach_them() {
 fn a_failed_behaviour_drops_the_story() {
     let mut manager = StoryManager::default();
     let due = manager.do_story(story(Some(swing()), vec![hook(1, 0)]), |_, _| false);
-    assert!(due.is_empty());
+    assert!(targets(&due).is_empty());
+    assert_eq!(
+        cleaned(&due),
+        [7],
+        "CleanupStory undoes what the story set up"
+    );
     assert!(manager.current().is_none());
     let mut manager = StoryManager::default();
     manager.do_story(story(Some(swing()), vec![hook(1, 1)]), |_, _| true);
-    assert!(
-        manager.handle_behavior_done(1, 2).is_empty(),
-        "an error cleans up"
-    );
+    let due = manager.handle_behavior_done(1, 2);
+    assert!(targets(&due).is_empty());
+    assert_eq!(cleaned(&due), [7], "an error cleans up");
     assert!(manager.current().is_none());
 }
 
@@ -101,6 +124,10 @@ fn a_new_story_finishes_the_running_one_first() {
         targets(&due),
         [1],
         "the old story's hook fires, the new one waits"
+    );
+    assert!(
+        matches!(&due[..], [StoryStep::Hook(..), StoryStep::Cleanup(_)]),
+        "the old story is cleaned up before the new one starts: {due:?}"
     );
     assert_eq!(context, 2, "each behaviour takes the next context");
     assert_eq!(targets(&manager.handle_anim_hook(STORY_ANIM_HOOK)), [5]);

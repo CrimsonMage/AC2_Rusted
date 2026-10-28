@@ -155,7 +155,7 @@ impl State {
             if self.is_live_creature(request.target) && self.charge_vigor(request.maneuver) {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
                 self.enter_combat(request.target);
-                self.hit(PLAYER, request.target, request.maneuver, HIT, PLAYER_DAMAGE);
+                self.special_hit(request.target, request.maneuver, request.attack);
                 self.send_combat(&CombatMessage::EndSpecialAttack(request.attack));
             }
             return;
@@ -250,8 +250,27 @@ impl State {
 
     /// One blow from `attacker` on `target`: the physics story, then the target's health.
     fn hit(&mut self, attacker: u64, target: u64, skill: u32, result: u32, damage: u32) {
+        self.blow(attacker, target, skill, None, result, damage);
+    }
+
+    /// [`State::hit`] for a special attack: its damage story carries the client's attack id as
+    /// the client attack context, which the client's `StoryManager::CleanupStory` hands back to
+    /// the script (`gmCWInterface::SpecialAttackEnded`).
+    fn special_hit(&mut self, target: u64, skill: u32, attack: u32) {
+        self.blow(PLAYER, target, skill, Some(attack), HIT, PLAYER_DAMAGE);
+    }
+
+    fn blow(
+        &mut self,
+        attacker: u64,
+        target: u64,
+        skill: u32,
+        context: Option<u32>,
+        result: u32,
+        damage: u32,
+    ) {
         self.send_swing(attacker);
-        self.send_story(attacker, target, skill, result, damage);
+        self.send_story(attacker, target, skill, context, result, damage);
         if target == PLAYER {
             let (health, max) = self.fight.player;
             self.fight.player = (health.saturating_sub(damage), max);
@@ -302,10 +321,20 @@ impl State {
         }
     }
 
-    /// `ECM_Physics::RecvEvt_DoStory`: the attacker's story with one damage hook on `target`.
-    fn send_story(&mut self, attacker: u64, target: u64, skill: u32, result: u32, damage: u32) {
-        let mut args = vec![STORY_BITS];
+    /// `ECM_Physics::RecvEvt_DoStory`: the attacker's story with one damage hook on `target`, and
+    /// the client attack context (0x8) when there is one.
+    fn send_story(
+        &mut self,
+        attacker: u64,
+        target: u64,
+        skill: u32,
+        context: Option<u32>,
+        result: u32,
+        damage: u32,
+    ) {
+        let mut args = vec![STORY_BITS | if context.is_some() { 0x8 } else { 0 }];
         args.extend([attacker as u32, (attacker >> 32) as u32]);
+        args.extend(context);
         args.push(skill);
         args.push(1);
         args.push(HOOK_BITS);

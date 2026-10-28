@@ -222,8 +222,10 @@ fn a_skill_from_the_shortcut_bar_requests_a_special_attack_with_its_bytes() {
             target: CREATURE_ONE,
         })
     );
-    // The bar's maneuver goes pending at the request; the double's answers follow: the attack
-    // state up, then the attack ends.
+    // The bar's maneuver goes pending at the request; the double's answers follow. Its stories
+    // play with the frame's physics events, before its script calls: each cleanup on the player
+    // ends its client attack context (the swing's 0, the hit's attack), then the attack state
+    // goes up and the double's own end arrives.
     assert_eq!(
         combat_notices(&notices),
         vec![
@@ -231,6 +233,8 @@ fn a_skill_from_the_shortcut_bar_requests_a_special_attack_with_its_bytes() {
                 maneuver: MELEE_AUTO_ATTACK,
                 attack: 1,
             },
+            GameplayNotice::EndSpecialAttack(0),
+            GameplayNotice::EndSpecialAttack(1),
             GameplayNotice::UpdateAttackState(true),
             GameplayNotice::EndSpecialAttack(1),
         ]
@@ -758,5 +762,29 @@ fn a_creature_striking_the_player_is_its_last_attacker() {
         vec![CREATURE_ONE],
         "the creature's blow back only"
     );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// The special attack's damage story carries the attack's id as its client attack context: when
+/// the story is cleaned up on the player (`StoryManager::CleanupStory`), the script hears
+/// `gmCWInterface::SpecialAttackEnded` with it and ends the bar's attack (`EndSpecialAttack`),
+/// before the double's own end arrives.
+#[test]
+fn a_special_attack_story_ends_the_attack_when_it_is_cleaned_up() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    assert_eq!(client.use_shortcut(0), Ok(1));
+    let ends: Vec<u32> = run(&mut client, &server, Vec::new())
+        .into_iter()
+        .filter_map(|n| match n {
+            GameplayNotice::EndSpecialAttack(attack) => Some(attack),
+            _ => None,
+        })
+        .collect();
+    // The swing story has no context (0); the damage story's is the attack (1); then the
+    // double's `EndSpecialAttack`.
+    assert_eq!(ends, vec![0, 1, 1], "{ends:?}");
     assert!(client.take_script_problems().is_empty());
 }
