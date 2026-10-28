@@ -18,10 +18,12 @@ use std::sync::Arc;
 use ac2_net::protocol::StringInfo;
 
 use crate::element::UiTree;
+use crate::gameplay_story::StoryEvent;
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::story::{StoryField, StoryShow};
 use crate::token::{tokenize, STATELESS};
+use crate::ui_text::UiStringTables;
 
 /// The background root (`gmStoryUI::_bgField`, the `BackgroundField` element of the gameplay layout).
 const BACKGROUND: &str = "BackgroundField";
@@ -163,6 +165,37 @@ impl StoryView {
 
     /// `gmStoryUI::~gmStoryUI`'s part on the screen: the roots hide, the images and subtitles
     /// clear, and both fields return to `stateless` for the next story.
+    /// `gmStoryUI`'s frame events in order: a keyframe shows, the slot's begin and hide. Returns
+    /// one flag per begin (`false`, the gameplay panels leave) and hide (`true`, they return), in
+    /// order; the other events are the caller's.
+    pub fn frame_events(
+        &mut self,
+        tree: &mut UiTree,
+        events: Vec<StoryEvent>,
+        strings: Option<&UiStringTables>,
+    ) -> Vec<bool> {
+        let mut gameplay = Vec::new();
+        for event in events {
+            match event {
+                StoryEvent::Begin => {
+                    self.begin(tree);
+                    gameplay.push(false);
+                }
+                StoryEvent::Show(show) => {
+                    self.show(tree, &show, &|info| subtitle_text(strings, info));
+                }
+                StoryEvent::Hide => {
+                    self.hide(tree);
+                    gameplay.push(true);
+                }
+                StoryEvent::StopAudio
+                | StoryEvent::MouseLook(_)
+                | StoryEvent::PlayScenesDone(_) => {}
+            }
+        }
+        gameplay
+    }
+
     pub fn hide(&mut self, tree: &mut UiTree) {
         self.shown = false;
         self.started = false;
@@ -177,5 +210,17 @@ impl StoryView {
             tree.set_state(field.root, STATELESS);
             tree.set_visible(field.root, false);
         }
+    }
+}
+
+/// A subtitle's text: its `StringInfo` rendered on the loaded string tables. Before the tables
+/// load, a literal is its own text and a table entry has none.
+pub fn subtitle_text(strings: Option<&UiStringTables>, info: &StringInfo) -> String {
+    match strings {
+        Some(strings) => {
+            let info = crate::chat_text::render_info(info);
+            String::from_utf16_lossy(&ac2_db::get_string(&strings.tables, &info, false))
+        }
+        None => info.literal.clone().unwrap_or_default(),
     }
 }

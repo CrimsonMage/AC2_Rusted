@@ -137,3 +137,17 @@ fn the_background_reports_its_fade_when_its_media_ends() {
     assert!(!fade_done(tree, &story, 3.0));
     assert!(fade_done(tree, &story, 3.6));
 }
+
+/// Without the string tables a literal subtitle is its own text, and a table entry has none.
+#[test]
+fn a_subtitle_without_tables_is_its_literal() {
+    use crate::story_view::subtitle_text;
+    assert_eq!(subtitle_text(None, &StringInfo::literal("Hello")), "Hello");
+    let table = StringInfo {
+        string_id: 0x1234,
+        table_id: 0x2500_0014,
+        literal: None,
+        variables: Vec::new(),
+    };
+    assert_eq!(subtitle_text(None, &table), "");
+}

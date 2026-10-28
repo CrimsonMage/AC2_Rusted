@@ -174,7 +174,7 @@ mod story_tests;
 mod story_view;
 #[cfg(test)]
 mod story_view_tests;
-pub use story_view::StoryView;
+pub use story_view::{subtitle_text, StoryView};
 pub mod chat_text;
 pub mod help;
 #[cfg(test)]
