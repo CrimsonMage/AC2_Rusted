@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 775 done, 152 partial, 389 to do, 808 skipped.
+2124 retail functions: 775 done, 159 partial, 382 to do, 808 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1058,7 +1058,7 @@ Legend and workflow: [README](README.md).
 
 ### DetectionVolume
 - [-] `DetectionVolume::DetectionVolume` · 006a1ae0 · legions 0063e880 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `DetectionVolume::GetGlobalBox` · 006a1b30 · legions 0063e8d0 — needs port: object detection
+- [~] `DetectionVolume::GetGlobalBox` · 006a1b30 · legions 0063e8d0 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
 
 ### (free functions)
 - [-] `STREAMPACK_STREAMPACKOBJ` · 006a1c00 · legions 0063e9c0 — STL/MSVC or archive template helper; Rust collections replace it
@@ -1070,15 +1070,15 @@ Legend and workflow: [README](README.md).
 - [-] `Cylsphere::Cylsphere` · 006a1d20 · legions 0063eae0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### DetectionVolume
-- [ ] `DetectionVolume::IsWithin` · 006a1d50 · legions 0063eb10 — needs port: object detection
-- [ ] `DetectionVolume::IsWithin` · 006a1f40 · legions 0063ed00 — needs port: object detection
-- [ ] `DetectionVolume::IsWithin` · 006a2070 · legions 0063ee30 — needs port: object detection
+- [~] `DetectionVolume::IsWithin` · 006a1d50 · legions 0063eb10 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [~] `DetectionVolume::IsWithin` · 006a1f40 · legions 0063ed00 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [~] `DetectionVolume::IsWithin` · 006a2070 · legions 0063ee30 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
 - [-] `DetectionVolume::StreamPack` · 006a21b0 · legions 0063ef70 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `DetectionVolume::CopyInto` · 006a23e0 · legions 0063f190 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `DetectionVolume::Destroy` · 006a2540 · legions 0063f2f0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `DetectionVolume::CreateBBox` · 006a2650 · legions 0063f400 — needs port: object detection
-- [ ] `DetectionVolume::CreateCylinder` · 006a26f0 · legions 0063f4a0 — needs port: object detection
-- [ ] `DetectionVolume::CreateSphere` · 006a2750 · legions 0063f500 — needs port: object detection
+- [~] `DetectionVolume::CreateBBox` · 006a2650 · legions 0063f400 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [~] `DetectionVolume::CreateCylinder` · 006a26f0 · legions 0063f4a0 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
+- [~] `DetectionVolume::CreateSphere` · 006a2750 · legions 0063f500 — ac2-physics detection_volume.rs: sphere, box and cylinder volumes only; the bound-volume, sphere-cone and sphere-plane-cone shapes (SphCone, SphPlaneCone, BVolume) are not ported, so a volume can not be made with them; no CDetectionManager yet
 - [ ] `DetectionVolume::CreateSphereCone` · 006a27b0 · legions 0063f560 — needs port: object detection
 - [ ] `DetectionVolume::CreateSpherePlaneCone` · 006a2810 · legions 0063f5c0 — needs port: object detection
 - [-] `DetectionVolume::~DetectionVolume` · 006a2880 · legions 0063f630 — C++ constructor/destructor; Rust constructor and Drop replace it

@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 149 done, 11 partial, 127 to do, 139 skipped.
+426 retail functions: 150 done, 15 partial, 122 to do, 139 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 ### AnimAssetWeightKey
 - [-] `AnimAssetWeightKey::FromFileNode` · 00736a50 · legions 006b2630 — text source format (admin tools)
 
-## `portal/shared/src/geometry/bbox.cpp.c` (6/26)
+## `portal/shared/src/geometry/bbox.cpp.c` (7/26)
 
 ### Plane
 - [ ] `Plane::IsValid` · 0061ca70 · legions 005d8660 — needs port: plane validity test (normal length threshold)
@@ -69,14 +69,14 @@ Legend and workflow: [README](README.md).
 - [ ] `BBox::ScaleCentered` · 0061cf40 · legions 005d8b30 — needs port: scale a box about its centre
 - [ ] `BBox::BuildBoundingBox` · 0061d040 · legions 005d8c30 — needs port: box built from a point set
 - [x] `BBox::GetCenter` · 0061d070 · legions 005d8c60 — ac2-physics envcell.rs: portal clipping against the cell-search box
-- [ ] `BBox::Within` · 0061d0b0 · legions 005d8ca0 — needs port (check): ac2-math geometry.rs BBox::contains_point is the analogue, uncited; retail inclusive test
-- [ ] `BBox::Intersects` · 0061d110 · legions 005d8d00 — needs port: box-box and box-shape intersection tests
+- [x] `BBox::Within` · 0061d0b0 · legions 005d8ca0 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
+- [~] `BBox::Intersects` · 0061d110 · legions 005d8d00 — ac2-physics detection_volume.rs box_intersects_sphere / box_intersects_cylinder
 - [ ] `BBox::GetPoints` · 0061d1e0 · legions 005d8dd0 — needs port: the eight corners of a box
 - [ ] `BBox::StreamPack` · 0061d2b0 — needs port: BBox stream layout, 28 bytes read and write
 - [x] `BBox::InitFromCylSpheres` · 0061d300 · legions 005d8ef0 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `BBox::InitFromSpheres` · 0061d440 · legions 005d9030 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `BBox::CalculateRadius` · 0061d580 · legions 005d9170 — needs port: box radius (half diagonal)
-- [ ] `BBox::Intersects` · 0061d660 · legions 005d9250 — needs port: box-box and box-shape intersection tests
+- [~] `BBox::Intersects` · 0061d660 · legions 005d9250 — ac2-physics detection_volume.rs box_intersects_sphere / box_intersects_cylinder
 - [ ] `BBox::FindCoverRays` · 0061d750 · legions 005d9340 — needs port: cover rays for a box
 - [-] `BBox::ToFileNode` · 0061e280 — text source format (admin tools)
 - [-] `BBox::FromFileNode` · 0061e330 — text source format (admin tools)
@@ -158,10 +158,10 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/gcylsphere.cpp.c` (4/10)
 
 ### Cylsphere
-- [ ] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960 — needs port: cylinder bounding box, containment, stream layout and scale
-- [x] `Cylsphere::Intersects` · 00621380 · legions 005dcb20
-- [x] `Cylsphere::Intersects` · 00621390 · legions 005dcb30
-- [x] `Cylsphere::Intersects` · 00621410 · legions 005dcbb0
+- [~] `Cylsphere::BuildBoundingBox` · 006211c0 · legions 005dc960 — ac2-physics detection_volume.rs cylinder_global_box (retail tests only the x component of the turned axis, twice); Sphere::BuildBoundingBox is inline in DetectionVolume::global_box
+- [x] `Cylsphere::Intersects` · 00621380 · legions 005dcb20 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
+- [x] `Cylsphere::Intersects` · 00621390 · legions 005dcb30 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
+- [x] `Cylsphere::Intersects` · 00621410 · legions 005dcbb0 — ac2-physics detection_volume.rs box_within, box_does_overlap, cylinder_intersects_cylinder
 - [ ] `Cylsphere::Within` · 00621420 · legions 005dcbc0 — needs port: cylinder bounding box, containment, stream layout and scale
 - [ ] `Cylsphere::StreamPack` · 00621480 · legions 005dcc20 — needs port: cylinder bounding box, containment, stream layout and scale
 - [ ] `Cylsphere::Scale` · 006214d0 · legions 005dcc70 — needs port: cylinder bounding box, containment, stream layout and scale
@@ -518,7 +518,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/geometry/sphcone.cpp.c` (0/9)
 
 ### Sphere
-- [ ] `Sphere::BuildBoundingBox` · 00736b30 · legions 006b2710 — needs port: sphere cover rays and bounding box
+- [~] `Sphere::BuildBoundingBox` · 00736b30 · legions 006b2710 — inline in DetectionVolume::global_box
 
 ### SphCone
 - [-] `SphCone::SphCone` · 00736bd0 · legions 006b27b0 — ctor/dtor: Rust struct construction and Drop

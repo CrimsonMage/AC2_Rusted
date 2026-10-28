@@ -5028,5 +5028,5 @@ Legend and workflow: [README](README.md).
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::_SetReportCollisions` · 00530a10 · legions 005149b0 — Rust std replaces it
 - [-] `CWPhysicsObject::_SetIgnoreCollisions` · 00530a30 · legions 005149d0 — Rust std replaces it
-- [x] `CWPhysicsObject::_SetEdgeSlide` · 00530a50 · legions 005149f0 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
+- [x] `CWPhysicsObject::_SetEdgeSlide` · 00530a50 · legions 005149f0 — Rust std replaces it
 - [-] `CWPhysicsObject::_SetScale` · 00530a80 · legions 00514a20 — Rust std replaces it
