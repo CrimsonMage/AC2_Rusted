@@ -118,6 +118,8 @@ pub struct GameClock {
     year_length: f64,
     /// `TimeOfDay::begin` of each time of day, and `Season::begin` of each season.
     times_of_day: Vec<f32>,
+    /// `TimeOfDay::is_night` of each time of day (the FX's night gate reads the present one).
+    times_of_day_night: Vec<bool>,
     seasons: Vec<u32>,
     /// The names of the seasons and times of day, and the year's spec (string-table ids).
     season_names: Vec<u32>,
@@ -147,6 +149,7 @@ impl GameClock {
             day_length: time.day_length,
             year_length: f64::from(time.day_length) * f64::from(time.days_per_year),
             times_of_day: time.times_of_day.iter().map(|t| t.start).collect(),
+            times_of_day_night: time.times_of_day.iter().map(|t| t.is_night).collect(),
             seasons: time.seasons.iter().map(|s| s.start).collect(),
             season_names: time.seasons.iter().map(|s| s.name).collect(),
             time_names: time.times_of_day.iter().map(|t| t.name).collect(),
@@ -231,6 +234,15 @@ impl GameClock {
             self.time_of_next_event = next * day + self.time_of_day_begin;
             self.present_time_in_day_unit = ((fraction - start) / (next - start)) as f32;
         }
+    }
+
+    /// Whether the present time of day is a night one (`TimeOfDay::is_night` of
+    /// `current_time_of_day`), the flag `FXManager::DoTargettedFX` gates a node's night part on.
+    pub fn is_night(&self) -> bool {
+        self.times_of_day_night
+            .get(self.current_time_of_day as usize)
+            .copied()
+            .unwrap_or(false)
     }
 
     /// `GameTime::present_time_of_day`: the fraction of the day passed, `[0, 1)`.

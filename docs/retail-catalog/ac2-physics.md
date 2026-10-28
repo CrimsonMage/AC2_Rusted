@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 496 done, 113 partial, 738 to do, 777 skipped.
+2124 retail functions: 498 done, 111 partial, 738 to do, 777 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1298,7 +1298,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — ac2-client fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
-- [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — FXManager::ChannelMissmatch - FXManager::ChannelMissmatch, ac2-assets ac2_fx.rs and ac2-client client_audio.rs
+- [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — ac2-client fx_streaks.rs node_plays: no channel preferences are loaded (ChannelPrefs skipped), so no node mismatches
 
 ### ChannelPrefs
 - [-] `ChannelPrefs::HandleApply` · 00506b00 — admin/debug or text-file tooling
@@ -1326,7 +1326,7 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>::operator[]` · 00508860 · legions 004f6990 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-client: object, particle, light and streak parts; streak nodes gated by player-only, day/night and channels (fx_streaks.rs). The sound branch in client_audio still assumes day; no channel prefs loaded
 - [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_fx_objects.rs start_startup_fx: each object's startup FX makes its nodes' objects without a sound device (fx_objects start_startup, recorded as startup so StopFX leaves them); the node sounds (DoSoundFX, no day/night filter) and the lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep's particle branch (ApplyStartupFX with no object)
 - [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 
@@ -2564,8 +2564,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::RecvEvt_Contain` · 004e6890 — ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 - [ ] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::StartStreak` · 004e6a30 — emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
-- [~] `CPhysicsObj::StopStreak` · 004e6aa0 — emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+- [~] `CPhysicsObj::StartStreak` · 004e6a30 — ac2-client fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
+- [~] `CPhysicsObj::StopStreak` · 004e6aa0 — ac2-client fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 - [~] `CPhysicsObj::InitVisualDesc` · 004e6b10 — ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 - [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [ ] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30 — needs port: cite-only physics-object method
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (46/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (48/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2851,8 +2851,8 @@ Legend and workflow: [README](README.md).
 - [~] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [x] `PHYSICSOBJREP::StartStreakInternal` · 004f20f0 · legions 004e49f0 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `PHYSICSOBJREP::StopStreakInternal` · 004f2100 · legions 004e4a00 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [~] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
-- [~] `PHYSICSOBJREP::StopStreak` · 004f2140 · legions 004e4a40 — emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+- [x] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — ac2-client fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
+- [x] `PHYSICSOBJREP::StopStreak` · 004f2140 · legions 004e4a40 — ac2-client fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
 - [ ] `PHYSICSOBJREP::DoAppearanceFX` · 004f2170 · legions 004e4a70 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::RemoveAppearanceFX` · 004f2180 · legions 004e4a80 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass

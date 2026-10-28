@@ -4790,8 +4790,8 @@ key	status	note
 004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 004e6920	_	needs port: cite-only physics-object method
 004e6990	_	needs port: cite-only physics-object method
-004e6a30	~	emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
-004e6aa0	~	emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+004e6a30	~	ac2-client fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
+004e6aa0	~	ac2-client fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 004e6b10	~	ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6c30	_	needs port: cite-only physics-object method
@@ -5152,8 +5152,8 @@ key	status	note
 004f1fe0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f20f0	x	ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f2100	x	ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-004f2110	~	emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
-004f2140	~	emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+004f2110	x	ac2-client fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
+004f2140	x	ac2-client fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
 004f2170	_	needs port: cite-only physics-object method
 004f2180	_	needs port: cite-only physics-object method
 004f2190	x	ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
@@ -5459,7 +5459,7 @@ key	status	note
 00506520	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005065e0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00506680	~	ac2-client fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
-005069b0	x	FXManager::ChannelMissmatch - FXManager::ChannelMissmatch, ac2-assets ac2_fx.rs and ac2-client client_audio.rs
+005069b0	x	ac2-client fx_streaks.rs node_plays: no channel preferences are loaded (ChannelPrefs skipped), so no node mismatches
 00506b00	-	admin/debug or text-file tooling
 00506be0	-	admin/debug or text-file tooling
 00507010	~	object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame). The water-plane branch is not a surface placement: retail places the object at the emitter's position (SetPosition of the copied Position) and writes a water plane it never reads, so the object stands at the emitter. Slot 0x9c is CPhysicsObj::DoSlider (vtable 0xa64070, verified in the admin exe) with slider 0x4000001a, the colour alpha, not scale: its two calls set alpha 0.0 then 1.0; the alpha fade is not applied. Unplaced nodes are dropped (known gap).
@@ -5473,7 +5473,7 @@ key	status	note
 00508750	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 005087c0	_	needs port: FX manager effect
 00508860	-	STL/MSVC or archive template helper; Rust collections replace it
-005089d0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+005089d0	~	ac2-client: object, particle, light and streak parts; streak nodes gated by player-only, day/night and channels (fx_streaks.rs). The sound branch in client_audio still assumes day; no channel prefs loaded
 00509220	~	ac2-client client_fx_objects.rs start_startup_fx: each object's startup FX makes its nodes' objects without a sound device (fx_objects start_startup, recorded as startup so StopFX leaves them); the node sounds (DoSoundFX, no day/night filter) and the lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep's particle branch (ApplyStartupFX with no object)
 00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509480	-	C++ constructor/destructor; Rust constructor and Drop replace it

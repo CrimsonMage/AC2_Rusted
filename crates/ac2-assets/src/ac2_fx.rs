@@ -106,6 +106,38 @@ pub struct Ac2FxObject {
     /// Where the created object is placed on its emitter (see [`Ac2FxObjectAttach`]; its rest
     /// place is in [`Ac2FxAttach::rest`]).
     pub attach: Ac2FxObjectAttach,
+    /// `m_holding_location`: the holding point the streak flags act on (`PHYSICSOBJREP::StartStreak`
+    /// and `StopStreak` take it; zero reaches every child).
+    pub holding_location: u32,
+    /// The node's gate: who it plays for and when (`FXManager::DoTargettedFX`'s checks).
+    pub gate: Ac2FxNodeGate,
+}
+
+/// `DoTargettedFX`'s gate on each node, read before any of the node's parts run: the channel
+/// preferences (`FXManager::ChannelMissmatch`), `m_player_only`, and `m_day_time` /
+/// `m_night_time` for the time of day. A flag the node does not carry keeps its default: the
+/// day and night flags default to on.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Ac2FxNodeGate {
+    /// `m_channel_keys` is not empty.
+    pub has_channels: bool,
+    /// `m_player_only`.
+    pub player_only: bool,
+    /// `m_day_time`: the node plays by day.
+    pub day_time: bool,
+    /// `m_night_time`: the node plays by night.
+    pub night_time: bool,
+}
+
+impl Default for Ac2FxNodeGate {
+    fn default() -> Self {
+        Self {
+            has_channels: false,
+            player_only: false,
+            day_time: true,
+            night_time: true,
+        }
+    }
 }
 
 impl Ac2FxObject {
@@ -436,6 +468,8 @@ fn read_fx_node(
         start_streak,
         stop_streak,
         attach: Ac2FxObjectAttach::Emitter,
+        holding_location,
+        gate: Ac2FxNodeGate::default(),
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {
@@ -483,6 +517,15 @@ fn read_fx_node(
     let player_only = flag(cursor, 0x4_0000_0000, false)?;
     skip_words(cursor, &[0x10_0000_0000])?;
     let remove_rotation = field(cursor, 0x40_0000_0000)? != 0;
+    let object = Ac2FxObject {
+        gate: Ac2FxNodeGate {
+            has_channels,
+            player_only,
+            day_time,
+            night_time,
+        },
+        ..object
+    };
     let particle = (!particle_descs.is_empty()
         || light.is_some()
         || object.is_active()

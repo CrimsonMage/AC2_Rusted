@@ -11,10 +11,12 @@ use ac2_assets::{
 };
 use ac2_math::Quat;
 use ac2_physics::{Frame, Position, Quaternion, Vector};
+use ac2_world::GameClock;
 
 use crate::client::Client;
 use crate::frame::FxFollow;
 use crate::fx_particles::startup_light_starts;
+use crate::fx_streaks::StreakContext;
 use crate::remote::Context;
 
 /// The FX nodes that create or hide objects for `fx` (`FXManager::DoTargettedFX`'s node list).
@@ -33,6 +35,19 @@ impl Client {
         events: &[(u64, Option<u32>, Vec<Ac2AnimEvent>)],
         now: f64,
     ) {
+        // The holding-point children (`CHILDLIST`'s holding entries) and the time of day, as the
+        // streak part of `DoTargettedFX` reads them.
+        let holds: Vec<(u64, u64, u32)> = self
+            .session
+            .objects()
+            .iter()
+            .filter_map(|o| o.parent.map(|(parent, location)| (parent, o.id, location)))
+            .collect();
+        let streak_ctx = StreakContext {
+            player: self.player.as_ref().map(|p| p.id),
+            night: self.game_clock.as_ref().is_some_and(GameClock::is_night),
+            holds: &holds,
+        };
         for (id, visual, events) in events {
             let particles = self
                 .remotes
@@ -44,7 +59,7 @@ impl Client {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
                             self.fx_objects.start(*id, fx, &nodes, now);
-                            self.fx_objects.start_streaks(*id, fx, table);
+                            self.fx_objects.start_streaks(*id, fx, table, &streak_ctx);
                         }
                     }
                     Ac2AnimEvent::StopFx { fx } => {
