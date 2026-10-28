@@ -1,77 +1,51 @@
 //! The HUD frameworks' tick pass: the panels' ticks and global loops after the messages, the
-//! dialogs' outcomes, and the calls the panels queued. The requests come back as [`HudRequest`]s
-//! in the order the panels raised them; the client maps them to gameplay commands.
+//! dialogs' outcomes, and the calls the panels queued. The panels are the HUD's ([`Hud`]); the
+//! requests come back as [`HudRequest`]s in the order the panels raised them, and the client maps
+//! them to gameplay commands.
 
 use ac2_weenie::SessionEvent;
 
 use crate::{
     allegiance_calls, assistance_outcomes, consignment_requests, death_notices, fellowship_calls,
-    shop_stack_calls, social_dialog_outcomes, AllegianceUi, AssistancePanel, CatalogUi,
-    CharacterUi, ChatOptionsUi, ChatUi, ConsignmentUi, DeathPanel, DialogFactory, DialogRequest,
-    DisplayNotice, ExaminationUi, FellowshipUi, GameplayDialogs, HudRequest, HudSource, MoneyBagUi,
-    NewSaleUi, OptionsHost, OptionsPages, PetUi, PopupQuestion, SecureTradeUi, ShopRequest, ShopUi,
-    ShortcutCalls, ShortcutRequest, ShortcutUi, SkillTreeUi, StackUi, ToolbarUi, UiTree,
+    shop_stack_calls, social_dialog_outcomes, DialogRequest, Hud, HudRequest, HudSource,
+    OptionsHost, ShopRequest, ShortcutCalls, ShortcutRequest, UiTree,
 };
 
 /// The text type of the store's purchase messages (`TEXT_TYPE_ERROR`).
 const SHOP_MESSAGE_TEXT_TYPE: u32 = 0x1;
 
-/// The panels the tick pass feeds, borrowed from the client's HUD for one frame, and the frame's
-/// values. A panel that is not made yet is `None` and gets nothing.
-pub struct TickPanels<'a> {
-    pub tree: &'a mut UiTree,
+/// The frame's values the tick pass takes beside the HUD and its tree: the server's time, the
+/// selection, the client side of `gmClientUI` and the client's shortcut calls.
+pub struct TickInputs<'a> {
     /// The server's time at this frame.
     pub server_time: f64,
     /// The selected object's id, for the fellowship page.
     pub selection: Option<u64>,
-    /// The game dialogs' backlogs: the script questions and the message boxes raised before the
-    /// HUD's dialogs existed.
-    pub popup_backlog: &'a mut Vec<PopupQuestion>,
-    pub display_backlog: &'a mut Vec<DisplayNotice>,
-    /// `gmClientUI`'s page.
-    pub options: &'a mut OptionsPages,
     /// The client side of `gmClientUI` (its preferences and live applies).
     pub options_host: &'a mut dyn OptionsHost,
     /// The client's shortcut calls (`gmShortcutUI`'s use and set).
     pub shortcut_calls: &'a mut dyn ShortcutCalls,
-    pub game_dialogs: &'a mut GameplayDialogs,
-    pub death: &'a mut DeathPanel,
-    pub dialogs: &'a mut Option<DialogFactory>,
-    pub toolbar: &'a mut Option<ToolbarUi>,
-    pub secure_trade: &'a mut Option<SecureTradeUi>,
-    pub stack: &'a mut Option<StackUi>,
-    pub money: &'a mut Option<MoneyBagUi>,
-    pub pets: &'a mut Option<PetUi>,
-    pub catalog: &'a mut Option<CatalogUi>,
-    pub consignment: &'a mut Option<ConsignmentUi>,
-    pub new_sale: &'a mut Option<NewSaleUi>,
-    pub shop: &'a mut Option<ShopUi>,
-    pub chat: &'a mut Option<ChatUi>,
-    pub allegiance: &'a mut Option<AllegianceUi>,
-    pub fellowship: &'a mut Option<FellowshipUi>,
-    pub assistance: &'a mut Option<AssistancePanel>,
-    pub character: &'a mut Option<CharacterUi>,
-    pub chat_options: &'a mut Option<ChatOptionsUi>,
-    pub examination: &'a mut Option<ExaminationUi>,
-    pub skills: &'a mut Option<SkillTreeUi>,
-    pub shortcuts: &'a mut Option<ShortcutUi>,
 }
 
-/// One frame's tick pass; returns the requests the panels raised, in order.
+/// One frame's tick pass; returns the requests the panels raised, in order. The panels are the
+/// HUD's ([`Hud`]).
 pub fn tick_pass<P: HudSource>(
-    panels: TickPanels<'_>,
+    hud: &mut Hud,
+    tree: &mut UiTree,
+    inputs: TickInputs<'_>,
     player: &P,
     events: &[SessionEvent],
 ) -> Vec<HudRequest> {
-    let TickPanels {
-        tree,
+    let TickInputs {
         server_time,
         selection,
+        options_host,
+        shortcut_calls,
+    } = inputs;
+    let Hud {
         popup_backlog,
         display_backlog,
         options,
-        options_host,
-        shortcut_calls,
         game_dialogs,
         death,
         dialogs,
@@ -93,7 +67,8 @@ pub fn tick_pass<P: HudSource>(
         examination,
         skills,
         shortcuts,
-    } = panels;
+        ..
+    } = hud;
     let mut out = Vec::new();
     // `gmToolbarUI::ManageChildren`: the buttons' tooltips follow the children's shown states.
     if let Some(bar) = toolbar.as_ref() {

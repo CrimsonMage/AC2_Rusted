@@ -2,7 +2,7 @@
 //! dialogs' outcomes and the calls the panels queued, and the requests it returns become gameplay
 //! commands ([`hud_request_commands`]).
 
-use ac2_ui::TickPanels;
+use ac2_ui::TickInputs;
 use ac2_weenie::SessionEvent;
 
 use crate::frame::ClientFrame;
@@ -21,73 +21,19 @@ impl HudView {
         frame: &ClientFrame,
         events: &[SessionEvent],
     ) -> PassOut {
-        let HudView {
-            hud, panels: state, ..
-        } = self;
-        let ac2_ui::Hud {
-            chat,
-            death,
-            dialogs,
-            display_backlog,
-            game_dialogs,
-            popup_backlog,
-            shortcuts,
-            toolbar,
-            allegiance,
-            assistance,
-            catalog,
-            character,
-            chat_options,
-            consignment,
-            examination,
-            fellowship,
-            money,
-            new_sale,
-            options,
-            pets,
-            secure_trade,
-            shop,
-            skills,
-            stack,
-            ..
-        } = &mut *state;
+        let HudView { hud, panels, .. } = self;
         let Some((tree, _)) = hud else {
             return PassOut::default();
         };
         let mut host = ClientOptions { player };
         let mut calls = ClientShortcuts { player };
-        let panels = TickPanels {
-            tree,
+        let inputs = TickInputs {
             server_time: frame.server_time,
             selection: frame.selection.as_ref().map(|s| s.id),
-            popup_backlog,
-            display_backlog,
-            options,
             options_host: &mut host,
             shortcut_calls: &mut calls,
-            game_dialogs,
-            death,
-            dialogs,
-            toolbar,
-            secure_trade,
-            stack,
-            money,
-            pets,
-            catalog,
-            consignment,
-            new_sale,
-            shop,
-            chat,
-            allegiance,
-            fellowship,
-            assistance,
-            character,
-            chat_options,
-            examination,
-            skills,
-            shortcuts,
         };
-        let requests = ac2_ui::tick_pass(panels, player, events);
+        let requests = ac2_ui::tick_pass(panels, tree, inputs, player, events);
         let mut out = PassOut::default();
         hud_request_commands(requests, &mut out);
         out

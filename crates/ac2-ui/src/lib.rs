@@ -61,7 +61,7 @@ pub use options_pages::{live_effects, OptionsEffect, OptionsHost, OptionsPages, 
 mod hud_request;
 pub use hud_request::HudRequest;
 mod hud_tick;
-pub use hud_tick::{tick_pass, TickPanels};
+pub use hud_tick::{tick_pass, TickInputs};
 mod hud_source;
 mod hud_state;
 pub use hud_source::HudSource;
