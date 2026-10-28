@@ -297,7 +297,7 @@ impl HudView {
         let cell = frame.player.as_ref().map(|p| p.cell);
         if cell.is_some() && cell != *radar_cell {
             *radar_cell = cell;
-            let string = crate::ui_sources::map_coords_string(cell.unwrap_or(0));
+            let string = ac2_ui::map_coords_string(cell.unwrap_or(0));
             *radar_coordinates = Some(ac2_ui::UiStrings::render_string(player, &string));
         }
         // `gmNavigationUI::AddMarker`'s tooltips, rendered with the frame's markers.
@@ -309,7 +309,7 @@ impl HudView {
         // `gmNavigationUI::UpdateMacroMap`'s date and time: rendered again when the calendar moves.
         if let Some(date_time) = frame.date_time {
             if navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {
-                let (date, time) = crate::ui_sources::game_date_time(date_time);
+                let (date, time) = ac2_ui::game_date_time(date_time);
                 *navigation_time = Some((
                     date_time,
                     ac2_ui::UiStrings::render_string(player, &date),

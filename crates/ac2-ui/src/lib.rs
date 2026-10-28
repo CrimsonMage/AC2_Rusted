@@ -40,6 +40,8 @@ mod drag;
 mod effects;
 mod element;
 mod examination;
+mod examination_effects;
+pub use examination_effects::splice_effects;
 #[cfg(test)]
 mod examination_tests;
 mod external_container;
@@ -215,7 +217,12 @@ pub use radar_state::{
     add_map_note, groove_of, MapMarker, RadarBlip, RadarFrame, RadarState, GROOVE_DELAY,
 };
 mod ui_images;
+mod ui_text;
 pub use ui_images::UiImageLoader;
+pub use ui_text::{
+    game_date_time, map_coords_string, shortcut_from_info, shortcut_to_info, UiStringTables,
+    UiText, GAME_TIME_TABLE, MAP_COORDS_TABLE,
+};
 mod ui_string;
 mod vitae;
 mod vitals;

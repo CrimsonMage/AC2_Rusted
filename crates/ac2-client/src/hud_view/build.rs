@@ -43,10 +43,7 @@ impl HudView {
             .name("ac2 ui strings".into())
             .spawn(move || {
                 let tables = ac2_db::PreloadedStringTables::load_all(&strings_store, 0x5800_0000);
-                let _ = send_strings.send(crate::ui_sources::UiStringTables::new(
-                    &strings_store,
-                    tables,
-                ));
+                let _ = send_strings.send(ac2_ui::UiStringTables::new(&strings_store, tables));
             })
             .expect("spawn the UI strings loader");
         let (send, receive) = mpsc::channel();

@@ -127,20 +127,7 @@ impl InventorySource for ClientPlayer<'_> {
     }
 
     fn durability_tooltip(&self, current: i32, max: i32) -> Option<String> {
-        let info = ac2_db::RenderInfo {
-            string_id: ac2_ui::tokenize("ID_Inventory_TT_Durability"),
-            table_id: self.ui_table,
-            literal: None,
-            variables: vec![
-                (ac2_ui::tokenize("current"), ac2_db::RenderVar::Int(current)),
-                (ac2_ui::tokenize("max"), ac2_db::RenderVar::Int(max)),
-            ],
-        };
-        Some(String::from_utf16_lossy(&ac2_db::get_string(
-            self.strings,
-            &info,
-            false,
-        )))
+        ClientPlayer::durability_tooltip(self, current, max)
     }
 }
 

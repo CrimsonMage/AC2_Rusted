@@ -152,8 +152,8 @@ pub(crate) struct HudView {
     /// ([`HudView::frameworks`](crate::hud_player)).
     pub(crate) player_messages: Vec<UiMessage>,
     /// Every string table, loaded on a worker, and the UI table's DID (enum `0x41000018`).
-    pub(crate) strings: Option<Arc<crate::ui_sources::UiStringTables>>,
-    pending_strings: Option<Receiver<crate::ui_sources::UiStringTables>>,
+    pub(crate) strings: Option<Arc<ac2_ui::UiStringTables>>,
+    pending_strings: Option<Receiver<ac2_ui::UiStringTables>>,
     /// The frameworks that ask the player have been loaded from it.
     pub(crate) player_loaded: bool,
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).

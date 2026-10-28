@@ -8,7 +8,7 @@ use ac2_ui::{StoryEvent, GLOBAL_KEY_PRESS, SKIP_STORY_MESSAGE};
 
 use crate::client::Client;
 use crate::hud_view::HudView;
-use crate::ui_sources::UiStringTables;
+use ac2_ui::UiStringTables;
 
 /// A subtitle's text: its `StringInfo` rendered on the loaded string tables, as the other
 /// `StringInfo` texts are (`ClientPlayer::render_info`). Before the tables load, a literal is

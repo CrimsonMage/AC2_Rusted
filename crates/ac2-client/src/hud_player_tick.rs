@@ -12,7 +12,9 @@ use crate::hud_death::{death_answers, death_notices};
 use crate::hud_game_dialogs::{game_dialog_answers, game_dialog_logout, game_dialog_notices};
 use crate::hud_player::{examine, PassOut};
 use crate::hud_view::HudView;
-use crate::ui_sources::{shortcut_to_info, ClientPlayer};
+use ac2_ui::shortcut_to_info;
+
+use crate::ui_sources::ClientPlayer;
 
 /// The text type of the store's purchase messages (`TEXT_TYPE_ERROR`).
 const SHOP_MESSAGE_TEXT_TYPE: u32 = 0x1;
