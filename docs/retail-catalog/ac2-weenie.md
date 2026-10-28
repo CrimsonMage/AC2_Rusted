@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 843 done, 174 partial, 310 to do, 577 skipped.
+1904 retail functions: 843 done, 174 partial, 252 to do, 635 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -157,7 +157,7 @@ Legend and workflow: [README](README.md).
 
 ### CM_Shortcut
 - [x] `CM_Shortcut::SendNotice_ReloadShortcuts` · 007268b0 — implemented: cited at crates/ac2-weenie/src/notice.rs:81
-- [ ] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940 — needs port: notice RemoveRecipe to the UI/client; no citation in crates/
+- [-] `CM_Shortcut::SendNotice_RemoveRecipe` · 00726940 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 
 ## `ac2/client/src/events/cm_store.cpp.c` (1/12)
 
@@ -1233,7 +1233,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/action/map/actionmap.cpp.c` (3/16)
 
 ### ActionMap
-- [ ] `ActionMap::GetMapper` · 0072d640 · legions 00613a40 — needs port: action map::get mapper; no citation in crates/
+- [-] `ActionMap::GetMapper` · 0072d640 · legions 00613a40 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 
 ### _STL::less<ActionWithModifiers>
 - [-] `_STL::less<ActionWithModifiers>::operator()` · 0072d6a0 · legions 006ab720 — STL/container internals: a Rust collection replaces it
@@ -2778,8 +2778,8 @@ Legend and workflow: [README](README.md).
 - [x] `CWRepository::RecvEvt_UpdateStringInfo_Private` · 00531c30 · legions 00515bd0 — ac2-net protocol/quality_event.rs (private and visual, all ten kinds); ac2-weenie world.rs applies it (visual ones queue to their object); session raises QualityChanged for OnStatChanged (ac2-client scripts.rs)
 - [-] `CWRepository::CWRepository` · 00531c70 · legions 00515c10 — constructor of plain data: Rust struct init replaces it
 - [ ] `CWRepository::GetPhysObjID` · 00531ce0 · legions 00515c80 — needs port: weenie repository get phys obj id; no citation in crates/
-- [ ] `CWRepository::GetScale` · 00531d10 · legions 00515cb0 — needs port: weenie repository get scale; no citation in crates/
-- [ ] `CWRepository::EdgeSlides` · 00531d40 · legions 00515ce0 — needs port: weenie repository edge slides; no citation in crates/
+- [-] `CWRepository::GetScale` · 00531d10 · legions 00515cb0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWRepository::EdgeSlides` · 00531d40 · legions 00515ce0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWRepository::InqEtherealType` · 00531d70 · legions 00515d10 — needs port: weenie repository inq ethereal type; no citation in crates/
 - [ ] `CWRepository::SetScale` · 00531df0 · legions 00515d90 — needs port: weenie repository set scale; no citation in crates/
 - [x] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
@@ -2851,90 +2851,90 @@ Legend and workflow: [README](README.md).
 - [-] `CWPhysicsObject::~CWPhysicsObject` · 0052fe50 · legions 00513fa0 — destructor: Rust Drop replaces it
 - [ ] `CWPhysicsObject::HandleCreation` · 0052fe60 · legions 00513fb0 — needs port: physics object handle creation; no citation in crates/
 - [ ] `CWPhysicsObject::HandleDestruction` · 0052fe80 · legions 00513fd0 — needs port: physics object handle destruction; no citation in crates/
-- [ ] `CWPhysicsObject::DoIntersection` · 0052fe90 — needs port: physics object do intersection; no citation in crates/
-- [ ] `CWPhysicsObject::PerformLOS` · 0052ff20 · legions 00514020 — needs port: physics object perform los; no citation in crates/
+- [-] `CWPhysicsObject::DoIntersection` · 0052fe90 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::PerformLOS` · 0052ff20 · legions 00514020 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [~] `CWPhysicsObject::SetCollisionState` · 0052ff40 · legions 00514040 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 - [x] `CWPhysicsObject::GetCollisionState` · 0052ff60 · legions 00514060 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
-- [ ] `CWPhysicsObject::MissileInitPlaceAndFire` · 0052ff80 · legions 00514080 — needs port: physics object missile init place and fire; no citation in crates/
-- [ ] `CWPhysicsObject::MissileInitialize` · 0052ffa0 · legions 005140a0 — needs port: physics object missile initialize; no citation in crates/
-- [ ] `CWPhysicsObject::MissilePlaceAndFire` · 0052ffc0 · legions 005140c0 — needs port: physics object missile place and fire; no citation in crates/
-- [ ] `CWPhysicsObject::MissilePlace` · 0052ffe0 · legions 005140e0 — needs port: physics object missile place; no citation in crates/
-- [ ] `CWPhysicsObject::MissileFireOnly` · 00530000 · legions 00514100 — needs port: physics object missile fire only; no citation in crates/
-- [ ] `CWPhysicsObject::MissileInquireDirection` · 00530020 · legions 00514120 — needs port: physics object missile inquire direction; no citation in crates/
-- [ ] `CWPhysicsObject::MissileInquireCurrentVelocity` · 00530040 · legions 00514140 — needs port: physics object missile inquire current velocity; no citation in crates/
-- [ ] `CWPhysicsObject::MissileRetarget` · 00530060 · legions 00514160 — needs port: physics object missile retarget; no citation in crates/
-- [ ] `CWPhysicsObject::InitVisualDesc` · 00530080 · legions 00514180 — needs port: physics object init visual desc; no citation in crates/
-- [ ] `CWPhysicsObject::CombineAndApplyVisualDesc` · 005300b0 · legions 005141b0 — needs port: physics object combine and apply visual desc; no citation in crates/
-- [ ] `CWPhysicsObject::SetLocalVisualDesc` · 005300d0 · legions 005141d0 — needs port: physics object set local visual desc; no citation in crates/
-- [ ] `CWPhysicsObject::ApplyAdditiveVisualDesc` · 005300f0 · legions 005141f0 — needs port: physics object apply additive visual desc; no citation in crates/
-- [ ] `CWPhysicsObject::ApplySubtractiveVisualDesc` · 00530110 · legions 00514210 — needs port: physics object apply subtractive visual desc; no citation in crates/
-- [ ] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230 — needs port: physics object apply visual desc to physics obj; no citation in crates/
+- [-] `CWPhysicsObject::MissileInitPlaceAndFire` · 0052ff80 · legions 00514080 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissileInitialize` · 0052ffa0 · legions 005140a0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissilePlaceAndFire` · 0052ffc0 · legions 005140c0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissilePlace` · 0052ffe0 · legions 005140e0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissileFireOnly` · 00530000 · legions 00514100 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissileInquireDirection` · 00530020 · legions 00514120 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissileInquireCurrentVelocity` · 00530040 · legions 00514140 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::MissileRetarget` · 00530060 · legions 00514160 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::InitVisualDesc` · 00530080 · legions 00514180 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::CombineAndApplyVisualDesc` · 005300b0 · legions 005141b0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::SetLocalVisualDesc` · 005300d0 · legions 005141d0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::ApplyAdditiveVisualDesc` · 005300f0 · legions 005141f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::ApplySubtractiveVisualDesc` · 00530110 · legions 00514210 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::ApplyVisualDescToPhysicsObj` · 00530130 · legions 00514230 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::RecvEvt_UpdateVisualDesc` · 00530150 · legions 00514250 — implemented: cited at crates/ac2-weenie/src/objects.rs:213
-- [ ] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290 — needs port: physics object force visual desc; no citation in crates/
+- [-] `CWPhysicsObject::ForceVisualDesc` · 00530190 · legions 00514290 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::DoFX` · 005301b0 · legions 005142b0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
-- [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0 — needs port: physics object do targetted fx; no citation in crates/
+- [-] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [~] `CWPhysicsObject::DoBehavior` · 00530220 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
 - [x] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [~] `CWPhysicsObject::ReleaseBehavior` · 005302f0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [~] `CWPhysicsObject::DoMode` · 00530390 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
-- [ ] `CWPhysicsObject::DoModeNonLatent` · 00530420 · legions 00514420 — needs port: physics object do mode non latent; no citation in crates/
+- [-] `CWPhysicsObject::DoModeNonLatent` · 00530420 · legions 00514420 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetMode` · 00530440 · legions 00514440 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
-- [ ] `CWPhysicsObject::DoSlider` · 00530460 — needs port: physics object do slider; no citation in crates/
-- [ ] `CWPhysicsObject::DoSliderNonLatent` · 00530500 · legions 005144a0 — needs port: physics object do slider non latent; no citation in crates/
+- [-] `CWPhysicsObject::DoSlider` · 00530460 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::DoSliderNonLatent` · 00530500 · legions 005144a0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::StopBehavior` · 00530530 · legions 005144d0 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
-- [ ] `CWPhysicsObject::StopLayer` · 00530550 · legions 005144f0 — needs port: physics object stop layer; no citation in crates/
-- [ ] `CWPhysicsObject::StopMoveToCancelsBehaviors` · 00530570 · legions 00514510 — needs port: physics object stop move to cancels behaviors; no citation in crates/
-- [ ] `CWPhysicsObject::StopAllWeenieBehaviors` · 00530590 · legions 00514530 — needs port: physics object stop all weenie behaviors; no citation in crates/
+- [-] `CWPhysicsObject::StopLayer` · 00530550 · legions 005144f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::StopMoveToCancelsBehaviors` · 00530570 · legions 00514510 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::StopAllWeenieBehaviors` · 00530590 · legions 00514530 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::LookAtSelection` · 005305b0 · legions 00514550 — needs port: selection look-at not modelled: CWPhysicsObject::LookAtSelection (ac2-ui selection_notices.rs says so)
 - [x] `CWPhysicsObject::LookAt` · 005305e0 · legions 00514580 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-- [ ] `CWPhysicsObject::AddTargetedImpulse` · 00530610 · legions 005145b0 — needs port: physics object add targeted impulse; no citation in crates/
-- [ ] `CWPhysicsObject::GetElement` · 00530650 · legions 005145f0 — needs port: physics object get element; no citation in crates/
-- [ ] `CWPhysicsObject::GetDesiredMode` · 00530670 · legions 00514610 — needs port: physics object get desired mode; no citation in crates/
-- [ ] `CWPhysicsObject::GetMode` · 00530690 · legions 00514630 — needs port: physics object get mode; no citation in crates/
-- [ ] `CWPhysicsObject::IsDoingBehavior` · 005306b0 · legions 00514650 — needs port: physics object is doing behavior; no citation in crates/
-- [ ] `CWPhysicsObject::HasMotionInterpreter` · 005306d0 · legions 00514670 — needs port: physics object has motion interpreter; no citation in crates/
-- [ ] `CWPhysicsObject::GetLastDoMotionValues` · 005306f0 · legions 00514690 — needs port: physics object get last do motion values; no citation in crates/
-- [ ] `CWPhysicsObject::HasRemoteDoMotionValues` · 00530710 · legions 005146b0 — needs port: physics object has remote do motion values; no citation in crates/
-- [ ] `CWPhysicsObject::GetRemoteDoMotionValues` · 00530730 · legions 005146d0 — needs port: physics object get remote do motion values; no citation in crates/
-- [ ] `CWPhysicsObject::GetDesiredMotionValues` · 00530750 · legions 005146f0 — needs port: physics object get desired motion values; no citation in crates/
-- [ ] `CWPhysicsObject::GetStandardMotionValues` · 00530770 · legions 00514710 — needs port: physics object get standard motion values; no citation in crates/
+- [-] `CWPhysicsObject::AddTargetedImpulse` · 00530610 · legions 005145b0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetElement` · 00530650 · legions 005145f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetDesiredMode` · 00530670 · legions 00514610 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetMode` · 00530690 · legions 00514630 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::IsDoingBehavior` · 005306b0 · legions 00514650 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::HasMotionInterpreter` · 005306d0 · legions 00514670 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetLastDoMotionValues` · 005306f0 · legions 00514690 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::HasRemoteDoMotionValues` · 00530710 · legions 005146b0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetRemoteDoMotionValues` · 00530730 · legions 005146d0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetDesiredMotionValues` · 00530750 · legions 005146f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetStandardMotionValues` · 00530770 · legions 00514710 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::GetMyPosition` · 00530790 · legions 00514730 — needs port: physics object get my position; no citation in crates/
 - [ ] `CWPhysicsObject::GetDrawingPosition` · 005307b0 · legions 00514750 — needs port: physics object get drawing position; no citation in crates/
 - [ ] `CWPhysicsObject::GetBoundingBox` · 005307d0 · legions 00514770 — needs port: physics object get bounding box; no citation in crates/
 - [ ] `CWPhysicsObject::GetWorldMatrix` · 005307f0 · legions 00514790 — needs port: physics object get world matrix; no citation in crates/
 - [ ] `CWPhysicsObject::IsVisible` · 00530810 · legions 005147b0 — needs port: physics object is visible; no citation in crates/
 - [x] `CWPhysicsObject::IsOutside` · 00530820 · legions 005147c0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
-- [ ] `CWPhysicsObject::IsInWorld` · 00530850 · legions 005147f0 — needs port: physics object is in world; no citation in crates/
-- [ ] `CWPhysicsObject::LocalToGlobal` · 00530870 · legions 00514810 — needs port: physics object local to global; no citation in crates/
+- [-] `CWPhysicsObject::IsInWorld` · 00530850 · legions 005147f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::LocalToGlobal` · 00530870 · legions 00514810 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::CalculateDistance` · 00530890 · legions 00514830 — needs port: physics object calculate distance; no citation in crates/
-- [ ] `CWPhysicsObject::GetVelocityScale` · 005308c0 · legions 00514860 — needs port: physics object get velocity scale; no citation in crates/
+- [-] `CWPhysicsObject::GetVelocityScale` · 005308c0 · legions 00514860 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetVelocityScale` · 005308e0 · legions 00514880 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
-- [ ] `CWPhysicsObject::GetAccelerationScale` · 00530900 · legions 005148a0 — needs port: physics object get acceleration scale; no citation in crates/
+- [-] `CWPhysicsObject::GetAccelerationScale` · 00530900 · legions 005148a0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetAccelerationScale` · 00530920 · legions 005148c0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
-- [ ] `CWPhysicsObject::GetJumpScale` · 00530940 · legions 005148e0 — needs port: physics object get jump scale; no citation in crates/
+- [-] `CWPhysicsObject::GetJumpScale` · 00530940 · legions 005148e0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetJumpScale` · 00530960 · legions 00514900 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::Notify_DoMode` · 00530980 · legions 00514920 — needs port: physics object notify do mode; no citation in crates/
 - [x] `CWPhysicsObject::SetNoDrawPhysics` · 005309a0 · legions 00514940 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
-- [ ] `CWPhysicsObject::SetCloaked` · 005309c0 · legions 00514960 — needs port: physics object set cloaked; no citation in crates/
-- [ ] `CWPhysicsObject::SetUndetectable` · 005309e0 · legions 00514980 — needs port: physics object set undetectable; no citation in crates/
+- [-] `CWPhysicsObject::SetCloaked` · 005309c0 · legions 00514960 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::SetUndetectable` · 005309e0 · legions 00514980 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::InqCurrentProperties` · 00530ae0 · legions 00514a80 — needs port: physics object inq current properties; no citation in crates/
-- [ ] `CWPhysicsObject::InqCurrentProperty` · 00530b00 · legions 00514aa0 — needs port: physics object inq current property; no citation in crates/
-- [ ] `CWPhysicsObject::GetHeight` · 00530b20 · legions 00514ac0 — needs port: physics object get height; no citation in crates/
-- [ ] `CWPhysicsObject::GetRadius` · 00530b40 · legions 00514ae0 — needs port: physics object get radius; no citation in crates/
-- [ ] `CWPhysicsObject::GetTopLevelRadius` · 00530b60 · legions 00514b00 — needs port: physics object get top level radius; no citation in crates/
-- [ ] `CWPhysicsObject::GetTopLevelHeight` · 00530b80 · legions 00514b20 — needs port: physics object get top level height; no citation in crates/
+- [-] `CWPhysicsObject::InqCurrentProperty` · 00530b00 · legions 00514aa0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetHeight` · 00530b20 · legions 00514ac0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetRadius` · 00530b40 · legions 00514ae0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetTopLevelRadius` · 00530b60 · legions 00514b00 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::GetTopLevelHeight` · 00530b80 · legions 00514b20 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::IsMoving` · 00530ba0 · legions 00514b40 — needs port: physics object is moving; no citation in crates/
-- [ ] `CWPhysicsObject::IsUndetectable` · 00530bc0 · legions 00514b60 — needs port: physics object is undetectable; no citation in crates/
-- [ ] `CWPhysicsObject::IsMovementFrozen` · 00530be0 · legions 00514b80 — needs port: physics object is movement frozen; no citation in crates/
+- [-] `CWPhysicsObject::IsUndetectable` · 00530bc0 · legions 00514b60 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::IsMovementFrozen` · 00530be0 · legions 00514b80 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetMovementFrozen` · 00530c00 · legions 00514ba0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
-- [ ] `CWPhysicsObject::IsAnimationFrozen` · 00530c30 · legions 00514bd0 — needs port: physics object is animation frozen; no citation in crates/
+- [-] `CWPhysicsObject::IsAnimationFrozen` · 00530c30 · legions 00514bd0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetAnimationFrozen` · 00530c50 · legions 00514bf0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [~] `CWPhysicsObject::TogglePlaceMarkerObjects` · 00530c80 · legions 00514c20 — ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
 - [ ] `CWPhysicsObject::StopAllCameraFX` · 00530cb0 · legions 00514c50 — needs port: camera FX stop: the client has no camera effect manager (ac2-script host/interface.rs says a known gap)
-- [ ] `CWPhysicsObject::DoStory` · 00530cc0 · legions 00514c60 — needs port: physics object do story; no citation in crates/
+- [-] `CWPhysicsObject::DoStory` · 00530cc0 · legions 00514c60 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::InitPhysics` · 00530ce0 · legions 00514c80 — needs port: physics object init physics; no citation in crates/
 - [x] `CWPhysicsObject::GetLocalVisualDesc` · 00530d50 · legions 00514cf0 — Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.
-- [ ] `CWPhysicsObject::AddImpulse` · 00530da0 · legions 00514d40 — needs port: physics object add impulse; no citation in crates/
-- [ ] `CWPhysicsObject::AddImpulseLocal` · 00530de0 · legions 00514d80 — needs port: physics object add impulse local; no citation in crates/
-- [ ] `CWPhysicsObject::InqCylSphere` · 00530e20 · legions 00514dc0 — needs port: physics object inq cyl sphere; no citation in crates/
+- [-] `CWPhysicsObject::AddImpulse` · 00530da0 · legions 00514d40 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::AddImpulseLocal` · 00530de0 · legions 00514d80 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
+- [-] `CWPhysicsObject::InqCylSphere` · 00530e20 · legions 00514dc0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
