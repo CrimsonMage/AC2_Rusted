@@ -146,7 +146,7 @@ fn the_reticle_meters_show_the_selected_creatures_health() {
     let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
     let tree = &mut hud.tree;
     let reticle = hud.reticle.as_mut().expect("the reticle");
-    reticle.selection_changed(tree, Some(7), Some("Birch"));
+    reticle.selection_changed(tree, Some(7), Some("Birch"), None);
     let info = ac2_net::protocol::SelectionInfo {
         kind: ac2_net::protocol::SelectionInfo::CREATURE,
         cur_health: 30,

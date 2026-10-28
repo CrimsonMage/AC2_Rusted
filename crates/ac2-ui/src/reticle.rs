@@ -185,12 +185,26 @@ impl Reticle {
 
     /// `gm3DTextUI::RecvNotice_SelectionChanged` / `CheckName`: the new selection's name in the
     /// name element, sized to it; the averaged boxes restart.
-    pub fn selection_changed(&mut self, tree: &mut UiTree, id: Option<u64>, name: Option<&str>) {
+    ///
+    /// The name takes the selection's radar-look colour (`InqRadarLook`'s colour into the text's
+    /// font colour attributes; white when the object has no look).
+    pub fn selection_changed(
+        &mut self,
+        tree: &mut UiTree,
+        id: Option<u64>,
+        name: Option<&str>,
+        color: Option<[f32; 4]>,
+    ) {
         self.current = id;
         self.has_info = false;
         self.has_name = false;
         self.boxes.clear();
         if let (Some(_), Some(name)) = (id, name) {
+            let color = color.unwrap_or([1.0; 4]);
+            for (channel, value) in ["red", "green", "blue"].iter().zip(color) {
+                tree.set_float(self.name, tokenize(&format!("font_color_{channel}")), value);
+            }
+            tree.set_font_num_and_color(self.name, 0, 0);
             tree.set_text(self.name, name);
             if let Some((width, height)) = tree.text_size_with_margins(self.name, name) {
                 tree.resize_to(self.name, width, height);

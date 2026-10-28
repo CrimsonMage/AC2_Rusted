@@ -56,6 +56,15 @@ impl ClientView {
         let outcome = self.hud.reticle(
             selection.map(|s| (s.id, s.name.as_deref())),
             selection.and_then(|s| s.info.as_ref()),
+            // `CheckName`: the selection's radar-look colour.
+            selection.and_then(|s| {
+                frame
+                    .radar
+                    .blips
+                    .iter()
+                    .find(|b| b.id == s.id)
+                    .map(|b| b.color)
+            }),
             selected,
         );
         self.deselect |= outcome.deselect;

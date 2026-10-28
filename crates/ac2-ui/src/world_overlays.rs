@@ -32,6 +32,7 @@ impl Hud {
         tree: &mut UiTree,
         selection: Option<(u64, Option<&str>)>,
         info: Option<&SelectionInfo>,
+        color: Option<[f32; 4]>,
         selected: Option<&OverlayBox>,
     ) -> ReticleOutcome {
         let project = selected.map(|b| move |p: [f32; 3]| b.projector.project(p));
@@ -44,7 +45,7 @@ impl Hud {
             }),
             _ => None,
         };
-        self.update_reticle(tree, selection, info, target)
+        self.update_reticle(tree, selection, info, color, target)
     }
 
     /// `gm3DTextUI::UpdateNames` and then `UpdateDamage` over the boxes the client projected:

@@ -661,7 +661,7 @@ key	status	note
 004268a0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00426920	-	no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-00426970	~	ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+00426970	~	ac2-ui reticle.rs selection_changed: the meters, the name and now the selection's radar-look colour (font_color_red/green/blue from the radar blip, white without a look; ac2-client view/overlays.rs). Not ported: the off-screen indicator (hidden) and the name's quantity (GetName(quantity))
 00426ae0	x	ac2-ui reticle.rs
 00426b70	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00426d00	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
@@ -989,23 +989,23 @@ key	status	note
 0043a200	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0043a4b0	-	
 0043a4d0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0043a570	~	ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
+0043a570	~	ac2-ui friends_panel.rs message: add, remove and status buttons; the buttons follow the selection (set_target). Not modelled: the status drop-down's LocalStatus setting, the IsMoving reset of the menu and the GUN away/dnd text
 0043a5c0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043a5e0	x	ac2-ui friends_panel.rs + ac2-client hud_friends.rs: the status drop-down follows the server's local status (RecvNotice_LocalStatus, broadcast as SetSelectedIndex does)
 0043a620	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0043a650	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0043a680	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 0043a6f0	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
-0043a710	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+0043a710	~	ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled. Not modelled: the GUN away/dnd status text, the drop-down's IsMoving reset on the global loop (0xFFFF0005) and the server status setting the drop-down (LocalStatus)
 0043a7a0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043a820	x	ac2-ui friends_panel.rs: FriendsPanel::message on StatusDropDownMenu's new selection -> status_request; ac2-client friends_command sends the GUN flags and the emote
 0043abe0	x	ac2-ui friends_panel.rs (set_target, update_add: add enabled for another player's name with no list row selected and not a friend; remove for a selected friend) and ac2-client hud_friends.rs friend_target (the selection's IsPlayer and not the local player, weenie type 0x14 & 0x1F); tested on the real social layout in friends_panel_tests.rs
-0043ae30	~	ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
-0043ae90	~	ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
+0043ae30	~	ac2-ui friends_panel.rs message: add, remove and status buttons; the buttons follow the selection (set_target). Not modelled: the status drop-down's LocalStatus setting, the IsMoving reset of the menu and the GUN away/dnd text
+0043ae90	x	Legions has the handler (an undecompiled vtable slot); ac2-ui friends_panel.rs set_target follows the game selection every frame (hud_player pick_pass), which gives the add and remove buttons the same state as the notice did
 0043b020	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0043b190	x	ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 0043b4a0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-0043b6f0	~	ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+0043b6f0	~	ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled. Not modelled: the GUN away/dnd status text, the drop-down's IsMoving reset on the global loop (0xFFFF0005) and the server status setting the drop-down (LocalStatus)
 0043b8d0	x	ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 0043ba00	x	ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 0043bb90	x	ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)

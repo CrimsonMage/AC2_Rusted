@@ -282,7 +282,7 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
         mut tree, reticle, ..
     } = build_gameplay_hud(&store, 1024, 768).unwrap();
     let mut reticle = reticle.expect("the gameplay layout has the reticle");
-    reticle.selection_changed(&mut tree, Some(7), Some("Gnome"));
+    reticle.selection_changed(&mut tree, Some(7), Some("Gnome"), None);
     // A box spanning -0.1..0.1 of the screen around its centre.
     let project = |p: [f32; 3]| ([p[0], p[1]], true);
     let target = |id| ReticleTarget {

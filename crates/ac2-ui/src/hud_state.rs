@@ -220,6 +220,7 @@ impl Hud {
         tree: &mut UiTree,
         selection: Option<(u64, Option<&str>)>,
         info: Option<&SelectionInfo>,
+        color: Option<[f32; 4]>,
         target: Option<ReticleTarget<'_>>,
     ) -> ReticleOutcome {
         let Some(reticle) = self.reticle.as_mut() else {
@@ -227,7 +228,7 @@ impl Hud {
         };
         let id = selection.map(|(id, _)| id);
         if reticle.current() != id {
-            reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name));
+            reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name), color);
             self.reticle_info = None;
         }
         if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {

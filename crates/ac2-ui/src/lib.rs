@@ -478,6 +478,8 @@ mod radar_tests;
 #[cfg(test)]
 mod real_data_tests;
 #[cfg(test)]
+mod reticle_color_tests;
+#[cfg(test)]
 mod scrollbar_tests;
 #[cfg(test)]
 mod secure_trade_tests;

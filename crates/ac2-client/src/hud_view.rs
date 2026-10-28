@@ -407,13 +407,14 @@ impl HudView {
         &mut self,
         selection: Option<(u64, Option<&str>)>,
         info: Option<&ac2_net::protocol::SelectionInfo>,
+        color: Option<[f32; 4]>,
         selected: Option<&ac2_ui::OverlayBox>,
     ) -> ReticleOutcome {
         let Some((tree, _)) = &mut self.hud else {
             return ReticleOutcome::default();
         };
         self.panels
-            .update_reticle_over(tree, selection, info, selected)
+            .update_reticle_over(tree, selection, info, color, selected)
     }
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.
