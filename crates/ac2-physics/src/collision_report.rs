@@ -114,6 +114,10 @@ struct TouchedObject {
     touched: f64,
     /// `m_has_been_reported`.
     reported: bool,
+    /// `m_ignore_collisions`: the touched object's `ignore_collisions` when last seen.
+    ignore_collisions: bool,
+    /// `m_ignore_changed`: set when `ignore_collisions` changed after the entry was reported.
+    ignore_changed: bool,
 }
 
 /// Which surface a material layer is: the water or the landscape. The two list and terrain
@@ -265,10 +269,19 @@ impl CollisionManager {
 
     /// `CCollisionManager::AddObjectCollision`: the object is touched in this check. An object
     /// not yet in the table joins it, unreported.
-    pub(crate) fn touch(&mut self, id: InstanceId, ethereal: bool) {
+    /// `ignore` is the object's `ignore_collisions` (`CPhysicsObj::ignore_collisions`): an entry
+    /// already listed takes a changed value (`ObjCollisionType::UpdateIgnoreCollide`, which marks
+    /// `m_ignore_changed` once the entry was reported).
+    pub(crate) fn touch(&mut self, id: InstanceId, ethereal: bool, ignore: bool) {
         let now = self.check_time;
         match self.objects.iter_mut().find(|o| o.id == id) {
             Some(entry) => {
+                if entry.ignore_collisions != ignore {
+                    entry.ignore_collisions = ignore;
+                    if entry.reported {
+                        entry.ignore_changed = true;
+                    }
+                }
                 entry.touched = now;
                 entry.ethereal = ethereal;
             }
@@ -277,8 +290,36 @@ impl CollisionManager {
                 ethereal,
                 touched: now,
                 reported: false,
+                ignore_collisions: ignore,
+                ignore_changed: false,
             }),
         }
+    }
+
+    /// The ids of the touched objects (`m_collision_table`), in table order.
+    pub(crate) fn touched_ids(&self) -> Vec<InstanceId> {
+        self.objects.iter().map(|o| o.id).collect()
+    }
+
+    /// `ObjCollisionProfile::m_is_ethereal` of the entry for `id`.
+    pub(crate) fn entry_ethereal(&self, id: InstanceId) -> Option<bool> {
+        self.objects.iter().find(|o| o.id == id).map(|o| o.ethereal)
+    }
+
+    /// Sets the entry's `m_is_ethereal` (`CCollisionManager::HasConflict`).
+    pub(crate) fn set_entry_ethereal(&mut self, id: InstanceId, ethereal: bool) {
+        if let Some(entry) = self.objects.iter_mut().find(|o| o.id == id) {
+            entry.ethereal = ethereal;
+        }
+    }
+
+    /// The entry's `(m_ignore_collisions, m_ignore_changed)`.
+    #[cfg(test)]
+    pub(crate) fn entry_ignore(&self, id: InstanceId) -> Option<(bool, bool)> {
+        self.objects
+            .iter()
+            .find(|o| o.id == id)
+            .map(|o| (o.ignore_collisions, o.ignore_changed))
     }
 
     /// `CCollisionManager::ReportCollision`: the report at `now`. `end_reporting` ends every

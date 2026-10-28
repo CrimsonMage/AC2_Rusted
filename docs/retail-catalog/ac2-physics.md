@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 760 done, 157 partial, 399 to do, 808 skipped.
+2124 retail functions: 775 done, 152 partial, 389 to do, 808 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -732,20 +732,20 @@ Legend and workflow: [README](README.md).
 - [~] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (29/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (32/61)
 
 ### CollisionParameters
 - [x] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 - [x] `CollisionParameters::SetWeenieMovementType` · 004f6350 · legions 004e8b40 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 
 ### ObjCollisionType
-- [ ] `ObjCollisionType::UpdateIgnoreCollide` · 004f6370 · legions 004e8b60 — needs port: collision reports and properties
+- [x] `ObjCollisionType::UpdateIgnoreCollide` · 004f6370 · legions 004e8b60 — collision_report.rs TouchedObject ignore_collisions/ignore_changed, set by touch(); the body's ignore_collisions comes from the world entry (StaticObject::set_ignore_collisions, synced by Remotes)
 
 ### CCollisionManager
 - [x] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 - [x] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 - [x] `CCollisionManager::GetCollisionState` · 004f63b0 · legions 004e8ba0 — ac2-physics collision_types.rs CollisionParameters::collision_state / update_current_physics_mask (the manager's desired mask is passed in)
-- [ ] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — needs port: collision reports and properties
+- [x] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
 - [x] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — ac2-physics collision_types.rs CollisionParameters::add_to_temp_ethereal_list
 - [ ] `CCollisionManager::UpdateCollidePhysicsMask` · 004f64f0 · legions 004e8ce0 — needs port: collision reports and properties
 - [x] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
@@ -811,8 +811,8 @@ Legend and workflow: [README](README.md).
 - [x] `CCollisionManager::ReportSurfaceProperties` · 004f7700 · legions 004e9f30 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — ac2-physics pushers.rs Pushers::update_values (asm-checked: element 1 earth, 2 air, 3 water, 4 seafloor; a walk-on-air pusher replaces the sums, then is added on top); CPhysicsObj::CalcExternalForces calls it
-- [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
-- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
+- [x] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
+- [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — PhysicsObj::set_collision_state: sets merge, the desired movement mask is kept, UpdateConflictList runs; the min-impact values and the physics-type slot 0x200 side are the body's
 - [x] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [~] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — the pusher part only: PhysicsBody::remove_pusher (ac2-physics pushers.rs). The per-object CollidePropertyList table is not held (SetProperties on objects is not ported)
@@ -1848,7 +1848,7 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::Update` · 0050c960 · legions 004fa9d0 — ac2-physics moveto (slice 3)
 
-## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (48/58)
+## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (50/58)
 
 ### Random
 - [x] `Random::Check` · 00510ef0 · legions 004fef00 — ac2-core random.rs Random::check (RollDice(0,1) <= chance)
@@ -1867,7 +1867,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMissileManager::ReportOutOfFuel` · 00511360 · legions 004ff370 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::SetActivated` · 00511380 · legions 004ff390 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::SetMoving` · 00511390 · legions 004ff3a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-- [~] `CMissileManager::ShouldDetonate` · 005113f0 · legions 004ff400 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
+- [x] `CMissileManager::ShouldDetonate` · 005113f0 · legions 004ff400 — ac2-physics missile_detonation.rs over CollisionReport; the weenie slots 0x74/0x94 (pure virtuals, implementation not in the image) come in as ImpactTarget::weenie, which the client leaves None; StickySetParent and DeleteSelf come out as MissileEvents
 
 ### Position
 - [-] `Position::ForwardVector` · 00511560 · legions 004ff570 — vector/frame math
@@ -1893,7 +1893,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMissileManager::UpdateMissilePhysics` · 005124b0 · legions 005004c0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::GetCurrentVelocity` · 00512790 · legions 005007a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::InitHeadingTowardTarget` · 005127c0 · legions 005007d0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
-- [~] `CMissileManager::HandleCollision` · 00512890 · legions 005008a0 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
+- [x] `CMissileManager::HandleCollision` · 00512890 · legions 005008a0 — ac2-physics missile_detonation.rs over CollisionReport; the weenie slots 0x74/0x94 (pure virtuals, implementation not in the image) come in as ImpactTarget::weenie, which the client leaves None; StickySetParent and DeleteSelf come out as MissileEvents
 
 ### TargetPosition
 - [-] `TargetPosition::Reset` · 00512940 · legions 00500950 — plain field accessor on a runtime record; Rust struct field replaces it
@@ -1920,7 +1920,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMissileManager::MissileInfoUpdate` · 00514070 · legions 00502080 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 - [x] `CMissileManager::CalcInitialVelocity` · 00514330 · legions 00502340 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 - [x] `CMissileManager::StartMovement` · 005144d0 · legions 005024e0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
-- [~] `CMissileManager::InquireDirection` · 005145c0 · legions 005025d0 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
+- [~] `CMissileManager::InquireDirection` · 005145c0 · legions 005025d0 — ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
 - [x] `CMissileManager::Update` · 00514740 · legions 00502750 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 - [x] `CMissileManager::ClientRetarget` · 00514830 · legions 00502840 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (229/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (239/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2182,7 +2182,7 @@ Legend and workflow: [README](README.md).
 - [x] `CTransition::get_contact_plane` · 004de0d0 · legions 004d0b30
 
 ### CMissileManager
-- [ ] `CMissileManager::DetonatesOnProximityTo` · 004de130 · legions 004d0b90 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [~] `CMissileManager::DetonatesOnProximityTo` · 004de130 · legions 004d0b90 — ported (missile_detonation.rs); its only caller CPhysicsObj::FindObjCollisions has no Legions body, so nothing calls it
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitDataIDObject` · 004de1a0 · legions 004d0c00 — needs port: cite-only physics-object method
@@ -2261,10 +2261,10 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::IsInterpolating` · 004dec50 · legions 004d16b0 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::GetConstraintFactor` · 004dec70 · legions 004d16d0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-- [~] `CPhysicsObj::MissileInitPlaceAndFire` · 004decb0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileReportExpired` · 004ded30 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+- [~] `CPhysicsObj::MissileInitPlaceAndFire` · 004decb0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [x] `CPhysicsObj::MissileInitEnd` · 004dece0 · legions 004d1740 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
+- [~] `CPhysicsObj::MissileReportOutOfFuel` · 004ded10 — queued as MissileEvent::{OutOfFuel,Expired} (PhysicsBody::take_missile_events); the weenie slots 0x80/0x84 are not modelled in the client
+- [~] `CPhysicsObj::MissileReportExpired` · 004ded30 — queued as MissileEvent::{OutOfFuel,Expired} (PhysicsBody::take_missile_events); the weenie slots 0x80/0x84 are not modelled in the client
 - [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded50 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::NumTargetedDetectionCylSpheres` · 004ded80 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::NumGlobalDetectionCylSpheres` · 004deda0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
@@ -2278,7 +2278,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetCollisionState` · 004deef0 · legions 004d1950 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionStatePtr` · 004def40 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetCollisionProfile` · 004def50 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::Interpermiable` · 004defc0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::Interpermiable` · 004defc0 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
 - [~] `CPhysicsObj::InitDetectionList` · 004df050 · legions 004d1ab0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [~] `CPhysicsObj::DoIntersection` · 004df0b0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 - [x] `CPhysicsObj::IsBlocking` · 004df190 · legions 004d1bf0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
@@ -2309,9 +2309,9 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::CalcAcceleration` · 004dfa90 · legions 004d24f0
 - [x] `CPhysicsObj::CalcFriction` · 004dfd10 · legions 004d2770
 - [x] `CPhysicsObj::GetCurrentGravity` · 004dffc0
-- [ ] `CPhysicsObj::GetCurrentWind` · 004dffd0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetCurrentWind` · 004dffd0 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 - [x] `CPhysicsObj::CanCollide` · 004dffe0 · legions 004d2a40 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `CPhysicsObj::AddToTempEtherealList` · 004e0050 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::AddToTempEtherealList` · 004e0050 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
 - [ ] `CPhysicsObj::UpdateCollidePhysicsMask` · 004e0080 · legions 004d2ae0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::SetContactInfo` · 004e00a0 · legions 004d2b00 — ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
 - [x] `CPhysicsObj::PerformLOS` · 004e0190 — ac2-physics los (Terrain::los_check)
@@ -2320,7 +2320,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::get_cell_position` · 004e0380 — state-bit flag accessor
 - [ ] `CPhysicsObj::GetObjectA` · 004e0410 · legions 004d2e70 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::SetWeenieObj` · 004e0430 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetTopLevelObject` · 004e0440 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetTopLevelObject` · 004e0440 — the caller resolves the parent chain: ObjectView carries the top-level object's position, scale and height
 - [-] `CPhysicsObj::set_cell_id` · 004e0450 — state-bit flag accessor
 - [ ] `CPhysicsObj::AddStaticObjToCell` · 004e0470 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::change_cell` · 004e04c0 · legions 004d2f20 — ac2-physics terrain.rs move_object (cell membership on a move, rebuilt when the object leaves its cover margin) and ac2-client remote.rs sync_shadow (enter when in the world with a shape, leave otherwise); the CPhysicsObj cell bookkeeping itself is not a separate method here
@@ -2336,7 +2336,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetInitialFrame` · 004e0760 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::RefreshWorldMatrix` · 004e0770 · legions 004d31d0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::IsMoving` · 004e07e0 — ac2-physics body_access.rs PhysicsBody::is_moving (squared speed over 0.0002, f64 sum)
-- [~] `CPhysicsObj::set_missile_velocity` · 004e0820 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+- [x] `CPhysicsObj::set_missile_velocity` · 004e0820 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 - [x] `CPhysicsObj::set_omega_velocity` · 004e0860 — ac2-physics body_access.rs PhysicsBody::set_omega_velocity / omega_velocity
 - [x] `CPhysicsObj::set_local_velocity` · 004e0890 · legions 004d32f0 — ac2-physics anim_pose fire_impulse
 - [-] `CPhysicsObj::set_local_omega_velocity` · 004e08d0 — state-bit flag accessor
@@ -2488,8 +2488,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::AddTargetedImpulse` · 004e33d0 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [ ] `CPhysicsObj::MoveTo` · 004e3510 · legions 004d5f60 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::CreateDetectionCylsphere` · 004e3550 · legions 004d5fa0 — forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
-- [ ] `CPhysicsObj::CheckIfSolid` · 004e35f0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetObjectOffsetPos` · 004e36a0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::CheckIfSolid` · 004e35f0 — ac2-physics physics_obj_conflict.rs; ICPhysicsObj 0x20c Interpermiable, 0x210 CheckIfSolid, 0x204 AddToTempEtherealList; wired through PhysicsBody::set_collision_state (the player's SetCollisionState in ac2-client)
+- [x] `CPhysicsObj::GetObjectOffsetPos` · 004e36a0 — ac2-physics physics_obj_missile.rs object_offset_pos: height fraction + scaled offset turned by the frame, environment-only LOS against the terrain (the top-level object is resolved by the caller's ObjectView)
 - [ ] `CPhysicsObj::CheckTypeMatch` · 004e39b0 · legions 004d6400 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::IsLOSBlocking` · 004e3a50 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::GetTargetInfo` · 004e3a70 — needs port: cite-only physics-object method
@@ -2549,14 +2549,14 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::Destroy` · 004e5540 · legions 004d7f90 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660 — render plumbing
 - [x] `CPhysicsObj::JumpLogic` · 004e56e0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
+- [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — MissileFlightHost::height_above_ground reads the terrain-polygon distance (physics_obj.rs height_above_walkable), not CObjCell::LOSCheck
 - [x] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::SetScale` · 004e6690 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 - [x] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0 — ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
-- [~] `CPhysicsObj::HasMissileManager` · 004e6710 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+- [x] `CPhysicsObj::HasMissileManager` · 004e6710 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 - [x] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170 — CPhysicsObj::is_newer_then_update - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::RecvEvt_LeaveWorld` · 004e6780 — ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
 - [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the holder, location and placement frame
@@ -2572,12 +2572,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0 — ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 - [ ] `CPhysicsObj::HandleBehaviorDone` · 004e6d00 · legions 004d9750 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissilePlace` · 004e6d60 · legions 004d97b0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileFire` · 004e6da0 · legions 004d97f0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInquireDirection` · 004e6de0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInquireCurrentVelocity` · 004e6e60 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileRetarget` · 004e6eb0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+- [~] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissilePlace` · 004e6d60 · legions 004d97b0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissileFire` · 004e6da0 · legions 004d97f0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissileInquireDirection` · 004e6de0 — ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
+- [~] `CPhysicsObj::MissileInquireCurrentVelocity` · 004e6e60 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissileRetarget` · 004e6eb0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [x] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
 - [x] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree)
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
@@ -2604,11 +2604,11 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::LookAt` · 004e8bc0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [~] `CPhysicsObj::DoStory` · 004e8d10 · legions 004db6f0 — forwarder to StoryManager (AC2_Rusted-combat worker)
 - [ ] `CPhysicsObj::GetLocalVisualDesc` · 004e8d50 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::RecvEvt_InitializeMissile` · 004e8d80 · legions 004db760 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInitialize` · 004e8e40 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [~] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+- [x] `CPhysicsObj::RecvEvt_InitializeMissile` · 004e8d80 · legions 004db760 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
+- [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — PhysicsBody::recv_retarget_missile ports it; no client wire opcode decodes a retarget event yet
+- [~] `CPhysicsObj::MissileInitialize` · 004e8e40 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [~] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
 - [x] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [x] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision

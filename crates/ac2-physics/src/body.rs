@@ -309,6 +309,160 @@ impl PhysicsBody {
         self.object.update_movement(PHYSICS_QUANTUM, terrain);
     }
 
+    /// [`Self::step_quantum`] in a world: a missile body reads the object table and rolls the
+    /// dice from `env` (`CMissileManager::Update`).
+    pub fn step_quantum_in(&mut self, terrain: &Terrain, env: &mut crate::MissileEnv<'_>) {
+        if self.turn != 0.0 {
+            self.object.motion.set_omega_velocity(self.turn);
+        }
+        self.object
+            .update_movement_in(PHYSICS_QUANTUM, terrain, env);
+    }
+
+    /// Test hook: the body's object.
+    #[cfg(test)]
+    pub(crate) fn with_object(&mut self, f: impl FnOnce(&mut PhysicsObj)) {
+        f(&mut self.object);
+    }
+
+    /// Test hook: advance the body's clock.
+    #[cfg(test)]
+    pub(crate) fn cur_time_add(&mut self, dt: f64) {
+        self.object.cur_time += dt;
+    }
+
+    /// `CPhysicsObj::HasMissileManager`.
+    pub fn has_missile_manager(&self) -> bool {
+        self.object.has_missile_manager()
+    }
+
+    /// `CPhysicsObj::RecvEvt_InitializeMissile`: the server's launch velocity and target.
+    pub fn recv_initialize_missile(
+        &mut self,
+        terrain: &Terrain,
+        velocity: [f32; 3],
+        target: &crate::TargetPosition,
+    ) {
+        let [x, y, z] = velocity;
+        self.object
+            .recv_initialize_missile(terrain, Vector::new(x, y, z), target);
+    }
+
+    /// `CPhysicsObj::RecvEvt_RetargetMissile`: the server's parameters and target; returns
+    /// `CopyInto`'s result and the update's error.
+    pub fn recv_retarget_missile(
+        &mut self,
+        terrain: &Terrain,
+        env: &mut crate::MissileEnv<'_>,
+        params: &crate::MissileParameters,
+        target: &crate::TargetPosition,
+    ) -> (bool, u32) {
+        self.object
+            .recv_retarget_missile(terrain, env.objects, params, target, &mut *env.coin)
+    }
+
+    /// `CPhysicsObj::HandleCollision` for a missile: `CMissileManager::HandleCollision` on a report
+    /// of this body. A detonation queues [`crate::MissileEvent`]s.
+    pub fn handle_missile_collision(
+        &mut self,
+        terrain: &Terrain,
+        report: &CollisionReport,
+        impacts: &dyn crate::ImpactLookup,
+    ) {
+        self.object
+            .missile_handle_collision(terrain, report, impacts);
+    }
+
+    /// `CPhysicsObj::MissileInitialize`.
+    pub fn missile_initialize(
+        &mut self,
+        terrain: &Terrain,
+        objects: &dyn crate::ObjectLookup,
+        info: &crate::MissileParameters,
+        targeting: &crate::MissileTargetingParameters,
+    ) {
+        self.object
+            .missile_initialize(terrain, objects, info, targeting);
+    }
+
+    /// `CPhysicsObj::MissileInitMissileParameters`.
+    pub fn missile_init_parameters(&mut self, info: &crate::MissileParameters) {
+        self.object.missile_init_parameters(info);
+    }
+
+    /// `CPhysicsObj::MissileInitTargetingParameters`.
+    pub fn missile_init_targeting_parameters(
+        &mut self,
+        terrain: &Terrain,
+        objects: &dyn crate::ObjectLookup,
+        targeting: &crate::MissileTargetingParameters,
+    ) {
+        self.object
+            .missile_init_targeting_parameters(terrain, objects, targeting);
+    }
+
+    /// `CPhysicsObj::MissileRetarget`.
+    pub fn missile_retarget(
+        &mut self,
+        terrain: &Terrain,
+        objects: &dyn crate::ObjectLookup,
+        info: &crate::MissileParameters,
+        targeting: &crate::MissileTargetingParameters,
+    ) {
+        self.object
+            .missile_retarget(terrain, objects, info, targeting);
+    }
+
+    /// `CPhysicsObj::MissilePlaceAndFire` (`place` and `fire`), `MissilePlace` and `MissileFire`.
+    pub fn missile_request(&mut self, place: bool, fire: bool) {
+        self.object.missile_request(place, fire);
+    }
+
+    /// `CPhysicsObj::MissileInquireDirection`.
+    pub fn missile_inquire_direction(
+        &mut self,
+        terrain: &Terrain,
+        env: &mut crate::MissileEnv<'_>,
+    ) -> Option<(Heading, f32)> {
+        self.object.missile_inquire_direction(terrain, env)
+    }
+
+    /// What `CMissileManager::ShouldDetonate` reads of this body when a missile hits it.
+    pub fn impact_target(&self, id: u64) -> crate::ImpactTarget {
+        crate::ImpactTarget {
+            id,
+            dynamic: self.object.state & crate::physics_obj::STATIC_PS == 0,
+            has_missile_manager: self.object.has_missile_manager(),
+            weenie: None,
+        }
+    }
+
+    /// `CPhysicsObj::MissileInquireCurrentVelocity`.
+    pub fn missile_current_velocity(&self) -> Option<Vector> {
+        self.object.missile_current_velocity()
+    }
+
+    /// What the missile code told the weenie and the streaks since the last call.
+    pub fn take_missile_events(&mut self) -> Vec<crate::MissileEvent> {
+        std::mem::take(&mut self.object.missile_events)
+    }
+
+    /// `m_posDrawing` while the body has a parent (`HasParent`): where a parented missile
+    /// starts. The owner of the child graph sets it and clears it when the parent is let go.
+    pub fn set_parent_drawing_position(&mut self, position: Option<Position>) {
+        self.object.parent_drawing_position = position;
+    }
+
+    /// `PhysicsObj` view for other missiles: position, total scale, height and velocity.
+    pub fn object_view(&self) -> crate::ObjectView {
+        crate::ObjectView {
+            position: self.object.position,
+            scale: self.object.own_total_scale(),
+            height: self.object.height(),
+            velocity: self.object.velocity,
+        }
+    }
+
     /// Runs the quanta the clock owes at `now`; returns how many ran.
     pub fn update(&mut self, clock: &mut PhysicsClock, now: f64, terrain: &Terrain) -> u32 {
         self.set_time(now);
@@ -635,6 +789,38 @@ impl PhysicsBody {
     /// client to set its ethereal and physics-type sets.
     pub fn collision_mut(&mut self) -> &mut crate::collision_types::CollisionParameters {
         &mut self.object.collision
+    }
+
+    /// `CPhysicsObj::m_id`, which the conflict checks name this body by.
+    pub fn set_instance_id(&mut self, id: u64) {
+        self.object.instance_id = id;
+    }
+
+    /// `CPhysicsObj::SetCollisionState` -> `CCollisionManager::SetCollisionState`: `info` merged
+    /// into the body's sets, then each touched object is checked again for a conflict
+    /// (`peer` answers `GetObjectA`). The effects are for the other bodies:
+    /// [`Self::add_to_temp_ethereal_list`] on `object`.
+    pub fn set_collision_state(
+        &mut self,
+        info: &crate::collision_types::CollisionParameters,
+        peer: &dyn Fn(u64) -> Option<crate::ConflictPeer>,
+    ) -> Vec<crate::ConflictEffect> {
+        self.object.set_collision_state(info, peer)
+    }
+
+    /// `CPhysicsObj::AddToTempEtherealList`.
+    pub fn add_to_temp_ethereal_list(&mut self, id: u64) -> bool {
+        self.object.add_to_temp_ethereal_list(id)
+    }
+
+    /// What another body's conflict check reads of this one.
+    pub fn conflict_peer(&self) -> crate::ConflictPeer {
+        self.object.conflict_peer()
+    }
+
+    /// `CPhysicsObj::ignore_collisions`.
+    pub fn ignores_collisions(&self) -> bool {
+        self.object.state & crate::physics_obj_conflict::IGNORE_COLLISIONS_PS != 0
     }
 
     /// `CPhysicsObj::ApplyEtherealProperty`: sets the body's blocking bits (`EtherealPhysicsType::

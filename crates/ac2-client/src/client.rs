@@ -187,6 +187,8 @@ pub struct Client {
     /// The story slot's events the HUD draws (`StoryEvent::Show`, `Hide`, `StopAudio`), taken by
     /// [`HudView::story_frameworks`](crate::hud_view::HudView).
     pub(crate) story_queue: Vec<ac2_ui::StoryEvent>,
+    /// Streaks a missile's body started or stopped, applied with the next FX events.
+    pub(crate) pending_streaks: Vec<(u64, bool)>,
     /// Session events the story slot made outside a frame (the skip key, the session's end);
     /// they join the next frame's events.
     pub(crate) story_outbox: Vec<SessionEvent>,
@@ -279,6 +281,7 @@ impl Client {
             story: Default::default(),
             story_scenes: Vec::new(),
             story_queue: Vec::new(),
+            pending_streaks: Vec::new(),
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
             story_fades_on_hud: false,
@@ -746,7 +749,20 @@ impl Client {
                     }
                 }
                 // `CPhysics::UpdateAllPhysics`: the other objects.
-                self.remotes.step_quantum(&mut self.terrain, cur_time);
+                let others: Vec<_> = self
+                    .player
+                    .as_ref()
+                    .filter(|p| p.in_world)
+                    .and_then(|p| p.body.as_ref().map(|b| (p.id, b.physics.object_view())))
+                    .into_iter()
+                    .collect();
+                let missile_events = self.remotes.step_quantum(
+                    &mut self.terrain,
+                    cur_time,
+                    &mut self.random,
+                    &others,
+                );
+                self.missile_events_taken(&missile_events);
             }
             // `CPhysicsObj::ReportCollisions` for the player: its script hears each report.
             if let Some(id) = self.player.as_ref().map(|p| p.id) {

@@ -51,6 +51,18 @@ fn position(p: &ac2_net::protocol::Position) -> Position {
     )
 }
 
+/// A server `TargetPosition` (`TargetPosition::StreamPack`) as the missile manager holds it.
+pub(crate) fn target_position(
+    t: &ac2_net::protocol::TargetPosition,
+) -> ac2_physics::TargetPosition {
+    ac2_physics::TargetPosition {
+        target_id: t.target,
+        offset_pos: position(&t.offset),
+        target_velocity: Vector::new(t.velocity[0], t.velocity[1], t.velocity[2]),
+        initialized: t.initialized != 0,
+    }
+}
+
 /// `MovementParameters` from a server `MoveTo` (`MovementParameters::StreamPack` over the
 /// defaults).
 pub(crate) fn movement_parameters(p: &MovementParameters) -> ac2_physics::MovementParameters {

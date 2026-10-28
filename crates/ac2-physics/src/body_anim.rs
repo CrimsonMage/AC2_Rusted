@@ -8,6 +8,7 @@ use ac2_core::Random;
 use crate::anim_rep::BodyAnimation;
 use crate::moveto::MovementParameters;
 use crate::physics_obj::DescSlider;
+use crate::vector::Vector;
 
 use super::PhysicsBody;
 
@@ -90,6 +91,7 @@ impl PhysicsBody {
     pub fn set_wind(&mut self, wind: [f32; 3]) {
         let [x, y, z] = wind.map(f64::from);
         self.object.wind_magnitude = (x * x + y * y + z * z).sqrt() as f32;
+        self.object.wind = Vector::new(wind[0], wind[1], wind[2]);
     }
 
     /// `CPhysicsObj::UpdateViewerDistance`: the camera's distance to the body

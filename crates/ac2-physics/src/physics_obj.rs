@@ -8,11 +8,13 @@ use crate::fpu::{ld, st, F_EPSILON};
 use crate::frame::Frame;
 use crate::heading::Heading;
 use crate::look_at::{LookAtManager, LookTarget};
+use crate::missile::MissileManager;
 use crate::motion_interp::{
     MotionContext, MotionInterp, ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR,
     ELEMENT_WALK_ON_AIR, ELEMENT_WATER,
 };
 use crate::objects::ObjectShape;
+use crate::physics_obj_missile::{MissileEnv, MissileEvent, NoObjects};
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::{Plane, Quaternion, Sphere, Vector};
@@ -24,6 +26,8 @@ pub(crate) const INELASTIC_PS: u32 = 0x2000;
 pub(crate) const EDGE_SLIDE_PS: u32 = 0x8000;
 pub(crate) const MOVEMENT_FROZEN_PS: u32 = 0x2_0000;
 pub(crate) const MOBILE_PS: u32 = 0x20_0000;
+/// `CPhysicsObj::align_to_path`'s state bit: the heading follows the velocity.
+pub(crate) const PATH_ALIGNED_PS: u32 = 0x80;
 pub(crate) const SYNC_TRANSIT_PS: u32 = 0x8000_0000;
 /// `CPhysicsObj::CPhysicsObj`'s `m_state`: reports collisions, gravity, lighting, edge
 /// sliding, mobile.
@@ -150,6 +154,20 @@ pub(crate) struct PhysicsObj {
     pub min_visible_distance: f32,
     /// `m_dLastAnimationUpdateTime`: `Timer::local_time` of the last animation update frame.
     pub last_animation_update_time: f64,
+    /// `CPhysicsObj::m_pMissileManager`.
+    pub(crate) missile: Option<Box<MissileManager>>,
+    /// What the missile code told the weenie and the streaks, taken by the owner.
+    pub(crate) missile_events: Vec<MissileEvent>,
+    /// `PhysicsGlobals::wind` as last set.
+    pub(crate) wind: Vector,
+    /// `TargetManager`'s target id as the missile code sets it (0 is `INVALID_IID`).
+    pub(crate) target_id: u64,
+    /// `CCollisionManager::m_desired_physics_mask`: the movement physics mask `SetCollisionState` last named.
+    pub(crate) desired_collision_mask: crate::collision_types::PhysicsTypeMask,
+    /// `CPhysicsObj::m_id`.
+    pub(crate) instance_id: u64,
+    /// `m_posDrawing` while the body has a parent (`HasParent`), set by the owner of the child graph.
+    pub(crate) parent_drawing_position: Option<Position>,
 }
 
 impl PhysicsObj {
@@ -209,6 +227,13 @@ impl PhysicsObj {
             view_distance: 1.0,
             min_visible_distance: f32::MAX,
             last_animation_update_time: 0.0,
+            missile: None,
+            missile_events: Vec::new(),
+            wind: Vector::ZERO,
+            target_id: 0,
+            parent_drawing_position: None,
+            desired_collision_mask: crate::collision_types::PhysicsTypeMask::default(),
+            instance_id: 0,
             look: LookAtManager::default(),
             look_snapshot: None,
             head_x: 0.0,
@@ -299,17 +324,41 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::UpdateMovement` for an object in the world, mobile and not frozen.
     pub(crate) fn update_movement(&mut self, quantum: f32, terrain: &Terrain) {
+        let mut coin = |_: f32| false;
+        let mut env = MissileEnv {
+            objects: &NoObjects,
+            coin: &mut coin,
+        };
+        self.update_movement_in(quantum, terrain, &mut env);
+    }
+
+    /// [`Self::update_movement`] with the world a missile reads (the object table and the roll).
+    pub(crate) fn update_movement_in(
+        &mut self,
+        quantum: f32,
+        terrain: &Terrain,
+        env: &mut MissileEnv<'_>,
+    ) {
         if self.state & MOVEMENT_FROZEN_PS != 0 || !self.is_mobile() {
             return;
         }
         self.anim_position = self.prev_position;
         self.prev_position = self.position;
-        self.update_movement_internal(quantum, terrain);
+        self.update_movement_internal(quantum, terrain, env);
     }
 
-    /// `CPhysicsObj::UpdateMovementInternal(float)`: integrate a frame offset, then move there
-    /// (rotation only when the origin moved less than `F_EPSILON` on every axis).
-    fn update_movement_internal(&mut self, quantum: f32, terrain: &Terrain) {
+    /// `CPhysicsObj::UpdateMovementInternal(float)`: a missile's `CMissileManager::Update` first,
+    /// then integrate a frame offset and move there (rotation only when the origin moved less than
+    /// `F_EPSILON` on every axis; a path-aligned body turns to face its velocity).
+    fn update_movement_internal(
+        &mut self,
+        quantum: f32,
+        terrain: &Terrain,
+        env: &mut MissileEnv<'_>,
+    ) {
+        if self.has_missile_manager() {
+            self.missile_update(terrain, env);
+        }
         let mut new_frame = Frame::IDENTITY;
         self.update_position_internal(quantum, &mut new_frame, terrain);
         if !self.is_mobile() {
@@ -324,6 +373,9 @@ impl PhysicsObj {
             new_frame.origin = current;
             self.position.frame = new_frame;
             return;
+        }
+        if self.state & PATH_ALIGNED_PS != 0 {
+            new_frame.set_vector_heading(self.velocity);
         }
         let new_position = Position::new(self.position.cell_id, new_frame);
         if !self.transition_to(new_position, terrain) {
@@ -349,6 +401,10 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::UpdateMovementInternal(float, Frame&)`.
     fn update_movement_offset(&mut self, quantum: f32, offset: &mut Frame, terrain: &Terrain) {
+        if self.has_missile_manager() {
+            self.missile_physics(terrain, quantum, offset);
+            return;
+        }
         let q = ld(quantum);
         if self.has_contact() {
             self.time_on_ground += f64::from(quantum);

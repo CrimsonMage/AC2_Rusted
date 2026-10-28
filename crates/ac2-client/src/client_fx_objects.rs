@@ -38,6 +38,9 @@ impl Client {
             night: self.game_clock.as_ref().is_some_and(GameClock::is_night),
             holds: &holds,
         };
+        for (id, on) in std::mem::take(&mut self.pending_streaks) {
+            self.fx_streaks.set_object_streaks(id, on, &streak_ctx);
+        }
         for (id, visual, events) in events {
             let particles = self
                 .remotes

@@ -132,6 +132,12 @@ impl FxStreaks {
         }
     }
 
+    /// `CPhysicsObj::StartStreak(0)` / `StopStreak(0)` called on the object itself (a missile's
+    /// flight): its own streaks and every holding-point child's activate or stop.
+    pub fn set_object_streaks(&mut self, emitter: u64, on: bool, ctx: &StreakContext<'_>) {
+        self.activate_tree(emitter, on, 0, ctx.holds, 0);
+    }
+
     /// `CPhysicsObj::StartStreak` / `StopStreak`: the object's own streaks activate (or stop), then
     /// each holding-point child at `holding` (every child when it is zero) does the same, down its
     /// own children.

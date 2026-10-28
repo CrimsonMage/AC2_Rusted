@@ -147,13 +147,32 @@ impl Client {
         object: u64,
         sets: &ac2_physics::CollisionParameters,
     ) {
-        if let Some(body) = self
+        let remotes = &self.remotes;
+        let peer = |id: u64| {
+            remotes
+                .get(id)
+                .and_then(|r| r.body())
+                .map(|body| ac2_physics::ConflictPeer {
+                    id,
+                    ..body.conflict_peer()
+                })
+        };
+        let Some(body) = self
             .player
             .as_mut()
             .filter(|p| p.id == object)
             .and_then(|p| p.body.as_mut())
-        {
-            body.physics.collision_mut().merge_set_state(sets);
+        else {
+            return;
+        };
+        // `CCollisionManager::SetCollisionState`, then `UpdateConflictList`: the objects that
+        // stopped being passable are ignored by both bodies from now on.
+        body.physics.set_instance_id(object);
+        let effects = body.physics.set_collision_state(sets, &peer);
+        for effect in effects {
+            if let Some(other) = self.remotes.body_mut(effect.object) {
+                other.add_to_temp_ethereal_list(effect.add);
+            }
         }
     }
 
@@ -213,6 +232,20 @@ impl Client {
     pub(crate) fn apply_remote(&mut self, event: &SessionEvent) {
         if self.request_motion_desc(event) {
             return;
+        }
+        // `CPhysicsObj::RecvEvt_InitializeMissile`.
+        if let SessionEvent::ObjectAction {
+            object,
+            action:
+                ObjectAction::InitializeMissile {
+                    velocity, target, ..
+                },
+        } = event
+        {
+            let target = crate::motion::target_position(target);
+            if let Some(body) = self.remotes.body_mut(*object) {
+                body.recv_initialize_missile(&self.terrain, *velocity, &target);
+            }
         }
         let impulse_source = match event {
             SessionEvent::ObjectAction {
@@ -450,5 +483,18 @@ impl Client {
                 })
             })
             .collect()
+    }
+}
+
+impl Client {
+    /// What the missiles' bodies asked of the world in this quantum: a streak starts or stops on
+    /// the object (`CPhysicsObj::StartStreak` / `StopStreak`). The weenie's callbacks (out of
+    /// fuel, expired, errors) are not modelled: the client's weenie does not act on them.
+    pub(crate) fn missile_events_taken(&mut self, events: &[(u64, ac2_physics::MissileEvent)]) {
+        for &(id, event) in events {
+            if let ac2_physics::MissileEvent::Streak { on } = event {
+                self.pending_streaks.push((id, on));
+            }
+        }
     }
 }

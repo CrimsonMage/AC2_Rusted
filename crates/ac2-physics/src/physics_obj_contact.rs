@@ -180,7 +180,8 @@ impl PhysicsObj {
         // `CCollisionManager::AddObjectCollision` for each server object the transition hit.
         for &id in &transition.collision_info.collide_objects {
             if let Some((instance, ethereal)) = terrain.object_identity(id) {
-                self.collision_manager.touch(instance, ethereal);
+                let ignore = terrain.object_ignores_collisions(id);
+                self.collision_manager.touch(instance, ethereal, ignore);
             }
         }
         if !found {
@@ -226,7 +227,9 @@ impl PhysicsObj {
                 self.transient_state &= !LANDSCAPE_CONTACT_TS;
             }
         }
-        if self.has_contact() {
+        // Legions: a missile that cannot land never counts as standing on a walkable.
+        let can_land = self.missile.as_ref().is_none_or(|m| m.info.can_land);
+        if can_land && self.has_contact() {
             let walkable = ObjectInfo::is_valid_walkable(self.contact_plane.n);
             self.set_on_walkable(walkable);
         } else {

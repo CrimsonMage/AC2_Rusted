@@ -181,6 +181,8 @@ pub struct StaticObject {
     /// `ETHEREAL` as `FXManager::DoCreateObjectFX` sets it: no mover is blocked by it, whatever
     /// its blocking mask says.
     pub(crate) ethereal: bool,
+    /// `CPhysicsObj::ignore_collisions` (`m_state` bit 8).
+    pub(crate) ignore_collisions: bool,
     /// The position its cell list was built for, while the list may be reused (`None` for a
     /// static object, which never moves). See `Terrain::move_object`.
     pub(crate) covered: Option<Position>,
@@ -224,6 +226,7 @@ impl StaticObject {
             shape,
             blocking: PhysicsTypeMask::default(),
             ethereal: false,
+            ignore_collisions: false,
             covered: None,
             instance_id: None,
         }
@@ -244,6 +247,15 @@ impl StaticObject {
     pub fn with_blocking_mask(mut self, bits: u64) -> Self {
         self.blocking = PhysicsTypeMask::from_bits(bits);
         self
+    }
+
+    /// `CPhysicsObj::ignore_collisions` of the body this entry stands for.
+    pub fn set_ignore_collisions(&mut self, ignore: bool) {
+        self.ignore_collisions = ignore;
+    }
+
+    pub(crate) fn ignores_collisions(&self) -> bool {
+        self.ignore_collisions
     }
 
     /// `FXManager::DoCreateObjectFX`'s ETHEREAL: the object is passed through by every mover

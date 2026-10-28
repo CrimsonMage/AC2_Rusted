@@ -137,6 +137,9 @@ fn sync_shadow(guid: u64, remote: &mut Remote, terrain: &mut Terrain) {
                 .with_instance_id(guid);
             object.set_ethereal(remote.ethereal);
             let id = terrain.insert_object(object);
+            if let Some(body) = &remote.body {
+                terrain.set_object_ignores_collisions(id, body.ignores_collisions());
+            }
             remote.shadow = Some(id);
             if let Some(body) = remote.body.as_mut() {
                 body.set_world_id(Some(id));
@@ -145,6 +148,9 @@ fn sync_shadow(guid: u64, remote: &mut Remote, terrain: &mut Terrain) {
         (Some((position, _, _, _, blocking)), Some(id)) => {
             terrain.move_object(id, position);
             terrain.set_object_blocking(id, blocking);
+            if let Some(body) = &remote.body {
+                terrain.set_object_ignores_collisions(id, body.ignores_collisions());
+            }
         }
         (None, Some(id)) => {
             terrain.remove_object(id);
@@ -427,17 +433,93 @@ impl<B> Remotes<B> {
     }
 
     /// `CPhysics::UpdateAllPhysics` for the objects: each one in the world and in physics range
-    /// runs the quantum. `cur_time` is the server clock the positions were stamped on.
-    pub fn step_quantum(&mut self, terrain: &mut Terrain, cur_time: f64) {
+    /// runs the quantum. `cur_time` is the server clock the positions were stamped on. A missile
+    /// reads the other objects (`ICPhysicsObj::GetObjectA`: these remotes and `others`, the
+    /// player) and rolls on `random`; what the missiles told the weenie and the streaks comes
+    /// back with the object's id.
+    pub fn step_quantum(
+        &mut self,
+        terrain: &mut Terrain,
+        cur_time: f64,
+        random: &mut Random,
+        others: &[(u64, ac2_physics::ObjectView)],
+    ) -> Vec<(u64, ac2_physics::MissileEvent)> {
+        struct Table(HashMap<u64, ac2_physics::ObjectView>);
+        impl ac2_physics::ObjectLookup for Table {
+            fn object(&self, id: u64) -> Option<ac2_physics::ObjectView> {
+                self.0.get(&id).copied()
+            }
+        }
+        struct Impacts(HashMap<u64, ac2_physics::ImpactTarget>);
+        impl ac2_physics::ImpactLookup for Impacts {
+            fn target(&self, id: u64) -> Option<ac2_physics::ImpactTarget> {
+                self.0.get(&id).copied()
+            }
+        }
+        let flying = self.objects.values().any(|r| {
+            r.in_world
+                && r.active
+                && r.body
+                    .as_ref()
+                    .is_some_and(PhysicsBody::has_missile_manager)
+        });
+        let table = Table(if flying {
+            let mut views: HashMap<u64, ac2_physics::ObjectView> = others.iter().copied().collect();
+            for (&id, remote) in &self.objects {
+                if let (true, Some(body)) = (remote.in_world, remote.body.as_ref()) {
+                    views.insert(id, body.object_view());
+                }
+            }
+            views
+        } else {
+            HashMap::new()
+        });
+        let impacts = Impacts(if flying {
+            let mut found: HashMap<u64, ac2_physics::ImpactTarget> = others
+                .iter()
+                .map(|&(id, _)| {
+                    let target = ac2_physics::ImpactTarget {
+                        id,
+                        dynamic: true,
+                        has_missile_manager: false,
+                        weenie: None,
+                    };
+                    (id, target)
+                })
+                .collect();
+            for (&id, remote) in &self.objects {
+                if let (true, Some(body)) = (remote.in_world, remote.body.as_ref()) {
+                    found.insert(id, body.impact_target(id));
+                }
+            }
+            found
+        } else {
+            HashMap::new()
+        });
+        let mut coin = |chance: f32| random.check(chance);
+        let mut env = ac2_physics::MissileEnv {
+            objects: &table,
+            coin: &mut coin,
+        };
+        let mut events = Vec::new();
         for (&guid, remote) in self.objects.iter_mut() {
             if remote.in_world && remote.active {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);
-                    body.step_quantum(terrain);
+                    body.step_quantum_in(terrain, &mut env);
+                    if body.has_missile_manager() {
+                        // `CPhysicsObj::ReportCollisions` -> `CMissileManager::HandleCollision`.
+                        let materials = body.contact_materials(terrain);
+                        if let Some(report) = body.report_collisions(&materials, false) {
+                            body.handle_missile_collision(terrain, &report, &impacts);
+                        }
+                    }
+                    events.extend(body.take_missile_events().into_iter().map(|e| (guid, e)));
                 }
             }
             sync_shadow(guid, remote, terrain);
         }
+        events
     }
 
     /// `CPhysics::UpdateAllAnimation` for the objects.

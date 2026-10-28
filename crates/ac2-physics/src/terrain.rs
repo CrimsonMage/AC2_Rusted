@@ -226,6 +226,18 @@ impl Terrain {
         }
     }
 
+    /// Whether object `id` ignores collisions (`CPhysicsObj::ignore_collisions`).
+    pub(crate) fn object_ignores_collisions(&self, id: u32) -> bool {
+        matches!(self.objects.get(id as usize), Some(Some((object, _))) if object.ignores_collisions())
+    }
+
+    /// Sets object `id`'s `ignore_collisions` (`StaticObject::set_ignore_collisions`).
+    pub fn set_object_ignores_collisions(&mut self, id: u32, ignore: bool) {
+        if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
+            object.set_ignore_collisions(ignore);
+        }
+    }
+
     pub fn set_object_ethereal(&mut self, id: u32, ethereal: bool) {
         if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
             object.set_ethereal(ethereal);

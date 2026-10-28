@@ -137,13 +137,13 @@ fn objects_of(report: &CollisionReport) -> Vec<(u64, bool)> {
 fn a_touched_object_begins_then_ends_once_it_is_not_touched_for_a_second() {
     let mut m = CollisionManager::default();
     m.begin_check(10.0);
-    m.touch(OBJECT_ID, false);
+    m.touch(OBJECT_ID, false, false);
     let began = m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
     assert_eq!(objects_of(&began), vec![(OBJECT_ID, true)]);
 
     // Still touched in the check at 10.5: nothing is listed.
     m.begin_check(10.5);
-    m.touch(OBJECT_ID, false);
+    m.touch(OBJECT_ID, false, false);
     let held = m.report(10.5, no_contact(), &ContactMaterials::default(), plain());
     assert!(held.objects.is_empty(), "{held:?}");
 
@@ -162,7 +162,7 @@ fn a_touched_object_begins_then_ends_once_it_is_not_touched_for_a_second() {
 fn an_object_within_a_second_of_its_touch_is_not_ended_yet() {
     let mut m = CollisionManager::default();
     m.begin_check(0.0);
-    m.touch(OBJECT_ID, true);
+    m.touch(OBJECT_ID, true, false);
     m.report(0.0, no_contact(), &ContactMaterials::default(), plain());
     m.begin_check(0.5);
     let quiet = m.report(0.5, no_contact(), &ContactMaterials::default(), plain());
@@ -173,7 +173,7 @@ fn an_object_within_a_second_of_its_touch_is_not_ended_yet() {
 fn end_all_ends_every_reported_object_and_drops_the_table() {
     let mut m = CollisionManager::default();
     m.begin_check(3.0);
-    m.touch(OBJECT_ID, true);
+    m.touch(OBJECT_ID, true, false);
     m.report(3.0, no_contact(), &ContactMaterials::default(), plain());
     let ended = m.report(
         3.0,
@@ -199,7 +199,7 @@ fn end_all_ends_every_reported_object_and_drops_the_table() {
 fn an_inactive_body_begins_nothing_and_discards_its_impact() {
     let mut m = CollisionManager::default();
     m.begin_check(1.0);
-    m.touch(OBJECT_ID, false);
+    m.touch(OBJECT_ID, false, false);
     m.set_impact(ImpactReport {
         normal: Vector::new(0.0, 0.0, 1.0),
         speed: 4.0,
@@ -508,4 +508,18 @@ fn a_mover_hitting_a_server_object_lists_it_begin_then_end_and_its_landscape_und
     assert!(reports
         .iter()
         .any(|r| r.contact.is_some_and(|c| c.state == RecordState::Begin)));
+}
+
+#[test]
+fn a_changed_ignore_flag_marks_a_reported_entry() {
+    let mut m = CollisionManager::default();
+    m.begin_check(10.0);
+    m.touch(OBJECT_ID, false, false);
+    // Not reported yet: the flag changes without marking.
+    m.touch(OBJECT_ID, false, true);
+    assert_eq!(m.entry_ignore(OBJECT_ID), Some((true, false)));
+    m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
+    m.begin_check(10.5);
+    m.touch(OBJECT_ID, false, false);
+    assert_eq!(m.entry_ignore(OBJECT_ID), Some((false, true)));
 }

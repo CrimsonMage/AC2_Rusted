@@ -315,6 +315,11 @@ impl CollisionParameters {
         mask.set_property(name, set, exists)
     }
 
+    /// Whether the movement physics mask is named (`TestBitMask(1)`).
+    pub fn has_movement_physics(&self) -> bool {
+        self.bitfield & MOVEMENT_PHYSICS_BIT != 0
+    }
+
     /// `CCollisionManager::SetCollisionState`: merges a script's `info` into this body's sets,
     /// only for the sets `info`'s bits name. A movement or placement physics mask, and the body's
     /// physics type (`CPhysicsObj::SetPhysicsCollideMask`), are replaced; a weenie set merges

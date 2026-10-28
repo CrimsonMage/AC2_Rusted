@@ -48,6 +48,7 @@ mod loader_anim;
 mod look_at;
 mod los;
 mod missile;
+mod missile_detonation;
 mod missile_flight;
 mod missile_gravity;
 mod missile_guidance;
@@ -68,8 +69,10 @@ mod objects_tests;
 mod part_pose;
 mod physics_material;
 mod physics_obj;
+mod physics_obj_conflict;
 mod physics_obj_contact;
 mod physics_obj_look;
+mod physics_obj_missile;
 mod physics_obj_place;
 #[cfg(test)]
 mod physics_obj_tests;
@@ -125,6 +128,7 @@ pub use missile::{
     targeting_bits, MissileHost, MissileManager, MissileParameters, MissileTargetingParameters,
     TargetPosition, MISSILE_FLIGHT_FX,
 };
+pub use missile_detonation::{Impact, ImpactLookup, ImpactTarget, MissileCollisionHost};
 pub use missile_flight::{MissileFlightHost, ObjectTarget};
 pub use missile_gravity::greater_pitch;
 pub use motion::{apply_motion, apply_motion_from, apply_motion_owned, MotionEvent};
@@ -137,6 +141,8 @@ pub use objects::{BBox, ObjectShape, StaticObject};
 pub use part_pose::{drawn_place, part_poses, PartPose};
 pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
+pub use physics_obj_conflict::{ConflictEffect, ConflictPeer};
+pub use physics_obj_missile::{MissileEnv, MissileEvent, ObjectLookup, ObjectView};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use pushers::{PusherSum, PusherValues, Pushers};

@@ -82,21 +82,26 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::CullVelocity`: speeds above the terminal velocity are scaled back to it.
     pub(crate) fn cull_velocity(&mut self) {
-        let terminal = self
+        self.velocity = self.culled_velocity(self.velocity);
+    }
+
+    /// `CPhysicsObj::CullVelocity` on `v`.
+    pub(crate) fn culled_velocity(&self, v: Vector) -> Vector {
+        let terrain_terminal = self
             .motion
             .motion_values(self.desired_element())
             .terminal_velocity;
-        let v = self.velocity;
         let speed2 = st((ld(v.x) * ld(v.x) + ld(v.y) * ld(v.y)) + ld(v.z) * ld(v.z));
-        let limit = ld(terminal) * ld(terminal);
+        let limit = ld(terrain_terminal) * ld(terrain_terminal);
         if ld(speed2) > limit {
             let unit = v.d3dx_normalize();
-            self.velocity = Vector::new(
-                st(ld(terminal) * ld(unit.x)),
-                st(ld(terminal) * ld(unit.y)),
-                st(ld(terminal) * ld(unit.z)),
+            return Vector::new(
+                st(ld(terrain_terminal) * ld(unit.x)),
+                st(ld(terrain_terminal) * ld(unit.y)),
+                st(ld(terrain_terminal) * ld(unit.z)),
             );
         }
+        v
     }
 
     /// `CPhysicsObj::CalcFriction`: drag `(1 - drag)^quantum` on the velocity across the
