@@ -13,6 +13,7 @@
 //! playback and the mouse look are the caller's, from the [`StoryEvent`]s.
 
 use crate::story::{StoryFrame, StoryPlayback, StoryShow, StoryStep};
+use ac2_weenie::{Keyframe, SceneInfo};
 
 /// One `gmSceneInfo` of a play sequence's or a portal scene's list.
 #[derive(Debug, Clone, PartialEq)]
@@ -252,5 +253,29 @@ impl GameplayStory {
         }
         self.scene_ids.clear();
         events
+    }
+}
+
+/// The story's view of a list of `gmSceneInfo`s (the playable scenes' keyframes, in order).
+pub fn story_scenes(scenes: &[SceneInfo]) -> Vec<StoryScene> {
+    scenes
+        .iter()
+        .map(|scene| StoryScene {
+            id: scene.id,
+            playable: scene.playable,
+            frames: scene.keyframes.iter().map(story_frame).collect(),
+        })
+        .collect()
+}
+
+/// One keyframe's tracks, subtitle and duration as the sequencer reads them. The subtitle is its
+/// `StringInfo`, rendered on the HUD (a string-table entry or a literal).
+pub fn story_frame(keyframe: &Keyframe) -> StoryFrame {
+    StoryFrame {
+        image: keyframe.has_video().then_some(keyframe.video),
+        music: keyframe.has_audio().then_some(keyframe.audio),
+        voice: keyframe.has_voice().then_some(keyframe.voice),
+        subtitle: keyframe.has_subtitle().then(|| keyframe.subtitle.clone()),
+        duration: keyframe.has_duration().then_some(keyframe.duration),
     }
 }

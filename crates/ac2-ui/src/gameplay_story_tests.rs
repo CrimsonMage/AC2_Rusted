@@ -2,8 +2,10 @@
 //! a portal scene a non-skippable one, the slot holds one story, and the teardown reports the
 //! scenes played and restores mouse look.
 
-use crate::gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
+use crate::gameplay_story::{story_frame, GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
 use crate::story::{StoryFrame, StoryShow, SKIP_STORY_MESSAGE};
+use ac2_net::protocol::StringInfo;
+use ac2_weenie::{Keyframe, TRACK_SUBTITLE};
 
 /// A scene of `frames` one-second keyframes, each with its own image (`id * 10 + index`).
 fn scene(id: u32, playable: bool, frames: u32) -> StoryScene {
@@ -233,4 +235,27 @@ fn a_teleport_inside_a_portal_scene_leaves_the_portal_space_alone() {
         "{events:?}"
     );
     assert!(!game.is_active());
+}
+
+/// A string-table subtitle (no literal) reaches the sequencer as its `StringInfo`, so the HUD
+/// renders it; a keyframe without the subtitle track has none.
+#[test]
+fn a_table_subtitle_is_carried_as_its_string_info() {
+    let table = StringInfo {
+        string_id: 0x1234,
+        table_id: 0x2500_0014,
+        literal: None,
+        variables: Vec::new(),
+    };
+    let with = Keyframe {
+        subtitle: table.clone(),
+        defined_tracks: TRACK_SUBTITLE,
+        ..Keyframe::default()
+    };
+    assert_eq!(story_frame(&with).subtitle, Some(table.clone()));
+    let without = Keyframe {
+        subtitle: table,
+        ..Keyframe::default()
+    };
+    assert_eq!(story_frame(&without).subtitle, None);
 }

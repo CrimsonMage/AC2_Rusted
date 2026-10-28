@@ -5,8 +5,8 @@
 
 use ac2_net::protocol::{ObjectAction, PhysicsStory};
 use ac2_script::host::IFunArg;
-use ac2_ui::{StoryEvent, StoryFrame, StoryScene};
-use ac2_weenie::{GameplayNotice, Keyframe, SceneInfo, SessionEvent};
+use ac2_ui::{story_scenes, StoryEvent};
+use ac2_weenie::{GameplayNotice, SceneInfo, SessionEvent};
 
 use crate::client::Client;
 use crate::scripts_queries::ifun;
@@ -208,30 +208,6 @@ impl Client {
     }
 }
 
-/// The story's view of a list of `gmSceneInfo`s (the playable scenes' keyframes, in order).
-fn story_scenes(scenes: &[SceneInfo]) -> Vec<StoryScene> {
-    scenes
-        .iter()
-        .map(|scene| StoryScene {
-            id: scene.id,
-            playable: scene.playable,
-            frames: scene.keyframes.iter().map(story_frame).collect(),
-        })
-        .collect()
-}
-
-/// One keyframe's tracks, subtitle and duration as the sequencer reads them. The subtitle is its
-/// `StringInfo`, rendered on the HUD (a string-table entry or a literal).
-fn story_frame(keyframe: &Keyframe) -> StoryFrame {
-    StoryFrame {
-        image: keyframe.has_video().then_some(keyframe.video),
-        music: keyframe.has_audio().then_some(keyframe.audio),
-        voice: keyframe.has_voice().then_some(keyframe.voice),
-        subtitle: keyframe.has_subtitle().then(|| keyframe.subtitle.clone()),
-        duration: keyframe.has_duration().then_some(keyframe.duration),
-    }
-}
-
 #[cfg(feature = "test-support")]
 impl Client {
     /// Feeds session events to the story slot as a frame does (the notices, then the frame's
@@ -240,36 +216,5 @@ impl Client {
         let mut out = self.apply_story_notices(events);
         out.extend(self.story_frame());
         out
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use ac2_net::protocol::StringInfo;
-    use ac2_weenie::TRACK_SUBTITLE;
-
-    use super::*;
-
-    /// A string-table subtitle (no literal) reaches the sequencer as its `StringInfo`, so the HUD
-    /// renders it; a keyframe without the subtitle track has none.
-    #[test]
-    fn a_table_subtitle_is_carried_as_its_string_info() {
-        let table = StringInfo {
-            string_id: 0x1234,
-            table_id: 0x2500_0014,
-            literal: None,
-            variables: Vec::new(),
-        };
-        let with = Keyframe {
-            subtitle: table.clone(),
-            defined_tracks: TRACK_SUBTITLE,
-            ..Keyframe::default()
-        };
-        assert_eq!(story_frame(&with).subtitle, Some(table.clone()));
-        let without = Keyframe {
-            subtitle: table,
-            ..Keyframe::default()
-        };
-        assert_eq!(story_frame(&without).subtitle, None);
     }
 }

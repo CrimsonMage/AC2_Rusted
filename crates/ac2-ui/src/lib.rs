@@ -176,7 +176,9 @@ pub use gameplay_keys::{
     child_for_key, GameplayChild, GAMEPLAY_SHOW_KEY, RADAR_CHILD_KEY, STATUSBAR_CHILD_KEY,
     TOOLBAR_CHILD_KEY, USE_KEY,
 };
-pub use gameplay_story::{GameplayStory, PortalSpaceCall, StoryEvent, StoryScene};
+pub use gameplay_story::{
+    story_frame, story_scenes, GameplayStory, PortalSpaceCall, StoryEvent, StoryScene,
+};
 mod story;
 #[cfg(test)]
 mod story_layout_tests;
