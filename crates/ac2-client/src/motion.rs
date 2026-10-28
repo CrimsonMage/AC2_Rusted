@@ -145,6 +145,11 @@ pub(crate) fn event(action: &ObjectAction) -> Option<MotionEvent> {
         ObjectAction::LookAt(target) => MotionEvent::LookAt(*target),
         ObjectAction::LookAtDir { x, y } => MotionEvent::LookAtDir { x: *x, y: *y },
         ObjectAction::SetGlobalModifier(id) => MotionEvent::SetGlobalModifier(*id),
+        ObjectAction::AddTerrainModifier { terrain, modifier } => MotionEvent::AddTerrainModifier {
+            terrain: *terrain,
+            modifier: *modifier,
+        },
+        ObjectAction::ClearTerrainModifiers => MotionEvent::ClearTerrainModifiers,
         ObjectAction::DoFxScript(id) => MotionEvent::DoFxScript(*id),
         ObjectAction::DoFx { fx, scalar } | ObjectAction::DoTargettedFx { fx, scalar, .. } => {
             MotionEvent::DoFx {

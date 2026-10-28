@@ -657,6 +657,18 @@ impl PhysicsBody {
         self.object.motion.set_global_modifier(id);
     }
 
+    /// `ECM_Physics::RecvEvt_AddTerrainModifier` -> `CPhysicsObj::AddTerrainModifier` ->
+    /// `CMotionInterp::AddTerrainModifier`.
+    pub fn add_terrain_modifier(&mut self, terrain: u32, modifier: u32) {
+        self.object.motion.add_terrain_modifier(terrain, modifier);
+    }
+
+    /// `ECM_Physics::RecvEvt_ClearTerrainModifiers` -> `CPhysicsObj::ClearTerrainModifiers` ->
+    /// `CMotionInterp::ClearTerrainModifiers`.
+    pub fn clear_terrain_modifiers(&mut self) {
+        self.object.motion.clear_terrain_modifiers();
+    }
+
     /// `CPhysicsObj::ResetHoverHeight`: the motion table's hover height again.
     pub fn reset_hover_height(&mut self) {
         self.object.motion.reset_hover_height();

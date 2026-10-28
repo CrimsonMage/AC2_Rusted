@@ -322,6 +322,36 @@ mod tests {
         }
     }
 
+    /// `ECM_Physics::RecvEvt_ClearTerrainModifiers` (0x100A6): the sender alone, no arguments.
+    /// `ECM_Physics::RecvEvt_AddTerrainModifier` (0x100A5) reads the terrain and the modifier
+    /// as two words after the sender.
+    #[test]
+    fn the_terrain_modifier_events_decode_their_words() {
+        let mut b = sender();
+        b.extend(0x1234u32.to_le_bytes());
+        b.extend(9u32.to_le_bytes());
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::ADD_TERRAIN_MODIFIER, &mut r)
+            .unwrap()
+            .unwrap();
+        r.finish().unwrap();
+        assert_eq!((event.sender.id, event.sender.instance), (0x55, 2));
+        assert_eq!(
+            event.action,
+            ObjectAction::AddTerrainModifier {
+                terrain: 0x1234,
+                modifier: 9,
+            }
+        );
+        let b = sender();
+        let mut r = Reader::new(&b);
+        let event = ObjectEvent::read(Opcode::CLEAR_TERRAIN_MODIFIERS, &mut r)
+            .unwrap()
+            .unwrap();
+        r.finish().unwrap();
+        assert_eq!(event.action, ObjectAction::ClearTerrainModifiers);
+    }
+
     /// `ECM_Physics::RecvEvt_AddImpulse` (0x10098): the sender, then the direction (three
     /// floats, x then y then z, each a 4-byte word) and the contact word; the whole block is
     /// word-aligned, so no padding falls between the arguments.

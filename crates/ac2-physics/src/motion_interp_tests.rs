@@ -1,5 +1,7 @@
 use super::*;
-use crate::test_support::{desc, desc_with_global, walking_values, RecordingRep};
+use crate::test_support::{
+    desc, desc_with_global, desc_with_terrain, walking_values, RecordingRep,
+};
 
 /// `CPhysicsObj::RecvEvt_SetMIDESC`: a loaded description replaces the table the lookups read
 /// (the forward speed comes from the new one); a missing one keeps the table.
@@ -268,5 +270,38 @@ fn a_global_modifier_selects_its_motion_values() {
     assert_eq!(
         interp.motion_values(ELEMENT_GROUND).forward_acceleration,
         10.0
+    );
+}
+
+/// `CMotionInterp::AddTerrainModifier` / `ClearTerrainModifiers`: a registered modifier for the
+/// current terrain selects its motion values, and clearing the table drops it again.
+#[test]
+fn a_terrain_modifier_selects_its_motion_values_until_cleared() {
+    const TERRAIN: u32 = 0x1234;
+    const MODIFIER: u32 = 9;
+    let default = walking_values();
+    let modified = Ac2MotionValues {
+        forward_acceleration: 2.0,
+        ..walking_values()
+    };
+    let mut interp = MotionInterp::new(Some(desc_with_terrain(
+        &default, TERRAIN, MODIFIER, &modified,
+    )));
+    interp.set_terrain_type(TERRAIN);
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        10.0,
+        "no modifier registered: the terrain's default values"
+    );
+    interp.add_terrain_modifier(TERRAIN, MODIFIER);
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        2.0
+    );
+    interp.clear_terrain_modifiers();
+    assert_eq!(
+        interp.motion_values(ELEMENT_GROUND).forward_acceleration,
+        10.0,
+        "ClearTerrainModifiers empties mTerrainMods"
     );
 }

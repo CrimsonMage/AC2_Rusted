@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 534 done, 121 partial, 694 to do, 775 skipped.
+2124 retail functions: 541 done, 121 partial, 687 to do, 775 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1565,7 +1565,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager::InterpolationPath
 - [-] `InterpolationManager::InterpolationPath::StreamPack` · 00510cf0 · legions 004fed00 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (41/62)
+## `portal/shared/src/physobj/minterp/motioninterp.cpp.c` (42/62)
 
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680 — needs port: cite-only physics-object method
@@ -1624,8 +1624,8 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::GetMotionValuesForElement` · 0050b540
 - [x] `CMotionInterp::GetMotionValues` · 0050b5d0
 - [x] `CMotionInterp::GetDesiredMotionValues` · 0050b660 · legions 004f96a0
-- [ ] `CMotionInterp::ClearTerrainModifiers` · 0050b710 — needs port: cite-only physics-object method
-- [x] `CMotionInterp::AddTerrainModifier` · 0050b720 — CMotionInterp::AddTerrainModifier - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
+- [x] `CMotionInterp::ClearTerrainModifiers` · 0050b710 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
+- [x] `CMotionInterp::AddTerrainModifier` · 0050b720 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [-] `CMotionInterp::~CMotionInterp` · 0050b740 · legions 004f9780 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [x] `CMotionInterp::GetTerrainType` · 0050b7b0 — CMotionInterp::GetTerrainType - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::GetConstraintManager` · 0050b7c0 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (150/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (154/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2190,8 +2190,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetDataID` · 004de210 — admin/debug helper
 - [ ] `CPhysicsObj::GetPartGroup` · 004de220 · legions 004d0c80 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::RecvEvt_SetGlobalModifier` · 004de230 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
-- [ ] `CPhysicsObj::RecvEvt_AddTerrainModifier` · 004de250 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::RecvEvt_AddTerrainModifier` · 004de250 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
+- [x] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [x] `CPhysicsObj::RecvEvt_AddTargetedImpulse` · 004de280 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 - [x] `CPhysicsObj::RecvEvt_DoFXScript` · 004de2b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `CPhysicsObj::RecvEvt_LookAt` · 004de2e0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
@@ -2227,8 +2227,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::IsVisible` · 004de660 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetSelectionSphere` · 004de680 · legions 004d10e0 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::SetGlobalModifier` · 004de6d0 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
-- [ ] `CPhysicsObj::AddTerrainModifier` · 004de6e0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::ClearTerrainModifiers` · 004de6f0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::AddTerrainModifier` · 004de6e0 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
+- [x] `CPhysicsObj::ClearTerrainModifiers` · 004de6f0 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [ ] `CPhysicsObj::AddImpulseLocal` · 004de700 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::DoFXScript` · 004de780 · legions 004d11e0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `CPhysicsObj::DoElement` · 004de7b0 · legions 004d1210 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (49/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (51/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2783,8 +2783,8 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::IsMovingTo` · 004f15f0 · legions 004e3f20 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::IsTurningTo` · 004f1610 · legions 004e3f40 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
-- [ ] `PHYSICSOBJREP::AddTerrainModifier` · 004f1650 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::ClearTerrainModifiers` · 004f1670 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::AddTerrainModifier` · 004f1650 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
+- [x] `PHYSICSOBJREP::ClearTerrainModifiers` · 004f1670 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [x] `PHYSICSOBJREP::SetMIDESC` · 004f1690 · legions 004e3fc0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 - [x] `PHYSICSOBJREP::SetHoverHeight` · 004f16b0 · legions 004e3fe0 — PHYSICSOBJREP::SetHoverHeight - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [ ] `PHYSICSOBJREP::ResetHoverHeight` · 004f16d0 — needs port: cite-only physics-object method

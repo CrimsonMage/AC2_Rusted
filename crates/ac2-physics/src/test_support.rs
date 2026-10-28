@@ -114,6 +114,29 @@ pub(crate) fn desc_with_global(
     Arc::new(Ac2MotionInterpDesc::decode_packed(qdid, 0, &bytes).expect("synthetic desc"))
 }
 
+/// A desc with one default-mode list whose `terrain` lists `modifier` with `modified` values,
+/// over `default` (no global modifiers).
+pub(crate) fn desc_with_terrain(
+    default: &Ac2MotionValues,
+    terrain: u32,
+    modifier: u32,
+    modified: &Ac2MotionValues,
+) -> Arc<Ac2MotionInterpDesc> {
+    const DID: u32 = 0x3200_0F02;
+    let element = crate::motion_interp::ELEMENT_GROUND;
+    // One list with one terrain, which has one modifier, then the terrain's default values; no
+    // global modifiers.
+    let mut words = vec![DID, 1, element, MODE_DEFAULT, 0, 1, 1, terrain, 1, modifier];
+    words.extend(pack(modified));
+    words.extend(pack(default));
+    words.push(0);
+    words.extend(pack(default));
+    words.extend([0.1_f32.to_bits(), 0.75_f32.to_bits()]);
+    let bytes: Vec<u8> = words.iter().flat_map(|word| word.to_le_bytes()).collect();
+    let qdid = QualifiedDataId::new(DataId::new(DID), 0);
+    Arc::new(Ac2MotionInterpDesc::decode_packed(qdid, 0, &bytes).expect("synthetic desc"))
+}
+
 /// A `PHYSICSOBJREP` stand-in recording the behaviour, mode and FX calls of `CMotionInterp`.
 #[derive(Debug, Default)]
 pub(crate) struct RecordingRep {

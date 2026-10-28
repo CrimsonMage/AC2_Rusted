@@ -59,6 +59,13 @@ pub enum MotionEvent {
         y: f32,
     },
     SetGlobalModifier(u32),
+    /// `RecvEvt_AddTerrainModifier`: the terrain and the modifier it takes.
+    AddTerrainModifier {
+        terrain: u32,
+        modifier: u32,
+    },
+    /// `RecvEvt_ClearTerrainModifiers`: every registered terrain modifier goes.
+    ClearTerrainModifiers,
     DoFxScript(u32),
     /// `RecvEvt_DoFX` and the untargeted sound branch of `RecvEvt_DoTargettedFX`
     /// (`FXManager::DoTargettedFX`).
@@ -110,6 +117,10 @@ pub fn apply_motion(body: &mut PhysicsBody, event: &MotionEvent) -> bool {
         MotionEvent::SetHoverHeight(height) => body.set_hover_height(*height),
         MotionEvent::LookAtDir { x, y } => body.look_at_dir(*x, *y),
         MotionEvent::SetGlobalModifier(id) => body.set_global_modifier(*id),
+        MotionEvent::AddTerrainModifier { terrain, modifier } => {
+            body.add_terrain_modifier(*terrain, *modifier);
+        }
+        MotionEvent::ClearTerrainModifiers => body.clear_terrain_modifiers(),
         MotionEvent::DoFxScript(id) => body.do_fx_script(*id),
         MotionEvent::DoFx { fx, scalar } => {
             body.do_fx(*fx, *scalar);

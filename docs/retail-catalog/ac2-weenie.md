@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 765 done, 171 partial, 457 to do, 511 skipped.
+1904 retail functions: 766 done, 171 partial, 456 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,15 +1390,15 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [-] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0 — STL/container internals: a Rust collection replaces it
 
-## `portal/client/src/events/ecm_physics.cpp.c` (42/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (43/59)
 
 ### TargetPosition
 - [-] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400 — constructor of plain data: Rust struct init replaces it
 
 ### ECM_Physics
 - [x] `ECM_Physics::RecvEvt_AddTargetedImpulse` · 00494cb0 · legions 0048d480 — ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
-- [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:126
-- [ ] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700 — needs port: server event ClearTerrainModifiers (decode and handler); no citation in crates/
+- [x] `ECM_Physics::RecvEvt_AddTerrainModifier` · 00494e30 · legions 0048d600 — ECM_Physics terrain modifier events: decoded in ac2-net (ObjectAction), applied by ac2-client motion.rs to ac2-physics MotionInterp (add_terrain_modifier / clear_terrain_modifiers); tests in ac2-physics motion_interp_tests and ac2-client motion_tests
+- [x] `ECM_Physics::RecvEvt_ClearTerrainModifiers` · 00494f30 · legions 0048d700 — ECM_Physics terrain modifier events: decoded in ac2-net (ObjectAction), applied by ac2-client motion.rs to ac2-physics MotionInterp (add_terrain_modifier / clear_terrain_modifiers); tests in ac2-physics motion_interp_tests and ac2-client motion_tests
 - [x] `ECM_Physics::RecvEvt_Contain` · 00494fb0 · legions 0048d780 — ac2-weenie ObjectTable::apply_contain (position stamp newer); double world_objects.rs answer_pickup sends CONTAIN; test ac2-client/tests/world_objects_7160.rs a_ground_item_used_is_taken_into_the_main_pack
 - [x] `ECM_Physics::RecvEvt_CreatePlayer` · 00495060 · legions 0048d830 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:95
 - [x] `ECM_Physics::RecvEvt_DeParent` · 00495100 · legions 0048d8d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world

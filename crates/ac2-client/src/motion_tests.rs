@@ -122,6 +122,20 @@ fn the_server_actions_convert_to_their_motion_events() {
         })
     );
     assert_eq!(event(&ObjectAction::LeaveWorld(0)), None);
+    assert_eq!(
+        event(&ObjectAction::AddTerrainModifier {
+            terrain: 0x1234,
+            modifier: 9,
+        }),
+        Some(MotionEvent::AddTerrainModifier {
+            terrain: 0x1234,
+            modifier: 9,
+        })
+    );
+    assert_eq!(
+        event(&ObjectAction::ClearTerrainModifiers),
+        Some(MotionEvent::ClearTerrainModifiers)
+    );
 }
 
 #[test]

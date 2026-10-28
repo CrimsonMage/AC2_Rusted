@@ -196,6 +196,19 @@ impl MotionInterp {
         self.global_mod = id;
     }
 
+    /// `CMotionInterp::AddTerrainModifier` (`mTerrainMods`, keyed by terrain), from
+    /// `ECM_Physics::RecvEvt_AddTerrainModifier` through `CPhysicsObj::AddTerrainModifier`.
+    /// A later modifier for the same terrain replaces the earlier one (`HashTable::set`).
+    pub fn add_terrain_modifier(&mut self, terrain: u32, modifier: u32) {
+        self.terrain_mods.insert(terrain, modifier);
+    }
+
+    /// `CMotionInterp::ClearTerrainModifiers` (`mTerrainMods` emptied), from
+    /// `ECM_Physics::RecvEvt_ClearTerrainModifiers` through `CPhysicsObj::ClearTerrainModifiers`.
+    pub fn clear_terrain_modifiers(&mut self) {
+        self.terrain_mods.clear();
+    }
+
     /// `CMotionInterp::ResetHoverHeight` (`mHoverHeight = -1`).
     pub fn reset_hover_height(&mut self) {
         self.hover_height = -1.0;
