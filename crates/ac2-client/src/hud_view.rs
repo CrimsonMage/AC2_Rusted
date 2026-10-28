@@ -58,23 +58,6 @@ pub(crate) struct HudView {
     /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
     /// so these wait for the HUD rather than being dropped.
     pub(crate) display_backlog: Vec<ac2_ui::DisplayNotice>,
-    /// `gmRadarUI`'s blips, painted over the radar field each compose.
-    pub(crate) radar: Option<ac2_ui::RadarUi>,
-    /// The player's cell and its map coordinates as the radar shows them (rendered by the
-    /// frameworks, which have the string tables).
-    pub(crate) radar_cell: Option<u32>,
-    pub(crate) radar_coordinates: Option<String>,
-    /// The blips last uploaded over the radar field's layer. The field is composed and uploaded
-    /// again only when these change (or the whole HUD is composed).
-    pub(crate) radar_uploaded: Option<Vec<(i32, i32, [u8; 4])>>,
-    /// The navigation panel's game date and time, rendered for the calendar they were rendered
-    /// for (`GameTime::InqCurrentGameDateTimeString`).
-    pub(crate) navigation_time: Option<(ac2_world::GameDateTime, String, String)>,
-    /// `gmNavigationUI::AddMarker`'s tooltips, one per frame marker (rendered on the frame).
-    pub(crate) navigation_tooltips: Vec<String>,
-    /// `gmNavigationUI`'s macro map (its map image is set on the worker) and `gmOverviewMapUI`.
-    pub(crate) navigation: Option<ac2_ui::NavigationUi>,
-    pub(crate) overview: Option<ac2_ui::OverviewMapUi>,
     /// `gmBookUI`, shown by the book's use notice.
     pub(crate) book: Option<ac2_ui::BookUi>,
     /// The help window (`KeyStone::OpenHelp`), hidden until a help page opens.
@@ -188,7 +171,7 @@ impl HudView {
         match child {
             GameplayChild::Toolbar => self.toolbar.as_ref().is_some_and(|t| t.bar_shown(tree)),
             GameplayChild::Statusbar => ac2_ui::statusbar_shown(tree),
-            GameplayChild::Radar => self.radar.as_ref().is_some_and(|r| r.shown(tree)),
+            GameplayChild::Radar => self.panels.radar.as_ref().is_some_and(|r| r.shown(tree)),
         }
     }
 
@@ -203,7 +186,7 @@ impl HudView {
                 }
             }
             GameplayChild::Radar => {
-                if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &self.radar) {
+                if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &self.panels.radar) {
                     radar.show(tree, shown);
                 }
             }
@@ -485,8 +468,8 @@ impl HudView {
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.
     pub(crate) fn update_radar(&mut self, mut view: ac2_ui::RadarView) {
-        view.coordinates = self.radar_coordinates.clone();
-        if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &mut self.radar) {
+        view.coordinates = self.panels.radar_coordinates.clone();
+        if let (Some((tree, _)), Some(radar)) = (&mut self.hud, &mut self.panels.radar) {
             radar.update(tree, &view);
         }
     }

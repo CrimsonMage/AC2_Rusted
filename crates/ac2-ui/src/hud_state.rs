@@ -4,6 +4,7 @@
 //! and reads no client type, so the overlays' logic runs on plain frame data.
 
 use ac2_net::protocol::SelectionInfo;
+use ac2_world::GameDateTime;
 
 use crate::assistance::AssistancePanel;
 use crate::damage_text::DamageTexts;
@@ -15,8 +16,9 @@ use crate::vitals::VitalsUi;
 use crate::{
     AllegianceUi, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentUi, CraftUi,
     EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi, FriendsPanel, IngredientUi,
-    Items3dUi, MiniFellowUi, MoneyBagUi, NetStatusUi, NewSaleUi, OptionsPages, PaperDollUi, PetUi,
-    PkStatusUi, QuestsUi, SecureTradeUi, ShopUi, SocialPanel, StackUi, VitaeStatusUi,
+    Items3dUi, MiniFellowUi, MoneyBagUi, NavigationUi, NetStatusUi, NewSaleUi, OptionsPages,
+    OverviewMapUi, PaperDollUi, PetUi, PkStatusUi, QuestsUi, RadarUi, SecureTradeUi, ShopUi,
+    SocialPanel, StackUi, VitaeStatusUi,
 };
 
 /// The HUD's panel state (`gmGamePlayUI`'s children that the client drives each frame).
@@ -86,6 +88,25 @@ pub struct Hud {
     pub new_sale: Option<NewSaleUi>,
     /// `gmShopConsignmentUI`, the storekeeper's consignment.
     pub consignment: Option<ConsignmentUi>,
+    /// `gmRadarUI`'s blips, painted over the radar field each compose.
+    pub radar: Option<RadarUi>,
+    /// The player's cell as the radar shows it (rendered by the frameworks, which have the string
+    /// tables).
+    pub radar_cell: Option<u32>,
+    /// The player's map coordinates as the radar shows them.
+    pub radar_coordinates: Option<String>,
+    /// The blips last uploaded over the radar field's layer. The field is composed and uploaded
+    /// again only when these change (or the whole HUD is composed).
+    pub radar_uploaded: Option<Vec<(i32, i32, [u8; 4])>>,
+    /// The navigation panel's game date and time, rendered for the calendar they were rendered
+    /// for (`GameTime::InqCurrentGameDateTimeString`).
+    pub navigation_time: Option<(GameDateTime, String, String)>,
+    /// `gmNavigationUI::AddMarker`'s tooltips, one per frame marker (rendered on the frame).
+    pub navigation_tooltips: Vec<String>,
+    /// `gmNavigationUI`'s macro map (its map image is set on the worker) and detail view.
+    pub navigation: Option<NavigationUi>,
+    /// `gmOverviewMapUI`.
+    pub overview: Option<OverviewMapUi>,
 }
 
 impl Hud {

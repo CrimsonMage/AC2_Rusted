@@ -151,7 +151,6 @@ impl HudView {
             dirty,
             player_loaded,
             player_race,
-            radar,
             panels: state,
             ..
         } = self;
@@ -159,6 +158,7 @@ impl HudView {
             character,
             chat_options,
             net,
+            radar,
             ..
         } = &mut *state;
         let Some((tree, _)) = hud else {
@@ -268,14 +268,7 @@ impl HudView {
     /// (`gm3DTextUI`, `gmRadarUI::Update`, `gmNavigationUI::UpdateMacroMap`).
     fn map_pass(&mut self, player: &ClientPlayer<'_>, frame: &ClientFrame, reloads: Reloads) {
         let HudView {
-            hud,
-            panels,
-            navigation_time,
-            navigation_tooltips,
-            radar,
-            radar_cell,
-            radar_coordinates,
-            ..
+            hud, panels: state, ..
         } = self;
         let Some((tree, _)) = hud else {
             return;
@@ -285,34 +278,34 @@ impl HudView {
             show_radar_coords,
             ..
         } = reloads;
-        if let Some(plates) = panels.names_mut() {
+        if let Some(plates) = state.names_mut() {
             let looks = name_looks(frame);
             match show_names {
                 Some(show) => plates.set_showing(tree, show, &looks),
                 None => plates.sync(tree, &looks),
             }
         }
-        if let (Some(show), Some(radar)) = (show_radar_coords, radar.as_mut()) {
+        if let (Some(show), Some(radar)) = (show_radar_coords, state.radar.as_mut()) {
             radar.reload_options(tree, player, show);
         }
         // `gmRadarUI::Update`'s `Position::ToRealMapCoords_Info`, again when the cell changes.
         let cell = frame.player.as_ref().map(|p| p.cell);
-        if cell.is_some() && cell != *radar_cell {
-            *radar_cell = cell;
+        if cell.is_some() && cell != state.radar_cell {
+            state.radar_cell = cell;
             let string = ac2_ui::map_coords_string(cell.unwrap_or(0));
-            *radar_coordinates = Some(ac2_ui::UiStrings::render_string(player, &string));
+            state.radar_coordinates = Some(ac2_ui::UiStrings::render_string(player, &string));
         }
         // `gmNavigationUI::AddMarker`'s tooltips, rendered with the frame's markers.
-        *navigation_tooltips = frame
+        state.navigation_tooltips = frame
             .markers
             .iter()
             .map(|m| player.marker_tooltip(&m.message, m.cell))
             .collect();
         // `gmNavigationUI::UpdateMacroMap`'s date and time: rendered again when the calendar moves.
         if let Some(date_time) = frame.date_time {
-            if navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {
+            if state.navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {
                 let (date, time) = ac2_ui::game_date_time(date_time);
-                *navigation_time = Some((
+                state.navigation_time = Some((
                     date_time,
                     ac2_ui::UiStrings::render_string(player, &date),
                     ac2_ui::UiStrings::render_string(player, &time),

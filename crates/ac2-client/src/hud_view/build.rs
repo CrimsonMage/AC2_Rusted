@@ -97,14 +97,6 @@ impl HudView {
             game_dialogs: ac2_ui::GameplayDialogs::default(),
             popup_backlog: Vec::new(),
             display_backlog: Vec::new(),
-            radar: None,
-            radar_cell: None,
-            radar_coordinates: None,
-            radar_uploaded: None,
-            navigation_time: None,
-            navigation_tooltips: Vec::new(),
-            navigation: None,
-            overview: None,
             book: None,
             help: None,
             help_pages: None,
@@ -236,9 +228,9 @@ impl HudView {
                 self.panels.catalog = catalog;
                 self.panels.new_sale = new_sale;
                 self.panels.consignment = consignment;
-                self.radar = Some(radar);
-                self.navigation = navigation;
-                self.overview = overview;
+                self.panels.radar = Some(radar);
+                self.panels.navigation = navigation;
+                self.panels.overview = overview;
                 self.book = book;
                 self.help = help;
                 self.help_pages = help_pages;

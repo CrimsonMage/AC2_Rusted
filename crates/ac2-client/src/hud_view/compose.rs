@@ -32,14 +32,14 @@ impl HudView {
             // `gmRadarUI::ListenToMessage`'s `ForceDraw`: the radar field alone, each frame. Its
             // pixels only change when `gmRadarUI::Update` plots different blips (or the tree or the
             // images change, which compose the whole HUD), so the field is uploaded only then.
-            let field = self.radar.as_ref().and_then(|r| r.field());
+            let field = self.panels.radar.as_ref().and_then(|r| r.field());
             let layer = field.and_then(|f| self.layer_roots.iter().position(|&r| r == f));
-            if let (Some(field), Some(layer), Some(radar)) = (field, layer, &self.radar) {
-                if self.radar_uploaded.as_deref() != Some(radar.pixels()) {
+            if let (Some(field), Some(layer), Some(radar)) = (field, layer, &self.panels.radar) {
+                if self.panels.radar_uploaded.as_deref() != Some(radar.pixels()) {
                     let mut surface = tree.compose_root(field, images);
                     radar.draw(&mut surface);
                     self.overlay.replace_pixels(gpu, layer, &surface.rgba);
-                    self.radar_uploaded = Some(radar.pixels().to_vec());
+                    self.panels.radar_uploaded = Some(radar.pixels().to_vec());
                 }
             }
             return;
@@ -49,7 +49,7 @@ impl HudView {
         self.images.request_missing(tree, images);
         tree.take_changed();
         let mut surfaces = tree.compose(images);
-        if let Some(radar) = &self.radar {
+        if let Some(radar) = &self.panels.radar {
             if let Some(surface) = surfaces.iter_mut().find(|s| Some(s.root) == radar.field()) {
                 radar.draw(surface);
             }
@@ -58,7 +58,11 @@ impl HudView {
         if let Some(net) = &self.panels.net {
             net.draw_bandwidth_graph(tree, &mut surfaces);
         }
-        self.radar_uploaded = self.radar.as_ref().map(|radar| radar.pixels().to_vec());
+        self.panels.radar_uploaded = self
+            .panels
+            .radar
+            .as_ref()
+            .map(|radar| radar.pixels().to_vec());
         self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
         self.overlay.set_layers(
             gpu,

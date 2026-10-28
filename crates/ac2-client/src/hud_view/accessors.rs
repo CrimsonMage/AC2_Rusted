@@ -62,7 +62,7 @@ impl HudView {
     /// The radar's `CoordinatesText` (the HUD has another element of that name).
     pub(crate) fn radar_coordinates(&self) -> Option<String> {
         let (tree, _) = self.hud.as_ref()?;
-        let field = self.radar.as_ref()?.field()?;
+        let field = self.panels.radar.as_ref()?.field()?;
         let text = tree.child_recursive(field, ac2_ui::tokenize("CoordinatesText"))?;
         tree.get(text)?.text()
     }

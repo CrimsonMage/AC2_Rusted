@@ -12,18 +12,18 @@ impl HudView {
     /// `gmNavigationUI::Update` for this frame: the panel follows the player's cell, the
     /// coordinates (the radar's string) and the map notes.
     pub(crate) fn update_navigation(&mut self, frame: &ClientFrame) {
-        let (date, time) = match &self.navigation_time {
+        let (date, time) = match &self.panels.navigation_time {
             Some((_, date, time)) => (Some(date.clone()), Some(time.clone())),
             None => (None, None),
         };
         let view = navigation_view(
             frame,
-            &self.navigation_tooltips,
-            self.radar_coordinates.clone(),
+            &self.panels.navigation_tooltips,
+            self.panels.radar_coordinates.clone(),
             date,
             time,
         );
-        if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.navigation) {
+        if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.panels.navigation) {
             nav.update(tree, &view, images);
         }
     }
@@ -31,7 +31,7 @@ impl HudView {
     /// A press on one of the panel's buttons (`gmNavigationUI::ListenToMessage`); `shift` is
     /// the Shift key (the short pan step). Returns whether the panel took the button.
     pub(crate) fn navigation_press(&mut self, button: &str, shift: bool) -> bool {
-        match (&mut self.hud, &mut self.navigation) {
+        match (&mut self.hud, &mut self.panels.navigation) {
             (Some((tree, images)), Some(nav)) => {
                 nav.button(tree, images, ac2_ui::tokenize(button), shift)
             }
@@ -47,7 +47,7 @@ impl HudView {
         data: i32,
         pixel: (i32, i32),
     ) -> bool {
-        match (&mut self.hud, &mut self.navigation) {
+        match (&mut self.hud, &mut self.panels.navigation) {
             (Some((tree, images)), Some(nav)) => {
                 nav.map_press(tree, images, ac2_ui::tokenize(element), data, pixel)
             }
@@ -58,7 +58,7 @@ impl HudView {
     /// The lock to the character (`gmNavigationUI::LockPositionButton`'s state, set by the test
     /// handle: the layout has no lock button).
     pub(crate) fn navigation_lock(&mut self, locked: bool) {
-        if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.navigation) {
+        if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.panels.navigation) {
             nav.set_lock(tree, images, locked);
         }
     }
@@ -67,7 +67,7 @@ impl HudView {
     pub(crate) fn navigation_parts(
         &mut self,
     ) -> Option<(&mut ac2_ui::UiTree, &mut ac2_ui::NavigationUi)> {
-        match (&mut self.hud, &mut self.navigation) {
+        match (&mut self.hud, &mut self.panels.navigation) {
             (Some((tree, _)), Some(nav)) => Some((tree, nav)),
             _ => None,
         }
