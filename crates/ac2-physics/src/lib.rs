@@ -71,6 +71,7 @@ mod position;
 #[cfg(test)]
 mod real_data_tests;
 mod shapes;
+mod target;
 mod terrain;
 #[cfg(test)]
 mod terrain_material_tests;
@@ -119,5 +120,8 @@ pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use shapes::cylsphere::CylSphere;
+pub use target::{
+    TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus, TargetVoyeur,
+};
 pub use terrain::Terrain;
 pub use vector::{Plane, Quaternion, Sphere, Vector};

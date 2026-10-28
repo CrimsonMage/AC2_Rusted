@@ -85,6 +85,12 @@ impl Position {
         )
     }
 
+    /// `Position::globaltolocalvec`: a direction of this block's axes in this frame (the
+    /// `Frame::globaltolocalvec` sums).
+    pub fn global_to_local_vec(&self, v: Vector) -> Vector {
+        self.frame.global_to_local_vec(v)
+    }
+
     /// `Position::localtoglobal`: a point of `local`'s frame in `self`'s landblock.
     pub(crate) fn local_to_global(&self, local: &Position, p: Vector) -> Vector {
         let g = local.frame_point(p);
@@ -185,6 +191,19 @@ impl Position {
 mod tests {
     use super::*;
     use crate::vector::Quaternion;
+
+    #[test]
+    fn global_to_local_vec_undoes_local_to_global_vec() {
+        let mut p = Position::default();
+        p.frame.grotate(Vector::new(0.0, 0.0, 1.0));
+        let local = Vector::new(1.0, 2.0, 3.0);
+        let back = p.global_to_local_vec(p.local_to_global_vec(local));
+        assert!(
+            (back.x - 1.0).abs() < 1e-5
+                && (back.y - 2.0).abs() < 1e-5
+                && (back.z - 3.0).abs() < 1e-5
+        );
+    }
 
     #[test]
     fn offsets_cross_landblocks() {

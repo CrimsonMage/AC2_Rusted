@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 545 done, 121 partial, 683 to do, 775 skipped.
+2124 retail functions: 582 done, 118 partial, 637 to do, 787 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -24,7 +24,7 @@ Legend and workflow: [README](README.md).
 - [-] `BSPLEAF::Pack` · 0049f6e0 — DBO/archive serialisation of runtime state
 - [x] `BSPLEAF::sphere_intersects_poly` · 0049f770 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::sphere_intersects_solid` · 0049f7e0 — ac2-physics bsp/node.rs (Legions identical)
-- [ ] `BSPLEAF::point_intersects_solid` · 0049f860 — needs port: BSP point-in-solid query
+- [-] `BSPLEAF::point_intersects_solid` · 0049f860 — admin-only: no Legions body for this BSP query
 - [x] `BSPLEAF::hits_walkable` · 0049f870 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::find_walkable` · 0049f8f0 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPLEAF::sphere_intersects_solid_poly` · 0049f980 · legions 00496d70 — ac2-physics bsp: placement insert (Legions identical)
@@ -47,11 +47,11 @@ Legend and workflow: [README](README.md).
 - [x] `BSPNODE::point_inside_cell_bsp` · 0049cff0 · legions 00494a10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `BSPNODE::sphere_intersects_poly` · 0049d040 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::sphere_intersects_solid` · 0049d100 — ac2-physics bsp/node.rs (Legions identical)
-- [ ] `BSPNODE::point_intersects_solid` · 0049d1e0 — needs port: BSP point-in-solid query
+- [-] `BSPNODE::point_intersects_solid` · 0049d1e0 — admin-only: no Legions body for this BSP query
 - [x] `BSPNODE::hits_walkable` · 0049d230 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::find_walkable` · 0049d2e0 — ac2-physics bsp/node.rs (Legions identical)
 - [x] `BSPNODE::sphere_intersects_solid_poly` · 0049d3b0 — ac2-physics bsp: placement insert (Legions identical)
-- [ ] `BSPNODE::ClipToCellBSP` · 0049d4b0 · legions 00494ed0 — needs port: BSPNODE::ClipToCellBSP
+- [-] `BSPNODE::ClipToCellBSP` · 0049d4b0 · legions 00494ed0 — no caller anywhere in the exe (only its own vtable recursion); not reached in play
 - [-] `BSPNODE::~BSPNODE` · 0049d500 · legions 00494f20 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `BSPNODE::GetPackSize` · 0049d540 · legions 00494f60 — DBO/archive serialisation of runtime state
 - [-] `BSPNODE::Pack` · 0049d580 — DBO/archive serialisation of runtime state
@@ -64,10 +64,10 @@ Legend and workflow: [README](README.md).
 - [-] `PFileNode::GetLeafAsPString` · 0049dcb0 — admin/debug or text-file tooling
 
 ### BSPNODE
-- [ ] `BSPNODE::GetNodeType` · 0049dd20 — needs port: BSP node query
+- [-] `BSPNODE::GetNodeType` · 0049dd20 — admin-only: no Legions body for this BSP query
 - [-] `BSPNODE::ChildFromFileNode` · 0049dec0 — text source format
 - [-] `BSPNODE::FromFileNode` · 0049df70 — text source format (admin tools)
-- [ ] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530 — needs port: BSP node query
+- [-] `BSPNODE::GetPosPlanes` · 0049e140 · legions 00495530 — no caller anywhere in the exe (only its own vtable recursion); not reached in play
 
 ## `portal/shared/src/bsp/bsptree.cpp.c` (17/20)
 
@@ -586,10 +586,10 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsModule::UpdatePhysics` · 00737cf0 · legions 006b38b0
 - [x] `PhysicsModule::UpdateAnimation` · 00737dd0 · legions 006b3990 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 
-## `portal/shared/src/physics/spherepath.cpp.c` (10/13)
+## `portal/shared/src/physics/spherepath.cpp.c` (11/13)
 
 ### Position
-- [ ] `Position::globaltolocalvec` · 004da840 · legions 004cd2a0 — needs port: Position::globaltolocalvec
+- [x] `Position::globaltolocalvec` · 004da840 · legions 004cd2a0 — ac2-physics position.rs Position::global_to_local_vec (Frame::globaltolocalvec sums)
 
 ### SPHEREPATH
 - [x] `SPHEREPATH::init` · 004da8a0 · legions 004cd300
@@ -732,11 +732,11 @@ Legend and workflow: [README](README.md).
 - [~] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (21/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (26/61)
 
 ### CollisionParameters
-- [ ] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::SetWeenieMovementType` · 004f6350 · legions 004e8b40 — needs port: ethereal/collision parameter state
+- [x] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
+- [x] `CollisionParameters::SetWeenieMovementType` · 004f6350 · legions 004e8b40 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 
 ### ObjCollisionType
 - [ ] `ObjCollisionType::UpdateIgnoreCollide` · 004f6370 · legions 004e8b60 — needs port: collision reports and properties
@@ -744,9 +744,9 @@ Legend and workflow: [README](README.md).
 ### CCollisionManager
 - [x] `CCollisionManager::SetMinReportedImpactZ` · 004f6390 · legions 004e8b80 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 - [x] `CCollisionManager::SetMinReportedImpactXY` · 004f63a0 · legions 004e8b90 — ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
-- [ ] `CCollisionManager::GetCollisionState` · 004f63b0 · legions 004e8ba0 — needs port: collision reports and properties
+- [x] `CCollisionManager::GetCollisionState` · 004f63b0 · legions 004e8ba0 — ac2-physics collision_types.rs CollisionParameters::collision_state / update_current_physics_mask (the manager's desired mask is passed in)
 - [ ] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — needs port: collision reports and properties
+- [x] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — ac2-physics collision_types.rs CollisionParameters::add_to_temp_ethereal_list
 - [ ] `CCollisionManager::UpdateCollidePhysicsMask` · 004f64f0 · legions 004e8ce0 — needs port: collision reports and properties
 - [x] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [ ] `CCollisionManager::SetNoCollisionNormal` · 004f65a0 · legions 004e8d90 — needs port: collision reports and properties
@@ -796,7 +796,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<CollideProperty>::operator=` · 004f73c0 · legions 004e9bf0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### CCollisionManager
-- [ ] `CCollisionManager::UpdateCurrentPhysicsMask` · 004f7440 · legions 004e9c70 — needs port: collision reports and properties
+- [x] `CCollisionManager::UpdateCurrentPhysicsMask` · 004f7440 · legions 004e9c70 — ac2-physics collision_types.rs CollisionParameters::collision_state / update_current_physics_mask (the manager's desired mask is passed in)
 
 ### SmartArray<CollideProperty>
 - [-] `SmartArray<CollideProperty>::AddToEnd` · 004f74b0 · legions 004e9ce0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -858,26 +858,26 @@ Legend and workflow: [README](README.md).
 - [x] `CollisionParameters::InTempEtherealList` · 0069fe20 · legions 0063cc90 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 - [x] `CollisionParameters::AddToTempEtherealList` · 0069fe40 · legions 0063ccb0 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 
-## `portal/shared/src/physobj/collision/collisionprofile.cpp.c` (0/20)
+## `portal/shared/src/physobj/collision/collisionprofile.cpp.c` (12/20)
 
 ### CollisionProfile
-- [ ] `CollisionProfile::HasCollided` · 006a0170 · legions 0063cfa0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::IsEndCollision` · 006a01b0 · legions 0063cfe0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::HasContact` · 006a01c0 · legions 0063cff0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::IsEndContact` · 006a0200 · legions 0063d030 — needs port: collision reports and properties
-- [ ] `CollisionProfile::GetObjectA` · 006a0210 · legions 0063d040 — needs port: collision reports and properties
-- [ ] `CollisionProfile::GetObjectA` · 006a0230 · legions 0063d060 — needs port: collision reports and properties
-- [ ] `CollisionProfile::GetObjectProperty` · 006a0270 · legions 0063d0a0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::GetEnvProperty` · 006a02b0 · legions 0063d0e0 — needs port: collision reports and properties
+- [x] `CollisionProfile::HasCollided` · 006a0170 · legions 0063cfa0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::IsEndCollision` · 006a01b0 · legions 0063cfe0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::HasContact` · 006a01c0 · legions 0063cff0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::IsEndContact` · 006a0200 · legions 0063d030 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::GetObjectA` · 006a0210 · legions 0063d040 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::GetObjectA` · 006a0230 · legions 0063d060 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::GetObjectProperty` · 006a0270 · legions 0063d0a0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::GetEnvProperty` · 006a02b0 · legions 0063d0e0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
 
 ### CWRepository
 - [ ] `CWRepository::GetQualities` · 006a02f0 · legions 0063d120 — needs port: CWRepository::GetQualities
 
 ### CollisionProfile
-- [ ] `CollisionProfile::GetSurfaceProperty` · 006a0300 · legions 0063d130 — needs port: collision reports and properties
-- [ ] `CollisionProfile::GetWaterProperty` · 006a0340 · legions 0063d170 — needs port: collision reports and properties
-- [ ] `CollisionProfile::FindObject` · 006a0380 · legions 0063d1b0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::NonEmpty` · 006a03f0 · legions 0063d220 — needs port: collision reports and properties
+- [x] `CollisionProfile::GetSurfaceProperty` · 006a0300 · legions 0063d130 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::GetWaterProperty` · 006a0340 · legions 0063d170 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::FindObject` · 006a0380 · legions 0063d1b0 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+- [x] `CollisionProfile::NonEmpty` · 006a03f0 · legions 0063d220 — ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
 - [-] `CollisionProfile::CollisionProfile` · 006a0430 · legions 0063d260 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CollisionProfile::~CollisionProfile` · 006a0490 · legions 0063d2c0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CollisionProfile::StreamPack` · 006a0560 · legions 0063d390 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -1570,15 +1570,15 @@ Legend and workflow: [README](README.md).
 ### CMotionInterp
 - [ ] `CMotionInterp::Init` · 00509630 · legions 004f7680 — needs port: cite-only physics-object method
 - [x] `CMotionInterp::SetMIDESC` · 005096c0 — SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
-- [ ] `CMotionInterp::GetBehaviorTableID` · 00509720 — needs port: cite-only physics-object method
-- [ ] `CMotionInterp::SetPhysobjRep` · 00509730 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::GetBehaviorTableID` · 00509720 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [-] `CMotionInterp::SetPhysobjRep` · 00509730 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::SetTerrainType` · 00509770 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [ ] `CMotionInterp::GetPhysObj` · 00509780 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::GetPhysObj` · 00509780 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::GetSeaFloorMultiplier` · 00509790
 - [x] `CMotionInterp::GetWaterMultiplier` · 005097b0
 - [x] `CMotionInterp::IsMovingTo` · 005097d0 — ac2-physics moveto (slice 3)
 - [x] `CMotionInterp::IsTurningTo` · 005097e0 — ac2-physics MovementState turning_to / turn_to_degrees
-- [ ] `CMotionInterp::ReachedPersistentTarget` · 005097f0 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::ReachedPersistentTarget` · 005097f0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::ConvertDoMotionToLocalDesired` · 00509800 — ac2-physics interp (slice 3)
 - [x] `CMotionInterp::GetDesiredModeState` · 00509910 — CMotionInterp::GetDesiredModeState - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::UpdateTargetInfo` · 00509930 — ac2-physics moveto (slice 3)
@@ -1587,17 +1587,17 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::HandleMoveToCallback` · 00509970 — CMotionInterp::HandleMoveToCallback - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::HitGround` · 00509980 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CMotionInterp::LeaveGround` · 00509a10 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [ ] `CMotionInterp::GetMaxSpeed` · 00509a60 — needs port: cite-only physics-object method
-- [ ] `CMotionInterp::SetLocalDesiredVelocity` · 00509a70 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::GetMaxSpeed` · 00509a60 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [-] `CMotionInterp::SetLocalDesiredVelocity` · 00509a70 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::IsAffectedByGravity` · 00509a90
 - [x] `CMotionInterp::ResetHoverHeight` · 00509aa0 — CMotionInterp::ResetHoverHeight - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 - [x] `CMotionInterp::GetHoverHeight` · 00509ab0
-- [ ] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::GetDefaultHoverHeight` · 00509ae0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::TurnTo` · 00509af0
 - [x] `CMotionInterp::StopTurnTo` · 00509b40 · legions 004f7b80
 - [x] `CMotionInterp::StopInterpolating` · 00509b70 — ac2-physics interp (slice 3)
-- [ ] `CMotionInterp::IsInterpolating` · 00509b80 — needs port: cite-only physics-object method
-- [ ] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::IsInterpolating` · 00509b80 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+- [-] `CMotionInterp::GetRemoteDoMotionValues` · 00509ba0 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [ ] `CMotionInterp::MakeInterpolationManager` · 00509bc0 · legions 004f7c00 — needs port: cite-only physics-object method
 - [x] `CMotionInterp::MakeConstraintManager` · 00509bf0 · legions 004f7c30 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [ ] `CMotionInterp::HandleLeaveWorld` · 00509c90 · legions 004f7cd0 — needs port: cite-only physics-object method
@@ -1632,7 +1632,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMotionInterp::GetTurnToDirection` · 0050b7d0 · legions 004f9810 — ac2-physics MovementState turning_to / turn_to_degrees
 - [x] `CMotionInterp::GetAcceleration` · 0050b7f0
 - [x] `CMotionInterp::GetOmegaAcceleration` · 0050b800
-- [ ] `CMotionInterp::GetAccelerationScale` · 0050b810 — needs port: cite-only physics-object method
+- [-] `CMotionInterp::GetAccelerationScale` · 0050b810 — admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 - [x] `CMotionInterp::CMotionInterp` · 0050b820 · legions 004f9860
 
 ## `portal/shared/src/physobj/minterp/motioninterpdesc.cpp.c` (4/25)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (154/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (158/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2174,8 +2174,8 @@ Legend and workflow: [README](README.md).
 - [x] `EtherealPhysicsType::SetBit` · 004ddf90 · legions 004d09f0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 
 ### CollisionParameters
-- [ ] `CollisionParameters::SetPhysicsPlacementType` · 004ddfe0 · legions 004d0a40 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::SetPhysicsMovementType` · 004de000 · legions 004d0a60 — needs port: ethereal/collision parameter state
+- [x] `CollisionParameters::SetPhysicsPlacementType` · 004ddfe0 · legions 004d0a40 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
+- [x] `CollisionParameters::SetPhysicsMovementType` · 004de000 · legions 004d0a60 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 
 ### CTransition
 - [x] `CTransition::init_contact_plane` · 004de020 · legions 004d0a80
@@ -2459,8 +2459,8 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::HandleInPhysicsRange` · 004e2980 · legions 004d53d0 — ac2-client: the object steps physics again
 
 ### Frame
-- [ ] `Frame::combine` · 004e2ae0 · legions 004d5530 — needs port: frame combine
-- [ ] `Frame::combine` · 004e2b70 · legions 004d55c0 — needs port: frame combine
+- [x] `Frame::combine` · 004e2ae0 · legions 004d5530 — ac2-physics frame.rs Frame::combine / combine_scaled: x87 sums per the disassembly (x product kept at 53 bits when scaled)
+- [x] `Frame::combine` · 004e2b70 · legions 004d55c0 — ac2-physics frame.rs Frame::combine / combine_scaled: x87 sums per the disassembly (x product kept at 53 bits when scaled)
 
 ### Position
 - [-] `Position::subtract2` · 004e2c20 · legions 004d5670 — vector/frame math
@@ -3110,16 +3110,16 @@ Legend and workflow: [README](README.md).
 - [x] `StoryManager::HandleAnimHook` · 005154b0 · legions 005034c0 — StoryManager::HandleAnimHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
 - [ ] `StoryManager::HandleBehaviorDone` · 005154f0 · legions 00503500 — needs port: story hook dispatch
 
-## `portal/shared/src/physobj/target/targetmanager.cpp.c` (0/25)
+## `portal/shared/src/physobj/target/targetmanager.cpp.c` (15/25)
 
 ### TargetVoyeur
-- [-] `TargetVoyeur::TargetVoyeur` · 00515520 · legions 00503530 — C++ constructor/destructor; Rust constructor and Drop replace it
+- [x] `TargetVoyeur::TargetVoyeur` · 00515520 · legions 00503530 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 - [-] `TargetVoyeur::GetPackSize` · 00515580 · legions 00503590 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `TargetVoyeur::Pack` · 005155a0 · legions 005035b0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [ ] `TargetVoyeur::UnPack` · 00515600 · legions 00503610 — needs port: target tracking and voyeurs
 
 ### TargetManager
-- [ ] `TargetManager::GetInterpolatedPosition` · 00515690 · legions 005036a0 — needs port: target tracking and voyeurs
+- [x] `TargetManager::GetInterpolatedPosition` · 00515690 · legions 005036a0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 
 ### TargetInfo
 - [-] `TargetInfo::TargetInfo` · 00515710 · legions 00503720 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -3128,29 +3128,29 @@ Legend and workflow: [README](README.md).
 - [-] `TargetInfo::UnPack` · 00515950 — DBO/archive serialisation of runtime state
 
 ### TargetManager
-- [ ] `TargetManager::ClearTarget` · 00515ab0 · legions 00503ac0 — needs port: target tracking and voyeurs
-- [ ] `TargetManager::SetTargetQuantum` · 00515b00 · legions 00503b10 — needs port: target tracking and voyeurs
-- [~] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-- [ ] `TargetManager::SendVoyeurUpdate` · 00515d50 · legions 00503d60 — needs port: target tracking and voyeurs
-- [ ] `TargetManager::CheckAndUpdateVoyeur` · 00515e90 · legions 00503ea0 — needs port: target tracking and voyeurs
-- [ ] `TargetManager::SetTarget` · 00515f70 · legions 00503f80 — needs port: target tracking and voyeurs
+- [x] `TargetManager::ClearTarget` · 00515ab0 · legions 00503ac0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::SetTargetQuantum` · 00515b00 · legions 00503b10 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::ReceiveUpdate` · 00515b60 · legions 00503b70 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::SendVoyeurUpdate` · 00515d50 · legions 00503d60 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::CheckAndUpdateVoyeur` · 00515e90 · legions 00503ea0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::SetTarget` · 00515f70 · legions 00503f80 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 
 ### TargetVoyeur
-- [-] `TargetVoyeur::TargetVoyeur` · 005160e0 · legions 005040f0 — C++ constructor/destructor; Rust constructor and Drop replace it
+- [x] `TargetVoyeur::TargetVoyeur` · 005160e0 · legions 005040f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 
 ### TargetManager
-- [~] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-- [ ] `TargetManager::NotifyVoyeurOfEvent` · 005162b0 · legions 005042c0 — needs port: target tracking and voyeurs
-- [~] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340 — ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-- [ ] `TargetManager::RemoveVoyeur` · 005163d0 · legions 005043e0 — needs port: target tracking and voyeurs
+- [x] `TargetManager::HandleTargetting` · 005161e0 · legions 005041f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::NotifyVoyeurOfEvent` · 005162b0 · legions 005042c0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::HandleLeaveWorld` · 00516330 · legions 00504340 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+- [x] `TargetManager::RemoveVoyeur` · 005163d0 · legions 005043e0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 - [-] `TargetManager::~TargetManager` · 00516580 · legions 00504590 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `TargetManager::AddVoyeur` · 005165e0 · legions 005045f0 — needs port: target tracking and voyeurs
+- [x] `TargetManager::AddVoyeur` · 005165e0 · legions 005045f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 
 ### PHashTable<InstanceID,TargetVoyeur>
 - [-] `PHashTable<InstanceID,TargetVoyeur>::StreamPack` · 005166a0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
 ### TargetVoyeur
-- [-] `TargetVoyeur::TargetVoyeur` · 005168e0 · legions 005048f0 — C++ constructor/destructor; Rust constructor and Drop replace it
+- [x] `TargetVoyeur::TargetVoyeur` · 005168e0 · legions 005048f0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 
 ### TargetManager
 - [-] `TargetManager::TargetManager` · 00516940 · legions 00504970 — C++ constructor/destructor; Rust constructor and Drop replace it

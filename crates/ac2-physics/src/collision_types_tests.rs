@@ -193,3 +193,29 @@ fn the_temp_ethereal_list_is_separate_from_the_weenie_sets() {
     assert!(body.add_to_ethereal_list(5));
     assert!(!body.in_temp_ethereal_list(5));
 }
+
+#[test]
+fn the_set_type_calls_replace_the_set_and_raise_its_bit() {
+    let mut params = CollisionParameters::default();
+    params.set_physics_movement_type(PhysicsTypeMask::from_bits(0b110));
+    params.set_physics_placement_type(PhysicsTypeMask::from_bits(0b1));
+    let mut weenie = WeenieTypes::default();
+    weenie.add_to_ethereal_list(9);
+    params.set_weenie_movement_type(&weenie);
+    params.set_weenie_placement_type(&weenie);
+    let state = params.collision_state(PhysicsTypeMask::from_bits(0b100));
+    assert_eq!(state.placement_physics.bits(), 0b1);
+    assert_eq!(state.movement_physics.bits(), 0b100);
+    assert_eq!(state.bitfield, 0x1 | 0x4);
+    assert_eq!(params.bitfield, 0x1 | 0x2 | 0x4 | 0x8);
+    assert!(params.movement_weenie.in_ethereal_list(9));
+    assert!(params.placement_weenie.in_ethereal_list(9));
+}
+
+#[test]
+fn the_current_physics_mask_gains_the_desired_types() {
+    let mut params = CollisionParameters::default();
+    params.set_physics_movement_type(PhysicsTypeMask::from_bits(0b001));
+    params.update_current_physics_mask(PhysicsTypeMask::from_bits(0b110));
+    assert_eq!(params.movement_physics.bits(), 0b111);
+}

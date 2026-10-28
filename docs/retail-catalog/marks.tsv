@@ -3172,11 +3172,11 @@ key	status	note
 0049cff0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0049d040	x	ac2-physics bsp/node.rs (Legions identical)
 0049d100	x	ac2-physics bsp/node.rs (Legions identical)
-0049d1e0	_	needs port: BSP point-in-solid query
+0049d1e0	-	admin-only: no Legions body for this BSP query
 0049d230	x	ac2-physics bsp/node.rs (Legions identical)
 0049d2e0	x	ac2-physics bsp/node.rs (Legions identical)
 0049d3b0	x	ac2-physics bsp: placement insert (Legions identical)
-0049d4b0	_	needs port: BSPNODE::ClipToCellBSP
+0049d4b0	-	no caller anywhere in the exe (only its own vtable recursion); not reached in play
 0049d500	-	C++ constructor/destructor; Rust constructor and Drop replace it
 0049d540	-	DBO/archive serialisation of runtime state
 0049d580	-	DBO/archive serialisation of runtime state
@@ -3185,9 +3185,9 @@ key	status	note
 0049d770	-	text source format
 0049d880	x	ac2-physics los (Terrain::los_check)
 0049dcb0	-	admin/debug or text-file tooling
-0049dd20	_	needs port: BSP node query
+0049dd20	-	admin-only: no Legions body for this BSP query
 0049dec0	-	text source format
-0049e140	_	needs port: BSP node query
+0049e140	-	no caller anywhere in the exe (only its own vtable recursion); not reached in play
 0049e170	x	ac2-physics shapes/sphere.rs (asm float order; Legions identical)
 0049e190	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 0049e230	x	ac2-physics transition/localspace.rs, sphere_path.rs
@@ -3208,7 +3208,7 @@ key	status	note
 0049f6e0	-	DBO/archive serialisation of runtime state
 0049f770	x	ac2-physics bsp/node.rs (Legions identical)
 0049f7e0	x	ac2-physics bsp/node.rs (Legions identical)
-0049f860	_	needs port: BSP point-in-solid query
+0049f860	-	admin-only: no Legions body for this BSP query
 0049f870	x	ac2-physics bsp/node.rs (Legions identical)
 0049f8f0	x	ac2-physics bsp/node.rs (Legions identical)
 0049f980	x	ac2-physics bsp: placement insert (Legions identical)
@@ -4376,7 +4376,7 @@ key	status	note
 004da700	x	
 004da7b0	x	
 004da7e0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-004da840	_	needs port: Position::globaltolocalvec
+004da840	x	ac2-physics position.rs Position::global_to_local_vec (Frame::globaltolocalvec sums)
 004da8a0	x	
 004da930	x	
 004da9e0	x	
@@ -4434,8 +4434,8 @@ key	status	note
 004dde80	x	ac2_physics::Position::lerp_origin (across blocks the z sum is stored first)
 004ddf50	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004ddf90	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-004ddfe0	_	needs port: ethereal/collision parameter state
-004de000	_	needs port: ethereal/collision parameter state
+004ddfe0	x	ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
+004de000	x	ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 004de020	x	
 004de0d0	x	
 004de130	_	needs port: missile flight
@@ -4707,8 +4707,8 @@ key	status	note
 004e28d0	_	needs port: cite-only physics-object method
 004e2900	~	ac2-client: the object stops stepping physics
 004e2980	~	ac2-client: the object steps physics again
-004e2ae0	_	needs port: frame combine
-004e2b70	_	needs port: frame combine
+004e2ae0	x	ac2-physics frame.rs Frame::combine / combine_scaled: x87 sums per the disassembly (x product kept at 53 bits when scaled)
+004e2b70	x	ac2-physics frame.rs Frame::combine / combine_scaled: x87 sums per the disassembly (x product kept at 53 bits when scaled)
 004e2c20	-	vector/frame math
 004e2cb0	x	ac2-physics los (Terrain::los_check)
 004e2d40	-	C++ constructor/destructor; Rust constructor and Drop replace it
@@ -5274,14 +5274,14 @@ key	status	note
 004f6090	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f6110	_	needs port: cite-only physics-object method
 004f6160	x	ac2-physics los (Terrain::los_check)
-004f6330	_	needs port: ethereal/collision parameter state
-004f6350	_	needs port: ethereal/collision parameter state
+004f6330	x	ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
+004f6350	x	ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
 004f6370	_	needs port: collision reports and properties
 004f6390	x	ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
 004f63a0	x	ac2-physics physics_obj.rs init_object_end and collision_impact.rs (the XY minimum from the hover height and max forward speed, the Z from the jump impulse and scale, both plus 0.1); the body keeps them
-004f63b0	_	needs port: collision reports and properties
+004f63b0	x	ac2-physics collision_types.rs CollisionParameters::collision_state / update_current_physics_mask (the manager's desired mask is passed in)
 004f63f0	_	needs port: collision reports and properties
-004f64d0	_	needs port: collision reports and properties
+004f64d0	x	ac2-physics collision_types.rs CollisionParameters::add_to_temp_ethereal_list
 004f64f0	_	needs port: collision reports and properties
 004f6520	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004f65a0	_	needs port: collision reports and properties
@@ -5307,7 +5307,7 @@ key	status	note
 004f7170	_	needs port: collision reports and properties
 004f7190	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004f73c0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
-004f7440	_	needs port: collision reports and properties
+004f7440	x	ac2-physics collision_types.rs CollisionParameters::collision_state / update_current_physics_mask (the manager's desired mask is passed in)
 004f74b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f7510	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004f7570	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
@@ -5489,15 +5489,15 @@ key	status	note
 00509610	_	needs port: motion table decode
 00509630	_	needs port: cite-only physics-object method
 005096c0	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
-00509720	_	needs port: cite-only physics-object method
-00509730	_	needs port: cite-only physics-object method
+00509720	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+00509730	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509770	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-00509780	_	needs port: cite-only physics-object method
+00509780	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509790	x	
 005097b0	x	
 005097d0	x	ac2-physics moveto (slice 3)
 005097e0	x	ac2-physics MovementState turning_to / turn_to_degrees
-005097f0	_	needs port: cite-only physics-object method
+005097f0	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509800	x	ac2-physics interp (slice 3)
 00509910	x	CMotionInterp::GetDesiredModeState - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509930	x	ac2-physics moveto (slice 3)
@@ -5506,17 +5506,17 @@ key	status	note
 00509970	x	CMotionInterp::HandleMoveToCallback - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509980	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 00509a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-00509a60	_	needs port: cite-only physics-object method
-00509a70	_	needs port: cite-only physics-object method
+00509a60	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+00509a70	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509a90	x	
 00509aa0	x	CMotionInterp::ResetHoverHeight - CMotionInterp method: ac2-physics motion_interp.rs, moveto/manager.rs; ac2-world ac2_motion_interp.rs
 00509ab0	x	
-00509ae0	_	needs port: cite-only physics-object method
+00509ae0	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509af0	x	
 00509b40	x	
 00509b70	x	ac2-physics interp (slice 3)
-00509b80	_	needs port: cite-only physics-object method
-00509ba0	_	needs port: cite-only physics-object method
+00509b80	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
+00509ba0	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 00509bc0	_	needs port: cite-only physics-object method
 00509bf0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 00509c90	_	needs port: cite-only physics-object method
@@ -5547,7 +5547,7 @@ key	status	note
 0050b7d0	x	ac2-physics MovementState turning_to / turn_to_degrees
 0050b7f0	x	
 0050b800	x	
-0050b810	_	needs port: cite-only physics-object method
+0050b810	-	admin-only PHYSICSOBJREP forwarding accessor (no Legions body); the Rust MotionInterp holds the body state it forwards to
 0050b820	x	
 0050b990	x	ac2-physics interp (slice 3)
 0050ba00	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -5680,30 +5680,30 @@ key	status	note
 005153b0	_	needs port: story hook dispatch
 005154b0	x	StoryManager::HandleAnimHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
 005154f0	_	needs port: story hook dispatch
-00515520	-	C++ constructor/destructor; Rust constructor and Drop replace it
+00515520	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 00515580	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 005155a0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00515600	_	needs port: target tracking and voyeurs
-00515690	_	needs port: target tracking and voyeurs
+00515690	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 00515710	-	C++ constructor/destructor; Rust constructor and Drop replace it
 005157e0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00515820	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00515950	-	DBO/archive serialisation of runtime state
-00515ab0	_	needs port: target tracking and voyeurs
-00515b00	_	needs port: target tracking and voyeurs
-00515b60	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-00515d50	_	needs port: target tracking and voyeurs
-00515e90	_	needs port: target tracking and voyeurs
-00515f70	_	needs port: target tracking and voyeurs
-005160e0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-005161e0	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-005162b0	_	needs port: target tracking and voyeurs
-00516330	~	ac2-client track_move_to_target: the player's move-to object target's position, radius and height each physics quantum; lost when it leaves the world; no voyeur update thresholds or interpolation
-005163d0	_	needs port: target tracking and voyeurs
+00515ab0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00515b00	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00515b60	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00515d50	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00515e90	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00515f70	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+005160e0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+005161e0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+005162b0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+00516330	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
+005163d0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 00516580	-	C++ constructor/destructor; Rust constructor and Drop replace it
-005165e0	_	needs port: target tracking and voyeurs
+005165e0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 005166a0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-005168e0	-	C++ constructor/destructor; Rust constructor and Drop replace it
+005168e0	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 00516940	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00516990	-	retail buffer-overrun assert; Rust slice reads are bounds-checked
 005169b0	-	constructor of plain data
@@ -12988,19 +12988,19 @@ key	status	note
 0069ffe0	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 006a0040	_	not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
 006a0100	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-006a0170	_	needs port: collision reports and properties
-006a01b0	_	needs port: collision reports and properties
-006a01c0	_	needs port: collision reports and properties
-006a0200	_	needs port: collision reports and properties
-006a0210	_	needs port: collision reports and properties
-006a0230	_	needs port: collision reports and properties
-006a0270	_	needs port: collision reports and properties
-006a02b0	_	needs port: collision reports and properties
+006a0170	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a01b0	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a01c0	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0200	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0210	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0230	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0270	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a02b0	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
 006a02f0	_	needs port: CWRepository::GetQualities
-006a0300	_	needs port: collision reports and properties
-006a0340	_	needs port: collision reports and properties
-006a0380	_	needs port: collision reports and properties
-006a03f0	_	needs port: collision reports and properties
+006a0300	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0340	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a0380	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
+006a03f0	x	ac2-script native/collision.rs + glue/collision.rs (CollisionProfile natives over ac2-physics CollisionReport; NonEmpty is CollisionReport::is_empty)
 006a0430	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a0490	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a0560	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT

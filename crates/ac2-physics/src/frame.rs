@@ -102,6 +102,41 @@ impl Frame {
         self.cache_matrix();
     }
 
+    /// `Frame::combine(f1, f2)`: the frame `f2` (an `AFrame`: origin and rotation) placed in
+    /// `f1`. The origin is `f1`'s origin plus `f2`'s origin rotated by `f1`'s matrix, each
+    /// component summed on the x87 stack (`(m6 z + m0 x) + m3 y`, then the origin) and stored as
+    /// `float`; the rotation is `Quaternion::multiply(f1.q, f2.q)` through `set_rotate`.
+    pub fn combine(f1: &Frame, origin: Vector, q: Quaternion) -> Frame {
+        let m = f1.m.map(ld);
+        let (x, y, z) = (ld(origin.x), ld(origin.y), ld(origin.z));
+        Self::combined(f1, x, y, z, m, q)
+    }
+
+    /// `Frame::combine(f1, f2, scale)`: as [`Frame::combine`] with `f2`'s origin scaled first. The
+    /// x product stays on the x87 stack; the y and z products are stored as `float`.
+    pub fn combine_scaled(f1: &Frame, origin: Vector, q: Quaternion, scale: Vector) -> Frame {
+        let m = f1.m.map(ld);
+        let sx = ld(origin.x) * ld(scale.x);
+        let sy = ld(st(ld(origin.y) * ld(scale.y)));
+        let sz = ld(st(ld(origin.z) * ld(scale.z)));
+        Self::combined(f1, sx, sy, sz, m, q)
+    }
+
+    fn combined(f1: &Frame, x: f64, y: f64, z: f64, m: [f64; 9], q: Quaternion) -> Frame {
+        let o = f1.origin;
+        let origin = Vector::new(
+            st(((x * m[0] + z * m[6]) + y * m[3]) + ld(o.x)),
+            st(((x * m[1] + z * m[7]) + y * m[4]) + ld(o.y)),
+            st(((x * m[2] + z * m[8]) + y * m[5]) + ld(o.z)),
+        );
+        let mut frame = Frame {
+            origin,
+            ..Frame::IDENTITY
+        };
+        frame.set_rotate(Quaternion::multiply(f1.q, q));
+        frame
+    }
+
     /// `Frame::localtoglobalvec`.
     pub fn local_to_global_vec(&self, v: Vector) -> Vector {
         let m = self.m.map(ld);
@@ -340,6 +375,25 @@ mod tests {
         let mut frame = Frame::IDENTITY;
         frame.cache_matrix();
         assert_eq!(frame.m, Frame::IDENTITY.m);
+    }
+
+    #[test]
+    fn combine_places_the_child_origin_in_the_parent_frame() {
+        let mut parent = Frame::IDENTITY;
+        parent.origin = Vector::new(10.0, 20.0, 30.0);
+        parent.grotate(Vector::new(0.0, 0.0, std::f32::consts::FRAC_PI_2));
+        // Local +y is global -x after a quarter turn about z.
+        let child = Frame::combine(&parent, Vector::new(0.0, 2.0, 1.0), Quaternion::IDENTITY);
+        assert!(close(child.origin.x, 8.0), "{:?}", child.origin);
+        assert!(close(child.origin.y, 20.0) && close(child.origin.z, 31.0));
+        assert_eq!(child.m, parent.m);
+        let scaled = Frame::combine_scaled(
+            &parent,
+            Vector::new(0.0, 2.0, 1.0),
+            Quaternion::IDENTITY,
+            Vector::new(1.0, 3.0, 2.0),
+        );
+        assert!(close(scaled.origin.x, 4.0) && close(scaled.origin.z, 32.0));
     }
 
     #[test]

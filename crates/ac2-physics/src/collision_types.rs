@@ -137,12 +137,12 @@ const PHYSICS_TYPE_BIT: u32 = 0x10;
 /// weenie lists, and the body's own physics type (`CollisionParameters`).
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct CollisionParameters {
-    bitfield: u32,
-    physics_type: PhysicsTypeMask,
-    placement_physics: PhysicsTypeMask,
-    movement_physics: PhysicsTypeMask,
-    placement_weenie: WeenieTypes,
-    movement_weenie: WeenieTypes,
+    pub(crate) bitfield: u32,
+    pub(crate) physics_type: PhysicsTypeMask,
+    pub(crate) placement_physics: PhysicsTypeMask,
+    pub(crate) movement_physics: PhysicsTypeMask,
+    pub(crate) placement_weenie: WeenieTypes,
+    pub(crate) movement_weenie: WeenieTypes,
     /// `CollisionParameters::m_temp_ethereal_list`: a plain id list, separate from the weenie
     /// sets, that the collision manager fills per frame.
     temp_ethereal: Vec<InstanceId>,
@@ -216,6 +216,49 @@ impl CollisionParameters {
     /// DoCreateObjectFX` sets `0x10` on an FX object's parameters).
     pub fn set_bit(&mut self, bit: u32) {
         self.bitfield |= bit;
+    }
+
+    /// `CollisionParameters::SetWeeniePlacementType`: the placement weenie set takes
+    /// `wtype` (`EtherealWeenieType::Update`) and its bit is set.
+    pub fn set_weenie_placement_type(&mut self, wtype: &WeenieTypes) {
+        self.placement_weenie.update_from(wtype);
+        self.set_bit(PLACEMENT_WEENIE_BIT);
+    }
+
+    /// `CollisionParameters::SetWeenieMovementType`.
+    pub fn set_weenie_movement_type(&mut self, wtype: &WeenieTypes) {
+        self.movement_weenie.update_from(wtype);
+        self.set_bit(MOVEMENT_WEENIE_BIT);
+    }
+
+    /// `CollisionParameters::SetPhysicsPlacementType`: the placement physics mask is replaced.
+    pub fn set_physics_placement_type(&mut self, ptype: PhysicsTypeMask) {
+        self.placement_physics = ptype;
+        self.set_bit(PLACEMENT_PHYSICS_BIT);
+    }
+
+    /// `CollisionParameters::SetPhysicsMovementType`.
+    pub fn set_physics_movement_type(&mut self, ptype: PhysicsTypeMask) {
+        self.movement_physics = ptype;
+        self.set_bit(MOVEMENT_PHYSICS_BIT);
+    }
+
+    /// `CCollisionManager::GetCollisionState`: the state a script reads. The placement physics
+    /// mask is this body's, the movement mask is the manager's `m_desired_physics_mask`
+    /// (`desired`); only those two sets are given.
+    pub fn collision_state(&self, desired: PhysicsTypeMask) -> CollisionParameters {
+        let mut state = CollisionParameters::default();
+        state.set_physics_placement_type(self.placement_physics);
+        state.set_physics_movement_type(desired);
+        state
+    }
+
+    /// `CCollisionManager::UpdateCurrentPhysicsMask`: the movement physics mask gains the
+    /// desired mask's types.
+    pub fn update_current_physics_mask(&mut self, desired: PhysicsTypeMask) {
+        self.movement_physics =
+            PhysicsTypeMask::from_bits(self.movement_physics.bits() | desired.bits());
+        self.set_bit(MOVEMENT_PHYSICS_BIT);
     }
 
     /// `CollisionParameters::UpdatePhysicsType` (`ethereal` true) and `RemovePhysicsType`.
