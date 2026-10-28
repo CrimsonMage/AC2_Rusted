@@ -3,10 +3,7 @@
 //! notices, dialogs and request mapping live in `ac2_ui::inventory_notices`.
 
 use ac2_net::protocol::StringInfo;
-use ac2_ui::{
-    InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, SecureTradeSplit, StackUi,
-    UiTree,
-};
+use ac2_ui::{InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, StackUi, UiTree};
 
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
@@ -214,14 +211,4 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
         }
     }
     false
-}
-
-/// A stack dropped on the trade's list asks how many; see `ac2_ui::secure_trade_split`.
-pub(crate) fn secure_trade_split(
-    split: SecureTradeSplit,
-    tree: &mut UiTree,
-    stack: Option<&mut StackUi>,
-    player: &ClientPlayer<'_>,
-) {
-    ac2_ui::secure_trade_split(split, tree, stack, player);
 }

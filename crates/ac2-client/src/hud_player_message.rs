@@ -4,7 +4,10 @@
 
 use std::sync::Arc;
 
-use ac2_ui::{DialogFactory, LayoutDesc, MessagePanels, OptionsMessages, UiMessage, UiTree};
+use ac2_ui::{
+    DialogFactory, DialogOutcome, LayoutDesc, MessagePanels, OptionsMessages, Shortcut,
+    ShortcutCalls, UiMessage, UiTree,
+};
 
 use crate::frame::ClientFrame;
 use crate::hud_friends::friend_target;
@@ -16,9 +19,9 @@ use crate::ui_sources::ClientPlayer;
 
 /// `gmClientUI`'s page over the player's client: the page's widgets and its messages need the
 /// client's preferences.
-struct ClientOptions<'a, 'b> {
-    pages: &'a mut OptionsPages,
-    player: &'a ClientPlayer<'b>,
+pub(crate) struct ClientOptions<'a, 'b> {
+    pub(crate) pages: &'a mut OptionsPages,
+    pub(crate) player: &'a ClientPlayer<'b>,
 }
 
 impl OptionsMessages for ClientOptions<'_, '_> {
@@ -29,6 +32,46 @@ impl OptionsMessages for ClientOptions<'_, '_> {
     fn message(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, message: &UiMessage) {
         self.pages
             .message(&mut self.player.client.borrow_mut(), tree, dialogs, message);
+    }
+
+    fn outcomes(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        outcomes: &[DialogOutcome],
+    ) {
+        self.pages.outcomes(tree, dialogs, outcomes);
+    }
+
+    fn run(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
+        self.pages
+            .run(&mut self.player.client.borrow_mut(), tree, dialogs);
+    }
+}
+
+/// The shortcut bar's calls on the player's client; a failed call is reported and dropped.
+pub(crate) struct ClientShortcuts<'a, 'b> {
+    pub(crate) player: &'a ClientPlayer<'b>,
+}
+
+impl ShortcutCalls for ClientShortcuts<'_, '_> {
+    fn use_shortcut(&mut self, index: usize) {
+        let result = self.player.client.borrow_mut().use_shortcut(index as u32);
+        if let Err(error) = result.map(drop) {
+            eprintln!("ac2: shortcut: {error}");
+        }
+    }
+
+    fn set_shortcut(&mut self, index: usize, shortcut: &Shortcut) {
+        let info = ac2_ui::shortcut_to_info(shortcut);
+        let result = self
+            .player
+            .client
+            .borrow_mut()
+            .set_shortcut(index as u32, info);
+        if let Err(error) = result.map(drop) {
+            eprintln!("ac2: shortcut: {error}");
+        }
     }
 }
 

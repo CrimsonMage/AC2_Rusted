@@ -3,9 +3,10 @@
 //! each to its gameplay command. Each variant carries the panel's own request type.
 
 use crate::{
-    CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest,
-    ExternalContainerRequest, FriendsRequest, ItemRequest, NewSaleRequest, PetAction, RadarRequest,
-    SelectionCall,
+    CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest, DialogRequest,
+    ExaminationCall, ExternalContainerRequest, FriendsRequest, ItemRequest, NewSaleRequest,
+    PetAction, RadarRequest, SecureTradeRequest, SelectionCall, ShopRequest, SkillRequest,
+    SocialCall,
 };
 
 /// One request a HUD panel raised in a pass.
@@ -49,4 +50,19 @@ pub enum HudRequest {
     Examine { kind: u32, data: u32, item: u64 },
     /// `KeyStone::OpenHelp` for a help topic.
     OpenHelp(u32),
+    /// `gmSecureTradeUI`'s calls on the player (`gmCWInterface::*Trade*`).
+    SecureTrade(SecureTradeRequest),
+    /// `gmShopUI`'s requests on the player (its examination is [`HudRequest::OpenExamination`]).
+    Shop(ShopRequest),
+    /// `gmSkillTreeUI`'s requests: an examination, a train, raise or untrain.
+    Skill(SkillRequest),
+    /// `gmExaminationUI`'s start and stop calls.
+    Examination(ExaminationCall),
+    /// The allegiance and fellowship pages' calls: a `CPlayer` call, a selection, or an assisted
+    /// tell's name for the chat.
+    Social(SocialCall),
+    /// A dialog's answer the gameplay panel takes (`GameplayDialogs::frame_answers`).
+    Dialog(DialogRequest),
+    /// `gmGamePlayUI`'s logout: the game options go up, then the character logs off.
+    LogOff,
 }

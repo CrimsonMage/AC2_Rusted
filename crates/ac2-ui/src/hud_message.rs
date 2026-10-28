@@ -8,12 +8,13 @@ use std::sync::Arc;
 use crate::{
     assistance_message, select_key_calls, select_key_of, shop_stack_calls, AllegianceUi,
     AssistancePanel, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentRequest,
-    ConsignmentUi, DialogFactory, EffectsUi, ExamineEffect, ExternalContainerRequest,
-    ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs, HudRequest, HudSource,
-    Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates, NewSaleSource,
-    NewSaleUi, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi, SecureTradeUi, ShopUi,
-    ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi, ToolbarChild, ToolbarUi,
-    UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE, GLOBAL_KEY_PRESS, LOGOUT_ACTION,
+    ConsignmentUi, DialogFactory, DialogOutcome, EffectsUi, ExamineEffect,
+    ExternalContainerRequest, ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs,
+    HudRequest, HudSource, Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates,
+    NewSaleSource, NewSaleUi, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi, SecureTradeUi,
+    ShopUi, Shortcut, ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi, ToolbarChild,
+    ToolbarUi, UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE, GLOBAL_KEY_PRESS,
+    LOGOUT_ACTION,
 };
 use crate::{item_dialog, ItemRequest};
 
@@ -25,6 +26,23 @@ pub trait OptionsMessages {
     fn make(&mut self, tree: &mut UiTree, toolbar: Option<&Arc<LayoutDesc>>);
     /// The page's share of a UI message.
     fn message(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, message: &UiMessage);
+    /// The confirmations' answers (the page's questions among them).
+    fn outcomes(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        outcomes: &[DialogOutcome],
+    );
+    /// Runs the page's requests on the client's preferences, then shows the values again.
+    fn run(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory);
+}
+
+/// The client's shortcut calls (`gmShortcutUI`'s requests on the player's script and session).
+pub trait ShortcutCalls {
+    /// Uses the shortcut in slot `index`.
+    fn use_shortcut(&mut self, index: usize);
+    /// Sets slot `index` to `shortcut`.
+    fn set_shortcut(&mut self, index: usize, shortcut: &Shortcut);
 }
 
 /// The panels the message pass feeds, borrowed from the client's HUD for one frame, and the

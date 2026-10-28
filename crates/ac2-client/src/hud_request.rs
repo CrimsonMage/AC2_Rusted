@@ -4,15 +4,15 @@
 //! for the frame's `KeyStone::OpenHelp`.
 
 use ac2_ui::{
-    CharacterRequest, ConsignmentRequest, ExternalContainerRequest, HudRequest, RadarRequest,
-    SelectionCall,
+    CharacterRequest, ConsignmentRequest, DialogRequest, ExaminationCall, ExternalContainerRequest,
+    HudRequest, RadarRequest, SecureTradeRequest, SelectionCall, SkillRequest, SocialCall,
 };
 
 use crate::gameplay::Command;
 use crate::hud_chat_options::chat_option_commands;
 use crate::hud_pets::pet_commands;
 use crate::hud_player::{examine, PassOut};
-use crate::hud_shop::{catalog_commands, new_sale_commands};
+use crate::hud_shop::{catalog_commands, new_sale_commands, shop_commands};
 use crate::ui_inventory::item_commands;
 
 /// The panels' requests as the frame's commands, flags and help topics, in order.
@@ -59,21 +59,58 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
                 out.open_examination = true;
             }
             HudRequest::OpenHelp(token) => out.help.push(token),
+            HudRequest::SecureTrade(request) => out.commands.push(secure_trade(request)),
+            HudRequest::Shop(request) => out.commands.extend(shop_commands(vec![request])),
+            HudRequest::Skill(request) => match request {
+                SkillRequest::Examine { kind, data } => {
+                    examine(kind, data, 0, &mut out.commands);
+                    out.open_examination = true;
+                }
+                SkillRequest::Train(skill) => {
+                    out.commands
+                        .push(Command::Skill(ac2_weenie::SkillRequest::Train(skill)));
+                }
+                SkillRequest::Raise(skill) => {
+                    out.commands
+                        .push(Command::Skill(ac2_weenie::SkillRequest::Raise(skill)));
+                }
+                SkillRequest::Untrain(skill) => {
+                    out.commands
+                        .push(Command::Skill(ac2_weenie::SkillRequest::Untrain(skill)));
+                }
+                SkillRequest::CancelUntrain(_) => {
+                    out.commands
+                        .push(Command::Skill(ac2_weenie::SkillRequest::CancelUntrain));
+                }
+            },
+            HudRequest::Examination(call) => out.commands.push(match call {
+                ExaminationCall::Start => Command::StartExamination(0),
+                ExaminationCall::Stop => Command::StopExamination,
+            }),
+            HudRequest::Social(call) => match call {
+                SocialCall::Social(request) => out.commands.push(Command::Social(request)),
+                SocialCall::Select(id) => out.commands.push(Command::Select(Some(id))),
+                SocialCall::AssistedTell(name) => out.tells.push(name),
+            },
+            HudRequest::Dialog(request) => out.commands.push(match request {
+                DialogRequest::PopupAnswer {
+                    object,
+                    context,
+                    yes,
+                } => Command::PopupAnswer {
+                    object,
+                    context,
+                    yes,
+                },
+                DialogRequest::ClearResurrection => Command::ClearResurrectionRequest,
+                DialogRequest::RequestResurrect => Command::RequestResurrect,
+            }),
+            HudRequest::LogOff => {
+                out.commands.push(Command::UploadGameOptions);
+                out.commands.push(Command::LogOffCharacter);
+            }
         }
     }
-}
-
-/// The requests as commands onto `commands`; whether the examination panel opens is or-ed into
-/// `open_examination`. For the passes that keep their own command list.
-pub(crate) fn hud_request_into(
-    requests: Vec<HudRequest>,
-    commands: &mut Vec<Command>,
-    open_examination: &mut bool,
-) {
-    let mut out = PassOut::default();
-    hud_request_commands(requests, &mut out);
-    commands.extend(out.commands);
-    *open_examination |= out.open_examination;
 }
 
 /// An external container's close, loot-all and transmute-all (its item requests are
@@ -117,5 +154,20 @@ fn consignment(request: ConsignmentRequest, commands: &mut Vec<Command>) {
             target,
         }),
         ConsignmentRequest::NewSale { .. } | ConsignmentRequest::OpenExamination => {}
+    }
+}
+
+/// A secure trade's call on the player (`gmCWInterface::*Trade*`).
+fn secure_trade(request: SecureTradeRequest) -> Command {
+    match request {
+        SecureTradeRequest::Open { partner } => Command::OpenTrade(partner),
+        SecureTradeRequest::Offer { item, quantity } => Command::OfferItemForTrade {
+            item,
+            amount: quantity,
+        },
+        SecureTradeRequest::Revoke { item } => Command::RevokeItemFromTrade(item),
+        SecureTradeRequest::Accept => Command::AcceptTrade,
+        SecureTradeRequest::Decline => Command::DeclineTrade,
+        SecureTradeRequest::Close => Command::CloseTrade,
     }
 }

@@ -55,9 +55,13 @@ mod hud;
 mod hud_notices;
 pub use hud_notices::{notice_pass, NoticePanels};
 mod hud_message;
-pub use hud_message::{consignment_requests, message_pass, MessagePanels, OptionsMessages};
+pub use hud_message::{
+    consignment_requests, message_pass, MessagePanels, OptionsMessages, ShortcutCalls,
+};
 mod hud_request;
 pub use hud_request::HudRequest;
+mod hud_tick;
+pub use hud_tick::{tick_pass, TickPanels};
 mod hud_source;
 pub use hud_source::HudSource;
 mod indicators;
