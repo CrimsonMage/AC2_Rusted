@@ -139,8 +139,7 @@ impl HudView {
                 crate::hud_friends::friends_notice(panel, tree, notice, &mut commands);
             }
             if let Some(panel) = quests.as_mut() {
-                crate::ui_quests::quest_notice(panel, tree, player, notice);
-                crate::ui_quests::story_quest_notice(panel, tree, notice);
+                panel.recv_gameplay_notice(tree, player, notice);
             }
             if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
                 crate::ui_social::allegiance_notice(page, tree, dialogs, player, notice);

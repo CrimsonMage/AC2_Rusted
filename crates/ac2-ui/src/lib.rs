@@ -115,7 +115,7 @@ mod place;
 mod placement;
 pub mod pregame;
 mod quests_panel;
-pub use quests_panel::QuestsUi;
+pub use quests_panel::{QuestSource, QuestsUi};
 pub use story_quests::{StoryQuestAction, StoryQuestsUi, STORY_CODE_LIST};
 mod catalog;
 #[cfg(test)]

@@ -13,13 +13,26 @@
 use std::sync::Arc;
 
 use ac2_net::protocol::{GmActInfo, GmQuestInfo};
+use ac2_script::wire::scene_from_net;
+use ac2_weenie::{GameplayNotice, SceneInfo};
 
 use crate::element::UiTree;
-use crate::journal_quests::{find_named, JournalQuestsUi, JournalSource, QuestTab};
+use crate::journal_quests::{find_named, JournalQuestsUi, JournalSource, QuestTab, CODE_LIST};
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::story_quests::{StoryQuestAction, StoryQuestsUi};
 use crate::token::tokenize;
+
+/// What the Quest panel asks of the player: the script's quest and act lists, and the scene a
+/// Story page press plays. The client implements it over the player's script and session.
+pub trait QuestSource: JournalSource {
+    /// `gmCWInterface::InqQuestList`: the player's quests (a call that fails gives none).
+    fn quest_list(&self) -> Vec<GmQuestInfo>;
+    /// `gmCWInterface::InqActInfoList`: the story's acts (a call that fails gives none).
+    fn act_list(&self) -> Vec<GmActInfo>;
+    /// The scene plays (`CM_Quest::SendNotice_PlaySequence` with the scene alone).
+    fn play_story_scene(&self, scene: SceneInfo);
+}
 
 /// `gmQuestsUI`'s state: the journal and the panel's shown state.
 #[derive(Debug, Clone)]
@@ -55,8 +68,47 @@ impl QuestsUi {
         }
     }
 
+    /// The panel's gameplay notices: `gmJournalQuestsUI::RecvNotice_UpdateQuests` (the list code
+    /// asks the script for the quests first, as `RecvNotice_UpdateQuests` case 2 does) and
+    /// `gmStoryQuestsUI::RecvNotice_UpdateStoryQuests`. Other notices are not the panel's.
+    pub fn recv_gameplay_notice(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn QuestSource,
+        notice: &GameplayNotice,
+    ) {
+        match notice {
+            GameplayNotice::UpdateQuests { code, quest } => {
+                let list = if *code == CODE_LIST {
+                    source.quest_list()
+                } else {
+                    Vec::new()
+                };
+                self.recv_notice(tree, *code, quest, &list);
+            }
+            GameplayNotice::UpdateStoryQuests { code, act } => {
+                self.recv_story_notice(tree, *code, *act);
+            }
+            _ => {}
+        }
+    }
+
+    /// A press on the Story page: the scene of the act plays. The scene's wire record is turned
+    /// into a [`SceneInfo`] and handed to the source (`gmStoryQuestsUI` play, `PlaySequence`).
+    pub fn play_story_action(&self, action: StoryQuestAction, source: &dyn QuestSource) {
+        let StoryQuestAction::PlayScene { act, scene } = action;
+        let Some(net) = self
+            .story
+            .act(act)
+            .and_then(|a| a.scenes.iter().find(|s| s.id == scene))
+        else {
+            return;
+        };
+        source.play_story_scene(scene_from_net(net));
+    }
+
     /// The global loop's Story page reload (`gmStoryQuestsUI::ListenToMessage` 0xffff0005): when
-    /// one is pending, `acts` (the script's list) lays the page out.
+    /// one is pending, `acts` (the script's list, [`QuestSource::act_list`]) lays the page out.
     pub fn story_global_loop(
         &mut self,
         tree: &mut UiTree,

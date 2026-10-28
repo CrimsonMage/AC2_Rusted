@@ -1,7 +1,7 @@
 //! The HUD frameworks' message pass: the frame's tree messages reach the panels in the order the
 //! frameworks listen to them, and the panels' requests become gameplay commands.
 
-use ac2_ui::UiMessage;
+use ac2_ui::{QuestSource, UiMessage};
 
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
@@ -75,9 +75,7 @@ impl HudView {
                 panel.sync(tree, bar.shown(tree, ac2_ui::ToolbarChild::Quest));
             }
             panel.journal_mut().global_loop(tree, player, *now);
-            panel.story_global_loop(tree, player, || {
-                player.client.borrow_mut().inq_act_info_list()
-            });
+            panel.story_global_loop(tree, player, || player.act_list());
         }
         // `gmClientUI`'s widgets, once the HUD and the preferences are there.
         options.make(&player.client.borrow(), tree, toolbar_layout.as_ref());
@@ -161,7 +159,7 @@ impl HudView {
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);
                 if let Some(action) = panel.story_message(tree, message) {
-                    crate::ui_quests::play_story_scene(panel.story(), action, player);
+                    panel.play_story_action(action, player);
                 }
             }
             if let Some(bar) = vitals.as_mut() {
