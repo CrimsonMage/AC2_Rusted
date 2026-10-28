@@ -8,8 +8,12 @@
 //! `decay_time` is read from the element (`UIElement::GetAttribute_Float`, 5.0 when it has
 //! none); the sum is taken in f32, as the decompile's `(float)` casts do.
 //!
-//! The list's holder is the top-level element of the spew layout (`0x4100000f`) that holds
-//! `SpewBox`. The holder is made a root, so the box draws at its layout rectangle.
+//! Retail makes no root for the spew box. Its holder is a top-level element of the spew layout
+//! (`0x4100000f`) that only the status bar's layout reaches: the status bar root (`StatusbarField`)
+//! has a `reference` child whose `referent` is that holder, so the box is drawn inside the status
+//! bar at the reference's rectangle. `gmChatUI::gmChatUI` finds the list by id over every element
+//! (`UIElementManager::GetElement`), so the lookup here is over the whole tree too. The holder and
+//! its list are `mouse_invisible`, so presses over the box reach what lies beneath.
 //!
 //! Not modelled: `gmChatUI::Show` runs `Update` when the chat first shows; the chat here is
 //! always shown, so the loop alone drives the box.
@@ -46,26 +50,15 @@ pub(crate) struct SpewBox {
     lines: Vec<SpewLine>,
 }
 
-fn contains(element: &ElementDesc, id: u32) -> bool {
-    element.id == id
-        || element
-            .states
-            .iter()
-            .flat_map(|state| state.children.iter())
-            .any(|child| contains(child, id))
-}
-
 impl SpewBox {
-    /// `gmChatUI::gmChatUI`: the holder of `SpewBox` made as a root, and its list. `None` when
-    /// the layout has no spew box or no message template.
-    pub(crate) fn create(tree: &mut UiTree, layout: &Arc<LayoutDesc>) -> Option<Self> {
-        let holder = layout
-            .elements
+    /// `gmChatUI::gmChatUI`: the `SpewBox` list (`GetElement`, the first with that id in the
+    /// tree; it sits under the status bar root), and the `SpewBoxMessage` template from `layout`.
+    /// `None` when the tree has no spew box or the layout no message template.
+    pub(crate) fn create(tree: &UiTree, layout: &Arc<LayoutDesc>) -> Option<Self> {
+        let list = tree
+            .roots()
             .iter()
-            .find(|element| contains(element, SPEW_BOX))?
-            .id;
-        let root = tree.create_root(Arc::clone(layout), holder)?;
-        let list = tree.child_recursive(root, SPEW_BOX)?;
+            .find_map(|&root| tree.child_recursive(root, SPEW_BOX))?;
         let message = layout.find_element(SPEW_BOX_MESSAGE)?;
         Some(Self {
             list,

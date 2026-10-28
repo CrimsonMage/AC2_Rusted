@@ -189,10 +189,10 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     // windows, the hidden fields of gmStackUI and gmExternalContainerUI, gmOverviewMapUI's
     // hidden OverviewMap, gmMiniFellowUI's hidden FellowMiniPanel, gmPetUI's hidden PetPanel and
     // gmStoryUI's hidden background and two story fields, the help window (a second `Book`
-    // made as a root), and the spew box's holder (`gmChatUI::gmChatUI`'s list).
+    // made as a root). The spew box is not a root: it sits in the status bar's tree.
     assert_eq!(
         tree.roots().len(),
-        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1 + 1
+        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1
     );
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
@@ -215,9 +215,8 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     );
     let mut tree = tree;
     let surfaces = tree.compose(&images);
-    // The hidden roots are not drawn: of the chat windows only the first shows, and the spew
-    // box's holder is shown.
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 1 + 1);
+    // The hidden roots are not drawn: of the chat windows only the first shows.
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 1);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))
@@ -511,4 +510,52 @@ fn the_chat_entry_selects_copies_cuts_and_pastes_on_the_real_layout() {
     };
     tree.text_action(0x4000_001B, 1.0, shift);
     assert_eq!(tree.selection(entry), Some((0, max)));
+}
+
+/// The spew box is not a root of its own: `gmChatUI::gmChatUI` finds `SpewBox` by id, and the
+/// status bar's `reference` child (`0x10059476`'s holder) carries it. The holder and its list are
+/// mouse-invisible (`mouse_invisible`), so a press over the box reaches nothing in the HUD.
+#[test]
+fn the_spew_box_sits_in_the_status_bar_and_takes_no_presses() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store_arc = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store_arc, 1024, 768).unwrap().tree;
+    let statusbar = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| {
+            tree.get(r)
+                .is_some_and(|e| e.id() == tokenize("StatusbarField"))
+        })
+        .expect("the status bar root");
+    let list = tree
+        .child_recursive(statusbar, tokenize("SpewBox"))
+        .expect("the spew box is in the status bar's tree");
+    assert!(!tree.roots().contains(&list), "the list is not a root");
+    let bar = tree.screen_box(statusbar);
+    let spew = tree.screen_box(list);
+    // The status bar's reference child is placed at (314, 0) of the bar; the holder's margin
+    // (2, 4) puts the list there (`0x10059476` and its `ab56a9aa` child).
+    assert_eq!((spew.x0, spew.y0), (bar.x0 + 316, bar.y0 + 4));
+
+    // Press at the middle of the box: nothing in the HUD takes it.
+    let (x, y) = ((spew.x0 + spew.x1) / 2, (spew.y0 + spew.y1) / 2);
+    tree.start_input(crate::mouse::UI_POINTER_X, x as f32);
+    tree.start_input(crate::mouse::UI_POINTER_Y, y as f32);
+    tree.update_mouse();
+    let mut chain = vec![list];
+    while let Some(parent) = tree
+        .get(*chain.last().unwrap())
+        .and_then(|e| e.parent_index())
+    {
+        chain.push(parent);
+    }
+    let top = tree.mouse_top();
+    assert!(
+        top.is_none_or(|t| !chain.contains(&t)),
+        "the spew box took the press: {top:?}"
+    );
 }

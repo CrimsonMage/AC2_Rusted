@@ -67,7 +67,7 @@ fn bar_less_window(tree: &mut UiTree) -> usize {
         .find(|&r| {
             tree.is_window_root(r)
                 && tree.get(r).is_some_and(|el| el.visible())
-                // The spew box's holder sits at the layout's origin, over the first window.
+                // The spew box lives in the status bar's tree, not in a window.
                 && tree.child_recursive(r, crate::chat_spew::SPEW_BOX).is_none()
         })
         .expect("a visible window");

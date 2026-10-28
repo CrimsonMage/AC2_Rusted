@@ -901,7 +901,7 @@ key	status	note
 004355d0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00435620	~	ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 004357d0	x	ac2-ui chat.rs display: the error bit (type & 1) queues the spew box line; admin 7148 body (Legions handler unmatched in the index)
-004357f0	~	ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+004357f0	~	ac2-ui chat_spew.rs: the spew list is found by id over the tree (GetElement); it sits in the status bar root through a reference child (holder 0x10059476), mouse-invisible, at the reference rect (314,0); Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 004358d0	x	ac2-ui chat_spew.rs: expired lines leave, pending lines show with decay_time from SpewBoxMessage (6 s in the DAT); tested on the real chat layout (chat_tests)
 00435b80	~	ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 00435bc0	~	ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
