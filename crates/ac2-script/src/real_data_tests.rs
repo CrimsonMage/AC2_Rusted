@@ -376,3 +376,31 @@ fn a_qualities_record_is_the_class_defaults() {
     assert!(!defaults.ints.is_empty() || !defaults.floats.is_empty());
     assert!(crate::vm::ScriptData::class_defaults(&data, 0x8000_0000).is_none());
 }
+
+/// A WState the DATs lack is a miss the first time (a cache-only host asks a worker for it), and
+/// the worker's answer is absent: the lookup is then not-found without a miss, so the script
+/// takes retail's null (`DBObj::Get` returns null) and nothing waits on it.
+#[test]
+fn an_absent_wstate_is_not_found_and_does_not_wait() {
+    use crate::data::{DatScriptData, STATE_RANGE};
+    use crate::vm::{DataRequest, ScriptData};
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(dataset.clone());
+    let (first, last) = STATE_RANGE;
+    let absent = (first..=last)
+        .find(|&did| matches!(load_wstate(&store, DataId::new(did)), Ok(None)))
+        .expect("the DATs leave some WState of the range absent");
+    let data = DatScriptData::new(dataset, store);
+    let worker = data.clone();
+    data.set_cache_only(true);
+    assert!(data.wstate(absent).is_none());
+    assert!(data.take_missed());
+    assert_eq!(data.take_requests(), vec![DataRequest::WState(absent)]);
+    worker.load(DataRequest::WState(absent));
+    assert!(data.wstate(absent).is_none());
+    assert!(!data.take_missed());
+    assert!(!data.peek_missed());
+    assert!(data.take_requests().is_empty());
+}

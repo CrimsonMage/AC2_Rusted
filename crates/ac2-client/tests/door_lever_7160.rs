@@ -47,8 +47,9 @@ impl WorldData for DoorWorld {
         None
     }
 
-    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
         self.scripts.load(read);
+        true
     }
 }
 

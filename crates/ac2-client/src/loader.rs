@@ -43,8 +43,9 @@ pub(crate) enum Loaded {
     Body(Option<u32>, Result<BodyData, String>),
     /// The script state is in the cache (or does not exist): object, package, DID.
     ScriptState(u64, u32, u32),
-    /// The script data read is done (or the DATs lack it).
-    ScriptData,
+    /// The script data read is done: `true` when the world answered it (the record is resident
+    /// or known absent), `false` when the world never answers (its reads are dropped).
+    ScriptData(bool),
     /// The ambient sound's reads.
     Ambient(crate::client_ambient::AmbientLoaded),
     /// An object's motion description: object, and the description (`None` where the DATs
@@ -81,10 +82,7 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
             data.preload_script_state(pid, did);
             Loaded::ScriptState(id, pid, did)
         }
-        Request::ScriptData(read) => {
-            data.load_script_data(read);
-            Loaded::ScriptData
-        }
+        Request::ScriptData(read) => Loaded::ScriptData(data.load_script_data(read)),
         Request::AmbientData => Loaded::Ambient(crate::client_ambient::AmbientLoaded::Data(
             data.ambient_data(),
         )),

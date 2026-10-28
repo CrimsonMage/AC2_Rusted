@@ -526,7 +526,7 @@ impl Client {
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),
-            Loaded::ScriptData => self.script_data_loaded(),
+            Loaded::ScriptData(answered) => self.script_data_loaded(answered),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
             Loaded::Block(block, result) => {
                 let loaded = ac2_smartbox::BlockLoaded::Block(block, result);

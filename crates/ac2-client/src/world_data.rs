@@ -66,8 +66,12 @@ pub trait WorldData: Send + Sync {
     /// `did`) into the shared cache, so `ScriptHost::create_weenie` on the frame thread finds
     /// them there.
     fn preload_script_state(&self, _pid: u32, _did: u32) {}
-    /// Makes a read the script VM stopped for (cache-only script data) resident.
-    fn load_script_data(&self, _read: ac2_script::vm::DataRequest) {}
+    /// Makes a read the script VM stopped for (cache-only script data) resident, or notes that
+    /// the DATs lack it (`ScriptData::load`). `true` when the read was answered that way; a
+    /// world that drops reads returns `false`, and the contexts waiting on them stay waiting.
+    fn load_script_data(&self, _read: ac2_script::vm::DataRequest) -> bool {
+        false
+    }
     /// The region's ambient sound data, if it has any.
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
         None
@@ -125,10 +129,12 @@ impl WorldData for DatWorld {
             .unwrap_or_default()
     }
 
-    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
-        if let Some(data) = &self.script_data {
-            data.load(read);
-        }
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
+        let Some(data) = &self.script_data else {
+            return false;
+        };
+        data.load(read);
+        true
     }
 
     /// `ScriptHost::create_weenie`'s candidates: the class default `0x70000000 | pid` and, for

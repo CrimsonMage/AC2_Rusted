@@ -563,6 +563,16 @@ fn with_cache_only_script() -> Option<(
     ac2_client::Client,
     std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
 )> {
+    with_cache_only_script_over(|data| Arc::new(CacheOnlyWorld(data)))
+}
+
+/// [`with_cache_only_script`] over the world `world` makes from the script data.
+fn with_cache_only_script_over(
+    world: impl FnOnce(DatScriptData) -> Arc<dyn ac2_client::WorldData>,
+) -> Option<(
+    ac2_client::Client,
+    std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
+)> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = ac2_db::ResourceStore::new(dataset.clone());
     let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
@@ -574,7 +584,7 @@ fn with_cache_only_script() -> Option<(
     data.preload_states();
     data.preload_skill_states(&program);
     data.set_cache_only(true);
-    let (mut client, server) = entered_with(spawn(), Arc::new(CacheOnlyWorld(data.clone())));
+    let (mut client, server) = entered_with(spawn(), world(data.clone()));
     client.attach_scripts(
         ScriptHost::new(program, Box::new(data)),
         ac2_client::SCRIPT_VM_FUNCTIONS,
@@ -599,8 +609,9 @@ impl ac2_client::WorldData for CacheOnlyWorld {
     fn game_clock(&self) -> Option<ac2_world::GameClock> {
         None
     }
-    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
         self.0.load(read);
+        true
     }
 }
 
@@ -633,4 +644,35 @@ fn a_first_store_visit_after_login_completes_within_a_frame_budget() {
         "the first store visit did not complete in {FRAME_BUDGET} frames"
     );
     assert!(client.take_script_problems().is_empty());
+}
+
+/// A store visit over a world that never answers script reads (its `load_script_data` drops
+/// them): the frame loop keeps running within the budget, the visit does not complete, and the
+/// object's process waits for its WState instead of asking the loader again in a loop.
+#[test]
+fn a_store_visit_over_a_world_that_drops_script_reads_fails_within_the_budget() {
+    const FRAME_BUDGET: usize = 60;
+    let Some((mut client, server)) = with_cache_only_script_over(|_| Arc::new(Synthetic)) else {
+        return;
+    };
+    let Some(_template) = open_template_store(&server) else {
+        return;
+    };
+    let idle = FrameInput::default();
+    let mut frames = 0;
+    let mut viewed = false;
+    while frames < FRAME_BUDGET && !viewed {
+        frames += 1;
+        for event in step(&mut client, &server, &idle) {
+            if let SessionEvent::Notice(GameplayNotice::ViewStore(_)) = event {
+                viewed = true;
+            }
+        }
+    }
+    assert_eq!(frames, FRAME_BUDGET, "the frame loop ran to its budget");
+    assert!(client.frame().in_world, "the client is still in the world");
+    assert!(
+        !viewed,
+        "a read the world never answers cannot complete the visit"
+    );
 }

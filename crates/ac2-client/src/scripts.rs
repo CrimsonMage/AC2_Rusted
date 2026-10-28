@@ -473,6 +473,12 @@ pub(crate) struct Scripts {
     pub(crate) data_waits: BTreeMap<u32, (u64, Option<u32>)>,
     /// Script data reads handed to the loader and not back yet.
     pub(crate) data_pending: usize,
+    /// Objects whose process could not start for a WState the loader is reading, with the
+    /// package and entity DID to ask again with once those reads are answered.
+    pub(crate) state_retries: BTreeMap<u64, (u32, u32)>,
+    /// A read of the current batch the world did not answer (`load_script_data` gave `false`):
+    /// nothing waiting on the batch resumes, since the reads would only be asked again.
+    pub(crate) data_unanswered: bool,
     /// The `CM_*` notices ac2-weenie has no type for, since the last take.
     pub(crate) script_notices: Vec<ScriptNotice>,
     /// GUN requests for the GUN service ([`Client::set_gun_service`]).
@@ -513,6 +519,8 @@ impl Client {
             produced: Vec::new(),
             data_waits: BTreeMap::new(),
             data_pending: 0,
+            state_retries: BTreeMap::new(),
+            data_unanswered: false,
             script_notices: Vec::new(),
             gun_requests: Vec::new(),
             gun_service: false,
@@ -564,14 +572,21 @@ impl Client {
             return;
         };
         if !scripts.host.create_weenie(id, pid, did) {
-            if scripts.host.take_data_requests().is_empty() {
+            let reads = scripts.host.take_data_requests();
+            if reads.is_empty() {
                 scripts.problems.push(format!(
                     "{id:#018x}: no script process for package {pid:#x}"
                 ));
-            } else {
-                // Its WState left the cache before the process started: read it again.
-                scripts.waiting.insert(id, missed);
-                self.loader.request(Request::ScriptState(id, pid, did));
+                return;
+            }
+            // The WState is not resident yet: the loader reads what create_weenie missed, and
+            // the process is tried again once those answer (absent records answer too, and the
+            // retry then starts the process from the fresh instance, as retail's null does).
+            scripts.waiting.insert(id, missed);
+            scripts.state_retries.insert(id, (pid, did));
+            scripts.data_pending += reads.len();
+            for read in reads {
+                self.loader.request(Request::ScriptData(read));
             }
             return;
         }
@@ -590,16 +605,27 @@ impl Client {
         }
     }
 
-    /// A script data read landed; once none is outstanding, the calls waiting on data run on.
-    pub(crate) fn script_data_loaded(&mut self) {
+    /// A script data read landed (`answered`: the world resolved it, see `Loaded::ScriptData`);
+    /// once none is outstanding, the calls waiting on data run on and the objects whose process
+    /// waited for a WState start again. A batch with an unanswered read stops here: those waits
+    /// stay until the world answers, and nothing is asked again in a loop.
+    pub(crate) fn script_data_loaded(&mut self, answered: bool) {
         let Some(scripts) = self.scripts.as_mut() else {
             return;
         };
         scripts.data_pending = scripts.data_pending.saturating_sub(1);
+        scripts.data_unanswered |= !answered;
         if scripts.data_pending > 0 {
             return;
         }
+        if std::mem::take(&mut scripts.data_unanswered) {
+            return;
+        }
+        let retries = std::mem::take(&mut scripts.state_retries);
         let waits = std::mem::take(&mut scripts.data_waits);
+        for (id, (pid, did)) in retries {
+            self.loader.request(Request::ScriptState(id, pid, did));
+        }
         let mut events = Vec::new();
         for (context, (id, function)) in waits {
             let Some(scripts) = self.scripts.as_mut() else {

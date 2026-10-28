@@ -175,8 +175,9 @@ impl ac2_client::WorldData for ScriptWorld {
     fn game_clock(&self) -> Option<ac2_world::GameClock> {
         None
     }
-    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
         self.0.load(read);
+        true
     }
 }
 

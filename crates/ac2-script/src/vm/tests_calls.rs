@@ -379,3 +379,56 @@ fn a_fault_without_a_miss_still_crashes_the_context() {
     assert_eq!(vm.execute(&mut ctx), InterpStatus::Crash);
     assert!(!ctx.data_wait);
 }
+
+/// A record the DATs lack: the first lookup misses (its read is handed to the worker), and the
+/// worker's answer is absent, so every later lookup is retail's null with nothing to wait for.
+struct Absent(std::rc::Rc<std::cell::Cell<bool>>, std::cell::Cell<bool>);
+
+impl ScriptData for Absent {
+    fn wstate(&self, _did: u32) -> Option<StateRef> {
+        None
+    }
+    fn enum_did(&self, _value: u32, _group: u32) -> Option<u32> {
+        if !self.0.get() {
+            self.1.set(true);
+        }
+        None
+    }
+    fn take_missed(&self) -> bool {
+        self.1.replace(false)
+    }
+    fn peek_missed(&self) -> bool {
+        self.1.get()
+    }
+}
+
+/// An efun that reads an absent record gets the null (its own fault) and does not wait: the
+/// absent answer is not a miss, so `finish_efun` takes the crash as the script's own.
+#[test]
+fn an_efun_that_reads_an_absent_record_gets_the_null_and_does_not_wait() {
+    let code = vec![
+        w(op::PUSHV, 2, 0),
+        w(op::PUSHV, 2, 0),
+        op::CALL_EFUN,
+        0x0065_0005,
+        w(op::POPN, 0, 1),
+        T,
+    ];
+    let answered = std::rc::Rc::new(std::cell::Cell::new(false));
+    let data = Absent(answered.clone(), std::cell::Cell::new(false));
+    let program = Program::from_parts(code, Vec::new(), Vec::new());
+    let mut efuns = EFuns::new();
+    efuns.register(0x0065_0005, read_enum_or_fault);
+    let mut vm = Vm::new(Arc::new(program), Box::new(data), efuns);
+
+    let mut ctx = Context::new(2, None);
+    ctx.can_yield = true;
+    ctx.enter(0).unwrap();
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Interrupted);
+    assert!(ctx.data_wait);
+    answered.set(true);
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Crash);
+    assert!(!ctx.data_wait);
+    assert!(vm.last_fault.is_some());
+    assert!(!vm.states.peek_missed());
+}
