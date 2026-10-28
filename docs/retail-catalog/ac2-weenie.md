@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 770 done, 172 partial, 451 to do, 511 skipped.
+1904 retail functions: 814 done, 172 partial, 406 to do, 512 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -263,15 +263,15 @@ Legend and workflow: [README](README.md).
 ### gAllegianceProfileAdaptor
 - [x] `gAllegianceProfileAdaptor::CallEFun_AddOfficer` · 0046a900 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (0/4)
+## `ac2/client/src/weenie/interp/glue/gcm_allegiance.cpp.c` (4/4)
 
 ### gCM_Allegiance
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — needs port: script notice Patron_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — needs port: script notice RequestVassal raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — needs port: script notice UpdateAllegianceProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — needs port: script notice Vassal_SwearDone raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Allegiance::CallEFun_SendNotice_Patron_SwearDone` · 0046a340 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Allegiance::CallEFun_SendNotice_RequestVassal` · 0046a390 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Allegiance::CallEFun_SendNotice_UpdateAllegianceProfile` · 0046a3f0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Allegiance::CallEFun_SendNotice_Vassal_SwearDone` · 0046a440 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (20/26)
+## `ac2/client/src/weenie/interp/glue/gcm_character.cpp.c` (22/26)
 
 ### gCM_Character
 - [x] `gCM_Character::CallEFun_SendNotice_AddMarker` · 00469a90 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -298,24 +298,24 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSelectionInfo` · 0046a160 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSkill` · 0046a1b0 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 - [x] `gCM_Character::CallEFun_SendNotice_UpdateSkillPanel` · 0046a200 — typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — needs port: script notice UpdateVitae raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — needs port: script notice UpdateVital raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateVitae` · 0046a260 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Character::CallEFun_SendNotice_UpdateVital` · 0046a2d0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (0/5)
+## `ac2/client/src/weenie/interp/glue/gcm_combat.cpp.c` (4/5)
 
 ### gCM_Combat
-- [ ] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — needs port: script notice EndSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — needs port: script notice RequestSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Combat::CallEFun_SendNotice_EndSpecialAttack` · 00469900 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Combat::CallEFun_SendNotice_RequestSpecialAttack` · 00469950 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [-] `gCM_Combat::CallEFun_SendNotice_StartSpecialAttack` · 004699a0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [ ] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — needs port: script notice ToggleSpecialAttack raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — needs port: script notice UpdateAttackState raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Combat::CallEFun_SendNotice_ToggleSpecialAttack` · 004699f0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Combat::CallEFun_SendNotice_UpdateAttackState` · 00469a40 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/gcm_communication.cpp.c` (3/3)
 
 ### gCM_Communication
-- [ ] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — needs port: script notice DisplayStringInfo raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — needs port: script notice DoAssistedTell raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — needs port: script notice ReloadChatSettings raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Communication::CallEFun_SendNotice_DisplayStringInfo` · 00469820 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Communication::CallEFun_SendNotice_DoAssistedTell` · 00469870 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Communication::CallEFun_SendNotice_ReloadChatSettings` · 004698c0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
 ## `ac2/client/src/weenie/interp/glue/gcm_craft.cpp.c` (5/6)
 
@@ -327,70 +327,70 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 - [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 
-## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_examination.cpp.c` (2/2)
 
 ### gCM_Examination
-- [ ] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — needs port: script notice ExaminationRequestChanged raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — needs port: script notice UpdateExaminationProfile raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Examination::CallEFun_SendNotice_ExaminationRequestChanged` · 00469580 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Examination::CallEFun_SendNotice_UpdateExaminationProfile` · 004695d0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (0/13)
+## `ac2/client/src/weenie/interp/glue/gcm_fellowship.cpp.c` (13/13)
 
 ### gCM_Fellowship
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — needs port: script notice ClearFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — needs port: script notice ClearFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — needs port: script notice ExpireRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — needs port: script notice RequestRecruitment raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — needs port: script notice UpdateFellow raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — needs port: script notice UpdateFellowCellID raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — needs port: script notice UpdateFellowHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — needs port: script notice UpdateFellowLevel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — needs port: script notice UpdateFellowMaxHealth raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — needs port: script notice UpdateFellowMaxVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — needs port: script notice UpdateFellowVigor raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — needs port: script notice UpdateFellowship raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — needs port: script notice UpdateLeader raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Fellowship::CallEFun_SendNotice_ClearFellow` · 00469130 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_ClearFellowship` · 00469180 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_ExpireRecruitment` · 004691c0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_RequestRecruitment` · 00469210 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellow` · 00469280 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowCellID` · 004692e0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowHealth` · 00469330 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowLevel` · 00469390 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxHealth` · 004693e0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowMaxVigor` · 00469430 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowVigor` · 00469480 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateFellowship` · 004694e0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Fellowship::CallEFun_SendNotice_UpdateLeader` · 00469530 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (2/6)
+## `ac2/client/src/weenie/interp/glue/gcm_friends.cpp.c` (5/6)
 
 ### gCM_Friends
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_AddFriend` · 00467f60 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — needs port: script notice GUNResult_FriendStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_FriendStatus` · 00467fb0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_RemoveFriend` · 00468010 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
-- [ ] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — needs port: script notice LocalStatus raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Friends::CallEFun_SendNotice_LocalStatus` · 00468060 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [-] `gCM_Friends::RListToGUNUserStatusList` · 004680b0 · legions 00468d60 — STL/container internals: a Rust collection replaces it
-- [ ] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — needs port: script notice GUNResult_GetFriendsList raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Friends::CallEFun_SendNotice_GUNResult_GetFriendsList` · 00468150 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (0/4)
+## `ac2/client/src/weenie/interp/glue/gcm_inventory.cpp.c` (4/4)
 
 ### gCM_Inventory
-- [ ] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — needs port: script notice ContainerStateUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — needs port: script notice ItemUpdate raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — needs port: script notice UpdateContainer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — needs port: script notice UpdateInventory raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Inventory::CallEFun_SendNotice_ContainerStateUpdate` · 00468f10 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Inventory::CallEFun_SendNotice_ItemUpdate` · 00468f70 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Inventory::CallEFun_SendNotice_UpdateContainer` · 00468fb0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Inventory::CallEFun_SendNotice_UpdateInventory` · 00469030 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_money.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_money.cpp.c` (2/2)
 
 ### gCM_Money
-- [ ] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — needs port: script notice GhostMoneyBag raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — needs port: script notice UpdateMoney raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Money::CallEFun_SendNotice_GhostMoneyBag` · 00469090 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Money::CallEFun_SendNotice_UpdateMoney` · 004690e0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (0/1)
+## `ac2/client/src/weenie/interp/glue/gcm_physics.cpp.c` (1/1)
 
 ### gCM_Physics
-- [ ] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — needs port: script notice Do3DDamage raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Physics::CallEFun_SendNotice_Do3DDamage` · 00468ec0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 
-## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/gcm_quest.cpp.c` (2/3)
 
 ### gCM_Quest
-- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — needs port: script notice UpdateQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — needs port: script notice UpdateStoryQuests raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Quest::CallEFun_SendNotice_UpdateQuests` · 00468db0 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_Quest::CallEFun_SendNotice_UpdateStoryQuests` · 00468e00 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [~] `gCM_Quest::CallEFun_SendNotice_PlaySequence` · 00468e50 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
-## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (0/2)
+## `ac2/client/src/weenie/interp/glue/gcm_shortcut.cpp.c` (1/2)
 
 ### gCM_Shortcut
-- [ ] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — needs port: script notice ReloadShortcuts raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — needs port: script notice RemoveRecipe raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Shortcut::CallEFun_SendNotice_ReloadShortcuts` · 00468d20 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [-] `gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe` · 00468d60 — No Legions 7160 counterpart: glue/efun_names.txt has no efun for it; the Legions 0x00468D60 is a different function
 
 ## `ac2/client/src/weenie/interp/glue/gcm_store.cpp.c` (5/12)
 
@@ -421,17 +421,17 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Trade::CallEFun_SendNotice_Trade_BeReset` · 00468c70 — ac2-script host notices: the efun raises its typed notice on the VM (WM_Trade forwarders, ac2-net gameplay/trade.rs ids); exercised by trade_script_7160 and the probe
 - [~] `gCM_Trade::CallEFun_SendNotice_Trade_BeRevoked` · 00468cb0 — BeRevoked efun: raised on the VM only through forwarder 0x48 (CPlayer 0x10F), not exercised on the VM yet
 
-## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/gcm_ui.cpp.c` (2/3)
 
 ### gCM_UI
-- [ ] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — needs port: script notice OpenExaminationPanel raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
-- [ ] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — needs port: script notice PortalSpace raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_UI::CallEFun_SendNotice_OpenExaminationPanel` · 00468940 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
+- [x] `gCM_UI::CallEFun_SendNotice_PortalSpace` · 00468970 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [~] `gCM_UI::CallEFun_SendNotice_PortalScene` · 004689a0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 
-## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (1/2)
+## `ac2/client/src/weenie/interp/glue/gcm_usage.cpp.c` (2/2)
 
 ### gCM_Usage
-- [ ] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — needs port: script notice SetTargetingPointer raised by the host glue; the glue name is not cited in crates/ (host/notices.rs has the table entry; verify and cite)
+- [x] `gCM_Usage::CallEFun_SendNotice_SetTargetingPointer` · 00468870 — Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 - [x] `gCM_Usage::CallEFun_SendNotice_UseBook` · 004688c0 · legions 00469340 — ac2-script host/notices.rs entry 0x00920002 'oiiwwi' (argument order checked against the glue's stack slots)
 
 ## `ac2/client/src/weenie/interp/glue/gfellowadaptor.cpp.c` (9/9)
