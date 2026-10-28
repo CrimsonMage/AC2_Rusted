@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1106 done, 360 partial, 438 to do, 343 skipped.
+2247 retail functions: 1107 done, 360 partial, 437 to do, 343 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -17,7 +17,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [-] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -29,7 +29,7 @@ Legend and workflow: [README](README.md).
 - [-] `Position::Position` · 00426d50 · legions 00426b10 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### gm3DTextUI
-- [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
 - [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -52,7 +52,7 @@ Legend and workflow: [README](README.md).
 ### gm3DTextUI
 - [x] `gm3DTextUI::AverageBoundingBox` · 00428e60 · legions 00428c20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [x] `gm3DTextUI::ConvertObjectToWindow` · 004291a0 · legions 00428f60 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
 - [x] `gm3DTextUI::CalcScreenPosition` · 00429ab0 · legions 00429870 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### _STL::deque<BBox,_STL::allocator<BBox>_>
@@ -82,7 +82,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::CleanUp` · 0042ad00 · legions 0042aac0 — ac2-ui DamageTexts::clear (destroys every damage text); not yet called on a world reset
-- [~] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui hud_state.rs update_reticle, update_damage, update_names (per frame from ac2-client view.rs). Order differs: retail UpdateReticle, UpdateDamage, UpdateNames; view.rs runs names before damage (no shared state, not changed). Off-screen indicator, radar-look colour and quantity not ported
 - [~] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [~] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
 - [x] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150 — ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
@@ -92,7 +92,7 @@ Legend and workflow: [README](README.md).
 - [~] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [~] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame; the name is the object's name, not GetName(quantity)
-- [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs selection_changed and selection_info via hud_state.rs update_reticle; the radar-look colour of the name and the quantity suffix (CheckName) and the off-screen indicator are not ported
 - [x] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [~] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (22/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (23/58)
 
 ### gmGamePlayUI
 - [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
@@ -162,7 +162,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 - [-] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — admin 7148 only: unregisters a deleted weenie's notice handlers; Legions 7160 has no match and the port has no weenie notice handlers to unregister
 - [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
-- [ ] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — needs port (check): gmGamePlayUI::MakeResurrectDialog behaviour; implemented area ac2-ui hud.rs but uncited
+- [x] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs: MakeResurrectDialog's prompt (ID_ResurrectionPrompt with the resurrecter's name, 0x4100000a) or the death dialog (0x41000018), closing the dialog up first (DeathPanel::offer / death dialog); tested in death tests
 
 ### PlayingSoundContext
 - [x] `PlayingSoundContext::Stop` · 00407b80 · legions 004078b0 — ac2-audio/ac2-client: 3D emitters and FX sounds
