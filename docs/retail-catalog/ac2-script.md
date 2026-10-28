@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1681 done, 30 partial, 340 to do, 417 skipped.
+2468 retail functions: 1689 done, 32 partial, 336 to do, 411 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -525,7 +525,7 @@ Legend and workflow: [README](README.md).
 - [x] `gUIShop::CallEFun_SetStoreSize` · 0046e0a0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShop::CallEFun_AddSale` · 0046e280 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 
-## `ac2/shared/src/interp/glue/guishopsale.cpp.c` (12/13)
+## `ac2/shared/src/interp/glue/guishopsale.cpp.c` (13/13)
 
 ### gUIShopSale
 - [x] `gUIShopSale::CallEFun_SetCostDesc` · 0046d900 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -535,7 +535,7 @@ Legend and workflow: [README](README.md).
 - [x] `gUIShopSale::CallEFun_SetItemDID` · 0046daa0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetItemDesc` · 0046db00 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetItemIID` · 0046db90 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-- [ ] `gUIShopSale::CallEFun_SetItemIconDesc` · 0046dbf0 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [x] `gUIShopSale::CallEFun_SetItemIconDesc` · 0046dbf0 — ac2-weenie ShopSale.icon_desc
 - [x] `gUIShopSale::CallEFun_SetItemIconID` · 0046dc80 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetOrdinal` · 0046dce0 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 - [x] `gUIShopSale::CallEFun_SetRestricted` · 0046dd40 — ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -1412,7 +1412,7 @@ Legend and workflow: [README](README.md).
 - [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (28/33)
+## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (29/33)
 
 ### BaseProperty
 - [x] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0 — ac2-script glue::base_property inq_string / set_string
@@ -1444,7 +1444,7 @@ Legend and workflow: [README](README.md).
 - [x] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — ac2-script glue::base_property inq_long_integer
 - [x] `gBaseProperty::CallEFun_InqPackageID` · 0054c250 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-- [-] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [x] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — glue/base_property.rs
 - [x] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 - [x] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
@@ -1694,7 +1694,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityDesc::CallEFun_GetCommentsW` · 00546ff0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [ ] `gEntityDesc::CallEFun_GetEntityNameFromDataIDW` · 005470b0 · legions 00526470 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [ ] `gEntityDesc::CallEFun_GetOffset` · 00547130 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gEntityDesc::CallEFun_GetProperties` · 00547210 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [~] `gEntityDesc::CallEFun_GetProperties` · 00547210 — flat property list regrouped by MasterProperty group; optional properties and file group names not kept
 - [ ] `gEntityDesc::CallEFun_GetScale` · 005472f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [ ] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [x] `gEntityDesc::CallEFun_InqBool` · 00547480 — ac2-script glue::entity_desc inq_word
@@ -1835,7 +1835,7 @@ Legend and workflow: [README](README.md).
 
 ### gIconDesc
 - [ ] `gIconDesc::CallEFun_Empty` · 005432f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gIconDesc::CallEFun_IsValid` · 00543360 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [~] `gIconDesc::CallEFun_IsValid` · 00543360 — glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
 
 ## `portal/shared/src/interp/glue/gifuntestsystem.cpp.c` (0/2)
 
@@ -2839,7 +2839,7 @@ Legend and workflow: [README](README.md).
 - [x] `gPropertyGroup::CallEFun_InqPropertyAt` · 0053b650 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
 - [x] `gPropertyGroup::CallEFun_InqPropertyGroupNameW` · 0053b6f0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
 
-## `portal/shared/src/interp/glue/gpsutils.cpp.c` (2/13)
+## `portal/shared/src/interp/glue/gpsutils.cpp.c` (7/13)
 
 ### PSUtils
 - [x] `PSUtils::is_double` · 0053ab40 · legions 0051d4b0 — ac2-prefs/src/cnum.rs fn is_double (PSUtils::is_double)
@@ -2848,11 +2848,11 @@ Legend and workflow: [README](README.md).
 - [ ] `PSUtils::is_uint64` · 0053ac90 · legions 0051d600 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### gPSUtils
-- [-] `gPSUtils::CallEFun_is_double` · 0053ad00 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-- [-] `gPSUtils::CallEFun_is_int32` · 0053ad50 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-- [-] `gPSUtils::CallEFun_is_int64` · 0053ada0 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-- [-] `gPSUtils::CallEFun_is_uint32` · 0053adf0 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-- [-] `gPSUtils::CallEFun_is_uint64` · 0053ae40 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+- [x] `gPSUtils::CallEFun_is_double` · 0053ad00 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+- [x] `gPSUtils::CallEFun_is_int32` · 0053ad50 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+- [x] `gPSUtils::CallEFun_is_int64` · 0053ada0 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+- [x] `gPSUtils::CallEFun_is_uint32` · 0053adf0 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+- [x] `gPSUtils::CallEFun_is_uint64` · 0053ae40 — ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
 - [-] `gPSUtils::CallEFun_cleanup_directory_nameW` · 0053ae90 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 - [-] `gPSUtils::CallEFun_get_cwdW` · 0053aef0 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 - [-] `gPSUtils::CallEFun_remove_extensionW` · 0053af50 — authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
@@ -3112,12 +3112,12 @@ Legend and workflow: [README](README.md).
 ### gStringUtils
 - [x] `gStringUtils::CallEFun_IsWordInString` · 005520c0 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 
-## `portal/shared/src/interp/glue/gtabootableadaptor.cpp.c` (0/3)
+## `portal/shared/src/interp/glue/gtabootableadaptor.cpp.c` (1/3)
 
 ### gTabooTableAdaptor
 - [ ] `gTabooTableAdaptor::CallEFun_CheckCharactersW` · 00537ed0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [ ] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [x] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 
 ## `portal/shared/src/interp/glue/gtimer.cpp.c` (1/3)
 

@@ -2,7 +2,8 @@
 //! `gUIShopSale` (0x380B), `gCraftSkillAdaptor` (0x33A5), `gDamageTextBlob` (0x97) and the
 //! `gRGBAColor` (0x64) a damage text takes, over ac2-weenie's plain types. Every wrapper
 //! crashes on an undefined `this`; 64-bit values come high word first.
-//! `gUIShopSale::SetItemIconDesc` (an `IconDesc`) is not bound.
+//! `gUIShopSale::SetItemIconDesc` copies an `IconDesc` into the sale, and `gIconDesc::IsValid`
+//! tests one.
 
 use ac2_net::protocol::StringInfo;
 use ac2_weenie::{CraftSkill, DamageText, Shop, ShopSale};
@@ -74,6 +75,8 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x380B_0010, |vm, c| {
         set(vm, c, |s: &mut ShopSale, v| s.item_did = v)
     });
+    efuns.register(0x380B_000D, set_item_icon_desc);
+    efuns.register(0x002E_0002, icon_desc_is_valid);
     // gCraftSkillAdaptor.
     efuns.register(0x33A5_0005, |vm, c| {
         text_out(vm, c, |s: &CraftSkill| &s.name)
@@ -342,4 +345,40 @@ fn add_sale(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
             .unwrap_or(s.sales.len());
         s.sales.insert(at, sale);
     })
+}
+
+/// `gUIShopSale::CallEFun_SetItemIconDesc(IconDesc)`: the sale takes a copy of the layers
+/// (`IconDesc::operator=`).
+fn set_item_icon_desc(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let arg = Call::new(ctx).word(2);
+    let layers = match vm.native(arg) {
+        Some(NativeObject::IconDesc(layers)) => layers
+            .iter()
+            .map(|&(layer, image, color)| ac2_net::protocol::IconLayer {
+                layer,
+                image,
+                color,
+            })
+            .collect(),
+        _ => return vm.bad_this(arg),
+    };
+    with::<ShopSale>(vm, ctx, |s, _| s.icon_desc = layers)
+}
+
+/// `IconDesc::IsValid` over the layers `(layer id, image DID, shift colour)`: 0 when any layer
+/// has no layer id or a null shift colour (`RGBAColor_Null`, all channels 0: the packed colour
+/// 0), else 1 when some layer has an image, 0 for no layers or no images.
+fn icon_desc_is_valid(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let valid = match vm.native(this) {
+        Some(NativeObject::IconDesc(layers)) => {
+            layers
+                .iter()
+                .all(|&(layer, _, color)| layer != 0 && color != 0)
+                && layers.iter().any(|&(_, image, _)| image != 0)
+        }
+        _ => return vm.bad_this(this),
+    };
+    Call::new(ctx).ret(2, u32::from(valid), INT_RESULT);
+    InterpStatus::Success
 }

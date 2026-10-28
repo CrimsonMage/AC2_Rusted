@@ -75,6 +75,7 @@ fn store() -> Shop {
         cost_quantity: price,
         stock,
         status: 0,
+        ..ShopSale::default()
     };
     Shop {
         id: 1,

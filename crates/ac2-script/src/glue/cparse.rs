@@ -62,9 +62,26 @@ pub fn wcsstr(hay: &[u16], needle: &[u16]) -> Option<usize> {
     hay.windows(needle.len()).position(|w| w == needle)
 }
 
-/// The parsed magnitude of a base-0 integer and whether it overflowed `limit`.
-fn parse_unsigned(s: &[u16]) -> (bool, u128, bool) {
+/// What a base-0 integer conversion read: where it stopped (0 when it converted nothing, as the
+/// CRT leaves `endptr` at the start), the sign, the magnitude (saturated at `2^64`) and whether
+/// it overflowed 64 bits.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IntPrefix {
+    pub end: usize,
+    pub negative: bool,
+    pub magnitude: u128,
+    pub overflow: bool,
+}
+
+/// The base-0 integer prefix of `s` (up to its first NUL).
+pub fn int_prefix(s: &[u16]) -> IntPrefix {
     let s = c_str(s);
+    let none = IntPrefix {
+        end: 0,
+        negative: false,
+        magnitude: 0,
+        overflow: false,
+    };
     let mut i = 0;
     while i < s.len() && is_space(s[i]) {
         i += 1;
@@ -105,9 +122,23 @@ fn parse_unsigned(s: &[u16]) -> (bool, u128, bool) {
         i += 1;
     }
     if !any {
+        return none;
+    }
+    IntPrefix {
+        end: i,
+        negative,
+        magnitude: value,
+        overflow,
+    }
+}
+
+/// The parsed magnitude of a base-0 integer and whether it overflowed `limit`.
+fn parse_unsigned(s: &[u16]) -> (bool, u128, bool) {
+    let p = int_prefix(s);
+    if p.end == 0 {
         return (false, 0, false);
     }
-    (negative, value, overflow)
+    (p.negative, p.magnitude, p.overflow)
 }
 
 /// `wcstol(s, NULL, 0)`.
@@ -170,8 +201,8 @@ pub fn wcstoui64(s: &[u16]) -> u64 {
     }
 }
 
-/// `wcstod(s, NULL)`: the longest decimal floating-point prefix, 0 if there is none.
-pub fn wcstod(s: &[u16]) -> f64 {
+/// Where `wcstod` stops (0 when it converts nothing) and whether the value is finite.
+pub fn float_end(s: &[u16]) -> Option<(usize, bool)> {
     let s = c_str(s);
     let mut i = 0;
     while i < s.len() && is_space(s[i]) {
@@ -198,7 +229,7 @@ pub fn wcstod(s: &[u16]) -> f64 {
         }
     }
     if digits == 0 {
-        return 0.0;
+        return Some((0, true));
     }
     if matches!(ascii(i), b'e' | b'E') {
         let mut j = i + 1;
@@ -213,6 +244,24 @@ pub fn wcstod(s: &[u16]) -> f64 {
         }
     }
     let text: String = s[start..i].iter().map(|&c| c as u8 as char).collect();
+    let value: f64 = text.parse().unwrap_or(0.0);
+    Some((i, value.is_finite()))
+}
+
+/// `wcstod(s, NULL)`: the longest decimal floating-point prefix, 0 if there is none.
+pub fn wcstod(s: &[u16]) -> f64 {
+    let s = c_str(s);
+    let Some((end, _)) = float_end(s) else {
+        return 0.0;
+    };
+    if end == 0 {
+        return 0.0;
+    }
+    let mut start = 0;
+    while start < s.len() && is_space(s[start]) {
+        start += 1;
+    }
+    let text: String = s[start..end].iter().map(|&c| c as u8 as char).collect();
     text.parse().unwrap_or(0.0)
 }
 

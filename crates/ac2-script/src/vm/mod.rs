@@ -298,6 +298,9 @@ pub struct Vm {
     pub cur_time: f64,
     /// `GameTime::current_game_time` as the client's clock stands (`ScriptHost::set_game_time`).
     pub game_time: Option<crate::host::game_time::GameTimeState>,
+    /// The player's position as the client holds it (`ScriptHost::set_player_position`), which
+    /// `gCWInterface::GetMyPosition` returns.
+    pub player_position: Option<ac2_net::protocol::Position>,
     /// The clock changes `gGameTime` made, for the client to apply.
     pub game_time_requests: Vec<crate::host::game_time::GameTimeRequest>,
     /// Each weenie script process's `ProcessState::m_procid` by instance reference
@@ -407,6 +410,7 @@ impl Vm {
             shell: ShellTable::default(),
             cur_time: 0.0,
             game_time: None,
+            player_position: None,
             game_time_requests: Vec::new(),
             process_ids: Default::default(),
         }

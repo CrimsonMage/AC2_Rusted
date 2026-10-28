@@ -87,7 +87,7 @@ enum V {
     Native(NativeObject),
 }
 
-fn owner_qualities(vm: &mut Vm, this: u32) -> Option<&mut WeenieQualities> {
+pub(super) fn owner_qualities(vm: &mut Vm, this: u32) -> Option<&mut WeenieQualities> {
     let id = *vm.owners.get(&this)?;
     vm.repositories.get_mut(&id)
 }

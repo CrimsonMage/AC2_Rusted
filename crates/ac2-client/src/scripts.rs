@@ -236,10 +236,19 @@ impl Client {
     /// (`GameTime::AlterTimeOfDayImmediate`, `GameTime::TemporalDilation`).
     pub(crate) fn sync_script_clock(&mut self) {
         let cur_time = self.session.cur_time();
+        let player = self.player.as_ref().map(crate::client::Player::position);
         let Some(scripts) = self.scripts.as_mut() else {
             return;
         };
         scripts.host.set_time(cur_time);
+        scripts.host.set_player_position(player.map(|p| {
+            let (origin, rotation) = (p.frame.origin, p.frame.q);
+            ac2_net::protocol::Position {
+                cell: p.cell_id,
+                origin: [origin.x, origin.y, origin.z],
+                rotation: [rotation.w, rotation.x, rotation.y, rotation.z],
+            }
+        }));
         let Some(clock) = self.game_clock.as_mut() else {
             scripts.host.set_game_time(None);
             return;

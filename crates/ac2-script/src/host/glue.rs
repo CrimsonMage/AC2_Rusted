@@ -35,6 +35,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0050_000A, |vm, c| unpack(vm, c, 4));
     efuns.register(0x007F_0036, |vm, c| send_server_evt(vm, c, false));
     efuns.register(0x007F_0037, |vm, c| send_server_evt(vm, c, true));
+    efuns.register(0x007F_0042, get_my_position);
     efuns.register(0x0095_0001, get_player_id);
     efuns.register(0x0095_0002, get_player_weenie_object_reference);
     efuns.register(0x007E_0003, get_entity_did);
@@ -194,5 +195,26 @@ fn get_entity_did(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         .and_then(|id| vm.init_data.get(id))
         .map_or(0, |&(_, did)| did);
     Call::new(ctx).ret(2, did, tag::BOOL);
+    InterpStatus::Success
+}
+
+/// `gCWInterface::CallEFun_GetMyPosition` (the interface's player position): a new `Position`
+/// native holding the player's cell and frame, or `Position::NULL_POSITION` (cell 0, identity
+/// frame) while the client has none.
+fn get_my_position(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = word(ctx, 1);
+    if this == u32::MAX {
+        return vm.bad_this(this);
+    }
+    let position = vm.player_position.unwrap_or(ac2_net::protocol::Position {
+        cell: 0,
+        origin: [0.0; 3],
+        rotation: [1.0, 0.0, 0.0, 0.0],
+    });
+    let reference = vm.refs.create_native(
+        crate::native::ntype::POSITION,
+        NativeObject::Position(position),
+    );
+    Call::new(ctx).ret(2, reference, tag::REF);
     InterpStatus::Success
 }

@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 194 done, 15 partial, 112 to do, 312 skipped.
+633 retail functions: 196 done, 15 partial, 110 to do, 312 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -940,7 +940,7 @@ Legend and workflow: [README](README.md).
 - [x] `PStringBase<unsigned_short>::SetAtIndex` · 00656c40 · legions 00605590 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
 ### PSUtils
-- [x] `PSUtils::TrimExcessSpaces` · 00656cb0 · legions 00605600 — ac2-db string_meta_text / string_state (CRT C locale classes)
+- [x] `PSUtils::TrimExcessSpaces` · 00656cb0 · legions 00605600 — ac2-script glue/taboo.rs trim_excess_spaces
 
 ### StringTableMetaLanguage
 - [x] `StringTableMetaLanguage::TrimExcessSpaces` · 00656ea0 · legions 006057f0 — ac2-db string_meta_text / string_state (CRT C locale classes)
@@ -1170,7 +1170,7 @@ Legend and workflow: [README](README.md).
 - [x] `StringVarTable::GetVariable` · 00656a30 · legions 00605380 — ac2-db string_info (StringVarTable map)
 - [-] `StringVarTable::~StringVarTable` · 00656af0 · legions 00605440 — Rust ownership
 
-## `portal/shared/src/taboo/tabootable.cpp.c` (0/13)
+## `portal/shared/src/taboo/tabootable.cpp.c` (1/13)
 
 ### TabooTable
 - [ ] `TabooTable::CreateCheckString` · 0065a5c0 · legions 00608f30 — needs port: TabooTable::CreateCheckString (chat filter)
@@ -1178,7 +1178,7 @@ Legend and workflow: [README](README.md).
 - [-] `TabooTable::Pack` · 0065a6f0 — skip: DAT writing/saving/packing (tools only) (TabooTable::Pack)
 - [ ] `TabooTable::UnPack` · 0065a750 · legions 006090c0 — needs port: TabooTable::UnPack (taboo table load)
 - [ ] `TabooTable::CheckCharacters` · 0065a790 · legions 00609100 — needs port: TabooTable::CheckCharacters (chat filter)
-- [ ] `TabooTable::FormatStringForAudience` · 0065a920 · legions 00609290 — needs port: TabooTable::FormatStringForAudience (censor by audience)
+- [x] `TabooTable::FormatStringForAudience` · 0065a920 · legions 00609290 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 
 ### PList<PStringBase<unsigned_short>_>
 - [-] `PList<PStringBase<unsigned_short>_>::operator=` · 0065aab0 · legions 00609420 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
@@ -1195,9 +1195,9 @@ Legend and workflow: [README](README.md).
 - [-] `TabooTable::TabooTable` · 0065b010 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `TabooTable::Allocate` · 0065b050 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 
-## `portal/shared/src/taboo/tabootableadaptor.cpp.c` (0/3)
+## `portal/shared/src/taboo/tabootableadaptor.cpp.c` (1/3)
 
 ### TabooTableAdaptor
 - [ ] `TabooTableAdaptor::CheckCharactersW` · 0065b090 · legions 00609a00 — needs port: TabooTableAdaptor::CheckCharactersW
 - [ ] `TabooTableAdaptor::CheckCensorsW` · 0065b100 · legions 00609a50 — needs port: TabooTableAdaptor::CheckCensorsW
-- [ ] `TabooTableAdaptor::FormatStringForAudienceW` · 0065b170 · legions 00609aa0 — needs port: TabooTableAdaptor::FormatStringForAudienceW
+- [x] `TabooTableAdaptor::FormatStringForAudienceW` · 0065b170 · legions 00609aa0 — ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj

@@ -2146,7 +2146,7 @@ key	status	note
 0046daa0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046db00	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046db90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-0046dbf0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0046dbf0	x	ac2-weenie ShopSale.icon_desc
 0046dc80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046dce0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046dd40	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -3519,7 +3519,7 @@ key	status	note
 004b5cd0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5d50	_	needs port: script efun get scale on the weenie repository; no citation in crates/
 004b5dc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b5e60	_	needs port: script efun load data idw on the weenie repository; no citation in crates/
+004b5e60	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b5ee0	x	ac2-weenie qualities::remove_in_weenie_desc; ac2-script glue repository.rs remove_value
 004b5f60	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 004b5fe0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
@@ -3533,15 +3533,15 @@ key	status	note
 004b63e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
 004b6460	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b64e0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b6560	_	needs port: script efun set edge slides on the weenie repository; no citation in crates/
-004b65e0	_	needs port: script efun set ethereal type on the weenie repository; no citation in crates/
+004b6560	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
+004b65e0	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b6670	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b66f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b6770	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b67f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b6870	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b68f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b6970	_	needs port: script efun set scale on the weenie repository; no citation in crates/
+004b6970	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b69f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b6a70	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b6af0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -3564,7 +3564,7 @@ key	status	note
 004b7780	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7850	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7900	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b79b0	_	needs port: script efun inq ethereal type on the weenie repository; no citation in crates/
+004b79b0	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b7a50	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7b00	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7bb0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -3673,7 +3673,7 @@ key	status	note
 004bb810	x	implemented: cited at crates/ac2-script/src/host/interface.rs:226
 004bb890	x	implemented: cited at crates/ac2-script/src/host/glue.rs:139
 004bb910	_	needs port: script efun send server evt encrypt on the interface; no citation in crates/
-004bb990	_	needs port: script efun get my position on the interface; no citation in crates/
+004bb990	~	player position set each frame by the client (Client::sync_script_clock); vtable slot assumed to be the player's position
 004bba90	_	needs port: script IFun apply properties on the client interface; no citation in crates/
 004bbb80	_	needs port: script IFun display string info on the client interface; no citation in crates/
 004bbc80	_	needs port: script IFun display text on the client interface; no citation in crates/
@@ -6464,7 +6464,7 @@ key	status	note
 00537e90	x	ac2-script: gTokenize (Tokenize(wchar_t*))
 00537ed0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00537f20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-00537fa0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+00537fa0	x	ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -6565,11 +6565,11 @@ key	status	note
 0053abb0	x	ac2-prefs/src/cnum.rs fn is_int32 (PSUtils::is_int32)
 0053ac20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053ac90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053ad00	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-0053ad50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-0053ada0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-0053adf0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-0053ae40	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053ad00	x	ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+0053ad50	x	ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+0053ada0	x	ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+0053adf0	x	ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
+0053ae40	x	ac2-script glue/ps_utils.rs over cparse int_prefix/float_end (CRT end pointer and ERANGE)
 0053ae90	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 0053aef0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 0053af50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
@@ -6858,7 +6858,7 @@ key	status	note
 00543250	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00543280	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005432f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-00543360	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+00543360	~	glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
 005433d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 00543430	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 005434a0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -6971,7 +6971,7 @@ key	status	note
 00546ff0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005470b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-00547210	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+00547210	~	flat property list regrouped by MasterProperty group; optional properties and file group names not kept
 005472f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005473b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547480	x	ac2-script glue::entity_desc inq_word
@@ -7128,7 +7128,7 @@ key	status	note
 0054c0d0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c190	x	ac2-script glue::base_property inq_long_integer
 0054c250	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-0054c310	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+0054c310	x	glue/base_property.rs
 0054c3c0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054c460	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054c500	x	ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
@@ -11619,7 +11619,7 @@ key	status	note
 0063fb60	-	accessor of a Rust typed field
 0063fb80	x	
 0063fc00	-	operator of plain data or container; Rust value semantics / derived PartialEq
-0063fc80	-	accessor of a Rust typed field
+0063fc80	~	glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
 0063fcd0	_	needs port: dependent DIDs of IconDesc for sub-object resolution (AGENTS.md exception)
 006400e0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 00640100	-	writer for DAT/pack output; the client only reads (tool-only)
@@ -12061,7 +12061,7 @@ key	status	note
 00656bb0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 00656be0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 00656c40	x	ac2-db string_meta_text / string_state (CRT C locale classes)
-00656cb0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
+00656cb0	x	ac2-script glue/taboo.rs trim_excess_spaces
 00656ea0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 00656ee0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
 00656fd0	x	ac2-db string_meta_text / string_state (CRT C locale classes)
@@ -12111,7 +12111,7 @@ key	status	note
 0065a6f0	-	skip: DAT writing/saving/packing (tools only) (TabooTable::Pack)
 0065a750	_	needs port: TabooTable::UnPack (taboo table load)
 0065a790	_	needs port: TabooTable::CheckCharacters (chat filter)
-0065a920	_	needs port: TabooTable::FormatStringForAudience (censor by audience)
+0065a920	x	ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 0065aab0	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 0065aaf0	_	needs port: TabooTable::CheckCensors (chat censor)
 0065ad60	_	needs port: PHashTable<PList<PStringBase<unsigned_short>>>::StreamPack (taboo table load)
@@ -12121,7 +12121,7 @@ key	status	note
 0065b050	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 0065b090	_	needs port: TabooTableAdaptor::CheckCharactersW
 0065b100	_	needs port: TabooTableAdaptor::CheckCensorsW
-0065b170	_	needs port: TabooTableAdaptor::FormatStringForAudienceW
+0065b170	x	ac2-script glue/taboo.rs: trim, TrimExcessSpaces, title-case; 0 without the TabooTable DBObj
 0065b1e0	x	
 0065b210	x	
 0065b2d0	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)

@@ -30,6 +30,7 @@ const TYPE_ENUM: u32 = 0x4000_0007;
 const DID_TAG: u8 = tag::BOOL;
 
 pub(super) fn register(efuns: &mut EFuns) {
+    efuns.register(0x0022_0007, get_properties);
     efuns.register(0x0022_0010, inq_entity_desc_from_data_id);
     efuns.register(0x0022_0013, |vm, c| inq_word(vm, c, TYPE_BOOL));
     efuns.register(0x0022_0014, inq_integer);
@@ -150,6 +151,31 @@ fn property(vm: &Vm, this: u32, name: u32) -> Option<Ac2PropertyValue> {
     let properties = vm.data().entity_properties(*did);
     let properties = properties?;
     properties.iter().find(|p| p.name == name).cloned()
+}
+
+/// `gEntityDesc::CallEFun_GetProperties()`: a new `PropertyCollection` holding a copy of the
+/// entity description's properties (the record's `PropertyCollection`, read through the data
+/// source). The data source gives the properties in stream order across groups; each joins the
+/// group its `MasterProperty` desc names.
+fn get_properties(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let did = match vm.native(this) {
+        Some(NativeObject::EntityDesc(did)) => *did,
+        _ => return vm.bad_this(this),
+    };
+    // A cache-only source asks its loader for a record it lacks, and the host runs the call
+    // again once it lands; until then the collection is empty.
+    let properties = vm.data().entity_properties(did).unwrap_or_default();
+    let mut collection = ac2_db::PropertyCollection::default();
+    for property in properties.iter() {
+        collection.add_property(&property.to_base_property());
+    }
+    let reference = vm.refs.create_native(
+        crate::native::ntype::PROPERTY_COLLECTION,
+        NativeObject::PropertyCollection(Box::new(collection)),
+    );
+    Call::new(ctx).ret(2, reference, tag::REF);
+    InterpStatus::Success
 }
 
 #[cfg(test)]

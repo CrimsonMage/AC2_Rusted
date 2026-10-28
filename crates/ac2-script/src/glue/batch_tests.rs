@@ -600,3 +600,231 @@ fn a_registered_shell_word_finds_its_script_function() {
     assert_eq!(host.shell_command("here"), Some(0x0102_0003));
     assert_eq!(host.shell_command("there"), None);
 }
+
+fn weenie_with_qualities(vm: &mut Vm) -> u32 {
+    let this = vm
+        .refs
+        .create_native(ntype::AA_HASH, NativeObject::new_empty(ntype::AA_HASH));
+    vm.owners.insert(this, 5);
+    vm.repositories
+        .insert(5, ac2_weenie::WeenieQualities::default());
+    this
+}
+
+#[test]
+fn the_ethereal_type_goes_into_and_out_of_two_int_qualities() {
+    let mut vm = vm();
+    let this = weenie_with_qualities(&mut vm);
+    let mask = new_native(&mut vm, ntype::ETHEREAL_PHYSICS_TYPE);
+    let (low_stype, high_stype) = (0x1000, 0x1001);
+    let inq = "gCWRepository::CallEFun_InqEtherealType";
+    // Neither int exists yet.
+    assert_eq!(word(&mut vm, inq, &[mask, low_stype, high_stype], this), 0);
+    let (status, _) = call(
+        &mut vm,
+        "gEtherealPhysicsType::CallEFun_SetToEthereal",
+        &[],
+        mask,
+        0,
+    );
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(
+        word(
+            &mut vm,
+            "gCWRepository::CallEFun_SetEtherealType",
+            &[mask, low_stype, high_stype],
+            this
+        ),
+        1
+    );
+    let (status, _) = call(
+        &mut vm,
+        "gEtherealPhysicsType::CallEFun_SetToSolid",
+        &[],
+        mask,
+        0,
+    );
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(word(&mut vm, inq, &[mask, low_stype, high_stype], this), 1);
+    assert_eq!(
+        vm.native(mask),
+        Some(&NativeObject::EtherealPhysicsType(
+            ac2_physics::PhysicsTypeMask::from_bits(u64::MAX)
+        ))
+    );
+    assert_eq!(
+        word(&mut vm, "gCWRepository::CallEFun_SetEdgeSlides", &[1], this),
+        1
+    );
+    assert_eq!(
+        word(
+            &mut vm,
+            "gCWRepository::CallEFun_SetScale",
+            &[2.0_f32.to_bits()],
+            this
+        ),
+        1
+    );
+    let name = vm.new_wstring("nothing.dat".encode_utf16().collect());
+    assert_eq!(
+        word(
+            &mut vm,
+            "gCWRepository::CallEFun_LoadDataIDW",
+            &[0x2000, name],
+            this
+        ),
+        0,
+        "a name with no file"
+    );
+    // Without qualities every call answers 0.
+    let bare = vm
+        .refs
+        .create_native(ntype::AA_HASH, NativeObject::new_empty(ntype::AA_HASH));
+    assert_eq!(
+        word(
+            &mut vm,
+            "gCWRepository::CallEFun_SetScale",
+            &[2.0_f32.to_bits()],
+            bare
+        ),
+        0
+    );
+}
+
+#[test]
+fn string_number_tests_follow_the_crt_converters() {
+    let mut vm = vm();
+    let check = |vm: &mut Vm, name: &str, text: &str| {
+        let s = vm.new_wstring(text.encode_utf16().collect());
+        word(vm, &format!("gPSUtils::CallEFun_{name}"), &[s], 0)
+    };
+    assert_eq!(check(&mut vm, "is_int32", "-42"), 1);
+    assert_eq!(check(&mut vm, "is_int32", "0x1F"), 1);
+    assert_eq!(check(&mut vm, "is_int32", "12abc"), 0);
+    assert_eq!(check(&mut vm, "is_int32", "99999999999"), 0, "ERANGE");
+    assert_eq!(
+        check(&mut vm, "is_int32", ""),
+        1,
+        "nothing to convert stops at the NUL"
+    );
+    assert_eq!(check(&mut vm, "is_int32", " "), 0);
+    assert_eq!(check(&mut vm, "is_uint32", "4294967295"), 1);
+    assert_eq!(check(&mut vm, "is_uint32", "4294967296"), 0);
+    assert_eq!(check(&mut vm, "is_uint64", "18446744073709551615"), 1);
+    assert_eq!(check(&mut vm, "is_uint64", "18446744073709551616"), 0);
+    assert_eq!(check(&mut vm, "is_double", "1.5e2"), 1);
+    assert_eq!(check(&mut vm, "is_double", "1.5e"), 0);
+    assert_eq!(check(&mut vm, "is_double", "1e999"), 0, "ERANGE");
+}
+
+#[test]
+fn an_icon_desc_is_valid_when_every_layer_is_named_and_tinted_and_one_has_an_image() {
+    let mut vm = vm();
+    let icon = |vm: &mut Vm, layers: Vec<(u32, u32, u32)>| {
+        let r = vm
+            .refs
+            .create_native(ntype::ICON_DESC, NativeObject::IconDesc(layers));
+        word(vm, "gIconDesc::CallEFun_IsValid", &[], r)
+    };
+    assert_eq!(icon(&mut vm, vec![]), 0);
+    assert_eq!(icon(&mut vm, vec![(1, 22, 0xFF00_00FF)]), 1);
+    assert_eq!(icon(&mut vm, vec![(1, 0, 0xFF00_00FF)]), 0, "no image");
+    assert_eq!(icon(&mut vm, vec![(0, 22, 0xFF00_00FF)]), 0, "no layer id");
+    assert_eq!(icon(&mut vm, vec![(1, 22, 0)]), 0, "null shift colour");
+    assert_eq!(
+        icon(&mut vm, vec![(1, 22, 5), (2, 0, 0)]),
+        0,
+        "a later bad layer"
+    );
+}
+
+#[test]
+fn a_shop_sale_keeps_the_icon_desc_it_is_given() {
+    let mut vm = vm();
+    let sale = vm
+        .refs
+        .create_native(ntype::UI_SHOP_SALE, NativeObject::ShopSale(Box::default()));
+    let icon = vm
+        .refs
+        .create_native(ntype::ICON_DESC, NativeObject::IconDesc(vec![(2, 22, 7)]));
+    let (status, _) = call(
+        &mut vm,
+        "gUIShopSale::CallEFun_SetItemIconDesc",
+        &[icon],
+        sale,
+        0,
+    );
+    assert_eq!(status, InterpStatus::Success);
+    let Some(NativeObject::ShopSale(s)) = vm.native(sale) else {
+        panic!("a ShopSale");
+    };
+    assert_eq!(s.icon_desc.len(), 1);
+    assert_eq!(
+        (
+            s.icon_desc[0].layer,
+            s.icon_desc[0].image,
+            s.icon_desc[0].color
+        ),
+        (2, 22, 7)
+    );
+}
+
+#[test]
+fn a_position_property_and_the_players_position_come_out_as_position_natives() {
+    let mut vm = vm();
+    let mut p = property(0x30, 7, 0);
+    p.value_type = 0x4000_000E;
+    p.value = Some(BasePropertyValue::Position(ac2_db::PropertyPosition {
+        cell: 0xA9B4_0022,
+        frame: ac2_math::AFrame {
+            origin: ac2_math::Vec3::new(1.0, 2.0, 3.0),
+            orientation: ac2_math::Quat::IDENTITY,
+        },
+    }));
+    let prop = property_ref(&mut vm, p);
+    let out = new_native(&mut vm, ntype::POSITION);
+    assert_eq!(
+        word(&mut vm, "gBaseProperty::CallEFun_InqPosition", &[out], prop),
+        1
+    );
+    let Some(NativeObject::Position(position)) = vm.native(out) else {
+        panic!("a Position");
+    };
+    assert_eq!(
+        (position.cell, position.origin),
+        (0xA9B4_0022, [1.0, 2.0, 3.0])
+    );
+    // An integer property has no position.
+    let other = property_ref(&mut vm, property(0x31, 7, 1));
+    assert_eq!(
+        word(
+            &mut vm,
+            "gBaseProperty::CallEFun_InqPosition",
+            &[out],
+            other
+        ),
+        0
+    );
+}
+
+#[test]
+fn the_interface_hands_back_the_players_position() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = crate::host::ScriptHost::new(Arc::new(program), Box::new(NoData));
+    let vm = host.vm_mut();
+    let interface = new_native(vm, ntype::AA_HASH);
+    let position = |vm: &Vm, r: u32| match vm.native(r) {
+        Some(NativeObject::Position(p)) => *p,
+        _ => panic!("a Position"),
+    };
+    let null = word(vm, "gCWInterface::CallEFun_GetMyPosition", &[], interface);
+    assert_eq!(position(vm, null).cell, 0);
+    host.set_player_position(Some(ac2_net::protocol::Position {
+        cell: 0xA9B4_0022,
+        origin: [1.0, 2.0, 3.0],
+        rotation: [1.0, 0.0, 0.0, 0.0],
+    }));
+    let vm = host.vm_mut();
+    let mine = word(vm, "gCWInterface::CallEFun_GetMyPosition", &[], interface);
+    assert_eq!(position(vm, mine).cell, 0xA9B4_0022);
+}

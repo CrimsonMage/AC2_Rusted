@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 825 done, 175 partial, 396 to do, 508 skipped.
+1904 retail functions: 825 done, 181 partial, 390 to do, 508 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2279,7 +2279,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallEFun_ProcessText` · 004bb810 — implemented: cited at crates/ac2-script/src/host/interface.rs:226
 - [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — implemented: cited at crates/ac2-script/src/host/glue.rs:139
 - [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — needs port: script efun send server evt encrypt on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_GetMyPosition` · 004bb990 — needs port: script efun get my position on the interface; no citation in crates/
+- [~] `gCWInterface::CallEFun_GetMyPosition` · 004bb990 — player position set each frame by the client (Client::sync_script_clock); vtable slot assumed to be the player's position
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0 — needs port: script IFun apply properties on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0 — needs port: script IFun display string info on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_DisplayText` · 004bbc80 · legions 004b0ba0 — needs port: script IFun display text on the client interface; no citation in crates/
@@ -2425,7 +2425,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [ ] `gCWRepository::CallEFun_GetScale` · 004b5d50 — needs port: script efun get scale on the weenie repository; no citation in crates/
 - [x] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60 — needs port: script efun load data idw on the weenie repository; no citation in crates/
+- [~] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-weenie qualities::remove_in_weenie_desc; ac2-script glue repository.rs remove_value
 - [x] `gCWRepository::CallEFun_RemoveDataID` · 004b5f60 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [x] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
@@ -2439,15 +2439,15 @@ Legend and workflow: [README](README.md).
 - [~] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
 - [x] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560 — needs port: script efun set edge slides on the weenie repository; no citation in crates/
-- [ ] `gCWRepository::CallEFun_SetEtherealType` · 004b65e0 — needs port: script efun set ethereal type on the weenie repository; no citation in crates/
+- [~] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
+- [~] `gCWRepository::CallEFun_SetEtherealType` · 004b65e0 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetInt` · 004b6770 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetLongInt` · 004b67f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetPackageID` · 004b6870 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetPosition` · 004b68f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_SetScale` · 004b6970 — needs port: script efun set scale on the weenie repository; no citation in crates/
+- [~] `gCWRepository::CallEFun_SetScale` · 004b6970 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_SetStringInfo` · 004b69f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetStringW` · 004b6a70 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetTimestamp` · 004b6af0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -2470,7 +2470,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_GetStringW` · 004b7780 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_InqBool` · 004b7850 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_InqDataID` · 004b7900 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_InqEtherealType` · 004b79b0 · legions 004adb10 — needs port: script efun inq ethereal type on the weenie repository; no citation in crates/
+- [~] `gCWRepository::CallEFun_InqEtherealType` · 004b79b0 · legions 004adb10 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_InqFloat` · 004b7a50 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_InqInstanceID` · 004b7b00 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_InqInt` · 004b7bb0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)

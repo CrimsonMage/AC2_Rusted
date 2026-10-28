@@ -43,6 +43,7 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gBaseProperty::CallEFun_SetDataID" => set_data_id,
             "gBaseProperty::CallEFun_InqPackageID" => inq_package_id,
             "gBaseProperty::CallEFun_SetPackageID" => set_package_id,
+            "gBaseProperty::CallEFun_InqPosition" => inq_position,
             "gBaseProperty::CallEFun_InqStringInfo" => inq_string_info,
             "gBaseProperty::CallEFun_SetStringInfo" => set_string_info,
             "gBaseProperty::CallEFun_GetPropertyName" => get_property_name,
@@ -293,6 +294,34 @@ fn inq_string_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     let target = out_native(vm, ctx, out);
     match vm.native_mut(target) {
         Some(NativeObject::StringInfo(out_info)) => *out_info = script_string_info(&info),
+        _ => return vm.bad_this(target),
+    }
+    ret_flag(ctx, true);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_InqPosition(Position &)`: copies the value's `Position` (cell and
+/// frame) into the out native. A property without a `Position` value answers 0 and leaves the
+/// out alone.
+fn inq_position(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, out) = this_and_arg(ctx);
+    let found = match read_value(vm, this, |v| v.inq_position()) {
+        Ok(found) => found,
+        Err(status) => return status,
+    };
+    let Some(position) = found else {
+        ret_flag(ctx, false);
+        return InterpStatus::Success;
+    };
+    let rotation = position.frame.orientation;
+    let native = ac2_net::protocol::Position {
+        cell: position.cell,
+        origin: position.frame.origin.to_array(),
+        rotation: [rotation.w, rotation.x, rotation.y, rotation.z],
+    };
+    let target = out_native(vm, ctx, out);
+    match vm.native_mut(target) {
+        Some(NativeObject::Position(slot)) => *slot = native,
         _ => return vm.bad_this(target),
     }
     ret_flag(ctx, true);

@@ -13,6 +13,8 @@ pub struct ShopSale {
     pub item: u64,
     pub item_did: u32,
     pub icon_did: u32,
+    /// `m_iconDesc` (`gUIShopSale::SetItemIconDesc`): the item's icon layers.
+    pub icon_desc: Vec<ac2_net::protocol::IconLayer>,
     pub item_desc: StringInfo,
     pub cost_desc: StringInfo,
     pub cost_icon: u32,
@@ -30,6 +32,7 @@ impl Default for ShopSale {
             item: 0,
             item_did: 0,
             icon_did: 0,
+            icon_desc: Vec::new(),
             item_desc: StringInfo::default(),
             cost_desc: StringInfo::default(),
             cost_icon: 0,

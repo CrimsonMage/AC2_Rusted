@@ -57,3 +57,10 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.game_time_requests)
     }
 }
+
+impl ScriptHost {
+    /// The player's position as the client holds it, for `gCWInterface::GetMyPosition`.
+    pub fn set_player_position(&mut self, position: Option<ac2_net::protocol::Position>) {
+        self.vm.player_position = position;
+    }
+}

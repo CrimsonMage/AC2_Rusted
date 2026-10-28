@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 119 done, 14 partial, 231 to do, 421 skipped.
+785 retail functions: 119 done, 15 partial, 231 to do, 420 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (14/62)
@@ -1158,7 +1158,7 @@ Legend and workflow: [README](README.md).
 ### IconDesc
 - [x] `IconDesc::StreamPack` · 0063fb80
 - [-] `IconDesc::operator==` · 0063fc00 · legions 005f3b10 — operator of plain data or container; Rust value semantics / derived PartialEq
-- [-] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90 — accessor of a Rust typed field
+- [~] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90 — glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
 - [ ] `IconDesc::GetSubDataIDs` · 0063fcd0 · legions 005f3be0 — needs port: dependent DIDs of IconDesc for sub-object resolution (AGENTS.md exception)
 - [-] `IconDesc::ToFileNode` · 0063fea0 — text source format (admin tools)
 - [-] `IconDesc::Clear` · 006400e0 · legions 005f3e10 — reset to defaults before decode / reset of plain fields; Rust builds fresh values
