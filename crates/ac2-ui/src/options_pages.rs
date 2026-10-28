@@ -154,6 +154,13 @@ impl OptionsPages {
         dialogs: &mut DialogFactory,
     ) {
         reap_saves(&mut self.saves);
+        // `UIElementManager::Init` / `HandleApply`: the tooltip keys as the bank holds them, taken
+        // when they change (at startup and after an apply).
+        let mut tooltip = None;
+        host.with_prefs(&mut |prefs| tooltip = Some(crate::tooltip_prefs::values(prefs.bank())));
+        if let Some((delay, enabled)) = tooltip {
+            tree.apply_tooltip_prefs(delay, enabled);
+        }
         let Some(page) = self.page.as_mut() else {
             return;
         };

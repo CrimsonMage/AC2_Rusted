@@ -9717,7 +9717,7 @@ key	status	note
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3910	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 005e3960	x	ac2-ui element.rs: UiTree::create_root
-005e3aa0	_	needs port (check): UIElementManager::ChangingElementVisibility behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e3aa0	x	ac2-ui element.rs set_visible: a tooltip owner hidden (itself or its parent) loses its tooltip; tooltip_tests
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
@@ -9733,7 +9733,7 @@ key	status	note
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4d20	x	ac2-ui tooltip.rs
 005e4d30	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
-005e4d70	_	needs port (check): UIElementManager::HandleApply behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e4d70	x	ac2-ui tooltip_prefs.rs UiTree::apply_tooltip_prefs: the delay (0x4000005B) applied with UseTime's show/clear checks, the switch (0x4000005C) clears and restarts the tooltip; read from the bank each frame in options_pages.rs run (applied on change); tooltip_tests the_tooltip_follows_its_preferences_and_its_owner_hiding
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e50d0	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader [vtable-checked: not a slot of any located Legions vtable]
@@ -9763,7 +9763,7 @@ key	status	note
 005e6bb0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e6be0	_	needs port: RefreshEvent_g behaviour
 005e6c00	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
-005e6f70	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+005e6f70	~	ac2-ui tooltip_prefs.rs register: Init's two tooltip keys (section 0x4000000C, ID_Misc_TooltipDelay 0..10 default 0.25, ID_Misc_TooltipEnable on) linked to UIElementManager, registered by ac2-client ClientPrefs::load (prefs_7160 test on the DAT names); the rest of Init is construction (UiTree::new), the render refresh callback and the scene manager
 005e7130	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
 005e7280	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
 005e7370	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
@@ -9819,8 +9819,8 @@ key	status	note
 005e92c0	_	needs port (check): UIElement::InqImageSize behaviour; implemented area ac2-ui element.rs but uncited
 005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005e93e0	_	needs port (check): UIElement::UpdateActivatable behaviour; implemented area ac2-ui element.rs but uncited
-005e9420	_	needs port (check): UIElement::UpdateActivateOrder behaviour; implemented area ac2-ui element.rs but uncited
+005e93e0	-	the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
+005e9420	-	the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
 005e9470	x	ac2-ui text_edit.rs: m_visible & parent IsVisible
 005e94c0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005e94f0	x	ac2-ui place.rs: UiTree::screen_box (the parent's screen origin, or the root's object origin, plus the rect)
@@ -9853,8 +9853,8 @@ key	status	note
 005eab10	x	ac2-ui drag.rs drag_item: disallow_drag_out, then the owner's drag-out callback (DragCheck), the copy and start_drag_item
 005eabd0	x	ac2-ui drag.rs catch_dropped_item: a container that takes drops asks its drag-drop callback (DragCheck; a refusal ends the catch), else stop_drag_item with the copy; other elements pass it to the parent
 005eac90	x	ac2-ui tooltip.rs
-005eacb0	_	needs port (check): UIElement::IsActivatable behaviour; implemented area ac2-ui element.rs but uncited
-005eacd0	_	needs port (check): UIElement::GetActivateOrder behaviour; implemented area ac2-ui element.rs but uncited
+005eacb0	x	ac2-ui: the activatable attribute, read by UiTree::activate (button.rs is_activatable, text_edit.rs activation)
+005eacd0	-	the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
 005eacf0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar

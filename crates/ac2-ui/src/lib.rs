@@ -250,6 +250,7 @@ mod text_scroll;
 mod token;
 mod toolbar;
 mod tooltip;
+pub mod tooltip_prefs;
 mod transition;
 mod tree_scroll;
 mod tree_view;

@@ -54,3 +54,68 @@ fn a_resting_pointer_shows_the_tooltip_and_it_goes_after_ten_seconds() {
     tree.global_loop(11.4);
     assert!(tree.tooltip_element().is_none(), "gone after ten seconds");
 }
+
+/// The tooltip preferences (`UIElementManager::HandleApply`), and an owner hidden while it has the
+/// tooltip (`ChangingElementVisibility`).
+#[test]
+fn the_tooltip_follows_its_preferences_and_its_owner_hiding() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut tree = build_gameplay_hud(&store, 1024, 768).unwrap().tree;
+    let (target, x, y) = hover_target(&tree).expect("an element with a tooltip");
+    tree.global_loop(1.0);
+    tree.start_input(UI_POINTER_X, x as f32);
+    tree.start_input(UI_POINTER_Y, y as f32);
+    // A two-second delay: nothing at 1.3, the tooltip once 2 seconds have passed.
+    tree.apply_tooltip_prefs(2.0, true);
+    tree.global_loop(1.3);
+    assert!(tree.tooltip_element().is_none(), "the longer delay");
+    tree.global_loop(3.1);
+    assert!(tree.tooltip_element().is_some());
+    // Tooltips off clears it, and none comes back.
+    tree.apply_tooltip_prefs(2.0, false);
+    assert!(tree.tooltip_element().is_none());
+    tree.global_loop(6.0);
+    assert!(tree.tooltip_element().is_none());
+    // On again shows it at once (cleared and started), and hiding its owner clears it.
+    tree.apply_tooltip_prefs(2.0, true);
+    assert!(tree.tooltip_element().is_some());
+    tree.set_visible(target, false);
+    assert!(tree.tooltip_element().is_none());
+    assert_eq!(tree.tooltip_owner(), None);
+}
+
+/// Names for the test: every section and key is named (as the DAT names them).
+struct Names;
+
+impl ac2_prefs::NameTable for Names {
+    fn section_name(&self, id: u32) -> Option<String> {
+        Some(format!("Section{id:08X}"))
+    }
+
+    fn key_name(&self, id: u32) -> Option<String> {
+        Some(format!("Key{id:08X}"))
+    }
+
+    fn enum_name(&self, _map: u32, _label: u32) -> Option<String> {
+        None
+    }
+
+    fn enum_label(&self, _map: u32, _name: &str) -> Option<u32> {
+        None
+    }
+}
+
+#[test]
+fn the_tooltip_keys_register_in_their_section() {
+    use crate::tooltip_prefs::{register, values, TOOLTIP_DELAY, TOOLTIP_ENABLE, TOOLTIP_SECTION};
+    let mut bank = ac2_prefs::PreferenceBank::new(b"");
+    assert_eq!(register(&mut bank, &Names), 2);
+    assert_eq!(
+        bank.list(TOOLTIP_SECTION),
+        vec![TOOLTIP_DELAY, TOOLTIP_ENABLE]
+    );
+    assert_eq!(values(&bank), (0.25, true));
+}

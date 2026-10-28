@@ -220,3 +220,22 @@ fn a_first_run_takes_the_hardware_quality_and_a_saved_quality_wins() {
     );
     let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
 }
+
+/// `UIElementManager::Init`: the tooltip delay and switch are named in the DAT and register with
+/// the manager's defaults.
+#[test]
+fn the_tooltip_preferences_register_from_the_dat_names() {
+    let Some(store) = store() else {
+        return;
+    };
+    let prefs = ClientPrefs::load(temp_file("tooltip.ini"), store).expect("no file is read");
+    let bank = prefs.bank();
+    assert_eq!(
+        bank.list(ac2_ui::tooltip_prefs::TOOLTIP_SECTION),
+        vec![
+            ac2_ui::tooltip_prefs::TOOLTIP_DELAY,
+            ac2_ui::tooltip_prefs::TOOLTIP_ENABLE
+        ]
+    );
+    assert_eq!(ac2_ui::tooltip_prefs::values(bank), (0.25, true));
+}

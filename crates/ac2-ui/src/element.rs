@@ -547,6 +547,16 @@ impl UiTree {
         self.el_mut(index).visible = visible;
         self.changed = true;
         self.menu_visibility(index);
+        // `UIElementManager::ChangingElementVisibility`: a tooltip owner that is no longer shown
+        // (itself or its parent hidden) loses its tooltip.
+        let parent_shown = self
+            .el(index)
+            .parent
+            .is_none_or(|p| self.get(p).is_some_and(|e| e.visible));
+        if !(visible && parent_shown) && self.tooltip.owner == Some(index) {
+            self.tooltip.owner = None;
+            self.clear_tooltip();
+        }
     }
 
     /// Whether anything drawn changed since the last call.

@@ -109,7 +109,7 @@ pub struct ClientPrefs {
 
 impl ClientPrefs {
     /// Reads `path` (an empty file when there is none) and registers the sound, render (graphics
-    /// and display) and camera preferences. Runs before the frame loop.
+    /// and display), camera and tooltip preferences. Runs before the frame loop.
     pub fn load(path: PathBuf, store: Arc<ResourceStore>) -> io::Result<Self> {
         let mut file = PrefsFile::load(path, DatNames::new(&store))?;
         let (bank, names) = file.parts_mut();
@@ -117,6 +117,7 @@ impl ClientPrefs {
         ac2_render::prefs::register_graphics(bank, names);
         ac2_render::prefs::register_device(bank, names);
         ac2_smartbox::prefs::register(bank, names);
+        ac2_ui::tooltip_prefs::register(bank, names);
         Ok(Self { file })
     }
 

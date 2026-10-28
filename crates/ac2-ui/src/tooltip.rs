@@ -5,9 +5,11 @@
 //! `tooltip_entry` from the owner's string table), sized to the text and placed below and right
 //! of the pointer, kept on the screen. It goes after ten seconds, or when the owner changes.
 //!
-//! Not modelled yet: the right-button check (`ActionDown(0x40000004)` keeps it away), the
-//! tooltip options (`HandleApply`), and the cursor image's own size (32 x 32 is assumed for
-//! `RenderUI::cursorWidth` / `cursorHeight`).
+//! The delay and the on/off switch are preferences (`tooltip_prefs.rs`). An owner hidden while it
+//! has the tooltip loses it (`ChangingElementVisibility`, in `UiTree::set_visible`).
+//!
+//! Not modelled yet: the right-button check (`ActionDown(0x40000004)` keeps it away) and the
+//! cursor image's own size (32 x 32 is assumed for `RenderUI::cursorWidth` / `cursorHeight`).
 
 use std::sync::Arc;
 
