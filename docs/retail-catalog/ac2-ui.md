@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1106 done, 359 partial, 442 to do, 340 skipped.
+2247 retail functions: 1106 done, 360 partial, 438 to do, 343 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -638,26 +638,26 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::IsActive` · 0044b000 · legions 0044bc60 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::HandleActivation` · 0044b030 · legions 0044bcd0 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::Show` · 0044b090 · legions 0044bd30 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [ ] `ChatWindow::LocationApplied` · 0044b120 · legions 0044bdc0 — needs port (check): ChatWindow::LocationApplied behaviour; implemented area ac2-ui chat_window.rs but uncited
+- [~] `ChatWindow::Show` · 0044b090 · legions 0044bd30 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [~] `ChatWindow::LocationApplied` · 0044b120 · legions 0044bdc0 — window positions are applied by the client's window-position code (AGENTS exception: saved per character, save_loc to the server); the chat has no separate LocationApplied
 - [x] `ChatWindow::SetZLevel` · 0044b140 · legions 0044bde0 — ac2-ui chat.rs / chat_window.rs
 
 ### gmChatUI
-- [ ] `gmChatUI::RecvNotice_CreateObject` · 0044b150 — needs port (check): gmChatUI::RecvNotice_CreateObject behaviour; implemented area ac2-ui chat.rs / chat_window.rs but uncited
+- [-] `gmChatUI::RecvNotice_CreateObject` · 0044b150 — registers the chat notices on each new weenie; the client routes chat text itself (hud_view chat_display), so no per-weenie handler is needed
 
 ### ChatWindow::ChatInfo
 - [x] `ChatWindow::ChatInfo::ChatInfo` · 0044b1a0 · legions 0044bdf0 — ac2-ui chat.rs / chat_window.rs
 
 ### ChatWindow
 - [x] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-- [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 - [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
 
 ### PStringBaseIter_Common<unsigned_short>
 - [-] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b5b0 · legions 0044c090 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### ChatWindow
-- [~] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 
 ### PStringBaseIter_Common<unsigned_short>
 - [-] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b730 · legions 0044c130 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -671,13 +671,13 @@ Legend and workflow: [README](README.md).
 ### ChatWindow
 - [x] `ChatWindow::RecvNotice_DisplayStringInfo` · 0044b8e0 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::GetChatMessageInfo` · 0044ba70 · legions 0044c790 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 
 ### PSUtils
 - [ ] `PSUtils::FindAllWords` · 0044bc80 · legions 0044c990 — needs port (check): PSUtils::FindAllWords split in ac2-script string_utils.rs, cite is on the separator constant
 
 ### ChatWindow
-- [ ] `ChatWindow::~ChatWindow` · 0044beb0 · legions 0044cbc0 — needs port (check): ChatWindow::~ChatWindow lifecycle (create/teardown: listeners, children, surfaces); ac2-ui chat_window.rs
+- [-] `ChatWindow::~ChatWindow` · 0044beb0 · legions 0044cbc0 — destructor: Rust drop and UiTree roots replace the teardown
 - [x] `ChatWindow::HandleCommandOrAliasKey` · 0044bf80 · legions 0044cc90 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat_window.rs: pending lines write to the log, the log scrolls to its end unless the scroll bar holds the lock (tested on the real layout)
 - [x] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30 — ac2-ui chat + ac2-client chat_text
@@ -685,10 +685,10 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120 — ac2-ui chat.rs / chat_window.rs
 - [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
-- [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 - [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-- [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 
 ## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (17/22)
 
@@ -998,7 +998,7 @@ Legend and workflow: [README](README.md).
 
 ### gmChatUI
 - [x] `gmChatUI::SetLastFocus` · 004351c0 · legions 00435990 — ac2-ui chat.rs / chat_window.rs
-- [ ] `gmChatUI::~gmChatUI` · 004351d0 · legions 004359f0 — needs port (check): gmChatUI::~gmChatUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui chat.rs / chat_window.rs
+- [-] `gmChatUI::~gmChatUI` · 004351d0 · legions 004359f0 — destructor: Rust drop and UiTree roots replace the teardown
 - [x] `gmChatUI::DetermineTargetWindow` · 00435280 · legions 00435aa0 — ac2-ui chat.rs / chat_window.rs
 - [x] `gmChatUI::UpdateZLevels` · 00435320 · legions 00435b40 — ac2-ui chat.rs / chat_window.rs
 - [x] `gmChatUI::SetActiveWindow` · 00435370 · legions 00435b90 — ac2-ui chat.rs / chat_window.rs
