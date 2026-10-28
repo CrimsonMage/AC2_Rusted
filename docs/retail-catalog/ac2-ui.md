@@ -326,12 +326,12 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (1/6)
 
 ### gmOverviewMapUI
-- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 - [-] `gmOverviewMapUI::~gmOverviewMapUI` · 0043e1c0 · legions 0043ea10 — C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 - [x] `gmOverviewMapUI::ShowMap` · 0043e290 · legions 0043eae0 — ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
 - [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs map_for_button/message: the four zoom buttons (Osteth, Omishan, Arramora, LinvakMassif) call show_map with their map state; the close button hides. Client routes UiMessage to it (ac2-client hud_player_message.rs). Not: KnorrMap (its button id is not bound: Legions binds DAT_00a4b640 as both the coordinates text and the Knorr-style message), the help page (KeyStone::OpenHelp)
-- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 
 ## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (6/18)
 
@@ -490,9 +490,9 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::ListenToMessage` · 0041cda0 · legions 0041cbc0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::EnterStore` · 0041cde0 · legions 0041cc00 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::gmShopCatalogUI` · 0041ce30 · legions 0041cc50 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-- [~] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+- [~] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
 - [x] `gmShopCatalogUI::RecvNotice_LeaveCatalog` · 0041cf80 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-- [~] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+- [~] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
@@ -532,7 +532,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 - [x] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) is not
+- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) opens ID_Help_ShopConsignment (hud_help.rs)
 - [x] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -558,7 +558,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [~] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); the sale slot's mouse-over tooltip and the help page are not modelled
+- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); the sale slot's mouse-over tooltip is not modelled
 
 ## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (17/22)
 
@@ -580,7 +580,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — no Drop: RequestLeaveStore is not sent when the panel is destroyed
 - [~] `gmShopUI::RecvNotice_HandleDragFrom` · 0041df30 — ac2-ui shop.rs recv_handle_drag_from: purchase into the slot; the drag notice has no GameplayNotice yet
 - [x] `gmShopUI::PostSale` · 0041df90 · legions 0041ddb0 — ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
-- [~] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; help page not modelled
+- [~] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
 - [x] `gmShopUI::UpdateSales` · 0041e540 · legions 0041e360 — ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
 - [x] `gmShopUI::gmShopUI` · 0041e6a0 · legions 0041e4c0 — ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
 - [x] `gmShopUI::RecvNotice_UpdateStore` · 0041e8d0 — ac2-ui shop.rs recv_update_store: rebuilds the list while shown
@@ -1032,7 +1032,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0 — C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 - [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
-- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; help (KeyStone) skipped
+- [~] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; ExaminationHelpButton opens ID_Help_Examine (hud_help.rs)
 - [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
 - [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
 - [~] `gmExaminationUI::gmExaminationUI` · 004312e0 — field, list, timers and the hidden start; Legions filter tabs (four mask tabs, +0xB8 filter word) not modelled
@@ -1171,7 +1171,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmToolbarUI::ShowPlugin` · 00421f60 · legions 00421da0 — KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 - [x] `gmToolbarUI::RecvNotice_ShowSaleReminder` · 00421fe0 — ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
 - [x] `gmToolbarUI::RecvNotice_UpdateMountState` · 00422080 · legions 00421ec0 — ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
-- [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; KeyStone help is an external window, ShowKeyStone skipped) and the shortcut bar Show is a separate entry
+- [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; ShowKeyStone toggles the help window, hud_help.rs toggle_keystone) and the shortcut bar Show is a separate entry
 - [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; ManageChildren tooltips ID_Toolbar_TT_<child> (Hide while shown, Show while hidden) via refresh_tooltips. Not: the child panel contents (each child's framework)
 - [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
 - [x] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ConsignmentsButton release (Legions 0x00422140 element DAT_00a48d50) calls gmCWInterface::DisplaySaleReminders: ac2-ui toolbar.rs is_sale_reminder_press, routed in ac2-client hud_player_message.rs to Command::DisplaySaleReminders (IFun 0xB4013D); toolbar_tests the_consignments_button_release_is_the_sale_reminder_press
@@ -1225,15 +1225,15 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gminventoryui.cpp.c` (4/5)
 
 ### gmInventoryUI
-- [x] `gmInventoryUI::Show` · 00434500 · legions 00434cd0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-- [x] `gmInventoryUI::ListenToMessage` · 00434530 · legions 00434d00 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-- [x] `gmInventoryUI::SetupChildren` · 00434590 · legions 00434d60 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmInventoryUI::Show` · 00434500 · legions 00434cd0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+- [x] `gmInventoryUI::ListenToMessage` · 00434530 · legions 00434d00 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+- [x] `gmInventoryUI::SetupChildren` · 00434590 · legions 00434d60 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
 ### gmStatusbarUI
 - [~] `gmStatusbarUI::CleanupChildren` · 00434670 · legions 00434e40 — ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
 
 ### gmInventoryUI
-- [x] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (8/11)
 
@@ -1424,7 +1424,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmQuestsUI::Show` · 004342d0 · legions 00434aa0 — ac2-ui quests_panel.rs QuestsUi::show and sync (journal show, QuestButton unchanged when open); the toolbar shows the field (toolbar.rs)
 - [x] `gmQuestsUI::ListenToMessage` · 00434330 · legions 00434b00 — ac2-ui toolbar.rs
 - [x] `gmQuestsUI::SetActivePanel` · 00434390 · legions 00434b60 — ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
-- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
+- [~] `gmQuestsUI::gmQuestsUI` · 004343c0 · legions 00434b90 — ac2-ui quests_panel.rs QuestsUi::create (journal made; the field is not modelled, the registrations are the toolbar's); QuestHelpButton opens ID_Help_Quest (hud_help.rs)
 
 ## `ac2/client/src/ui/gameplay/toolbar/quest/gmstoryquestsui.cpp.c` (9/11)
 
@@ -1516,9 +1516,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (3/3)
 
 ### gmSkillUI
-- [x] `gmSkillUI::Show` · 00435000 · legions 004357d0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-- [x] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-- [x] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+- [x] `gmSkillUI::Show` · 00435000 · legions 004357d0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+- [x] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+- [x] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
 
@@ -1608,9 +1608,9 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (0/3)
 
 ### gmSocialUI
-- [~] `gmSocialUI::Show` · 00430620 · legions 004303e0 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
-- [~] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
-- [~] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [~] `gmSocialUI::Show` · 00430620 · legions 004303e0 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [~] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [~] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
 
 ## `ac2/client/src/ui/gmuiflow.cpp.c` (10/37)
 

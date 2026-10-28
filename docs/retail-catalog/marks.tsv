@@ -432,7 +432,7 @@ key	status	note
 0041ac00	~	ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
 0041ad20	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041ad40	x	ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-0041af80	~	newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); the sale slot's mouse-over tooltip and the help page are not modelled
+0041af80	~	newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); the sale slot's mouse-over tooltip is not modelled
 0041b090	-	C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
 0041b0b0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 0041b240	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
@@ -456,7 +456,7 @@ key	status	note
 0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bff0	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
 0041c0f0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-0041c480	~	consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) is not
+0041c480	~	consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) opens ID_Help_ShopConsignment (hud_help.rs)
 0041c800	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041c820	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041c980	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
@@ -468,9 +468,9 @@ key	status	note
 0041cda0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041cde0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041ce30	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-0041cf10	~	catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+0041cf10	~	catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
 0041cf80	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-0041cff0	~	catalog.rs message: close, enter, consignment and row presses; the help page (KeyStone::OpenHelp) is not modelled. The destructor sends no RequestLeaveCatalog (no Drop), as ac2-ui shop.rs
+0041cff0	~	catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
 0041d0f0	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041d230	x	ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 0041d3d0	x	ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
@@ -490,7 +490,7 @@ key	status	note
 0041de50	~	no Drop: RequestLeaveStore is not sent when the panel is destroyed
 0041df30	~	ac2-ui shop.rs recv_handle_drag_from: purchase into the slot; the drag notice has no GameplayNotice yet
 0041df90	x	ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
-0041e2c0	~	ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; help page not modelled
+0041e2c0	~	ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
 0041e540	x	ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
 0041e6a0	x	ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
 0041e8d0	x	ac2-ui shop.rs recv_update_store: rebuilds the list while shown
@@ -565,7 +565,7 @@ key	status	note
 00421f60	-	KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 00421fe0	x	ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
 00422080	x	ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
-004220d0	~	ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; KeyStone help is an external window, ShowKeyStone skipped) and the shortcut bar Show is a separate entry
+004220d0	~	ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; ShowKeyStone toggles the help window, hud_help.rs toggle_keystone) and the shortcut bar Show is a separate entry
 00422160	~	ac2-ui toolbar.rs: fields shown/hidden by side; ManageChildren tooltips ID_Toolbar_TT_<child> (Hide while shown, Show while hidden) via refresh_tooltips. Not: the child panel contents (each child's framework)
 00422230	x	ac2-ui toolbar.rs
 00422270	x	ConsignmentsButton release (Legions 0x00422140 element DAT_00a48d50) calls gmCWInterface::DisplaySaleReminders: ac2-ui toolbar.rs is_sale_reminder_press, routed in ac2-client hud_player_message.rs to Command::DisplaySaleReminders (IFun 0xB4013D); toolbar_tests the_consignments_button_release_is_the_sale_reminder_press
@@ -813,9 +813,9 @@ key	status	note
 00430430	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 004304a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 00430600	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-00430620	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
-00430650	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
-004306b0	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; help page not opened (SocialAction::OpenHelp returned); UIFramework child-framework propagation not modelled; social_page_tests.rs
+00430620	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
+00430650	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
+004306b0	~	ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
 00430810	x	ac2-ui toolbar.rs
 00430820	~	ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
 00430840	x	ac2-ui examination.rs + ac2-client ui_sources
@@ -825,7 +825,7 @@ key	status	note
 00430ad0	-	C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 00430b60	x	ac2-ui examination.rs + ac2-client ui_sources
 00430c00	x	ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
-00430c80	~	ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; help (KeyStone) skipped
+00430c80	~	ac2-ui examination.rs message: the button, close and the shown state; Legions filter-tab clicks (mask in the request word) not modelled; ExaminationHelpButton opens ID_Help_Examine (hud_help.rs)
 00430d80	x	ac2-ui examination.rs + ac2-client ui_sources
 00430db0	~	countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
 004312e0	~	field, list, timers and the hidden start; Legions filter tabs (four mask tabs, +0xB8 filter word) not modelled
@@ -871,12 +871,12 @@ key	status	note
 004342d0	x	ac2-ui quests_panel.rs QuestsUi::show and sync (journal show, QuestButton unchanged when open); the toolbar shows the field (toolbar.rs)
 00434330	x	ac2-ui toolbar.rs
 00434390	x	ac2-ui quests_panel.rs QuestsUi::set_active_panel (tab found by name, panel.rs start_use_active opens it and closes the other tab)
-004343c0	~	ac2-ui quests_panel.rs QuestsUi::create (journal made; the field and the help button are not modelled, the registrations are the toolbar's)
-00434500	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-00434530	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-00434590	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+004343c0	~	ac2-ui quests_panel.rs QuestsUi::create (journal made; the field is not modelled, the registrations are the toolbar's); QuestHelpButton opens ID_Help_Quest (hud_help.rs)
+00434500	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+00434530	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+00434590	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 00434670	~	ac2-ui: the status bar children are fields of GameplayHud and drop with its tree; no per-child teardown call
-00434700	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00434700	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 004347e0	~	the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
 00434a20	~	the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
 00434aa0	~	the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
@@ -888,9 +888,9 @@ key	status	note
 00434d10	~	the option panel (OptionField) is reachable from the toolbar Option button with its ClientTab, CharacterTab and ChatTab pages; the client page is made from the bank (ac2-client hud_options.rs). Not wired: the close-with-changes question (Show(0) MakeConfirmDialog, DoConfirm yes applies all pages, no recalls), the AssistanceTab page
 00434dd0	~	logout confirmation is ac2-ui game_dialogs.rs / ac2-client hud_game_dialogs.rs (the logout key); the quit confirmation and the page's message handler are not modelled
 00434f70	~	ac2-client client_options.rs OptionsWindow: the changed-close confirmation and its yes/no (answer: yes applies, no recalls); the dialog itself is not drawn and the page is not wired to a HUD
-00435000	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-00435030	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
-00435090	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp is an external window and is not opened (as gmToolbarUI::ShowKeyStone)
+00435000	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+00435030	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
+00435090	x	toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 004351c0	x	ac2-ui chat.rs / chat_window.rs
 004351d0	_	needs port (check): gmChatUI::~gmChatUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui chat.rs / chat_window.rs
 00435280	x	ac2-ui chat.rs / chat_window.rs
@@ -1052,12 +1052,12 @@ key	status	note
 0043ddb0	~	ac2-ui journal_time.rs time_left: the words and thresholds; minute and second fields two digits wide (sprintf format not recovered)
 0043e080	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 0043e0d0	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
-0043e150	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+0043e150	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 0043e1c0	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-0043e230	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+0043e230	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 0043e290	x	ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
 0043e2c0	~	ac2-ui overview_map.rs map_for_button/message: the four zoom buttons (Osteth, Omishan, Arramora, LinvakMassif) call show_map with their map state; the close button hides. Client routes UiMessage to it (ac2-client hud_player_message.rs). Not: KnorrMap (its button id is not bound: Legions binds DAT_00a4b640 as both the coordinates text and the Knorr-style message), the help page (KeyStone::OpenHelp)
-0043e300	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp is an external window, not opened
+0043e300	~	ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
 0043e380	-	C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
 0043e3a0	x	ac2-ui journal_quests.rs drop_row
 0043e430	x	ac2-ui journal_quests.rs Rows::do_quest_time (countdown in journal_time.rs)
