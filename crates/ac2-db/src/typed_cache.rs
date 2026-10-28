@@ -51,6 +51,12 @@ impl<T> CachedResource<T> {
         Arc::downgrade(&self.value)
     }
 
+    /// A shared handle on the decoded value, for a holder that keeps it past the checkout (the
+    /// value is freed on the last drop, as the cache's own handle).
+    pub fn arc(&self) -> Arc<T> {
+        Arc::clone(&self.value)
+    }
+
     pub(crate) fn value_arc(&self) -> Arc<T> {
         Arc::clone(&self.value)
     }

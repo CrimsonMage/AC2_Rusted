@@ -566,6 +566,24 @@ impl Terrain {
     }
 }
 
+impl Terrain {
+    /// `CLandBlock::FindInteriorCell`: the first env cell of the block (in cell id order) whose cell
+    /// BSP holds `point`, a point of the block's frame. The scan stops at the first id below the
+    /// first env cell, as the block info's cell list does.
+    pub fn find_interior_cell(&self, block_cell_id: u32, point: Vector) -> Option<u32> {
+        let block = block_cell_id & 0xFFFF_0000;
+        let mut ids: Vec<u32> = self
+            .env_cells
+            .keys()
+            .copied()
+            .filter(|id| id & 0xFFFF_0000 == block && id & 0xFFFF >= 0x100)
+            .collect();
+        ids.sort_unstable();
+        ids.into_iter()
+            .find(|id| self.env_cells[id].point_in_cell(point))
+    }
+}
+
 impl CellSource for Terrain {
     fn land_cell(&self, cell_id: u32) -> Option<&LandCell> {
         self.cells.get(&cell_id)

@@ -2,6 +2,7 @@
 //! then the nearest portal it walks through), `BSPTREE`/`BSPNODE`/`BSPLEAF::TraceRay` (only
 //! solid leaves block) and `CPolygon::TraceRay` with `Plane::intersect_line`.
 
+use super::mesh::trace_ray_against_mesh;
 use super::objects::trace_ray_sphere;
 use super::{sub, LosParameters, LosTrace, Ray, RayIntersection};
 use crate::bsp::polygon::point_in_polygon;
@@ -181,16 +182,25 @@ impl<'a> LosTrace<'a> {
         // The BSP writes its normal into a buffer whose z held `dir.z * length`.
         let mut local_normal = Vector::new(0.0, 0.0, reach_z);
         if !portals_only {
-            if let Some(tree) = cell.structure.physics.as_deref() {
-                // `UseExactDrawingRep` traces the cell's render mesh
-                // (`CEnvCell::TraceRayAgainstMesh`), which physics does not hold.
-                if params.intersect != RayIntersection::ExactDrawingRep {
-                    let hit = tree.trace_ray_root(&local, &mut local_normal);
-                    if let Some(t) = hit.filter(|&t| t < best) {
-                        best = t;
-                        params.delta = t;
-                        kind = 2;
-                    }
+            if params.intersect == RayIntersection::ExactDrawingRep {
+                // `CEnvCell::TraceRayAgainstMesh` (front faces only).
+                let hit = cell
+                    .structure
+                    .render_mesh
+                    .as_deref()
+                    .and_then(|mesh| trace_ray_against_mesh(mesh, &local, false));
+                if let Some((t, normal)) = hit.filter(|&(t, _)| t < best) {
+                    best = t;
+                    params.delta = t;
+                    local_normal = normal;
+                    kind = 2;
+                }
+            } else if let Some(tree) = cell.structure.physics.as_deref() {
+                let hit = tree.trace_ray_root(&local, &mut local_normal);
+                if let Some(t) = hit.filter(|&t| t < best) {
+                    best = t;
+                    params.delta = t;
+                    kind = 2;
                 }
             }
             if params.intersect == RayIntersection::PhysicsRep

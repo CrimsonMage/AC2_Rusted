@@ -66,6 +66,9 @@ pub struct CellStructure {
     pub cell_bsp: CellBsp,
     /// Portal polygons by the index `CCellPortal` names.
     pub portal_polygons: Vec<Polygon>,
+    /// The cell's drawn mesh (`CMeshInstance::GetMesh`), traced by `UseExactDrawingRep` lines of
+    /// sight (`CEnvCell::TraceRayAgainstMesh`).
+    pub render_mesh: Option<Arc<ac2_assets::Ac2Mesh>>,
 }
 
 /// A resident interior cell.

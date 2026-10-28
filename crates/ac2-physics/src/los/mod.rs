@@ -8,6 +8,7 @@
 
 mod env;
 mod land;
+mod mesh;
 mod objects;
 #[cfg(test)]
 mod tests;

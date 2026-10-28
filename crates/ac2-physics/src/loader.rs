@@ -255,6 +255,7 @@ fn cell_structure(structure: &Ac2CellStruct) -> CellStructure {
         physics,
         cell_bsp,
         portal_polygons,
+        render_mesh: None,
     }
 }
 
@@ -297,7 +298,15 @@ pub fn load_block_interiors(
                 let Some(source) = world.cell_struct(cell.cell_mesh)? else {
                     continue;
                 };
-                let structure = Arc::new(cell_structure(&source));
+                let mut structure = cell_structure(&source);
+                structure.render_mesh = store
+                    .load_cached_packed::<ac2_assets::Ac2Mesh>(TypedResourceRef::new(
+                        DatFileKind::Portal,
+                        cell.cell_mesh,
+                        0,
+                    ))?
+                    .map(|mesh| mesh.arc());
+                let structure = Arc::new(structure);
                 structures.insert(cell.cell_mesh.raw(), Arc::clone(&structure));
                 structure
             }

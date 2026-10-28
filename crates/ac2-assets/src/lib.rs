@@ -93,7 +93,7 @@ pub use ac2_material::{
     Ac2Waveform,
 };
 pub use ac2_material_instance::load_ac2_material;
-pub use ac2_mesh::Ac2Mesh;
+pub use ac2_mesh::{Ac2Mesh, Ac2MeshFragment};
 pub use ac2_particle_desc::{
     Ac2ParticleEmitterDesc, Ac2ParticleKeyframe, Ac2ParticleSystemDesc, Ac2WaveformVec3,
 };

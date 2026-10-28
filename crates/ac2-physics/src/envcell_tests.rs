@@ -160,6 +160,7 @@ fn room(y0: f32, y1: f32, mut walls: Vec<Polygon>) -> Arc<CellStructure> {
         physics: Some(Arc::new(BspTree::new(vec![leaf], walls))),
         cell_bsp: CellBsp { nodes },
         portal_polygons: Vec::new(),
+        render_mesh: None,
     })
 }
 
@@ -355,4 +356,18 @@ fn an_interior_cell_names_its_physics_material() {
     });
     assert_eq!(terrain.env_material(ROOM_A), Some(77));
     assert_eq!(terrain.env_material(ROOM_B), None);
+}
+
+#[test]
+fn an_interior_cell_is_found_from_a_point_in_it() {
+    let world = rooms();
+    let at = |x: f32, y: f32, z: f32| world.find_interior_cell(BLOCK, v(BASE.0 + x, BASE.1 + y, z));
+    assert_eq!(at(2.0, 2.0, 1.0), Some(ROOM_A));
+    assert_eq!(at(2.0, 6.0, 1.0), Some(ROOM_B));
+    // Outside both rooms, or in another block.
+    assert_eq!(at(2.0, 20.0, 1.0), None);
+    assert_eq!(
+        world.find_interior_cell(0x7F7E_0000, v(BASE.0 + 2.0, BASE.1 + 2.0, 1.0)),
+        None
+    );
 }

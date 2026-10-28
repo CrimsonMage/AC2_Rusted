@@ -263,6 +263,7 @@ fn room(terrain: &mut Terrain) {
         physics: Some(Arc::new(BspTree::new(nodes, Vec::new()))),
         cell_bsp: CellBsp::default(),
         portal_polygons: vec![door.clone()],
+        render_mesh: Some(Arc::new(super::mesh::tests::wall_mesh())),
     });
     terrain.insert_env_cell(EnvCell {
         cell_id: ROOM,
@@ -356,4 +357,25 @@ fn begin_and_end_positions_across_landblocks() {
         "{:?}",
         params.end_point()
     );
+}
+
+#[test]
+fn the_exact_drawing_rep_traces_the_cell_mesh() {
+    let mut terrain = flat();
+    room(&mut terrain);
+    let mut params = LosParameters::new();
+    params.intersect = RayIntersection::ExactDrawingRep;
+    params.set_from_position_and_offset(
+        &Position::new(ROOM, Frame::new(v(81.0, 82.0, 1.0), Quaternion::IDENTITY)),
+        v(10.0, 0.0, 0.0),
+    );
+    assert!(terrain.los_check(&mut params));
+    assert_eq!(params.trace_result(), 1);
+    assert_eq!(params.final_cell_id(), ROOM);
+    assert!(
+        near(params.end_point(), v(84.0, 82.0, 1.0)),
+        "{:?}",
+        params.end_point()
+    );
+    assert_eq!(params.impact_normal(), v(-1.0, 0.0, 0.0));
 }
