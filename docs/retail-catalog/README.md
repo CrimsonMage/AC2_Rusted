@@ -45,11 +45,11 @@ scripts/retail_catalog.py status
 | [ac2-world](ac2-world.md) | 989 | 187 | 25 | 325 | 452 |
 | [ac2-render](ac2-render.md) | 781 | 136 | 57 | 228 | 360 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 8 | 76 |
-| [ac2-physics](ac2-physics.md) | 2124 | 534 | 121 | 693 | 776 |
+| [ac2-physics](ac2-physics.md) | 2124 | 534 | 121 | 694 | 775 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 91 | 35 | 90 | 46 |
 | [ac2-client](ac2-client.md) | 354 | 126 | 51 | 70 | 107 |
 | [ac2-ui](ac2-ui.md) | 2247 | 1104 | 359 | 444 | 340 |
-| [ac2-script](ac2-script.md) | 2468 | 1479 | 111 | 544 | 334 |
+| [ac2-script](ac2-script.md) | 2468 | 1480 | 110 | 544 | 334 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 224 | 31 | 29 | 215 |
 | [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |
 | [replaced](replaced.md) | 2058 | 36 | 0 | 0 | 2022 |

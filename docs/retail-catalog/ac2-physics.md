@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 534 done, 121 partial, 693 to do, 776 skipped.
+2124 retail functions: 534 done, 121 partial, 694 to do, 775 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -718,7 +718,7 @@ Legend and workflow: [README](README.md).
 - [-] `CollideProperty::~CollideProperty` · 0069ff90 · legions 0063cdc0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [x] `CollideProperty::SetProperty` · 0069ffb0 · legions 0063cde0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CollideProperty::UpdateVal` · 0069ffe0 · legions 0063ce10 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [-] `CollideProperty::GetPropertyOutputStringW` · 006a0040 · legions 0063ce70 — admin/debug property text; the script's gCollideProperty::CallEFun_GetPropertyOutputStringW needs the BaseProperty output strings, not ported
+- [ ] `CollideProperty::GetPropertyOutputStringW` · 006a0040 · legions 0063ce70 — not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
 - [-] `CollideProperty::StreamPack` · 006a0100 · legions 0063cf30 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
 ## `portal/shared/src/physobj/collision/collidepropertylist.cpp.c` (1/7)

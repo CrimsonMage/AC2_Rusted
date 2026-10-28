@@ -490,3 +490,63 @@ fn property_type_names_come_from_the_type_enum() {
     assert_eq!(missing, 0);
     assert_eq!(vm.wstring(out), Some(&[][..]));
 }
+
+#[test]
+fn collide_property_get_property_copies_the_base_property() {
+    let mut vm = vm();
+    let mut property = BaseProperty::new(0x4000_0002);
+    property.value_type = 0x4000_0002;
+    property.group = 0x4000_0003;
+    property.value = Some(BasePropertyValue::Integer(-5));
+    let collide = vm.refs.create_native(
+        ntype::COLLIDE_PROPERTY,
+        NativeObject::CollideProperty(crate::native::CollideProperty {
+            id: 1,
+            collide_type: 0,
+            property,
+        }),
+    );
+    let (status, copy) = call(
+        &mut vm,
+        id("gCollideProperty::CallEFun_GetProperty"),
+        &[],
+        collide,
+    );
+    assert_eq!(status, InterpStatus::Success);
+    let out = out_slot(&mut vm);
+    let (_, got) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqInteger"),
+        &[out],
+        copy,
+    );
+    assert_eq!(got, 1);
+    assert_eq!(slot_word(&vm, out) as i32, -5);
+    let (_, group) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetGroupName"),
+        &[],
+        copy,
+    );
+    assert_eq!(group, 0x4000_0003);
+    // The copy is its own property: setting it leaves the report's property alone.
+    call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_SetInteger"),
+        &[7],
+        copy,
+    );
+    match vm.native(collide) {
+        Some(NativeObject::CollideProperty(c)) => {
+            assert_eq!(c.property.value, Some(BasePropertyValue::Integer(-5)));
+        }
+        other => panic!("CollideProperty expected, got {other:?}"),
+    }
+    let (status, _) = call(
+        &mut vm,
+        id("gCollideProperty::CallEFun_GetProperty"),
+        &[],
+        u32::MAX,
+    );
+    assert_ne!(status, InterpStatus::Success);
+}

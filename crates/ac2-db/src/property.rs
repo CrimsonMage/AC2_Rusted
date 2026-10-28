@@ -5,6 +5,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 
+use crate::base_property::{BaseProperty, BasePropertyValue};
 use crate::{
     ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId,
     TypedResourceRef,
@@ -363,6 +364,35 @@ pub struct Ac2PropertyValue {
 }
 
 impl Ac2PropertyValue {
+    /// The `BaseProperty` this packed property makes (`BaseProperty::BaseProperty` and its value
+    /// read): the name, the desc's type and group, and the value for the types the packed words
+    /// hold (bool, integer, long integer, float, vector, enum, data file, package id). Other types
+    /// keep the value class default.
+    pub fn to_base_property(&self) -> BaseProperty {
+        let value = match self.value_type {
+            TYPE_BOOL => self.word().map(|w| BasePropertyValue::Bool(w != 0)),
+            TYPE_INTEGER => self.word().map(|w| BasePropertyValue::Integer(w as i32)),
+            TYPE_LONG_INTEGER => self
+                .integer()
+                .map(|v| BasePropertyValue::LongInteger(v as i64)),
+            TYPE_FLOAT => self.float().map(BasePropertyValue::Float),
+            TYPE_VECTOR => self
+                .vector()
+                .map(|v| BasePropertyValue::Vector(ac2_math::Vec3::from_array(v))),
+            TYPE_ENUM => self.word().map(BasePropertyValue::Enum),
+            TYPE_DATA_FILE => self.word().map(BasePropertyValue::DataFile),
+            TYPE_PACKAGE_ID => self.word().map(BasePropertyValue::PackageId),
+            _ => None,
+        }
+        .or_else(|| BasePropertyValue::new_for_type(self.value_type));
+        BaseProperty {
+            name: self.name,
+            value_type: self.value_type,
+            group: ac2_property_desc(self.name).map_or(0, |desc| desc.group),
+            value,
+        }
+    }
+
     /// The first packed word (bool, integer, enum, color32 or data-file value).
     pub fn word(&self) -> Option<u32> {
         self.bytes

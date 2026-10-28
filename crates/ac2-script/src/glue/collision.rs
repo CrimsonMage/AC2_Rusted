@@ -3,7 +3,7 @@
 //! property lists, `HasContact`).
 
 use super::{out_native, Call};
-use crate::native::{CollideProperty, CollisionParameters, CollisionProfile, NativeObject};
+use crate::native::{ntype, CollideProperty, CollisionParameters, CollisionProfile, NativeObject};
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
 pub(super) fn register(efuns: &mut EFuns) {
@@ -29,6 +29,7 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gCollisionProfile::CallEFun_IsEndContact" => is_end_contact,
             "gCollisionProfile::CallEFun_FindObject" => find_object,
             "gCollideProperty::CallEFun_GetID" => collide_property_id,
+            "gCollideProperty::CallEFun_GetProperty" => collide_property_get_property,
             "gCollideProperty::CallEFun_IsBegin" => collide_property_is_begin,
             "gCollideProperty::CallEFun_IsEnd" => collide_property_is_end,
             "gCollideProperty::CallEFun_IsChanged" => collide_property_is_changed,
@@ -225,7 +226,7 @@ fn property_at(
     let call = Call::new(ctx);
     let (this, index, out) = (call.this(), call.word(2) as usize, call.word(3));
     let found = match vm.native(this) {
-        Some(NativeObject::CollisionProfile(p)) => list(p).get(index).copied(),
+        Some(NativeObject::CollisionProfile(p)) => list(p).get(index).cloned(),
         _ => return vm.bad_this(this),
     };
     let hit = found.is_some();
@@ -301,6 +302,22 @@ fn collide_property_id(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         _ => return vm.bad_this(this),
     };
     Call::new(ctx).ret(2, id as u32, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCollideProperty::CallEFun_GetProperty()`: a new `BaseProperty` native holding a copy of the
+/// property (`CollideProperty::m_property`, copied with `BaseProperty::BaseProperty`).
+fn collide_property_get_property(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let copy = match vm.native(this) {
+        Some(NativeObject::CollideProperty(c)) => c.property.clone(),
+        _ => return vm.bad_this(this),
+    };
+    let reference = vm.refs.create_native(
+        ntype::BASE_PROPERTY,
+        NativeObject::BaseProperty(Box::new(copy)),
+    );
+    Call::new(ctx).ret(2, reference, tag::REF);
     InterpStatus::Success
 }
 

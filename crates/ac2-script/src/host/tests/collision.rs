@@ -123,7 +123,11 @@ fn host_with_profile(profile: CollisionProfile) -> (ScriptHost, u32) {
 }
 
 fn prop(id: u64, collide_type: u64) -> CollideProperty {
-    CollideProperty { id, collide_type }
+    CollideProperty {
+        id,
+        collide_type,
+        ..CollideProperty::default()
+    }
 }
 
 /// `gCollisionProfile::CallEFun_GetObject(index, out)` copies the listed object into the out

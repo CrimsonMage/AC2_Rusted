@@ -7058,8 +7058,8 @@ key	status	note
 00549f70	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 00549fe0	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 0054a050	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
-0054a0c0	~	Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
-0054a170	_	needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+0054a0c0	x	ac2-script glue/collision.rs: copies the CollideProperty's BaseProperty (native from the report, Ac2PropertyValue -> ac2_db::BaseProperty) into a new BaseProperty native; tests glue/base_property_tests.rs
+0054a170	_	not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
 0054a200	_	needs port: CDBForm SetNameW (DB form builder)
 0054a270	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
 0054a2d0	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
@@ -12986,7 +12986,7 @@ key	status	note
 0069ff90	-	C++ constructor/destructor; Rust constructor and Drop replace it
 0069ffb0	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 0069ffe0	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-006a0040	-	admin/debug property text; the script's gCollideProperty::CallEFun_GetPropertyOutputStringW needs the BaseProperty output strings, not ported
+006a0040	_	not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
 006a0100	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 006a0170	_	needs port: collision reports and properties
 006a01b0	_	needs port: collision reports and properties
@@ -13460,7 +13460,7 @@ key	status	note
 006b2310	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 006b2380	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 006b2440	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
-006b2510	_	needs port: BaseProperty::GetOutputString (typed value to output text)
+006b2510	_	not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
 006b2650	-	skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files
 006b2890	_	needs port: PropertyGroup::InqPropertyGroupName
 006b28b0	-	skip: constructor/destructor of plain data; Rust struct init and Drop

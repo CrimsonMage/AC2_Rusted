@@ -179,3 +179,41 @@ fn master_property_name_record_must_end_where_its_descs_do() {
     bytes.extend_from_slice(&[0, 0, 0, 0]);
     assert!(crate::Ac2PropertyTypes::decode_packed(qdid, 0, &bytes).is_err());
 }
+
+#[test]
+fn a_packed_property_makes_a_base_property_with_its_value() {
+    use crate::base_property::BasePropertyValue;
+    let int = Ac2PropertyValue {
+        name: 0x1000_0004,
+        value_type: 0x4000_0002,
+        bytes: (-3i32).to_le_bytes().into(),
+    };
+    let base = int.to_base_property();
+    assert_eq!(base.name, 0x1000_0004);
+    assert_eq!(base.value_type, 0x4000_0002);
+    assert_eq!(base.value, Some(BasePropertyValue::Integer(-3)));
+    // A vector reads its three floats; a colour keeps the class default (not decoded here).
+    let vector = Ac2PropertyValue {
+        name: 1,
+        value_type: 0x4000_0004,
+        bytes: [1.0f32, 2.0, 3.0]
+            .iter()
+            .flat_map(|f| f.to_le_bytes())
+            .collect(),
+    };
+    assert_eq!(
+        vector.to_base_property().value,
+        Some(BasePropertyValue::Vector(ac2_math::Vec3::new(
+            1.0, 2.0, 3.0
+        )))
+    );
+    let colour = Ac2PropertyValue {
+        name: 1,
+        value_type: 0x4000_0005,
+        bytes: vec![0; 4].into(),
+    };
+    assert_eq!(
+        colour.to_base_property().value,
+        BasePropertyValue::new_for_type(0x4000_0005)
+    );
+}

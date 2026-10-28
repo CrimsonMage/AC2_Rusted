@@ -26,14 +26,15 @@ pub struct ObjCollisionProfile {
 }
 
 /// `CollideProperty` (native 0x19): one property a report lists (object, environment, surface
-/// or water). Its `m_property` (a `BaseProperty`) is not carried: the `gBaseProperty` efuns are
-/// not ported, so only the id and the collide type are.
-#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+/// or water): its id, its collide type and its `BaseProperty` (`m_property`, at +0xC).
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct CollideProperty {
     /// `m_id`.
     pub id: u64,
     /// `m_collide_type`.
     pub collide_type: u64,
+    /// `m_property`: the property the report carried, read by `gCollideProperty::GetProperty`.
+    pub property: ac2_db::BaseProperty,
 }
 
 /// `CollisionProfile`: the collision report. An impact report carries the contact normal and
@@ -117,6 +118,7 @@ impl CollisionProfile {
                 .map(|r| CollideProperty {
                     id: r.id,
                     collide_type: r.collide_type.raw(),
+                    property: r.property.to_base_property(),
                 })
                 .collect::<Vec<_>>()
         };

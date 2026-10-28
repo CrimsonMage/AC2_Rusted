@@ -439,6 +439,12 @@ pub struct BaseProperty {
     pub value: Option<BasePropertyValue>,
 }
 
+impl Default for BaseProperty {
+    fn default() -> Self {
+        Self::new(0)
+    }
+}
+
 impl BaseProperty {
     /// `BaseProperty::BaseProperty`: no name, no type, no group and no value.
     pub fn new(name: u32) -> Self {
