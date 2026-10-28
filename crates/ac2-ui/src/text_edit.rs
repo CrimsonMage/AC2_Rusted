@@ -11,7 +11,7 @@
 //! The clipboard keys and the pointer drag selection are in `text_clip.rs`; the clipboard itself
 //! is `UiTree::set_text_clipboard`.
 //!
-//! Not modelled yet: the IME, page up / down, and the cursor's flashing.
+//! Not modelled yet: the IME and the cursor's flashing.
 
 use crate::chat::Modifiers;
 use crate::element::UiTree;
@@ -31,6 +31,8 @@ pub(crate) enum Direction {
     Right,
     Up,
     Down,
+    PageUp,
+    PageDown,
 }
 
 /// `LEFT_MOUSE_BUTTON` (`0x40000004`): the press that places the cursor.
@@ -273,6 +275,18 @@ impl UiTree {
             Direction::WordRight => text.find_next_word(cursor).map(|p| p as isize),
             Direction::Up => text.move_up_down(true, cursor).map(|p| p as isize),
             Direction::Down => text.move_up_down(false, cursor).map(|p| p as isize),
+            Direction::PageUp | Direction::PageDown => None,
+        };
+        // `DetermineAndSetNewPage`, then the position at the new page's top left corner.
+        let target = match direction {
+            Direction::PageUp | Direction::PageDown => {
+                self.text_new_page(index, true, direction == Direction::PageDown);
+                self.el(index)
+                    .text
+                    .as_ref()
+                    .map(|text| text.position_at(0, 0) as isize)
+            }
+            _ => target,
         };
         let Some(target) = target else {
             return false;
@@ -331,6 +345,8 @@ impl UiTree {
             } else {
                 Direction::Left
             }),
+            0x21 => Some(Direction::PageUp),
+            0x22 => Some(Direction::PageDown),
             0x26 => Some(Direction::Up),
             0x27 => Some(if ctrl {
                 Direction::WordRight

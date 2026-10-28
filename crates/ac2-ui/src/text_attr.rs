@@ -269,14 +269,35 @@ impl UiTree {
     }
 
     /// `UIElement_Text::VerticalPageDecrement` / `VerticalPageIncrement`: the view one element
-    /// height up or down.
+    /// height up or down (`DetermineAndSetNewPage`).
     pub(crate) fn page_text(&mut self, index: usize, down: bool) {
-        let height = self.el(index).rect.height();
-        if let Some(text) = self.el_mut(index).text.as_mut() {
-            text.view.1 += if down { height } else { -height };
-            text.dirty = true;
-            self.changed = true;
+        self.text_new_page(index, true, down);
+    }
+
+    /// `UIElement_Text::DetermineAndSetNewPage`: the view moves one element height
+    /// (`vertical`) or width forward (`increment`) or back, is kept in bounds, and the bars
+    /// follow.
+    pub(crate) fn text_new_page(&mut self, index: usize, vertical: bool, increment: bool) {
+        let rect = self.el(index).rect;
+        let extent = if vertical {
+            rect.height()
+        } else {
+            rect.width()
+        };
+        let delta = if increment { extent } else { -extent };
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        if vertical {
+            text.view.1 += delta;
+        } else {
+            text.view.0 += delta;
         }
+        text.dirty = true;
+        self.changed = true;
+        // The layout keeps the view in bounds (`KeepInBounds`).
+        self.text_paper_height(index);
+        self.text_update_scrollbar(index);
     }
 }
 

@@ -9,7 +9,8 @@
 //! as for texts (`text_scroll.rs`): `UIElement_Tree::GetPercentageV` (admin 7148 0x005F5E50,
 //! Legions 0x005B6980) divides by `m_paperHeight - (y1 - y0 + 1)`.
 //!
-//! Not modelled yet: the horizontal bar, and the smooth move to `goal_y_view`.
+//! Not modelled yet: the horizontal bar, and the smooth move to `goal_y_view`. The page steps
+//! (`VerticalPageIncrement` ...) are `tree_goal_step`, reached by the bar's page messages.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -85,17 +86,85 @@ impl UiTree {
             .insert(tokenize("disabled"), AttributeValue::Bool(range <= 0));
     }
 
-    /// `VerticalLineIncrement` (`steps` 1) and `VerticalLineDecrement` (-1): one node row.
-    pub(crate) fn tree_line_step(&mut self, tree: usize, steps: i32) {
-        let row = match self.el(tree).attributes.get(&tokenize("node_height")) {
+    /// The node size along an axis: `node_height` (vertical) or `node_width`.
+    fn tree_node_size(&self, tree: usize, vertical: bool) -> i32 {
+        let name = if vertical {
+            "node_height"
+        } else {
+            "node_width"
+        };
+        match self.el(tree).attributes.get(&tokenize(name)) {
             Some(AttributeValue::Int(v)) => *v,
             _ => 0,
-        };
-        if row <= 0 {
+        }
+    }
+
+    /// `UIElement_Tree::VerticalLineIncrement` (`steps` 1) and `VerticalLineDecrement` (-1): one
+    /// node row.
+    pub(crate) fn tree_line_step(&mut self, tree: usize, steps: i32) {
+        self.tree_goal_step(tree, true, steps >= 0, false);
+    }
+
+    /// The goal steps of a tree (`VerticalLineIncrement` ... `HorizontalPageDecrement`): the view
+    /// moves a node (`page` false) or a page less one node (the element's extent less the node
+    /// size) back or forward, within `0` and `paper - extent`. Only the vertical view is kept: the
+    /// horizontal bar is not modelled, so a horizontal step moves `x_view` alone.
+    pub(crate) fn tree_goal_step(
+        &mut self,
+        tree: usize,
+        vertical: bool,
+        forward: bool,
+        page: bool,
+    ) {
+        let node = self.tree_node_size(tree, vertical);
+        if node <= 0 && !page {
             return;
         }
-        let view = self.el(tree).tree.as_ref().map_or(0, |s| s.view.1);
-        self.tree_set_view_y(tree, view + steps * row);
+        let rect = self.el(tree).rect;
+        let extent = if vertical {
+            rect.height()
+        } else {
+            rect.width()
+        };
+        let Some(state) = self.el(tree).tree.as_ref() else {
+            return;
+        };
+        let (paper, view) = if vertical {
+            (state.paper.1, state.view.1)
+        } else {
+            (state.paper.0, state.view.0)
+        };
+        let delta = if page { extent - node } else { node };
+        let goal = if forward {
+            (view + delta).min(paper - extent)
+        } else {
+            (view - delta).max(0)
+        };
+        if vertical {
+            self.tree_set_view_y(tree, goal);
+        } else {
+            let range = (paper - extent).max(0);
+            self.tree_state(tree).view.0 = goal.clamp(0, range);
+            self.tree_update_layout(tree);
+        }
+    }
+
+    /// `UIElement_Tree::GetPercentageV` (`vertical`) and `GetPercentageH`: the view's share of the
+    /// scrollable paper, `0` when the paper is no longer than the element.
+    pub fn tree_percentage(&self, tree: usize, vertical: bool) -> f32 {
+        let Some(state) = self.el(tree).tree.as_ref() else {
+            return 0.0;
+        };
+        let rect = self.el(tree).rect;
+        let (paper, view, extent) = if vertical {
+            (state.paper.1, state.view.1, rect.height())
+        } else {
+            (state.paper.0, state.view.0, rect.width())
+        };
+        if paper <= extent {
+            return 0.0;
+        }
+        (view as f32 / (paper - extent) as f32).clamp(0.0, 1.0)
     }
 
     /// A wheel turn over tree `tree`: its vertical bar takes it (`UIElement_Tree::MouseDown`).

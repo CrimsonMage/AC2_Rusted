@@ -153,3 +153,31 @@ fn a_vertical_grid_tree_grows_up_and_links_parents_to_children() {
     assert_eq!(tree.tree_item(root, 0, 0), None);
     assert!(tree.get(base).is_none());
 }
+
+#[test]
+fn a_tree_steps_by_nodes_and_pages_within_its_paper() {
+    let layout = layout();
+    let mut tree = UiTree::new(200, 200);
+    let root = tree
+        .create_root(Arc::clone(&layout), tokenize("Tree"))
+        .unwrap();
+    // A 100 x 100 tree over a 300 x 260 paper, with 20 pixel nodes.
+    tree.tree_state(root).paper = (300, 260);
+    let view = |tree: &mut UiTree| tree.tree_state(root).view;
+    tree.tree_goal_step(root, true, true, false);
+    assert_eq!(view(&mut tree), (0, 20));
+    // A page is the height less one node: 80.
+    tree.tree_goal_step(root, true, true, true);
+    assert_eq!(view(&mut tree), (0, 100));
+    tree.tree_goal_step(root, true, true, true);
+    tree.tree_goal_step(root, true, true, true);
+    assert_eq!(view(&mut tree).1, 160, "paper less height");
+    tree.tree_goal_step(root, true, false, true);
+    assert_eq!(view(&mut tree).1, 80);
+    tree.tree_goal_step(root, false, true, true);
+    assert_eq!(view(&mut tree).0, 80);
+    tree.tree_goal_step(root, false, true, false);
+    assert_eq!(view(&mut tree).0, 100);
+    assert!((tree.tree_percentage(root, true) - 0.5).abs() < 1e-6);
+    assert!((tree.tree_percentage(root, false) - 0.5).abs() < 1e-6);
+}

@@ -267,6 +267,11 @@ impl UiTree {
                 self.list_page_step(list, vertical, forward);
             }
         }
+        if vertical {
+            for tree in self.trees_bound_to(index) {
+                self.tree_goal_step(tree, true, forward, true);
+            }
+        }
     }
 
     /// `UIElement_Scrollbar::HandleMouseWheel`: a wheel turn steps a stop-located bar (up or left

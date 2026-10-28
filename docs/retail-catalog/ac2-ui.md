@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1186 done, 372 partial, 285 to do, 404 skipped.
+2247 retail functions: 1199 done, 368 partial, 179 to do, 501 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -132,11 +132,11 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (3/7)
 
 ### gmCameraUI
-- [ ] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860 — needs port (check): gmCameraUI::~gmCameraUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui camera_ui.rs
+- [-] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `gmCameraUI::SendKey` · 0042bb50 — needs port (check): gmCameraUI::SendKey behaviour; implemented area ac2-ui camera_ui.rs but uncited
 - [x] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
-- [ ] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0 — needs port (check): gmCameraUI::gmCameraUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui camera_ui.rs
+- [-] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [ ] `gmCameraUI::RecvNotice_UpdateCanMouseLook` · 0042bf50 — needs port (check): gmCameraUI::RecvNotice_UpdateCanMouseLook behaviour; implemented area ac2-ui camera_ui.rs but uncited
 
@@ -248,7 +248,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned_long,UILocationData>::PHashTable<unsigned_long,UILocationData>` · 0040a440 · legions 0040a2c0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### UISaveLocations
-- [ ] `UISaveLocations::~UISaveLocations` · 0040a540 · legions 0040a3c0 — needs port (check): UISaveLocations::~UISaveLocations lifecycle (create/teardown: listeners, children, surfaces); ac2-client client_locations.rs
+- [-] `UISaveLocations::~UISaveLocations` · 0040a540 · legions 0040a3c0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### GameplayOptionsProfile
 - [ ] `GameplayOptionsProfile::~GameplayOptionsProfile` · 0040a590 · legions 0040a410 — needs port: GameplayOptionsProfile::~GameplayOptionsProfile lifecycle (teardown/creation)
@@ -718,7 +718,7 @@ Legend and workflow: [README](README.md).
 - [x] `ContainerDisplay::BeginRequest` · 0042e2a0 · legions 0042e130 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::RequestFailed` · 0042e2d0 · legions 0042e160 — ac2-ui item_display.rs / backpack.rs
 - [x] `ContainerDisplay::Flush` · 0042e300 · legions 0042e190 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ContainerDisplay::ContainerDisplay` · 0042e3a0 · legions 0042e230 — needs port (check): ContainerDisplay::ContainerDisplay lifecycle (create/teardown: listeners, children, surfaces); ac2-ui item_display.rs / shop.rs
+- [-] `ContainerDisplay::ContainerDisplay` · 0042e3a0 · legions 0042e230 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `ContainerDisplay::Cleanup` · 0042e470 · legions 0042e300 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::GetContents` · 0042e560 · legions 0042e3f0 — ac2-ui item_display.rs / backpack.rs
 - [~] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
@@ -793,7 +793,7 @@ Legend and workflow: [README](README.md).
 
 ### ItemDisplay
 - [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0 — needs port (check): ItemDisplay::~ItemDisplay lifecycle (create/teardown: listeners, children, surfaces); ac2-ui item_display.rs
+- [-] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
 - [-] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
@@ -1145,7 +1145,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [-] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [ ] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — needs port (check): gmShortcutUI::FIXMESetupItemElement behaviour; implemented area ac2-ui shortcut.rs but uncited
-- [ ] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — needs port (check): gmShortcutUI::~gmShortcutUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui shortcut.rs
+- [-] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
 - [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 - [x] `gmShortcutUI::SetShortcut` · 00437620 · legions 00437e70 — ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
@@ -1187,7 +1187,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmToolbarUI::SetupChildren` · 00422550 · legions 00422320 — ac2-ui toolbar.rs: fields shown/hidden by side; ManageChildren tooltips ID_Toolbar_TT_<child> (Hide while shown, Show while hidden) via refresh_tooltips. Not: the child panel contents (each child's framework)
 - [~] `gmToolbarUI::CleanupChildren` · 00422f00 · legions 00422cd0 — ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 - [~] `gmToolbarUI::gmToolbarUI` · 00422f80 · legions 00422d50 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
-- [ ] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0 — needs port (check): gmToolbarUI::~gmToolbarUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui toolbar.rs
+- [-] `gmToolbarUI::~gmToolbarUI` · 00423120 · legions 00422ef0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gm3ditemsui.cpp.c` (11/14)
 
@@ -1219,7 +1219,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410 — ac2-ui backpack.rs stack_ui_done: the money bag and item drop answers
 - [x] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70 — ac2-ui item_display.rs / backpack.rs
 - [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — ac2-ui backpack.rs tab_drop: a worn item unequips to the page's end, the coin field asks how much, another item on a tab not shown moves to the page's end (stack dialog first); tested through the HUD (item_drag_7160). Not: icon descriptions' layers, GetContentsInfo from the VM
-- [ ] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160 — needs port (check): gmBackpackUI::~gmBackpackUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui backpack.rs
+- [-] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250 — ac2-ui item_display.rs / backpack.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gminventoryui.cpp.c` (4/5)
@@ -1511,7 +1511,7 @@ Legend and workflow: [README](README.md).
 
 ### gmSkillTreeUI
 - [~] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
-- [ ] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0 — needs port (check): gmSkillTreeUI::~gmSkillTreeUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui skill_tree.rs
+- [-] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (3/3)
 
@@ -1523,7 +1523,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
 
 ### AllegianceDataAdaptor
-- [ ] `AllegianceDataAdaptor::~AllegianceDataAdaptor` · 0043c7a0 · legions 0043cff0 — needs port (check): AllegianceDataAdaptor::~AllegianceDataAdaptor lifecycle (create/teardown: listeners, children, surfaces); ac2-ui allegiance.rs
+- [-] `AllegianceDataAdaptor::~AllegianceDataAdaptor` · 0043c7a0 · legions 0043cff0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### gmAllegianceUI
 - [x] `gmAllegianceUI::MakeCurrent` · 0043c7c0 · legions 0043d010 — ac2-ui allegiance.rs; ac2-client ui_social.rs
@@ -1850,7 +1850,7 @@ Legend and workflow: [README](README.md).
 
 ### gmCreditsUI
 - [x] `gmCreditsUI::MakePleaseWaitDialog` · 00412900 · legions 00412780 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [ ] `gmCreditsUI::~gmCreditsUI` · 00412950 · legions 004127d0 — needs port (check): gmCreditsUI::~gmCreditsUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui pregame/credits.rs
+- [-] `gmCreditsUI::~gmCreditsUI` · 00412950 · legions 004127d0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCreditsUI::GetX` · 004129c0 · legions 00412840 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::GetY` · 004129f0 · legions 00412870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmCreditsUI::UpdatePicture` · 00412a20 · legions 004128a0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1862,8 +1862,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmCreditsUI::Update` · 00412e60 · legions 00412ce0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [~] `gmCreditsUI::Initialize` · 00412e80 · legions 00412d00 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 - [~] `gmCreditsUI::gmCreditsUI` · 00413360 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
-- [ ] `gmCreditsUI::Create` · 004134b0 — needs port (check): gmCreditsUI::Create behaviour; implemented area ac2-ui pregame/credits.rs but uncited
-- [ ] `gmCreditsUI::Register` · 004134d0 · legions 00413350 — needs port (check): gmCreditsUI::Register behaviour; implemented area ac2-ui pregame/credits.rs but uncited
+- [-] `gmCreditsUI::Create` · 004134b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `gmCreditsUI::Register` · 004134d0 · legions 00413350 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `ac2/client/src/ui/pregame/gmdatapatchui.cpp.c` (5/19)
 
@@ -1888,18 +1888,18 @@ Legend and workflow: [README](README.md).
 - [-] `operator+` · 00411950 · legions 00411930 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0 — needs port (check): gmDataPatchUI::~gmDataPatchUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui pregame/data_patch.rs
+- [-] `gmDataPatchUI::~gmDataPatchUI` · 004119e0 · legions 004119c0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `gmDataPatchUI::Update` · 00411ac0 · legions 00411aa0 — ac2-ui PregameUi::character_set (first set -> character selection) and bin/ac2 --character (start character enters at once); patching not ported
 - [x] `gmDataPatchUI::RecvNotice_CharGenVerification` · 00411f10 — ac2-ui pregame/data_patch.rs char_gen_verification (enter at once, else character selection with no text)
 - [-] `gmDataPatchUI::OnDDDEvent` · 00411fd0 — no DAT patching in this client (DDD patch events never come)
 - [x] `gmDataPatchUI::gmDataPatchUI` · 004121d0 · legions 00412050 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [ ] `gmDataPatchUI::Create` · 00412330 — needs port (check): gmDataPatchUI::Create behaviour; implemented area ac2-ui pregame/data_patch.rs but uncited
+- [-] `gmDataPatchUI::Create` · 00412330 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### CPluginManager
 - [ ] `CPluginManager::AddPluginPrototype` · 00412350 · legions 004121d0 — needs port: CPluginManager::AddPluginPrototype behaviour
 
 ### gmDataPatchUI
-- [ ] `gmDataPatchUI::Register` · 004123b0 · legions 00412230 — needs port (check): gmDataPatchUI::Register behaviour; implemented area ac2-ui pregame/data_patch.rs but uncited
+- [-] `gmDataPatchUI::Register` · 004123b0 · legions 00412230 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `gmDataPatchUI::OnNetStatusChange` · 004123d0 — pregame screens: no intro/credits music, alt credits fields, data patch progress or admin start char; controls list and editing not modelled
 
 ## `ac2/client/src/ui/pregame/gmdisconnectedui.cpp.c` (5/5)
@@ -1915,8 +1915,8 @@ Legend and workflow: [README](README.md).
 
 ### gmIntroUI
 - [x] `gmIntroUI::gmIntroUI` · 00412710 — ac2-ui pregame/intro.rs: IntroField's music is requested when the screen opens (PregameRequest::Music)
-- [ ] `gmIntroUI::Create` · 00412830 — needs port (check): gmIntroUI::Create behaviour; implemented area ac2-ui pregame/intro.rs but uncited
-- [ ] `gmIntroUI::Register` · 00412850 · legions 004126d0 — needs port (check): gmIntroUI::Register behaviour; implemented area ac2-ui pregame/intro.rs but uncited
+- [-] `gmIntroUI::Create` · 00412830 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `gmIntroUI::Register` · 00412850 · legions 004126d0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmIntroUI::Close` · 00412870 · legions 004126f0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmIntroUI::ListenToMessage` · 004128c0 · legions 00412740 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 - [x] `gmIntroUI::ListenToMessage` · 004128e0 · legions 00412760 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
@@ -1975,7 +1975,7 @@ Legend and workflow: [README](README.md).
 ### ResurrectDialog
 - [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — needs port (check): ResurrectDialog::ListenToMessage behaviour; implemented area ac2-ui dialog.rs but uncited
 - [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — needs port (check): ResurrectDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
-- [ ] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — needs port (check): ResurrectDialog::ResurrectDialog lifecycle (create/teardown: listeners, children, surfaces); ac2-ui dialog.rs
+- [-] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `ac2/client/src/ui/util/dialog/timeddialog.cpp.c` (0/5)
 
@@ -1983,7 +1983,7 @@ Legend and workflow: [README](README.md).
 - [ ] `TimedDialog::ListenToMessage` · 0042d590 · legions 0042d360 — needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
 - [ ] `TimedDialog::ListenToMessage` · 0042d5d0 · legions 0042d3a0 — needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
 - [ ] `TimedDialog::SetDelay` · 0042d670 · legions 0042d440 — needs port (check): TimedDialog::SetDelay; dialog.rs TIMED_DELAY constant is cited, not the function
-- [ ] `TimedDialog::TimedDialog` · 0042d6e0 · legions 0042d4b0 — needs port (check): TimedDialog::TimedDialog lifecycle (create/teardown: listeners, children, surfaces); ac2-ui dialog.rs
+- [-] `TimedDialog::TimedDialog` · 0042d6e0 · legions 0042d4b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `TimedDialog::SetText` · 0042d7b0 · legions 0042d580 — needs port (check): TimedDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
 
 ## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (2/2)
@@ -2270,20 +2270,20 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetBehaviorTableID` · 00735680 · legions 006b1260 — needs port: PHYSICSOBJREP::GetBehaviorTableID behaviour
 
 ### UINoSurfaceObject
-- [ ] `UINoSurfaceObject::GetObjectYPos` · 00735690 · legions 006b1270 — needs port: UINoSurfaceObject::GetObjectYPos behaviour
+- [-] `UINoSurfaceObject::GetObjectYPos` · 00735690 · legions 006b1270 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::get_cell_id` · 007356a0 · legions 006b1280 — needs port: CPhysicsObj::get_cell_id behaviour
 
 ### UINoSurfaceObject
-- [ ] `UINoSurfaceObject::GetObjectHeight` · 007356b0 · legions 006b0fd0 — needs port: UINoSurfaceObject::GetObjectHeight behaviour
+- [-] `UINoSurfaceObject::GetObjectHeight` · 007356b0 · legions 006b0fd0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### Vector
 - [-] `Vector::Vector` · 007356c0 · legions 006b0fe0 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### UINoSurfaceObject
-- [ ] `UINoSurfaceObject::SetScreenPosition` · 007356d0 · legions 006b1380 — needs port: UINoSurfaceObject::SetScreenPosition behaviour
-- [ ] `UINoSurfaceObject::SetScreenPosition` · 007356f0 · legions 006b13a0 — needs port: UINoSurfaceObject::SetScreenPosition behaviour
+- [-] `UINoSurfaceObject::SetScreenPosition` · 007356d0 · legions 006b1380 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UINoSurfaceObject::SetScreenPosition` · 007356f0 · legions 006b13a0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [-] `UINoSurfaceObject::ResizeSurface` · 00735710 · legions 006b13c0 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 
 ## `portal/client/src/render/ui/uiobject.cpp.c` (0/2)
@@ -2298,11 +2298,11 @@ Legend and workflow: [README](README.md).
 - [-] `UIRectangleObject::UIRectangleObject` · 00735270 · legions 006b0f70 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 
 ### UINoSurfaceObject
-- [ ] `UINoSurfaceObject::RayTest` · 007352d0 · legions 006b0ff0 — needs port: UINoSurfaceObject::RayTest behaviour
-- [ ] `UINoSurfaceObject::GetScreenLocalPosition` · 00735340 · legions 006b13e0 — needs port: UINoSurfaceObject::GetScreenLocalPosition behaviour
+- [-] `UINoSurfaceObject::RayTest` · 007352d0 · legions 006b0ff0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UINoSurfaceObject::GetScreenLocalPosition` · 00735340 · legions 006b13e0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### UIRectangleObject
-- [ ] `UIRectangleObject::Render` · 00735390 · legions 006b1060 — needs port (check): UIRectangleObject::Render behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UIRectangleObject::Render` · 00735390 · legions 006b1060 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ## `portal/client/src/render/ui/uiscene.cpp.c` (5/23)
 
@@ -2311,13 +2311,13 @@ Legend and workflow: [README](README.md).
 
 ### UIScene
 - [x] `UIScene::GetEntity` · 005acd10 · legions 00578c70 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [ ] `UIScene::RemoveEntity` · 005acd50 · legions 00578cb0 — needs port (check): UIScene::RemoveEntity behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UIScene::DeleteEntity` · 005acdd0 · legions 00578d30 — needs port (check): UIScene::DeleteEntity behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UIScene::DeleteAllEntities` · 005ace50 · legions 00578db0 — needs port (check): UIScene::DeleteAllEntities behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UIScene::RemoveEntity` · 005acd50 · legions 00578cb0 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UIScene::DeleteEntity` · 005acdd0 · legions 00578d30 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UIScene::DeleteAllEntities` · 005ace50 · legions 00578db0 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [x] `UIScene::StartSelection` · 005acea0 · legions 00578e00 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [~] `UIScene::Think` · 005acee0 · legions 00578e40 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
-- [ ] `UIScene::Destroy` · 005acf10 · legions 00578e70 — needs port (check): UIScene::Destroy scene teardown; scene_viewport.rs area, uncited
-- [ ] `UIScene::Cleanup` · 005acf50 — needs port (check): UIScene::Cleanup behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UIScene::Destroy` · 005acf10 · legions 00578e70 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UIScene::Cleanup` · 005acf50 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [x] `UIScene::StreamPack` · 005acf60 · legions 00578ec0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIScene::GetSubDataIDs` · 005ad010 · legions 00578f70 — needs port: sub-object DIDs for DBOCache resolution (GetSubDataIDs); ac2-dat has none yet (AGENTS requires it)
 
@@ -2336,7 +2336,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIScene::Allocate` · 005ad2c0 — DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 - [x] `UIScene::AddEntity` · 005ad2f0 · legions 00579200 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIScene::AddEntity` · 005ad330 · legions 00579240 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [ ] `UIScene::Init` · 005ad410 · legions 00579320 — needs port (check): UIScene::Init behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UIScene::Init` · 005ad410 · legions 00579320 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [-] `UIScene::FromFileNode` · 005ad450 — text source format (admin tools)
 - [-] `UIScene::ToFileNode` · 005ad820 — text source format (admin tools)
 - [~] `UIScene::Render` · 005ad8e0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
@@ -2344,7 +2344,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/render/ui/uiscenecameraentity.cpp.c` (1/3)
 
 ### UISceneCameraEntity
-- [ ] `UISceneCameraEntity::UISceneCameraEntity` · 005d8d30 · legions 0059a460 — needs port (check): UISceneCameraEntity::UISceneCameraEntity lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scene_viewport.rs
+- [-] `UISceneCameraEntity::UISceneCameraEntity` · 005d8d30 · legions 0059a460 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### UIScenePhysObjEntity
 - [ ] `UIScenePhysObjEntity::GetPhysObj` · 005d8d80 · legions 0059a4b0 — needs port (check): UIScenePhysObjEntity::GetPhysObj behaviour; implemented area ac2-ui scene_viewport.rs but uncited
@@ -2356,7 +2356,7 @@ Legend and workflow: [README](README.md).
 
 ### UISceneEntity
 - [~] `UISceneEntity::UISceneEntity` · 005d8ff0 · legions 0059a720 — pregame/arms.rs: frames and slerp; no instance id/scene
-- [ ] `UISceneEntity::~UISceneEntity` · 005d90a0 · legions 0059a7d0 — needs port (check): UISceneEntity::~UISceneEntity lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scene_viewport.rs
+- [-] `UISceneEntity::~UISceneEntity` · 005d90a0 · legions 0059a7d0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UISceneEntity::Think` · 005d9120 · legions 0059a850 — ac2-ui pregame/arms.rs SceneEntity
 - [x] `UISceneEntity::SLERPTo` · 005d9210 · legions 0059a940 — ac2-ui pregame/arms.rs SceneEntity
 - [x] `UISceneEntity::InitFromDesc` · 005d92e0 · legions 0059aa10 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
@@ -2365,7 +2365,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/render/ui/uiscenelightentity.cpp.c` (2/3)
 
 ### UISceneLightEntity
-- [ ] `UISceneLightEntity::UISceneLightEntity` · 005d8ed0 · legions 0059a640 — needs port (check): UISceneLightEntity::UISceneLightEntity lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scene_viewport.rs
+- [-] `UISceneLightEntity::UISceneLightEntity` · 005d8ed0 · legions 0059a640 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UISceneLightEntity::InitFromDesc` · 005d8f10 · legions 0059a4c0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UISceneLightEntity::SetFrame` · 005d8f50 · legions 0059a680 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
@@ -2373,12 +2373,12 @@ Legend and workflow: [README](README.md).
 
 ### UISceneManager
 - [~] `UISceneManager::UseTime` · 005ae180 · legions 00579c20 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
-- [ ] `UISceneManager::ReleaseUIScene` · 005ae1b0 · legions 00579c50 — needs port (check): UISceneManager::ReleaseUIScene behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UISceneManager::Cleanup` · 005ae240 · legions 00579ce0 — needs port (check): UISceneManager::Cleanup behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UISceneManager::FreeID` · 005ae290 · legions 00579d30 — needs port (check): UISceneManager::FreeID behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UISceneManager::Init` · 005ae2c0 · legions 00579d60 — needs port (check): UISceneManager::Init behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UISceneManager::ReleaseUIScene` · 005ae1b0 · legions 00579c50 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UISceneManager::Cleanup` · 005ae240 · legions 00579ce0 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UISceneManager::FreeID` · 005ae290 · legions 00579d30 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
+- [-] `UISceneManager::Init` · 005ae2c0 · legions 00579d60 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 - [~] `UISceneManager::GetUIScene` · 005ae370 · legions 00579e10 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; no tooltips
-- [ ] `UISceneManager::GetFreeID` · 005ae420 · legions 00579ec0 — needs port (check): UISceneManager::GetFreeID behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UISceneManager::GetFreeID` · 005ae420 · legions 00579ec0 — Scene bookkeeping (id pools, entity lists, teardown): UI scenes are owned values (scene_viewport.rs / paper_doll_scene.rs) freed on drop, with no manager-wide id table
 
 ## `portal/client/src/render/ui/uiscenephysobjentity.cpp.c` (6/13)
 
@@ -2390,14 +2390,14 @@ Legend and workflow: [README](README.md).
 - [ ] `UIScenePhysObjEntity::SetInstanceID` · 005ade20 · legions 005798c0 — needs port (check): UIScenePhysObjEntity::SetInstanceID behaviour; implemented area ac2-ui scene_viewport.rs but uncited
 - [ ] `UIScenePhysObjEntity::ApplyVisualDesc` · 005ade60 · legions 00579900 — needs port (check): UIScenePhysObjEntity::ApplyVisualDesc behaviour; implemented area ac2-ui scene_viewport.rs but uncited
 - [ ] `UIScenePhysObjEntity::ApplyAdditiveVisualDesc` · 005ade80 · legions 00579920 — needs port (check): UIScenePhysObjEntity::ApplyAdditiveVisualDesc behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UIScenePhysObjEntity::UIScenePhysObjEntity` · 005adec0 · legions 00579960 — needs port (check): UIScenePhysObjEntity::UIScenePhysObjEntity lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scene_viewport.rs
+- [-] `UIScenePhysObjEntity::UIScenePhysObjEntity` · 005adec0 · legions 00579960 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ### UISceneEntity
 - [x] `UISceneEntity::SetFrame` · 005adf30 · legions 005799d0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
 ### UIScenePhysObjEntity
 - [ ] `UIScenePhysObjEntity::Animate` · 005adf40 · legions 005799e0 — needs port (check): UIScenePhysObjEntity::Animate behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UIScenePhysObjEntity::~UIScenePhysObjEntity` · 005adf50 · legions 005799f0 — needs port (check): UIScenePhysObjEntity::~UIScenePhysObjEntity lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scene_viewport.rs
+- [-] `UIScenePhysObjEntity::~UIScenePhysObjEntity` · 005adf50 · legions 005799f0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIScenePhysObjEntity::Render` · 005ae030 · legions 00579ad0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIScenePhysObjEntity::AddChild` · 005ae130 · legions 00579bd0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 
@@ -2414,38 +2414,38 @@ Legend and workflow: [README](README.md).
 - [-] `UISurface::SetupVertexBuffer` · 005b0f90 · legions 0057ca40 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 - [-] `UISurface::DestroySurface` · 005b10a0 · legions 0057cb50 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 - [-] `UISurface::CreateSurface` · 005b1140 · legions 0057cbf0 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
-- [ ] `UISurface::PrepareSurface` · 005b1270 · legions 0057cd20 — needs port (check): UISurface::PrepareSurface composition; radar.rs cite is on draw()
-- [ ] `UISurface::Resize` · 005b1320 · legions 0057cdd0 — needs port (check): UISurface::Resize behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurface::PrepareSurface` · 005b1270 · legions 0057cd20 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurface::Resize` · 005b1320 · legions 0057cdd0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [-] `UISurface::RefreshHardware` · 005b13b0 · legions 0057ce60 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 
 ## `portal/client/src/render/ui/uisurfaceobject.cpp.c` (2/28)
 
 ### UISurfaceObject
 - [-] `UISurfaceObject::UISurfaceObject` · 005b23b0 · legions 00582870 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
-- [ ] `UISurfaceObject::GetSurface` · 005b2500 · legions 005829c0 — needs port (check): UISurfaceObject::GetSurface behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetMaterialOpacity` · 005b2510 · legions 005829d0 — needs port (check): UISurfaceObject::GetMaterialOpacity behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetObjectXPos` · 005b2520 · legions 005829e0 — needs port (check): UISurfaceObject::GetObjectXPos behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetObjectYPos` · 005b2530 · legions 005829f0 — needs port (check): UISurfaceObject::GetObjectYPos behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetObjectHeight` · 005b2540 · legions 00582a00 — needs port (check): UISurfaceObject::GetObjectHeight behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetObjectViewHeight` · 005b2550 · legions 00582a10 — needs port (check): UISurfaceObject::GetObjectViewHeight behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetRotateVals` · 005b2560 · legions 00582a20 — needs port (check): UISurfaceObject::GetRotateVals behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurfaceObject::GetSurface` · 005b2500 · legions 005829c0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetMaterialOpacity` · 005b2510 · legions 005829d0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetObjectXPos` · 005b2520 · legions 005829e0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetObjectYPos` · 005b2530 · legions 005829f0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetObjectHeight` · 005b2540 · legions 00582a00 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetObjectViewHeight` · 005b2550 · legions 00582a10 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetRotateVals` · 005b2560 · legions 00582a20 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [-] `UISurfaceObject::SetTransform` · 005b2590 · legions 00582a50 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
-- [ ] `UISurfaceObject::SetSurface` · 005b25c0 · legions 00582a80 — needs port (check): UISurfaceObject::SetSurface behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::RayTest` · 005b2610 · legions 00582ad0 — needs port (check): UISurfaceObject::RayTest behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::GetScreenLocalPosition` · 005b2630 · legions 00582af0 — needs port (check): UISurfaceObject::GetScreenLocalPosition behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::ObjectToSurface` · 005b2680 · legions 00582b40 — needs port (check): UISurfaceObject::ObjectToSurface behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::ClipToSurface` · 005b26f0 · legions 00582bb0 — needs port (check): UISurfaceObject::ClipToSurface behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurfaceObject::SetSurface` · 005b25c0 · legions 00582a80 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::RayTest` · 005b2610 · legions 00582ad0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::GetScreenLocalPosition` · 005b2630 · legions 00582af0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::ObjectToSurface` · 005b2680 · legions 00582b40 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::ClipToSurface` · 005b26f0 · legions 00582bb0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [-] `UISurfaceObject::BuildClipMatrix` · 005b2790 · legions 00582c50 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 - [x] `UISurfaceObject::BuildRotateMatrix` · 005b2860 · legions 00582d20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [-] `UISurfaceObject::BuildScreenMatrix` · 005b2930 · legions 00582df0 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
-- [ ] `UISurfaceObject::SetScreenPosition` · 005b29f0 · legions 00582eb0 — needs port (check): UISurfaceObject::SetScreenPosition overload 1; ac2-gpu ui.rs set_placements cites both overloads
-- [ ] `UISurfaceObject::ResizeSurface` · 005b2a70 · legions 00582f30 — needs port (check): UISurfaceObject::ResizeSurface behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::SetScreenPosition` · 005b2ab0 · legions 00582f70 — needs port (check): UISurfaceObject::SetScreenPosition overload 2; ac2-gpu ui.rs set_placements cites both overloads
-- [ ] `UISurfaceObject::SetMaterialColor` · 005b2b60 · legions 00583020 — needs port (check): UISurfaceObject::SetMaterialColor behaviour; implemented area ac2-gpu ui.rs but uncited
-- [ ] `UISurfaceObject::SetMaterialOpacity` · 005b2bc0 · legions 00583080 — needs port (check): UISurfaceObject::SetMaterialOpacity; ac2-gpu ui.rs cite is on a struct field
+- [-] `UISurfaceObject::SetScreenPosition` · 005b29f0 · legions 00582eb0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::ResizeSurface` · 005b2a70 · legions 00582f30 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::SetScreenPosition` · 005b2ab0 · legions 00582f70 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::SetMaterialColor` · 005b2b60 · legions 00583020 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
+- [-] `UISurfaceObject::SetMaterialOpacity` · 005b2bc0 · legions 00583080 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [-] `UISurfaceObject::SetMaterialFiltering` · 005b2c30 · legions 005830f0 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
 - [~] `UISurfaceObject::Render` · 005b2c80 · legions 00583140 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
-- [ ] `UISurfaceObject::GetLocalPosition` · 005b2dc0 · legions 00583280 — needs port (check): UISurfaceObject::GetLocalPosition behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurfaceObject::GetLocalPosition` · 005b2dc0 · legions 00583280 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 - [x] `UISurfaceObject::SetRotateVals` · 005b2e10 · legions 005832d0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [~] `UISurfaceObject::GenerateMaterial` · 005b2ea0 · legions 00583360 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [-] `UISurfaceObject::SetMaterial` · 005b3000 · legions 005834c0 — D3D surface / vertex / matrix / material plumbing replaced by wgpu; the drawn result is ac2-gpu
@@ -2614,14 +2614,14 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/framework/gameplay/gameplayui.cpp.c` (0/2)
 
 ### GamePlayUI
-- [ ] `GamePlayUI::GamePlayUI` · 005fd9c0 · legions 005be4f0 — needs port (check): GamePlayUI::GamePlayUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
-- [ ] `GamePlayUI::~GamePlayUI` · 005fda00 · legions 005be530 — needs port (check): GamePlayUI::~GamePlayUI lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
+- [-] `GamePlayUI::GamePlayUI` · 005fd9c0 · legions 005be4f0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `GamePlayUI::~GamePlayUI` · 005fda00 · legions 005be530 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/framework/uichildframework.cpp.c` (1/6)
 
 ### UIChildFramework
-- [ ] `UIChildFramework::UIChildFramework` · 005fe110 · legions 005bec10 — needs port (check): UIChildFramework::UIChildFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
-- [ ] `UIChildFramework::~UIChildFramework` · 005fe140 · legions 005bec40 — needs port (check): UIChildFramework::~UIChildFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
+- [-] `UIChildFramework::UIChildFramework` · 005fe110 · legions 005bec10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIChildFramework::~UIChildFramework` · 005fe140 · legions 005bec40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIChildFramework::CreateAndAddRootElement` · 005fe170 · legions 005bec70 — ac2-ui hud.rs
 - [ ] `UIChildFramework::RemoveRootElement` · 005fe190 · legions 005bec90 — needs port (check): UIChildFramework::RemoveRootElement behaviour; implemented area ac2-ui hud.rs but uncited
 - [ ] `UIChildFramework::GetUIFlow` · 005fe1a0 · legions 005beca0 — needs port (check): UIChildFramework::GetUIFlow behaviour; implemented area ac2-ui hud.rs but uncited
@@ -2633,7 +2633,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIFlow::GetUIFlowPtr` · 005fd2c0 · legions 005bddf0 — needs port (check): UIFlow::GetUIFlowPtr behaviour; implemented area ac2-ui hud.rs but uncited
 - [ ] `UIFlow::Update` · 005fd2d0 — needs port (check): UIFlow::Update behaviour; implemented area ac2-ui hud.rs but uncited
 - [~] `UIFlow::UIFlow` · 005fd320 · legions 005bde50 — pregame/ui.rs: character selection and disconnected made; intro, data patch (the client connects), keyboard, credits not ported
-- [ ] `UIFlow::~UIFlow` · 005fd410 · legions 005bdf40 — needs port (check): UIFlow::~UIFlow lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
+- [-] `UIFlow::~UIFlow` · 005fd410 · legions 005bdf40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIFlow::QueueUIMode` · 005fd4c0 · legions 005bdff0 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `UIFlow::RegisterFrameworkClass` · 005fd5d0 · legions 005be100 — ac2-ui pregame/flow.rs, pregame/ui.rs
 - [x] `UIFlow::UseNewMode` · 005fd620 · legions 005be150 — ac2-ui pregame/flow.rs, pregame/ui.rs
@@ -2644,8 +2644,8 @@ Legend and workflow: [README](README.md).
 ### UIFramework
 - [ ] `UIFramework::GetUIPersistantData` · 005fd7d0 · legions 005be300 — needs port (check): UIFramework::GetUIPersistantData behaviour; implemented area ac2-ui hud.rs but uncited
 - [ ] `UIFramework::CreateElement` · 005fd7f0 · legions 005be320 — needs port (check): UIFramework::CreateElement(id, template); craft_pages.rs cite is on a caller
-- [ ] `UIFramework::UIFramework` · 005fd810 · legions 005be340 — needs port (check): UIFramework::UIFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
-- [ ] `UIFramework::~UIFramework` · 005fd840 · legions 005be370 — needs port (check): UIFramework::~UIFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
+- [-] `UIFramework::UIFramework` · 005fd810 · legions 005be340 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIFramework::~UIFramework` · 005fd840 · legions 005be370 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `UIFramework::Show` · 005fd860 · legions 005be390 — needs port (check): UIFramework::Show; book.rs cite is on a shown field
 - [ ] `UIFramework::FindChild` · 005fd8a0 · legions 005be3d0 — needs port (check): UIFramework::FindChild behaviour; implemented area ac2-ui hud.rs but uncited
 - [ ] `UIFramework::LocationApplied` · 005fd8d0 · legions 005be400 — needs port (check): UIFramework::LocationApplied behaviour; implemented area ac2-ui hud.rs but uncited
@@ -2662,8 +2662,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIMainFramework::ApplyLocations` · 005fdc40 · legions 005be770 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
 - [ ] `UIMainFramework::DeleteUISurfaceList` · 005fdd40 · legions 005be870 — needs port (check): UIMainFramework::DeleteUISurfaceList behaviour; implemented area ac2-ui hud.rs but uncited
 - [x] `UIMainFramework::RemoveRootElement` · 005fddc0 · legions 005be8f0 — UIMainFramework::RemoveRootElement done: dialog.rs remove_root
-- [ ] `UIMainFramework::UIMainFramework` · 005fde50 · legions 005be980 — needs port (check): UIMainFramework::UIMainFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
-- [ ] `UIMainFramework::~UIMainFramework` · 005fde90 · legions 005be9c0 — needs port (check): UIMainFramework::~UIMainFramework lifecycle (create/teardown: listeners, children, surfaces); ac2-ui hud.rs
+- [-] `UIMainFramework::UIMainFramework` · 005fde50 · legions 005be980 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIMainFramework::~UIMainFramework` · 005fde90 · legions 005be9c0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `UIMainFramework::CreateAndAddRootElementByDataID` · 005fded0 · legions 005bea00 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [~] `UIMainFramework::CreateAndAddRootElement` · 005fe0b0 · legions 005bebe0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 
@@ -2749,13 +2749,13 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/system/uielement.cpp.c` (68/104)
 
 ### UIRectangleObject
-- [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — needs port (check): UIRectangleObject::SetColor behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### UIElement
 - [x] `UIElement::GetType` · 005e8b60 · legions 005a97c0 — ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
 
 ### UISurfaceObject
-- [ ] `UISurfaceObject::GetObjectWidth` · 005e8b70 · legions 005a97d0 — needs port (check): UISurfaceObject::GetObjectWidth behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurfaceObject::GetObjectWidth` · 005e8b70 · legions 005a97d0 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### UIElement
 - [x] `UIElement::GetParent` · 005e8b80 · legions 005a97e0 — ac2-ui element.rs: UiElement::kind (desc->type), parent_index, id (referenceDesc->elementID), UiTree::child (GetChild)
@@ -2763,7 +2763,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::SetZLevel` · 005e8ba0 · legions 005a9800 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 
 ### UISurfaceObject
-- [ ] `UISurfaceObject::GetObjectViewWidth` · 005e8c20 · legions 005a9880 — needs port (check): UISurfaceObject::GetObjectViewWidth behaviour; implemented area ac2-gpu ui.rs but uncited
+- [-] `UISurfaceObject::GetObjectViewWidth` · 005e8c20 · legions 005a9880 — UI render-surface plumbing is ac2-gpu ui.rs (UiOverlay layers placed by set_placements, resized with the window, drawn after the tone map) with ac2-client compose.rs; the D3D surface/material/ray-test object has no counterpart type
 
 ### UIElement
 - [ ] `UIElement::Initialized` · 005e8c30 · legions 005a9890 — needs port (check): UIElement::Initialized behaviour; implemented area ac2-ui element.rs but uncited
@@ -3032,9 +3032,9 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnContextFinished` · 005fcef0 — needs port (check): StringDownload::OnContextFinished behaviour; implemented area ac2-ui text_data.rs but uncited
 - [ ] `StringDownload::Init` · 005fcf50 · legions 005bda80 — needs port (check): StringDownload::Init behaviour; implemented area ac2-ui text_data.rs but uncited
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — needs port (check): StringDownload::OnTopLevelRequestFinished behaviour; implemented area ac2-ui text_data.rs but uncited
-- [ ] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — needs port (check): StringDownload::StringDownload lifecycle (create/teardown: listeners, children, surfaces); ac2-ui text_data.rs
+- [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (44/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (47/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3065,7 +3065,7 @@ Legend and workflow: [README](README.md).
 - [-] `GlyphLine::GlyphLine` · 005ee140 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### UIElement_Text
-- [ ] `UIElement_Text::~UIElement_Text` · 005ee160 · legions 005aed50 — needs port (check): UIElement_Text::~UIElement_Text lifecycle (create/teardown: listeners, children, surfaces); ac2-ui text.rs / text_attr.rs / text_scroll.rs
+- [-] `UIElement_Text::~UIElement_Text` · 005ee160 · legions 005aed50 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIElement_Text::ClearAllText` · 005ee340 · legions 005aef30 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [x] `UIElement_Text::SelectAll` · 005ee3a0 · legions 005aef90 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::Deselect` · 005ee400 · legions 005aeff0 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
@@ -3077,7 +3077,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::SetCursorPosition` · 005ee850 · legions 005af3e0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
-- [ ] `UIElement_Text::Create` · 005eed10 — needs port (check): UIElement_Text::Create behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [-] `UIElement_Text::Create` · 005eed10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 - [~] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 
@@ -3086,7 +3086,7 @@ Legend and workflow: [README](README.md).
 
 ### UIElement_Text
 - [ ] `UIElement_Text::SetAttribute_ID` · 005eefd0 · legions 005afb30 — needs port (check): UIElement_Text::SetAttribute_ID behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
-- [ ] `UIElement_Text::Register` · 005ef100 · legions 005afc60 — needs port (check): UIElement_Text::Register behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [-] `UIElement_Text::Register` · 005ef100 · legions 005afc60 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `UIElement_Text::Initialized` · 005ef120 · legions 005afc80 — needs port (check): UIElement_Text::Initialized behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [x] `UIElement_Text::Copy` · 005ef170 — ac2-ui text_clip.rs copy_selection: copies the selection to the OS clipboard via text_clipboard.rs; refused for password fields (no retail attribute, modern flag)
 - [~] `UIElement_Text::KeepInBounds` · 005ef1c0 · legions 005afd20 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -3103,16 +3103,16 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::MouseUp` · 005f02e0 · legions 005b0e10 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::Global_MouseMove` · 005f0370 · legions 005b0ea0 — ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 - [x] `UIElement_Text::DetermineAndSetNewLine` · 005f03e0 · legions 005b0f10 — UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
-- [ ] `UIElement_Text::DetermineAndSetNewPage` · 005f04f0 · legions 005b1020 — needs port (check): UIElement_Text::DetermineAndSetNewPage behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+- [x] `UIElement_Text::DetermineAndSetNewPage` · 005f04f0 · legions 005b1020 — ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
 - [ ] `UIElement_Text::ScrollToPosition` · 005f0590 · legions 005b10c0 — needs port (check): UIElement_Text::ScrollToPosition behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [x] `UIElement_Text::ScrollHorizontalView` · 005f05f0 · legions 005b1120 — UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
 - [x] `UIElement_Text::DeleteSection` · 005f06a0 · legions 005b11d0 — ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
-- [x] `UIElement_Text::VerticalPageDecrement` · 005f0730 · legions 005b1260 — UIElement_Text::VerticalPageDecrement done: text_attr.rs page_text
-- [ ] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270 — needs port (check): UIElement_Text::VerticalPageIncrement; text_attr.rs page_text, cite lacks class prefix
+- [x] `UIElement_Text::VerticalPageDecrement` · 005f0730 · legions 005b1260 — ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
+- [x] `UIElement_Text::VerticalPageIncrement` · 005f0740 · legions 005b1270 — ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
 - [x] `UIElement_Text::ScrollToHome` · 005f0750 · legions 005b1280 — UIElement_Text::ScrollToHome done: chat_window.rs scroll_log
 - [x] `UIElement_Text::ScrollToEnd` · 005f0770 · legions 005b12a0 — ac2-ui chat.rs / chat_window.rs
 - [~] `UIElement_Text::HandleScrollBarMessage` · 005f0790 · legions 005b12c0 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
-- [~] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: UiTree::move_cursor: home/end, line home/end, word, left/right, up/down by pixel column (glyph_find.rs); not modelled: page up/down (DetermineAndSetNewPage), IME
+- [x] `UIElement_Text::MoveCursor` · 005f0940 · legions 005b1470 — ac2-ui text_edit.rs: UiTree::move_cursor now covers page up/down (virtual keys 0x21/0x22) beside home/end, line, word, left/right, up/down; not modelled: IME
 - [ ] `UIElement_Text::MoveCursorToEnd` · 005f0ad0 · legions 005b1600 — needs port (check): UIElement_Text::MoveCursorToEnd behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 - [x] `UIElement_Text::DeleteChar` · 005f0b10 · legions 005b1640 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 - [x] `UIElement_Text::DeleteSelection` · 005f0b30 · legions 005b1660 — ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
@@ -3144,7 +3144,7 @@ Legend and workflow: [README](README.md).
 
 ### UIElement_Button
 - [~] `UIElement_Button::UIElement_Button` · 005fb4e0 · legions 005bc010 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIElement_Button::Create` · 005fb540 — needs port (check): UIElement_Button::Create behaviour; implemented area ac2-ui button.rs but uncited
+- [-] `UIElement_Button::Create` · 005fb540 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `UIElement_Button::Global_Loop` · 005fb570 · legions 005bc0a0 — needs port (check): UIElement_Button::Global_Loop behaviour; implemented area ac2-ui button.rs but uncited
 - [ ] `UIElement_Button::ListenToMessage` · 005fb5f0 · legions 005bc120 — needs port (check): UIElement_Button::ListenToMessage behaviour; implemented area ac2-ui button.rs but uncited
 - [x] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3155,7 +3155,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310 — needs port (check): UIElement_Button::StartUseActive behaviour; implemented area ac2-ui button.rs but uncited
 - [ ] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0 — needs port (check): UIElement_Button::EndUseActive behaviour; implemented area ac2-ui button.rs but uncited
 - [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0 — needs port (check): UIElement_Button::Register behaviour; implemented area ac2-ui button.rs but uncited
+- [-] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElement_Button::MouseUp` · 005fbb10 · legions 005bc640 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::MouseOverTop` · 005fbc50 · legions 005bc780 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
@@ -3168,17 +3168,17 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Dragbar::UpdateLayout` · 005f8c90 · legions 005b97c0 — needs port (check): UIElement_Dragbar::UpdateLayout behaviour; implemented area ac2-ui window_locations.rs but uncited
 - [ ] `UIElement_Dragbar::SetState` · 005f8d60 · legions 005b9890 — needs port (check): UIElement_Dragbar::SetState behaviour; implemented area ac2-ui window_locations.rs but uncited
 - [ ] `UIElement_Dragbar::SetAttribute_Bool` · 005f8d80 · legions 005b98b0 — needs port (check): UIElement_Dragbar::SetAttribute_Bool behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Dragbar::UIElement_Dragbar` · 005f8dc0 · legions 005b98f0 — needs port (check): UIElement_Dragbar::UIElement_Dragbar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui window_locations.rs
-- [ ] `UIElement_Dragbar::Create` · 005f8e20 — needs port (check): UIElement_Dragbar::Create behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Dragbar::Register` · 005f8e50 · legions 005b9980 — needs port (check): UIElement_Dragbar::Register behaviour; implemented area ac2-ui window_locations.rs but uncited
+- [-] `UIElement_Dragbar::UIElement_Dragbar` · 005f8dc0 · legions 005b98f0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIElement_Dragbar::Create` · 005f8e20 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIElement_Dragbar::Register` · 005f8e50 · legions 005b9980 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/types/uielement_field.cpp.c` (1/4)
 
 ### UIElement_Field
-- [ ] `UIElement_Field::Create` · 005fbc70 — needs port (check): UIElement_Field::Create behaviour; implemented area ac2-ui text_edit.rs but uncited
+- [-] `UIElement_Field::Create` · 005fbc70 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `UIElement_Field::MouseOverTop` · 005fbcb0 · legions 005bc7e0 — needs port (check): UIElement_Field::MouseOverTop behaviour; implemented area ac2-ui text_edit.rs but uncited
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
-- [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — needs port (check): UIElement_Field::Register behaviour; implemented area ac2-ui text_edit.rs but uncited
+- [-] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (50/82)
 
@@ -3337,17 +3337,17 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/types/uielement_panel.cpp.c` (2/6)
 
 ### UIElement_Panel
-- [ ] `UIElement_Panel::~UIElement_Panel` · 005f89a0 · legions 005b94d0 — needs port (check): UIElement_Panel::~UIElement_Panel lifecycle (create/teardown: listeners, children, surfaces); ac2-ui panel.rs
-- [ ] `UIElement_Panel::Create` · 005f8a30 — needs port (check): UIElement_Panel::Create behaviour; implemented area ac2-ui panel.rs but uncited
+- [-] `UIElement_Panel::~UIElement_Panel` · 005f89a0 · legions 005b94d0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
+- [-] `UIElement_Panel::Create` · 005f8a30 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [ ] `UIElement_Panel::SetAttribute_Bool` · 005f8a60 · legions 005b9590 — needs port (check): UIElement_Panel::SetAttribute_Bool behaviour; implemented area ac2-ui panel.rs but uncited
 - [x] `UIElement_Panel::Initialized` · 005f8a70 · legions 005b95a0 — ac2-ui panel.rs
 - [x] `UIElement_Panel::ListenToMessage` · 005f8ae0 · legions 005b9610 — ac2-ui panel.rs
-- [ ] `UIElement_Panel::Register` · 005f8b60 · legions 005b9690 — needs port (check): UIElement_Panel::Register behaviour; implemented area ac2-ui panel.rs but uncited
+- [-] `UIElement_Panel::Register` · 005f8b60 · legions 005b9690 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/types/uielement_panelpage.cpp.c` (5/9)
 
 ### UIElement_PanelPage
-- [ ] `UIElement_PanelPage::Create` · 005f8660 — needs port (check): UIElement_PanelPage::Create behaviour; implemented area ac2-ui panel.rs but uncited
+- [-] `UIElement_PanelPage::Create` · 005f8660 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIElement_PanelPage::Initialized` · 005f86a0 · legions 005b91d0 — ac2-ui panel.rs
 - [x] `UIElement_PanelPage::SetState` · 005f8760 · legions 005b9290 — ac2-ui panel.rs
 - [x] `UIElement_PanelPage::MouseDown` · 005f87e0 · legions 005b9310 — ac2-ui panel.rs
@@ -3355,7 +3355,7 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_PanelPage::Activate` · 005f8890 · legions 005b93c0 — needs port (check): UIElement_PanelPage::Activate behaviour; implemented area ac2-ui panel.rs but uncited
 - [ ] `UIElement_PanelPage::Deactivate` · 005f88d0 · legions 005b9400 — needs port (check): UIElement_PanelPage::Deactivate behaviour; implemented area ac2-ui panel.rs but uncited
 - [x] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440 — ac2-ui panel.rs
-- [ ] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0 — needs port (check): UIElement_PanelPage::Register behaviour; implemented area ac2-ui panel.rs but uncited
+- [-] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (2/8)
 
@@ -3401,22 +3401,22 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [-] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 
-## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)
+## `portal/client/src/uielement/types/uielement_tree.cpp.c` (26/39)
 
 ### UIElement_Tree
 - [x] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::MultiOpStart` · 005f5e20 · legions 005b6950 — ac2-ui tree_view.rs
 - [ ] `UIElement_Tree::DrawMeBotToTop` · 005f5e30 · legions 005b6960 — needs port (check): UIElement_Tree::DrawMeBotToTop behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [~] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980 — vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
-- [ ] `UIElement_Tree::GetPercentageH` · 005f5ee0 · legions 005b6a10 — needs port (check): UIElement_Tree::GetPercentageH behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::VerticalPageDecrement` · 005f5f70 · legions 005b6aa0 — needs port (check): UIElement_Tree::VerticalPageDecrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::VerticalPageIncrement` · 005f5fc0 · legions 005b6af0 — needs port (check): UIElement_Tree::VerticalPageIncrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::HorizontalPageDecrement` · 005f6020 · legions 005b6b50 — needs port (check): UIElement_Tree::HorizontalPageDecrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::HorizontalPageIncrement` · 005f6070 · legions 005b6ba0 — needs port (check): UIElement_Tree::HorizontalPageIncrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [~] `UIElement_Tree::VerticalLineDecrement` · 005f60c0 · legions 005b6bf0 — vertical bar wired (text_scroll.rs / tree_scroll.rs / scrollbar.rs); horizontal bar, widget size (thumb stays its own size), page messages, smooth goal_y_view and the paper-1 scale of the Legions decompile not modelled (range is paper less element height).
-- [~] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30 — vertical bar wired (text_scroll.rs / tree_scroll.rs / scrollbar.rs); horizontal bar, widget size (thumb stays its own size), page messages, smooth goal_y_view and the paper-1 scale of the Legions decompile not modelled (range is paper less element height).
-- [ ] `UIElement_Tree::HorizontalLineDecrement` · 005f6150 · legions 005b6c80 — needs port (check): UIElement_Tree::HorizontalLineDecrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::HorizontalLineIncrement` · 005f6190 · legions 005b6cc0 — needs port (check): UIElement_Tree::HorizontalLineIncrement behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+- [x] `UIElement_Tree::GetPercentageV` · 005f5e50 · legions 005b6980 — ac2-ui tree_scroll.rs: UiTree::tree_percentage (vertical and horizontal share of paper - extent)
+- [x] `UIElement_Tree::GetPercentageH` · 005f5ee0 · legions 005b6a10 — ac2-ui tree_scroll.rs: UiTree::tree_percentage (vertical and horizontal share of paper - extent)
+- [x] `UIElement_Tree::VerticalPageDecrement` · 005f5f70 · legions 005b6aa0 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::VerticalPageIncrement` · 005f5fc0 · legions 005b6af0 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::HorizontalPageDecrement` · 005f6020 · legions 005b6b50 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::HorizontalPageIncrement` · 005f6070 · legions 005b6ba0 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::VerticalLineDecrement` · 005f60c0 · legions 005b6bf0 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::VerticalLineIncrement` · 005f6100 · legions 005b6c30 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::HorizontalLineDecrement` · 005f6150 · legions 005b6c80 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
+- [x] `UIElement_Tree::HorizontalLineIncrement` · 005f6190 · legions 005b6cc0 — ac2-ui tree_scroll.rs: UiTree::tree_goal_step (node steps and page = extent - node, within 0 and paper - extent; the vertical page steps are reached by the bar's page messages, scrollbar_page); no horizontal bar, and a smooth tree jumps to the goal
 - [x] `UIElement_Tree::End` · 005f61e0 · legions 005b6d10 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::DrawLine` · 005f6270 · legions 005b6da0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::GetNodeInGrid` · 005f6410 · legions 005b6f40 — ac2-ui tree_view.rs
@@ -3435,25 +3435,25 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::FlushTree` · 005f76e0 · legions 005b8210 — ac2-ui tree_view.rs
-- [ ] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360 — needs port (check): UIElement_Tree::~UIElement_Tree lifecycle (create/teardown: listeners, children, surfaces); ac2-ui tree_view.rs / tree_scroll.rs
+- [-] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360 — element creation and teardown: UiTree::create_element and Drop
 - [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [~] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780 — tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
 - [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900 — needs port (check): UIElement_Tree::SetState behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60 — needs port (check): UIElement_Tree::UIElement_Tree lifecycle (create/teardown: listeners, children, surfaces); ac2-ui tree_view.rs / tree_scroll.rs
-- [ ] `UIElement_Tree::Create` · 005f8000 — needs port (check): UIElement_Tree::Create behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-- [ ] `UIElement_Tree::Register` · 005f8030 · legions 005b8b60 — needs port (check): UIElement_Tree::Register behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
+- [-] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60 — element creation and teardown: UiTree::create_element and Drop
+- [-] `UIElement_Tree::Create` · 005f8000 — element creation and teardown: UiTree::create_element and Drop
+- [-] `UIElement_Tree::Register` · 005f8030 · legions 005b8b60 — element creation and teardown: UiTree::create_element and Drop
 
 ## `portal/client/src/uielement/types/uielement_viewport.cpp.c` (7/10)
 
 ### UIElement_Viewport
 - [x] `UIElement_Viewport::GetUISceneID` · 005f8410 · legions 005b8f40 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
-- [ ] `UIElement_Viewport::Create` · 005f8420 — needs port (check): UIElement_Viewport::Create behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UIElement_Viewport::Create` · 005f8420 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIElement_Viewport::SetCameraID` · 005f8480 · legions 005b8fb0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIElement_Viewport::GetCameraID` · 005f84d0 · legions 005b9000 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIElement_Viewport::GetUIScene` · 005f84f0 · legions 005b9020 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [ ] `UIElement_Viewport::ReleaseUIScene` · 005f8510 · legions 005b9040 — needs port (check): UIElement_Viewport::ReleaseUIScene behaviour; implemented area ac2-ui scene_viewport.rs but uncited
-- [ ] `UIElement_Viewport::Register` · 005f8560 · legions 005b9090 — needs port (check): UIElement_Viewport::Register behaviour; implemented area ac2-ui scene_viewport.rs but uncited
+- [-] `UIElement_Viewport::Register` · 005f8560 · legions 005b9090 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIElement_Viewport::SetAttribute_DataID` · 005f8580 · legions 005b90b0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIElement_Viewport::SetAttribute_ASCII` · 005f85e0 · legions 005b9110 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 - [x] `UIElement_Viewport::SetObject` · 005f8620 · legions 005b9150 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

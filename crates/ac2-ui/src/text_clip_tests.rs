@@ -397,3 +397,22 @@ fn a_drag_above_a_one_line_text_does_not_scroll_it() {
     }
     assert_eq!(tree.get(entry).unwrap().text.as_ref().unwrap().view.1, 0);
 }
+
+#[test]
+fn page_down_and_up_move_the_view_a_page_and_the_cursor_to_its_top() {
+    use crate::text_edit::Direction;
+    let (mut tree, entry) = entry_with(&["selectable", "activatable"]);
+    let units: Vec<u16> = "one\ntwo\nthree\nfour\nfive\nsix".encode_utf16().collect();
+    tree.add_text_with_font(entry, &units, 0, 0);
+    tree.text_paper_height(entry);
+    let view_y = |tree: &UiTree| tree.get(entry).unwrap().text.as_ref().unwrap().view.1;
+    assert_eq!(view_y(&tree), 0);
+    assert!(tree.move_cursor(entry, Direction::PageDown, false));
+    // The view moves a page (kept within the paper), and the cursor goes to the first position
+    // under its top left corner (`DetermineAndSetNewPage`, `DeterminePositionFromXY`).
+    assert!(view_y(&tree) > 0, "the view moved down");
+    let state = tree.get(entry).unwrap().text.as_ref().unwrap();
+    assert_eq!(state.cursor, state.position_at(0, 0));
+    assert!(tree.move_cursor(entry, Direction::PageUp, false));
+    assert_eq!(view_y(&tree), 0);
+}
