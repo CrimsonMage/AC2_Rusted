@@ -875,7 +875,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/objdesc/appearance/appearancetable.cpp.c` (2/24)
 
 ### (free functions)
-- [ ] `STREAMPACK` · 00648cf0 · legions 00486a30 — needs port: generic StreamPack op for int STREAMPACK(STREAMTYPE op, PHashTable<unsigned_long,UILocationData> * obj, void * * addr, uint * size)
+- [ ] `STREAMPACK` · 00648cf0 · legions 00486a30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### AppearanceTable
 - [x] `AppearanceTable::StreamPack` · 00648d80 · legions 005f8d00 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
@@ -1223,7 +1223,7 @@ Legend and workflow: [README](README.md).
 
 ### (free functions)
 - [ ] `STREAMPACK_STREAMPACKOBJ` · 0063c940 · legions 0063e9a0 — needs port: generic StreamPack op for int STREAMPACK_STREAMPACKOBJ(STREAMTYPE op, IconDesc * obj, void * * addr, uint * size)
-- [ ] `STREAMPACK` · 0063c960 · legions 0050bc60 — needs port: generic StreamPack op for int STREAMPACK(STREAMTYPE op, FXNode * obj, void * * addr, uint * size)
+- [ ] `STREAMPACK` · 0063c960 · legions 0050bc60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### VisualDesc
 - [x] `VisualDesc::Empty` · 0063caf0 · legions 005f1540

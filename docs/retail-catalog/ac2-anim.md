@@ -889,7 +889,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/animsys/fxscripttracker.cpp.c` (4/7)
 
 ### (free functions)
-- [ ] `STREAMPACK` · 0068e480 · legions 0063af50 — needs port (check): generic STREAMPACK helper at 0068e480 (legions 0063af50); decoded type not confirmed in Rust
+- [ ] `STREAMPACK` · 0068e480 · legions 0063af50 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### FXScriptTracker
 - [x] `FXScriptTracker::StreamPack` · 0068e510 — ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs

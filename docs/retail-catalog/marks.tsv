@@ -193,7 +193,7 @@ key	status	note
 004093a0	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 004095e0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004098b0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-004098e0	_	needs port: STREAMPACK behaviour
+004098e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00409960	x	
 00409990	x	
 00409a80	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
@@ -799,7 +799,7 @@ key	status	note
 0042f7a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f7c0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f8e0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-0042fb10	_	needs port: STREAMPACK behaviour
+0042fb10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0042fca0	~	GetFellowXPHash needs the host to return the script-filled LAHash
 0042fdc0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042fdd0	~	map markers (SendNotice_AddMarker/RemoveMarker/ClearMarkers) not raised
@@ -1628,7 +1628,7 @@ key	status	note
 004530f0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00453320	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 004534e0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-00453560	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+00453560	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004535f0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00453670	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:230
 004537f0	-	STL/container internals: a Rust collection replaces it
@@ -1723,7 +1723,7 @@ key	status	note
 00456ae0	-	STL/container internals: a Rust collection replaces it
 00456b80	-	STL/container internals: a Rust collection replaces it
 00456c20	-	STL/container internals: a Rust collection replaces it
-00456e10	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+00456e10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00456f30	-	STL/container internals: a Rust collection replaces it
 00457120	x	implemented: cited at crates/ac2-net/src/protocol/pack.rs:6
 00457330	_	needs port: packed reference decode only; the reference-table insert is missing (ac2-script refs)
@@ -2134,7 +2134,7 @@ key	status	note
 0046cca0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 0046ce60	x	ac2-audio/ac2-client: ambient environments, groove
 0046d050	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-0046d140	_	needs port: skill panel node hash conversion
+0046d140	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0046d270	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d380	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
 0046d510	x	ac2-script host::skill_panel (ScriptHost::skill_panel)
@@ -2146,7 +2146,7 @@ key	status	note
 0046daa0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046db00	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046db90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-0046dbf0	_	needs port: shop sale icon description (SetItemIconDesc)
+0046dbf0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
 0046dc80	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046dce0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046dd40	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
@@ -2178,8 +2178,8 @@ key	status	note
 0046e8c0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046e970	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0046ea20	x	ac2-script glue/turbine_gun.rs: returns the client's world name (Vm::world_name, from the WORLD_NAME notice); test in glue/turbine_gun.rs
-0046eaa0	_	needs port: gTurbineGunUtils::GetWorldSuffix (world name suffix; GetWorldName is in glue/turbine_gun.rs)
-0046eb20	_	needs port: reference table tag lookup (GetReferenceTagPtr)
+0046eaa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0046eb20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0046ebd0	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 0046ec60	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 0046ed00	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
@@ -2219,7 +2219,7 @@ key	status	note
 0046fd70	x	ac2-script glue::shortcut / native::shortcut
 0046fe40	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046fea0	x	ac2-script glue::options / examination (Legions layout and efun switch)
-0046ff00	_	needs port (check): implemented as glue/examination.rs but uncited
+0046ff00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0046ff60	x	ac2-script glue::options / examination (Legions layout and efun switch)
 0046ffc0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00470020	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -2256,7 +2256,7 @@ key	status	note
 00470c70	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00470cd0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00470d30	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-00470da0	_	needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
+00470da0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00470e10	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 00470e80	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 00470ef0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -2264,17 +2264,17 @@ key	status	note
 00470fd0	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 00471040	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 004710b0	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
-00471130	_	needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
+00471130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004711b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471260	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00471310	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
+00471310	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00471370	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 004713d0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00471430	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471490	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00471500	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
+00471500	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00471570	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-004715e0	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
+004715e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00471720	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471790	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471810	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -2298,7 +2298,7 @@ key	status	note
 00471fd0	-	WSL debug dump
 00472090	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00472140	x	ac2-script glue::sub_data_ids
-004721c0	_	needs port: scene info sub-DID list (GetSubDataIDs) and Verify
+004721c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00472260	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004722c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 00472320	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2330,7 +2330,7 @@ key	status	note
 004730f0	x	ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 00473150	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 004731b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-00473210	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+00473210	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00473270	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 004732d0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473330	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -2344,7 +2344,7 @@ key	status	note
 00473670	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 004736e0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473750	-	WSL debug dump
-00473810	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+00473810	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004738e0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473990	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004739f0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2373,7 +2373,7 @@ key	status	note
 004745c0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 00474640	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 004746b0	-	debug dump (DumpW, DumpScenesW); not bound, as the other dump efuns
-00474770	_	needs port: options profile show-damage-text-other setter
+00474770	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00474780	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 004747f0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00474850	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -2401,7 +2401,7 @@ key	status	note
 004750b0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475110	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475220	x	ac2-script glue::options / examination (Legions layout and efun switch)
-004752a0	_	needs port: gameplay options profile Export/Import
+004752a0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00475320	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475390	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475410	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -2427,7 +2427,7 @@ key	status	note
 00475da0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475e10	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475e80	x	ac2-script glue::options / examination (Legions layout and efun switch)
-00475ef0	_	needs port: gameplay options profile Export/Import
+00475ef0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00475f70	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00475ff0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00476070	x	ac2-script glue::options / examination (Legions layout and efun switch)
@@ -2894,7 +2894,7 @@ key	status	note
 0048f980	x	
 0048fa90	_	needs port: landblock data: heights, terrain, scene, encounters (post-load init)
 0048faa0	_	needs port: DAT counted list (DAT decode)
-0048fb40	-	retail StreamPack macro dispatch (Rust decoders)
+0048fb40	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0048fbd0	-	SmartArray container operation (Vec replaces it)
 0048fc00	-	constructor (struct init; Rust builds it directly)
 0048fe10	~	vertex normals and terrain SurfaceInfo; not far colours or water
@@ -2981,7 +2981,7 @@ key	status	note
 00493b30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:25
 00493bd0	-	destructor: Rust Drop replaces it
 00493c50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-00493cb0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+00493cb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00493d30	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:33
 00493de0	-	STL/container internals: a Rust collection replaces it
 00493f60	-	constructor of plain data: Rust struct init replaces it
@@ -3411,7 +3411,7 @@ key	status	note
 004af7f0	-	STL/container internals: a Rust collection replaces it
 004af840	-	STL/container internals: a Rust collection replaces it
 004af9c0	-	STL/container internals: a Rust collection replaces it
-004afaf0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+004afaf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 004afc80	-	STL/container internals: a Rust collection replaces it
 004afec0	-	STL/container internals: a Rust collection replaces it
 004b0130	-	STL/container internals: a Rust collection replaces it
@@ -6403,19 +6403,19 @@ key	status	note
 00535aa0	-	launches retail's external config tool (ShellExecute); prefs edited in-client
 00535e20	~	ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
 005362f0	_	needs port (check): Device::Init window and size (--width/--height); main.rs window setup uncited
-005366d0	_	needs port: entity link description getters (input/output id, link type, properties)
-00536740	_	needs port: entity link description getters (input/output id, link type, properties)
-005367b0	_	needs port: entity link description getters (input/output id, link type, properties)
-00536840	_	needs port: entity link description getters (input/output id, link type, properties)
-005368b0	_	needs port: entity link description getters (input/output id, link type, properties)
-00536990	_	needs port: entity link description getters (input/output id, link type, properties)
-00536a50	_	needs port: entity link description getters (input/output id, link type, properties)
+005366d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536740	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005367b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536840	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005368b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536990	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536a50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00536af0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b60	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536b90	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-00536bc0	_	needs port: WState save and load efuns (SaveStateByType, GetStateByType)
-00536bf0	_	needs port: WState save and load efuns (SaveStateByType, GetStateByType)
+00536bc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536bf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00536c30	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536c50	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536c70	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -6428,10 +6428,10 @@ key	status	note
 00536db0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536de0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 00536e10	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-00536e50	_	needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
-00536eb0	_	needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
-00536f30	_	needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
-00536fa0	_	needs port: VM data attach efuns (AddData, GetData, HasData, RemoveData)
+00536e50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536eb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536f30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00536fa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00537020	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 00537080	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 005370f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
@@ -6460,11 +6460,11 @@ key	status	note
 00537c40	x	ac2-script glue::math / glue::missile
 00537cd0	x	ac2-script glue::math / glue::missile
 00537db0	x	ac2-script glue::math / glue::missile
-00537e30	_	needs port: UI save locations Clear
+00537e30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00537e90	x	ac2-script: gTokenize (Tokenize(wchar_t*))
-00537ed0	_	needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
-00537f20	_	needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
-00537fa0	_	needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
+00537ed0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00537f20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00537fa0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -6477,7 +6477,7 @@ key	status	note
 005383d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538440	x	ac2-script glue::string_info (lookups via ScriptData)
 005384a0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00538500	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+00538500	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00538560	x	ac2-script glue::string_info (lookups via ScriptData)
 005385c0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538620	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -6498,55 +6498,55 @@ key	status	note
 00538ca0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538d20	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00538ea0	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+00538ea0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00539060	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+00539060	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00539100	x	ac2-script glue::sub_data_ids
 00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00539220	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539280	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-005392e0	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539340	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-005393a0	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539400	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539460	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-005394c0	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539520	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539580	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-005395e0	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-00539640	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
-005396a0	_	needs port: sphere efuns (Intersects, get radius and center)
-00539720	_	needs port: sphere efuns (Intersects, get radius and center)
-00539790	_	needs port: sphere efuns (Intersects, get radius and center)
-00539840	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-005398a0	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539900	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539960	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-005399c0	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539a30	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539a90	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539af0	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539b60	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
-00539bd0	_	needs port: set-position struct setters and flags (scatter radius, tries, line, flags)
+00539220	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539280	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005392e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539340	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005393a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539400	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539460	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005394c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539520	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539580	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005395e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539640	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005396a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539720	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539790	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539840	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005398a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539900	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539960	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005399c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539a30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539a90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539af0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539b60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539bd0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00539c50	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539cc0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539d30	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539d90	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 00539df0	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
-00539e60	_	needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
+00539e60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00539ea0	x	ac2-script: gReservedIDs over ac2-net iid
 00539ee0	x	ac2-script: gReservedIDs over ac2-net iid
 00539f20	x	ac2-script: gReservedIDs over ac2-net iid
-00539f60	_	needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
-00539fa0	_	needs port: reserved-id checks IsCameraID, IsTemporaryID, IsUIID (IIDUtils::VerifyCamera/Temporary/UI)
-00539fe0	_	needs port: ray efuns (setters and getters)
-0053a050	_	needs port: ray efuns (setters and getters)
-0053a0f0	_	needs port: ray efuns (setters and getters)
-0053a150	_	needs port: ray efuns (setters and getters)
-0053a1c0	_	needs port: ray efuns (setters and getters)
-0053a250	_	needs port: ray efuns (setters and getters)
-0053a300	_	needs port: ray efuns (setters and getters)
-0053a3d0	_	needs port: ray efuns (setters and getters)
+00539f60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539fa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00539fe0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a050	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a0f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a150	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a1c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a250	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a300	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053a3d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053a480	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a4e0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0053a550	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -6563,43 +6563,43 @@ key	status	note
 0053aac0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 0053ab40	x	ac2-prefs/src/cnum.rs fn is_double (PSUtils::is_double)
 0053abb0	x	ac2-prefs/src/cnum.rs fn is_int32 (PSUtils::is_int32)
-0053ac20	_	needs port: PSUtils::is_int64 (64-bit number parse)
-0053ac90	_	needs port: PSUtils::is_uint64 (64-bit number parse)
-0053ad00	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053ad50	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053ada0	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053adf0	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053ae40	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053ae90	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053aef0	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053af50	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053afb0	_	needs port: PSUtils efuns (number checks, cwd, directory name and extension helpers)
-0053b010	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b090	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b110	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b190	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b210	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b280	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b2f0	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b370	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b3f0	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b470	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b510	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b5b0	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b650	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b6f0	_	needs port: property group efuns (AddProperty, group name, property inquiries)
-0053b790	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053b810	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053b890	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053b910	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053b990	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053ba00	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053ba80	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053bb20	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053bbc0	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053bc60	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053bd00	_	needs port: property collection efuns (AddProperty, group and property inquiries)
-0053bda0	_	needs port: property collection efuns (AddProperty, group and property inquiries)
+0053ac20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ac90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ad00	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053ad50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053ada0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053adf0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053ae40	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053ae90	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053aef0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053af50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053afb0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0053b010	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b090	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b110	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b190	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b210	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b280	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b2f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b370	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b3f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b470	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b510	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b5b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b650	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b6f0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b790	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b810	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053b890	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b910	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b990	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053ba00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ba80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053bb20	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0053bbc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053bc60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053bd00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053bda0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053be40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053beb0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053bf10	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -6641,23 +6641,23 @@ key	status	note
 0053d1d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d280	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d330	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
-0053d3f0	_	needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
-0053d480	_	needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
-0053d510	_	needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
-0053d590	_	needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
-0053d6a0	_	needs port: places hash conversion (NRHashToPlacesHash)
+0053d3f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053d480	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053d510	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053d590	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053d6a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053d730	-	WSL debug dump
 0053d7b0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
 0053d8f0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
-0053d960	_	needs port: places table efuns (InqPlace, InqPlaceStr, InqPlacesHash)
+0053d960	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053d9d0	x	ac2-script glue::places / enums / chargen (PlacesTable data::places)
-0053daa0	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053db00	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053db60	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053dbc0	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053dc20	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053dc80	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
-0053dce0	_	needs port: physics story hook efuns (AddHook, attacker/skill/basic attack setters, attack result)
+0053daa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053db00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053db60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053dbc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053dc20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053dc80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053dce0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053dd50	-	admin only: profiler counters (admin tool)
 0053dd70	-	admin only: profiler counters (admin tool)
 0053dd90	-	admin only: profiler counters (admin tool)
@@ -6667,58 +6667,58 @@ key	status	note
 0053de20	-	admin only: profiler counters (admin tool)
 0053de40	-	admin only: profiler counters (admin tool)
 0053de60	-	admin only: profiler counters (admin tool)
-0053de90	_	needs port: path system position query (QueryPosition_Internal)
-0053df10	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
-0053df50	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
+0053de90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053df10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053df50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053dfb0	-	WSL debugger query or dump (process, reference and perf tables)
 0053e070	-	WSL debugger query or dump (process, reference and perf tables)
 0053e130	-	WSL debugger query or dump (process, reference and perf tables)
 0053e220	-	admin dump of path map and caches
 0053e260	-	admin dump of path map and caches
 0053e2c0	-	admin dump of path map and caches
-0053e300	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
-0053e360	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
-0053e3c0	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
-0053e430	_	needs port: path system efuns (FindPath, QueryPosition, node ids and path node data lookups)
-0053e490	_	needs port: path node data inquiries (slope constraint, solid, water)
-0053e500	_	needs port: path node data inquiries (slope constraint, solid, water)
-0053e570	_	needs port: path node data inquiries (slope constraint, solid, water)
-0053e5e0	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e640	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e6a0	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e700	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e760	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e7c0	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e830	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e890	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e8f0	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e950	_	needs port: normal path finder constraint setters (height, distance, slope, solid, water, width)
-0053e9b0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ea10	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ea70	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ead0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053eb10	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053eb70	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ebd0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ec30	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ecb0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ed30	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053edb0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ee30	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053eeb0	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053ef30	_	needs port: path finder request setters (start, end, solution and property types) and InqSolution
-0053efd0	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f030	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f090	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f0f0	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f160	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f1d0	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f250	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f2c0	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f340	_	needs port: path position list conversion (RListToPositionList)
-0053f410	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
-0053f4d0	_	needs port: path position list conversion (PositionListToRList)
-0053f590	_	needs port: path efuns (dist/ratio/time get/set, length, unsolved, ToString, position list)
+0053e300	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e360	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e3c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e430	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e490	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e500	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e570	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e5e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e640	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e6a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e700	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e760	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e7c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e830	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e890	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e8f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e950	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053e9b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ea10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ea70	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ead0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053eb10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053eb70	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ebd0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ec30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ecb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ed30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053edb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ee30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053eeb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ef30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053efd0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f030	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f090	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f0f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f160	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f1d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f250	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f2c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f340	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f410	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f4d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053f590	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0053f690	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053f710	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053f790	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
@@ -6729,61 +6729,61 @@ key	status	note
 0053fa50	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053faf0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
 0053fba0	x	ac2-script host (ScriptHost dispatch, PackBuffer, SendServerEvt, notices)
-0053fc50	_	needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
-0053fcc0	_	needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
-0053fd30	_	needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
-0053fda0	_	needs port: object collision profile inquiries (ID, begin/end collision, ethereal)
-0053fe10	_	needs port: movement return getters (status, error, object id, position)
-0053fe80	_	needs port: movement return getters (status, error, object id, position)
-0053fef0	_	needs port: movement return getters (status, error, object id, position)
-0053ff80	_	needs port: movement return getters (status, error, object id, position)
-0053fff0	_	needs port: movement return getters (status, error, object id, position)
-00540060	_	needs port: movement return getters (status, error, object id, position)
-005400d0	_	needs port: movement return getters (status, error, object id, position)
-005401a0	_	needs port: movement return getters (status, error, object id, position)
-005402a0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540300	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540360	_	needs port: movement parameter setters (target, distances, flags, position list)
-005403c0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540420	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540480	_	needs port: movement parameter setters (target, distances, flags, position list)
-005404e0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540540	_	needs port: movement parameter setters (target, distances, flags, position list)
-005405a0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540600	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540660	_	needs port: movement parameter setters (target, distances, flags, position list)
-005406c0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540720	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540780	_	needs port: movement parameter setters (target, distances, flags, position list)
-005407f0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540850	_	needs port: movement parameter setters (target, distances, flags, position list)
-005408b0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540910	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540970	_	needs port: movement parameter setters (target, distances, flags, position list)
-005409e0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540aa0	_	needs port: movement parameter setters (target, distances, flags, position list)
-00540b30	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540ba0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540c10	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540c80	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540cf0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540d60	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540dd0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540e40	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540eb0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540f20	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00540f90	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541000	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541070	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-005410e0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541150	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-005411c0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541230	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-005412a0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541310	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541380	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-005413f0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-00541460	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
+0053fc50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fcc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fd30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fda0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fe10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fe80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fef0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053ff80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053fff0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540060	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005400d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005401a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005402a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540300	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540360	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005403c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540420	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540480	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005404e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540540	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005405a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540600	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540660	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005406c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540720	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540780	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005407f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540850	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005408b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540910	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540970	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005409e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540aa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540b30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540ba0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540c10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540c80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540cf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540d60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540dd0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540e40	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540eb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540f20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00540f90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541000	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541070	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005410e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541150	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005411c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541230	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005412a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541310	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541380	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005413f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00541460	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005414d0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
 00541530	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
 00541590	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
@@ -6828,22 +6828,22 @@ key	status	note
 005424d0	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
-00542680	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542700	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542760	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-005427c0	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542820	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542880	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-005428e0	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542950	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-005429e0	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542a50	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542ab0	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542b20	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542b90	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542c10	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542c90	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542d30	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
+00542680	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542700	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542760	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005427c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542820	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542880	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005428e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542950	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005429e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542a50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542ab0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542b20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542b90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542c10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542c90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00542d30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00542e10	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 00542e70	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 00542ed0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
@@ -6854,103 +6854,103 @@ key	status	note
 005430d0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 00543140	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 005431b0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
-00543220	_	needs port: landblock size and static-object lookup efuns
-00543250	_	needs port: landblock size and static-object lookup efuns
-00543280	_	needs port: landblock size and static-object lookup efuns
-005432f0	_	needs port: icon description Empty/IsValid
-00543360	_	needs port: icon description Empty/IsValid
+00543220	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00543250	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00543280	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005432f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00543360	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
 005433d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 00543430	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 005434a0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 00543510	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
-005435b0	_	needs port: heading efuns (set/get degrees, range check, ToWPString; position.rs dispatches only gPosition)
-00543630	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-00543670	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005436e0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-00543750	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005437c0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-00543830	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005438a0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005438f0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-00543960	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005439b0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
+005435b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00543630	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+00543670	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+005436e0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+00543750	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+005437c0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+00543830	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+005438a0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+005438f0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+00543960	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+005439b0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
 005439f0	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543a50	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543ab0	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543b10	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543b70	x	ac2-script glue::data_bags (FxAndBehavior native)
-00543bd0	_	needs port: PFile parser efuns (load and save string)
-00543c50	_	needs port: PFile parser efuns (load and save string)
-00543cf0	_	needs port: frame origin setter
-00543d60	_	needs port: PFile node GetType (PFile tree names and leaves)
-00543d70	_	needs port: PFile node Clone (PFile tree names and leaves)
-00543da0	_	needs port: PFile node Clone (PFile tree names and leaves)
-00543dd0	_	needs port: PFile node SetNameAsBool (PFile tree names and leaves)
-00543e20	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00543e80	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00543ee0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00543f40	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00543fe0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544080	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544120	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-005441c0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544220	_	needs port: PFile node GetLeafAsInt32 (PFile tree names and leaves)
-00544240	_	needs port: PFile node GetNameAsInt64 (PFile tree names and leaves)
-00544310	_	needs port: PFile node GetNameAsUInt64 (PFile tree names and leaves)
-005443e0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544450	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+00543bd0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543c50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543cf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00543d60	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00543d70	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00543da0	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00543dd0	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00543e20	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543e80	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543ee0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543f40	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00543fe0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544080	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544120	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005441c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544220	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00544240	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+00544310	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
+005443e0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544450	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 005444d0	-	debugger source file name
-00544590	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544630	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-005446c0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544780	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544840	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544900	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-005449c0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544a80	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544b40	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544be0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544c80	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544d20	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544dc0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544e60	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544f00	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00544fa0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00545040	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00545110	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-005451e0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-005452b0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00545380	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
+00544590	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544630	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005446c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544780	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544840	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544900	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005449c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544a80	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544b40	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544be0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544c80	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544d20	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544dc0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544e60	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544f00	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00544fa0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00545040	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00545110	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005451e0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005452b0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00545380	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00545420	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00545460	x	ac2-script data/glue::enums
 005454a0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005454f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005455b0	-	C++ destructor (Rust drop replaces it)
 00545670	-	container internals (Rust collections replace them)
-005456f0	_	needs port: script file I/O (WSLCloseFile)
-00545790	_	needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
-005457e0	_	needs port: script file I/O helper (RArrayToWPStringArray)
-00545910	_	needs port: script file I/O (WSLOpenFile)
-00545ab0	_	needs port: script file I/O (WSLReadFromFile)
-00545cb0	_	needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
-00545d10	_	needs port: script file I/O helper (WPStringArrayToRArray)
-00545db0	_	needs port: script file I/O (WriteToFile)
-00545ec0	_	needs port: script file I/O (WSLWriteToFileTimestamped)
-00546070	_	needs port: script file I/O (WSLWriteToFile)
-005461c0	_	needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
-00546230	_	needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
-005462a0	_	needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
-00546360	_	needs port: ethereal weenie type setters and list adds
-005463c0	_	needs port: ethereal weenie type setters and list adds
-00546420	_	needs port: ethereal weenie type setters and list adds
-005464a0	_	needs port: ethereal weenie type setters and list adds
-00546520	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-00546580	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-005465e0	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-00546640	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-005466a0	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-00546720	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
-005467a0	_	needs port: ethereal physics type setters (to ethereal/solid, property setters)
+005456f0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545790	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005457e0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545910	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545ab0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545cb0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00545d10	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545db0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00545ec0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+00546070	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+005461c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00546230	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005462a0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00546360	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005463c0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546420	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005464a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546520	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546580	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005465e0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546640	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005466a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546720	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005467a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
 00546820	x	ac2-script data/glue::enums
 00546850	x	ac2-script data/glue::enums
 00546900	x	ac2-script data/glue::enums
@@ -6959,61 +6959,61 @@ key	status	note
 00546ab0	x	ac2-script data/glue::enums
 00546b30	x	ac2-script data/glue::enums
 00546bb0	x	ac2-script data/glue::enums
-00546c10	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00546c10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00546c80	x	ac2-script glue::enums (FileArray::GetDID: no name data on the DVD)
-00546cc0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546d30	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546da0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546e10	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546e80	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546f00	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546f70	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00546ff0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-005470b0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00547130	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00547210	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-005472f0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-005473b0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00546cc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546d30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546da0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546e10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546e80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546f00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546f70	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00546ff0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005470b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547210	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+005472f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005473b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547480	x	ac2-script glue::entity_desc inq_word
-00547530	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-005475d0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00547530	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005475d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547670	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 00547720	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
-00547780	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00547780	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005477f0	x	ac2-script glue::entity_desc inq_word
-005478a0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+005478a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547950	x	out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
-00547a00	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00547a00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547ab0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
-00547b50	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00547bf0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00547b50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547bf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00547c90	-	admin only: admin email tool (no Legions match)
-00547d10	_	needs port: detection report type dword get/set
-00547d80	_	needs port: detection report type dword get/set
-00547df0	_	needs port: detection report type dword get/set
-00547e70	_	needs port: detection report type dword get/set
-00547ee0	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00547f40	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00547fa0	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00548010	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00548080	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00548100	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00548170	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-005481f0	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-005482a0	_	needs port: detection profile getters (coverage, float/int appearance, report type, position)
-00548390	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005483f0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548490	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005484f0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548560	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005485f0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548670	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005486e0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548740	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005487c0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548830	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-005488a0	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
-00548920	_	needs port: detection parameter setters (shape, base position, targets, LOS masks)
+00547d10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547d80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547df0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547e70	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547ee0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547f40	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00547fa0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548010	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548080	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548100	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548170	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005481f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005482a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548390	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005483f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548490	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005484f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548560	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005485f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548670	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005486e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548740	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005487c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548830	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005488a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00548920	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005489a0	-	not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
 00548a10	-	not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
 00548a80	-	not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
@@ -7031,17 +7031,17 @@ key	status	note
 00549150	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
 005491f0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 00549250	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-005492b0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549320	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549390	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549400	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549470	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-005494e0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549550	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-005495c0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549630	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-005496a0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549710	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+005492b0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549320	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549390	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549400	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549470	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005494e0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549550	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005495c0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549630	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005496a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549710	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
 00549780	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549800	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549880	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
@@ -7049,31 +7049,31 @@ key	status	note
 00549980	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549a00	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549a80	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549b00	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549bc0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549c80	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549d40	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
-00549e20	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
+00549b00	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549bc0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549c80	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549d40	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549e20	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
 00549f00	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 00549f70	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 00549fe0	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 0054a050	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 0054a0c0	x	ac2-script glue/collision.rs: copies the CollideProperty's BaseProperty (native from the report, Ac2PropertyValue -> ac2_db::BaseProperty) into a new BaseProperty native; tests glue/base_property_tests.rs
-0054a170	_	not ported: GetOutputString formats "%s = %s" (name, value text), but the value text (GetValueAsString per type, vtable +0x28 in Legions) is not in the Legions decompile for Integer/Float/Color/etc., and the PStringBase::sprintf destination is unresolved; GetProperty alone is bound
-0054a200	_	needs port: CDBForm SetNameW (DB form builder)
-0054a270	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a2d0	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a380	_	needs port: CDBForm AddPropertyW (DB form builder)
-0054a3e0	_	needs port: CDBForm AddProperty (DB form builder)
-0054a450	_	needs port: CDBForm AddProperty (DB form builder)
-0054a4c0	_	needs port: CDBForm AddProperty (DB form builder)
-0054a530	_	needs port: CDBForm AddProperty (DB form builder)
-0054a5a0	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a600	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a660	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a6c0	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a730	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
-0054a7a0	_	needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
+0054a170	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0054a200	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a270	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a2d0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a380	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a3e0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a450	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a4c0	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a530	-	authoring-tool file and DB-form writing (WSL data pipeline); the DVD client reads DAT records only and no client path writes these files
+0054a5a0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a600	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a660	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a6c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a730	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+0054a7a0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 0054a800	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a860	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054a8c0	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
@@ -7101,13 +7101,13 @@ key	status	note
 0054b120	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054b190	~	ac2-script glue: f32 spill points unchecked against x87 / copy order of PHashTable operator= unverified
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
-0054b360	_	needs port: BaseProperty InqStringW (weenie property string)
-0054b430	_	needs port: BaseProperty SetStringW (weenie property string)
+0054b360	x	ac2-script glue::base_property inq_string / set_string
+0054b430	x	ac2-script glue::base_property inq_string / set_string
 0054b480	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054b4f0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054b560	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
-0054b5d0	_	needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
-0054b640	_	needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
+0054b5d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0054b640	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054b6b0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054b740	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054b7d0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -7139,12 +7139,12 @@ key	status	note
 0054c7c0	~	FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
 0054c840	x	ac2-script glue/visual_desc.rs
 0054c8b0	x	ac2-script glue/visual_desc.rs
-0054c920	_	needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
+0054c920	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
-0054ca40	_	needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
-0054caf0	_	needs port: appearance table adaptor (HasAppearanceKey, key mod lists, tsys mod count)
-0054cb60	_	needs port: gAppInfoHash::num_elements (appearance info hash count)
+0054ca40	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0054caf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0054cb60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054cbd0	-	C++ constructor of plain data or a container (Rust struct init)
 0054cbf0	-	C++ destructor (Rust drop replaces it)
 0054cc40	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -7242,39 +7242,39 @@ key	status	note
 0054fe30	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054fe80	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0054fee0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
-005500e0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550170	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550220	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550290	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550320	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005503c0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550450	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005504e0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550560	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005505f0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550660	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005506f0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550780	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550810	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005508a0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550930	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005509c0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550a50	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550ae0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550b40	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550ba0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550c10	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550df0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550e50	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550eb0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550f10	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550f70	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00550ff0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00551050	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-005510b0	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00551130	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00551190	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
-00551260	_	needs port: case-insensitive wide string efuns (compare, find, case map, encrypt, append)
+005500e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550170	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550220	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550290	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550320	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005503c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550450	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005504e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550560	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005505f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550660	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005506f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550780	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550810	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005508a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550930	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005509c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550a50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550ae0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550b40	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550ba0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550c10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550df0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550e50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550eb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550f10	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550f70	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00550ff0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00551050	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+005510b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00551130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00551190	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00551260	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 005512f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551380	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 005513f0	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
@@ -7300,7 +7300,7 @@ key	status	note
 00551d70	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e00	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00551e60	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
-00551ee0	_	needs port: gStringUtils::ConvertWPStringToCIWPstring
+00551ee0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00551fa0	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 005520c0	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
 00552130	x	ac2-script glue
@@ -7371,11 +7371,11 @@ key	status	note
 00553e10	-	WSL debugger query (process, reference and perf tables)
 00553e70	-	WSL debugger query (process, reference and perf tables)
 00553ed0	-	WSL debugger query (process, reference and perf tables)
-00553f30	_	needs port: type info efuns (get_type, new_type, new_validated_type)
-00553f80	_	needs port: type info efuns (get_type, new_type, new_validated_type)
-00553fd0	_	needs port: type info efuns (get_type, new_type, new_validated_type)
-00554020	_	needs port: timer efuns (compute_time, get_time, get_real_time)
-00554050	_	needs port: timer efuns (compute_time, get_time, get_real_time)
+00553f30	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00553f80	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+00553fd0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00554020	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00554050	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00554080	x	ac2-script glue::engine_misc get_time (Vm::cur_time, ScriptHost::set_time; the client must call set_time each frame)
 005540c0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00554120	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
@@ -7740,9 +7740,9 @@ key	status	note
 005600e0	-	debugger/debug output efun (admin only)
 00560100	-	debugger/debug output efun (admin only)
 00560120	x	ac2-script glue::engine_misc print_string (log instead of the debug console)
-00560150	_	needs port: gdebug WSL assert efuns (assert failure path)
-00560190	_	needs port: gdebug WSL assert efuns (assert failure path)
-005601e0	_	needs port: gdebug WSL assert efuns (assert failure path)
+00560150	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+00560190	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
+005601e0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00560230	-	debugger/debug output efun (admin only)
 00560270	-	debugger/debug output efun (admin only)
 005602b0	-	debugger/debug output efun (admin only)
@@ -10949,7 +10949,7 @@ key	status	note
 006185b0	-	ctor/dtor of plain data; Rust constructs and drops values
 006185f0	-	ctor/dtor of plain data; Rust constructs and drops values
 00618610	_	needs port: entity description: LinkRequirements::StreamPack (stream decode)
-006186a0	_	needs port: wlib link map package name lookup
+006186a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00618700	-	admin wlib database (no Legions match)
 00618780	-	admin wlib link map (no Legions match)
 006187f0	-	admin wlib database (no Legions match)
@@ -11563,7 +11563,7 @@ key	status	note
 0063c920	_	needs port: VisualDesc::GetStartupFX
 0063c930	_	needs port: VisualDesc::HasFX (global FX table test; uncited)
 0063c940	_	needs port: generic StreamPack op for int STREAMPACK_STREAMPACKOBJ(STREAMTYPE op, IconDesc * obj, void * * addr, uint * size)
-0063c960	_	needs port: generic StreamPack op for int STREAMPACK(STREAMTYPE op, FXNode * obj, void * * addr, uint * size)
+0063c960	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0063caf0	x	
 0063cb50	-	hash iterator op
 0063cc30	-	container iterator (PGD table); Rust iterates the map
@@ -11748,7 +11748,7 @@ key	status	note
 00648990	-	ctor/dtor of plain data; Rust constructs and drops values
 00648a80	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00648c40	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
-00648cf0	_	needs port: generic StreamPack op for int STREAMPACK(STREAMTYPE op, PHashTable<unsigned_long,UILocationData> * obj, void * * addr, uint * size)
+00648cf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00648d80	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00648f70	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 00649260	_	needs port: dependent DIDs of AppearanceTable for sub-object resolution (AGENTS.md exception)
@@ -12258,6 +12258,8 @@ key	status	note
 00662fc0	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 00663000	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
 00663040	-	container, allocator, scratch-pool or ctor/dtor/operator= of plain data (Rust std replaces)
+006658d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00665940	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006661e0	-	C++ constructor/destructor (Rust struct init or Drop)
 00666250	-	C++ constructor/destructor (Rust struct init or Drop)
 006662e0	-	admin-only tooling (text source, preprocess, EMP or format authoring)
@@ -12657,7 +12659,7 @@ key	status	note
 0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
 0068dfc0	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
 0068e410	x	ac2-anim Ac2BehaviorTracker
-0068e480	_	needs port (check): generic STREAMPACK helper at 0068e480 (legions 0063af50); decoded type not confirmed in Rust
+0068e480	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0068e510	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 0068e620	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 0068e700	-	container serialization/helper (Rust collections; elements decoded by their owning class)
@@ -14223,28 +14225,28 @@ key	status	note
 006dbab0	-	VM heap clear and pack size (Rust memory and writer)
 006dbb00	x	ac2-net protocol::pack
 006dbbd0	x	ac2-script reference/native unpack
-006dbd50	_	needs port: wlib package reference binding (HeapObject)
+006dbd50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dbdd0	x	vm/refs.rs fn update_references (HeapObject::UpdateReferences)
-006dbe00	_	needs port: VM CreateProcessA (process creation)
-006dbe30	_	needs port: VM CreateProcessA (process creation)
-006dbe60	_	needs port: VM::CopyNativeObject (native object copy)
-006dbe80	_	needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
-006dbea0	_	needs port (check): implemented as glue/vm_glue.rs is_derived_from but uncited
-006dbec0	_	needs port: VM::ValidateVersion (wlib version check)
+006dbe00	x	ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
+006dbe30	x	ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
+006dbe60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dbe80	x	ac2-script vm::program Program::is_derived_from
+006dbea0	x	ac2-script vm::program Program::is_derived_from
+006dbec0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dbef0	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dbf10	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dbf30	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dbf50	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dbf70	~	ac2-net native read/write; coverage of every native object type unverified
 006dbf90	~	ac2-net native read/write; coverage of every native object type unverified
-006dbfb0	_	needs port (check): implemented as glue/vm_glue.rs get_context_id but uncited
+006dbfb0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dbfc0	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dbfd0	-	VM garbage collector and allocator internals (Rust memory replaces them)
-006dbfe0	_	needs port (check): implemented as glue/vm_glue.rs get_instance_reference but uncited
+006dbfe0	x	ac2-script glue::vm_glue get_instance_reference
 006dbff0	-	VM garbage collector internals (Rust memory replaces them)
 006dc040	~	ac2-net protocol::pack: packed reference graph both ways; no VM reference table (no WState lookup, no library slot check, no dependent-reference walk)
 006dc0b0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
-006dc0e0	_	needs port (check): implemented as host/mod.rs remove_weenie (cites VM::DeleteProcess as caller)
+006dc0e0	x	ac2-script host::ScriptHost::remove_weenie
 006dc110	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 006dc140	~	ac2-script glue::hashes NativeKeys: StringInfo and wpstring; CaseInsensitiveWPString (0x353F) not yet
 006dc170	x	ac2-script vm (VM/ReferenceTable/Resolver)
@@ -14266,44 +14268,44 @@ key	status	note
 006dca70	-	WSL debugger query or dump (process, reference and perf tables)
 006dcb80	-	C++ destructor (Rust drop replaces it)
 006dcbe0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
-006dcc00	_	needs port (check): implemented as glue/vm_glue.rs but uncited
-006dcc50	_	needs port (check): implemented as glue/vm_glue.rs but uncited
+006dcc00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dcc50	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dcc70	-	VM garbage collector and allocator internals (Rust memory replaces them)
 006dcc80	-	C++ destructor (Rust drop replaces it)
-006dcce0	~	ac2-script wstate DID formulas / ByteStream::package_id
-006dcd20	x	vm/program.rs fn package_id (VM::GetPackageID)
-006dce20	_	needs port (check): implemented as vm/mod.rs singleton_package but uncited
-006dce90	_	needs port: VM::GetSingletonPackageW
-006dcf50	~	ac2-script wstate DID formulas / ByteStream::package_id
+006dcce0	x	ac2-script vm::program Program::package_id
+006dcd20	x	ac2-script vm::program Program::package_id
+006dce20	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dce90	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dcf50	x	ac2-script vm::Vm::singleton_package
 006dcf90	x	ac2-script vm (VM/ReferenceTable/Resolver)
 006dcfb0	x	ac2-script glue
 006dd040	-	script debugger
 006dd0a0	-	C++ constructor of plain data or a container (Rust struct init)
 006dd160	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
-006dd220	_	needs port (check): implemented as vm/mod.rs VM::new (string literal table load) but uncited
-006dd2d0	_	needs port: VM CreateSingletonProcess (process creation)
+006dd220	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dd2d0	x	ac2-script host::ScriptHost::create_weenie / Vm::allocate_package (one process per weenie object)
 006dd310	-	VM garbage collector internals (Rust memory replaces them)
-006dd3f0	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
+006dd3f0	x	ac2-script vm::pack ReferenceTable::pack (PackedReference)
 006dd4e0	-	VM garbage collector and allocator internals (Rust memory replaces them)
-006dd500	~	ac2-script vm::pack: builds the PackedReference structure; the byte stream (native StreamPack) is the wire codec's
+006dd500	x	ac2-script vm::pack ReferenceTable::pack (PackedReference)
 006dd520	x	ac2-script vm (VM/ReferenceTable/Resolver)
-006dd540	_	needs port: VM preprocessor WState cleanup
-006dd630	_	needs port: VM::GetPackageName (package name by id)
+006dd540	-	compiler/tool step on WState files; the client loads WStates read-only
+006dd630	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dd690	x	ac2-script glue
 006dd6c0	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
-006dd7a0	_	needs port: VM process context GetPackageID (ProcessState)
-006dd7c0	_	needs port: VM process context ClearContextTable (ProcessState)
+006dd7a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006dd7c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006dd860	-	WSL debugger query or dump (process, reference and perf tables)
 006dd9a0	-	WSL debugger query or dump (process, reference and perf tables)
 006dda60	-	C++ destructor (Rust drop replaces it)
-006ddab0	_	needs port: VM process context GetContextState (ProcessState)
-006ddaf0	_	needs port: VM process context DeleteContext (ProcessState)
+006ddab0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006ddaf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ddb60	-	WSL debugger query or dump (process, reference and perf tables)
-006ddba0	_	needs port: VM process context CreateContext (ProcessState)
+006ddba0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ddcf0	-	C++ constructor of plain data or a container (Rust struct init)
-006ddd50	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ddd50	x	ac2-script vm::Vm::allocate_package / allocate_from_state
 006dddf0	-	C++ constructor of plain data or a container (Rust struct init)
-006dde60	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006dde60	x	ac2-script vm::Vm::allocate_package / allocate_from_state
 006ddfe0	-	C++ constructor of plain data or a container (Rust struct init)
 006de060	-	WSL debugger query or dump (process, reference and perf tables)
 006de120	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
@@ -14329,20 +14331,20 @@ key	status	note
 006e13b0	x	ac2-script glue
 006e1410	x	ac2-script glue
 006e1470	x	ac2-script glue
-006e1490	_	needs port: VM value type helper (new_validated_type)
-006e14c0	_	needs port: VM value type helper (get_type)
-006e15a0	_	needs port: VM value type helper (new_type)
+006e1490	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e14c0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e15a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e1630	-	C++ constructor of plain data or a container (Rust struct init)
-006e1650	_	needs port: WState save (Pack)
-006e16a0	_	needs port: WState save (Clear)
+006e1650	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e16a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e16d0	-	C++ destructor (Rust drop replaces it)
 006e1700	x	ac2-script WLib/WState/ByteStream decode
 006e17f0	-	C++ destructor (Rust drop replaces it)
-006e1830	_	needs port: VM process table UnRegisterProcess
-006e1860	_	needs port: VM process table GetProcess
+006e1830	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e1860	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e1880	-	WSL debugger query or dump (process, reference and perf tables)
 006e18b0	-	C++ constructor of plain data or a container (Rust struct init)
-006e18d0	_	needs port: VM process table RegisterProcess
+006e18d0	x	ac2-script host::ScriptHost process_ids numbering (Vm::process_ids)
 006e1920	-	WSL debugger query or dump (process, reference and perf tables)
 006e1960	-	WSL debugger query or dump (process, reference and perf tables)
 006e1a20	-	WSL debugger query or dump (process, reference and perf tables)
@@ -14427,7 +14429,7 @@ key	status	note
 006e3aa0	x	ac2-script vm::arith
 006e3b10	x	ac2-script vm::arith
 006e3b80	x	ac2-script vm::arith
-006e3bf0	_	needs port: PFile node GetType (PFile tree names and leaves)
+006e3bf0	-	WSL text data-file parser (PFileNode): tool-only, no PFileParser exists in the client so no script is ever handed a node
 006e3c00	x	ac2-script vm::exec
 006e3c10	x	ac2-script vm::exec
 006e3c30	x	ac2-script vm::exec
@@ -14479,7 +14481,7 @@ key	status	note
 006e4f70	x	ac2-script WLib/WState/ByteStream decode
 006e5000	x	ac2-script WLib/WState/ByteStream decode
 006e5090	x	ac2-script WLib/WState/ByteStream decode
-006e5130	_	needs port: cell material update (CObjCell::UpdateCellMaterial)
+006e5130	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e5140	~	ac2-script: unpack direction only
 006e5220	-	wlib debug-info section (debugger only)
 006e5310	-	compiled-wlib writer (client only reads wlib)
@@ -14491,23 +14493,23 @@ key	status	note
 006e5960	x	ac2-script glue
 006e5aa0	x	ac2-script WLib/WState/ByteStream decode
 006e5c40	x	ac2-script glue
-006e5ce0	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e5ce0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e5e70	-	C++ constructor of plain data or a container (Rust struct init)
-006e5e80	_	needs port: animation asset weight key load (StreamPack)
+006e5e80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e5ec0	~	ac2-script: unpack direction only
 006e5f00	x	ac2-script glue
 006e5fa0	-	container internals (Rust collections replace them)
-006e6030	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e6030	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e61f0	-	C++ constructor of plain data or a container (Rust struct init)
 006e6230	-	C++ destructor (Rust drop replaces it)
 006e62d0	-	wlib debug-info section (debugger only)
 006e6410	-	container internals (Rust collections replace them)
-006e6480	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
-006e6620	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e6480	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e6620	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e6820	-	C++ assignment operator of plain data (Rust copy/move)
 006e6930	-	MSVC compiler stub (default_constructor_closure)
-006e6940	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
-006e69e0	_	needs port: STREAMPACK loader helper (wlib arrays)
+006e6940	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006e69e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e6a60	-	debug-info section table (debugger only)
 006e6c20	-	C++ constructor of plain data or a container (Rust struct init)
 006e6c60	x	ac2-script WLib/WState/ByteStream decode
@@ -14524,7 +14526,7 @@ key	status	note
 006e7ad0	~	ac2-script: unpack direction only
 006e7cb0	x	bytestream/tables.rs fn imports (PSmartArray<ImportData>::StreamPack)
 006e7e30	-	C++ constructor of plain data or a container (Rust struct init)
-006e7e80	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e7e80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e8000	-	C++ constructor of plain data or a container (Rust struct init)
 006e8040	-	C++ assignment operator of plain data (Rust copy/move)
 006e80b0	-	C++ assignment operator of plain data (Rust copy/move)
@@ -14536,7 +14538,7 @@ key	status	note
 006e8590	-	C++ constructor of plain data or a container (Rust struct init)
 006e85a0	-	debug info (debugger only)
 006e85e0	-	debug-info section table (debugger only)
-006e8690	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e8690	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e8950	-	C++ constructor of plain data or a container (Rust struct init)
 006e89d0	~	ac2-script: unpack direction only
 006e8a30	-	C++ destructor (Rust drop replaces it)
@@ -14544,7 +14546,7 @@ key	status	note
 006e8c80	-	C++ destructor (Rust drop replaces it)
 006e8e90	x	bytestream/tables.rs fn exports (PSmartArray<ExportData>::StreamPack)
 006e9010	-	C++ constructor of plain data or a container (Rust struct init)
-006e9040	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006e9040	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006e91c0	-	C++ constructor of plain data or a container (Rust struct init)
 006e9210	-	C++ assignment operator of plain data (Rust copy/move)
 006e92a0	~	ac2-script: unpack direction only
@@ -14567,7 +14569,7 @@ key	status	note
 006e9ff0	-	container internals (Rust collections replace them)
 006ea090	-	container internals (Rust collections replace them)
 006ea120	-	container internals (Rust collections replace them)
-006ea1e0	_	needs port: wlib loader table (package, vtable or nested array) in bytestream
+006ea1e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ea3c0	-	container internals (Rust collections replace them)
 006ea430	-	container internals (Rust collections replace them)
 006ea580	-	debug info (debugger only)
@@ -14599,19 +14601,19 @@ key	status	note
 006ec930	-	debug info (debugger only)
 006ec970	-	debug info (debugger only)
 006ecb60	~	ac2-script ByteStream::validate_versions: wcc check; InterpVersionCheck env path not ported
-006ecd30	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
-006ecdb0	~	ac2-script vm: no GC/reference reuse, no VMMon timers, efun ids resolved per call
+006ecd30	x	ac2-script vm::Vm::new (string literals become wpstring natives)
+006ecdb0	x	ac2-script vm::Vm::new (string literals become wpstring natives)
 006ece90	-	C++ constructor of plain data or a container (Rust struct init)
-006ecea0	_	needs port: VM data attach (GetReferenceData)
+006ecea0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006eceb0	-	VM data refcount or checkpoint pack (Rust memory replaces it)
 006ecf30	-	VM data refcount or checkpoint pack (Rust memory replaces it)
-006ecff0	_	needs port: VM data attach (GetData)
-006ed020	_	needs port: VM data attach (HasData)
+006ecff0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+006ed020	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ed060	-	VM data refcount or checkpoint pack (Rust memory replaces it)
 006ed0d0	-	VM data refcount or checkpoint pack (Rust memory replaces it)
-006ed150	_	needs port: VM data attach (RemoveData)
+006ed150	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ed1b0	-	C++ assignment operator of plain data (Rust copy/move)
-006ed2e0	_	needs port: VM data attach (AddData)
+006ed2e0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 006ed400	-	C++ constructor of plain data or a container (Rust struct init)
 006ed420	-	VM data refcount or checkpoint pack (Rust memory replaces it)
 006ed4f0	-	C++ destructor (Rust drop replaces it)

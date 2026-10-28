@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 823 done, 175 partial, 394 to do, 512 skipped.
+1904 retail functions: 823 done, 175 partial, 398 to do, 508 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -620,7 +620,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned___int64,unsigned_long>::StreamPack` · 00456c20 · legions 00457780 — STL/container internals: a Rust collection replaces it
 
 ### (free functions)
-- [-] `STREAMPACK` · 00456e10 · legions 004e95e0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+- [ ] `STREAMPACK` · 00456e10 · legions 004e95e0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### PHashTable<unsigned_long,unsigned___int64>
 - [-] `PHashTable<unsigned_long,unsigned___int64>::StreamPack` · 00456f30 · legions 00457a90 — STL/container internals: a Rust collection replaces it
@@ -1180,7 +1180,7 @@ Legend and workflow: [README](README.md).
 - [-] `GunChatExtraInfo::StreamPack` · 004534e0 · legions 004545f0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### (free functions)
-- [-] `STREAMPACK` · 00453560 · legions 005e6f90 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+- [ ] `STREAMPACK` · 00453560 · legions 005e6f90 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [-] `STREAMPACK_PACKOBJ` · 004535f0 · legions 00454670 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### gmCWInterface
@@ -1382,7 +1382,7 @@ Legend and workflow: [README](README.md).
 - [-] `MinimalCharacterSet::StreamPack` · 00493c50 · legions 0048c4a0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### (free functions)
-- [-] `STREAMPACK` · 00493cb0 · legions 0064e070 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+- [ ] `STREAMPACK` · 00493cb0 · legions 0064e070 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### ECM_Login
 - [x] `ECM_Login::RecvEvt_MinCharSet` · 00493d30 · legions 0048c500 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:33
@@ -2066,7 +2066,7 @@ Legend and workflow: [README](README.md).
 - [-] `BaseMultiMap<unsigned_long,unsigned_long,13970>::StreamPack` · 004af9c0 — STL/container internals: a Rust collection replaces it
 
 ### (free functions)
-- [-] `STREAMPACK` · 004afaf0 · legions 00409e80 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
+- [ ] `STREAMPACK` · 004afaf0 · legions 00409e80 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### BaseMultiMap<unsigned_long,unsigned___int64,13972>
 - [-] `BaseMultiMap<unsigned_long,unsigned___int64,13972>::StreamPack` · 004afc80 — STL/container internals: a Rust collection replaces it

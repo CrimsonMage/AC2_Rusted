@@ -230,7 +230,7 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveHashData<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>_*>::IntrusiveHashData<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,PStringBase<unsigned_short>_>_*>` · 004098b0 · legions 004095f0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### (free functions)
-- [ ] `STREAMPACK` · 004098e0 · legions 00409650 — needs port: STREAMPACK behaviour
+- [ ] `STREAMPACK` · 004098e0 · legions 00409650 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### PStringBase<unsigned_short>
 - [x] `PStringBase<unsigned_short>::GetPackSize` · 00409960 · legions 004096d0
@@ -773,7 +773,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<InstanceID,float>::StreamPack` · 0042f8e0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### (free functions)
-- [ ] `STREAMPACK` · 0042fb10 · legions 0042f9d0 — needs port: STREAMPACK behaviour
+- [ ] `STREAMPACK` · 0042fb10 · legions 0042f9d0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### FellowshipHelper
 - [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash

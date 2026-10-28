@@ -1,6 +1,6 @@
 # ac2-core: Core runtime: ids, strings, timers, errors, serialization helpers
 
-589 retail functions: 22 done, 4 partial, 10 to do, 553 skipped.
+589 retail functions: 22 done, 4 partial, 12 to do, 551 skipped.
 Legend and workflow: [README](README.md).
 
 ## `core/src/debug/crashcleaners.cpp.c` (0/3)
@@ -591,8 +591,8 @@ Legend and workflow: [README](README.md).
 
 ### PSUtils
 - [-] `PSUtils::is_int32` · 00665860 · legions 006131a0 — text source files (admin tools)
-- [-] `PSUtils::is_uint64` · 006658d0 · legions 00613210 — text source files (admin tools)
-- [-] `PSUtils::is_int64` · 00665940 · legions 00613280 — text source files (admin tools)
+- [ ] `PSUtils::is_uint64` · 006658d0 · legions 00613210 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [ ] `PSUtils::is_int64` · 00665940 · legions 00613280 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 - [-] `PSUtils::is_double` · 006659b0 · legions 006132f0 — text source files (admin tools)
 
 ### FileNodeName_UInt32

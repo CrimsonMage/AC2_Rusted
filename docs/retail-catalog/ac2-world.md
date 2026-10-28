@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 187 done, 25 partial, 325 to do, 452 skipped.
+989 retail functions: 187 done, 25 partial, 326 to do, 451 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (19/140)
@@ -410,7 +410,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — needs port: DAT counted list (DAT decode)
 
 ### (free functions)
-- [-] `STREAMPACK` · 0048fb40 · legions 00488960 — retail StreamPack macro dispatch (Rust decoders)
+- [ ] `STREAMPACK` · 0048fb40 · legions 00488960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ### SmartArray<Vector>
 - [-] `SmartArray<Vector>::SetNElements` · 0048fbd0 · legions 004889f0 — SmartArray container operation (Vec replaces it)
