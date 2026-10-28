@@ -169,7 +169,7 @@ pub struct Client {
     /// The FX-made objects, colours and hides (`FXManager`'s object parts); no sound device needed.
     pub(crate) fx_objects: crate::fx_objects::FxObjects,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
-    pub(crate) radar: crate::client_radar::RadarState,
+    pub(crate) radar: ac2_ui::RadarState,
     /// The GUN list and status events for the friends page (`gmFriendsUI`), in order.
     pub(crate) friend_events: Vec<crate::friends::FriendEvent>,
     /// `SmartBox`'s portal space (`WorldRender::m_PortalSpaceEffect`): the teleport's fade and tunnel.

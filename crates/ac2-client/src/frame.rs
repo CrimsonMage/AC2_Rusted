@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use ac2_net::protocol::StringInfo;
+pub use ac2_ui::{MapMarker, RadarBlip, RadarFrame};
 
 /// The player's body as physics left it this frame.
 #[derive(Debug, Clone, PartialEq)]
@@ -107,53 +107,6 @@ pub struct HoldPoint {
     pub group: usize,
     pub bone: usize,
     pub transform: ac2_anim::Ac2Transform,
-}
-
-/// One object on the radar (`gmRadarUI::RadarInfo`): its look, and where it is from the player.
-#[derive(Debug, Clone, PartialEq)]
-pub struct RadarBlip {
-    pub id: u64,
-    /// The `RGBAColor` the object's script gives (r, g, b, a).
-    pub color: [f32; 4],
-    /// The blip's shape, `0x40000001` (point) to `0x4000000A` (face).
-    pub shape: u32,
-    /// The object's cell and AC origin.
-    pub cell: u32,
-    pub origin: [f32; 3],
-    /// The object's offset in the player's frame (`Position::localtolocal`).
-    pub offset: [f32; 3],
-    /// Within the radar's range (`gmRadarUI::Update` draws only these).
-    pub in_range: bool,
-    /// The selected object (`gmRadarUI::_currentSelection`).
-    pub selected: bool,
-}
-
-/// What the radar shows (`gmRadarUI`).
-#[derive(Debug, Clone, Default, PartialEq)]
-pub struct RadarFrame {
-    /// `gmRadarUI::_grooveLevel`: the danger the music's groove follows.
-    pub groove: i8,
-    /// The range the radar shows where the player stands (indoor or outdoor).
-    pub range: f32,
-    /// The player's heading, which the radar's heading field turns with.
-    pub heading_degrees: Option<f32>,
-    /// The objects with a blip, in the radar's own order (`gmRadarUI::_infoArray`).
-    pub blips: Vec<RadarBlip>,
-}
-
-/// A map note (`gmNavigationUI`'s marker) as `CM_Character::SendNotice_AddMarker` sends it. The
-/// navigation panel draws these, not the radar.
-#[derive(Debug, Clone, Default, PartialEq)]
-pub struct MapMarker {
-    /// The marker's type (a `CMapNoteRow`); type 3 is never shown.
-    pub kind: u32,
-    /// The marked object's instance id (0 for none).
-    pub id: u64,
-    pub cell: u32,
-    /// The marker's image DID (0 for none).
-    pub image: u32,
-    /// The marker's text.
-    pub message: StringInfo,
 }
 
 /// The portal space (`PortalSpace::Effect`): the phase and the draw flags for the frame.
