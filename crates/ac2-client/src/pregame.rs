@@ -10,8 +10,8 @@ use ac2_net::protocol::ClientEvent;
 use ac2_ui::pregame::{PregameRequest, PregameUi};
 use ac2_weenie::{OnlineSession, SessionEvent};
 
-use crate::chargen_data::CharGenCapture;
 use crate::client::Notice;
+use ac2_weenie::CharGenCapture;
 
 /// What carrying out the UI's requests asks of the program.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]

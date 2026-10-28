@@ -19,7 +19,6 @@ macro_rules! profile_scope {
 
 mod audio;
 mod chargen;
-mod chargen_data;
 mod chat_commands;
 mod client;
 mod client_ambient;
@@ -123,11 +122,11 @@ mod world_data;
 /// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).
 pub use ac2_net::protocol::EffectUiNode as EffectNode;
 pub use ac2_script::host::item_queries::ItemDisplay;
+pub use ac2_weenie::{capture_image, reassemble as reassemble_capture, CharGenCapture};
 pub use audio::{play_ui_sounds, sound_manager};
 pub use camera::{action as camera_action, CameraManager};
 pub use cells::{block_radius, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use chargen::ScriptCharGen;
-pub use chargen_data::{capture_image, reassemble as reassemble_capture, CharGenCapture};
 pub use chat_commands::chat_commands;
 pub use client::{
     camera_state, CameraAction, Client, FrameInput, Notice, ENTER_WORLD_FLAGS, SYNC_POSITION_FLAGS,

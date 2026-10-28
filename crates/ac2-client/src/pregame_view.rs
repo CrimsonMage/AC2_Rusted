@@ -20,11 +20,11 @@ use ac2_ui::UiMessage;
 use ac2_weenie::{OnlineSession, SessionEvent};
 use ac2_world::Ac2WorldSource;
 
-use crate::chargen_data::CharGenCapture;
 use crate::client::Notice;
 use crate::pregame::{pregame_event, pregame_notice, pregame_requests_capturing, PregameOutcome};
 use crate::pregame_scene::PregameScenes;
 use crate::ui_scale::UiScale;
+use ac2_weenie::CharGenCapture;
 
 /// The pregame screens over the window.
 pub struct PregameView {
