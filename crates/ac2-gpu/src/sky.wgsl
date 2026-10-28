@@ -19,7 +19,7 @@ struct SkyFrame {
     // x cloud cover (0 clear to 1 overcast), y client seconds for the drift, z rain amount.
     clouds: vec4<f32>,
     // xy the deck's drift in m/s: the region's cloud-shadow scroll, so the clouds move with
-    // their shadows on the landscape.
+    // their shadows on the landscape. z the backdrop dome's opacity (1 without a dome).
     wind: vec4<f32>,
 };
 
@@ -144,6 +144,10 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     // The horizon meets the region's fog, as the fogged terrain does.
     let level = max(dot(color, vec3(0.2126, 0.7152, 0.0722)), 1e-3);
     color = mix(color, fog_linear_color() * level * 1.4, exp(-dir.z * 9.0) * 0.55);
+    // The atmosphere stands in for the dome (`UpdateTimeOfDay` fades it out at dusk): retail's
+    // night sky is the night layers and stars over an empty background, so the scattered light
+    // fades with the dome's opacity instead of lighting a daytime sky by the moon.
+    color *= sky.wind.z;
     return vec4(max(color, vec3(0.0)), 1.0);
 }
 
@@ -177,6 +181,9 @@ fn fs_clouds(input: VsOut) -> @location(0) vec4<f32> {
     let fog = fog_linear_color();
     var lit = sunlight * (0.55 * shadow + silver * shadow) + zenith * 1.3 + fog * 0.08;
     lit *= 1.0 - 0.55 * rain;
+    // By night the region's light is the moon's, overhead: the deck darkens with the dome to a
+    // faint silhouette instead of lighting up as by day.
+    lit *= mix(0.04, 1.0, sky.wind.z);
     // Fogged out (`fog_sky` 1): the cloud shapes in the fog colour, darker where thicker.
     let fogged = fog * (0.45 + 0.55 * shadow);
     let color = mix(lit, fogged, clamp(sky.fog.a, 0.0, 1.0));

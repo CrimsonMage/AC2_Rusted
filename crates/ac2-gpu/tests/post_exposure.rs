@@ -1,6 +1,6 @@
 //! The world's post chain on a uniform scene: the bloom of a flat field is the field, the
 //! vignette leaves the centre alone, so the centre pixel shows only the eye adaptation's exposure
-//! (`post.rs`: half the metered difference from the key, within one stop either way).
+//! (`post.rs`: half the metered difference from the key, up to one stop darker and never brighter).
 
 use ac2_gpu::{FrameTarget, Gpu, ScenePresenter, COLOR_FORMAT};
 
@@ -73,16 +73,22 @@ fn centre_after_post(gpu: &Gpu, presenter: &ScenePresenter, luminance: f32) -> u
 }
 
 #[test]
-fn a_uniform_scene_takes_half_its_metered_difference_within_a_stop() {
+fn a_uniform_scene_takes_half_its_metered_difference_and_never_brightens() {
     let Ok(gpu) = Gpu::headless() else {
         eprintln!("skipped: no GPU adapter");
         return;
     };
     // A fresh presenter's first frame takes its exposure at once.
-    for (log2, expected_ev) in [(-3.0, 0.0), (-4.0, 0.5), (-1.0, -1.0), (-8.0, 1.0)] {
+    for (log2, expected_ev) in [
+        (-3.0, 0.0),
+        (-2.0, -0.5),
+        (-1.0, -1.0),
+        (-4.0, 0.0),
+        (-8.0, 0.0),
+    ] {
         let presenter = ScenePresenter::new(&gpu, COLOR_FORMAT);
         let luminance = 2.0_f64.powf(log2);
-        let ev = ((KEY_LOG2 - log2) * ADAPT_STRENGTH).clamp(-1.0, 1.0);
+        let ev = ((KEY_LOG2 - log2) * ADAPT_STRENGTH).clamp(-1.0, 0.0);
         assert_eq!(ev, expected_ev);
         let got = f64::from(centre_after_post(&gpu, &presenter, luminance as f32));
         let want = display(luminance * 2.0_f64.powf(ev));

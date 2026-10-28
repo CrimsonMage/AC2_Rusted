@@ -216,7 +216,13 @@ impl SkyRenderer {
                 None => [1.0, 1.0, 1.0, 0.0],
             },
             clouds: cloud_uniform(look, lighting),
-            wind: [look.wind[0], look.wind[1], 0.0, 0.0],
+            // z the dome's opacity: the atmosphere stands in for the dome, so it fades with it.
+            wind: [
+                look.wind[0],
+                look.wind[1],
+                look.backdrop.map_or(1.0, |[.., a]| a.clamp(0.0, 1.0)),
+                0.0,
+            ],
         };
         queue.write_buffer(&self.buffer, 0, bytemuck::bytes_of(&uniform));
     }

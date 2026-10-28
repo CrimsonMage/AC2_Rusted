@@ -50,9 +50,12 @@ game rules and server-visible behaviour exactly retail.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one Khronos PBR Neutral tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. Before it, the world alone
   takes a post chain (`ac2_gpu` `post.rs`, `ao.rs`): ambient occlusion from depth, a dual-filter
-  bloom, eye adaptation (half the metered difference from a daylight key, within one stop) and a
-  light vignette. UI viewport scenes skip the chain and composite over their panel where they
-  drew. Do not add a retail/modern switch.
+  bloom, eye adaptation (half the metered difference from a daylight key, up to one stop darker
+  and never brighter, so night stays dark) and a light vignette. UI viewport scenes skip the
+  chain and composite over their panel where they drew. The sky's atmosphere and cloud deck
+  (`sky.wgsl`) stand in for the backdrop dome, so they fade with the dome's authored opacity
+  (`LScapeSky::UpdateTimeOfDay`): by night retail drew the night layers and stars over an empty
+  background. Do not add a retail/modern switch.
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

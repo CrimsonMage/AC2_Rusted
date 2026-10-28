@@ -19,17 +19,17 @@ const MAX_LEVELS: usize = 6;
 /// A level is made only while both its sides stay at least this many texels.
 const MIN_LEVEL_SIDE: u32 = 8;
 /// log2 of the centre-weighted mean scene luminance that takes EV 0: the day-lit landscape, so
-/// daylight keeps the exposure the DATs were authored at and dusk, night and interiors open up.
+/// daylight keeps the exposure the DATs were authored at.
 /// Measured on the shipped region at noon: a valley walk meters about -3.6 and an open fly-over
 /// about -2.5 for the same intended exposure.
 const KEY_LOG2: f32 = -3.0;
 /// The share of the metered difference the exposure follows: a daylit view stays within about a
-/// quarter stop of the authored exposure, while night and interiors, several stops darker, still
-/// reach the limit.
+/// quarter stop of the authored exposure, and a bright sky filling the view reaches the limit.
 const ADAPT_STRENGTH: f32 = 0.5;
-/// The exposure's EV limits: at most one stop darker (a bright sky filling the view) or one
-/// brighter (night, a dim interior), so the retail day/night contrast stays.
-const EV_LIMITS: [f32; 2] = [-1.0, 1.0];
+/// The exposure's EV limits: at most one stop darker (a bright sky filling the view) and never
+/// brighter, so night and dim interiors stay as dark as the DATs light them (retail screenshots
+/// show a near-black night; opening it up washed the night out to dusk).
+const EV_LIMITS: [f32; 2] = [-1.0, 0.0];
 /// Seconds (e-folding) to adapt towards a brighter scene and towards a darker one: the eye closes
 /// quickly and opens slowly.
 const ADAPT_SECONDS: [f32; 2] = [0.33, 1.0];
