@@ -9,12 +9,15 @@
 //! leave as [`ChatRequest::History`] for the history the interface keeps, which answers through
 //! [`ChatUi::set_entry_text`] or [`ChatUi::assisted_tell`].
 //!
-//! Not modelled yet: the spew box (`SpewBox`, error-type strings floating over the world),
-//! the window opacity, and `AltKeyDown` (Alt is not a meta key of the input manager).
+//! The spew box (`chat_spew`) shows the error-type lines over the world for their `decay_time`.
+//! Window opacity is kept per window (`ChatSettings::opacities`, `chat_window`).
+//!
+//! Not modelled yet: `AltKeyDown` (Alt is not a meta key of the input manager).
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use crate::chat_spew::SpewBox;
 use crate::chat_window::{
     ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, MSG_WIDGET_RELEASE, TEXT_TYPE_ERROR,
 };
@@ -144,21 +147,30 @@ pub struct ChatUi {
     requests: Vec<ChatRequest>,
     /// The windows whose opacity the player set on release: window id and opacity.
     opacity_requests: Vec<(u32, f32)>,
+    /// `gmChatUI::_spewBoxPending` / `_spewBoxItems`; `None` when the layout has no spew box.
+    spew: Option<SpewBox>,
 }
 
 impl ChatUi {
     /// `gmChatUI::gmChatUI` / `Init`: the four windows from the toolbar layout; the first is
-    /// shown and active.
-    pub fn create(tree: &mut UiTree, toolbar: &Arc<LayoutDesc>, strings: ChatStrings) -> Self {
+    /// shown and active. The spew box is made from the spew layout (`messages`).
+    pub fn create(
+        tree: &mut UiTree,
+        toolbar: &Arc<LayoutDesc>,
+        messages: &Arc<LayoutDesc>,
+        strings: ChatStrings,
+    ) -> Self {
         let windows: Vec<_> = (1..=4)
             .filter_map(|n| ChatWindow::create(tree, toolbar, n))
             .collect();
+        let spew = SpewBox::create(tree, messages);
         let mut chat = Self {
             windows,
             last_focus: None,
             strings,
             requests: Vec::new(),
             opacity_requests: Vec::new(),
+            spew,
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
@@ -412,11 +424,17 @@ impl ChatUi {
         self.windows[i].prefill_entry(tree, &line);
     }
 
-    /// `RecvNotice_DisplayStringInfo` to every window (and the spew box, not modelled).
+    /// `RecvNotice_DisplayStringInfo` to every window; the error-type lines (`type & 1`) also
+    /// queue for the spew box.
     pub fn display(&mut self, text_type: u32, text: &str) {
         let units = utf16(text);
         for window in &mut self.windows {
             window.display(text_type, &units);
+        }
+        if text_type & TEXT_TYPE_ERROR != 0 {
+            if let Some(spew) = &mut self.spew {
+                spew.queue(text);
+            }
         }
     }
 
@@ -437,11 +455,20 @@ impl ChatUi {
         }
     }
 
-    /// `UIMESSAGE_GLOBAL_LOOP`: each window writes its pending strings and drops a pending
-    /// deactivation.
-    pub fn global_loop(&mut self, tree: &mut UiTree) {
+    /// The spew box (tests).
+    #[cfg(test)]
+    pub(crate) fn spew_box(&self) -> Option<&SpewBox> {
+        self.spew.as_ref()
+    }
+
+    /// `UIMESSAGE_GLOBAL_LOOP` at `Timer::cur_time` `now`: each window writes its pending
+    /// strings and drops a pending deactivation, and the spew box updates (`gmChatUI::Update`).
+    pub fn global_loop(&mut self, tree: &mut UiTree, now: f64) {
         for window in &mut self.windows {
             window.global_loop(tree);
+        }
+        if let Some(spew) = &mut self.spew {
+            spew.update(tree, now);
         }
     }
 }

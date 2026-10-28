@@ -68,6 +68,8 @@ use crate::vitals::VitalsUi;
 /// `FileArray::GetDIDFromEnum(layoutEnum, 0x40000003)`).
 pub const UILAYOUT_GROUP: u32 = 0x4000_0003;
 pub const LAYOUT_TOOLBAR: u32 = 0x4100_0003;
+/// The layout the spew box and its lines come from (`UIFramework::CreateElement`'s layout).
+pub const LAYOUT_SPEW: u32 = 0x4100_000F;
 pub const LAYOUT_GAMEPLAY: u32 = 0x4100_0009;
 pub const LAYOUT_STATUSBAR: u32 = 0x4100_000F;
 
@@ -254,9 +256,17 @@ pub fn build_gameplay_hud(
     let pets = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .map(|gameplay| PetUi::create(&mut tree, gameplay));
-    let chat = match &layouts[&LAYOUT_TOOLBAR] {
-        Some(toolbar) => Some(ChatUi::create(&mut tree, toolbar, chat_strings(store)?)),
-        None => None,
+    if let std::collections::hash_map::Entry::Vacant(e) = layouts.entry(LAYOUT_SPEW) {
+        e.insert(load_layout_by_enum(store, LAYOUT_SPEW)?);
+    }
+    let chat = match (&layouts[&LAYOUT_TOOLBAR], &layouts[&LAYOUT_SPEW]) {
+        (Some(toolbar), Some(messages)) => Some(ChatUi::create(
+            &mut tree,
+            toolbar,
+            messages,
+            chat_strings(store)?,
+        )),
+        _ => None,
     };
     // `gmSkillUI::gmSkillUI`: the skill tree over `SkillField`.
     let skill_field = tree

@@ -188,11 +188,11 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     // The HUD roots, gm3DTextUI's seven reticle objects, the shortcut bar, gmChatUI's four
     // windows, the hidden fields of gmStackUI and gmExternalContainerUI, gmOverviewMapUI's
     // hidden OverviewMap, gmMiniFellowUI's hidden FellowMiniPanel, gmPetUI's hidden PetPanel and
-    // gmStoryUI's hidden background and two story fields, and the help window (a second `Book`
-    // made as a root).
+    // gmStoryUI's hidden background and two story fields, the help window (a second `Book`
+    // made as a root), and the spew box's holder (`gmChatUI::gmChatUI`'s list).
     assert_eq!(
         tree.roots().len(),
-        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1
+        GAMEPLAY_ROOTS.len() + 7 + 1 + 4 + 2 + 1 + 1 + 1 + 3 + 1 + 1
     );
     // The radar sits where the layout authored it; the toolbar is centred on the bottom edge.
     let radar = root(&tree, "RadarField");
@@ -215,8 +215,9 @@ fn the_gameplay_hud_builds_and_places_its_roots() {
     );
     let mut tree = tree;
     let surfaces = tree.compose(&images);
-    // The hidden roots are not drawn: of the chat windows only the first shows.
-    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 1);
+    // The hidden roots are not drawn: of the chat windows only the first shows, and the spew
+    // box's holder is shown.
+    assert_eq!(surfaces.len(), GAMEPLAY_ROOTS.len() + 7 + 1 + 1 + 1);
     let drawn = surfaces
         .iter()
         .filter(|s| s.rgba.chunks_exact(4).any(|p| p[3] != 0))

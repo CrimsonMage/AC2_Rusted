@@ -346,7 +346,7 @@ impl HudView {
             }
             self.sounds.extend(tree.take_sounds());
             if let Some(chat) = &mut self.panels.chat {
-                chat.global_loop(tree);
+                chat.global_loop(tree, now);
             }
             if tree.take_changed() {
                 self.dirty = true;

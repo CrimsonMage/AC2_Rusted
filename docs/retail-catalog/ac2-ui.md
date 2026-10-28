@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1104 done, 359 partial, 444 to do, 340 skipped.
+2247 retail functions: 1106 done, 359 partial, 442 to do, 340 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -994,7 +994,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 - [x] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 
-## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (6/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (8/14)
 
 ### gmChatUI
 - [x] `gmChatUI::SetLastFocus` · 004351c0 · legions 00435990 — ac2-ui chat.rs / chat_window.rs
@@ -1009,12 +1009,12 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<StringInfo>::AddToEnd` · 004355d0 · legions 00435e70 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### gmChatUI
-- [~] `gmChatUI::Init` · 00435620 · legions 00435ec0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `gmChatUI::RecvNotice_DisplayStringInfo` · 004357d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [ ] `gmChatUI::Update` · 004358d0 · legions 00436160 — needs port (check): gmChatUI::Update behaviour; implemented area ac2-ui chat.rs / chat_window.rs but uncited
-- [ ] `gmChatUI::Show` · 00435b80 · legions 00436410 — needs port (check): gmChatUI::Show behaviour; implemented area ac2-ui chat.rs / chat_window.rs but uncited
-- [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `gmChatUI::Init` · 00435620 · legions 00435ec0 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [x] `gmChatUI::RecvNotice_DisplayStringInfo` · 004357d0 — ac2-ui chat.rs display: the error bit (type & 1) queues the spew box line; admin 7148 body (Legions handler unmatched in the index)
+- [~] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [x] `gmChatUI::Update` · 004358d0 · legions 00436160 — ac2-ui chat_spew.rs: expired lines leave, pending lines show with decay_time from SpewBoxMessage (6 s in the DAT); tested on the real chat layout (chat_tests)
+- [~] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (8/14)
 

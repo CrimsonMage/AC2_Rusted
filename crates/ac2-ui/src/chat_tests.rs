@@ -5,7 +5,7 @@ use std::sync::Arc;
 use ac2_db::ResourceStore;
 
 use super::*;
-use crate::chat_window::{TEXT_TYPE_CHAT_ENTRY, TEXT_TYPE_SAY};
+use crate::chat_window::{TEXT_TYPE_CHAT_ENTRY, TEXT_TYPE_ERROR, TEXT_TYPE_SAY};
 
 const ENTER: u32 = 0x4000_0018;
 
@@ -62,13 +62,13 @@ fn the_first_chat_window_starts_shown_and_greets_on_the_first_settings() {
     chat.reload_chat_settings(&mut tree, &settings);
     chat.display(TEXT_TYPE_SAY, "Gnome says, \"hello\"\n");
     chat.display(0x20, "not for this window\n");
-    chat.global_loop(&mut tree);
+    chat.global_loop(&mut tree, 0.0);
     let text = tree.get(log).unwrap().text().unwrap();
     assert!(text.ends_with("Gnome says, \"hello\"\n"), "{text:?}");
     assert!(!text.contains("not for this window"));
     // The chat entry type is always shown.
     chat.display(TEXT_TYPE_CHAT_ENTRY, "entry\n");
-    chat.global_loop(&mut tree);
+    chat.global_loop(&mut tree, 0.0);
     assert!(tree.get(log).unwrap().text().unwrap().ends_with("entry\n"));
 }
 
@@ -114,7 +114,7 @@ fn the_command_key_starts_a_line_and_window_keys_toggle_windows() {
     // Escape deactivates on the next UI loop.
     key(&mut tree, &mut chat, 0x4000_001E);
     assert_eq!(tree.active(), Some(entry));
-    chat.global_loop(&mut tree);
+    chat.global_loop(&mut tree, 0.0);
     assert_eq!(tree.active(), None);
     let second = chat.roots()[1];
     key(&mut tree, &mut chat, 0x4100_0042);
@@ -129,5 +129,39 @@ fn the_command_key_starts_a_line_and_window_keys_toggle_windows() {
             history: ChatHistory::Command,
             prev: true
         }]
+    );
+}
+
+#[test]
+fn error_lines_show_in_the_spew_box_and_leave_after_their_decay_time() {
+    let Some((mut tree, mut chat)) = hud() else {
+        return;
+    };
+    assert!(
+        chat.spew_box().is_some(),
+        "the chat layout has the spew box"
+    );
+    chat.display(TEXT_TYPE_SAY, "not an error");
+    chat.global_loop(&mut tree, 100.0);
+    assert!(chat.spew_box().unwrap().shown().is_empty());
+    // `TEXT_TYPE_ERROR` queues the line; the next loop shows it with its element's decay_time
+    // (6 s in the chat layout's `SpewBoxMessage`).
+    chat.display(TEXT_TYPE_ERROR, "You are hit.  ");
+    chat.global_loop(&mut tree, 100.0);
+    let shown = chat.spew_box().unwrap().shown().to_vec();
+    assert_eq!(shown.len(), 1);
+    let line = shown[0];
+    assert_eq!(
+        tree.get(line.element).unwrap().text().as_deref(),
+        Some("You are hit.")
+    );
+    assert_eq!(line.removal_time, 106.0);
+    chat.global_loop(&mut tree, 105.9);
+    assert_eq!(chat.spew_box().unwrap().shown().len(), 1);
+    chat.global_loop(&mut tree, 106.0);
+    assert!(chat.spew_box().unwrap().shown().is_empty());
+    assert!(
+        tree.get(line.element).is_none(),
+        "an expired line is deleted"
     );
 }

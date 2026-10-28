@@ -28,6 +28,7 @@ mod chat_options_setup;
 mod chat_options_table;
 #[cfg(test)]
 mod chat_options_tests;
+mod chat_spew;
 mod chat_window;
 mod client_options_page;
 mod client_page;
