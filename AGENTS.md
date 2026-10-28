@@ -3,12 +3,20 @@
 `ARCHITECTURE.md` is the ownership map: every crate is named after the Asheron's Call 2 client
 subsystem it reproduces. This file states the working rules.
 
+The goal is the retail client improved: retail behaviour is the baseline we port faithfully, and
+the client improves on top of it (a modern, Unreal Engine-like look, performance, memory, and
+quality-of-life features). An improvement builds on the retail behaviour instead of replacing it:
+port the retail code first, then layer the improvement over it, and keep the network protocol,
+game rules and server-visible behaviour exactly retail.
+
 - `docs/retail-catalog/` lists every retail function by owning crate; it is the work list. Port
   from the decompile (not from Vitaeum-AC2), then mark the catalog with
   `scripts/retail_catalog.py mark done|partial|skip …` in the same commit.
-- Behaviour follows the original AC2 client. Cite the class and function a change reproduces
-  (`CTransition::step_down`, `FrillRender::RefreshFrillMesh`). Never commit decompiled code,
-  game data or data-derived fixtures.
+- Behaviour follows the original AC2 client unless an improvement listed in this file says
+  otherwise. Cite the class and function a change reproduces or builds on
+  (`CTransition::step_down`, `FrillRender::RefreshFrillMesh`). Each improvement that changes what
+  retail did gets an entry below saying what retail did and what the client does instead; add
+  the entry in the same commit. Never commit decompiled code, game data or data-derived fixtures.
 - Exception to "behaviour follows retail": the retail DB object cache (`DBOCache`, its free-object
   pool, and the 30 second idle eviction in `DBOCache::UseTime` / `DBCache::UseTime`) existed to hide
   slow disks and 2001-era decode cost. Do not reproduce its eviction, pooling or retention counts.
