@@ -13,6 +13,7 @@ use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId
 use ac2_math::Vec3;
 
 use crate::ac2_light_source::{read_ac2_light_source, Ac2LightSource};
+use crate::ac2_material::{read_waveform, Ac2Waveform};
 
 pub(crate) type Malformed = &'static str;
 const MAX_ITEMS: usize = 4096;
@@ -109,6 +110,8 @@ pub struct Ac2FxObject {
     /// `m_holding_location`: the holding point the streak flags act on (`PHYSICSOBJREP::StartStreak`
     /// and `StopStreak` take it; zero reaches every child).
     pub holding_location: u32,
+    /// `m_has_decal`'s `DecalFX`: the decal `FXManager::DoDecalFX` projects when the node plays.
+    pub decal: Option<Ac2DecalFx>,
     /// The node's gate: who it plays for and when (`FXManager::DoTargettedFX`'s checks).
     pub gate: Ac2FxNodeGate,
 }
@@ -149,6 +152,7 @@ impl Ac2FxObject {
             || self.target_fx_id != 0
             || self.color.is_some()
             || self.restore
+            || self.decal.is_some()
     }
 }
 
@@ -174,6 +178,53 @@ pub struct Ac2StreakFx {
     pub min_segment_distance: f32,
     /// `m_fTextureScale`: the ribbon's texture repeats per metre of its length.
     pub texture_scale: f32,
+}
+
+/// `DecalFX`: the decal an FX node projects onto the ground or the objects under its emitter
+/// (`FXManager::DoDecalFX`). Its colour (`RGBAColor`), material, origin offset from the emitter,
+/// lifespan, and the three waveforms that give the decal's size, its rotation about the vertical
+/// axis in degrees, and the radius its position is scattered over.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2DecalFx {
+    /// `m_cColor` (r, g, b, a), unpacked from the stream's colour word.
+    pub color: [f32; 4],
+    /// `m_MaterialDID`: the material the decal is drawn with.
+    pub material: u32,
+    /// `m_vOrigin`: the offset added to the emitter's position, in its space.
+    pub origin: Vec3,
+    /// `m_fLifespan`: seconds the decal lasts before it fades out.
+    pub lifespan: f32,
+    /// `m_wSize`: the decal's edge length in metres.
+    pub size: Ac2Waveform,
+    /// `m_wRotation`: the decal's rotation about the vertical axis, in degrees.
+    pub rotation: Ac2Waveform,
+    /// `m_wPositionRadius`: the radius the decal's position is scattered within.
+    pub position_radius: Ac2Waveform,
+}
+
+/// `DecalFX::StreamPack` (the 40 words after `m_has_decal`): `RGBAColor::StreamPack` writes the
+/// colour as one packed word (as for [`read_streak_fx`]), then the material, the origin, the
+/// lifespan and the three waveforms (`STREAMPACK_SIZEOF`, 44 bytes each).
+fn read_decal_fx(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2DecalFx, Malformed> {
+    let packed = word(cursor)?;
+    let channel = |shift: u32| ((packed >> shift) & 0xFF) as f32 / 255.0;
+    let color = [channel(16), channel(8), channel(0), channel(24)];
+    let material = word(cursor)?;
+    let origin = Vec3::new(float(cursor)?, float(cursor)?, float(cursor)?);
+    let lifespan = float(cursor)?;
+    let mut waveform = || read_waveform(cursor).map_err(|_| "record ended early");
+    let size = waveform()?;
+    let rotation = waveform()?;
+    let position_radius = waveform()?;
+    Ok(Ac2DecalFx {
+        color,
+        material,
+        origin,
+        lifespan,
+        size,
+        rotation,
+        position_radius,
+    })
 }
 
 /// `StreakFX::StreamPack` (the 13 words after `m_has_streak`): `RGBAColor::StreamPack` writes the
@@ -469,6 +520,7 @@ fn read_fx_node(
         stop_streak,
         attach: Ac2FxObjectAttach::Emitter,
         holding_location,
+        decal: None,
         gate: Ac2FxNodeGate::default(),
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
@@ -489,9 +541,11 @@ fn read_fx_node(
     let fire_and_forget = flag(cursor, 0x1000_0000, false)?;
     let water_plane = field(cursor, 0x2000_0000)? != 0;
     field(cursor, 0x4000_0000)?;
+    let mut decal = None;
     if has(0x8000_0000) {
-        // `m_has_decal`, then `DecalFX`: colour, material, origin, lifespan, three waveforms.
-        skip(cursor, 4 + 4 + 4 + 12 + 4 + 3 * 44)?;
+        // `m_has_decal`, then `DecalFX`.
+        word(cursor)?;
+        decal = Some(read_decal_fx(cursor)?);
     }
     if has(0x2_0000_0000) {
         // `m_has_repulsor`, then `RepulsorFX`: acceleration, range, lifetime, attractor, speed.
@@ -524,6 +578,7 @@ fn read_fx_node(
             day_time,
             night_time,
         },
+        decal,
         ..object
     };
     let particle = (!particle_descs.is_empty()

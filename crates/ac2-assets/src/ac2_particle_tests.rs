@@ -417,3 +417,53 @@ fn streak_fx_nodes_decode_from_real_fx_tables() {
         assert!(streak.lifespan.is_finite() && streak.lifespan >= 0.0);
     }
 }
+
+/// The decal FX nodes of the real FX tables decode to plausible `DecalFX` values: a colour in
+/// `[0, 1]`, a material, finite origin and lifespan, and waveforms with finite bases. The node's
+/// stream is read to its end by the table decode, so a misaligned decal reads garbage here.
+#[test]
+fn decal_fx_nodes_decode_from_real_fx_tables() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut decals = Vec::new();
+    for did in portal_ids(&dataset, 0x1E00_0000) {
+        let table = load::<Ac2FxTable>(&store, did);
+        for (fx, nodes) in table.entries.iter() {
+            for node in nodes.iter() {
+                if let Some(decal) = node.object.decal {
+                    decals.push((did, *fx, decal));
+                }
+            }
+        }
+    }
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let visual = load::<crate::ac2_visual_desc::Ac2VisualDesc>(&store, did);
+        for (fx, nodes) in visual.fx.overrides.iter() {
+            for node in nodes.iter() {
+                if let Some(decal) = node.object.decal {
+                    decals.push((did, *fx, decal));
+                }
+            }
+        }
+    }
+    println!("decal nodes: {}", decals.len());
+    for (did, fx, decal) in &decals {
+        assert!(
+            decal
+                .color
+                .iter()
+                .all(|c| c.is_finite() && (0.0..=1.0).contains(c)),
+            "{did:08X} fx {fx:08X} colour {:?}",
+            decal.color
+        );
+        assert_ne!(decal.material, 0, "{did:08X} fx {fx:08X} has a material");
+        assert!(
+            decal.origin.x.is_finite() && decal.origin.y.is_finite() && decal.origin.z.is_finite()
+        );
+        assert!(decal.lifespan.is_finite() && decal.lifespan >= 0.0);
+        for waveform in [decal.size, decal.rotation, decal.position_radius] {
+            assert!(waveform.base.is_finite() && waveform.amplitude.is_finite());
+        }
+    }
+}
