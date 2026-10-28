@@ -14,6 +14,7 @@ mod camera_ui;
 mod character;
 mod character_options;
 mod friends;
+mod option_calls;
 mod social_page;
 pub use friends::{FriendsRequest, FriendsUi, FRIEND_ROWS};
 mod friends_panel;
@@ -318,6 +319,7 @@ pub use navigation_detail::{
 pub use navigation_map::MapFrame;
 pub use net_status::{LinkSample, NetStatusUi};
 pub use newsale::{NewSaleRequest, NewSaleSource, NewSaleUi};
+pub use option_calls::{chat_option_call, option_call};
 pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
 pub use pets::{next_mode, previous_mode, PetAction, PetUi, PET_MODES};

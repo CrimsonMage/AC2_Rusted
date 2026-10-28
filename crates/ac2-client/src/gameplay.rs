@@ -523,7 +523,7 @@ impl Client {
                     }
                 }
                 Command::SetGameplayOption(setting) => {
-                    let (ifun, arg) = crate::scripts::option_call(setting);
+                    let (ifun, arg) = ac2_ui::option_call(setting);
                     if self.scripts_own(ifun) {
                         self.script_ifun(ifun, &[arg])
                     } else {
@@ -539,7 +539,7 @@ impl Client {
                     }
                 }
                 Command::SetChatOption(setting) => {
-                    let (ifun, args) = crate::scripts::chat_option_call(setting);
+                    let (ifun, args) = ac2_ui::chat_option_call(setting);
                     if self.scripts_own(ifun) {
                         self.script_ifun(ifun, &args)
                     } else {

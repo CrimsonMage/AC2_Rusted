@@ -10,6 +10,7 @@ pub mod chargen;
 mod glue;
 mod gun;
 mod ifun;
+pub mod ifun_ids;
 mod interface;
 mod inventory_globals;
 mod latent;
