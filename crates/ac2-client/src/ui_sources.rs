@@ -221,6 +221,12 @@ impl ShortcutSource for ClientPlayer<'_> {
             .map_or(0, |info| info.icon)
     }
 
+    fn tooltip(&self, index: usize) -> Option<String> {
+        let info = self.client.borrow_mut().shortcut_info(index as u32).ok()?;
+        let text = self.render_info(&info.name);
+        (info.ok && !text.is_empty()).then_some(text)
+    }
+
     fn options(&self) -> ShortcutOptions {
         let settings = self.client.borrow_mut().shortcut_settings().ok();
         settings.map_or(
@@ -264,6 +270,11 @@ impl ShortcutSource for ClientPlayer<'_> {
     /// `gmCWInterface::DoIHaveItem`: in a pack the player lists or equipped.
     fn has_item(&self, item: u64) -> bool {
         self.carries(item)
+    }
+
+    /// `CObjectMaint::GetWeenieObject`: the inventory's view of the item.
+    fn item(&self, item: u64) -> Option<ac2_ui::ItemSlot> {
+        ac2_ui::InventorySource::item(self, item)
     }
 }
 

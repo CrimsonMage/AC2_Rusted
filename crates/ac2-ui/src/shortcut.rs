@@ -14,10 +14,10 @@
 //! The notices reach the bar as `check_all_items`, `check_all_skills`, `check_skill` and
 //! `check_item` (`RecvNotice_UpdateInventory` / `UpdateContainer` / `UpdateSkill` /
 //! `UpdateResetTime`), so each keeps retail's split: a skill's time left, an unusable skill's
-//! long meter, and a pending item's look (`CheckItem`'s `_pendingCreate`, cleared here on reload
-//! only). Not modelled yet: the pending look is not ended by the object-creation notice
-//! (`RecvNotice_CreateObject`, which needs per-object notices), an item not yet in the client
-//! has no icon or tooltip (`FIXMESetupItemElement`), dragging the bar's edge to change its rows
+//! long meter, and a pending item's look (`CheckItem`'s `_pendingCreate`). An item slot shows
+//! the item's icon description (or icon) and its name at its quantity; an item the client does
+//! not hold yet waits pending until its object is created (`FIXMESetupItemElement`,
+//! `RecvNotice_CreateObject`). Not modelled yet: dragging the bar's edge to change its rows
 //! (`UIMESSAGE_GLOBAL_LOOP`'s resize) and the special attacks' drag state.
 
 use std::sync::Arc;
@@ -73,6 +73,10 @@ pub trait ShortcutSource {
     fn shortcuts(&self) -> Vec<Shortcut>;
     /// `gmCWInterface::InqShortcutInfo`: the slot's icon (0 for none).
     fn icon(&self, index: usize, shortcut: &Shortcut) -> u32;
+    /// `gmCWInterface::InqShortcutInfo`: the slot's name, its tooltip (none by default).
+    fn tooltip(&self, _index: usize) -> Option<String> {
+        None
+    }
     fn options(&self) -> ShortcutOptions;
     /// `IsSkillTrainedByEnum`.
     fn skill_trained(&self, skill: u32) -> bool;
@@ -83,6 +87,11 @@ pub trait ShortcutSource {
     }
     /// `DoIHaveItem`.
     fn has_item(&self, item: u64) -> bool;
+    /// `CObjectMaint::GetWeenieObject`: the item's icon and name, if the client knows it (none
+    /// by default).
+    fn item(&self, _item: u64) -> Option<crate::ItemSlot> {
+        None
+    }
     /// `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum`: a skill the inventory does not
     /// allow is kept on a long meter (`CheckSkill`).
     fn skill_usable(&self, _skill: u32) -> bool {
@@ -268,7 +277,7 @@ impl ShortcutUi {
 
     /// `gmShortcutUI::MakeElement`.
     fn make_element(
-        &self,
+        &mut self,
         tree: &mut UiTree,
         source: &dyn ShortcutSource,
         index: usize,
@@ -314,11 +323,66 @@ impl ShortcutUi {
                 tree.set_text(alias, &shortcut.text);
             }
         }
+        tree.set_tooltip(item, source.tooltip(index));
         let image = source.icon(index, shortcut);
         if image != 0 {
             tree.set_image(icon, image, 2);
         }
+        if shortcut.kind == SHORTCUT_ITEM {
+            self.setup_item_element(tree, source, shortcut.item, index, item);
+        }
         Some(item)
+    }
+
+    /// `gmShortcutUI::FIXMESetupItemElement`: an item the client does not know yet waits for
+    /// its object (`_pendingCreate`, `pending`, tooltip `ID_Item_TT_WaitingForServer`, missing
+    /// from the DVD string table); a known one shows its icon description, else its icon, and
+    /// its name at its quantity, `stateless`.
+    fn setup_item_element(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn ShortcutSource,
+        object: u64,
+        index: usize,
+        element: usize,
+    ) {
+        let Some(icon) = tree.child_recursive(element, id("ShortcutIcon")) else {
+            return;
+        };
+        let state = match source.item(object) {
+            None => {
+                self.pending.push((object, index));
+                tree.set_tooltip(element, None);
+                "pending"
+            }
+            Some(slot) => {
+                if slot.icon_layers.is_empty() {
+                    tree.set_image(icon, slot.icon, 0);
+                } else {
+                    tree.set_icon_desc(icon, &slot.icon_layers);
+                }
+                tree.set_tooltip(element, Some(slot.name));
+                "stateless"
+            }
+        };
+        tree.set_state(element, id(state));
+    }
+
+    /// `gmShortcutUI::RecvNotice_CreateObject`: each slot waiting on `object` is set up again
+    /// and no longer waits.
+    pub fn create_object(&mut self, tree: &mut UiTree, source: &dyn ShortcutSource, object: u64) {
+        if source.item(object).is_none() {
+            return;
+        }
+        let (waiting, rest) = std::mem::take(&mut self.pending)
+            .into_iter()
+            .partition(|&(item, _)| item == object);
+        self.pending = rest;
+        for (_, index) in waiting {
+            if let Some(element) = self.slot_element(tree, index) {
+                self.setup_item_element(tree, source, object, index, element);
+            }
+        }
     }
 
     /// `gmShortcutUI::UpdatePadding`: empty slots to `(rows * 5 + 45) * 2`.

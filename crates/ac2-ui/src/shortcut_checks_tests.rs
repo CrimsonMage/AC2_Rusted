@@ -1,5 +1,5 @@
 //! The shortcut bar's notice checks (`CheckAllItems`, `CheckAllSkills`, `CheckSkill`,
-//! `CheckItem`) on the real toolbar layout (`AC2_DAT_DIR`), over a stub player.
+//! `CheckItem`, `RecvNotice_CreateObject`) on the real toolbar layout (`AC2_DAT_DIR`), over a stub player.
 
 use std::cell::RefCell;
 
@@ -21,6 +21,8 @@ struct Player {
     reset: RefCell<Option<(f64, f64)>>,
     usable: RefCell<bool>,
     held: RefCell<Vec<u64>>,
+    /// The items the client has objects for (`GetWeenieObject`).
+    known: RefCell<Vec<u64>>,
 }
 
 impl Player {
@@ -81,6 +83,18 @@ impl ShortcutSource for Bar<'_> {
     }
     fn has_item(&self, item: u64) -> bool {
         self.player.held.borrow().contains(&item)
+    }
+    fn item(&self, item: u64) -> Option<crate::ItemSlot> {
+        self.player
+            .known
+            .borrow()
+            .contains(&item)
+            .then(|| crate::ItemSlot {
+                icon: 0x0600_1234,
+                name: "Health Potions (3)".into(),
+                quantity: 3,
+                ..crate::ItemSlot::default()
+            })
     }
 }
 
@@ -170,10 +184,11 @@ fn an_item_check_removes_a_missing_item_and_marks_the_pending_one() {
     let list = bar.elements().1.expect("the list");
     let item_slot = hud.tree.list_items(list)[1];
 
-    // Pending (0x40000005): the slot shows pending while it is held.
+    // Pending (0x40000005): the slot shows pending while it is held. The reload already queued
+    // the slot, as the client has no object for the item (`FIXMESetupItemElement`).
     bar.check_item(&mut hud.tree, &source, ITEM, true);
     assert_eq!(state(&hud.tree, item_slot), tokenize("pending"));
-    assert_eq!(bar.pending, vec![(ITEM, 1)]);
+    assert_eq!(bar.pending, vec![(ITEM, 1), (ITEM, 1)]);
 
     // The item is gone: the slot's shortcut is removed and asked of the client.
     player.held.borrow_mut().clear();
@@ -203,5 +218,54 @@ fn a_skill_check_leaves_the_items_alone() {
     assert_eq!(
         bar.take_requests(),
         vec![ShortcutRequest::Set(1, Shortcut::default())]
+    );
+}
+
+#[test]
+fn an_unknown_item_waits_pending_until_its_object_is_created() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let player = Player::new();
+    let source = Bar {
+        slots: RefCell::new(bar_slots()),
+        player: &player,
+    };
+    let bar = hud.shortcuts.as_mut().expect("the shortcut bar");
+    bar.reload(&mut hud.tree, &source);
+    let list = bar.elements().1.expect("the list");
+    let item_slot = hud.tree.list_items(list)[1];
+    // Queued by `FIXMESetupItemElement`; the reload's `CheckShortcut` (`CheckItem(index)`) then
+    // makes the held item's slot stateless again, still waiting and without a tooltip.
+    assert_eq!(state(&hud.tree, item_slot), tokenize("stateless"));
+    assert_eq!(bar.pending, vec![(ITEM, 1)]);
+    assert_eq!(hud.tree.tooltip_text(item_slot), None);
+
+    // Another object, or this one before the client knows it, changes nothing.
+    bar.create_object(&mut hud.tree, &source, ITEM + 1);
+    bar.create_object(&mut hud.tree, &source, ITEM);
+    assert_eq!(bar.pending, vec![(ITEM, 1)]);
+
+    // Created: the slot shows the item's icon and name and no longer waits.
+    player.known.borrow_mut().push(ITEM);
+    crate::apply_shortcut_checks(
+        bar,
+        &mut hud.tree,
+        &source,
+        &crate::shortcut_checks_of(&ac2_weenie::GameplayNotice::CreateObject(ITEM)),
+    );
+    assert!(bar.pending.is_empty());
+    assert_eq!(state(&hud.tree, item_slot), tokenize("stateless"));
+    assert_eq!(
+        hud.tree.tooltip_text(item_slot).as_deref(),
+        Some("Health Potions (3)")
+    );
+    let icon = hud
+        .tree
+        .child_recursive(item_slot, tokenize("ShortcutIcon"))
+        .expect("the icon");
+    assert_eq!(
+        hud.tree.get(icon).unwrap().image().map(|i| i.file),
+        Some(0x0600_1234)
     );
 }

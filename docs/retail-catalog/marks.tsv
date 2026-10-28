@@ -927,7 +927,7 @@ key	status	note
 00436a00	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00436bc0	x	ac2-ui shortcut.rs
 00436c20	x	ac2-ui shortcut.rs
-00436ca0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00436ca0	x	ac2-ui shortcut.rs check_item: CheckShortcut, then each held slot queued in _pendingCreate (pending) and pending or stateless
 00436da0	x	ac2-ui shortcut.rs
 00436e20	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436ea0	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
@@ -935,10 +935,10 @@ key	status	note
 00436f40	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436f60	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436f70	_	Legions has it: vtable slot 10 of gmShortcutUI at 0x004377c0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
-00436fe0	~	ac2-ui shortcut.rs make_element sets the slot icon from the shortcut info and check_item keeps the pending state. Not ported: the tooltip (the object's name with quantity, or ID_Item_TT_WaitingForServer while the weenie is unknown), SetIconDesc layers (first layer only) and the _pendingCreate append for a not-yet-created weenie (Legions 0x437830)
+00436fe0	x	ac2-ui shortcut.rs setup_item_element (Legions 0x437830): unknown weenie queued pending (ID_Item_TT_WaitingForServer is missing from the DVD string table, so no tooltip); else icon desc (set_icon_desc) or icon, name at quantity tooltip, stateless
 004371c0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-00437290	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
-00437320	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00437290	x	ac2-ui shortcut.rs create_object (Legions 0x437ae0), routed by shortcut_checks_of(GameplayNotice::CreateObject): each slot waiting on the object set up again; the per-object 0x1040c handler registration is the session's notice routing
+00437320	x	ac2-ui shortcut.rs make_element (Legions 0x437b70): type/index/data attributes, dragable, number, alias text, InqShortcutInfo tooltip and icon, item setup (FIXMESetupItemElement), ghosted past 100
 00437620	x	ac2-ui shortcut.rs set_shortcut: requested sets the slot (gmCWInterface::SetShortcut, WM_Player call 0x82120018 from the script) and the list item; tested through the HUD with skills, items and slot to slot drags (shortcut_drag_7160)
 004376c0	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 00437770	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
