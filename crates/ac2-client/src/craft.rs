@@ -1,68 +1,15 @@
 //! The crafting calls on the player's script (`ggmCWInterface::CallIFun_*`). The craft panels'
-//! queries are the script's: the VM reads the craft skills, recipes and ingredients from the
-//! player's qualities and the DAT, and answers with the adaptors it filled (the natives come back
-//! as [`CraftSkill`], [`Recipe`] and [`Ingredient`]). The requests are the IFun's stubs: the VM
-//! packs them and the session sends them. Without the script VM every call answers `None` (or
-//! nothing).
+//! queries are the script's and live in `ac2_script::host::craft_queries`; the client keeps the
+//! one-line delegates the panels call. The requests are the IFun's stubs: the VM packs them and
+//! the session sends them. Without the script VM every call answers `None` (or nothing).
 
 use ac2_net::protocol::StringInfo;
-use ac2_script::host::{IFunArg, IFunResult, IFunReturn, OutValue};
-use ac2_script::native::NativeObject;
+use ac2_script::host::craft_queries::CraftQueries;
+use ac2_script::host::{IFunArg, IFunResult, IFunReturn};
 use ac2_weenie::{CraftSkill, Ingredient, Recipe, SessionEvent};
 
 use crate::client::Client;
 use crate::gameplay::Command;
-use crate::scripts::*;
-
-/// `RList`: the native a list out parameter is passed as.
-const R_LIST: u32 = 0x65;
-/// `CraftSkillAdaptor`, `RecipeAdaptor` and `StringInfo` (the natives the out parameters are
-/// filled with).
-const CRAFT_SKILL_ADAPTOR: u32 = 0x33A5;
-const RECIPE_ADAPTOR: u32 = 0xAA;
-const STRING_INFO: u32 = 0x6A;
-
-/// The out value at `n` (the out parameters in order, the list and natives among them).
-fn out(result: &IFunResult, n: usize) -> Option<&OutValue> {
-    result.outs.get(n)?.as_ref()
-}
-
-/// The native an out parameter holds.
-fn native(result: &IFunResult, n: usize) -> Option<&NativeObject> {
-    match out(result, n)? {
-        OutValue::Vm(native) => Some(native),
-        _ => None,
-    }
-}
-
-/// The natives a list out parameter holds.
-fn items(result: &IFunResult, n: usize) -> Option<&[NativeObject]> {
-    match out(result, n)? {
-        OutValue::Items(items) => Some(items),
-        _ => None,
-    }
-}
-
-fn craft_skill_of(native: &NativeObject) -> Option<CraftSkill> {
-    match native {
-        NativeObject::CraftSkill(s) => Some((**s).clone()),
-        _ => None,
-    }
-}
-
-fn recipe_of(native: &NativeObject) -> Option<Recipe> {
-    match native {
-        NativeObject::Recipe(r) => Some((**r).clone()),
-        _ => None,
-    }
-}
-
-fn ingredient_of(native: &NativeObject) -> Option<Ingredient> {
-    match native {
-        NativeObject::Ingredient(i) => Some((**i).clone()),
-        _ => None,
-    }
-}
 
 impl Client {
     /// One craft query: its IFun on the player's script, the notices it raised kept for the next
@@ -84,94 +31,42 @@ impl Client {
 
     /// `gmCWInterface::InqCraftSkillList`: the player's craft skills, from the script.
     pub fn craft_skills(&mut self) -> Option<Vec<CraftSkill>> {
-        let result = self.script_query(
-            IFUN_INQ_CRAFT_SKILL_LIST,
-            &[IFunArg::Filled(R_LIST)],
-            IFunReturn::Word,
-        )?;
-        Some(
-            items(&result, 0)?
-                .iter()
-                .filter_map(craft_skill_of)
-                .collect(),
-        )
+        CraftQueries::craft_skills(self)
     }
 
     /// `gmCWInterface::InqCraftSkillAdaptor`: craft skill `skill`.
     pub fn craft_skill(&mut self, skill: u32) -> Option<CraftSkill> {
-        let result = self.script_query(
-            IFUN_INQ_CRAFT_SKILL_ADAPTOR,
-            &[IFunArg::Int(skill), IFunArg::Filled(CRAFT_SKILL_ADAPTOR)],
-            IFunReturn::Word,
-        )?;
-        craft_skill_of(native(&result, 0)?)
+        CraftQueries::craft_skill(self, skill)
     }
 
     /// `gmCWInterface::InqCraftSkillLevel`: the raw and the enchanted level of `skill`.
     pub fn craft_skill_level(&mut self, skill: u32) -> Option<(u32, u32)> {
-        let result = self.script_query(
-            IFUN_INQ_CRAFT_SKILL_LEVEL,
-            &[
-                IFunArg::Int(skill),
-                IFunArg::Out(OutValue::Word(0)),
-                IFunArg::Out(OutValue::Word(0)),
-            ],
-            IFunReturn::Word,
-        )?;
-        Some((result.out_word(0), result.out_word(1)))
+        CraftQueries::craft_skill_level(self, skill)
     }
 
     /// `gmCWInterface::InqCraftSkillCategoryName`: the category name of `skill`.
     pub fn craft_skill_category(&mut self, skill: u32) -> Option<StringInfo> {
-        let result = self.script_query(
-            IFUN_INQ_CRAFT_SKILL_CATEGORY_NAME,
-            &[IFunArg::Int(skill), IFunArg::Filled(STRING_INFO)],
-            IFunReturn::Word,
-        )?;
-        match native(&result, 0)? {
-            NativeObject::StringInfo(s) => Some(ac2_script::wire::string_info_to_net(s)),
-            _ => None,
-        }
+        CraftQueries::craft_skill_category(self, skill)
     }
 
     /// `gmCWInterface::CanCraftSkillBeRaised` (the skill can be raised now).
     pub fn can_craft_skill_be_raised(&mut self, skill: u32) -> Option<bool> {
-        let result = self.script_query(
-            IFUN_CAN_CRAFT_SKILL_BE_RAISED,
-            &[IFunArg::Int(skill)],
-            IFunReturn::Word,
-        )?;
-        Some(result.retval != 0)
+        CraftQueries::can_craft_skill_be_raised(self, skill)
     }
 
     /// `gmCWInterface::IsCraftSkillRaiseable`.
     pub fn is_craft_skill_raiseable(&mut self, skill: u32) -> Option<bool> {
-        let result = self.script_query(
-            IFUN_IS_CRAFT_SKILL_RAISEABLE,
-            &[IFunArg::Int(skill)],
-            IFunReturn::Word,
-        )?;
-        Some(result.retval != 0)
+        CraftQueries::is_craft_skill_raiseable(self, skill)
     }
 
     /// `gmCWInterface::InqRecipeList`: the recipes of craft skill `skill` the player knows.
     pub fn recipes(&mut self, skill: u32) -> Option<Vec<Recipe>> {
-        let result = self.script_query(
-            IFUN_INQ_RECIPE_LIST,
-            &[IFunArg::Int(skill), IFunArg::Filled(R_LIST)],
-            IFunReturn::Word,
-        )?;
-        Some(items(&result, 0)?.iter().filter_map(recipe_of).collect())
+        CraftQueries::recipes(self, skill)
     }
 
     /// `gmCWInterface::InqRecipeAdaptor`: recipe `recipe`.
     pub fn recipe(&mut self, recipe: u32) -> Option<Recipe> {
-        let result = self.script_query(
-            IFUN_INQ_RECIPE_ADAPTOR,
-            &[IFunArg::Int(recipe), IFunArg::Filled(RECIPE_ADAPTOR)],
-            IFunReturn::Word,
-        )?;
-        recipe_of(native(&result, 0)?)
+        CraftQueries::recipe(self, recipe)
     }
 
     /// `gmCWInterface::InqRecipeIngredients`: the recipe's ingredient slots and the ordinal mask
@@ -181,61 +76,23 @@ impl Client {
         recipe: u32,
         spinner: u32,
     ) -> Option<(u32, Vec<Ingredient>)> {
-        let result = self.script_query(
-            IFUN_INQ_RECIPE_INGREDIENTS,
-            &[
-                IFunArg::Int(recipe),
-                IFunArg::Int(spinner),
-                IFunArg::Out(OutValue::Word(0)),
-                IFunArg::Filled(R_LIST),
-            ],
-            IFunReturn::Word,
-        )?;
-        let ingredients = items(&result, 1)?
-            .iter()
-            .filter_map(ingredient_of)
-            .collect();
-        Some((result.out_word(0), ingredients))
+        CraftQueries::recipe_ingredients(self, recipe, spinner)
     }
 
     /// `gmCWInterface::InqRecipeDifficulty`: the difficulty and the name colour at `spinner`.
     pub fn recipe_difficulty(&mut self, recipe: u32, spinner: u32) -> Option<(u32, u32)> {
-        let result = self.script_query(
-            IFUN_INQ_RECIPE_DIFFICULTY,
-            &[
-                IFunArg::Int(recipe),
-                IFunArg::Int(spinner),
-                IFunArg::Out(OutValue::Word(0)),
-                IFunArg::Out(OutValue::Word(0)),
-            ],
-            IFunReturn::Word,
-        )?;
-        Some((result.out_word(0), result.out_word(1)))
+        CraftQueries::recipe_difficulty(self, recipe, spinner)
     }
 
     /// `gmCWInterface::InqRecipeCost`: the cost of `recipe` at `spinner`.
     pub fn recipe_cost(&mut self, recipe: u32, spinner: u32) -> Option<i32> {
-        let result = self.script_query(
-            IFUN_INQ_RECIPE_COST,
-            &[
-                IFunArg::Int(recipe),
-                IFunArg::Int(spinner),
-                IFunArg::Out(OutValue::Word(0)),
-            ],
-            IFunReturn::Word,
-        )?;
-        Some(result.out_word(0) as i32)
+        CraftQueries::recipe_cost(self, recipe, spinner)
     }
 
     /// `gmCWInterface::DoesIngredientAutoPopulate`: whether slot `ordinal` of `recipe` fills
     /// itself.
     pub fn ingredient_auto_populates(&mut self, recipe: u32, ordinal: u32) -> Option<bool> {
-        let result = self.script_query(
-            IFUN_DOES_INGREDIENT_AUTO_POPULATE,
-            &[IFunArg::Int(recipe), IFunArg::Int(ordinal)],
-            IFunReturn::Word,
-        )?;
-        Some(result.retval != 0)
+        CraftQueries::ingredient_auto_populates(self, recipe, ordinal)
     }
 
     /// `gmCWInterface::CheckIngredient`: whether `object` may fill slot `ordinal` of `recipe`.
@@ -246,25 +103,12 @@ impl Client {
         object: u64,
         spinner: u32,
     ) -> Option<bool> {
-        let result = self.script_query(
-            IFUN_CHECK_INGREDIENT,
-            &[
-                IFunArg::Int(recipe),
-                IFunArg::Int(ordinal),
-                IFunArg::Long(object),
-                IFunArg::Int(spinner),
-                IFunArg::Out(OutValue::Word(0)),
-            ],
-            IFunReturn::Word,
-        )?;
-        Some(result.out_word(0) != 0)
+        CraftQueries::check_ingredient(self, recipe, ordinal, object, spinner)
     }
 
     /// `gmCWInterface::GetAvailableCraftExperience`: the craft experience the player may use.
     pub fn available_craft_experience(&mut self) -> Option<u64> {
-        let result =
-            self.script_query(IFUN_GET_AVAILABLE_CRAFT_EXPERIENCE, &[], IFunReturn::Long)?;
-        Some(result.retval)
+        CraftQueries::available_craft_experience(self)
     }
 }
 
