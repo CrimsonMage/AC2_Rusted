@@ -93,11 +93,11 @@ pub(crate) struct HudView {
     pub(crate) game_dialogs: ac2_ui::GameplayDialogs,
     /// The script questions raised and not yet asked: they wait for the HUD's dialogs (see
     /// [`HudView::frameworks`](crate::hud_player)).
-    pub(crate) popup_backlog: Vec<crate::hud_game_dialogs::PopupQuestion>,
+    pub(crate) popup_backlog: Vec<ac2_ui::PopupQuestion>,
     /// The message boxes raised in the world and not yet shown (`RecvNotice_DisplayMessage`
     /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
     /// so these wait for the HUD rather than being dropped.
-    pub(crate) display_backlog: Vec<crate::hud_game_dialogs::DisplayNotice>,
+    pub(crate) display_backlog: Vec<ac2_ui::DisplayNotice>,
     /// `gmStackUI`.
     pub(crate) stack: Option<ac2_ui::StackUi>,
     /// `gmExternalContainerUI`.

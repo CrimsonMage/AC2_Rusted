@@ -87,14 +87,12 @@ impl HudView {
         // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
         // is up yet: the dialogs are the game's own, always there in retail. A question that
         // comes before the HUD's dialogs waits in the backlog and is asked when they are.
-        self.popup_backlog
-            .extend(crate::hud_game_dialogs::popup_questions(events));
+        self.popup_backlog.extend(ac2_ui::popup_questions(events));
         // `gmGamePlayUI::RecvNotice_DisplayMessage` is registered with the HUD's children
         // (`gmGamePlayUI::SetupChildren`), so a box raised in the world waits for the HUD; before
         // the world there is no handler and the notice is gone, as in retail.
         if frame.in_world {
-            self.display_backlog
-                .extend(crate::hud_game_dialogs::display_notices(events));
+            self.display_backlog.extend(ac2_ui::display_notices(events));
         }
         let mut out = PassOut::default();
         let Some(strings) = self.strings.clone() else {

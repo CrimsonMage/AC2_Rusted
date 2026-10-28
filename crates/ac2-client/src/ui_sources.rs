@@ -46,6 +46,12 @@ impl ac2_ui::UiStrings for ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::DialogText for ClientPlayer<'_> {
+    fn render_wire(&self, info: &ac2_net::protocol::StringInfo) -> String {
+        self.render_info(info)
+    }
+}
+
 impl ac2_ui::AssistanceSource for ClientPlayer<'_> {
     fn world_name(&self) -> String {
         self.client.borrow().world_name().to_owned()

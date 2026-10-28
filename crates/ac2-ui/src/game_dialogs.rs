@@ -21,9 +21,14 @@
 //! selection) that a cancelled wait sends the player to is [`GameplayDialogs::recv_close_wait_dialog`]'s
 //! caller's business.
 
+use ac2_net::protocol::StringInfo;
+use ac2_weenie::{GameplayNotice, SessionEvent};
+
 use crate::chat_window::TEXT_TYPE_ERROR;
-use crate::death::DeathPanel;
-use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_WAIT};
+use crate::death::{DeathPanel, OfferAnswer};
+use crate::dialog::{
+    DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE, DIALOG_WAIT,
+};
 use crate::element::UiTree;
 use crate::token::tokenize;
 use crate::ui_string::{UiString, UiStrings};
@@ -433,5 +438,148 @@ mod tests {
         assert_eq!(game.wait_context(), 0);
         assert_eq!(dialogs.shown(), None);
         assert!(!game.end_session_quiet(&mut tree, &mut dialogs, &mut death));
+    }
+}
+
+/// A script's yes/no question as the notice carried it, until the dialogs show it
+/// (`gmCWInterface::PopupYesNoDialog`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct PopupQuestion {
+    pub text: StringInfo,
+    pub object: u64,
+    pub context: u32,
+}
+
+/// A message box as the notice carried it (`GameplayNotice::DisplayMessage`), until the dialogs
+/// show it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct DisplayNotice {
+    pub text: StringInfo,
+    pub topmost: bool,
+}
+
+/// The wire texts a dialog shows, rendered on the player's tables.
+pub trait DialogText {
+    fn render_wire(&self, info: &StringInfo) -> String;
+}
+
+/// What the dialogs' answers ask of the client, in order.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DialogRequest {
+    /// A script's question answered (`gmCWInterface::PopupAnswer`-style resume).
+    PopupAnswer {
+        object: u64,
+        context: u32,
+        yes: bool,
+    },
+    /// The resurrection offer declined: the request is cleared.
+    ClearResurrection,
+    /// The resurrection offer accepted: `gmCWInterface::RequestResurrect`.
+    RequestResurrect,
+}
+
+/// The frame's message boxes (`GameplayNotice::DisplayMessage`), in order. Retail's handler is
+/// registered by `gmGamePlayUI::SetupChildren`, so a box that comes before the HUD waits for it.
+pub fn display_notices(events: &[SessionEvent]) -> Vec<DisplayNotice> {
+    events
+        .iter()
+        .filter_map(|event| match event {
+            SessionEvent::Notice(GameplayNotice::DisplayMessage { text, topmost }) => {
+                Some(DisplayNotice {
+                    text: text.clone(),
+                    topmost: *topmost,
+                })
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// The frame's script questions (`GameplayNotice::PopupYesNo`), in order.
+pub fn popup_questions(events: &[SessionEvent]) -> Vec<PopupQuestion> {
+    events
+        .iter()
+        .filter_map(|event| match event {
+            SessionEvent::Notice(GameplayNotice::PopupYesNo {
+                object,
+                context,
+                text,
+            }) => Some(PopupQuestion {
+                text: text.clone(),
+                object: *object,
+                context: *context,
+            }),
+            _ => None,
+        })
+        .collect()
+}
+
+impl GameplayDialogs {
+    /// The frame's dialog notices: the backlogged script questions are asked first (they were
+    /// raised before this frame's notices), then the backlogged message boxes, then the frame's
+    /// login finish runs `Init`, which closes the please-wait dialog the login left up.
+    pub fn frame_notices(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        text: &dyn DialogText,
+        events: &[SessionEvent],
+        popup_backlog: &mut Vec<PopupQuestion>,
+        display_backlog: &mut Vec<DisplayNotice>,
+    ) {
+        // `gmCWInterface::PopupYesNoDialog`: the question's confirmation, answered later.
+        for question in popup_backlog.drain(..) {
+            let line = text.render_wire(&question.text);
+            self.ask_popup(tree, dialogs, &line, question.object, question.context);
+        }
+        for notice in display_backlog.drain(..) {
+            let line = text.render_wire(&notice.text);
+            self.display_message(tree, dialogs, &line, notice.topmost);
+        }
+        for event in events {
+            // `gmGamePlayUI::RecvNotice_LoginFinished` runs `Init`.
+            if let SessionEvent::LoginFinished = event {
+                self.init(tree, dialogs);
+            }
+        }
+    }
+
+    /// The dialogs' answers for the gameplay panel: a message box that was answered leaves the
+    /// list, and the resurrection offer's answer respawns (yes) or clears the offer and makes the
+    /// death dialog again (no). Returns the client's requests in order.
+    pub fn frame_answers(
+        &mut self,
+        death: &mut DeathPanel,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        strings: &dyn UiStrings,
+        outcomes: &[DialogOutcome],
+    ) -> Vec<DialogRequest> {
+        let mut requests = Vec::new();
+        for outcome in outcomes {
+            match *outcome {
+                DialogOutcome::Message { context } => self.close_message(context),
+                DialogOutcome::Confirmation { context, yes } => {
+                    if let Some(popup) = self.take_popup(context) {
+                        requests.push(DialogRequest::PopupAnswer {
+                            object: popup.object,
+                            context: popup.context,
+                            yes,
+                        });
+                        continue;
+                    }
+                    match death.recv_close_confirmation(context, yes) {
+                        OfferAnswer::None => {}
+                        OfferAnswer::Declined => {
+                            requests.push(DialogRequest::ClearResurrection);
+                            death.make_you_died(tree, dialogs, strings);
+                        }
+                        OfferAnswer::Accepted => requests.push(DialogRequest::RequestResurrect),
+                    }
+                }
+                DialogOutcome::Resurrect { .. } => {}
+            }
+        }
+        requests
     }
 }
