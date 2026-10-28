@@ -18,10 +18,11 @@
 use std::sync::Arc;
 
 use ac2_net::protocol::StringInfo;
-use ac2_weenie::{CraftSkill, Ingredient, Recipe};
+use ac2_weenie::{CraftSkill, GameplayNotice, Ingredient, Recipe, SessionEvent};
 
 use crate::element::UiTree;
 use crate::layout::{ElementDesc, LayoutDesc};
+use crate::mouse::UiMessage;
 use crate::token::{tokenize, BUTTON_GHOSTED, MAX_HEIGHT, MIN_HEIGHT, MIN_WIDTH};
 
 /// `gmIngredientUI`'s element names (the gameplay layout's `IngredientField`'s children).
@@ -146,6 +147,64 @@ impl IngredientUi {
     }
 
     /// The requests the panel made since the last call, in order.
+    /// The ingredient panel on the frame: its notices in `events` (the panel's own recipe's
+    /// notices only, and the object removals), then its `messages`. Returns the requests the
+    /// frame made, in order.
+    pub fn frame_pass(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn IngredientSource,
+        events: &[SessionEvent],
+        messages: &[UiMessage],
+    ) -> Vec<IngredientCommand> {
+        for event in events {
+            match event {
+                SessionEvent::ObjectRemoved(object) => self.object_removed(tree, *object),
+                SessionEvent::Notice(notice) => self.notice(tree, source, notice),
+                _ => {}
+            }
+        }
+        for message in messages {
+            self.message(tree, source, message);
+        }
+        self.take_commands()
+    }
+
+    /// The panel's notices: the recipe's open, add and execute answers, the mount state, the
+    /// craft skill, and the items the inventory changed.
+    fn notice(
+        &mut self,
+        tree: &mut UiTree,
+        source: &dyn IngredientSource,
+        notice: &GameplayNotice,
+    ) {
+        match notice {
+            GameplayNotice::OpenIngredientPanel(recipe) => self.open_notice(tree, source, *recipe),
+            GameplayNotice::AddIngredientDone {
+                recipe,
+                ordinal,
+                ingredient,
+                spinner,
+                error,
+            } if *recipe == self.recipe() => {
+                self.add_done(tree, source, *ordinal, *ingredient, *spinner, *error)
+            }
+            GameplayNotice::ExecuteCraftDone { recipe, error } if *recipe == self.recipe() => {
+                self.execute_done(tree, source, *error)
+            }
+            GameplayNotice::UpdateMountState(mounted) => self.mount_state(tree, *mounted),
+            GameplayNotice::UpdateCraftSkill(skill) => {
+                self.craft_skill_updated(tree, source, skill)
+            }
+            GameplayNotice::UpdateInventory { item, .. }
+            | GameplayNotice::ItemUpdate(item)
+            | GameplayNotice::UpdateContainer { item, .. } => {
+                self.item_changed(tree, source, *item)
+            }
+            _ => {}
+        }
+    }
+
     pub fn take_commands(&mut self) -> Vec<IngredientCommand> {
         std::mem::take(&mut self.commands)
     }

@@ -6,7 +6,7 @@ use std::cell::RefCell;
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{tokenize, IngredientCommand, IngredientSource};
-use ac2_weenie::{CraftSkill, GameplayNotice, Ingredient, Recipe, SessionEvent};
+use ac2_weenie::{CraftSkill, Ingredient, Recipe, SessionEvent};
 
 use crate::client::Client;
 use crate::frame::ClientFrame;
@@ -139,46 +139,10 @@ impl HudView {
             ui_table: strings.ui_table,
             enums: &strings.enums,
         };
-        for event in events {
-            match event {
-                SessionEvent::ObjectRemoved(object) => panel.object_removed(tree, *object),
-                SessionEvent::Notice(notice) => match notice {
-                    GameplayNotice::OpenIngredientPanel(recipe) => {
-                        panel.open_notice(tree, &player, *recipe)
-                    }
-                    GameplayNotice::AddIngredientDone {
-                        recipe,
-                        ordinal,
-                        ingredient,
-                        spinner,
-                        error,
-                    } if *recipe == panel.recipe() => {
-                        panel.add_done(tree, &player, *ordinal, *ingredient, *spinner, *error)
-                    }
-                    GameplayNotice::ExecuteCraftDone { recipe, error }
-                        if *recipe == panel.recipe() =>
-                    {
-                        panel.execute_done(tree, &player, *error)
-                    }
-                    GameplayNotice::UpdateMountState(mounted) => panel.mount_state(tree, *mounted),
-                    GameplayNotice::UpdateCraftSkill(skill) => {
-                        panel.craft_skill_updated(tree, &player, skill)
-                    }
-                    GameplayNotice::UpdateInventory { item, .. } => {
-                        panel.item_changed(tree, &player, *item)
-                    }
-                    GameplayNotice::ItemUpdate(item) => panel.item_changed(tree, &player, *item),
-                    GameplayNotice::UpdateContainer { item, .. } => {
-                        panel.item_changed(tree, &player, *item)
-                    }
-                    _ => {}
-                },
-                _ => {}
-            }
-        }
-        for message in &messages {
-            panel.message(tree, &player, message);
-        }
-        panel.take_commands().into_iter().map(command).collect()
+        panel
+            .frame_pass(tree, &player, events, &messages)
+            .into_iter()
+            .map(command)
+            .collect()
     }
 }
