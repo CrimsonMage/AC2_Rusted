@@ -14,6 +14,9 @@
 
 use std::sync::Arc;
 
+use ac2_gameplay::quest::{
+    extra_text as quest_extra_text, maxed_out, seconds_remaining, ChallengeLevel, QuestExtraText,
+};
 use ac2_net::protocol::{GmQuestInfo, StringInfo};
 
 use crate::element::UiTree;
@@ -24,11 +27,7 @@ use crate::skill_tree::SkillVar;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
 use crate::ui_string::{UiString, UiStrings};
 
-/// `gmQuestInfo::_questStatus`: underway (`GetStatus` 0x10000000, the status the time left and
-/// the extra text read), failed (0x20000000) and completed (0x30000000).
-pub const STATUS_UNDERWAY: u32 = 0x1000_0000;
-pub const STATUS_FAILED: u32 = 0x2000_0000;
-pub const STATUS_COMPLETED: u32 = 0x3000_0000;
+pub use ac2_gameplay::quest::{STATUS_COMPLETED, STATUS_FAILED, STATUS_UNDERWAY};
 
 /// `RecvNotice_UpdateQuests`' codes: one quest updated, the whole list, one added, one removed.
 pub const CODE_UPDATE: u32 = 0x4000_0001;
@@ -455,16 +454,11 @@ impl Rows<'_> {
             return;
         };
         let quest = &desc.quest;
-        let maxed = quest.status != STATUS_UNDERWAY && quest.maxed_out;
+        let maxed = maxed_out(quest);
         let word = if maxed {
             "ID_Quest_QuestMaxed"
         } else {
-            // `GetSecondsRemaining`: the time left while underway, else the time until a retry.
-            let seconds = if quest.status == STATUS_UNDERWAY {
-                quest.seconds_remaining
-            } else {
-                quest.seconds_until_retry
-            } as i64;
+            let seconds = seconds_remaining(quest);
             if seconds > 0 {
                 let end = self.now + seconds as f64;
                 desc.time = Some(QuestTimeDisplay::init(
@@ -486,32 +480,34 @@ impl Rows<'_> {
     }
 }
 
-/// `gmJournalQuestsUI::InqExtraText`: the description, journal entry and challenge level while
-/// underway; the completed or failed words after; none for other statuses.
+/// `gmJournalQuestsUI::InqExtraText`: the words `ac2_gameplay::quest::extra_text` gives, built
+/// as the journal's strings.
 fn extra_text(quest: &GmQuestInfo) -> Option<UiString> {
-    match quest.status {
-        STATUS_UNDERWAY => {
-            let level = if quest.challenge_level == -999 {
-                SkillVar::Info(Box::new(UiString::ui(
+    Some(match quest_extra_text(quest)? {
+        QuestExtraText::Underway {
+            description,
+            journal,
+            challenge,
+        } => {
+            let level = match challenge {
+                ChallengeLevel::Any => SkillVar::Info(Box::new(UiString::ui(
                     tokenize("ID_Quest_ChallengeLevelAny"),
                     Vec::new(),
-                )))
-            } else {
-                SkillVar::Int(i64::from(quest.challenge_level))
+                ))),
+                ChallengeLevel::Level(level) => SkillVar::Int(i64::from(level)),
             };
-            Some(UiString::ui(
+            UiString::ui(
                 tokenize("ID_Quest_Description"),
                 vec![
-                    (tokenize("DESC"), SkillVar::Wire(quest.description.clone())),
-                    (tokenize("JOURNAL"), SkillVar::Wire(quest.journal.clone())),
+                    (tokenize("DESC"), SkillVar::Wire(description.clone())),
+                    (tokenize("JOURNAL"), SkillVar::Wire(journal.clone())),
                     (tokenize("LEVEL"), level),
                 ],
-            ))
+            )
         }
-        STATUS_FAILED => Some(UiString::ui(tokenize("ID_Quest_Failed"), Vec::new())),
-        STATUS_COMPLETED => Some(UiString::ui(tokenize("ID_Quest_Completed"), Vec::new())),
-        _ => None,
-    }
+        QuestExtraText::Failed => UiString::ui(tokenize("ID_Quest_Failed"), Vec::new()),
+        QuestExtraText::Completed => UiString::ui(tokenize("ID_Quest_Completed"), Vec::new()),
+    })
 }
 
 /// `List<QuestDescriptor>::insert_unique_sort`: nothing when the id is listed, else the quest

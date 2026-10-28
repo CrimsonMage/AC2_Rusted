@@ -10682,10 +10682,10 @@ key	status	note
 0060ab10	x	ac2-script glue::quests / ac2-net native::quest
 0060abd0	x	ac2-script glue::quests / ac2-net native::quest
 0060ac50	x	ac2-script glue::quests / ac2-net native::quest
-0060ac60	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-0060ac80	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-0060aca0	~	logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-0060ada0	_	needs port: quest FX on update (gmQuestInfo::PlaysFXOnUpdate), unbound efun
+0060ac60	x	ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+0060ac80	x	ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+0060aca0	x	ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+0060ada0	x	ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
 0060adb0	-	constructor of plain data
 0060ae20	-	constructor of plain data
 0060ae60	-	assignment or comparison of plain data (operator=, ==, <)

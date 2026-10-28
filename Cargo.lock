@@ -120,6 +120,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ac2-gameplay"
+version = "0.1.0"
+dependencies = [
+ "ac2-net",
+]
+
+[[package]]
 name = "ac2-gpu"
 version = "0.1.0"
 dependencies = [
@@ -230,6 +237,7 @@ dependencies = [
  "ac2-core",
  "ac2-dat",
  "ac2-db",
+ "ac2-gameplay",
  "ac2-math",
  "ac2-net",
  "ac2-physics",

@@ -33,7 +33,7 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-gpu` | Render device (13 `device`) | the `wgpu` backend: device, pipelines, buffers, textures, shaders | render-wgpu core (no "Enhanced" effects) |
 | `ac2-ui` | UI framework and modules (14, 15) | input maps, UI elements, `LayoutDesc`, game panels | later |
 | `ac2-script` | WSL interpreter (10) | `WLib`/`ByteStream` and `WState` decode, the script VM and native glue (AC2 UI and much gameplay run on it) | rebuilt from the decompile |
-| `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination | later |
+| `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination; `quest` (`gmQuestInfo` status, time and extra-text rules) so far | started |
 | `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the music queue (`DXMusicMessageThread`: primary and secondary segments over `MusicPerformance` and `StylePerformance`, events to an `EventSink`), the DLS software synthesizer (`synth`: voices from the band collections or the user's GM file, an `EventSink` that renders), the mixer and speaker output (cpal), the ambient driver, rain and thunder, the portal space's sounds and the screens' music (`SoundSpace`: the client answers the place questions over physics, so this crate names no physics or world type) | rebuilt from the decompile |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
 
@@ -49,12 +49,13 @@ ac2-core → ac2-prefs → ac2-math → ac2-dat → ac2-db → ac2-net
 
 `ac2-net` depends only on `ac2-core`. `ac2-prefs` has no crate dependencies (the names are passed in,
 so it needs no DAT access). `ac2-script`, `ac2-gameplay` and `ac2-audio` slot in when
-they are built: script after `ac2-weenie`, gameplay after script, audio after `ac2-world`
+they are built: script after `ac2-weenie`, gameplay after script (it depends on `ac2-net` only), audio after `ac2-world`
 (it needs only `ac2-db` so far; `ac2-client` drives it).
 `ac2-script` also depends on `ac2-anim` (the latent mode and behaviour completions,
 `ac2_script::host::latent::completions`), which precedes it in the order.
 `ac2-ui` depends on `ac2-script` (the saved window locations are `UISaveLocations`, the
 script's native layout, `ac2_ui::window_locations`); script sits before ui in the order.
+`ac2-ui` also depends on `ac2-gameplay` (the quest journal's rules, `ac2_gameplay::quest`).
 `ac2-ui` also depends on `ac2-render` (the client options page's scene options, `ac2_ui::OptionsPages`);
 render sits before ui in the order.
 

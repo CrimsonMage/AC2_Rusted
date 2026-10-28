@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 198 done, 33 partial, 53 to do, 215 skipped.
+499 retail functions: 202 done, 30 partial, 52 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -339,17 +339,17 @@ Legend and workflow: [README](README.md).
 - [-] `gmKeyframe::Verify` · 0060a900 · legions 005cb610 — admin dump/verify debug helper
 - [x] `gmKeyframe::StreamPack` · 0060aa40 · legions 005cb750 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 
-## `ac2/shared/src/quest/gmquestinfo.cpp.c` (5/15)
+## `ac2/shared/src/quest/gmquestinfo.cpp.c` (9/15)
 
 ### gmQuestInfo
 - [-] `gmQuestInfo::~gmQuestInfo` · 0060aae0 · legions 005cb7f0 — destructor of plain data
 - [x] `gmQuestInfo::Init` · 0060ab10 · legions 005cb820 — ac2-script glue::quests / ac2-net native::quest
 - [x] `gmQuestInfo::Clear` · 0060abd0 · legions 005cb8e0 — ac2-script glue::quests / ac2-net native::quest
 - [x] `gmQuestInfo::GetStatus` · 0060ac50 · legions 005cb960 — ac2-script glue::quests / ac2-net native::quest
-- [~] `gmQuestInfo::MaxedOut` · 0060ac60 · legions 005cb970 — logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-- [~] `gmQuestInfo::GetSecondsRemaining` · 0060ac80 · legions 005cb990 — logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-- [~] `gmQuestInfo::InqExtraText` · 0060aca0 · legions 005cb9b0 — logic in ac2-ui journal_quests.rs (do_quest_time, extra_text); the accessors are not in ac2-gameplay yet
-- [ ] `gmQuestInfo::PlaysFXOnUpdate` · 0060ada0 — needs port: quest FX on update (gmQuestInfo::PlaysFXOnUpdate), unbound efun
+- [x] `gmQuestInfo::MaxedOut` · 0060ac60 · legions 005cb970 — ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+- [x] `gmQuestInfo::GetSecondsRemaining` · 0060ac80 · legions 005cb990 — ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+- [x] `gmQuestInfo::InqExtraText` · 0060aca0 · legions 005cb9b0 — ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
+- [x] `gmQuestInfo::PlaysFXOnUpdate` · 0060ada0 — ac2-gameplay quest.rs (maxed_out, seconds_remaining, extra_text); ac2-ui journal_quests.rs builds the strings; PlaysFXOnUpdate is the efun 0x00A00007 in ac2-script glue/quests.rs
 - [-] `gmQuestInfo::gmQuestInfo` · 0060adb0 · legions 005cbac0 — constructor of plain data
 - [-] `gmQuestInfo::gmQuestInfo` · 0060ae20 · legions 005cbb30 — constructor of plain data
 - [-] `gmQuestInfo::operator=` · 0060ae60 · legions 005cbb70 — assignment or comparison of plain data (operator=, ==, <)
