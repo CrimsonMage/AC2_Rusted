@@ -256,6 +256,11 @@ impl IngredientUi {
         self.place_pending(tree, source, index, object);
         self.slots[index].pending = false;
         if let Some(icon) = tree.child_recursive(element, ITEM_ICON) {
+            // The icon description when the object has one (`SetIconDesc`), else its icon.
+            let layers = source.item_icon_layers(object);
+            if !layers.is_empty() {
+                tree.set_icon_desc(icon, &layers);
+            }
             tree.set_bool(icon, TOKEN_DRAGABLE, true);
         }
     }

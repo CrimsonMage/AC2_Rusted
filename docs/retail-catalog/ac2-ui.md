@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1286 done, 337 partial, 130 to do, 494 skipped.
+2247 retail functions: 1287 done, 336 partial, 130 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -258,7 +258,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (25/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (26/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
@@ -309,7 +309,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::DoClose` · 00418060 · legions 00417e20 — ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
 - [~] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs tick: typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped to the range, UpdateRecipeFromSpinnerChange). Not ported: the 15 s dormancy that destroys the panel (DestroyManagedElements)
 - [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
-- [~] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
+- [x] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot, its icon description (SetIconDesc via IngredientSource::item_icon_layers) or icon, draggable; a failure frees the slot; a new spinner value follows. The object's 0x454/0x1040c handler registration is the session's notice routing
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 - [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — Legions has it: gmIngredientUI notice vtable slot 124 at 0x00418640 (admin slot 123; Legions inserted one notice slot before it; same size and call count)
 

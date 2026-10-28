@@ -129,7 +129,17 @@ impl IngredientSource for Known<'_> {
     fn item_icon(&self, _object: u64) -> Option<u32> {
         None
     }
+
+    fn item_icon_layers(&self, _object: u64) -> Vec<ac2_ui::IconLayer> {
+        vec![ac2_ui::IconLayer {
+            image: LAYER_IMAGE,
+            shift_color: 0xFFFF_FFFF,
+        }]
+    }
 }
+
+/// The image of the one icon layer every object shows.
+const LAYER_IMAGE: u32 = 0x0600_7777;
 
 /// The list items' slot objects (the `ItemIcon` child's `id`), in list order.
 fn slot_objects(tree: &UiTree, panel: &IngredientUi) -> Vec<Option<u64>> {
@@ -270,8 +280,11 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     // An add answer puts the object in its slot when it succeeds, and frees the slot when not.
     let object = 0x8000_0000_0000_9001;
     let ordinal = ingredients.first().map(|i| i.id).unwrap_or(1);
+    assert!(!tree.image_files().contains(&LAYER_IMAGE));
     panel.add_done(tree, &source, ordinal, object, after, 0);
     assert_eq!(slot_objects(tree, &panel)[0], Some(object));
+    // The slot's icon draws the object's icon description (`SetIconDesc`).
+    assert!(tree.image_files().contains(&LAYER_IMAGE));
     panel.add_done(tree, &source, ordinal, object, after, 1);
     assert_eq!(slot_objects(tree, &panel)[0], None);
     // Auto-populate: each inventory object goes into a free slot the recipe fills itself, and the

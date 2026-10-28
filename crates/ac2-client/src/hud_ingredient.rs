@@ -77,6 +77,10 @@ impl IngredientSource for ClientPlayer<'_> {
             .map(|display| display.icon)
             .filter(|&icon| icon != 0)
     }
+
+    fn item_icon_layers(&self, object: u64) -> Vec<ac2_ui::IconLayer> {
+        ac2_ui::InventorySource::item(self, object).map_or_else(Vec::new, |slot| slot.icon_layers)
+    }
 }
 
 /// An ingredient request as the gameplay command it is.

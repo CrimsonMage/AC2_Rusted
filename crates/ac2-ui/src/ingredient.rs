@@ -92,6 +92,11 @@ pub trait IngredientSource {
     fn inventory(&self) -> Vec<u64>;
     /// The icon an object shows (`GetIconID`).
     fn item_icon(&self, object: u64) -> Option<u32>;
+    /// The object's icon description layers, bottom first (`VisualDesc::GetTotalIconDesc`);
+    /// empty for none.
+    fn item_icon_layers(&self, _object: u64) -> Vec<crate::IconLayer> {
+        Vec::new()
+    }
 }
 
 /// A request the panel makes of the player's interface.
