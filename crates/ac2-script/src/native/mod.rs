@@ -43,6 +43,8 @@ pub use visual::AppliedAppearanceKey;
 /// `gmCNativeFactory` 0x82-0xAF).
 pub mod ntype {
     pub const AA_HASH: u32 = 0x01;
+    /// `BaseProperty` (`gBaseProperty`): one named property and its typed value.
+    pub const BASE_PROPERTY: u32 = 0x16;
     pub const AA_MULTI_HASH: u32 = 0x03;
     pub const A_ARRAY: u32 = 0x05;
     pub const A_HASH_SET: u32 = 0x06;
@@ -217,6 +219,8 @@ pub enum NativeObject {
     CollisionProfile(Box<CollisionProfile>),
     /// `CollideProperty` (native 0x19).
     CollideProperty(CollideProperty),
+    /// `BaseProperty` (native 0x16): the property's name, type and value (`ac2_db`).
+    BaseProperty(Box<ac2_db::BaseProperty>),
     /// `ObjCollisionProfile` (native 0x4F).
     ObjCollisionProfile(ObjCollisionProfile),
     /// `Plane` (native 0x59): the normal and `d`.
@@ -405,6 +409,9 @@ impl NativeObject {
             }
             ntype::COLLISION_PROFILE => NativeObject::CollisionProfile(Box::default()),
             ntype::COLLIDE_PROPERTY => NativeObject::CollideProperty(CollideProperty::default()),
+            ntype::BASE_PROPERTY => {
+                NativeObject::BaseProperty(Box::new(ac2_db::BaseProperty::new(0)))
+            }
             ntype::OBJ_COLLISION_PROFILE => {
                 NativeObject::ObjCollisionProfile(ObjCollisionProfile::default())
             }

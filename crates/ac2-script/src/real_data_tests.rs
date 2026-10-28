@@ -161,6 +161,7 @@ fn native_name(native: &NativeObject) -> &'static str {
         NativeObject::CollisionParameters(_) => "CollisionParameters",
         NativeObject::CollisionProfile(_) => "CollisionProfile",
         NativeObject::CollideProperty(_) => "CollideProperty",
+        NativeObject::BaseProperty(_) => "BaseProperty",
         NativeObject::ObjCollisionProfile(_) => "ObjCollisionProfile",
         NativeObject::Plane(_) => "Plane",
         NativeObject::BehaviorParams(_) => "BehaviorParams",
