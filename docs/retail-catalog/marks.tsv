@@ -8963,7 +8963,7 @@ key	status	note
 005b3d90	-	D3D device/resource plumbing; wgpu replaces
 005b3de0	-	D3D device lifecycle/restore; wgpu replaces
 005b3fb0	-	D3D device lifecycle/restore; wgpu replaces
-005b4160	~	ac2-render prefs::register_graphics: 21 keys in section 0x40000004 and 2 in 0x4000000D, in Create order, with their enum labels; HighQualityUI has no Create here so it is not registered; the bank's keys, not the widgets
+005b4160	~	ac2-render prefs::register_graphics: 21 keys in section 0x40000004 and 2 in 0x4000000D, in Create order, with their enum labels; HighQualityUI has no Create here so it is not registered. The saved OverallGraphicsQuality (1-5) is applied at startup (ClientPrefs::apply_startup_quality); without one the client applies a GPU-chosen level (AGENTS.md exception) where retail kept the registered defaults
 005b5200	-	D3D device lifecycle/restore; wgpu replaces
 005b52b0	-	D3D device lifecycle/restore; wgpu replaces
 005b5310	-	D3D device lifecycle/restore; wgpu replaces

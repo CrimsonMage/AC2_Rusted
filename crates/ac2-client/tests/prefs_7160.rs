@@ -176,3 +176,47 @@ fn the_graphics_quality_is_written_at_once_and_reads_back_through_the_dat_names(
     );
     let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
 }
+
+#[test]
+fn a_first_run_takes_the_hardware_quality_and_a_saved_quality_wins() {
+    let Some(store) = store() else {
+        return;
+    };
+    let path = temp_file("StartupQuality.ini");
+    let _ = std::fs::remove_file(&path);
+    let mut fresh = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    assert_eq!(
+        fresh.scene_options().degrade.model_detail,
+        1,
+        "registered default"
+    );
+    assert_eq!(
+        fresh.apply_startup_quality(5),
+        5,
+        "nothing saved: the hardware level"
+    );
+    let degrade = fresh.scene_options().degrade;
+    assert_eq!(
+        (degrade.model_detail, degrade.scenery_draw_distance),
+        (2, 2),
+        "level 5's high model detail and scenery distance"
+    );
+    assert_eq!(
+        fresh.overall_graphics_quality(),
+        None,
+        "the first-run level is not saved"
+    );
+    fresh
+        .save_overall_graphics_quality(2)
+        .join()
+        .expect("the writer thread")
+        .expect("the file is written");
+    let mut saved = ClientPrefs::load(path.clone(), store).expect("reload");
+    assert_eq!(saved.apply_startup_quality(5), 2, "the saved level wins");
+    assert_eq!(
+        saved.scene_options().degrade.model_detail,
+        0,
+        "level 2's low model detail"
+    );
+    let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
+}

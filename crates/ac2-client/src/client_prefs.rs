@@ -130,6 +130,19 @@ impl ClientPrefs {
         ac2_render::prefs::save_overall_graphics_quality(&mut self.file, level)
     }
 
+    /// `Render::InitRenderingPreferences`' quality step: a saved level from 1 to 5 is applied
+    /// (`SetOverallGraphicsQuality`). Without one, retail kept the registered defaults; the client
+    /// applies `first_run_level` instead (`ac2_gpu::suggested_quality_level`, from the GPU), unsaved,
+    /// so the player's own choice in the options still decides. Returns the level applied.
+    pub fn apply_startup_quality(&mut self, first_run_level: u32) -> u32 {
+        let level = self
+            .overall_graphics_quality()
+            .filter(|level| (1..=5).contains(level))
+            .unwrap_or(first_run_level);
+        self.set_overall_graphics_quality(level);
+        level
+    }
+
     /// `Render::SetOverallGraphicsQuality(level)`: the preset's values go into the bank. `false`
     /// for a level without a preset.
     pub fn set_overall_graphics_quality(&mut self, level: u32) -> bool {

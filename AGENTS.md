@@ -74,6 +74,11 @@ game rules and server-visible behaviour exactly retail.
   (`ac2_ui::help_window`: a second `Book` of the gameplay layout, made as its own root), with the
   same pages, links, tabs and frames. The book's text area has one font, so bold, italic and
   underline are drawn plain.
+- Exception: a first run without a saved graphics quality starts at a level chosen from the GPU
+  (`ac2_gpu::suggested_quality_level`: 5 on a discrete or Apple GPU, 3 otherwise), applied but not
+  saved. Retail's `Render::InitRenderingPreferences` applied a saved level 1 to 5 (still done, by
+  `ClientPrefs::apply_startup_quality`) and otherwise kept the registered defaults, which are
+  level 3's medium model and scenery detail, sized for 2002 hardware.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).

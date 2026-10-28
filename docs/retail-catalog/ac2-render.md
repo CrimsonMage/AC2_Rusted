@@ -157,7 +157,7 @@ Legend and workflow: [README](README.md).
 - [-] `Render::CreateIndexBuffer` · 005b3d90 · legions 0057e730 — D3D device/resource plumbing; wgpu replaces
 - [-] `Render::Startup` · 005b3de0 · legions 0057e780 — D3D device lifecycle/restore; wgpu replaces
 - [-] `Render::Shutdown` · 005b3fb0 · legions 0057e950 — D3D device lifecycle/restore; wgpu replaces
-- [~] `Render::InitRenderingPreferences` · 005b4160 · legions 0057eb00 — ac2-render prefs::register_graphics: 21 keys in section 0x40000004 and 2 in 0x4000000D, in Create order, with their enum labels; HighQualityUI has no Create here so it is not registered; the bank's keys, not the widgets
+- [~] `Render::InitRenderingPreferences` · 005b4160 · legions 0057eb00 — ac2-render prefs::register_graphics: 21 keys in section 0x40000004 and 2 in 0x4000000D, in Create order, with their enum labels; HighQualityUI has no Create here so it is not registered. The saved OverallGraphicsQuality (1-5) is applied at startup (ClientPrefs::apply_startup_quality); without one the client applies a GPU-chosen level (AGENTS.md exception) where retail kept the registered defaults
 - [-] `Render::StartupRenderingDevice` · 005b5200 · legions 0057fba0 — D3D device lifecycle/restore; wgpu replaces
 - [-] `Render::RestartRenderingSystem` · 005b52b0 · legions 0057fc50 — D3D device lifecycle/restore; wgpu replaces
 - [-] `Render::FlushGraphicsResources` · 005b5310 · legions 0057fcb0 — D3D device lifecycle/restore; wgpu replaces
