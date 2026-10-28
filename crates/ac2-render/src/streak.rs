@@ -268,6 +268,10 @@ impl StreakEffects {
         self.effects.remove(&id);
     }
 
+    pub fn get(&self, id: u64) -> Option<&StreakEffect> {
+        self.effects.get(&id)
+    }
+
     pub fn get_mut(&mut self, id: u64) -> Option<&mut StreakEffect> {
         self.effects.get_mut(&id)
     }

@@ -159,6 +159,7 @@ mod tests {
     fn placed(emitter: u64, x: f32) -> ObjectPlacement {
         ObjectPlacement {
             emitter,
+            cell: 0,
             frame: Frame::new(Vec3::new(x, 0.0, 0.0), ac2_math::Quat::IDENTITY),
             scale: Vec3::ONE,
             bones: Vec::new(),

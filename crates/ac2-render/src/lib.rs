@@ -18,6 +18,7 @@ pub mod selection;
 mod selection_tests;
 pub mod sky;
 pub mod streak;
+mod streak_objects;
 pub mod terrain;
 mod view;
 

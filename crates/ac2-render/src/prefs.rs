@@ -33,6 +33,9 @@ pub const LANDSCAPE_DRAW_DISTANCE: u32 = 0x4000_0043;
 /// `LightSourceEffects` (`Render::m_Prefs.LightSourceEffects`): `FXManager::DoLightSourceFX`
 /// places no light while it is off.
 pub const LIGHT_SOURCE_EFFECTS: u32 = 0x4000_0061;
+/// `StreakEffects` (`Render::m_Prefs.StreakEffects`): `FXManager::DoStreakFX` makes no streak and
+/// `StreakEffectManager::RenderStreakEffects` draws none while it is off.
+pub const STREAK_EFFECTS: u32 = 0x4000_0063;
 /// `ID_Avatar_VisibleInFirstPerson`.
 pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
 /// `ID_Rendering_FullScreen`.
@@ -386,6 +389,15 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
 /// registered keeps its default, on.
 pub fn light_source_effects(bank: &PreferenceBank) -> bool {
     match bank.find(LIGHT_SOURCE_EFFECTS).map(|pref| &pref.value) {
+        Some(Value::Bool(on)) => *on,
+        _ => true,
+    }
+}
+
+/// Whether FX streaks are made and drawn (`StreakEffects`). A preference that is not registered
+/// keeps its default, on.
+pub fn streak_effects(bank: &PreferenceBank) -> bool {
+    match bank.find(STREAK_EFFECTS).map(|pref| &pref.value) {
         Some(Value::Bool(on)) => *on,
         _ => true,
     }

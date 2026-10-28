@@ -169,6 +169,9 @@ pub(crate) enum Request {
     Rain,
     /// An object FX's particle system: its handle and description.
     ObjectParticle(u64, DataId),
+    /// A streak's material: drawn through the particle material's model (one empty triangle with
+    /// the material's layers), loaded once.
+    StreakMaterial(DataId),
 }
 
 /// The loader thread and its queues.
@@ -478,6 +481,19 @@ impl Worker {
             Request::Rain => Loaded::Rain(Box::new(self.rain())),
             Request::ObjectParticle(handle, did) => {
                 Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
+            }
+            Request::StreakMaterial(material) => {
+                let store = self.world.resource_store().clone();
+                let model = self
+                    .models
+                    .insert(material)
+                    .then(|| particle_model(&store, material, &self.settings))
+                    .flatten();
+                if model.is_some() {
+                    self.drawable.insert(material);
+                }
+                let images = self.images(model.iter().flat_map(ObjectModel::texture_keys));
+                Loaded::Model(material, model, images)
             }
             Request::Object(key, visual, local) => {
                 let store = self.world.resource_store().clone();

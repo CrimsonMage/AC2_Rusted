@@ -35,6 +35,7 @@ use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
+use crate::streak_objects::ObjectStreaks;
 use crate::terrain::{shadow_light_bit, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
@@ -65,6 +66,8 @@ pub struct FramePlacement {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObjectPlacement {
     pub emitter: u64,
+    /// The object's cell (`CPartArray::Draw`'s `_CellID`), for its streaks' base cell.
+    pub cell: u32,
     pub frame: Frame,
     pub scale: Vec3,
     pub bones: Vec<Ac2Transform>,
@@ -135,6 +138,10 @@ pub struct WorldScene {
     particles: SceneParticles,
     /// The point lights of object FX (`CPartArray::CreateLightSource`).
     object_lights: ObjectLights,
+    /// The emitters' streaks (`CPartArray::CreateStreakEffect`) and whether they draw
+    /// (`Render::m_Prefs.StreakEffects`: `StreakEffectManager::RenderStreakEffects` skips them).
+    object_streaks: ObjectStreaks,
+    streaks_visible: bool,
     /// The resident blocks' ground, for the rain.
     heights: HashMap<BlockKey, Arc<TerrainHeights>>,
     rain: RainField,
@@ -186,6 +193,8 @@ impl WorldScene {
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
             object_lights: ObjectLights::default(),
+            object_streaks: ObjectStreaks::default(),
+            streaks_visible: true,
             heights: HashMap::new(),
             rain: RainField::default(),
             rain_material: None,
@@ -464,6 +473,44 @@ impl WorldScene {
         self.particles.stop_object(handle);
     }
 
+    /// `FXManager::DoStreakFX`: a streak on `emitter` (`CPartArray::CreateStreakEffect`). Its
+    /// material loads off the frame thread; it thinks and draws from the next frame.
+    pub fn start_object_streak(&mut self, emitter: u64, spec: crate::streak::StreakSpec) {
+        self.object_streaks
+            .start(emitter, spec, self.particles.now());
+        self.request_streak_material(spec.material);
+    }
+
+    /// `PHYSICSOBJREP::StartStreakInternal` (`on`) and `StopStreakInternal`: the emitter's streaks
+    /// activate or deactivate.
+    pub fn set_object_streaks_active(&mut self, emitter: u64, on: bool) {
+        self.object_streaks.set_active(emitter, on);
+    }
+
+    /// `CPartArray`'s destructor: the emitter left the world, so its streaks are destroyed.
+    pub fn remove_object_streaks(&mut self, emitter: u64) {
+        self.object_streaks.remove_emitter(emitter);
+    }
+
+    /// How many streaks the emitter holds.
+    pub fn object_streak_count(&self, emitter: u64) -> usize {
+        self.object_streaks.count(emitter)
+    }
+
+    /// `Render::m_Prefs.StreakEffects`: while off the streaks are not drawn (they keep thinking).
+    pub fn set_streaks_visible(&mut self, visible: bool) {
+        self.streaks_visible = visible;
+    }
+
+    /// A streak's material, loaded once like a particle material (`ParticleEmitter`'s material).
+    fn request_streak_material(&mut self, material: DataId) {
+        if self.known_models.contains(&material) || self.pending_models.contains(&material) {
+            return;
+        }
+        self.pending_models.insert(material);
+        self.request(Request::StreakMaterial(material));
+    }
+
     /// `CPartArray::CreateLightSource` for an object FX: a point light on `emitter` at the node's
     /// offset, created at the scene's clock now.
     pub fn start_object_light(&mut self, emitter: u64, light: Ac2FxLight) {
@@ -482,6 +529,10 @@ impl WorldScene {
     pub fn place_objects(&mut self, placements: &[ObjectPlacement]) {
         self.particles.place_objects(placements);
         self.object_lights.place(placements, self.particles.now());
+        self.object_streaks.place(placements.iter().map(|p| {
+            let scale = p.scale.x.max(p.scale.y).max(p.scale.z);
+            (p.emitter, p.cell, p.frame, scale)
+        }));
     }
 
     /// The point lights of the FX lights that reach an object at `position` with bounding radius
@@ -641,6 +692,15 @@ impl WorldScene {
         interiors.truncate(MAX_INTERIOR_BLOCKS);
         let mut particles = self.particles.frame(camera);
         particles.extend(self.rain_frame(camera, &lighting));
+        self.object_streaks.think(self.particles.now());
+        if self.streaks_visible {
+            particles.extend(
+                self.object_streaks
+                    .geometry()
+                    .into_iter()
+                    .map(|(material, geometry)| ParticleBatch { material, geometry }),
+            );
+        }
         SceneFrame {
             lighting,
             sky,
