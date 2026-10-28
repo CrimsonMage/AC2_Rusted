@@ -5,21 +5,87 @@
 
 use ac2_net::protocol::SelectionInfo;
 
+use crate::assistance::AssistancePanel;
 use crate::damage_text::DamageTexts;
 use crate::element::UiTree;
 use crate::name_plates::NamePlates;
 use crate::reticle::{Reticle, ReticleOutcome, ReticleTarget};
+use crate::skill_tree::SkillTreeUi;
+use crate::vitals::VitalsUi;
+use crate::{
+    AllegianceUi, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentUi, CraftUi,
+    EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi, FriendsPanel, IngredientUi,
+    Items3dUi, MiniFellowUi, MoneyBagUi, NetStatusUi, NewSaleUi, OptionsPages, PaperDollUi, PetUi,
+    PkStatusUi, QuestsUi, SecureTradeUi, ShopUi, SocialPanel, StackUi, VitaeStatusUi,
+};
 
 /// The HUD's panel state (`gmGamePlayUI`'s children that the client drives each frame).
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct Hud {
     reticle: Option<Reticle>,
-    names: Option<NamePlates>,
-    damage: Option<DamageTexts>,
+    pub names: Option<NamePlates>,
+    pub damage: Option<DamageTexts>,
     /// The HUD's clock (`Timer::cur_time`) at the last frame: a damage text starts at it.
-    now: f64,
+    pub now: f64,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<SelectionInfo>,
+    /// `gmSkillUI`'s `gmSkillTreeUI`.
+    pub skills: Option<SkillTreeUi>,
+    /// `gmCraftUI`, over `CraftPage`.
+    pub craft: Option<CraftUi>,
+    /// `gmIngredientUI`: the ingredient panel of a recipe.
+    pub ingredient: Option<IngredientUi>,
+    pub examination: Option<ExaminationUi>,
+    pub allegiance: Option<AllegianceUi>,
+    pub fellowship: Option<FellowshipUi>,
+    /// `gmFriendsUI`: the friends page of the social toolbar.
+    pub friends: Option<FriendsPanel>,
+    /// `gmAssistanceUI`: the assistance page of the option toolbar.
+    pub assistance: Option<AssistancePanel>,
+    /// `gmSocialUI`: the social panel's buttons.
+    pub social: Option<SocialPanel>,
+    /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
+    pub mini_fellow: Option<MiniFellowUi>,
+    /// `gmPetUI`: the pet panel on the HUD.
+    pub pets: Option<PetUi>,
+    /// `gmQuestsUI`: the Quest panel and its quest journal.
+    pub quests: Option<QuestsUi>,
+    /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
+    pub vitals: Option<VitalsUi>,
+    pub effects: Option<EffectsUi>,
+    pub vitae: Option<VitaeStatusUi>,
+    /// `gmPKStatusUI`, the PK indicator.
+    pub pk: Option<PkStatusUi>,
+    /// `gmNetStatusUI`, the net indicator.
+    pub net: Option<NetStatusUi>,
+    /// `gmInventoryUI`'s backpack, made once the player is in the world.
+    pub backpack: Option<BackpackUi>,
+    /// `gmInventoryUI`'s paper doll, made with the backpack.
+    pub paper_doll: Option<PaperDollUi>,
+    /// `gm3DItemsUI`, made with the backpack.
+    pub items_3d: Option<Items3dUi>,
+    /// `gmMoneyBagUI`, made with the backpack.
+    pub money: Option<MoneyBagUi>,
+    /// `gmStackUI`.
+    pub stack: Option<StackUi>,
+    /// `gmExternalContainerUI`.
+    pub external_container: Option<ExternalContainerUi>,
+    /// `gmSecureTradeUI`, hidden until a trade opens (its requests wait in the panel).
+    pub secure_trade: Option<SecureTradeUi>,
+    /// `gmCharacterUI`, the character options page (its requests wait in the page).
+    pub character: Option<CharacterUi>,
+    /// `gmChatOptionsUI`, the chat options page (its requests wait in the page).
+    pub chat_options: Option<ChatOptionsUi>,
+    /// `gmClientUI`, the client options page, and the effects its applies left.
+    pub options: OptionsPages,
+    /// `gmShopUI`, the vendor's panel (its requests wait in the panel).
+    pub shop: Option<ShopUi>,
+    /// `gmShopCatalogUI`, the storekeeper's catalog (its requests wait in the panel).
+    pub catalog: Option<CatalogUi>,
+    /// `gmShopNewSaleUI`, the consignment's new-sale dialog.
+    pub new_sale: Option<NewSaleUi>,
+    /// `gmShopConsignmentUI`, the storekeeper's consignment.
+    pub consignment: Option<ConsignmentUi>,
 }
 
 impl Hud {

@@ -89,25 +89,6 @@ impl HudView {
             chat: None,
             toolbar: None,
             shortcuts: None,
-            skills: None,
-            craft: None,
-            ingredient: None,
-            examination: None,
-            allegiance: None,
-            fellowship: None,
-            friends: None,
-            assistance: None,
-            social: None,
-            mini_fellow: None,
-            pets: None,
-            quests: None,
-            vitals: None,
-            effects: None,
-            vitae: None,
-            pk: None,
-            net: None,
-            backpack: None,
-            paper_doll: None,
             player_race: None,
             toolbar_layout: None,
             item_selection: 0,
@@ -116,16 +97,6 @@ impl HudView {
             game_dialogs: ac2_ui::GameplayDialogs::default(),
             popup_backlog: Vec::new(),
             display_backlog: Vec::new(),
-            stack: None,
-            external_container: None,
-            secure_trade: None,
-            character: None,
-            chat_options: None,
-            options: Default::default(),
-            shop: None,
-            catalog: None,
-            new_sale: None,
-            consignment: None,
             radar: None,
             radar_cell: None,
             radar_coordinates: None,
@@ -138,8 +109,6 @@ impl HudView {
             help: None,
             help_pages: None,
             story: None,
-            money: None,
-            items_3d: None,
             shift_held: false,
             gameplay_shown: true,
             story_hid_gameplay: None,
@@ -232,41 +201,41 @@ impl HudView {
                 if let Some(pets) = pets.as_mut() {
                     pets.show(&mut tree, true);
                 }
-                self.mini_fellow = mini_fellow;
-                self.pets = pets;
+                self.panels.mini_fellow = mini_fellow;
+                self.panels.pets = pets;
                 self.hud = Some((tree, images));
                 self.panels = ac2_ui::Hud::new(reticle, names, damage);
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
                 self.show_toolbar(true);
                 self.shortcuts = shortcuts;
-                self.skills = skills;
-                self.craft = craft;
-                self.ingredient = ingredient;
-                self.examination = examination;
-                self.allegiance = allegiance;
-                self.fellowship = fellowship;
-                self.friends = friends;
-                self.assistance = assistance;
-                self.social = social;
-                self.quests = quests;
-                self.vitals = Some(vitals);
-                self.effects = effects;
-                self.net = Some(indicators.net);
-                self.vitae = Some(indicators.vitae);
-                self.pk = Some(indicators.pk);
+                self.panels.skills = skills;
+                self.panels.craft = craft;
+                self.panels.ingredient = ingredient;
+                self.panels.examination = examination;
+                self.panels.allegiance = allegiance;
+                self.panels.fellowship = fellowship;
+                self.panels.friends = friends;
+                self.panels.assistance = assistance;
+                self.panels.social = social;
+                self.panels.quests = quests;
+                self.panels.vitals = Some(vitals);
+                self.panels.effects = effects;
+                self.panels.net = Some(indicators.net);
+                self.panels.vitae = Some(indicators.vitae);
+                self.panels.pk = Some(indicators.pk);
                 self.toolbar_layout = toolbar_layout;
                 self.dialogs = Some(dialogs);
-                self.stack = stack;
-                self.external_container = external_container;
-                self.secure_trade = secure_trade;
-                self.character = character;
-                self.chat_options = chat_options;
-                self.options.set_tables(ui_table, pref_table);
-                self.shop = shop;
-                self.catalog = catalog;
-                self.new_sale = new_sale;
-                self.consignment = consignment;
+                self.panels.stack = stack;
+                self.panels.external_container = external_container;
+                self.panels.secure_trade = secure_trade;
+                self.panels.character = character;
+                self.panels.chat_options = chat_options;
+                self.panels.options.set_tables(ui_table, pref_table);
+                self.panels.shop = shop;
+                self.panels.catalog = catalog;
+                self.panels.new_sale = new_sale;
+                self.panels.consignment = consignment;
                 self.radar = Some(radar);
                 self.navigation = navigation;
                 self.overview = overview;

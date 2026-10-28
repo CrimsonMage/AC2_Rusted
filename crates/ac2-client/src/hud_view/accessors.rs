@@ -7,7 +7,10 @@ use super::HudView;
 impl HudView {
     /// The skills panel's panel and selected skill.
     pub(crate) fn skills_current(&self) -> Option<(u32, u32)> {
-        self.skills.as_ref().map(ac2_ui::SkillTreeUi::current)
+        self.panels
+            .skills
+            .as_ref()
+            .map(ac2_ui::SkillTreeUi::current)
     }
 
     /// The text of the first element with id `name` (`IUIManager` lookup).
@@ -51,7 +54,7 @@ impl HudView {
     /// set them.
     pub(crate) fn net_indicator(&self) -> Option<(String, u32)> {
         let (tree, _) = self.hud.as_ref()?;
-        let net = self.net.as_ref()?;
+        let net = self.panels.net.as_ref()?;
         let field = net.field()?;
         Some((tree.tooltip_text(field)?, net.state(tree)?))
     }
@@ -66,7 +69,7 @@ impl HudView {
 
     /// The backpack's first page: each item and its slot's tooltip.
     pub(crate) fn backpack_items(&self) -> Vec<(u64, String)> {
-        let (Some((tree, _)), Some(pack)) = (&self.hud, &self.backpack) else {
+        let (Some((tree, _)), Some(pack)) = (&self.hud, &self.panels.backpack) else {
             return Vec::new();
         };
         pack.packs.first().map_or(Vec::new(), |page| {
@@ -79,7 +82,7 @@ impl HudView {
 
     /// The external container panel's container and items, while it shows one.
     pub(crate) fn external_container_items(&self) -> Option<(u64, Vec<u64>)> {
-        let display = self.external_container.as_ref()?.display()?;
+        let display = self.panels.external_container.as_ref()?.display()?;
         Some((
             display.container,
             display.items.iter().map(|d| d.item).collect(),
@@ -87,7 +90,7 @@ impl HudView {
     }
 
     pub(crate) fn allegiance_texts(&self) -> Vec<String> {
-        let (Some((tree, _)), Some(page)) = (&self.hud, &self.allegiance) else {
+        let (Some((tree, _)), Some(page)) = (&self.hud, &self.panels.allegiance) else {
             return Vec::new();
         };
         fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
@@ -108,7 +111,7 @@ impl HudView {
     }
 
     pub(crate) fn fellowship_rows(&self) -> Vec<(u64, String)> {
-        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.fellowship) else {
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.panels.fellowship) else {
             return Vec::new();
         };
         let name = ac2_ui::tokenize("FellowTemplateNameText");
@@ -126,7 +129,7 @@ impl HudView {
     }
 
     pub(crate) fn examination_texts(&self) -> Vec<String> {
-        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.examination) else {
+        let (Some((tree, _)), Some(panel)) = (&self.hud, &self.panels.examination) else {
             return Vec::new();
         };
         fn walk(tree: &UiTree, index: usize, out: &mut Vec<String>) {
@@ -212,7 +215,7 @@ impl HudView {
 
     /// The container `gmExternalContainerUI` waits to be placed over.
     pub(crate) fn external_container_position(&self) -> Option<u64> {
-        self.external_container.as_ref()?.wants_position()
+        self.panels.external_container.as_ref()?.wants_position()
     }
 
     /// The pointer as the UI last saw it, in window pixels.
@@ -233,7 +236,7 @@ impl HudView {
     /// The paper doll's viewport while it shows.
     pub(crate) fn doll_viewport(&self) -> Option<ac2_ui::SceneViewport> {
         let (tree, _) = self.hud.as_ref()?;
-        let root = self.paper_doll.as_ref()?.viewport()?;
+        let root = self.panels.paper_doll.as_ref()?.viewport()?;
         ac2_ui::scene_viewports(tree)
             .into_iter()
             .find(|v| v.root == root)
@@ -241,6 +244,6 @@ impl HudView {
 
     /// Where the paper doll waits for a pick, if it does.
     pub(crate) fn doll_wants_pick(&self) -> Option<(i32, i32)> {
-        self.paper_doll.as_ref()?.wants_pick()
+        self.panels.paper_doll.as_ref()?.wants_pick()
     }
 }

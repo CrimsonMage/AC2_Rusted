@@ -125,7 +125,7 @@ impl HudView {
             return Vec::new();
         }
         let messages = self.player_messages.clone();
-        let Some(panel) = self.ingredient.as_mut() else {
+        let Some(panel) = self.panels.ingredient.as_mut() else {
             return Vec::new();
         };
         let tree = match self.hud.as_mut() {

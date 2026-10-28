@@ -147,16 +147,20 @@ impl HudView {
     ) -> Reloads {
         let HudView {
             hud,
-            character,
             chat,
-            chat_options,
             dirty,
-            net,
             player_loaded,
             player_race,
             radar,
+            panels: state,
             ..
         } = self;
+        let ac2_ui::Hud {
+            character,
+            chat_options,
+            net,
+            ..
+        } = &mut *state;
         let Some((tree, _)) = hud else {
             return Reloads::default();
         };
@@ -321,23 +325,27 @@ impl HudView {
     fn init_pass(&mut self, player: &ClientPlayer<'_>, frame: &ClientFrame) {
         let HudView {
             hud,
+            item_selection,
+            player_loaded,
+            toolbar_layout,
+            panels: state,
+            ..
+        } = self;
+        let ac2_ui::Hud {
             allegiance,
             backpack,
             effects,
-            item_selection,
             items_3d,
             money,
             net,
             paper_doll,
             pk,
-            player_loaded,
             secure_trade,
             skills,
-            toolbar_layout,
             vitae,
             vitals,
             ..
-        } = self;
+        } = &mut *state;
         let Some((tree, _)) = hud else {
             return;
         };
@@ -391,11 +399,13 @@ impl HudView {
         doll_pick: Option<Option<u32>>,
     ) -> PassOut {
         let HudView {
-            hud,
+            hud, panels: state, ..
+        } = self;
+        let ac2_ui::Hud {
             friends,
             paper_doll,
             ..
-        } = self;
+        } = &mut *state;
         let Some((tree, _)) = hud else {
             return PassOut::default();
         };

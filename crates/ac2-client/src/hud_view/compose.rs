@@ -55,7 +55,7 @@ impl HudView {
             }
         }
         // `gmNetStatusUI::DrawBandwidthGraph`, over the status bar it sits in.
-        if let Some(net) = &self.net {
+        if let Some(net) = &self.panels.net {
             net.draw_bandwidth_graph(tree, &mut surfaces);
         }
         self.radar_uploaded = self.radar.as_ref().map(|radar| radar.pixels().to_vec());

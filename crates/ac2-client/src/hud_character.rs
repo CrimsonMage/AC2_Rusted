@@ -32,7 +32,7 @@ impl HudView {
     pub(crate) fn character_open(&mut self) {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
-            self.character.as_mut(),
+            self.panels.character.as_mut(),
             self.dialogs.as_mut(),
         ) else {
             return;
@@ -44,7 +44,7 @@ impl HudView {
     pub(crate) fn character_tick(&mut self, name: &str, on: bool) {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
-            self.character.as_mut(),
+            self.panels.character.as_mut(),
             self.dialogs.as_mut(),
         ) else {
             return;
@@ -57,7 +57,7 @@ impl HudView {
     pub(crate) fn character_press(&mut self, element_id: &str) {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
-            self.character.as_mut(),
+            self.panels.character.as_mut(),
             self.dialogs.as_mut(),
         ) else {
             return;
@@ -67,6 +67,6 @@ impl HudView {
 
     /// The options page's value of option `name`, as the page shows it.
     pub(crate) fn character_value(&self, name: &str) -> Option<f64> {
-        self.character.as_ref()?.value(name)
+        self.panels.character.as_ref()?.value(name)
     }
 }

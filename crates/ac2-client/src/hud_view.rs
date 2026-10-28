@@ -13,9 +13,9 @@ use std::sync::Arc;
 use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
-    ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayChild, GameplayHud, IngredientUi,
-    Modifiers, ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi,
-    UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
+    ChatRequest, ChatSettings, ChatUi, GameplayChild, GameplayHud, Modifiers, ReticleOutcome,
+    ReticleTarget, ShortcutUi, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
+    GAMEPLAY_SHOW_KEY,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -32,44 +32,11 @@ pub(crate) struct HudView {
     pub(crate) chat: Option<ChatUi>,
     pub(crate) toolbar: Option<ToolbarUi>,
     pub(crate) shortcuts: Option<ShortcutUi>,
-    pub(crate) skills: Option<SkillTreeUi>,
-    /// `gmCraftUI`: the craft panel on the skill toolbar.
-    pub(crate) craft: Option<CraftUi>,
-    /// `gmIngredientUI`: the ingredient panel of a recipe.
-    pub(crate) ingredient: Option<IngredientUi>,
-    pub(crate) examination: Option<ac2_ui::ExaminationUi>,
-    pub(crate) allegiance: Option<ac2_ui::AllegianceUi>,
-    pub(crate) fellowship: Option<ac2_ui::FellowshipUi>,
-    /// `gmFriendsUI`: the friends page of the social toolbar.
-    pub(crate) friends: Option<ac2_ui::FriendsPanel>,
-    /// `gmAssistanceUI`: the assistance page of the option toolbar.
-    pub(crate) assistance: Option<ac2_ui::AssistancePanel>,
-    /// `gmSocialUI`: the social panel's buttons.
-    pub(crate) social: Option<ac2_ui::SocialPanel>,
-    /// `gmMiniFellowUI`: the fellowship mini panel on the HUD.
-    pub(crate) mini_fellow: Option<ac2_ui::MiniFellowUi>,
-    /// `gmPetUI`: the pet panel on the HUD.
-    pub(crate) pets: Option<ac2_ui::PetUi>,
-    /// `gmQuestsUI`: the Quest panel and its quest journal.
-    pub(crate) quests: Option<ac2_ui::QuestsUi>,
-    pub(crate) vitals: Option<ac2_ui::VitalsUi>,
-    pub(crate) effects: Option<ac2_ui::EffectsUi>,
-    pub(crate) vitae: Option<ac2_ui::VitaeStatusUi>,
-    /// `gmPKStatusUI`, the PK indicator, fed by `CM_Character::SendNotice_UpdateFactionStatus`.
-    pub(crate) pk: Option<ac2_ui::PkStatusUi>,
-    /// `gmNetStatusUI`, the net indicator, fed by each world heartbeat's link averages.
-    pub(crate) net: Option<ac2_ui::NetStatusUi>,
-    /// `gmInventoryUI`'s backpack, made once the player is in the world, over this layout.
-    pub(crate) backpack: Option<ac2_ui::BackpackUi>,
-    /// `gmInventoryUI`'s paper doll, made with the backpack.
-    pub(crate) paper_doll: Option<ac2_ui::PaperDollUi>,
     /// The player's race (int 290) as the frameworks last read it (the doll's height).
     pub(crate) player_race: Option<i32>,
     pub(crate) toolbar_layout: Option<Arc<ac2_ui::LayoutDesc>>,
     /// The selection the item slots last saw.
     pub(crate) item_selection: u64,
-    /// `gm3DItemsUI`, made with the backpack.
-    pub(crate) items_3d: Option<ac2_ui::Items3dUi>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// `gmGamePlayUI::m_shown`: the HUD is shown (`gmGamePlayUI::Show`, the `0x4100000C` key).
     pub(crate) gameplay_shown: bool,
@@ -91,26 +58,6 @@ pub(crate) struct HudView {
     /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
     /// so these wait for the HUD rather than being dropped.
     pub(crate) display_backlog: Vec<ac2_ui::DisplayNotice>,
-    /// `gmStackUI`.
-    pub(crate) stack: Option<ac2_ui::StackUi>,
-    /// `gmExternalContainerUI`.
-    pub(crate) external_container: Option<ac2_ui::ExternalContainerUi>,
-    /// `gmSecureTradeUI`, hidden until a trade opens (its requests wait in the panel).
-    pub(crate) secure_trade: Option<ac2_ui::SecureTradeUi>,
-    /// `gmCharacterUI`, the character options page (its requests wait in the page).
-    pub(crate) character: Option<ac2_ui::CharacterUi>,
-    /// `gmChatOptionsUI`, the chat options page (its requests wait in the page).
-    pub(crate) chat_options: Option<ac2_ui::ChatOptionsUi>,
-    /// `gmClientUI`, the client options page, and the effects its applies left.
-    pub(crate) options: ac2_ui::OptionsPages,
-    /// `gmShopUI`, the vendor's panel (its requests wait in the panel).
-    pub(crate) shop: Option<ac2_ui::ShopUi>,
-    /// `gmShopCatalogUI`, the storekeeper's catalog (its requests wait in the panel).
-    pub(crate) catalog: Option<ac2_ui::CatalogUi>,
-    /// `gmShopNewSaleUI`, the consignment's new-sale dialog (its requests wait in the panel).
-    pub(crate) new_sale: Option<ac2_ui::NewSaleUi>,
-    /// `gmShopConsignmentUI`, the storekeeper's consignment (its requests wait in the panel).
-    pub(crate) consignment: Option<ac2_ui::ConsignmentUi>,
     /// `gmRadarUI`'s blips, painted over the radar field each compose.
     pub(crate) radar: Option<ac2_ui::RadarUi>,
     /// The player's cell and its map coordinates as the radar shows them (rendered by the
@@ -136,8 +83,6 @@ pub(crate) struct HudView {
     pub(crate) help_pages: Option<ac2_ui::HelpPages>,
     /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
     pub(crate) story: Option<ac2_ui::StoryView>,
-    /// `gmMoneyBagUI`, made with the backpack.
-    pub(crate) money: Option<ac2_ui::MoneyBagUi>,
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
     /// frame's input last said.
     pub(crate) shift_held: bool,
@@ -393,10 +338,10 @@ impl HudView {
         if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
             toolbar.show(tree, child, shown);
             // `gmQuestsUI::Show` when the Quest child changed.
-            if let Some(quests) = self.quests.as_mut() {
+            if let Some(quests) = self.panels.quests.as_mut() {
                 quests.sync(tree, toolbar.shown(tree, ToolbarChild::Quest));
             }
-            if let Some(doll) = &self.paper_doll {
+            if let Some(doll) = &self.panels.paper_doll {
                 doll.follow_panel(tree);
             }
             self.dirty = true;
@@ -447,7 +392,7 @@ impl HudView {
         // `UIMESSAGE_GLOBAL_LOOP`: the meters move and the chat windows write what arrived.
         if let Some((tree, _)) = &mut self.hud {
             tree.global_loop(now);
-            if let Some(doll) = &self.paper_doll {
+            if let Some(doll) = &self.panels.paper_doll {
                 doll.follow_panel(tree);
             }
             // `gmShortcutUI::UpdateTimeLeft`: the skills on reset fill their slots' meters.
@@ -517,7 +462,8 @@ impl HudView {
 
     /// `gmExternalContainerUI::PositionWindow` with the container's projected centre.
     pub(crate) fn position_external_container(&mut self, clip: Option<[f32; 2]>) {
-        if let (Some((tree, _)), Some(panel)) = (&mut self.hud, &mut self.external_container) {
+        if let (Some((tree, _)), Some(panel)) = (&mut self.hud, &mut self.panels.external_container)
+        {
             panel.position_window_clip(tree, clip);
             self.dirty = true;
         }

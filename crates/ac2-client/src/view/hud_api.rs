@@ -125,7 +125,7 @@ impl ClientView {
 
     /// The secure trade panel: whether it shows, the player's offers and the partner's.
     pub fn trade(&self) -> Option<(bool, Vec<u64>, Vec<u64>)> {
-        let panel = self.hud.secure_trade.as_ref()?;
+        let panel = self.hud.panels.secure_trade.as_ref()?;
         Some((panel.is_shown(), panel.own_items(), panel.partner_items()))
     }
 
@@ -195,7 +195,7 @@ impl ClientView {
 
     /// The item the paper doll shows worn at an inventory location.
     pub fn paper_doll_item(&self, location: u32) -> Option<u64> {
-        self.hud.paper_doll.as_ref()?.item_at(location)
+        self.hud.panels.paper_doll.as_ref()?.item_at(location)
     }
 
     /// Shows or hides a toolbar panel, as its button does.

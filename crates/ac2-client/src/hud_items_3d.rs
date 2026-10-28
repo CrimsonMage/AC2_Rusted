@@ -14,7 +14,7 @@ use crate::ui_sources::ClientPlayer;
 impl HudView {
     /// The window pixel a target search waits at (`gm3DItemsUI::StartFind3DTarget`), if one does.
     pub(crate) fn world_pick_point(&self) -> Option<(i32, i32)> {
-        self.items_3d.as_ref()?.wants_pick()?;
+        self.panels.items_3d.as_ref()?.wants_pick()?;
         Some(self.pointer())
     }
 
@@ -31,7 +31,7 @@ impl HudView {
         let Some(strings) = self.strings.clone() else {
             return commands;
         };
-        let Some(items) = self.items_3d.as_mut() else {
+        let Some(items) = self.panels.items_3d.as_mut() else {
             return commands;
         };
         let Some((tree, _)) = self.hud.as_mut() else {
@@ -49,7 +49,7 @@ impl HudView {
             crate::ui_inventory::item_request(
                 request,
                 tree,
-                self.stack.as_mut(),
+                self.panels.stack.as_mut(),
                 &player,
                 &mut commands,
             );

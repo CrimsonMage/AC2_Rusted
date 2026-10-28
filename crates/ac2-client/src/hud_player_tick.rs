@@ -23,32 +23,36 @@ impl HudView {
     ) -> PassOut {
         let HudView {
             hud,
+            chat,
+            death,
+            dialogs,
+            display_backlog,
+            game_dialogs,
+            popup_backlog,
+            shortcuts,
+            toolbar,
+            panels: state,
+            ..
+        } = self;
+        let ac2_ui::Hud {
             allegiance,
             assistance,
             catalog,
             character,
-            chat,
             chat_options,
             consignment,
-            death,
-            dialogs,
-            display_backlog,
             examination,
             fellowship,
-            game_dialogs,
-            popup_backlog,
             money,
             new_sale,
             options,
             pets,
             secure_trade,
             shop,
-            shortcuts,
             skills,
             stack,
-            toolbar,
             ..
-        } = self;
+        } = &mut *state;
         let Some((tree, _)) = hud else {
             return PassOut::default();
         };
