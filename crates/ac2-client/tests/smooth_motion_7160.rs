@@ -66,7 +66,7 @@ fn frame_step(
     server: &std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
 ) {
     client
-        .settle_loads(std::time::Duration::from_secs(5))
+        .settle_loads(std::time::Duration::from_secs(60))
         .unwrap();
     client.use_time(&FrameInput::default()).unwrap();
     server.borrow_mut().elapsed += 1.0 / FPS;

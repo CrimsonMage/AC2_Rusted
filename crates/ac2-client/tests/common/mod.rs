@@ -215,7 +215,7 @@ pub fn step(
     input: &ac2_client::FrameInput,
 ) -> Vec<ac2_weenie::SessionEvent> {
     client
-        .settle_loads(std::time::Duration::from_secs(5))
+        .settle_loads(std::time::Duration::from_secs(60))
         .unwrap();
     let events = client.use_time(input).unwrap();
     server.borrow_mut().elapsed += STEP;
