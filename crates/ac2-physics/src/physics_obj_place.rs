@@ -98,6 +98,7 @@ impl PhysicsObj {
             self.position = p;
             self.prev_position = p;
             self.anim_position = p;
+            self.update_cell_material(terrain);
             return SetPositionError::Ok;
         }
         let mut transition = Transition::new(&object, Some(cell), None, p);
@@ -118,7 +119,24 @@ impl PhysicsObj {
         self.set_position_internal(&transition);
         self.prev_position = self.position;
         self.anim_position = self.position;
+        self.update_cell_material(terrain);
         SetPositionError::Ok
+    }
+
+    /// `CPhysicsObj::UpdateCellMaterial` (`SetPositionInternal`, `ForceIntoCell`): the material
+    /// of the cell the body stands in, an interior cell's or the landscape vertex's, sets the
+    /// body's gravity (`UpdateGravity`). The collision manager's environmental properties are
+    /// the report's (`PhysicsBody::contact_materials`).
+    fn update_cell_material(&mut self, terrain: &Terrain) {
+        let position = self.position;
+        let material = if is_outside(position.cell_id) {
+            terrain.land_physics_material(&position)
+        } else {
+            terrain.env_physics_material(position.cell_id)
+        };
+        if let Some(material) = material {
+            self.update_gravity(Some(&material));
+        }
     }
 
     /// `CPhysicsObj::CheckPositionInternal`: a placement there; without sliding the result must

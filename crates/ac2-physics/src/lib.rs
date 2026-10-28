@@ -18,6 +18,7 @@ mod body;
 mod body_anim_tests;
 mod bsp;
 mod cells;
+mod children;
 mod collide_property;
 mod collision_impact;
 #[cfg(test)]
@@ -92,6 +93,10 @@ pub use body::{
 };
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
+pub use children::{
+    holding_matrix, update_child_frame, ChildGraph, ChildInfo, ChildList, ChildType,
+    HOLDING_LOCATION_ORIGIN,
+};
 pub use collide_property::{CollideProperty, CollideType, PropertyDescs, TERRAIN_TYPE_PROPERTY};
 pub use collision_impact::ImpactReport;
 pub use collision_report::{
@@ -102,7 +107,9 @@ pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use fx_follow::{follow_frame, placed_at, FxFollow};
 pub use heading::Heading;
-pub use held::{held_place, placement_order, HoldPoint};
+pub use held::{
+    find_holding_point, has_holding_location, held_place, placement_order, GroupHolding, HoldPoint,
+};
 pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,
     load_object_shape, load_terrain_block,

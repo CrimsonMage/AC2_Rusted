@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 
-use ac2_anim::{Ac2Location, Ac2Setup};
+use ac2_anim::Ac2Setup;
 use ac2_core::{CellId, DataId};
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
@@ -36,13 +36,7 @@ impl AsRef<ac2_smartbox::BodyData> for BodyData {
     }
 }
 
-/// A Setup holding location (`CSetup`'s `LocationType` list) and the part group whose Setup lists
-/// it: the group's index in the visual's drawn groups.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct GroupHolding {
-    pub group: usize,
-    pub location: Ac2Location,
-}
+pub use ac2_physics::GroupHolding;
 
 /// The world data the client reads, shared with its loader threads: the residency reads
 /// (`ac2_smartbox::ResidentWorld`), the script and audio reads ([`WorldServices`]) and the

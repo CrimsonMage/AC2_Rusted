@@ -16,6 +16,33 @@ pub struct HoldPoint {
     pub transform: ac2_anim::Ac2Transform,
 }
 
+/// A Setup holding location (`CSetup`'s `LocationType` list) and the part group whose Setup lists
+/// it: the group's index in the visual's drawn groups.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct GroupHolding {
+    pub group: usize,
+    pub location: ac2_anim::Ac2Location,
+}
+
+/// `PHYSICSOBJREP::HasHoldingLocation` (`CPartGroup::HasHoldingLocation`): any group lists the
+/// location. `holding` is in the groups' search order (`ac2_assets::holding_search_order`).
+pub fn has_holding_location(holding: &[GroupHolding], location: u32) -> bool {
+    holding.iter().any(|entry| entry.location.id == location)
+}
+
+/// `PHYSICSOBJREP::GetHoldingLocation` (`CPartGroup::GetHoldingLocation`): the first entry for
+/// `location` in the groups' search order, as the point `UpdateChild` places a child at.
+pub fn find_holding_point(holding: &[GroupHolding], location: u32) -> Option<HoldPoint> {
+    holding
+        .iter()
+        .find(|entry| entry.location.id == location)
+        .map(|entry| HoldPoint {
+            group: entry.group,
+            bone: entry.location.bone,
+            transform: entry.location.transform,
+        })
+}
+
 /// The order `follow_holders` places held objects in: each object after the object that holds it
 /// (`holder_of[i]`, an index into the same list), so a held object that holds another is placed
 /// before the object it holds (`CPhysicsObj::UpdateChild` runs on the holder first). A cycle is
@@ -49,11 +76,8 @@ pub fn held_place(
     bone: Ac2Transform,
     point: &HoldPoint,
 ) -> Frame {
-    let at = bone.compose(&point.transform);
-    Frame::new(
-        holder.origin + holder.orientation * (at.offset * holder_scale),
-        (holder.orientation * at.rotation).normalize(),
-    )
+    let info = crate::children::ChildInfo::holding(0, 0);
+    crate::children::update_child_frame(holder, holder_scale, &info, bone.compose(&point.transform))
 }
 
 #[cfg(test)]
@@ -63,7 +87,27 @@ mod tests {
     use ac2_anim::Ac2Transform;
     use ac2_math::{Frame, Quat, Vec3};
 
-    use super::{held_place, placement_order, HoldPoint};
+    use super::{
+        find_holding_point, has_holding_location, held_place, placement_order, GroupHolding,
+        HoldPoint,
+    };
+
+    #[test]
+    fn the_first_group_listing_a_location_supplies_it() {
+        let at = |group, id, bone| GroupHolding {
+            group,
+            location: ac2_anim::Ac2Location {
+                id,
+                bone,
+                transform: Ac2Transform::IDENTITY,
+            },
+        };
+        let holding = [at(0, 5, 1), at(1, 5, 2), at(1, 6, 3)];
+        assert!(has_holding_location(&holding, 6) && !has_holding_location(&holding, 7));
+        let point = find_holding_point(&holding, 5).expect("listed");
+        assert_eq!((point.group, point.bone), (0, 1));
+        assert!(find_holding_point(&holding, 7).is_none());
+    }
 
     fn translated(offset: Vec3) -> Ac2Transform {
         Ac2Transform {

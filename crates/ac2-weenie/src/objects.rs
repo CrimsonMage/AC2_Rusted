@@ -131,15 +131,31 @@ impl RemoteObject {
 #[derive(Debug, Default)]
 pub struct ObjectTable {
     objects: BTreeMap<u64, RemoteObject>,
+    /// `CPhysicsObj::m_pParent` and `m_pChildren` of every object (the physics child lists).
+    links: ac2_physics::ChildGraph,
 }
 
 impl ObjectTable {
     pub(crate) fn insert(&mut self, object: RemoteObject) {
-        self.objects.insert(object.id, object);
+        let id = object.id;
+        self.links.unset_parent(id);
+        if let Some((holder, location)) = object.parent {
+            self.links.set_parent(id, holder, location, true);
+        }
+        self.objects.insert(id, object);
     }
 
+    /// `CPhysicsObj::~CPhysicsObj`'s unparenting: the object leaves its parent and releases its
+    /// children.
     pub(crate) fn remove(&mut self, id: u64) {
+        self.links.unparent_children(id);
+        self.links.unset_parent(id);
         self.objects.remove(&id);
+    }
+
+    /// The physics child lists (`CPhysicsObj::m_pParent`, `m_pChildren`).
+    pub fn links(&self) -> &ac2_physics::ChildGraph {
+        &self.links
     }
 
     /// `CPhysicsObj::RecvEvt_Position`'s bookkeeping: only a newer position stamp with a cell
@@ -198,6 +214,7 @@ impl ObjectTable {
             }
             object.parent = None;
             object.position = None;
+            self.links.unset_parent(child.id);
             return Some(child.id);
         }
         let object = self.objects.get_mut(&id)?;
@@ -214,6 +231,9 @@ impl ObjectTable {
                     object.orientation = Some(*orientation);
                     object.position = None;
                     object.contained = false;
+                    // `CPhysicsObj::set_parent`: the holder's child list takes the object (the
+                    // holder's Setup is not asked: its body may still be loading).
+                    self.links.set_parent(id, parent.id, *location, true);
                 }
             }
             // `CWPhysicsObject::RecvEvt_UpdateVisualDesc`: `SetLocalVisualDesc(delta)` replaces
@@ -229,6 +249,7 @@ impl ObjectTable {
                 if !is_player && Self::newer_then_update(object, STAMP_POSITION, *stamp) {
                     object.parent = None;
                     object.position = None;
+                    self.links.unset_parent(id);
                     return Some(id);
                 }
             }
@@ -255,16 +276,13 @@ impl ObjectTable {
         object.parent = None;
         object.position = None;
         object.contained = true;
+        self.links.unset_parent(child.id);
         true
     }
 
     /// The objects held by `id` (`CPhysicsObj::m_children`).
     pub(crate) fn children(&self, id: u64) -> Vec<u64> {
-        self.objects
-            .values()
-            .filter(|o| o.parent.is_some_and(|(holder, _)| holder == id))
-            .map(|o| o.id)
-            .collect()
+        self.links.children_of(id).map(|c| c.id).collect()
     }
 
     /// `CWRepository::SetQualities`: the player description replaces the object's qualities.
@@ -302,6 +320,7 @@ impl ObjectTable {
     }
 
     pub fn clear(&mut self) {
+        self.links = Default::default();
         self.objects.clear();
     }
 }
@@ -374,6 +393,36 @@ mod tests {
         assert!(!typed(Some(0x4F)));
         assert!(!typed(Some(0x0F)));
         assert!(!typed(None));
+    }
+
+    #[test]
+    fn a_parented_object_is_in_its_holders_child_list_until_it_leaves() {
+        use ac2_net::protocol::ObjectAction;
+        let mut table = ObjectTable::default();
+        table.insert(object());
+        let parent = InstanceIdWithStamp {
+            id: 5,
+            instance: 1,
+            other: 11,
+        };
+        let action = ObjectAction::Parent {
+            parent,
+            location: 3,
+            orientation: 0,
+        };
+        table.apply_action(9, &action, false);
+        assert_eq!(table.links().parent_of(9), Some(5));
+        assert_eq!(table.children(5), vec![9]);
+        assert_eq!(table.links().info_of(9).map(|c| c.location), Some(3));
+        // The same stamp is not newer: nothing changes, and a leave-world unparents.
+        table.apply_action(9, &ObjectAction::LeaveWorld(12), false);
+        assert!(!table.links().has_parent(9) && table.children(5).is_empty());
+        table.apply_action(9, &action, false);
+        table.remove(5);
+        assert!(
+            !table.links().has_parent(9),
+            "a removed holder releases its children"
+        );
     }
 
     #[test]

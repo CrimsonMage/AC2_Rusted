@@ -22,6 +22,82 @@ const IN_WORKSPACE_PS: u32 = 0x1000_0000;
 /// `CPhysicsObj::IsMoving`: the squared speed above which a body counts as moving.
 const MOVING_SPEED_SQUARED: f32 = 0.0002;
 
+impl PhysicsBody {
+    /// `CPhysicsObj::ApplyPropertyCollection`: the description's property groups applied to the
+    /// body (the blocking mask, the physics material, the graphics state, the game-draw bit),
+    /// the properties kept for `InqCurrentProperties`. True when every property applied.
+    pub fn apply_property_collection(&mut self, groups: &[ac2_db::Ac2PropertyGroup]) -> bool {
+        self.object.apply_property_collection(groups)
+    }
+
+    /// `CPhysicsObj::InqCurrentProperties`: the properties `ApplyPropertyCollection` kept.
+    pub fn current_properties(&self) -> &[ac2_db::Ac2PropertyGroup] {
+        &self.object.property_info
+    }
+
+    /// `CPhysicsObj::m_physics_material`: the physics material DID the physics property named.
+    pub fn physics_material_id(&self) -> u32 {
+        self.object.physics_material
+    }
+
+    /// `CPhysicsObj::GetGraphicsState`: every bit of `state` is set.
+    pub fn graphics_state(&self, state: u32) -> bool {
+        self.object.graphics_state & state == state
+    }
+
+    /// `CPhysicsObj::SetGraphicsState`.
+    pub fn set_graphics_state(&mut self, state: u32, enable: bool) {
+        self.object.set_graphics_state(state, enable);
+    }
+
+    /// `CPhysicsObj::UpdateGravity`: the body's local gravity from a cell's material (the
+    /// `0x80000001` vector property). See `PhysicsObj::update_gravity` for the result.
+    pub fn update_gravity(&mut self, material: Option<&crate::PhysicsMaterial>) -> bool {
+        self.object.update_gravity(material)
+    }
+
+    /// `CPhysicsObj::clear_transient_states`, run when the body leaves the world.
+    pub fn clear_transient_states(&mut self) {
+        self.object.clear_transient_states();
+    }
+
+    /// `CPhysicsObj::animation_can_be_inactive`: the body is not in the world's object lists.
+    pub fn animation_can_be_inactive(&self) -> bool {
+        self.object
+            .animation_can_be_inactive(self.object.world_id.is_some())
+    }
+
+    /// `CPhysicsObj::movement_can_be_inactive`; `has_parent` is the body's `HasParent` (the
+    /// child graph holds the parent link) and `has_missile_manager` its `HasMissileManager`.
+    pub fn movement_can_be_inactive(&self, has_parent: bool, has_missile_manager: bool) -> bool {
+        self.object.movement_can_be_inactive(
+            self.object.world_id.is_some(),
+            has_parent,
+            has_missile_manager,
+        )
+    }
+
+    /// `CPhysicsObj::misc_can_be_inactive`; the caller answers `CCollisionManager::IsEmpty` and
+    /// `CDetectionManager::IsActive`.
+    pub fn misc_can_be_inactive(
+        &self,
+        collision_manager_empty: bool,
+        detection_active: bool,
+    ) -> bool {
+        self.object.misc_can_be_inactive(
+            self.object.world_id.is_some(),
+            self.object.state & IN_WORKSPACE_PS != 0,
+            collision_manager_empty,
+            detection_active,
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) fn object_mut(&mut self) -> &mut PhysicsObj {
+        &mut self.object
+    }
+}
+
 impl PhysicsObj {
     fn set_state_bit(&mut self, bit: u32, on: bool) {
         if on {

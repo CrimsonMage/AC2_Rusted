@@ -122,6 +122,12 @@ pub(crate) struct PhysicsObj {
     /// `CPhysicsObj::m_fHeadX` and `m_fHeadZ`: the head direction a server `LookAtDir` sent.
     pub(crate) head_x: f32,
     pub(crate) head_z: f32,
+    /// `CPhysicsObj::m_pPropertyInfo`: the properties `ApplyPropertyCollection` kept.
+    pub(crate) property_info: Vec<ac2_db::Ac2PropertyGroup>,
+    /// `CPhysicsObj::m_physics_material`: the physics material DID the physics property named.
+    pub(crate) physics_material: u32,
+    /// `CPhysicsObj::m_nGraphicsState`.
+    pub(crate) graphics_state: u32,
     /// `CSetup::radius` (unscaled), for move-to distances.
     pub setup_radius: f32,
     /// `CMotionInterp::mMoveToManager`.
@@ -161,6 +167,9 @@ impl PhysicsObj {
             omega: Vector::ZERO,
             omega_acceleration: Vector::ZERO,
             local_gravity: GRAVITY,
+            property_info: Vec::new(),
+            physics_material: 0,
+            graphics_state: 0,
             distance_cap_2d: -1.0,
             velocity_rail: None,
             clamp_heading: None,
@@ -605,3 +614,9 @@ mod anim;
 mod impulse;
 
 pub use anim::DescSlider;
+
+#[path = "physics_obj_state.rs"]
+mod state;
+
+#[path = "physics_obj_property.rs"]
+mod property;

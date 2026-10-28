@@ -276,7 +276,7 @@ impl PhysicsObj {
     }
 
     /// `PHYSICSOBJREP::LeaveGround` -> `CMotionInterp::LeaveGround`.
-    fn leave_ground(&mut self) {
+    pub(crate) fn leave_ground(&mut self) {
         let local = self.position.frame.global_to_local_vec(self.velocity);
         self.motion.leave_ground(local, &mut self.anim);
     }

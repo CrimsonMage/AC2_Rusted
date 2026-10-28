@@ -309,6 +309,7 @@ impl Client {
     /// the server's last position (held and contained objects have neither and are left out).
     pub(crate) fn object_frames(&self) -> Vec<ObjectFrame> {
         let player_id = self.player.as_ref().map(|p| p.id);
+        let links = self.session.objects().links();
         self.session
             .objects()
             .iter()
@@ -316,12 +317,17 @@ impl Client {
             .filter_map(|o| {
                 let remote = self.remotes.get(o.id);
                 let body = remote.and_then(|r| r.body());
-                let held = o.parent.map(|(id, location)| Holder {
-                    id,
-                    location,
-                    orientation: o.orientation,
-                    point: self.holding_point(id, location),
-                });
+                // The holder and location are the physics child list's
+                // (`CPhysicsObj::m_pParent`, `CHILDINFO::m_locationID`).
+                let held = links
+                    .parent_of(o.id)
+                    .zip(links.info_of(o.id))
+                    .map(|(id, info)| Holder {
+                        id,
+                        location: info.location,
+                        orientation: o.orientation,
+                        point: self.holding_point(id, info.location),
+                    });
                 let in_world = remote.is_some_and(|r| r.in_world());
                 // Contained objects are in an inventory; only placed, held or in-world ones
                 // are listed.
@@ -375,17 +381,8 @@ impl Client {
     /// from the holder's loaded Setup. `None` while its body is not in, or the Setup lacks it.
     fn holding_point(&self, holder: u64, location: u32) -> Option<HoldPoint> {
         let visual = self.session.objects().get(holder)?.visual;
-        let point = self
-            .remotes
-            .body_data(visual)?
-            .holding
-            .iter()
-            .find(|point| point.location.id == location)?;
-        Some(HoldPoint {
-            group: point.group,
-            bone: point.location.bone,
-            transform: point.location.transform,
-        })
+        let body = self.remotes.body_data(visual)?;
+        ac2_physics::find_holding_point(&body.holding, location)
     }
 
     /// The objects the client made for FX (`CObjectMaint::CreateTemporaryObject`), once their body
