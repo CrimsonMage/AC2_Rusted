@@ -2049,7 +2049,7 @@ Legend and workflow: [README](README.md).
 ### CPartArray
 - [-] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — render plumbing
 - [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-- [~] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
+- [~] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 
 ### SmartArray<PSystemInstance>
 - [-] `SmartArray<PSystemInstance>::AddToEnd` · 004f0190 · legions 004e2ad0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -2550,7 +2550,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660 — render plumbing
 - [x] `CPhysicsObj::JumpLogic` · 004e56e0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — FX children only: the view places each attached FX object on its emitter's posed bone or holding point every frame (view/fx_follow.rs follow_emitters). Other children, and the physics frame of FX children, are not updated per frame.
+- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
@@ -2825,7 +2825,7 @@ Legend and workflow: [README](README.md).
 - [~] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — the named bone an FX attach point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 - [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — needs port: cite-only physics-object method
-- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — the root bone an FX holding point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed root bones); the holding transform comes from the Setup, resolved once on the loader (ac2-assets object_attach). Root Setup holding points only.
+- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 - [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetSphere` · 004f1e10 — needs port: cite-only physics-object method

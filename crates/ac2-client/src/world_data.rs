@@ -5,8 +5,10 @@
 
 use std::sync::Arc;
 
+use ac2_anim::{Ac2Location, Ac2Setup};
 use ac2_core::{CellId, DataId};
-use ac2_db::ResourceStore;
+use ac2_dat::DatFileKind;
+use ac2_db::{ResourceStore, TypedResourceRef};
 use ac2_physics::{load_object_scale, load_object_shape, BodyShape, ObjectShape, Terrain, Vector};
 use ac2_world::{Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
 
@@ -29,6 +31,9 @@ pub struct BodyData {
     /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
     /// and its root scale, when it has any: the object other movers collide with.
     pub object: Option<(Arc<ObjectShape>, Vector)>,
+    /// The root Setup's holding locations (`CSetup`'s `LocationType` list), which the objects
+    /// held by this one hang from (`CPartArray::GetHoldingLocation`); empty without a Setup.
+    pub holding: Arc<[Ac2Location]>,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -209,7 +214,26 @@ pub(crate) fn load_body_data(
             .map_err(|e| e.to_string())?
             .filter(|table| !table.is_empty())
             .map(Arc::new),
+        holding: load_holding_locations(store, visual)?,
     })
+}
+
+/// The root Setup's holding locations for `visual` (`CSetup`'s holding list), read on the loader
+/// thread. A visual with no part groups or no Setup has none.
+fn load_holding_locations(
+    store: &Arc<ResourceStore>,
+    visual: DataId,
+) -> Result<Arc<[Ac2Location]>, String> {
+    let groups = ac2_render::object::resolve_drawn_groups(store, visual, None)
+        .ok()
+        .flatten();
+    let Some(root) = groups.as_ref().and_then(|g| g.first()).map(|g| g.setup) else {
+        return Ok(Arc::from([]));
+    };
+    let setup = store
+        .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(DatFileKind::Portal, root, 0))
+        .map_err(|e| e.to_string())?;
+    Ok(setup.map_or_else(|| Arc::from([]), |setup| Arc::clone(&setup.holding_points)))
 }
 
 /// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them

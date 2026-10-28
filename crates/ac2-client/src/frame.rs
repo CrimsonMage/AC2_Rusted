@@ -85,13 +85,25 @@ pub struct FxFollow {
 }
 
 /// Where a held object hangs.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Holder {
     pub id: u64,
     /// The holder's holding location (`PhysicsDesc` location / `RecvEvt_Parent`).
     pub location: u32,
     /// The placement frame the held object takes there (`SetPlacementFrame`).
     pub orientation: Option<u32>,
+    /// The holder's Setup holding location (`CPartArray::GetHoldingLocation`): the root bone it
+    /// rides and its transform. `None` while the holder's body is not loaded, so the object has
+    /// no place to be drawn at.
+    pub point: Option<HoldPoint>,
+}
+
+/// A Setup holding location (`LocationType`): the root bone it rides and its transform in that
+/// bone's space.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HoldPoint {
+    pub bone: usize,
+    pub transform: ac2_anim::Ac2Transform,
 }
 
 /// One object on the radar (`gmRadarUI::RadarInfo`): its look, and where it is from the player.

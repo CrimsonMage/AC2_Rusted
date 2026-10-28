@@ -8,7 +8,7 @@ use ac2_weenie::SessionEvent;
 
 use crate::cells::BlockChange;
 use crate::client::Client;
-use crate::frame::{Holder, ObjectFrame};
+use crate::frame::{HoldPoint, Holder, ObjectFrame};
 use crate::loader::Request;
 use crate::remote::Context;
 use crate::world_data::BodyData;
@@ -320,6 +320,7 @@ impl Client {
                     id,
                     location,
                     orientation: o.orientation,
+                    point: self.holding_point(id, location),
                 });
                 let in_world = remote.is_some_and(|r| r.in_world());
                 // Contained objects are in an inventory; only placed, held or in-world ones
@@ -368,6 +369,22 @@ impl Client {
             })
             .chain(self.local_object_frames())
             .collect()
+    }
+
+    /// `PHYSICSOBJREP::GetHoldingLocation`: holding location `location` of the object `holder`,
+    /// from the holder's loaded Setup. `None` while its body is not in, or the Setup lacks it.
+    fn holding_point(&self, holder: u64, location: u32) -> Option<HoldPoint> {
+        let visual = self.session.objects().get(holder)?.visual;
+        let point = self
+            .remotes
+            .body_data(visual)?
+            .holding
+            .iter()
+            .find(|point| point.id == location)?;
+        Some(HoldPoint {
+            bone: point.bone,
+            transform: point.transform,
+        })
     }
 
     /// The objects the client made for FX (`CObjectMaint::CreateTemporaryObject`), once their body

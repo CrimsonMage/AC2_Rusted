@@ -277,7 +277,8 @@ fn wielding_containing_and_the_weenie_container_follow_the_events() {
         Some(Holder {
             id: NPC,
             location: 2,
-            orientation: Some(5)
+            orientation: Some(5),
+            point: None,
         })
     );
     assert!(!sword.in_world);

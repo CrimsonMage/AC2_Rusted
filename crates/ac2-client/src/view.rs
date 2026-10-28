@@ -20,13 +20,14 @@ use ac2_render::Camera;
 use ac2_weenie::Appearance;
 use ac2_world::Ac2WorldSource;
 
-use crate::frame::{ClientFrame, FxFollow};
+use crate::frame::{ClientFrame, FxFollow, HoldPoint};
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
 use self::overlays::radar_view;
 
 mod fx_follow;
+mod held;
 mod hud_api;
 mod object_fx;
 mod overlays;
@@ -55,6 +56,9 @@ struct Drawn<'a> {
     /// The emitter and attach point of an FX object that hangs from one: it is placed on the
     /// emitter's posed bone each frame.
     follow: Option<FxFollow>,
+    /// The holder's id and the holding location the object hangs from: it is placed there each
+    /// frame (`CPhysicsObj::UpdateChild`).
+    held: Option<(u64, HoldPoint)>,
 }
 
 /// The view's state.
@@ -110,12 +114,18 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             pose: &p.pose,
             tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
             follow: None,
+            held: None,
         })
     });
     let others = frame
         .objects
         .iter()
-        .filter(|o| o.in_world && o.holder.is_none())
+        .filter(|o| match o.holder {
+            // A held object is drawn at its holder's holding location, once the holder's Setup
+            // has it; it is in no world cell of its own.
+            Some(holder) => holder.point.is_some(),
+            None => o.in_world,
+        })
         .filter(|o| !frame.fx_looks.hidden.contains(&o.id))
         .filter_map(|o| {
             let visual = o.visual?;
@@ -134,6 +144,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                     o.anim_scale,
                 ),
                 follow: o.fx_follow,
+                held: o.holder.and_then(|holder| Some((holder.id, holder.point?))),
             })
         });
     player.chain(others).collect()
@@ -276,6 +287,7 @@ impl ClientView {
             .map(|(drawn, at)| self.placed(drawn, *at))
             .collect();
         self.follow_emitters(&drawn, &mut frames, &mut placed);
+        self.follow_holders(&drawn, &mut frames, &mut placed);
         let placements = self.object_placements(&drawn, &frames, &placed);
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);

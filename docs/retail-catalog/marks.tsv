@@ -4776,7 +4776,7 @@ key	status	note
 004e5660	-	render plumbing
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-004e5980	~	FX children only: the view places each attached FX object on its emitter's posed bone or holding point every frame (view/fx_follow.rs follow_emitters). Other children, and the physics frame of FX children, are not updated per frame.
+004e5980	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e60f0	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e6650	_	needs port: cite-only physics-object method
@@ -5030,7 +5030,7 @@ key	status	note
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	-	render plumbing
 004efb00	x	CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-004f0140	~	ac2-assets ac2_visual_particles anchor(): root Setup holding points only (bone and transform posed per frame in ac2-render). Child part-group holding points are not searched.
+004f0140	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
@@ -5126,7 +5126,7 @@ key	status	note
 004f1da0	~	the named bone an FX attach point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 004f1db0	_	needs port: cite-only physics-object method
 004f1dd0	_	needs port: cite-only physics-object method
-004f1de0	~	the root bone an FX holding point reads, live each frame (client_fx_objects::follow_frame over the emitter's posed root bones); the holding transform comes from the Setup, resolved once on the loader (ac2-assets object_attach). Root Setup holding points only.
+004f1de0	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 004f1df0	_	needs port: cite-only physics-object method
 004f1e00	_	needs port: cite-only physics-object method
 004f1e10	_	needs port: cite-only physics-object method
