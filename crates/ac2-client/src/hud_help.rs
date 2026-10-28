@@ -8,8 +8,6 @@
 //! help requests from their own messages ([`crate::hud_book`], [`crate::hud_player_message`]).
 //! The frame's pass is [`ac2_ui::help_pass`].
 
-use ac2_ui::UiMessage;
-
 use crate::hud_view::HudView;
 
 impl HudView {
@@ -21,16 +19,5 @@ impl HudView {
         };
         help.open(tree, self.panels.help_pages.as_ref(), token);
         self.dirty = true;
-    }
-
-    /// The help frameworks' messages (`ac2_ui::help_pass`): the key stone key, the help window's
-    /// own messages, and the panels' help buttons.
-    pub(crate) fn help_pass(&mut self, messages: &[UiMessage]) {
-        let (Some(help), Some((tree, _))) = (self.panels.help.as_mut(), self.hud.as_mut()) else {
-            return;
-        };
-        if ac2_ui::help_pass(help, tree, self.panels.help_pages.as_ref(), messages) {
-            self.dirty = true;
-        }
     }
 }

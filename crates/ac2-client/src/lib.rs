@@ -75,9 +75,7 @@ mod hud_player;
 #[cfg(feature = "window")]
 mod hud_player_message;
 #[cfg(feature = "window")]
-mod hud_player_notice;
 #[cfg(feature = "window")]
-mod hud_player_tick;
 mod hud_request;
 mod hud_shop;
 #[cfg(feature = "window")]

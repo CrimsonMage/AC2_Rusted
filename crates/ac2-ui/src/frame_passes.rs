@@ -16,8 +16,9 @@ use crate::friends_panel::{friend_event, FriendEvent};
 use crate::target_select::frame_selection_calls;
 use crate::{
     BackpackUi, ChatSettings, FellowshipSource, Hud, HudRequest, HudSource, InventorySource,
-    Items3dUi, MapMarker, MoneyBagUi, NameLook, OptionsSettings, PaperDollUi, SavedWindow,
-    StatusBar, UiStrings, WindowPosition, PROFILE_LATENCY_INDICATOR_GRAPH,
+    Items3dUi, MapMarker, MessageInputs, MoneyBagUi, NameLook, OptionsHost, OptionsSettings,
+    PaperDollUi, SavedWindow, ShortcutCalls, StatusBar, TickInputs, UiStrings, WindowPosition,
+    PROFILE_LATENCY_INDICATOR_GRAPH,
 };
 
 /// What the client answers the frame's passes with: its options and saved places, the player's
@@ -46,6 +47,18 @@ pub trait HudHost {
     fn worn_items(&self) -> Vec<(u32, u64)>;
     /// A tooltip for a map note (`gmNavigationUI::AddMarker`), rendered from the string tables.
     fn marker_tooltip(&self, message: &StringInfo, cell: u32) -> String;
+    /// The shop's purchase limit for an item (`max_purchase_quantity`, 0 when unknown).
+    fn max_purchase_quantity(&self, item: u64) -> u32;
+    /// The consignment charge the script returns (`consignment_charge`, 0 when unknown).
+    fn consignment_charge(&self) -> f32;
+}
+
+/// The player and the client's sinks for the frame's option and shortcut calls (`gmClientUI`'s
+/// preferences and applies, `gmShortcutUI`'s use and set), as the panels take them.
+pub struct FrameHosts<'a, P: ?Sized> {
+    pub player: &'a P,
+    pub options: &'a mut dyn OptionsHost,
+    pub shortcuts: &'a mut dyn ShortcutCalls,
 }
 
 /// The frame's plain inputs to the passes: what the frame says about the player, the selection,
@@ -57,6 +70,10 @@ pub struct FrameInputs<'a> {
     pub player: Option<u64>,
     /// The player's cell, when its body exists.
     pub player_cell: Option<u32>,
+    /// `CPhysicsObj::IsInWorld` for the player: the frame's passes run only in the world.
+    pub in_world: bool,
+    /// The selected object's id (`gmSelectionUI`), for the fellowship and pet panels.
+    pub selection: Option<u64>,
     pub player_vitals: &'a PlayerVitals,
     /// The player's money, as the money bag shows it.
     pub money: u32,
@@ -87,6 +104,100 @@ pub struct Reloads {
 }
 
 impl Hud {
+    /// One frame of the HUD's frameworks that ask the player, in the order they get it: the
+    /// popup and display backlogs, then (in the world, with the player and the HUD) the reload,
+    /// the map, the first frame, the pick, the notices, the messages, the help pages and the
+    /// ticks. Returns the requests the panels raised, in order, for the client to map.
+    pub fn frame<P: HudSource + HudHost>(
+        &mut self,
+        tree: Option<&mut UiTree>,
+        dirty: &mut bool,
+        hosts: Option<FrameHosts<'_, P>>,
+        input: &FrameInputs<'_>,
+    ) -> Vec<HudRequest> {
+        let messages = std::mem::take(&mut self.player_messages);
+        // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
+        // is up yet: the dialogs are the game's own, always there in retail. A question that
+        // comes before the HUD's dialogs waits in the backlog and is asked when they are.
+        self.popup_backlog
+            .extend(crate::popup_questions(input.events));
+        // `gmGamePlayUI::RecvNotice_DisplayMessage` is registered with the HUD's children
+        // (`gmGamePlayUI::SetupChildren`), so a box raised in the world waits for the HUD; before
+        // the world there is no handler and the notice is gone, as in retail.
+        if input.in_world {
+            self.display_backlog
+                .extend(crate::display_notices(input.events));
+        }
+        let (Some(tree), Some(hosts), true) = (tree, hosts, input.in_world) else {
+            return Vec::new();
+        };
+        let FrameHosts {
+            player,
+            options,
+            shortcuts,
+        } = hosts;
+        let mut requests = Vec::new();
+        let (reload, reloads) = self.reload_pass(tree, dirty, player, input);
+        requests.extend(reload);
+        self.map_pass(tree, player, input, reloads);
+        self.init_pass(tree, player, input);
+        requests.extend(self.pick_pass(tree, player, input));
+        // `notice_pass`: the frame's notices, then the shortcut bar's checks.
+        let friends = crate::notice_pass(
+            self,
+            tree,
+            dirty,
+            player,
+            input.events,
+            input.server_time,
+            reloads.radar,
+        );
+        requests.extend(friends.into_iter().map(HudRequest::Friends));
+        // `message_pass`: the quests' global loop, then the messages to the panels.
+        let mut most = |item| player.max_purchase_quantity(item);
+        let mut charge = || player.consignment_charge();
+        let message_inputs = MessageInputs {
+            server_time: input.server_time,
+            selection: input.selection,
+            friend_target: input.friend_target,
+            name_looks: input.name_looks,
+            max_purchase: &mut most,
+            consignment_charge: &mut charge,
+            options_host: &mut *options,
+        };
+        requests.extend(crate::message_pass(
+            self,
+            tree,
+            message_inputs,
+            player,
+            &messages,
+        ));
+        // `gmHelpUI`: the help frameworks' messages.
+        if let Some(help) = self.help.as_mut() {
+            if crate::help_pass(help, tree, self.help_pages.as_ref(), &messages) {
+                *dirty = true;
+            }
+        }
+        // `gmSecureTradeUI`, `gmPetUI`, `gmShopUI`, `gmSkillTreeUI`, `gmShortcutUI`'s ticks.
+        let tick_inputs = TickInputs {
+            server_time: input.server_time,
+            selection: input.selection,
+            options_host: &mut *options,
+            shortcut_calls: &mut *shortcuts,
+        };
+        requests.extend(crate::tick_pass(
+            self,
+            tree,
+            tick_inputs,
+            player,
+            input.events,
+        ));
+        if tree.take_changed() {
+            *dirty = true;
+        }
+        requests
+    }
+
     /// The options and saved layout that reload this frame (`gmChatOptionsUI`, `gmGamePlayUI`,
     /// `gmCharacterUI`, `gmNetStatusUI`, `gm3DTextUI`, `gmRadarUI` `RecvNotice_ReloadOptions`).
     /// Returns the requests the panels raised and the reload's flags for the passes after it.

@@ -54,7 +54,7 @@ mod fellowship;
 mod frame_passes;
 mod game_dialogs;
 mod hud;
-pub use frame_passes::{FrameInputs, HudHost, Reloads};
+pub use frame_passes::{FrameHosts, FrameInputs, HudHost, Reloads};
 mod hud_notices;
 pub use hud_notices::notice_pass;
 mod hud_message;

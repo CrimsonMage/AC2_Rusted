@@ -53,7 +53,7 @@ Legend and workflow: [README](README.md).
 - [x] `Turbine::Client::ChatInterfaceProvider::QueryInterface` · 00401bf0 · legions 00401b10 — Legions returns E_NOINTERFACE: the port has no COM interface query
 
 ### gmNoticeHandler
-- [x] `gmNoticeHandler::RecvNotice_Patron_SwearDone` · 00401c30 · legions 00401b70 — base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player_notice)
+- [x] `gmNoticeHandler::RecvNotice_Patron_SwearDone` · 00401c30 · legions 00401b70 — base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player (frame_passes notices))
 - [x] `gmNoticeHandler::RecvNotice_AddMarker` · 00401c40 — base virtual is empty; the navigation UI overrides it: client_radar.rs radar_notice -> add_map_note / marker
 
 ### Turbine::Client::ChatInterfaceProvider
@@ -203,13 +203,13 @@ Legend and workflow: [README](README.md).
 - [-] `FXNode::~FXNode` · 00405250 · legions 00404ff0 — ctor/dtor of plain data
 
 ### gmNoticeHandler
-- [x] `gmNoticeHandler::RecvNotice_UpdateConsignment` · 00405330 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
+- [x] `gmNoticeHandler::RecvNotice_UpdateConsignment` · 00405330 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player (frame_passes notices)
 
 ### UIShop
 - [-] `UIShop::~UIShop` · 00405340 · legions 004050e0 — ctor/dtor of plain data
 
 ### gmNoticeHandler
-- [x] `gmNoticeHandler::RecvNotice_UpdateStore` · 004054b0 — base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player_notice)
+- [x] `gmNoticeHandler::RecvNotice_UpdateStore` · 004054b0 — base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player (frame_passes notices))
 
 ### PHashTable<unsigned_long,unsigned_long>
 - [~] `PHashTable<unsigned_long,unsigned_long>::StreamPack` · 00405500 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
@@ -218,7 +218,7 @@ Legend and workflow: [README](README.md).
 - [~] `PHashTable<unsigned_long,FXNode>::StreamPack` · 004058e0 · legions 004055c0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### gmNoticeHandler
-- [x] `gmNoticeHandler::RecvNotice_ViewCatalog` · 00405b40 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
+- [x] `gmNoticeHandler::RecvNotice_ViewCatalog` · 00405b40 — base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player (frame_passes notices)
 
 ### FXData
 - [-] `FXData::~FXData` · 00405c30 · legions 00405910 — ctor/dtor of plain data

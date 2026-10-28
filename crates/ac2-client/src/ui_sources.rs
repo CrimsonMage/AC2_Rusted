@@ -405,4 +405,17 @@ impl ac2_ui::HudHost for ClientPlayer<'_> {
     fn marker_tooltip(&self, message: &ac2_net::protocol::StringInfo, cell: u32) -> String {
         ClientPlayer::marker_tooltip(self, message, cell)
     }
+
+    /// `gmCWInterface::GetMaxPurchaseQuantity`: 0 when the script does not own the call.
+    fn max_purchase_quantity(&self, item: u64) -> u32 {
+        self.client
+            .borrow_mut()
+            .max_purchase_quantity(item)
+            .unwrap_or(0)
+    }
+
+    /// `gmCWInterface::GetConsignmentCharge`: 0 when unknown.
+    fn consignment_charge(&self) -> f32 {
+        self.client.borrow_mut().consignment_charge().unwrap_or(0.0)
+    }
 }

@@ -4,10 +4,11 @@
 //! [`ClientPlayer`], and their requests become the player's calls and gameplay commands. The chat
 //! takes the player's chat options when they are reloaded.
 //!
-//! [`HudView::frameworks`] runs the passes in the order the frameworks get them: the reload of
-//! the options, the map, the first frame in the world and the pick (`ac2_ui::Hud`'s passes over
-//! [`ac2_ui::HudHost`]), the notices ([`crate::hud_player_notice`]), the messages
-//! ([`crate::hud_player_message`]) and the ticks ([`crate::hud_player_tick`]).
+//! [`HudView::frameworks`] hands the frame to `ac2_ui::Hud::frame`, which runs the passes in the
+//! order the frameworks get them (the reload of the options, the map, the first frame in the
+//! world, the pick, the notices, the messages, the help pages and the ticks). The client supplies
+//! its [`ac2_ui::HudHost`] and the option and shortcut sinks ([`crate::hud_player_message`]), and
+//! maps the requests it returns to gameplay commands ([`crate::hud_request`]).
 
 use std::cell::RefCell;
 
@@ -19,6 +20,7 @@ use crate::client::Client;
 use crate::frame::ClientFrame;
 use crate::gameplay::Command;
 use crate::hud_friends::friend_target;
+use crate::hud_player_message::{ClientOptions, ClientShortcuts};
 use crate::hud_request::hud_request_commands;
 use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
@@ -49,18 +51,11 @@ pub(crate) struct PassOut {
     pub(crate) help: Vec<u32>,
 }
 
-impl PassOut {
-    fn append(&mut self, pass: PassOut) {
-        self.commands.extend(pass.commands);
-        self.open_examination |= pass.open_examination;
-        self.tells.extend(pass.tells);
-        self.help.extend(pass.help);
-    }
-}
-
 impl HudView {
     /// One frame of the frameworks that ask the player; returns the gameplay commands they ask
-    /// for. They wait for the HUD, the string tables and the player in the world.
+    /// for. The sequencing is `ac2_ui::Hud::frame`'s; this builds its inputs over the client and
+    /// maps the requests it returns. They wait for the HUD, the string tables and the player in
+    /// the world.
     pub(crate) fn frameworks(
         &mut self,
         client: &mut Client,
@@ -69,41 +64,22 @@ impl HudView {
         script_notices: &[ScriptNotice],
         doll_pick: Option<Option<u32>>,
     ) -> Vec<Command> {
-        let messages = std::mem::take(&mut self.panels.player_messages);
-        // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
-        // is up yet: the dialogs are the game's own, always there in retail. A question that
-        // comes before the HUD's dialogs waits in the backlog and is asked when they are.
-        self.panels
-            .popup_backlog
-            .extend(ac2_ui::popup_questions(events));
-        // `gmGamePlayUI::RecvNotice_DisplayMessage` is registered with the HUD's children
-        // (`gmGamePlayUI::SetupChildren`), so a box raised in the world waits for the HUD; before
-        // the world there is no handler and the notice is gone, as in retail.
-        if frame.in_world {
-            self.panels
-                .display_backlog
-                .extend(ac2_ui::display_notices(events));
-        }
-        let mut out = PassOut::default();
-        let Some(strings) = self.panels.strings.clone() else {
-            return out.commands;
-        };
-        if !frame.in_world || self.hud.is_none() {
-            return out.commands;
-        }
-        let player = ClientPlayer {
+        let strings = self.panels.strings.clone();
+        let player = strings.as_ref().map(|strings| ClientPlayer {
             client: RefCell::new(client),
             frame,
             strings: &strings.tables,
             ui_table: strings.ui_table,
             enums: &strings.enums,
-        };
+        });
         let looks = || name_looks(frame);
         let friend = friend_target(frame.selection.as_ref());
         let inputs = ac2_ui::FrameInputs {
             server_time: frame.server_time,
             player: frame.player.as_ref().map(|p| p.id),
             player_cell: frame.player.as_ref().map(|p| p.cell),
+            in_world: frame.in_world,
+            selection: frame.selection.as_ref().map(|s| s.id),
             player_vitals: &frame.player_vitals,
             money: frame.inventory.money.max(0) as u32,
             markers: frame.markers.as_slice(),
@@ -114,32 +90,27 @@ impl HudView {
             script_notices,
             doll_pick,
         };
-        // The reload, map, first-frame and pick passes, in the frameworks' order.
-        let (reload, reloads, pick) = {
+        let requests = {
             let HudView {
                 hud, dirty, panels, ..
             } = self;
-            let Some((tree, _)) = hud else {
-                return out.commands;
-            };
-            let (reload, reloads) = panels.reload_pass(tree, dirty, &player, &inputs);
-            panels.map_pass(tree, &player, &inputs, reloads);
-            panels.init_pass(tree, &player, &inputs);
-            let pick = panels.pick_pass(tree, &player, &inputs);
-            (reload, reloads, pick)
-        };
-        hud_request_commands(reload, &mut out);
-        hud_request_commands(pick, &mut out);
-        out.append(self.notice_pass(&player, frame, events, reloads.radar));
-        out.append(self.message_pass(&player, frame, &messages));
-        self.help_pass(&messages);
-        out.append(self.tick_pass(&player, frame, events));
-        let HudView { hud, dirty, .. } = self;
-        if let Some((tree, _)) = hud {
-            if tree.take_changed() {
-                *dirty = true;
+            let tree = hud.as_mut().map(|(tree, _)| tree);
+            match player.as_ref() {
+                Some(player) => {
+                    let mut options = ClientOptions { player };
+                    let mut shortcuts = ClientShortcuts { player };
+                    let hosts = ac2_ui::FrameHosts {
+                        player,
+                        options: &mut options,
+                        shortcuts: &mut shortcuts,
+                    };
+                    panels.frame(tree, dirty, Some(hosts), &inputs)
+                }
+                None => panels.frame::<ClientPlayer<'_>>(tree, dirty, None, &inputs),
             }
-        }
+        };
+        let mut out = PassOut::default();
+        hud_request_commands(requests, &mut out);
         if out.open_examination {
             self.open_examination();
         }
