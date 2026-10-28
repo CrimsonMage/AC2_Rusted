@@ -47,6 +47,7 @@ mod loader_anim;
 mod look_at;
 mod los;
 mod missile;
+mod missile_guidance;
 mod motion;
 mod motion_interp;
 mod motion_interp_behaviors;
@@ -110,8 +111,9 @@ pub use loader_anim::load_body_animation;
 pub use look_at::LookTarget;
 pub use los::{LosParameters, Ray, RayIntersection};
 pub use missile::{
-    chase_velocity, get_gravitational_velocity, get_max_time, get_min_time, MissileHost,
-    MissileManager, MissileParameters, TargetPosition, MISSILE_FLIGHT_FX,
+    calc_min_max_time, chase_velocity, get_gravitational_velocity, get_max_time, get_min_time,
+    targeting_bits, MissileHost, MissileManager, MissileParameters, MissileTargetingParameters,
+    TargetPosition, MISSILE_FLIGHT_FX,
 };
 pub use motion::{apply_motion, apply_motion_from, apply_motion_owned, MotionEvent};
 pub use motion_interp::MotionInterp;

@@ -162,6 +162,74 @@ impl MissileParameters {
     }
 }
 
+/// `MissileTargetingParameters::m_bitfield` bits the flight reads.
+pub mod targeting_bits {
+    /// `SetTargetID`: the missile chases an object.
+    pub const TARGET_OBJECT: u32 = 0x1;
+    /// `SetInitialSpeed`.
+    pub const INITIAL_SPEED: u32 = 0x4;
+    /// `UseSourceObjectForBasePosition`.
+    pub const SOURCE_BASE_POSITION: u32 = 0x10;
+    /// `SetStartTowardTarget`.
+    pub const START_TOWARD_TARGET: u32 = 0x40;
+    /// `SetInitialPitch`.
+    pub const INITIAL_PITCH: u32 = 0x80;
+    /// `SetNoFireIfTooFar`.
+    pub const NO_FIRE_IF_TOO_FAR: u32 = 0x200;
+    /// `SetAlwaysStartTowardTarget`.
+    pub const ALWAYS_START_TOWARD_TARGET: u32 = 0x400;
+}
+
+/// `MissileTargetingParameters`: where a missile starts and what it flies at.
+/// `MissileTargetingParameters::MissileTargetingParameters` gives the defaults.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MissileTargetingParameters {
+    pub bitfield: u32,
+    pub target_id: u64,
+    pub target_height_adjustment: f32,
+    pub use_target_scale: bool,
+    pub target_offset: Vector,
+    pub target_pos: Position,
+    pub base_pos: Position,
+    pub source_id: u64,
+    pub source_height_adjustment: f32,
+    pub use_source_scale: bool,
+    pub source_offset: Vector,
+    pub initial_velocity: f32,
+    pub initial_pitch: f32,
+    pub missile_range: f32,
+    pub missile_detonation_chance: f32,
+}
+
+impl Default for MissileTargetingParameters {
+    fn default() -> Self {
+        Self {
+            bitfield: 0,
+            target_id: 0,
+            target_height_adjustment: 0.75,
+            use_target_scale: false,
+            target_offset: Vector::ZERO,
+            target_pos: Position::default(),
+            base_pos: Position::default(),
+            source_id: 0,
+            source_height_adjustment: 0.75,
+            use_source_scale: false,
+            source_offset: Vector::ZERO,
+            initial_velocity: 0.0,
+            initial_pitch: 0.0,
+            missile_range: 0.0,
+            missile_detonation_chance: 0.0,
+        }
+    }
+}
+
+impl MissileTargetingParameters {
+    /// `CContinSoundInfo::TestBitMask` on the bitfield.
+    pub fn test_bit_mask(&self, mask: u32) -> bool {
+        self.bitfield & mask != 0
+    }
+}
+
 /// `TargetPosition`: where the missile is headed and how the target moves.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TargetPosition {
@@ -220,6 +288,7 @@ pub const MISSILE_FLIGHT_FX: u32 = 0x4000_0001;
 #[derive(Debug, Clone, PartialEq)]
 pub struct MissileManager {
     pub info: MissileParameters,
+    pub target_info: MissileTargetingParameters,
     pub target_pos: TargetPosition,
     pub accel_offset: Vector,
     pub desired_velocity: Vector,
@@ -245,6 +314,7 @@ impl Default for MissileManager {
     fn default() -> Self {
         Self {
             info: MissileParameters::default(),
+            target_info: MissileTargetingParameters::default(),
             target_pos: TargetPosition::default(),
             accel_offset: Vector::ZERO,
             desired_velocity: Vector::ZERO,
@@ -508,6 +578,49 @@ pub fn get_max_time(
         first
     };
     0.0 <= ld(*max_time)
+}
+
+/// `CMissileManager::CalcMinMaxTime`: the earliest and latest times a missile of
+/// `max_desired_speed` can meet a target `diff` away moving at `target_velocity` under
+/// `accel`. The earliest starts at `F_EPSILON` and rises over each axis with no acceleration
+/// (`GetMinTime`); the latest starts at twice that and is the later root on the first axis (z,
+/// then y, then x) that accelerates (`GetMaxTime`). Returns `(possible, t_min, t_max)`;
+/// impossible when an axis can never be closed or the latest is before the earliest.
+pub fn calc_min_max_time(
+    diff: Vector,
+    target_velocity: Vector,
+    accel: Vector,
+    max_desired_speed: f32,
+) -> (bool, f32, f32) {
+    let eps = ld(F_EPSILON);
+    let mut t_min = F_EPSILON;
+    let mut possible = true;
+    if ld(accel.z).abs() < eps {
+        possible &= get_min_time(diff.z, target_velocity.z, &mut t_min, max_desired_speed);
+    }
+    if ld(accel.y).abs() < eps {
+        possible &= get_min_time(diff.y, target_velocity.y, &mut t_min, max_desired_speed);
+    }
+    if ld(accel.x).abs() < eps {
+        possible &= get_min_time(diff.x, target_velocity.x, &mut t_min, max_desired_speed);
+    }
+    let mut t_max = st(ld(t_min) + ld(t_min));
+    let axis = if ld(accel.z).abs() > eps {
+        Some((diff.z, target_velocity.z, accel.z))
+    } else if ld(accel.y).abs() > eps {
+        Some((diff.y, target_velocity.y, accel.y))
+    } else if ld(accel.x).abs() > eps {
+        Some((diff.x, target_velocity.x, accel.x))
+    } else {
+        None
+    };
+    if let Some((dist, velocity, a)) = axis {
+        possible &= get_max_time(dist, velocity, a, &mut t_max, max_desired_speed);
+    }
+    if t_max < t_min {
+        possible = false;
+    }
+    (possible, t_min, t_max)
 }
 
 /// `CMissileManager::GetGravitationalVelocity`: the velocity that meets a target `diff` away

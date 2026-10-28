@@ -302,3 +302,35 @@ fn a_target_position_resets_to_a_fixed_point() {
     t.set_target_info(Position::default(), Vector::new(1.0, 0.0, 0.0));
     assert_eq!(t.target_velocity.x, 1.0);
 }
+
+#[test]
+fn the_time_window_spans_the_axes_that_do_not_accelerate() {
+    // No acceleration: only the earliest time is solved, and the latest is twice it.
+    let (possible, t_min, t_max) = calc_min_max_time(
+        Vector::new(0.0, 100.0, 0.0),
+        Vector::ZERO,
+        Vector::ZERO,
+        50.0,
+    );
+    assert!(possible);
+    assert_eq!((t_min, t_max), (2.0, 4.0));
+    // An accelerating z axis (gravity) sets the latest time from its root.
+    let (possible, t_min, t_max) = calc_min_max_time(
+        Vector::new(0.0, 100.0, 0.0),
+        Vector::ZERO,
+        Vector::new(0.0, 0.0, -10.0),
+        50.0,
+    );
+    assert!(possible);
+    assert_eq!(t_min, 2.0);
+    // z: dist 0, accel -10: roots of 0 = 50 t - 5 t^2 -> 10
+    assert!((t_max - 10.0).abs() < 1e-4, "{t_max}");
+    // A target out-running the missile on a free axis is impossible.
+    let (possible, ..) = calc_min_max_time(
+        Vector::new(0.0, 100.0, 0.0),
+        Vector::new(0.0, 60.0, 0.0),
+        Vector::ZERO,
+        50.0,
+    );
+    assert!(!possible);
+}
