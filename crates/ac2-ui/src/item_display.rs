@@ -116,6 +116,10 @@ pub enum ItemRequest {
     },
     /// `gmCWInterface::UnEquipItem` into a slot of the player's pack.
     Unequip { item: u64, target_slot: i32 },
+    /// `ContainerDisplay::HandleDragFrom` / `CM_UI::SendNotice_HandleDragFrom`: an element of
+    /// another panel (`context`, its `Token_SourceContext`) dropped on the player's pack at
+    /// `slot`; the panel whose context it is answers it (a purchase, a collection).
+    DragFrom { item: u64, slot: u32, context: u32 },
     /// `CM_UI::SendNotice_InitStackUI`: how many of the stack `item` to move into `target`,
     /// `amount` the default and the most; the answer comes back with `context`.
     Split {
@@ -196,6 +200,14 @@ pub(crate) fn is_item_copy(tree: &UiTree, copy: usize) -> bool {
     tree.get(copy)
         .and_then(|el| el.attribute(id("Token_ShortcutType")))
         == Some(&crate::layout::AttributeValue::Id(0x4000_0002))
+}
+
+/// A dragged copy's `Token_SourceContext`: the context of the panel it was dragged from.
+pub(crate) fn source_context(tree: &UiTree, copy: usize) -> Option<u32> {
+    match tree.get(copy)?.attribute(id("SourceContext")) {
+        Some(crate::layout::AttributeValue::Int(context)) => Some(*context as u32),
+        _ => None,
+    }
 }
 
 pub(crate) fn dragged_item(tree: &UiTree, copy: usize) -> Option<DraggedItem> {
@@ -352,7 +364,7 @@ impl ItemDisplay {
 pub struct ContainerDisplay {
     layout: Arc<LayoutDesc>,
     pub container: u64,
-    list: Option<usize>,
+    pub(crate) list: Option<usize>,
     max_size: u32,
     count: u32,
     first_slot: u32,
@@ -747,6 +759,20 @@ impl ContainerDisplay {
             // takes only items.
             if is_coin_copy(tree, copy) {
                 return self.drag_from_money_bag(tree, s);
+            }
+            // A copy from another panel's context goes back to that panel when it lands on the
+            // player's own pack (`HandleDragFrom`); elsewhere it is dropped.
+            if let Some(context) = source_context(tree, copy) {
+                if self.container != s.player() {
+                    return None;
+                }
+                let item = dragged_item(tree, copy)?.item;
+                let slot = self.new_index(tree, s);
+                return Some(ItemRequest::DragFrom {
+                    item,
+                    slot,
+                    context,
+                });
             }
             if !is_item_copy(tree, copy) {
                 return None;

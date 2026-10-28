@@ -219,7 +219,34 @@ pub fn message_pass<P: HudSource>(
             .as_mut()
             .and_then(|p| p.message(tree, player, message))
         {
-            push_item(request, tree, &mut hud.stack, player, &mut out);
+            // `CM_UI::SendNotice_HandleDragFrom` reaches the shop and the consignment, whose
+            // context the dragged element carries (`RecvNotice_HandleDragFrom`).
+            if let ItemRequest::DragFrom {
+                item,
+                slot,
+                context,
+            } = request
+            {
+                if let Some(panel) = hud.shop.as_mut() {
+                    panel.recv_handle_drag_from(tree, player, item, slot, context, max_purchase);
+                }
+                if let (Some(panel), Some(dialogs)) =
+                    (hud.consignment.as_mut(), hud.dialogs.as_mut())
+                {
+                    panel.recv_handle_drag_from(context);
+                    consignment_requests(
+                        panel.take_requests(),
+                        hud.new_sale.as_mut(),
+                        tree,
+                        dialogs,
+                        player,
+                        server_time,
+                        &mut out,
+                    );
+                }
+            } else {
+                push_item(request, tree, &mut hud.stack, player, &mut out);
+            }
         }
         // `gmMoneyBagUI::ListenToMessage`: a drop on the bag.
         if let (Some(bag), Some(dialogs)) = (hud.money.as_mut(), hud.dialogs.as_mut()) {

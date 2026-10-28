@@ -450,7 +450,7 @@ key	status	note
 0041b950	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041ba10	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bc00	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-0041bc90	~	not modelled: the mount state, the drag-from-list notice and the server selection notice
+0041bc90	x	ac2-ui consignment.rs recv_handle_drag_from: a row's context collects its sale (RequestCollect(SaleID, sold)); each row's icon is a drag source with its own context (post_sale: ShortcutType, ShortcutData, SourceContext, dragable); consignment_tests a_row_dragged_into_the_pack_collects_its_sale
 0041bd20	x	ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 0041bd90	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -488,7 +488,7 @@ key	status	note
 0041dac0	x	ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
 0041dc40	x	ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
 0041de50	~	no Drop: RequestLeaveStore is not sent when the panel is destroyed
-0041df30	~	ac2-ui shop.rs recv_handle_drag_from: purchase into the slot; the drag notice has no GameplayNotice yet
+0041df30	x	ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
 0041df90	x	ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
 0041e2c0	~	ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
 0041e540	x	ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
@@ -758,7 +758,7 @@ key	status	note
 0042dac0	x	ac2-ui list_box.rs
 0042daf0	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 0042db40	x	ac2-ui item_display.rs
-0042dbc0	_	needs port (check): ContainerDisplay::HandleDragFrom behaviour; implemented area ac2-ui item_display.rs / shop.rs but uncited
+0042dbc0	x	ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 0042dc20	x	ac2-ui item_display.rs
 0042de90	x	ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 0042dfb0	x	ac2-ui item_display.rs
@@ -14752,7 +14752,7 @@ key	status	note
 00723650	_	needs port: notice GunConnected to the UI/client; no citation in crates/
 007236e0	_	needs port: notice GunConnectionLost to the UI/client; no citation in crates/
 00723770	_	needs port: notice GunReconnected to the UI/client; no citation in crates/
-00723800	_	needs port: notice HandleDragFrom to the UI/client; no citation in crates/
+00723800	x	ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 007238a0	x	implemented: cited at crates/ac2-ui/src/money_bag.rs:4
 00723980	_	needs port: notice Logoff to the UI/client; no citation in crates/
 00723a10	x	implemented: cited at crates/ac2-ui/src/consignment.rs:63

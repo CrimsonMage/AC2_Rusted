@@ -70,6 +70,8 @@ impl ShopUi {
                 }
                 tree.set_tooltip(icon, Some(s.render_wire(&sale.item_desc)));
                 let attributes = &mut tree.el_mut(icon).attributes;
+                // An item drag (`Token_ShortcutType` 0x40000002), as the pack's drop takes.
+                attributes.insert(id("Token_ShortcutType"), AttributeValue::Id(0x4000_0002));
                 attributes.insert(id(SHORTCUT_DATA), AttributeValue::InstanceId(sale.item));
                 attributes.insert(id(SOURCE_CONTEXT), AttributeValue::Int(self.context as i32));
                 tree.set_bool(icon, id("dragable"), true);

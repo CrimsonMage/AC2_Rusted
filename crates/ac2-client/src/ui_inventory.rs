@@ -167,6 +167,8 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
         ItemRequest::Unequip { item, target_slot } => {
             commands.push(Command::UnequipItem { item, target_slot });
         }
+        // Answered by the shop and the consignment in the HUD.
+        ItemRequest::DragFrom { .. } => {}
         ItemRequest::Split { .. }
         | ItemRequest::DropSplit { .. }
         | ItemRequest::MoneyStack { .. }

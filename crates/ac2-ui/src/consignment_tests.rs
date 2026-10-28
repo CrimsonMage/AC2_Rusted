@@ -470,3 +470,37 @@ fn another_selection_clears_the_selected_sale() {
     panel.recv_update_mount_state(true);
     assert!(panel.mounted);
 }
+
+/// `gmShopConsignmentUI::RecvNotice_HandleDragFrom`: a row's icon is a drag source of its own
+/// context, and that context dropped on the pack collects the row's sale (the profits when sold).
+#[test]
+fn a_row_dragged_into_the_pack_collects_its_sale() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    open(&mut hud, &mut panel);
+    let row = panel
+        .rows
+        .iter()
+        .find(|r| r.sale == SWORD_SALE)
+        .copied()
+        .unwrap();
+    let icon = hud
+        .tree
+        .child_recursive(row.element, crate::token::tokenize("ItemIcon"))
+        .unwrap();
+    assert!(hud
+        .tree
+        .bool_attribute(icon, crate::token::tokenize("dragable")));
+    panel.take_requests();
+    panel.recv_handle_drag_from(row.context + 1000);
+    assert!(panel.take_requests().is_empty(), "not a row's context");
+    panel.recv_handle_drag_from(row.context);
+    assert_eq!(
+        panel.take_requests(),
+        vec![ConsignmentRequest::Collect {
+            target: SWORD_SALE,
+            profits: true,
+        }]
+    );
+}

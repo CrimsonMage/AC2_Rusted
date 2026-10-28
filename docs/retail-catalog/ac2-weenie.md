@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 955 done, 163 partial, 129 to do, 657 skipped.
+1904 retail functions: 956 done, 163 partial, 128 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by CPlayer's WM_Trade forwarders on the VM (package 0x215, ac2-net gameplay/trade.rs), typed in ac2-script notices_typed.rs, shown by ac2-ui secure_trade.rs; client tests/trade_script_7160.rs covers Registered/Opened/Offered/Accepted/Closed and (partner_revoke) Revoked
 - [x] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by CPlayer's WM_Trade forwarders on the VM (package 0x215, ac2-net gameplay/trade.rs), typed in ac2-script notices_typed.rs, shown by ac2-ui secure_trade.rs; client tests/trade_script_7160.rs covers Registered/Opened/Offered/Accepted/Closed and (partner_revoke) Revoked
 
-## `ac2/client/src/events/cm_ui.cpp.c` (14/21)
+## `ac2/client/src/events/cm_ui.cpp.c` (15/21)
 
 ### CM_UI
 - [x] `CM_UI::SendNotice_CloseConfirmationDialog` · 007232e0 — implemented: cited at crates/ac2-ui/src/dialog.rs:10
@@ -200,7 +200,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_UI::SendNotice_GunConnected` · 00723650 — needs port: notice GunConnected to the UI/client; no citation in crates/
 - [ ] `CM_UI::SendNotice_GunConnectionLost` · 007236e0 — needs port: notice GunConnectionLost to the UI/client; no citation in crates/
 - [ ] `CM_UI::SendNotice_GunReconnected` · 00723770 — needs port: notice GunReconnected to the UI/client; no citation in crates/
-- [ ] `CM_UI::SendNotice_HandleDragFrom` · 00723800 · legions 006a3880 — needs port: notice HandleDragFrom to the UI/client; no citation in crates/
+- [x] `CM_UI::SendNotice_HandleDragFrom` · 00723800 · legions 006a3880 — ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 - [x] `CM_UI::SendNotice_InitStackUI` · 007238a0 · legions 006a38e0 — implemented: cited at crates/ac2-ui/src/money_bag.rs:4
 - [ ] `CM_UI::SendNotice_Logoff` · 00723980 — needs port: notice Logoff to the UI/client; no citation in crates/
 - [x] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — implemented: cited at crates/ac2-ui/src/consignment.rs:63

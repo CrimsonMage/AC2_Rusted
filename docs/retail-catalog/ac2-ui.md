@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1268 done, 343 partial, 141 to do, 495 skipped.
+2247 retail functions: 1271 done, 341 partial, 140 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -496,7 +496,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (15/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (16/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
@@ -526,7 +526,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::Show` · 0041b950 · legions 0041b7b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::Select` · 0041ba10 · legions 0041b870 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::DestroyManagedElements` · 0041bc00 · legions 0041ba20 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::RecvNotice_HandleDragFrom` · 0041bc90 — not modelled: the mount state, the drag-from-list notice and the server selection notice
+- [x] `gmShopConsignmentUI::RecvNotice_HandleDragFrom` · 0041bc90 — ac2-ui consignment.rs recv_handle_drag_from: a row's context collects its sale (RequestCollect(SaleID, sold)); each row's icon is a drag source with its own context (post_sale: ShortcutType, ShortcutData, SourceContext, dragable); consignment_tests a_row_dragged_into_the_pack_collects_its_sale
 - [x] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 - [x] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -560,7 +560,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); the sale slot's mouse-over tooltip is not modelled
 
-## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (17/22)
+## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (18/22)
 
 ### gmShopUI
 - [x] `gmShopUI::CreateManagedElements` · 0041d3d0 · legions 0041d1f0 — ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
@@ -578,7 +578,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopUI::ListenToMessage` · 0041dac0 · legions 0041d8e0 — ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
 - [x] `gmShopUI::PurchaseItem` · 0041dc40 · legions 0041da60 — ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
 - [~] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — no Drop: RequestLeaveStore is not sent when the panel is destroyed
-- [~] `gmShopUI::RecvNotice_HandleDragFrom` · 0041df30 — ac2-ui shop.rs recv_handle_drag_from: purchase into the slot; the drag notice has no GameplayNotice yet
+- [x] `gmShopUI::RecvNotice_HandleDragFrom` · 0041df30 — ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
 - [x] `gmShopUI::PostSale` · 0041df90 · legions 0041ddb0 — ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
 - [~] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
 - [x] `gmShopUI::UpdateSales` · 0041e540 · legions 0041e360 — ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
@@ -690,7 +690,7 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (17/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (18/22)
 
 ### ContainerDisplay
 - [x] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — ac2-ui item_display.rs
@@ -708,7 +708,7 @@ Legend and workflow: [README](README.md).
 ### ContainerDisplay
 - [x] `ContainerDisplay::RecvNotice_StackUIDone` · 0042daf0 · legions 0042d8c0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `ContainerDisplay::GetNewIndex` · 0042db40 · legions 0042d910 — ac2-ui item_display.rs
-- [ ] `ContainerDisplay::HandleDragFrom` · 0042dbc0 · legions 0042d990 — needs port (check): ContainerDisplay::HandleDragFrom behaviour; implemented area ac2-ui item_display.rs / shop.rs but uncited
+- [x] `ContainerDisplay::HandleDragFrom` · 0042dbc0 · legions 0042d990 — ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 - [x] `ContainerDisplay::HandleListBoxDrop` · 0042dc20 · legions 0042d9f0 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::HandleDragFromMoneyBag` · 0042de90 · legions 0042dc60 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `ContainerDisplay::ListenToMessage` · 0042dfb0 · legions 0042de40 — ac2-ui item_display.rs

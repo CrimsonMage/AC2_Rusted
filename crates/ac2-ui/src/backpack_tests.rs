@@ -209,6 +209,10 @@ impl InventorySource for Arriving {
     fn selection(&self) -> u64 {
         0
     }
+
+    fn player(&self) -> u64 {
+        PLAYER
+    }
 }
 
 impl crate::UiStrings for Arriving {
@@ -264,4 +268,60 @@ fn a_waiting_item_fills_in_when_its_object_is_created() {
         tree.get(sword_icon).unwrap().image().unwrap().file,
         0x0600_1002
     );
+}
+
+/// `ContainerDisplay::ListenToMessage` / `HandleDragFrom`: a copy that carries another panel's
+/// `SourceContext` dropped on the player's pack is a `DragFrom` for that panel, at the drop's slot.
+#[test]
+fn a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let source = Arriving { sword_known: true };
+    let mut backpack = BackpackUi::create(tree, &layout, &source, PLAYER);
+    let list = backpack.packs[0].list.unwrap();
+    // The copy: the sword's icon, with a shop's context.
+    let copy = backpack.packs[0].items[1].icon;
+    tree.el_mut(copy).attributes.insert(
+        tokenize("SourceContext"),
+        crate::layout::AttributeValue::Int(0x77),
+    );
+    let drop = UiMessage {
+        element_id: tree.get(list).unwrap().id(),
+        element: Some(list),
+        message: crate::drag::MSG_STOP_DRAG_ITEM,
+        data: 1,
+        item: Some(copy),
+    };
+    match backpack.message(tree, &source, &drop) {
+        Some(ItemRequest::DragFrom { item, context, .. }) => {
+            assert_eq!((item, context), (SWORD, 0x77));
+        }
+        other => panic!("{other:?}"),
+    }
+    // Not the player's pack: nothing.
+    let other = Arriving { sword_known: true };
+    struct Elsewhere(Arriving);
+    impl InventorySource for Elsewhere {
+        fn item(&self, item: u64) -> Option<ItemSlot> {
+            self.0.item(item)
+        }
+        fn contents_info(&self, c: u64, s: u32) -> (Vec<u64>, u32, u32) {
+            self.0.contents_info(c, s)
+        }
+        fn max_container_size(&self, c: u64) -> u32 {
+            self.0.max_container_size(c)
+        }
+        fn selection(&self) -> u64 {
+            0
+        }
+        fn player(&self) -> u64 {
+            0x2000_0000_0000_0099
+        }
+    }
+    assert_eq!(backpack.message(tree, &Elsewhere(other), &drop), None);
 }

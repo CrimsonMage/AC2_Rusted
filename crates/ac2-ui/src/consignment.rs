@@ -28,7 +28,7 @@ use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::drag::MSG_STOP_DRAG_ITEM;
 use crate::element::UiTree;
 use crate::item_display::{dragged_item, is_item_copy, InventorySource};
-use crate::layout::LayoutDesc;
+use crate::layout::{AttributeValue, LayoutDesc};
 use crate::mouse::UiMessage;
 use crate::shop::{id, ShopSource, ShopStackCall, INVALID, SELECTED};
 use crate::token::{BUTTON_GHOSTED, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS, STATELESS};
@@ -79,6 +79,8 @@ pub(crate) struct Row {
     pub sale: u32,
     pub item: u64,
     pub element: usize,
+    /// The row's drag context (`ContainerDisplay::RequestContext`, its `Token_SourceContext`).
+    pub context: u32,
 }
 
 /// `gmShopConsignmentUI`'s state.
@@ -287,12 +289,14 @@ impl ConsignmentUi {
             let Some(row) = tree.create_element(Arc::clone(&self.layout), desc, false) else {
                 continue;
             };
-            self.post_sale(tree, s, sale, row);
+            let context = tree.request_stack_context();
+            self.post_sale(tree, s, sale, row, context);
             tree.list_add_item(list, row);
             self.rows.push(Row {
                 sale: sale.ordinal,
                 item: sale.item,
                 element: row,
+                context,
             });
             if kept == Some(sale.item) && sale.item != INVALID {
                 self.select(tree, Some(row));
@@ -306,12 +310,29 @@ impl ConsignmentUi {
     /// `gmShopConsignmentUI::PostSale`: a row's icon (with the item's description as its tooltip),
     /// its cost's icon and its cost. The `Sale` element has no name or status text, so the status
     /// (expired, sold or active) is kept on the row's data and not shown.
-    fn post_sale(&self, tree: &mut UiTree, s: &dyn ConsignmentSource, sale: &ShopSale, row: usize) {
+    fn post_sale(
+        &self,
+        tree: &mut UiTree,
+        s: &dyn ConsignmentSource,
+        sale: &ShopSale,
+        row: usize,
+        context: u32,
+    ) {
         if let Some(icon) = tree.child_recursive(row, id("ItemIcon")) {
             if sale.icon_did != 0 {
                 tree.set_image(icon, sale.icon_did, 2);
             }
             tree.set_tooltip(icon, Some(s.render_wire(&sale.item_desc)));
+            // A drag source of the row's own context: the item (`Token_ShortcutType`
+            // 0x40000002, `Token_ShortcutData`), `Token_SourceContext`, `dragable`.
+            let attributes = &mut tree.el_mut(icon).attributes;
+            attributes.insert(id("Token_ShortcutType"), AttributeValue::Id(0x4000_0002));
+            attributes.insert(
+                id("Token_ShortcutData"),
+                AttributeValue::InstanceId(sale.item),
+            );
+            attributes.insert(id("SourceContext"), AttributeValue::Int(context as i32));
+            tree.set_bool(icon, id("dragable"), true);
         }
         if let Some(icon) = tree.child_recursive(row, id("CostIcon")) {
             if sale.cost_icon != 0 {
@@ -324,6 +345,26 @@ impl ConsignmentUi {
         }
         tree.set_attribute_id(row, id("Token_SaleID"), sale.ordinal);
         tree.set_attribute_id(row, id("Token_ItemID"), sale.item as u32);
+    }
+
+    /// `gmShopConsignmentUI::RecvNotice_HandleDragFrom` (admin 0x0041BC90): a row dragged into
+    /// the player's pack (its context one of the rows') collects its sale, the profits when it
+    /// sold (`RequestCollect(SaleID, sold)`).
+    pub fn recv_handle_drag_from(&mut self, context: u32) {
+        if !self.shown {
+            return;
+        }
+        let Some(row) = self.rows.iter().find(|r| r.context == context).copied() else {
+            return;
+        };
+        let profits = self
+            .sales
+            .iter()
+            .any(|sold| sold.ordinal == row.sale && sold.status == 3);
+        self.requests.push(ConsignmentRequest::Collect {
+            target: row.sale,
+            profits,
+        });
     }
 
     /// `gmShopConsignmentUI::UpdatePosition`: the previous page is ghosted at the top of the list,
