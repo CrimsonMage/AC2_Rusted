@@ -372,6 +372,10 @@ impl ScriptData for DatScriptData {
         self.shared.missed.swap(false, Ordering::Relaxed)
     }
 
+    fn peek_missed(&self) -> bool {
+        self.shared.missed.load(Ordering::Relaxed)
+    }
+
     fn entity_properties(&self, did: u32) -> Option<EntityProperties> {
         if let Some(properties) = self.resident().entities.get(&did).cloned() {
             return Some(properties);

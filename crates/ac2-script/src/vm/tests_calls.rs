@@ -309,3 +309,73 @@ fn an_efun_waits_for_data_and_runs_again_on_resume() {
     assert_eq!(vm.execute(&mut ctx), InterpStatus::Terminated);
     assert_eq!((ctx.sp, ctx.data[0], ctx.efun), (1, 5, 0));
 }
+
+fn read_enum_or_fault(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    match vm.data().enum_did(1, 2) {
+        Some(did) => {
+            ctx.set_arg(2, did, tag::INT);
+            InterpStatus::Success
+        }
+        // The record a null reference would name: the efun crashes on what is not loaded yet.
+        None => vm.fault(Fault::BadReference(0)),
+    }
+}
+
+/// An efun that misses a record and then faults on the null it got back (a cache-only host is
+/// still loading the record) waits rather than crashing the context; once the record is resident
+/// the efun runs again and the code goes on.
+#[test]
+fn a_miss_that_faults_waits_for_data_instead_of_crashing() {
+    let code = vec![
+        w(op::PUSHV, 2, 0),
+        w(op::PUSHV, 2, 0),
+        op::CALL_EFUN,
+        0x0065_0003,
+        w(op::POPN, 0, 1),
+        T,
+    ];
+    let loaded = std::rc::Rc::new(std::cell::Cell::new(false));
+    let data = Loading(loaded.clone(), std::cell::Cell::new(false));
+    let program = Program::from_parts(code, Vec::new(), Vec::new());
+    let mut efuns = EFuns::new();
+    efuns.register(0x0065_0003, read_enum_or_fault);
+    let mut vm = Vm::new(Arc::new(program), Box::new(data), efuns);
+
+    let mut ctx = Context::new(2, None);
+    ctx.can_yield = true;
+    ctx.enter(0).unwrap();
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Interrupted);
+    assert!(ctx.data_wait);
+    assert_eq!(ctx.efun, 0x0065_0003);
+    assert!(vm.last_fault.is_none());
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Interrupted);
+    loaded.set(true);
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Terminated);
+    assert_eq!((ctx.sp, ctx.data[0], ctx.efun), (1, 5, 0));
+}
+
+/// A fault with no miss is still the script's own: the context crashes.
+#[test]
+fn a_fault_without_a_miss_still_crashes_the_context() {
+    let code = vec![
+        w(op::PUSHV, 2, 0),
+        w(op::PUSHV, 2, 0),
+        op::CALL_EFUN,
+        0x0065_0004,
+        T,
+    ];
+    let loaded = std::rc::Rc::new(std::cell::Cell::new(true));
+    let data = Loading(loaded, std::cell::Cell::new(false));
+    let program = Program::from_parts(code, Vec::new(), Vec::new());
+    let mut efuns = EFuns::new();
+    efuns.register(0x0065_0004, |vm: &mut Vm, _ctx: &mut Context| {
+        vm.fault(Fault::BadReference(0))
+    });
+    let mut vm = Vm::new(Arc::new(program), Box::new(data), efuns);
+
+    let mut ctx = Context::new(3, None);
+    ctx.can_yield = true;
+    ctx.enter(0).unwrap();
+    assert_eq!(vm.execute(&mut ctx), InterpStatus::Crash);
+    assert!(!ctx.data_wait);
+}

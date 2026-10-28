@@ -86,13 +86,21 @@ impl Vm {
     /// Calls `efun` in its open frame and closes the frame unless the context stops there:
     /// the efun returned `Interrupted`, or it read data a cache-only host is still loading
     /// (then the context waits with `data_wait` and the efun runs again on resume).
+    ///
+    /// A crash after a miss is not final either: the efun got nothing back from the missing
+    /// record (a null reference), so it faulted on data that is only not loaded yet. The fault
+    /// is dropped with the call, and the efun runs again once the data is resident; a fault that
+    /// still happens then is the script's own.
     fn finish_efun(&mut self, efun: u32, ctx: &mut Context) -> InterpStatus {
         let status = self.call_efun(efun, ctx);
         let missed = self.states.take_missed();
-        let waits = missed && ctx.can_yield && status != InterpStatus::Crash;
+        let waits = missed && ctx.can_yield;
         if status == InterpStatus::Interrupted || waits {
             ctx.efun = efun;
             ctx.data_wait = waits && status != InterpStatus::Interrupted;
+            if status == InterpStatus::Crash {
+                self.last_fault = None;
+            }
             return InterpStatus::Interrupted;
         }
         if ctx.leave().is_err() {

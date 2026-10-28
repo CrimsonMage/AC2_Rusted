@@ -118,6 +118,12 @@ pub trait ScriptData {
         false
     }
 
+    /// Whether a lookup has missed and not yet been taken ([`ScriptData::take_missed`]), without
+    /// clearing the flag: a fill that depends on a missing record must not commit a default.
+    fn peek_missed(&self) -> bool {
+        false
+    }
+
     /// The reads lookups missed since the last call, for a worker thread.
     fn take_requests(&self) -> Vec<DataRequest> {
         Vec::new()
@@ -402,6 +408,12 @@ impl Vm {
         };
         let did = object.pkg_state_id;
         let state = self.states.wstate(did);
+        // A record the cache-only host is still loading is not a state that does not exist: the
+        // singleton stays unfilled, the efun that asked waits, and its fill runs again once the
+        // record is resident (a fresh instance here would be kept for good).
+        if state.is_none() && self.states.peek_missed() {
+            return;
+        }
         match state.as_ref().map(|s| &s.references) {
             Some(Ok(packed)) => {
                 self.refs.unpack(packed, Some(reference));

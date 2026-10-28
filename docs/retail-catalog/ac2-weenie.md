@@ -638,7 +638,7 @@ Legend and workflow: [README](README.md).
 - [-] `ALHash::StreamPack` · 00457510 — STL/container internals: a Rust collection replaces it
 
 ### ReferenceTable
-- [x] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — implemented: cited at crates/ac2-script/src/vm/mod.rs:378
+- [x] `ReferenceTable::FillPackage` · 00457540 · legions 004580a0 — a cache-only miss on the WState no longer fills the singleton with a fresh instance: it stays unfilled and the efun waits for the record (vm/mod.rs fill_package, peek_missed); a fault after a miss waits too (vm/efun.rs finish_efun)
 - [-] `ReferenceTable::GetReferencePtr` · 00457610 · legions 00458170 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 - [x] `ReferenceTable::GetPackageID` · 004576d0 · legions 00458230 — implemented: cited at crates/ac2-script/src/vm/mod.rs:352
 
