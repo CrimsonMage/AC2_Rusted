@@ -21,7 +21,7 @@
 
 use std::sync::Arc;
 
-use ac2_weenie::{FriendInfo, MODE_AWAY, MODE_DO_NOT_DISTURB};
+use ac2_weenie::{FriendInfo, GameplayNotice, MODE_AWAY, MODE_DO_NOT_DISTURB};
 
 use crate::element::UiTree;
 use crate::friends::{FriendsRequest, FriendsUi};
@@ -185,6 +185,21 @@ impl FriendsPanel {
         if let Some(menu) = self.status {
             tree.menu_set_selected_index(menu, Some(index));
         }
+    }
+
+    /// The page's notices: an added friend asks for the list again (the returned request); a
+    /// removed one leaves the rows; a status or the list is shown; the server's own status
+    /// selects the drop-down. Other notices are not the page's.
+    pub fn notice(&mut self, tree: &mut UiTree, notice: &GameplayNotice) -> Option<FriendsRequest> {
+        match notice {
+            GameplayNotice::FriendAdded(_) => return Some(self.recv_added()),
+            GameplayNotice::FriendRemoved(name) => self.recv_removed(tree, name),
+            GameplayNotice::FriendStatus(friend) => self.recv_status(tree, friend),
+            GameplayNotice::FriendsList(list) => self.recv_list(tree, list),
+            GameplayNotice::LocalStatus(status) => self.recv_local_status(tree, *status),
+            _ => {}
+        }
+        None
     }
 
     /// `gmFriendsUI::RecvNotice_GUNResult_AddFriend`: the request for the list again.
