@@ -16,6 +16,7 @@ mod geometry;
 mod hash;
 #[cfg(test)]
 mod real_data_tests;
+mod road;
 mod sound;
 
 use std::cell::RefCell;
@@ -127,6 +128,7 @@ pub fn ac2_scene_placements(
             .collect(),
         cell_info: record.cell_info.clone(),
         road_width: land.road_width,
+        road_field: land.road_field,
     };
     let min_height = terrain.heights.iter().copied().fold(f64::MAX, f64::min);
     let water = block::block_water_height(store, block_cell_id, &land.heights, min_height)?;

@@ -2768,7 +2768,7 @@ key	status	note
 00488390	_	needs port: procedural scenery groups (placement rules)
 004883b0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 004883c0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-004883d0	x	
+004883d0	x	ac2-world ac2_scene/road.rs: the sixteen corner-road cases match Legions 0x00481BE0 (admin 0x004883D0 is the same body); the index is x times the reciprocal pixel length, the intermediates are float-rounded, and the road field comes from the DAT LandDefs bit lengths (CLandBlockData::GetRoad). Out-of-block vertices read as no road where retail reads neighbour memory
 004886f0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 00488720	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 00488750	_	needs port: landblock streaming: scenery, objects, cells, water, sound points

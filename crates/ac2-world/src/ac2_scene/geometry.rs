@@ -119,6 +119,9 @@ pub(super) struct Ac2SceneTerrain {
     pub(super) heights: Vec<f64>,
     pub(super) cell_info: Vec<u32>,
     pub(super) road_width: f64,
+    /// (offset, mask) of the road field of a vertex's cell-info word (`LandDefs::road_offset`
+    /// and `road_bits`).
+    pub(super) road_field: (u32, u32),
 }
 
 /// A terrain triangle's upward unit normal and its corners.
@@ -129,9 +132,12 @@ impl Ac2SceneTerrain {
         self.heights[ix * SIDE + iy]
     }
 
-    fn road(&self, ix: i64, iy: i64) -> u32 {
+    /// `CLandBlockData::GetRoad`: the road field of vertex `(ix, iy)`. Outside the block retail
+    /// reads the neighbouring block's memory; here it reads as no road.
+    pub(super) fn road(&self, ix: i64, iy: i64) -> u32 {
+        let (offset, mask) = self.road_field;
         if (0..SIDE as i64).contains(&ix) && (0..SIDE as i64).contains(&iy) {
-            (self.cell_info[ix as usize * SIDE + iy as usize] >> 24) & 0xF
+            (self.cell_info[ix as usize * SIDE + iy as usize] >> offset) & mask
         } else {
             0
         }
@@ -195,41 +201,6 @@ impl Ac2SceneTerrain {
                 [v[t[0]], v[t[1]], v[t[2]]],
             )
         })
-    }
-
-    /// `CLandBlock::OnRoad`: the road bits at the four pixel corners around `(x, y)` define road
-    /// strips `road_width` wide.
-    pub(super) fn on_road(&self, x: f64, y: f64) -> bool {
-        let (l, w) = (POLYGON, self.road_width);
-        let mx = l - w;
-        let ix = (x / l).floor() as i64;
-        let iy = (y / l).floor() as i64;
-        let r00 = self.road(ix, iy) != 0;
-        let r01 = self.road(ix, iy + 1) != 0;
-        let r10 = self.road(ix + 1, iy) != 0;
-        let r11 = self.road(ix + 1, iy + 1) != 0;
-        if !(r00 || r01 || r10 || r11) {
-            return false;
-        }
-        let dx = x - ix as f64 * l;
-        let dy = y - iy as f64 * l;
-        match (r00, r01, r10, r11) {
-            (false, false, true, false) => (l - dx) + dy < w,
-            (false, false, true, true) => dx > mx,
-            (false, false, false, _) => (2.0 * l - dx - dy) < w,
-            (false, true, true, true) => dx > mx || dy > mx,
-            (false, true, true, false) => (dx + dy - l).abs() < w,
-            (false, true, false, true) => dy > mx,
-            (false, true, false, false) => (dx + l - dy) < w,
-            (true, true, true, true) => true,
-            (true, true, true, false) => dx < w || dy < w,
-            (true, true, false, true) => dx < w || dy > mx,
-            (true, true, false, false) => dx < w,
-            (true, false, true, false) => dy < w,
-            (true, false, true, true) => dx > mx || dy < w,
-            (true, false, false, false) => dx + dy < w,
-            (true, false, false, true) => (dx - dy).abs() < w,
-        }
     }
 }
 

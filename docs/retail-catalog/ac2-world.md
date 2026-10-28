@@ -273,7 +273,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlock
 - [ ] `CLandBlock::Init` · 004883b0 · legions 00481bc0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::SetVertexValue` · 004883c0 · legions 00481bd0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [x] `CLandBlock::OnRoad` · 004883d0 · legions 00481be0
+- [x] `CLandBlock::OnRoad` · 004883d0 · legions 00481be0 — ac2-world ac2_scene/road.rs: the sixteen corner-road cases match Legions 0x00481BE0 (admin 0x004883D0 is the same body); the index is x times the reciprocal pixel length, the intermediates are float-rounded, and the road field comes from the DAT LandDefs bit lengths (CLandBlockData::GetRoad). Out-of-block vertices read as no road where retail reads neighbour memory
 - [ ] `CLandBlock::GrabVisibleCells` · 004886f0 · legions 00481f00 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::ReleaseVisibleCells` · 00488720 · legions 00481f30 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [ ] `CLandBlock::FindInteriorCell` · 00488750 · legions 00481f60 — needs port: landblock streaming: scenery, objects, cells, water, sound points

@@ -408,10 +408,12 @@ fn bytes_hint(frill: Option<&Ac2SceneGroup>, degrades: &[Vec<Ac2SceneEntity>]) -
     frill.map_or(0, group_bytes) + degrades.iter().map(|degrade| list(degrade)).sum::<usize>()
 }
 
-/// `LandscapeDefs` fields the generator needs: the road half-width and the height table.
+/// `LandscapeDefs` fields the generator needs: the road half-width, the road field of a vertex's
+/// cell-info word (offset and mask) and the height table.
 #[derive(Debug)]
 pub(super) struct Ac2SceneLandDefs {
     pub(super) road_width: f64,
+    pub(super) road_field: (u32, u32),
     pub(super) heights: Vec<f64>,
 }
 
@@ -435,14 +437,32 @@ impl ResourcePackedDecode for Ac2SceneLandDefs {
             let _max_object_height = float(cursor)?;
             let _sky_height = float(cursor)?;
             let road_width = float(cursor)?;
-            for _ in 0..6 {
-                word(cursor)?;
+            // `LandDefs::set_bitlengths`: terrain, scene, encounter, color, road, replace.
+            let mut bits = [0u32; 6];
+            for bit in &mut bits {
+                *bit = word(cursor)?;
             }
+            // `CLandBlockData::GetRoad`: the road field starts after the four fields below it;
+            // a field that runs past bit 0x20 reads as no road.
+            let (offset, width) = (bits[..4].iter().sum::<u32>(), bits[4]);
+            let road_field = if offset + width > 0x20 {
+                (0, 0)
+            } else {
+                (
+                    offset,
+                    if width >= 32 {
+                        u32::MAX
+                    } else {
+                        (1 << width) - 1
+                    },
+                )
+            };
             let heights = (0..256)
                 .map(|_| float(cursor))
                 .collect::<Result<Vec<_>, _>>()?;
             Ok(Self {
                 road_width,
+                road_field,
                 heights,
             })
         };
