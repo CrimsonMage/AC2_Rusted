@@ -11,7 +11,10 @@
 //! The clipboard keys and the pointer drag selection are in `text_clip.rs`; the clipboard itself
 //! is `UiTree::set_text_clipboard`.
 //!
-//! Not modelled yet: the IME and the cursor's flashing.
+//! The cursor shows for 1.5 seconds after it moves and then flashes, on for a second and off
+//! for a second (`UIElement_Text::Global_Loop`, admin 0x005F12A0).
+//!
+//! Not modelled yet: the IME.
 
 use crate::chat::Modifiers;
 use crate::element::UiTree;
@@ -233,11 +236,13 @@ impl UiTree {
             self.set_selecting(index, true);
             self.set_selection_start(index, old);
         }
+        let now = self.time;
         let Some(text) = self.el_mut(index).text.as_mut() else {
             return;
         };
         let position = position.clamp(0, text.glyphs.len() as isize) as usize;
         text.cursor = position;
+        text.cursor_moved = now;
         self.set_selection_end(index, position);
         self.changed = true;
     }
@@ -503,6 +508,37 @@ impl UiTree {
         self.text_drag = Some(index);
         if editable {
             self.activate(index);
+        }
+    }
+
+    /// `UIElement_Text::Global_Loop`'s cursor flash on an editable element: shown while it moved
+    /// less than 1.5 seconds ago, otherwise flipped once a second. Only the active element's
+    /// flip asks for a redraw (retail redraws the cursor's box every loop).
+    pub(crate) fn text_cursor_flash(&mut self, index: usize) {
+        let now = self.time;
+        let active = self.active == Some(index);
+        let Some(text) = self.el_mut(index).text.as_mut() else {
+            return;
+        };
+        if !text.editable {
+            return;
+        }
+        if text.cursor != text.flash_cursor {
+            text.flash_cursor = text.cursor;
+            text.cursor_moved = now;
+        }
+        let was = text.cursor_visible;
+        if now - text.cursor_moved < 1.5 {
+            text.cursor_visible = true;
+        } else {
+            if now - text.flash_flip < 1.0 {
+                return;
+            }
+            text.flash_flip = now;
+            text.cursor_visible = !text.cursor_visible;
+        }
+        if active && was != text.cursor_visible {
+            self.changed = true;
         }
     }
 }

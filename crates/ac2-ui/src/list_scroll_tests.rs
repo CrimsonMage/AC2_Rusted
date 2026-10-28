@@ -401,3 +401,16 @@ fn a_track_press_held_pages_again() {
     tree.global_loop(2.0);
     assert_eq!(view_y(&tree, list), 20, "released: no more pages");
 }
+
+/// `UIElement_ListBox::ResizeTo`: a resized list updates its scroll bar for its new height.
+#[test]
+fn a_resized_list_updates_its_scroll_bar() {
+    let (mut tree, list, bar, _) = panel();
+    tree.list_set_view(list, None, Some(10));
+    let share = tree.scrollbar_position(bar);
+    assert!((share - 1.0 / 3.0).abs() < 1e-6, "10 of 30: {share}");
+    // 30 pixels tall: 20 pixels of scroll left.
+    tree.resize_to(list, 30, 30);
+    let share = tree.scrollbar_position(bar);
+    assert!((share - 0.5).abs() < 1e-6, "10 of 20: {share}");
+}

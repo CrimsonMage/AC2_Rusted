@@ -6,8 +6,8 @@
 //! `ScrollToShow`). A left press on a `click_select` list selects the item under the pointer
 //! (`MouseDown`, `HandleSelection`) and is not passed on unless `mouse_event_passthrough`.
 //!
-//! Not modelled yet: drag selection (`drag_select`), keyboard stepping (`StartActive`) and the
-//! mouse wheel's scroll bar.
+//! A `drag_select` list goes on selecting under the pointer while the button is held
+//! (`list_drag.rs`).
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -137,6 +137,7 @@ impl UiTree {
         } else if self.bool_attribute(index, CLICK_SELECT) {
             if let Some(item) = self.list_item_under_mouse(index) {
                 self.list_set_selected_item(index, Some(item), true);
+                self.list_start_drag_select(index);
             }
         }
         if !self.bool_attribute(index, MOUSE_EVENT_PASSTHROUGH) {

@@ -132,6 +132,7 @@ impl UiTree {
     fn mouse_move_event(&mut self) {
         self.tooltip.last_mouse_move = self.time;
         self.broadcast_global(GLOBAL_MOUSE_MOVE, 0);
+        self.lists_global_mouse_move();
         self.scrollbar_mouse_move();
         // `MouseMoveEvent` checks the drag against the region under the pointer before the move
         // (`UpdateMouse` runs in the next `UseTime`).
@@ -221,6 +222,7 @@ impl UiTree {
             self.broadcast(index, MSG_MOUSE_OVER_TOP, i32::from(is_top));
             self.button_update_state(index);
             self.panel_page_mouse_over_top(index, is_top);
+            self.list_mouse_over_top(index, is_top);
             self.menu_update_state(index);
         }
     }
@@ -288,6 +290,7 @@ impl UiTree {
     /// `UIElementManager::MouseUpEvent`.
     fn mouse_up_event(&mut self, action: u32) {
         self.broadcast_global(GLOBAL_MOUSE_UP, action);
+        self.lists_global_mouse_up();
         self.menu_global_mouse(GLOBAL_MOUSE_UP);
         let mut processed = false;
         for root in self.roots.clone() {

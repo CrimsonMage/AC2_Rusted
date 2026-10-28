@@ -247,6 +247,9 @@ pub struct UiTree {
     pub(crate) new_tooltip_owner: Option<usize>,
     /// `UIElementManager`'s drag and drop.
     pub(crate) drag: crate::drag::DragState,
+    /// The lists with an open drag selection or rollover, which hear the global mouse move and
+    /// mouse up (`list_drag.rs`).
+    pub(crate) list_trackers: Vec<usize>,
     /// The element being moved by its drag bar (`UIElement::m_moving`).
     pub(crate) movement: Option<crate::window_locations::Movement>,
     /// A window being resized by its grip (`UIElement::m_resizing`).
@@ -323,6 +326,7 @@ impl UiTree {
             cursor: None,
             default_cursor: None,
             tooltip: crate::tooltip::TooltipState::default(),
+            list_trackers: Vec::new(),
             new_tooltip_owner: None,
             drag: crate::drag::DragState::default(),
             movement: None,

@@ -123,6 +123,16 @@ pub(crate) struct TextState {
     /// right_justify, center_vertically, no_IME and trim_from_top) and draws the text unmasked
     /// (`GlyphList::AddText`), so this is the modern flag of AGENTS.md's text exception.
     pub password: bool,
+    /// `m_lastCursorMoveTime`, `m_lastFlashFlipTime` and `m_cursorVisible`: the cursor shows
+    /// for 1.5 seconds after it moves, then flashes once a second (`text_edit.rs`
+    /// `text_cursor_flash`).
+    pub cursor_moved: f64,
+    pub flash_flip: f64,
+    pub cursor_visible: bool,
+    /// The cursor position the flash last saw: every Rust edit path that moves the cursor
+    /// (typing, deleting, pasting) counts as a move, as each goes through `SetCursorPosition`
+    /// in retail.
+    pub flash_cursor: usize,
 }
 
 impl TextState {
@@ -149,6 +159,10 @@ impl TextState {
             selecting: false,
             selection: (0, 0),
             password: false,
+            cursor_moved: -1.0,
+            flash_flip: 0.0,
+            cursor_visible: true,
+            flash_cursor: 0,
         }
     }
 
@@ -516,8 +530,8 @@ impl UiSurface {
             x += self.draw_character(window, x, y, font, glyph.ch, glyph.color, true);
         }
         // `PostBlit`'s cursor: one pixel wide and a font high in the font colour, while the
-        // editable element is active.
-        if active && text.editable {
+        // editable element is active and the cursor is in its shown half of the flash.
+        if active && text.editable && text.cursor_visible {
             let (cx, cy) = cursor_at.unwrap_or((x, y));
             let height = text.font.as_ref().map_or(0, |f| f.max_char_height as i32);
             let color = color_bytes(text.color);

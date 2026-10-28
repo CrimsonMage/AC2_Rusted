@@ -6,7 +6,7 @@ use crate::layout::{AttributeDesc, AttributeValue, ElementDesc, LayoutDesc, Rect
 use crate::token::{tokenize, STATELESS};
 use crate::{UiTree, MSG_NEW_SELECTION};
 
-fn state(id: u32, attrs: Vec<(&str, AttributeValue)>) -> StateDesc {
+pub(crate) fn state(id: u32, attrs: Vec<(&str, AttributeValue)>) -> StateDesc {
     StateDesc {
         id,
         flags: 0,
@@ -30,7 +30,13 @@ fn state(id: u32, attrs: Vec<(&str, AttributeValue)>) -> StateDesc {
     }
 }
 
-fn element(id: &str, kind: &str, x1: i16, y1: i16, states: Vec<StateDesc>) -> Arc<ElementDesc> {
+pub(crate) fn element(
+    id: &str,
+    kind: &str,
+    x1: i16,
+    y1: i16,
+    states: Vec<StateDesc>,
+) -> Arc<ElementDesc> {
     Arc::new(ElementDesc {
         id: tokenize(id),
         kind: tokenize(kind),
@@ -98,7 +104,12 @@ fn tree() -> (UiTree, Arc<LayoutDesc>, usize) {
     (tree, layout, list)
 }
 
-fn items(tree: &mut UiTree, layout: &Arc<LayoutDesc>, list: usize, n: usize) -> Vec<usize> {
+pub(crate) fn items(
+    tree: &mut UiTree,
+    layout: &Arc<LayoutDesc>,
+    list: usize,
+    n: usize,
+) -> Vec<usize> {
     let desc = Arc::clone(layout.element(tokenize("Item")).unwrap());
     let items: Vec<usize> = (0..n)
         .map(|_| {
@@ -112,7 +123,7 @@ fn items(tree: &mut UiTree, layout: &Arc<LayoutDesc>, list: usize, n: usize) -> 
     items
 }
 
-fn selections(tree: &mut UiTree, list: usize) -> Vec<i32> {
+pub(crate) fn selections(tree: &mut UiTree, list: usize) -> Vec<i32> {
     tree.take_messages()
         .into_iter()
         .filter(|m| m.element == Some(list) && m.message == MSG_NEW_SELECTION)

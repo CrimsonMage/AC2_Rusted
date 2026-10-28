@@ -417,6 +417,9 @@ impl UiTree {
             }
             let root = self.root_of(index);
             self.broadcast(index, MSG_WIDGET_RELEASE, root as i32);
+            for (list, _) in self.lists_bound_to(index) {
+                self.list_scrollbar_widget_release(list);
+            }
         }
     }
 

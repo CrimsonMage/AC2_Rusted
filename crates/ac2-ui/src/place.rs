@@ -197,6 +197,13 @@ impl UiTree {
         self.scrollbar_update_layout(index);
         // `UIElement_Meter::ResizeTo`.
         self.meter_update_layout(index);
+        // `UIElement_ListBox::ResizeTo`: laid out again, the view kept in bounds, the controls
+        // updated.
+        if crate::list_box_select::is_list_kind(self.el(index).desc.kind)
+            && self.el(index).list.is_some()
+        {
+            self.list_relayout(index);
+        }
     }
 
     /// `UIElement::MoveTo`: a root keeps its box at the origin of its surface object, which is

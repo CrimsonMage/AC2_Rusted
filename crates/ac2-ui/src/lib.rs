@@ -114,8 +114,10 @@ pub use menu::MSG_MENU_NEW_SELECTION;
 #[cfg(test)]
 mod key_action_audit_tests;
 mod layout_media;
+mod list_animate;
 mod list_box;
 mod list_box_select;
+mod list_drag;
 mod list_goal;
 mod list_msize;
 mod list_scroll;
@@ -453,6 +455,8 @@ mod journal_quests_tests;
 mod list_box_select_tests;
 #[cfg(test)]
 mod list_box_tests;
+#[cfg(test)]
+mod list_drag_tests;
 #[cfg(test)]
 mod media_tests;
 #[cfg(test)]

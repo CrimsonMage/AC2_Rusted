@@ -3,10 +3,8 @@
 //! of an item (`GetCol`, `GetLeftCol`, `ScrollToCol`), the scroll share (`GetPercentageH`,
 //! `GetPercentageV`), selection by element id and the multi-operation wrappers.
 //!
-//! Every step computes a goal from the current view and sets it as the `goal_*_view` attribute
-//! (`SetAttribute_Int`). A list that does not move smoothly sets the view to the goal at once
-//! and clears the goal (`SetAttribute_Int`, `m_bitField & 2` clear); a smooth list would start
-//! the animation (`StartAnimation`), which is not modelled: the view still jumps to the goal.
+//! Every step computes a goal from the current view (from the goal while the list moves) and
+//! sets it as the `goal_*_view` attribute (`list_animate.rs`).
 
 use crate::element::UiTree;
 
@@ -31,16 +29,6 @@ impl UiTree {
         })
     }
 
-    /// `SetAttribute_Int(goal_x_view / goal_y_view, goal)`: the view goes to the goal (a smooth
-    /// list would animate to it).
-    fn list_set_goal(&mut self, list: usize, vertical: bool, goal: i32) {
-        if vertical {
-            self.list_set_view(list, None, Some(goal));
-        } else {
-            self.list_set_view(list, Some(goal), None);
-        }
-    }
-
     /// `UIElement_ListBox::VerticalLineIncrement` (`steps` 1) and `VerticalLineDecrement` (-1),
     /// or the horizontal pair when `vertical` is false: the goal moves one item, within `0` and
     /// `paper - extent`.
@@ -52,6 +40,7 @@ impl UiTree {
         let Some((paper, item, view)) = self.list_axis(list, vertical) else {
             return;
         };
+        let view = self.list_step_base(list, vertical, view);
         let goal = if steps >= 0 {
             // `min(view + item, paper - (y1 - y0) - 1)`.
             (view + item).min(paper - self.list_extent(list, vertical))
@@ -73,6 +62,7 @@ impl UiTree {
         let Some((paper, item, view)) = self.list_axis(list, vertical) else {
             return;
         };
+        let view = self.list_step_base(list, vertical, view);
         let extent = self.list_extent(list, vertical);
         let goal = if forward {
             (view + extent - item).min(paper - extent)
@@ -80,6 +70,44 @@ impl UiTree {
             (view - (extent - item)).max(0)
         };
         self.list_set_goal(list, vertical, goal);
+    }
+
+    /// `UIElement_ListBox::ListenToMessage(hot_click)` (admin 0x005F31F0): a hot button a list
+    /// names as its `up_button` / `down_button` steps it a line up / down
+    /// (`VerticalLineDecrement` / `VerticalLineIncrement`), its `left_button` / `right_button` a
+    /// column (`HorizontalLineDecrement` / `HorizontalLineIncrement`). A `unique_msg` list hears
+    /// only buttons in its own root.
+    pub(crate) fn list_hot_click(&mut self, button: usize) {
+        let button_id = self.el(button).id();
+        let lists: Vec<usize> = self
+            .slots
+            .iter()
+            .enumerate()
+            .filter_map(|(i, el)| {
+                crate::list_box_select::is_list_kind(el.as_ref()?.desc.kind).then_some(i)
+            })
+            .collect();
+        for list in lists {
+            for (name, vertical, steps) in [
+                ("up_button", true, -1),
+                ("down_button", true, 1),
+                ("left_button", false, -1),
+                ("right_button", false, 1),
+            ] {
+                let named = matches!(
+                    self.el(list).attributes.get(&crate::token::tokenize(name)),
+                    Some(crate::layout::AttributeValue::Id(id)) if *id == button_id
+                );
+                if !named {
+                    continue;
+                }
+                if self.list_flag(list, "unique_msg") && self.root_of(button) != self.root_of(list)
+                {
+                    continue;
+                }
+                self.list_line_step(list, vertical, steps);
+            }
+        }
     }
 
     /// `UIElement_ListBox::GetLeftCol`: the column at the view's left edge.

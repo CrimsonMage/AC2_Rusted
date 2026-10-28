@@ -220,8 +220,8 @@ impl UiTree {
     }
 
     /// `UIMESSAGE_GLOBAL_LOOP` (`0xffff0005`) at time `now` in seconds: every element's
-    /// transitions and media (`UIElement::ListenToMessage`), and every moving meter
-    /// (`UIElement_Meter::Global_Loop`).
+    /// transitions and media (`UIElement::ListenToMessage`), every moving meter
+    /// (`UIElement_Meter::Global_Loop`) and every moving list (`UIElement_ListBox::Global_Loop`).
     pub fn global_loop(&mut self, now: f64) {
         // The drag selection's auto-scroll runs on the frame, with the time since the last one.
         let dt = (now - self.time).clamp(0.0, 0.1);
@@ -237,6 +237,13 @@ impl UiTree {
                 .is_some_and(|m| m.animating);
             if moving {
                 self.meter_global_loop(index, now);
+            }
+            let list_moving = self
+                .get(index)
+                .and_then(|e| e.list.as_ref())
+                .is_some_and(|l| l.anim.is_some());
+            if list_moving {
+                self.list_global_loop(index, now);
             }
         }
     }

@@ -416,3 +416,36 @@ fn page_down_and_up_move_the_view_a_page_and_the_cursor_to_its_top() {
     assert!(tree.move_cursor(entry, Direction::PageUp, false));
     assert_eq!(view_y(&tree), 0);
 }
+
+/// `UIElement_Text::Global_Loop`: the cursor shows for 1.5 seconds after it moves, then flips
+/// once a second; it draws only while shown.
+#[test]
+fn the_cursor_flashes_once_it_has_rested() {
+    let (mut tree, entry) = editable_entry();
+    tree.global_loop(100.0);
+    type_text(&mut tree, "ab");
+    // The frame's loop right after the typing sees the move.
+    tree.global_loop(100.0);
+    let shown = |tree: &UiTree| {
+        tree.get(entry)
+            .unwrap()
+            .text
+            .as_ref()
+            .unwrap()
+            .cursor_visible
+    };
+    tree.global_loop(101.0);
+    assert!(shown(&tree), "moved under 1.5 s ago");
+    tree.global_loop(101.6);
+    assert!(!shown(&tree), "rested: the first flip hides it");
+    tree.global_loop(102.0);
+    assert!(!shown(&tree), "under a second since the flip");
+    tree.global_loop(102.6);
+    assert!(shown(&tree));
+    // A move shows it again at once.
+    tree.global_loop(102.7);
+    type_text(&mut tree, "c");
+    tree.global_loop(102.7);
+    tree.global_loop(103.0);
+    assert!(shown(&tree));
+}

@@ -9965,10 +9965,10 @@ key	status	note
 005f0e90	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f0f70	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0ff0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
-005f12a0	_	needs port (check): UIElement_Text::Global_Loop behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005f12a0	x	ac2-ui text_edit.rs text_cursor_flash from element_global_loop: the cursor shows for 1.5 s after it moves, then flips once a second (m_lastCursorMoveTime / m_lastFlashFlipTime / m_cursorVisible); text.rs draw_text draws it only while shown; text_clip_tests the_cursor_flashes_once_it_has_rested. Not: CheckStringDownloads
 005f1350	x	ac2-ui chat.rs / chat_window.rs
 005f13e0	x	ac2-ui chat.rs / chat_window.rs
-005f1470	_	needs port (check): UIElement_Text::ListenToMessage; menu.rs cite is a menu selection broadcast
+005f1470	x	ac2-ui: the global mouse move is text_clip.rs text_drag_move (from mouse.rs), the global loop text_edit.rs text_cursor_flash (from transition.rs element_global_loop)
 005f14b0	_	needs port (check): UIElement_Text::AddStringInfo behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005f14c0	_	needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
 005f14e0	_	needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
@@ -9997,8 +9997,8 @@ key	status	note
 005f1fc0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f2180	x	ac2-ui list_goal.rs / list_msize.rs: the max/min clamp of the goal is inlined in list_line_step, list_page_step and list_msize_step; a smooth list jumps to the goal
 005f21f0	x	ac2-ui list_box.rs
-005f23f0	_	needs port (check): UIElement_ListBox::StartAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2500	_	needs port (check): UIElement_ListBox::StopAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f23f0	x	ac2-ui list_animate.rs list_start_animation / list_stop_animation / list_global_loop: goal-driven smooth movement over smooth_movement_duration (start + trunc((end-start)*t), t as float; restart half way while moving), ticked from UiTree::global_loop; list_drag_tests.rs
+005f2500	x	ac2-ui list_animate.rs list_start_animation / list_stop_animation / list_global_loop: goal-driven smooth movement over smooth_movement_duration (start + trunc((end-start)*t), t as float; restart half way while moving), ticked from UiTree::global_loop; list_drag_tests.rs
 005f2540	x	ac2-ui list_box.rs
 005f2560	x	ac2-ui list_box_select.rs
 005f2650	x	ac2-ui list_box_select.rs
@@ -10010,20 +10010,20 @@ key	status	note
 005f2870	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f28d0	x	ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 005f2930	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
-005f2a50	_	needs port (check): UIElement_ListBox::StartDragSelect behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2ac0	_	needs port (check): UIElement_ListBox::EndDragSelect behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2b10	_	needs port (check): UIElement_ListBox::StartRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2b60	_	needs port (check): UIElement_ListBox::EndRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f2a50	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
+005f2ac0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
+005f2b10	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
+005f2b60	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 005f2bc0	x	ac2-ui list_box.rs
 005f2c30	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f2cc0	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f2d50	x	wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 005f2d90	~	list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
-005f2f60	_	needs port (check): UIElement_ListBox::HandleScrollbarWidgetRelease behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f2f60	x	ac2-ui list_animate.rs list_scrollbar_widget_release: the nearest item boundary as the goal, skipped with allow_largeitem_scroll and at the far end with allow_uneven_at_end; called from scrollbar_mouse_up for the bound lists
 005f3070	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
-005f3190	_	needs port (check): UIElement_ListBox::MouseOverTop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f31f0	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3320	_	needs port (check): UIElement_ListBox::Global_Loop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3190	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
+005f31f0	x	ac2-ui list_goal.rs list_hot_click (up/down_button: VerticalLineDecrement/Increment, left/right_button: Horizontal; vtable 0x100-0x10C read from the admin exe; unique_msg root check), called beside scrollbar_hot_click; the scroll bar messages are list_scroll.rs
+005f3320	x	ac2-ui list_animate.rs list_start_animation / list_stop_animation / list_global_loop: goal-driven smooth movement over smooth_movement_duration (start + trunc((end-start)*t), t as float; restart half way while moving), ticked from UiTree::global_loop; list_drag_tests.rs
 005f3430	x	UIElement_ListBox::StartActive done: list_scroll.rs list_step_selection
 005f34d0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 005f3550	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
@@ -10035,21 +10035,21 @@ key	status	note
 005f3850	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 005f38d0	x	UIElement_ListBox::UpdateControls done: list_scroll.rs list_update_controls
 005f3af0	x	ac2-ui list_goal.rs: UiTree::list_update_and_draw (layout, KeepViewInBounds, UpdateControls, redraw)
-005f3b20	_	needs port (check): UIElement_ListBox::ResizeTo behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3b20	x	ac2-ui place.rs resize_to: a list lays out again, keeps its view in bounds and updates its controls (list_relayout)
 005f3b60	x	ac2-ui list_goal.rs: UiTree::list_set_selected_item_by_id
 005f3c20	x	ac2-ui list_box.rs
 005f3c90	x	ac2-ui list_box.rs
 005f3d60	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 005f3d70	x	ac2-ui list_box.rs
 005f3db0	x	ac2-ui list_box.rs
-005f3e70	_	needs port (check): UIElement_ListBox::Rollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3e70	x	ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 005f3f30	x	ac2-ui list_box.rs
-005f3fd0	x	ac2-ui list_box_select.rs
+005f3fd0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 005f4030	_	needs port (check): UIElement_ListBox::SetState behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f4170	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f4270	_	needs port (check): UIElement_ListBox::SetAttribute_ID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f4420	~	left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
-005f44c0	_	needs port (check): UIElement_ListBox::Global_MouseMove behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f44c0	x	ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 005f4500	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 005f4540	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 005f4570	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
@@ -10060,8 +10060,8 @@ key	status	note
 005f4750	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 005f47a0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f4a80	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
-005f4ab0	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f4b00	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4ab0	x	ac2-ui list_drag.rs lists_global_mouse_up / lists_global_mouse_move, called from mouse.rs on the global mouse up and move
+005f4b00	~	ac2-ui: global mouse up/move (list_drag.rs) and the global loop (list_animate.rs) are ported; the ListBoxMsg_update message is not routed: the frameworks call list_relayout directly
 005f4b90	x	ac2-ui list_box.rs
 005f4c30	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f4c50	x	ac2-ui meter.rs

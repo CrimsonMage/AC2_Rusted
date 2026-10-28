@@ -111,6 +111,7 @@ impl UiTree {
         }
         self.broadcast(index, MSG_HOT_CLICK, 0);
         self.scrollbar_hot_click(index);
+        self.list_hot_click(index);
         let interval = self
             .float_attribute(index, HOT_CLICK_INTERVAL)
             .unwrap_or(DEFAULT_HOT_CLICK_INTERVAL);
@@ -155,6 +156,7 @@ impl UiTree {
             if is_left(action) && self.bool_attribute(index, BUTTON_HOT) {
                 self.broadcast(index, MSG_HOT_CLICK, 0);
                 self.scrollbar_hot_click(index);
+                self.list_hot_click(index);
                 let first = self
                     .float_attribute(index, HOT_CLICK_FIRST_INTERVAL)
                     .unwrap_or(DEFAULT_HOT_CLICK_FIRST_INTERVAL);

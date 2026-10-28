@@ -6,10 +6,10 @@
 //! replacing and removing items lay the list out again unless a multi-operation is open; a
 //! change of view broadcasts `new_view` (`ViewChanged`).
 //!
-//! The scroll bars (`list_scroll.rs`) drive and follow the view.
+//! The scroll bars (`list_scroll.rs`) drive and follow the view; smooth movement is in
+//! `list_animate.rs`, drag selection and rollover in `list_drag.rs`.
 //!
-//! Not modelled yet: smooth scrolling (`StartAnimation`, `goal_x_view`), the scroll bars'
-//! buttons, rollover and drag selection, and `allow_updating` turned off.
+//! Not modelled yet: `allow_updating` turned off.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -18,7 +18,7 @@ use crate::token::tokenize;
 const MSG_NEW_VIEW: u32 = tokenize("new_view");
 
 /// A list box's own state (`m_listItems`, the layout and the view record).
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub(crate) struct ListBoxState {
     pub items: Vec<usize>,
     pub cols: i32,
@@ -38,6 +38,17 @@ pub(crate) struct ListBoxState {
     /// A sized list's column widths and row heights (`m_nItemWidths`, `m_nItemHeights`).
     pub col_widths: Vec<i32>,
     pub row_heights: Vec<i32>,
+    /// Bit 0x8000 and the smooth movement's ends and times (`list_animate.rs`).
+    pub anim: Option<crate::list_animate::ListAnim>,
+    /// Bit 0x80000: the global loop set the view, so a view set from elsewhere stops the
+    /// animation.
+    pub anim_moved: bool,
+    /// Bit 0x10000: a drag selection is open (`list_drag.rs`).
+    pub drag_selecting: bool,
+    /// Bit 0x100000: a dragged item is rolling over the list.
+    pub rollover: bool,
+    /// `m_dragLastOver` with `m_lastDragOverState`.
+    pub drag_last_over: Option<(usize, u32)>,
 }
 
 impl UiTree {
@@ -192,7 +203,7 @@ impl UiTree {
     }
 
     /// `UIElement_ListBox::ConstrainViewValue`.
-    fn list_constrain(&self, list: usize, x: bool, value: i32) -> i32 {
+    pub(crate) fn list_constrain(&self, list: usize, x: bool, value: i32) -> i32 {
         if self.is_msize(list) {
             return self.list_msize_constrain(list, x, value);
         }
@@ -217,6 +228,15 @@ impl UiTree {
 
     /// `SetAttribute_Int(x_view / y_view)`: constrained, then `ViewChanged`.
     pub fn list_set_view(&mut self, list: usize, x: Option<i32>, y: Option<i32>) {
+        // A view set while the global loop is moving the list stops the movement.
+        if self
+            .el(list)
+            .list
+            .as_ref()
+            .is_some_and(|s| s.anim.is_some() && s.anim_moved)
+        {
+            self.list_stop_animation(list);
+        }
         let x = x.map(|v| self.list_constrain(list, true, v));
         let y = y.map(|v| self.list_constrain(list, false, v));
         let attrs = &mut self.el_mut(list).attributes;

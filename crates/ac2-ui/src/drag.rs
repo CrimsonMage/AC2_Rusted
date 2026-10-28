@@ -271,7 +271,7 @@ impl UiTree {
     }
 
     /// The callback `check` on `item`, owned by `owner`.
-    fn run_drag_check(&self, check: DragCheck, item: usize, owner: usize) -> bool {
+    pub(crate) fn run_drag_check(&self, check: DragCheck, item: usize, owner: usize) -> bool {
         let shortcut_type = match self.get(item).and_then(|e| e.attribute(SHORTCUT_TYPE)) {
             Some(AttributeValue::Id(kind)) => *kind,
             _ => 0,
