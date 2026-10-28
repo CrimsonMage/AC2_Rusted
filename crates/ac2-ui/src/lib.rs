@@ -110,6 +110,8 @@ mod key_action_audit_tests;
 mod layout_media;
 mod list_box;
 mod list_box_select;
+mod list_goal;
+mod list_msize;
 mod list_scroll;
 #[cfg(test)]
 mod list_scroll_tests;

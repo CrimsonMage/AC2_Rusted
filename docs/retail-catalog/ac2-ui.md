@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1107 done, 360 partial, 437 to do, 343 skipped.
+2247 retail functions: 1151 done, 369 partial, 348 to do, 379 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2874,14 +2874,14 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::UpdateChild` · 005ed340 · legions 005adf10 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetState` · 005ed450 · legions 005ae020 — m_delOnTransStop (delete after the exit transition) not modelled
 
-## `portal/client/src/uielement/system/uielementmanager.cpp.c` (8/69)
+## `portal/client/src/uielement/system/uielementmanager.cpp.c` (12/69)
 
 ### Box2D
 - [ ] `Box2D::Includes` · 005e3490 · legions 005a4250 — needs port: Box2D::Includes behaviour
 
 ### UIElementManager
-- [ ] `UIElementManager::CreateRootElement` · 005e3520 — needs port (check): UIElementManager::CreateRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::RemoveRootElement` · 005e3580 · legions 005a4320 — needs port (check): UIElementManager::RemoveRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [x] `UIElementManager::CreateRootElement` · 005e3520 — ac2-ui element.rs: UiTree::create_root
+- [x] `UIElementManager::RemoveRootElement` · 005e3580 · legions 005a4320 — ac2-ui element.rs: UiTree::delete (removes a root and its children)
 - [~] `UIElementManager::SetCursor` · 005e35f0 — fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 - [x] `UIElementManager::UseDefaultCursor` · 005e3690 · legions 005a4420 — ac2-ui media.rs / transition.rs
 - [ ] `UIElementManager::KeyReleaseEvent` · 005e36b0 — needs port (check): UIElementManager::KeyReleaseEvent behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
@@ -2894,27 +2894,27 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<CPartGroup_*>::RemoveOrdered` · 005e3910 · legions 005a4740 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### UIElementManager
-- [ ] `UIElementManager::AddRootElement` · 005e3960 — needs port (check): UIElementManager::AddRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [x] `UIElementManager::AddRootElement` · 005e3960 — ac2-ui element.rs: UiTree::create_root
 - [ ] `UIElementManager::ChangingElementVisibility` · 005e3aa0 · legions 005a48d0 — needs port (check): UIElementManager::ChangingElementVisibility behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 - [~] `UIElementManager::MouseMoveEvent` · 005e3af0 · legions 005a4920 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::UpdateMouse` · 005e3b70 · legions 005a49a0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::MouseDownEvent` · 005e3cc0 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
-- [ ] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10 — needs port (check): UIElementManager::CleanDeleteQueue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::CleanDeleteQueue` · 005e3de0 · legions 005a4c10 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 - [~] `UIElementManager::StartTooltip` · 005e3e90 · legions 005a4cc0 — no right-button check; 32x32 cursor size assumed
 - [x] `UIElementManager::StartDragandDrop` · 005e42e0 — ac2-ui drag.rs; shortcut.rs drop
 - [x] `UIElementManager::StopDragandDrop` · 005e46d0 · legions 005a5500 — ac2-ui drag.rs; shortcut.rs drop
-- [ ] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550 — needs port (check): UIElementManager::UnregisterActivatable behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::ActivateNext` · 005e4740 — needs port (check): UIElementManager::ActivateNext behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::DrawDirtyRegions` · 005e4970 — needs port (check): UIElementManager::DrawDirtyRegions behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::GetObjectRegionInfo` · 005e4b10 — needs port (check): UIElementManager::GetObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::UnregisterActivatable` · 005e4720 · legions 005a5550 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+- [-] `UIElementManager::ActivateNext` · 005e4740 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+- [-] `UIElementManager::DrawDirtyRegions` · 005e4970 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+- [-] `UIElementManager::GetObjectRegionInfo` · 005e4b10 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 - [~] `UIElementManager::MouseUpEvent` · 005e4b60 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::KeyPressEvent` · 005e4c70 · legions 005a4440 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [x] `UIElementManager::ResetTooltip` · 005e4d20 · legions 005a5bb0 — ac2-ui tooltip.rs
-- [ ] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0 — needs port (check): UIElementManager::AddtoListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::AddtoListCleanQue` · 005e4d30 · legions 005a5bc0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 - [ ] `UIElementManager::HandleApply` · 005e4d70 · legions 005a5c00 — needs port (check): UIElementManager::HandleApply behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 - [~] `UIElementManager::StartInput` · 005e4e50 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [~] `UIElementManager::StopInput` · 005e4fc0 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-- [ ] `UIElementManager::RegisterActivatable` · 005e50d0 · legions 005a5df0 — needs port (check): UIElementManager::RegisterActivatable behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::RegisterActivatable` · 005e50d0 · legions 005a5df0 — Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
 
 ### Box2D
 - [ ] `Box2D::Subtract` · 005e5150 · legions 005a5e70 — needs port: Box2D::Subtract behaviour
@@ -2926,37 +2926,37 @@ Legend and workflow: [README](README.md).
 - [ ] `UIObjectRegionInfo::AddDirtyRect` · 005e53a0 · legions 005a60c0 — needs port: UIObjectRegionInfo::AddDirtyRect behaviour
 
 ### UIElementManager
-- [ ] `UIElementManager::MakeRootDirtyHere` · 005e5510 — needs port (check): UIElementManager::MakeRootDirtyHere behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::ReleaseLayoutDesc` · 005e5830 · legions 005a6580 — needs port (check): UIElementManager::ReleaseLayoutDesc behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::MakeRootDirtyHere` · 005e5510 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+- [-] `UIElementManager::ReleaseLayoutDesc` · 005e5830 · legions 005a6580 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 - [ ] `UIElementManager::RefreshEvent` · 005e5870 · legions 005a65c0 — needs port (check): UIElementManager::RefreshEvent; client_locations.rs cite is a module doc
-- [ ] `UIElementManager::AddElementToDeleteQueue` · 005e5950 · legions 005a66a0 — needs port (check): UIElementManager::AddElementToDeleteQueue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::AddElementToDeleteQueue` · 005e5950 · legions 005a66a0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 - [~] `UIElementManager::CreateRootElementByDataID` · 005e59b0 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [~] `UIElementManager::CreateElement` · 005e5a80 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-- [ ] `UIElementManager::RemoveAndDeleteRootElement` · 005e5bf0 · legions 005a6930 — needs port (check): UIElementManager::RemoveAndDeleteRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::UnregisterForMessage` · 005e5c30 · legions 005a6970 — needs port (check): UIElementManager::UnregisterForMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::CleanElementListCleanQue` · 005e5cb0 · legions 005a69f0 — needs port (check): UIElementManager::CleanElementListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::RegisterForObjectMessage` · 005e5ea0 — needs port (check): UIElementManager::RegisterForObjectMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::UnregisterForObjectMessage` · 005e5fd0 · legions 005a6d10 — needs port (check): UIElementManager::UnregisterForObjectMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::DeleteListenerFromElementCleanQue` · 005e6050 · legions 005a6d90 — needs port (check): UIElementManager::DeleteListenerFromElementCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::DeleteListenerFromCleanQue` · 005e6360 · legions 005a70a0 — needs port (check): UIElementManager::DeleteListenerFromCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::CleanObjectListCleanQue` · 005e65d0 · legions 005a7310 — needs port (check): UIElementManager::CleanObjectListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::RegisterForGlobalMessage` · 005e6720 · legions 005a7460 — needs port (check): UIElementManager::RegisterForGlobalMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::UnregisterForGlobalMessage` · 005e6800 · legions 005a7540 — needs port (check): UIElementManager::UnregisterForGlobalMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::CleanGlobalListCleanQue` · 005e6870 · legions 005a75b0 — needs port (check): UIElementManager::CleanGlobalListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::GetElement` · 005e69f0 · legions 005a7730 — needs port (check): UIElementManager::GetElement; scrollbar.rs named_scrollbar is a scroll-bar-only lookup
-- [ ] `UIElementManager::GetUniqueMatchElement` · 005e6a40 · legions 005a7780 — needs port (check): UIElementManager::GetUniqueMatchElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::DeletingElement` · 005e6ab0 · legions 005a77f0 — needs port (check): UIElementManager::DeletingElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::RegisterElementClass` · 005e6bb0 — needs port (check): UIElementManager::RegisterElementClass behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::RemoveAndDeleteRootElement` · 005e5bf0 · legions 005a6930 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [~] `UIElementManager::UnregisterForMessage` · 005e5c30 · legions 005a6970 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [-] `UIElementManager::CleanElementListCleanQue` · 005e5cb0 · legions 005a69f0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [~] `UIElementManager::RegisterForObjectMessage` · 005e5ea0 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [~] `UIElementManager::UnregisterForObjectMessage` · 005e5fd0 · legions 005a6d10 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [-] `UIElementManager::DeleteListenerFromElementCleanQue` · 005e6050 · legions 005a6d90 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [-] `UIElementManager::DeleteListenerFromCleanQue` · 005e6360 · legions 005a70a0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [-] `UIElementManager::CleanObjectListCleanQue` · 005e65d0 · legions 005a7310 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [~] `UIElementManager::RegisterForGlobalMessage` · 005e6720 · legions 005a7460 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [~] `UIElementManager::UnregisterForGlobalMessage` · 005e6800 · legions 005a7540 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [-] `UIElementManager::CleanGlobalListCleanQue` · 005e6870 · legions 005a75b0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [~] `UIElementManager::GetElement` · 005e69f0 · legions 005a7730 — UiTree::child_recursive looks an id up under a root; there is no manager-wide id table for the first match across roots
+- [x] `UIElementManager::GetUniqueMatchElement` · 005e6a40 · legions 005a7780 — ac2-ui element.rs: UiTree::child_recursive(root, id) finds an element by id under its root
+- [-] `UIElementManager::DeletingElement` · 005e6ab0 · legions 005a77f0 — Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+- [-] `UIElementManager::RegisterElementClass` · 005e6bb0 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 
 ### (free functions)
 - [ ] `RefreshEvent_g` · 005e6be0 — needs port: RefreshEvent_g behaviour
 
 ### UIElementManager
-- [ ] `UIElementManager::DeleteUIObjectRegionInfo` · 005e6c00 — needs port (check): UIElementManager::DeleteUIObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::Init` · 005e6f70 — needs port (check): UIElementManager::Init behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::BroadcastMessage` · 005e7130 — needs port (check): UIElementManager::BroadcastMessage; mouse.rs cite is on UiMessage struct
-- [ ] `UIElementManager::BroadcastGlobalMessage` · 005e7280 — needs port (check): UIElementManager::BroadcastGlobalMessage; mouse.rs cite is on the global constants
-- [ ] `UIElementManager::UIElementManager` · 005e7370 · legions 005a8000 — needs port (check): UIElementManager ctor; tooltip.rs cite is on a different Default impl
+- [-] `UIElementManager::DeleteUIObjectRegionInfo` · 005e6c00 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+- [-] `UIElementManager::Init` · 005e6f70 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+- [~] `UIElementManager::BroadcastMessage` · 005e7130 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [~] `UIElementManager::BroadcastGlobalMessage` · 005e7280 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [-] `UIElementManager::UIElementManager` · 005e7370 · legions 005a8000 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 
 ### MoveToManager
 - [ ] `MoveToManager::ReachedPersistentTarget` · 005e7590 · legions 005a8230 — needs port (check): MoveToManager::ReachedPersistentTarget behaviour; implemented area ac2-ui navigation.rs but uncited
@@ -2964,10 +2964,10 @@ Legend and workflow: [README](README.md).
 
 ### UIElementManager
 - [~] `UIElementManager::UseTime` · 005e75b0 · legions 005a8240 — tooltip owner/timing and default cursor ported; drag, resize and object regions not
-- [ ] `UIElementManager::Cleanup` · 005e7780 · legions 005a83e0 — needs port (check): UIElementManager::Cleanup behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::RegisterForMessage` · 005e7b30 — needs port (check): UIElementManager::RegisterForMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-- [ ] `UIElementManager::~UIElementManager` · 005e7cd0 · legions 005a8930 — needs port (check): UIElementManager::~UIElementManager lifecycle (create/teardown: listeners, children, surfaces); ac2-ui element.rs / mouse.rs
-- [ ] `UIElementManager::CreateUIObjectRegionInfo` · 005e7e70 · legions 005a8ad0 — needs port (check): UIElementManager::CreateUIObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+- [-] `UIElementManager::Cleanup` · 005e7780 · legions 005a83e0 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+- [~] `UIElementManager::RegisterForMessage` · 005e7b30 — Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+- [-] `UIElementManager::~UIElementManager` · 005e7cd0 · legions 005a8930 — Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+- [-] `UIElementManager::CreateUIObjectRegionInfo` · 005e7e70 · legions 005a8ad0 — Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 
 ## `portal/client/src/uielement/system/uilistener.cpp.c` (0/12)
 
@@ -3180,23 +3180,23 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
 - [ ] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — needs port (check): UIElement_Field::Register behaviour; implemented area ac2-ui text_edit.rs but uncited
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (26/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (50/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::End` · 005f1bc0 · legions 005b26f0 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::ScrollToRow` · 005f1bf0 · legions 005b2720 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::ScrollToCol` · 005f1c20 · legions 005b2750 — needs port (check): UIElement_ListBox::ScrollToCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::GetLeftCol` · 005f1c50 · legions 005b2780 — needs port (check): UIElement_ListBox::GetLeftCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::ScrollToCol` · 005f1c20 · legions 005b2750 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
+- [x] `UIElement_ListBox::GetLeftCol` · 005f1c50 · legions 005b2780 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::GetTopRow` · 005f1c70 · legions 005b27a0 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::KeepViewInBounds` · 005f1c90 · legions 005b27c0 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::HandleButtonGhosting` · 005f1d40 · legions 005b2870 — needs port (check): UIElement_ListBox::HandleButtonGhosting behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [-] `UIElement_ListBox::HandleButtonGhosting` · 005f1d40 · legions 005b2870 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [x] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0 — named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
-- [ ] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980 — needs port (check): UIElement_ListBox::UnregisterForScrollbar behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90 — needs port (check): UIElement_ListBox::TestBitMask behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [-] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
+- [-] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90 — m_bitField is typed fields in ListBoxState (multiop, from_scrollbar) and attributes; no mask test needed
 - [~] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [~] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
-- [ ] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0 — needs port (check): UIElement_ListBox::DetermineAndSetNewGoal behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0 — ac2-ui list_goal.rs / list_msize.rs: the max/min clamp of the goal is inlined in list_line_step, list_page_step and list_msize_step; a smooth list jumps to the goal
 - [x] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::StartAnimation` · 005f23f0 · legions 005b2f20 — needs port (check): UIElement_ListBox::StartAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [ ] `UIElement_ListBox::StopAnimation` · 005f2500 · legions 005b3030 — needs port (check): UIElement_ListBox::StopAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -3205,10 +3205,10 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180 — ac2-ui list_box_select.rs
 - [x] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0 — ac2-ui list_box.rs
 - [~] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
-- [ ] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350 — needs port (check): UIElement_ListBox::MultiOpAddItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2840 · legions 005b3370 — needs port (check): UIElement_ListBox::MultiOpInsertItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380 — needs port (check): UIElement_ListBox::MultiOpInsertItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0 — needs port (check): UIElement_ListBox::GetCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+- [x] `UIElement_ListBox::MultiOpInsertItem` · 005f2840 · legions 005b3370 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+- [x] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+- [x] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400 — ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 - [~] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 - [ ] `UIElement_ListBox::StartDragSelect` · 005f2a50 · legions 005b3580 — needs port (check): UIElement_ListBox::StartDragSelect behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -3216,31 +3216,31 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640 — needs port (check): UIElement_ListBox::StartRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [ ] `UIElement_ListBox::EndRollover` · 005f2b60 · legions 005b3690 — needs port (check): UIElement_ListBox::EndRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [x] `UIElement_ListBox::ConstrainViewValue` · 005f2bc0 · legions 005b36f0 — ac2-ui list_box.rs
-- [~] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760 — list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
-- [ ] `UIElement_ListBox::GetPercentageH` · 005f2cc0 · legions 005b37f0 — needs port (check): UIElement_ListBox::GetPercentageH behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
+- [x] `UIElement_ListBox::GetPercentageH` · 005f2cc0 · legions 005b37f0 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::HandleMouseWheel` · 005f2d50 · legions 005b3880 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [~] `UIElement_ListBox::HandleScrollBarMessage` · 005f2d90 · legions 005b38c0 — list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
 - [ ] `UIElement_ListBox::HandleScrollbarWidgetRelease` · 005f2f60 · legions 005b3a90 — needs port (check): UIElement_ListBox::HandleScrollbarWidgetRelease behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::~UIElement_ListBox` · 005f3070 · legions 005b3ba0 — needs port (check): UIElement_ListBox::~UIElement_ListBox lifecycle (create/teardown: listeners, children, surfaces); ac2-ui list_box.rs / list_scroll.rs
+- [-] `UIElement_ListBox::~UIElement_ListBox` · 005f3070 · legions 005b3ba0 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [ ] `UIElement_ListBox::MouseOverTop` · 005f3190 · legions 005b3cc0 — needs port (check): UIElement_ListBox::MouseOverTop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [ ] `UIElement_ListBox::ListenToMessage` · 005f31f0 · legions 005b3d20 — needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [ ] `UIElement_ListBox::Global_Loop` · 005f3320 · legions 005b3e50 — needs port (check): UIElement_ListBox::Global_Loop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [x] `UIElement_ListBox::StartActive` · 005f3430 · legions 005b3f60 — UIElement_ListBox::StartActive done: list_scroll.rs list_step_selection
-- [ ] `UIElement_ListBox::VerticalPageDecrement` · 005f34d0 · legions 005b4000 — needs port (check): UIElement_ListBox::VerticalPageDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::VerticalPageIncrement` · 005f3550 · legions 005b4080 — needs port (check): UIElement_ListBox::VerticalPageIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::HorizontalPageDecrement` · 005f35e0 · legions 005b4110 — needs port (check): UIElement_ListBox::HorizontalPageDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::HorizontalPageIncrement` · 005f3660 · legions 005b4190 — needs port (check): UIElement_ListBox::HorizontalPageIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::VerticalLineDecrement` · 005f36f0 · legions 005b4220 — needs port (check): UIElement_ListBox::VerticalLineDecrement; list_scroll.rs cite lacks class prefix
-- [x] `UIElement_ListBox::VerticalLineIncrement` · 005f3760 · legions 005b4290 — UIElement_ListBox::VerticalLineIncrement done: list_scroll.rs list_line_step
-- [ ] `UIElement_ListBox::HorizontalLineDecrement` · 005f37e0 · legions 005b4310 — needs port (check): UIElement_ListBox::HorizontalLineDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::HorizontalLineIncrement` · 005f3850 · legions 005b4380 — needs port (check): UIElement_ListBox::HorizontalLineIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::VerticalPageDecrement` · 005f34d0 · legions 005b4000 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::VerticalPageIncrement` · 005f3550 · legions 005b4080 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::HorizontalPageDecrement` · 005f35e0 · legions 005b4110 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::HorizontalPageIncrement` · 005f3660 · legions 005b4190 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::VerticalLineDecrement` · 005f36f0 · legions 005b4220 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::VerticalLineIncrement` · 005f3760 · legions 005b4290 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::HorizontalLineDecrement` · 005f37e0 · legions 005b4310 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+- [x] `UIElement_ListBox::HorizontalLineIncrement` · 005f3850 · legions 005b4380 — ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 - [x] `UIElement_ListBox::UpdateControls` · 005f38d0 · legions 005b4400 — UIElement_ListBox::UpdateControls done: list_scroll.rs list_update_controls
-- [ ] `UIElement_ListBox::UpdateAndDraw` · 005f3af0 · legions 005b4620 — needs port (check): UIElement_ListBox::UpdateAndDraw behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::UpdateAndDraw` · 005f3af0 · legions 005b4620 — ac2-ui list_goal.rs: UiTree::list_update_and_draw (layout, KeepViewInBounds, UpdateControls, redraw)
 - [ ] `UIElement_ListBox::ResizeTo` · 005f3b20 · legions 005b4650 — needs port (check): UIElement_ListBox::ResizeTo behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::SetSelectedItemByID` · 005f3b60 · legions 005b4690 — needs port (check): UIElement_ListBox::SetSelectedItemByID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::SetSelectedItemByID` · 005f3b60 · legions 005b4690 — ac2-ui list_goal.rs: UiTree::list_set_selected_item_by_id
 - [x] `UIElement_ListBox::GetItemUnderMouse` · 005f3c20 · legions 005b4750 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::RemoveItem` · 005f3c90 · legions 005b47c0 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::MultiOpRemoveItem` · 005f3d60 · legions 005b4890 — needs port (check): UIElement_ListBox::MultiOpRemoveItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::MultiOpRemoveItem` · 005f3d60 · legions 005b4890 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 - [x] `UIElement_ListBox::MultiOpComplete` · 005f3d70 · legions 005b48a0 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::Flush` · 005f3db0 · legions 005b48e0 — ac2-ui list_box.rs
 - [ ] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0 — needs port (check): UIElement_ListBox::Rollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -3251,44 +3251,44 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0 — needs port (check): UIElement_ListBox::SetAttribute_ID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
 - [ ] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0 — needs port (check): UIElement_ListBox::Global_MouseMove behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030 — needs port (check): UIElement_ListBox::StartUpActive; list_scroll.rs cite is on the ListStep enum
-- [ ] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070 — needs port (check): UIElement_ListBox::StartDownActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::StartLeftActive` · 005f4570 · legions 005b50a0 — needs port (check): UIElement_ListBox::StartLeftActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-- [ ] `UIElement_ListBox::StartRightActive` · 005f45b0 · legions 005b50e0 — needs port (check): UIElement_ListBox::StartRightActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+- [x] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+- [x] `UIElement_ListBox::StartLeftActive` · 005f4570 · legions 005b50a0 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+- [x] `UIElement_ListBox::StartRightActive` · 005f45b0 · legions 005b50e0 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 - [x] `UIElement_ListBox::AddItem` · 005f45e0 · legions 005b5110 — ac2-ui list_box.rs
 - [~] `UIElement_ListBox::InsertItem` · 005f4680 · legions 005b51b0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [x] `UIElement_ListBox::DeleteItem` · 005f46f0 · legions 005b5220 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::MultiOpRemoveItem` · 005f4750 · legions 005b5280 — needs port (check): UIElement_ListBox::MultiOpRemoveItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [x] `UIElement_ListBox::MultiOpRemoveItem` · 005f4750 · legions 005b5280 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 - [~] `UIElement_ListBox::UIElement_ListBox` · 005f47a0 · legions 005b52d0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
-- [ ] `UIElement_ListBox::Create` · 005f4a80 — needs port (check): UIElement_ListBox::Create behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [-] `UIElement_ListBox::Create` · 005f4a80 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [ ] `UIElement_ListBox::ListenToMessage` · 005f4ab0 · legions 005b55e0 — needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [ ] `UIElement_ListBox::ListenToMessage` · 005f4b00 · legions 005b5630 — needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 - [x] `UIElement_ListBox::SetItem` · 005f4b90 · legions 005b56c0 — ac2-ui list_box.rs
-- [ ] `UIElement_ListBox::Register` · 005f4c30 · legions 005b5760 — needs port (check): UIElement_ListBox::Register behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+- [-] `UIElement_ListBox::Register` · 005f4c30 · legions 005b5760 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 
-## `portal/client/src/uielement/types/uielement_listboxmsize.cpp.c` (0/20)
+## `portal/client/src/uielement/types/uielement_listboxmsize.cpp.c` (16/20)
 
 ### UIElement_ListBoxMSize
-- [ ] `UIElement_ListBoxMSize::ConstrainViewValue` · 005f8e70 · legions 005b99a0 — needs port (check): UIElement_ListBoxMSize::ConstrainViewValue behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::InqItemIndex` · 005f8ed0 · legions 005b9a00 — needs port (check): UIElement_ListBoxMSize::InqItemIndex behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::InqItemSize` · 005f8f20 · legions 005b9a50 — needs port (check): UIElement_ListBoxMSize::InqItemSize behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::ScrollToShow` · 005f8f60 · legions 005b9a90 — needs port (check): UIElement_ListBoxMSize::ScrollToShow behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::ScrollToRow` · 005f90d0 · legions 005b9c00 — needs port (check): UIElement_ListBoxMSize::ScrollToRow behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::ScrollToCol` · 005f9110 · legions 005b9c40 — needs port (check): UIElement_ListBoxMSize::ScrollToCol behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::VerticalPageDecrement` · 005f91a0 · legions 005b9cd0 — needs port (check): UIElement_ListBoxMSize::VerticalPageDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::VerticalPageIncrement` · 005f9200 · legions 005b9d30 — needs port (check): UIElement_ListBoxMSize::VerticalPageIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::HorizontalPageDecrement` · 005f9270 · legions 005b9da0 — needs port (check): UIElement_ListBoxMSize::HorizontalPageDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::HorizontalPageIncrement` · 005f92d0 · legions 005b9e00 — needs port (check): UIElement_ListBoxMSize::HorizontalPageIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::VerticalLineDecrement` · 005f9340 · legions 005b9e70 — needs port (check): UIElement_ListBoxMSize::VerticalLineDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::VerticalLineIncrement` · 005f93a0 · legions 005b9ed0 — needs port (check): UIElement_ListBoxMSize::VerticalLineIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::HorizontalLineDecrement` · 005f9410 · legions 005b9f40 — needs port (check): UIElement_ListBoxMSize::HorizontalLineDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::HorizontalLineIncrement` · 005f9470 · legions 005b9fa0 — needs port (check): UIElement_ListBoxMSize::HorizontalLineIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::GetItemIndexAtPoint` · 005f94e0 · legions 005ba010 — needs port (check): UIElement_ListBoxMSize::GetItemIndexAtPoint behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::UIElement_ListBoxMSize` · 005f95f0 · legions 005ba120 — needs port (check): UIElement_ListBoxMSize::UIElement_ListBoxMSize lifecycle (create/teardown: listeners, children, surfaces); ac2-ui list_scroll.rs / list_box.rs
-- [ ] `UIElement_ListBoxMSize::Create` · 005f9640 — needs port (check): UIElement_ListBoxMSize::Create behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::CalculateItemWidthsHeights` · 005f9670 · legions 005ba1a0 — needs port (check): UIElement_ListBoxMSize::CalculateItemWidthsHeights behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::Register` · 005f98a0 · legions 005ba3d0 — needs port (check): UIElement_ListBoxMSize::Register behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-- [ ] `UIElement_ListBoxMSize::UpdateLayout` · 005f98c0 · legions 005ba3f0 — needs port (check): UIElement_ListBoxMSize::UpdateLayout behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
+- [x] `UIElement_ListBoxMSize::ConstrainViewValue` · 005f8e70 · legions 005b99a0 — ac2-ui list_msize.rs: UiTree::list_msize_constrain (no snapping, within 0 and paper - extent)
+- [x] `UIElement_ListBoxMSize::InqItemIndex` · 005f8ed0 · legions 005b9a00 — ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
+- [x] `UIElement_ListBoxMSize::InqItemSize` · 005f8f20 · legions 005b9a50 — ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
+- [~] `UIElement_ListBoxMSize::ScrollToShow` · 005f8f60 · legions 005b9a90 — list_msize.rs: not ported: the base list's item size that ScrollToShow reads (the sized list never sets it); a selection is shown by the base list_scroll_to_show
+- [x] `UIElement_ListBoxMSize::ScrollToRow` · 005f90d0 · legions 005b9c00 — ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
+- [x] `UIElement_ListBoxMSize::ScrollToCol` · 005f9110 · legions 005b9c40 — ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
+- [x] `UIElement_ListBoxMSize::VerticalPageDecrement` · 005f91a0 · legions 005b9cd0 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::VerticalPageIncrement` · 005f9200 · legions 005b9d30 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::HorizontalPageDecrement` · 005f9270 · legions 005b9da0 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::HorizontalPageIncrement` · 005f92d0 · legions 005b9e00 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::VerticalLineDecrement` · 005f9340 · legions 005b9e70 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::VerticalLineIncrement` · 005f93a0 · legions 005b9ed0 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::HorizontalLineDecrement` · 005f9410 · legions 005b9f40 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::HorizontalLineIncrement` · 005f9470 · legions 005b9fa0 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+- [x] `UIElement_ListBoxMSize::GetItemIndexAtPoint` · 005f94e0 · legions 005ba010 — ac2-ui list_msize.rs: list_msize_index_at
+- [-] `UIElement_ListBoxMSize::UIElement_ListBoxMSize` · 005f95f0 · legions 005ba120 — ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+- [-] `UIElement_ListBoxMSize::Create` · 005f9640 — ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+- [x] `UIElement_ListBoxMSize::CalculateItemWidthsHeights` · 005f9670 · legions 005ba1a0 — ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
+- [-] `UIElement_ListBoxMSize::Register` · 005f98a0 · legions 005ba3d0 — ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+- [x] `UIElement_ListBoxMSize::UpdateLayout` · 005f98c0 · legions 005ba3f0 — ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
 
 ## `portal/client/src/uielement/types/uielement_menu.cpp.c` (21/22)
 
@@ -3384,7 +3384,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Scrollbar::HandleMoveTo` · 005fa200 · legions 005bad30 — ac2-ui scrollbar.rs
 - [x] `UIElement_Scrollbar::HandleMouseMove` · 005fa330 · legions 005bae60 — ac2-ui scrollbar.rs
 - [x] `UIElement_Scrollbar::HandleMoveSteps` · 005fa3a0 · legions 005baed0 — ac2-ui scrollbar.rs
-- [ ] `UIElement_Scrollbar::~UIElement_Scrollbar` · 005fa4a0 · legions 005bafd0 — needs port (check): UIElement_Scrollbar::~UIElement_Scrollbar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scrollbar.rs
+- [-] `UIElement_Scrollbar::~UIElement_Scrollbar` · 005fa4a0 · legions 005bafd0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 - [x] `UIElement_Scrollbar::SetState` · 005fa5b0 · legions 005bb0e0 — ac2-ui scrollbar.rs
 - [ ] `UIElement_Scrollbar::SetAttribute_Bool` · 005fa5d0 · legions 005bb100 — needs port (check): UIElement_Scrollbar::SetAttribute_Bool behaviour; implemented area ac2-ui scrollbar.rs but uncited
 - [~] `UIElement_Scrollbar::SetAttribute_Float` · 005fa780 · legions 005bb2b0 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
@@ -3396,10 +3396,10 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Scrollbar::HandleMouseWheel` · 005fad20 · legions 005bb850 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [x] `UIElement_Scrollbar::HandleButtonHotclick` · 005fadd0 · legions 005bb900 — ac2-ui scrollbar.rs
 - [~] `UIElement_Scrollbar::UIElement_Scrollbar` · 005fae40 · legions 005bb970 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-- [ ] `UIElement_Scrollbar::Create` · 005fb0a0 — needs port (check): UIElement_Scrollbar::Create behaviour; implemented area ac2-ui scrollbar.rs but uncited
-- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: a disabled bar takes nothing; a wheel turn steps or drives (scrollbar_mouse_wheel); left press and drag of the widget; track paging not modelled
+- [-] `UIElement_Scrollbar::Create` · 005fb0a0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
+- [~] `UIElement_Scrollbar::MouseDown` · 005fb0d0 · legions 005bbc00 — scrollbar.rs: wheel, widget press/drag, touched position, and a track press pages once (scrollbar_page_press -> list_page_step); not modelled: repeating the page while held (Global_Loop timer), stop-location snapping on press
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-- [ ] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0 — needs port (check): UIElement_Scrollbar::Register behaviour; implemented area ac2-ui scrollbar.rs but uncited
+- [-] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 
 ## `portal/client/src/uielement/types/uielement_tree.cpp.c` (16/39)
 

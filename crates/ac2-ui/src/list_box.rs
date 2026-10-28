@@ -35,6 +35,9 @@ pub(crate) struct ListBoxState {
     pub menu: Option<usize>,
     /// Bit 0x20000: the view is being set from a scroll bar (`list_scroll.rs`).
     pub from_scrollbar: bool,
+    /// A sized list's column widths and row heights (`m_nItemWidths`, `m_nItemHeights`).
+    pub col_widths: Vec<i32>,
+    pub row_heights: Vec<i32>,
 }
 
 impl UiTree {
@@ -49,7 +52,7 @@ impl UiTree {
         )
     }
 
-    fn list_int(&self, list: usize, name: &str) -> Option<i32> {
+    pub(crate) fn list_int(&self, list: usize, name: &str) -> Option<i32> {
         match self.el(list).attributes.get(&tokenize(name)) {
             Some(AttributeValue::Int(v)) => Some(*v),
             _ => None,
@@ -85,7 +88,7 @@ impl UiTree {
         }
     }
 
-    fn list_relayout(&mut self, list: usize) {
+    pub(crate) fn list_relayout(&mut self, list: usize) {
         self.list_update_layout(list);
         self.list_keep_view_in_bounds(list);
         self.list_update_controls(list);
@@ -168,6 +171,10 @@ impl UiTree {
 
     /// `UIElement_ListBox::ScrollToRow` (immediately; smooth scrolling is not modelled).
     pub fn list_scroll_to_row(&mut self, list: usize, row: i32) {
+        if self.is_msize(list) {
+            self.list_msize_scroll_to(list, true, row);
+            return;
+        }
         let height = self.list(list).item.1;
         self.list_set_view(list, None, Some(height * row));
     }
@@ -186,6 +193,9 @@ impl UiTree {
 
     /// `UIElement_ListBox::ConstrainViewValue`.
     fn list_constrain(&self, list: usize, x: bool, value: i32) -> i32 {
+        if self.is_msize(list) {
+            return self.list_msize_constrain(list, x, value);
+        }
         let Some(state) = self.el(list).list.as_ref() else {
             return 0;
         };
@@ -253,6 +263,10 @@ impl UiTree {
         {
             return;
         }
+        if self.is_msize(list) {
+            self.list_msize_layout(list);
+            return;
+        }
         let horizontal = self.list_flag(list, "horizontal");
         let max_columns = self.list_int(list, "max_columns").unwrap_or(1).max(1);
         let items = self.list_items(list).to_vec();
@@ -298,6 +312,9 @@ impl UiTree {
 
     /// `UIElement_ListBox::GetItemIndexAtPoint` for a point in screen pixels.
     pub fn list_index_at(&self, list: usize, x: i32, y: i32) -> Option<usize> {
+        if self.is_msize(list) {
+            return self.list_msize_index_at(list, x, y);
+        }
         let state = self.el(list).list.as_ref()?;
         let b = self.screen_box(list);
         if x < b.x0 || x > b.x1 || y < b.y0 || y > b.y1 || state.item.0 < 1 || state.item.1 < 1 {

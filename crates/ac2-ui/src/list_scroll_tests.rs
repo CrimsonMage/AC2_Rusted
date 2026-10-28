@@ -225,3 +225,133 @@ fn a_wheel_over_a_child_that_does_not_scroll_reaches_the_list() {
     tree.start_input(UI_WHEEL_OUT, 1.0);
     assert_eq!(view_y(&tree, list), 10);
 }
+
+#[test]
+fn line_and_page_steps_stay_within_the_paper() {
+    // Five 10 pixel items in a 20 pixel list: 30 pixels of scroll.
+    let (mut tree, list, _, _) = panel();
+    tree.list_line_step(list, true, 1);
+    assert_eq!(view_y(&tree, list), 10);
+    // A page is the list's height less one item.
+    tree.list_page_step(list, true, true);
+    assert_eq!(view_y(&tree, list), 20);
+    tree.list_page_step(list, true, true);
+    assert_eq!(view_y(&tree, list), 30);
+    tree.list_line_step(list, true, 1);
+    assert_eq!(view_y(&tree, list), 30);
+    tree.list_page_step(list, true, false);
+    assert_eq!(view_y(&tree, list), 20);
+    tree.list_page_step(list, true, false);
+    tree.list_page_step(list, true, false);
+    assert_eq!(view_y(&tree, list), 0);
+    tree.list_line_step(list, true, -1);
+    assert_eq!(view_y(&tree, list), 0);
+}
+
+#[test]
+fn columns_percentage_and_selection_by_id() {
+    let (mut tree, list, _, _) = panel();
+    // One column, so every item is in column 0; an empty answer is -1.
+    assert_eq!(tree.list_col(list, Some(3)), 0);
+    assert_eq!(tree.list_col(list, None), -1);
+    assert_eq!(tree.list_left_col(list), 0);
+    // The view may reach the paper's width (`ConstrainViewValue` limits it to the paper).
+    tree.list_scroll_to_col(list, 1);
+    assert_eq!(tree.list_left_col(list), 1);
+    tree.list_set_view(list, None, Some(20));
+    assert!((tree.list_percentage(list, true) - 20.0 / 30.0).abs() < 1e-6);
+    // The paper is no wider than the list: no horizontal share.
+    assert_eq!(tree.list_percentage(list, false), 0.0);
+    let item = tree.list_items(list)[2];
+    let id = tree.get(item).unwrap().id();
+    tree.list_set_selected_item_by_id(list, id, true);
+    assert_eq!(tree.list_selected_index(list), Some(0));
+    tree.list_set_selected_item_by_id(list, 0xdead_beef, true);
+    assert_eq!(tree.list_selected_index(list), None);
+}
+
+/// A 30 x 20 `listboxmsize` of one column over items 10, 30 and 10 pixels tall (a 50 pixel paper).
+fn sized_panel() -> (UiTree, usize) {
+    let list = element(
+        "List",
+        tokenize("listboxmsize"),
+        rect(0, 0, 29, 19),
+        vec![("max_columns", AttributeValue::Int(1))],
+        vec![],
+    );
+    let panel = element("Panel", 0x4DA7_2ECC, rect(0, 0, 59, 19), vec![], vec![list]);
+    let small = element("Small", 0x4DA7_2ECC, rect(0, 0, 9, 9), vec![], vec![]);
+    let tall = element("Tall", 0x4DA7_2ECC, rect(0, 0, 19, 29), vec![], vec![]);
+    let layout = Arc::new(LayoutDesc {
+        did: 0,
+        sub_ids: Vec::new(),
+        string_table: 0,
+        width: 60,
+        height: 20,
+        elements: vec![Arc::new(panel), Arc::new(small), Arc::new(tall)],
+    });
+    let mut tree = UiTree::new(100, 100);
+    let root = tree
+        .create_root(Arc::clone(&layout), tokenize("Panel"))
+        .unwrap();
+    let list = tree.child_recursive(root, tokenize("List")).unwrap();
+    for name in ["Small", "Tall", "Small"] {
+        let desc = Arc::clone(layout.element(tokenize(name)).unwrap());
+        let item = tree
+            .create_element(Arc::clone(&layout), desc, false)
+            .unwrap();
+        tree.list_add_item(list, item);
+    }
+    (tree, list)
+}
+
+#[test]
+fn a_sized_list_places_items_by_their_running_sizes() {
+    let (mut tree, list) = sized_panel();
+    let state = tree.get(list).unwrap().list.as_ref().unwrap();
+    assert_eq!(state.row_heights, vec![10, 30, 10]);
+    assert_eq!(state.col_widths, vec![20]);
+    assert_eq!(state.paper, (20, 50));
+    let items = tree.list_items(list).to_vec();
+    assert_eq!(tree.get(items[1]).unwrap().rect.y0, 10);
+    assert_eq!(tree.get(items[2]).unwrap().rect.y0, 40);
+    // A point 15 pixels down is in the tall item.
+    let top = tree.screen_box(list).y0;
+    assert_eq!(tree.list_index_at(list, 5, top + 15), Some(1));
+    // The view is not snapped to cells, only kept within the paper less the list.
+    tree.list_set_view(list, None, Some(17));
+    assert_eq!(view_y(&tree, list), 17);
+    tree.list_set_view(list, None, Some(99));
+    assert_eq!(view_y(&tree, list), 30);
+}
+
+#[test]
+fn a_sized_list_steps_by_the_cell_at_the_view_edge() {
+    let (mut tree, list) = sized_panel();
+    // View 0 is in the first (10 tall) row, then 10 is still in it (its end reaches 10).
+    tree.list_line_step(list, true, 1);
+    assert_eq!(view_y(&tree, list), 10);
+    // At 10 the cell is still row 0, so the step is 10 again, within 30 (50 - 20).
+    tree.list_line_step(list, true, 1);
+    assert_eq!(view_y(&tree, list), 20);
+    // 20 is in the tall row: a line is 30, clamped to 30.
+    tree.list_line_step(list, true, 1);
+    assert_eq!(view_y(&tree, list), 30);
+    tree.list_line_step(list, true, -1);
+    assert_eq!(view_y(&tree, list), 0);
+    tree.list_scroll_to_row(list, 1);
+    assert_eq!(view_y(&tree, list), 10);
+}
+
+#[test]
+fn a_page_message_pages_the_list_the_bar_drives() {
+    let (mut tree, list, bar, _) = panel();
+    tree.scrollbar_page(bar, true, true);
+    // A page is the list's 20 pixels less one 10 pixel item.
+    assert_eq!(view_y(&tree, list), 10);
+    // A horizontal page message does not move a list bound by its vertical bar.
+    tree.scrollbar_page(bar, false, true);
+    assert_eq!(view_y(&tree, list), 10);
+    tree.scrollbar_page(bar, true, false);
+    assert_eq!(view_y(&tree, list), 0);
+}

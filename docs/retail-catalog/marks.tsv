@@ -9705,8 +9705,8 @@ key	status	note
 005e3310	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005e33c0	_	needs port (check): UIRegion::UIRegion empty-box ctor; element.rs comment only
 005e3490	_	needs port: Box2D::Includes behaviour
-005e3520	_	needs port (check): UIElementManager::CreateRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e3580	_	needs port (check): UIElementManager::RemoveRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e3520	x	ac2-ui element.rs: UiTree::create_root
+005e3580	x	ac2-ui element.rs: UiTree::delete (removes a root and its children)
 005e35f0	~	fades only (no rotate); sounds queued for an audio sink; cursor image not drawn by the client yet
 005e3690	x	ac2-ui media.rs / transition.rs
 005e36b0	_	needs port (check): UIElementManager::KeyReleaseEvent behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
@@ -9715,64 +9715,64 @@ key	status	note
 005e3820	x	ac2-ui drag.rs; shortcut.rs drop
 005e38b0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 005e3910	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-005e3960	_	needs port (check): UIElementManager::AddRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e3960	x	ac2-ui element.rs: UiTree::create_root
 005e3aa0	_	needs port (check): UIElementManager::ChangingElementVisibility behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 005e3af0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3b70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e3cc0	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
-005e3de0	_	needs port (check): UIElementManager::CleanDeleteQueue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e3de0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e3e90	~	no right-button check; 32x32 cursor size assumed
 005e42e0	x	ac2-ui drag.rs; shortcut.rs drop
 005e46d0	x	ac2-ui drag.rs; shortcut.rs drop
-005e4720	_	needs port (check): UIElementManager::UnregisterActivatable behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e4740	_	needs port (check): UIElementManager::ActivateNext behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e4970	_	needs port (check): UIElementManager::DrawDirtyRegions behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e4b10	_	needs port (check): UIElementManager::GetObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e4720	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+005e4740	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
+005e4970	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+005e4b10	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e4b60	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4c70	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4d20	x	ac2-ui tooltip.rs
-005e4d30	_	needs port (check): UIElementManager::AddtoListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e4d30	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e4d70	_	needs port (check): UIElementManager::HandleApply behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 005e4e50	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005e4fc0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
-005e50d0	_	needs port (check): UIElementManager::RegisterActivatable behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e50d0	-	Tab traversal is admin-only: UIElementManager::ActivateNext has no Legions 7160 counterpart (its only caller is admin's KeyPressEvent on action 0x40000017) and the activatable list has no other reader
 005e5150	_	needs port: Box2D::Subtract behaviour
 005e5260	_	needs port (check): UIElementManager::MakeObjectTopmost behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
 005e53a0	_	needs port: UIObjectRegionInfo::AddDirtyRect behaviour
-005e5510	_	needs port (check): UIElementManager::MakeRootDirtyHere behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e5830	_	needs port (check): UIElementManager::ReleaseLayoutDesc behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e5510	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+005e5830	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e5870	_	needs port (check): UIElementManager::RefreshEvent; client_locations.rs cite is a module doc
-005e5950	_	needs port (check): UIElementManager::AddElementToDeleteQueue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e5950	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
 005e59b0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005e5a80	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
-005e5bf0	_	needs port (check): UIElementManager::RemoveAndDeleteRootElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e5c30	_	needs port (check): UIElementManager::UnregisterForMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e5cb0	_	needs port (check): UIElementManager::CleanElementListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e5ea0	_	needs port (check): UIElementManager::RegisterForObjectMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e5fd0	_	needs port (check): UIElementManager::UnregisterForObjectMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6050	_	needs port (check): UIElementManager::DeleteListenerFromElementCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6360	_	needs port (check): UIElementManager::DeleteListenerFromCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e65d0	_	needs port (check): UIElementManager::CleanObjectListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6720	_	needs port (check): UIElementManager::RegisterForGlobalMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6800	_	needs port (check): UIElementManager::UnregisterForGlobalMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6870	_	needs port (check): UIElementManager::CleanGlobalListCleanQue behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e69f0	_	needs port (check): UIElementManager::GetElement; scrollbar.rs named_scrollbar is a scroll-bar-only lookup
-005e6a40	_	needs port (check): UIElementManager::GetUniqueMatchElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6ab0	_	needs port (check): UIElementManager::DeletingElement behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6bb0	_	needs port (check): UIElementManager::RegisterElementClass behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e5bf0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e5c30	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e5cb0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e5ea0	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e5fd0	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e6050	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e6360	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e65d0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e6720	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e6800	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e6870	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e69f0	~	UiTree::child_recursive looks an id up under a root; there is no manager-wide id table for the first match across roots
+005e6a40	x	ac2-ui element.rs: UiTree::child_recursive(root, id) finds an element by id under its root
+005e6ab0	-	Retail defers element deletion and listener removal to queues cleaned at UseTime so a handler can delete safely mid-message; UiTree deletes by arena index (UiTree::delete) and broadcasts into a queue the caller takes, so there is nothing to defer
+005e6bb0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e6be0	_	needs port: RefreshEvent_g behaviour
-005e6c00	_	needs port (check): UIElementManager::DeleteUIObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e6f70	_	needs port (check): UIElementManager::Init behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e7130	_	needs port (check): UIElementManager::BroadcastMessage; mouse.rs cite is on UiMessage struct
-005e7280	_	needs port (check): UIElementManager::BroadcastGlobalMessage; mouse.rs cite is on the global constants
-005e7370	_	needs port (check): UIElementManager ctor; tooltip.rs cite is on a different Default impl
+005e6c00	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
+005e6f70	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+005e7130	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e7280	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e7370	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e7590	_	needs port (check): MoveToManager::ReachedPersistentTarget behaviour; implemented area ac2-ui navigation.rs but uncited
 005e75a0	x	ac2-physics moveto (slice 3)
 005e75b0	~	tooltip owner/timing and default cursor ported; drag, resize and object regions not
-005e7780	_	needs port (check): UIElementManager::Cleanup behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e7b30	_	needs port (check): UIElementManager::RegisterForMessage behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
-005e7cd0	_	needs port (check): UIElementManager::~UIElementManager lifecycle (create/teardown: listeners, children, surfaces); ac2-ui element.rs / mouse.rs
-005e7e70	_	needs port (check): UIElementManager::CreateUIObjectRegionInfo behaviour; implemented area ac2-ui element.rs / mouse.rs but uncited
+005e7780	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+005e7b30	~	Messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and heard by the panels' frame_pass/message_pass over the tree's message list; no per-element listener registry, so a listener cannot register for one element, object or global id
+005e7cd0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
+005e7e70	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
 005e7f80	_	needs port (check): UIListener::GetListenerElementNumberRegistered behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
 005e7fd0	_	needs port (check): UIListener::GetListenerNumberRegistered behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
 005e8010	_	needs port (check): UIListener::UnregisterForAllGlobalMessages behaviour; implemented area ac2-ui mouse.rs / element.rs but uncited
@@ -9984,17 +9984,17 @@ key	status	note
 005f1b90	x	ac2-ui list_box.rs
 005f1bc0	x	ac2-ui list_box.rs
 005f1bf0	x	ac2-ui list_box.rs
-005f1c20	_	needs port (check): UIElement_ListBox::ScrollToCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f1c50	_	needs port (check): UIElement_ListBox::GetLeftCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f1c20	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
+005f1c50	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f1c70	x	ac2-ui list_box.rs
 005f1c90	x	ac2-ui list_box.rs
-005f1d40	_	needs port (check): UIElement_ListBox::HandleButtonGhosting behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f1d40	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f1db0	x	named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
-005f1e50	_	needs port (check): UIElement_ListBox::UnregisterForScrollbar behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f1f60	_	needs port (check): UIElement_ListBox::TestBitMask behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f1e50	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
+005f1f60	-	m_bitField is typed fields in ListBoxState (multiop, from_scrollbar) and attributes; no mask test needed
 005f1f80	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f1fc0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
-005f2180	_	needs port (check): UIElement_ListBox::DetermineAndSetNewGoal behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f2180	x	ac2-ui list_goal.rs / list_msize.rs: the max/min clamp of the goal is inlined in list_line_step, list_page_step and list_msize_step; a smooth list jumps to the goal
 005f21f0	x	ac2-ui list_box.rs
 005f23f0	_	needs port (check): UIElement_ListBox::StartAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f2500	_	needs port (check): UIElement_ListBox::StopAnimation behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -10003,10 +10003,10 @@ key	status	note
 005f2650	x	ac2-ui list_box_select.rs
 005f26b0	x	ac2-ui list_box.rs
 005f27c0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
-005f2820	_	needs port (check): UIElement_ListBox::MultiOpAddItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2840	_	needs port (check): UIElement_ListBox::MultiOpInsertItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2850	_	needs port (check): UIElement_ListBox::MultiOpInsertItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f2870	_	needs port (check): UIElement_ListBox::GetCol behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f2820	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+005f2840	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+005f2850	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
+005f2870	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f28d0	x	ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
 005f2930	~	list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
 005f2a50	_	needs port (check): UIElement_ListBox::StartDragSelect behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -10014,31 +10014,31 @@ key	status	note
 005f2b10	_	needs port (check): UIElement_ListBox::StartRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f2b60	_	needs port (check): UIElement_ListBox::EndRollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f2bc0	x	ac2-ui list_box.rs
-005f2c30	~	list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
-005f2cc0	_	needs port (check): UIElement_ListBox::GetPercentageH behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f2c30	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
+005f2cc0	x	ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 005f2d50	x	wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 005f2d90	~	list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
 005f2f60	_	needs port (check): UIElement_ListBox::HandleScrollbarWidgetRelease behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3070	_	needs port (check): UIElement_ListBox::~UIElement_ListBox lifecycle (create/teardown: listeners, children, surfaces); ac2-ui list_box.rs / list_scroll.rs
+005f3070	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f3190	_	needs port (check): UIElement_ListBox::MouseOverTop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f31f0	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f3320	_	needs port (check): UIElement_ListBox::Global_Loop behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f3430	x	UIElement_ListBox::StartActive done: list_scroll.rs list_step_selection
-005f34d0	_	needs port (check): UIElement_ListBox::VerticalPageDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3550	_	needs port (check): UIElement_ListBox::VerticalPageIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f35e0	_	needs port (check): UIElement_ListBox::HorizontalPageDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3660	_	needs port (check): UIElement_ListBox::HorizontalPageIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f36f0	_	needs port (check): UIElement_ListBox::VerticalLineDecrement; list_scroll.rs cite lacks class prefix
-005f3760	x	UIElement_ListBox::VerticalLineIncrement done: list_scroll.rs list_line_step
-005f37e0	_	needs port (check): UIElement_ListBox::HorizontalLineDecrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3850	_	needs port (check): UIElement_ListBox::HorizontalLineIncrement behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f34d0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f3550	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f35e0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f3660	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f36f0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f3760	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f37e0	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
+005f3850	x	ac2-ui list_goal.rs: list_line_step (line steps clamp to 0 and paper - height) and list_page_step (a page less one item); a smooth list jumps to the goal (no animation clock)
 005f38d0	x	UIElement_ListBox::UpdateControls done: list_scroll.rs list_update_controls
-005f3af0	_	needs port (check): UIElement_ListBox::UpdateAndDraw behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3af0	x	ac2-ui list_goal.rs: UiTree::list_update_and_draw (layout, KeepViewInBounds, UpdateControls, redraw)
 005f3b20	_	needs port (check): UIElement_ListBox::ResizeTo behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f3b60	_	needs port (check): UIElement_ListBox::SetSelectedItemByID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3b60	x	ac2-ui list_goal.rs: UiTree::list_set_selected_item_by_id
 005f3c20	x	ac2-ui list_box.rs
 005f3c90	x	ac2-ui list_box.rs
-005f3d60	_	needs port (check): UIElement_ListBox::MultiOpRemoveItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f3d60	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 005f3d70	x	ac2-ui list_box.rs
 005f3db0	x	ac2-ui list_box.rs
 005f3e70	_	needs port (check): UIElement_ListBox::Rollover behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
@@ -10049,20 +10049,20 @@ key	status	note
 005f4270	_	needs port (check): UIElement_ListBox::SetAttribute_ID behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f4420	~	left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
 005f44c0	_	needs port (check): UIElement_ListBox::Global_MouseMove behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f4500	_	needs port (check): UIElement_ListBox::StartUpActive; list_scroll.rs cite is on the ListStep enum
-005f4540	_	needs port (check): UIElement_ListBox::StartDownActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f4570	_	needs port (check): UIElement_ListBox::StartLeftActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
-005f45b0	_	needs port (check): UIElement_ListBox::StartRightActive behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4500	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+005f4540	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+005f4570	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
+005f45b0	x	ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 005f45e0	x	ac2-ui list_box.rs
 005f4680	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
 005f46f0	x	ac2-ui list_box.rs
-005f4750	_	needs port (check): UIElement_ListBox::MultiOpRemoveItem behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4750	x	ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 005f47a0	~	ac2-ui list_box.rs: no smooth scrolling, controls or selection
-005f4a80	_	needs port (check): UIElement_ListBox::Create behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4a80	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f4ab0	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f4b00	_	needs port (check): UIElement_ListBox::ListenToMessage behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
 005f4b90	x	ac2-ui list_box.rs
-005f4c30	_	needs port (check): UIElement_ListBox::Register behaviour; implemented area ac2-ui list_box.rs / list_scroll.rs but uncited
+005f4c30	-	ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 005f4c50	x	ac2-ui meter.rs
 005f4eb0	x	ac2-ui meter.rs
 005f4ed0	x	ac2-ui meter.rs
@@ -10181,26 +10181,26 @@ key	status	note
 005f8dc0	_	needs port (check): UIElement_Dragbar::UIElement_Dragbar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui window_locations.rs
 005f8e20	_	needs port (check): UIElement_Dragbar::Create behaviour; implemented area ac2-ui window_locations.rs but uncited
 005f8e50	_	needs port (check): UIElement_Dragbar::Register behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8e70	_	needs port (check): UIElement_ListBoxMSize::ConstrainViewValue behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f8ed0	_	needs port (check): UIElement_ListBoxMSize::InqItemIndex behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f8f20	_	needs port (check): UIElement_ListBoxMSize::InqItemSize behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f8f60	_	needs port (check): UIElement_ListBoxMSize::ScrollToShow behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f90d0	_	needs port (check): UIElement_ListBoxMSize::ScrollToRow behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9110	_	needs port (check): UIElement_ListBoxMSize::ScrollToCol behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f91a0	_	needs port (check): UIElement_ListBoxMSize::VerticalPageDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9200	_	needs port (check): UIElement_ListBoxMSize::VerticalPageIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9270	_	needs port (check): UIElement_ListBoxMSize::HorizontalPageDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f92d0	_	needs port (check): UIElement_ListBoxMSize::HorizontalPageIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9340	_	needs port (check): UIElement_ListBoxMSize::VerticalLineDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f93a0	_	needs port (check): UIElement_ListBoxMSize::VerticalLineIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9410	_	needs port (check): UIElement_ListBoxMSize::HorizontalLineDecrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9470	_	needs port (check): UIElement_ListBoxMSize::HorizontalLineIncrement behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f94e0	_	needs port (check): UIElement_ListBoxMSize::GetItemIndexAtPoint behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f95f0	_	needs port (check): UIElement_ListBoxMSize::UIElement_ListBoxMSize lifecycle (create/teardown: listeners, children, surfaces); ac2-ui list_scroll.rs / list_box.rs
-005f9640	_	needs port (check): UIElement_ListBoxMSize::Create behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f9670	_	needs port (check): UIElement_ListBoxMSize::CalculateItemWidthsHeights behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f98a0	_	needs port (check): UIElement_ListBoxMSize::Register behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
-005f98c0	_	needs port (check): UIElement_ListBoxMSize::UpdateLayout behaviour; implemented area ac2-ui list_scroll.rs / list_box.rs but uncited
+005f8e70	x	ac2-ui list_msize.rs: UiTree::list_msize_constrain (no snapping, within 0 and paper - extent)
+005f8ed0	x	ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
+005f8f20	x	ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
+005f8f60	~	list_msize.rs: not ported: the base list's item size that ScrollToShow reads (the sized list never sets it); a selection is shown by the base list_scroll_to_show
+005f90d0	x	ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
+005f9110	x	ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
+005f91a0	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f9200	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f9270	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f92d0	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f9340	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f93a0	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f9410	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f9470	x	ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
+005f94e0	x	ac2-ui list_msize.rs: list_msize_index_at
+005f95f0	-	ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+005f9640	-	ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+005f9670	x	ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
+005f98a0	-	ctor/Create/Register are the framework's element creation (UiTree::create_element, the listboxmsize kind in list_box_select.rs)
+005f98c0	x	ac2-ui list_msize.rs: list_msize_layout (column widths and row heights, running positions, paper)
 005f9a20	_	needs port (check): UIElement_Scrollbar::SetAttribute_ID behaviour; implemented area ac2-ui scrollbar.rs but uncited
 005f9a80	x	ac2-ui scrollbar.rs
 005f9aa0	_	needs port (check): UIElement_Scrollbar::HandleHideButton behaviour; implemented area ac2-ui scrollbar.rs but uncited
@@ -10213,7 +10213,7 @@ key	status	note
 005fa200	x	ac2-ui scrollbar.rs
 005fa330	x	ac2-ui scrollbar.rs
 005fa3a0	x	ac2-ui scrollbar.rs
-005fa4a0	_	needs port (check): UIElement_Scrollbar::~UIElement_Scrollbar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui scrollbar.rs
+005fa4a0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 005fa5b0	x	ac2-ui scrollbar.rs
 005fa5d0	_	needs port (check): UIElement_Scrollbar::SetAttribute_Bool behaviour; implemented area ac2-ui scrollbar.rs but uncited
 005fa780	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
@@ -10225,10 +10225,10 @@ key	status	note
 005fad20	x	wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 005fadd0	x	ac2-ui scrollbar.rs
 005fae40	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-005fb0a0	_	needs port (check): UIElement_Scrollbar::Create behaviour; implemented area ac2-ui scrollbar.rs but uncited
-005fb0d0	~	scrollbar.rs: a disabled bar takes nothing; a wheel turn steps or drives (scrollbar_mouse_wheel); left press and drag of the widget; track paging not modelled
+005fb0a0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
+005fb0d0	~	scrollbar.rs: wheel, widget press/drag, touched position, and a track press pages once (scrollbar_page_press -> list_page_step); not modelled: repeating the page while held (Global_Loop timer), stop-location snapping on press
 005fb400	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-005fb4c0	_	needs port (check): UIElement_Scrollbar::Register behaviour; implemented area ac2-ui scrollbar.rs but uncited
+005fb4c0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 005fb4e0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 005fb540	_	needs port (check): UIElement_Button::Create behaviour; implemented area ac2-ui button.rs but uncited
 005fb570	_	needs port (check): UIElement_Button::Global_Loop behaviour; implemented area ac2-ui button.rs but uncited

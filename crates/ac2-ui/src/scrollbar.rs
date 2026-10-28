@@ -210,7 +210,10 @@ impl UiTree {
         let (px, py) = self.pointer;
         if !self.el(widget).mouse_over {
             if !self.bool_attribute(index, tokenize("move_to_touched_position")) {
-                // Paging by holding the track is not modelled.
+                // `UIElement_Scrollbar::MouseDown`: a press on the track beside the widget
+                // pages once. Repeating while the button is held (`Global_Loop`'s
+                // `page_first_interval` timer) is not modelled.
+                self.scrollbar_page_press(index, widget, (px, py));
                 return;
             }
             let (track, w) = (self.screen_box(index), self.el(widget).rect);
@@ -229,6 +232,41 @@ impl UiTree {
         self.set_state(widget, WIDGET_PRESSED);
         let root = self.root_of(index);
         self.broadcast(index, MSG_WIDGET_PRESS, root as i32);
+    }
+
+    /// `UIElement_Scrollbar::MouseDown` on the track beside the widget: a press before the
+    /// widget's left or top edge broadcasts the decrement page message, one past its right or
+    /// bottom edge the increment (`horizontal_page_*`, `vertical_page_*`); the lists the bar
+    /// drives page (`UIElement_ListBox::HandleScrollBarMessage`).
+    fn scrollbar_page_press(&mut self, index: usize, widget: usize, at: (i32, i32)) {
+        let w = self.screen_box(widget);
+        let presses = [
+            (false, at.0 < w.x0, at.0 >= w.x1 + 1),
+            (true, at.1 < w.y0, at.1 >= w.y1 + 1),
+        ];
+        for (vertical, before, after) in presses {
+            if before || after {
+                self.scrollbar_page(index, vertical, after);
+            }
+        }
+    }
+
+    /// The page message of a bar's axis (`vertical_page_increment` and its three partners),
+    /// broadcast on the bar's root and heard by the lists it drives.
+    pub(crate) fn scrollbar_page(&mut self, index: usize, vertical: bool, forward: bool) {
+        let name = match (vertical, forward) {
+            (true, true) => "vertical_page_increment",
+            (true, false) => "vertical_page_decrement",
+            (false, true) => "horizontal_page_increment",
+            (false, false) => "horizontal_page_decrement",
+        };
+        let root = self.root_of(index);
+        self.broadcast(index, tokenize(name), root as i32);
+        for (list, list_vertical) in self.lists_bound_to(index) {
+            if list_vertical == vertical {
+                self.list_page_step(list, vertical, forward);
+            }
+        }
     }
 
     /// `UIElement_Scrollbar::HandleMouseWheel`: a wheel turn steps a stop-located bar (up or left

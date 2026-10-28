@@ -7,16 +7,14 @@
 //! inclusive box height (`y1 - y0 + 1`), read from the machine code of both functions (admin
 //! 7148 0x005F2D90 and 0x005F2C30, Legions 0x005B38C0 and 0x005B3760): the same range the text and
 //! tree bars use (`text_scroll.rs`). While the scroll bar drives the view the bar is not written
-//! back (the `0x20000` guard). The line steps move the view a row or column of
-//! items (`VerticalLineIncrement` and its partners). A wheel turn
+//! back (the `0x20000` guard). The line and page steps are in `list_goal.rs`. A wheel turn
 //! over a list goes to its scroll bar (`ListBox::HandleMouseWheel`).
 //!
 //! Keyboard stepping (`ListBox::StartActive`, `StartUpActive` ... `StartRightActive`) moves the
 //! selection by a fixed count of items: one, or a row or column of them, by the list's layout and
 //! wraps past either end.
 //!
-//! Not modelled yet: the page steps (`VerticalPageIncrement`: the Legions decompile of them reads
-//! opposite to their clamps, so they wait for a check), paging by holding the track, smooth
+//! Not modelled yet: paging by holding the track, smooth
 //! scrolling (`goal_x_view`, `StartAnimation`), rollover and drag selection, and no list is
 //! activated yet, so the arrow keys never reach a list (they are camera input outside a text
 //! element).
@@ -157,20 +155,6 @@ impl UiTree {
                 (f64::from(at) / f64::from(range)).clamp(0.0, 1.0)
             };
             self.scrollbar_set_position(bar, share as f32);
-        }
-    }
-
-    /// `UIElement_ListBox::VerticalLineIncrement` (`steps` 1) and `VerticalLineDecrement` (-1),
-    /// or the horizontal pair when `vertical` is false: the view moves one item.
-    pub(crate) fn list_line_step(&mut self, list: usize, vertical: bool, steps: i32) {
-        let Some(state) = self.el(list).list.as_ref() else {
-            return;
-        };
-        let (item, view) = (state.item, state.view);
-        if vertical {
-            self.list_set_view(list, None, Some(view.1 + steps * item.1));
-        } else {
-            self.list_set_view(list, Some(view.0 + steps * item.0), None);
         }
     }
 
