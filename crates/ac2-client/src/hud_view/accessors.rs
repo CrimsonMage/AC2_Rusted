@@ -37,7 +37,8 @@ impl HudView {
 
     /// The help window's text, while it shows (`KeyStone::OpenHelp`).
     pub(crate) fn help_window_text(&self) -> Option<String> {
-        self.help
+        self.panels
+            .help
             .as_ref()
             .filter(|help| help.is_shown())
             .map(ac2_ui::HelpWindow::text)
@@ -46,7 +47,7 @@ impl HudView {
     /// The screen box of the help window's element `name` (its own, not the book's).
     pub(crate) fn help_element_box(&self, name: &str) -> Option<ac2_ui::UiBox> {
         let (tree, _) = self.hud.as_ref()?;
-        let element = self.help.as_ref()?.element(tree, name)?;
+        let element = self.panels.help.as_ref()?.element(tree, name)?;
         Some(tree.screen_box(element))
     }
 

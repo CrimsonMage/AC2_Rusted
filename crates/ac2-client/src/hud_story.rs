@@ -19,12 +19,13 @@ impl HudView {
             }
         }
         let fades = self
+            .panels
             .story
             .as_ref()
             .zip(self.hud.as_ref())
             .is_some_and(|(story, _)| story.fades_by_media());
         client.story_fades_on_hud = fades;
-        let fade_done = self.story.as_ref().is_some_and(|story| {
+        let fade_done = self.panels.story.as_ref().is_some_and(|story| {
             self.player_messages
                 .iter()
                 .any(|message| story.is_fade_done(message))
@@ -34,7 +35,7 @@ impl HudView {
         }
         let events = client.take_story_events();
         let strings = self.strings.clone();
-        let gameplay = match (self.story.as_mut(), self.hud.as_mut()) {
+        let gameplay = match (self.panels.story.as_mut(), self.hud.as_mut()) {
             (Some(story), Some((tree, _))) => story.frame_events(tree, events, strings.as_deref()),
             _ => return,
         };

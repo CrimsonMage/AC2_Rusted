@@ -97,10 +97,6 @@ impl HudView {
             game_dialogs: ac2_ui::GameplayDialogs::default(),
             popup_backlog: Vec::new(),
             display_backlog: Vec::new(),
-            book: None,
-            help: None,
-            help_pages: None,
-            story: None,
             shift_held: false,
             gameplay_shown: true,
             story_hid_gameplay: None,
@@ -231,10 +227,10 @@ impl HudView {
                 self.panels.radar = Some(radar);
                 self.panels.navigation = navigation;
                 self.panels.overview = overview;
-                self.book = book;
-                self.help = help;
-                self.help_pages = help_pages;
-                self.story = story;
+                self.panels.book = book;
+                self.panels.help = help;
+                self.panels.help_pages = help_pages;
+                self.panels.story = story;
                 self.dirty = true;
             }
             Err(error) => eprintln!("ac2: the HUD did not load: {error}"),

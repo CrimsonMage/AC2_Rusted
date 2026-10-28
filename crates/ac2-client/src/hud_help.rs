@@ -16,20 +16,20 @@ impl HudView {
     /// `KeyStone::OpenHelp(token)`: the topic's page in the help window (token 0 is the default
     /// page). The window reads the pages it already holds; no file is read here.
     pub(crate) fn open_help(&mut self, token: u32) {
-        let (Some(help), Some((tree, _))) = (self.help.as_mut(), self.hud.as_mut()) else {
+        let (Some(help), Some((tree, _))) = (self.panels.help.as_mut(), self.hud.as_mut()) else {
             return;
         };
-        help.open(tree, self.help_pages.as_ref(), token);
+        help.open(tree, self.panels.help_pages.as_ref(), token);
         self.dirty = true;
     }
 
     /// The help frameworks' messages (`ac2_ui::help_pass`): the key stone key, the help window's
     /// own messages, and the panels' help buttons.
     pub(crate) fn help_pass(&mut self, messages: &[UiMessage]) {
-        let (Some(help), Some((tree, _))) = (self.help.as_mut(), self.hud.as_mut()) else {
+        let (Some(help), Some((tree, _))) = (self.panels.help.as_mut(), self.hud.as_mut()) else {
             return;
         };
-        if ac2_ui::help_pass(help, tree, self.help_pages.as_ref(), messages) {
+        if ac2_ui::help_pass(help, tree, self.panels.help_pages.as_ref(), messages) {
             self.dirty = true;
         }
     }

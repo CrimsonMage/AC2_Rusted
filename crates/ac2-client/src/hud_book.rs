@@ -32,7 +32,7 @@ impl HudView {
             return;
         }
         let messages = self.player_messages.clone();
-        let Some(book) = self.book.as_mut() else {
+        let Some(book) = self.panels.book.as_mut() else {
             return;
         };
         let tree = match self.hud.as_mut() {

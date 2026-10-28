@@ -58,14 +58,6 @@ pub(crate) struct HudView {
     /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
     /// so these wait for the HUD rather than being dropped.
     pub(crate) display_backlog: Vec<ac2_ui::DisplayNotice>,
-    /// `gmBookUI`, shown by the book's use notice.
-    pub(crate) book: Option<ac2_ui::BookUi>,
-    /// The help window (`KeyStone::OpenHelp`), hidden until a help page opens.
-    pub(crate) help: Option<ac2_ui::HelpWindow>,
-    /// The help pages, read once on the HUD's worker.
-    pub(crate) help_pages: Option<ac2_ui::HelpPages>,
-    /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
-    pub(crate) story: Option<ac2_ui::StoryView>,
     /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
     /// frame's input last said.
     pub(crate) shift_held: bool,

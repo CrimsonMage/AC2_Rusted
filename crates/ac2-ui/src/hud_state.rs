@@ -14,11 +14,11 @@ use crate::reticle::{Reticle, ReticleOutcome, ReticleTarget};
 use crate::skill_tree::SkillTreeUi;
 use crate::vitals::VitalsUi;
 use crate::{
-    AllegianceUi, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentUi, CraftUi,
-    EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi, FriendsPanel, IngredientUi,
-    Items3dUi, MiniFellowUi, MoneyBagUi, NavigationUi, NetStatusUi, NewSaleUi, OptionsPages,
-    OverviewMapUi, PaperDollUi, PetUi, PkStatusUi, QuestsUi, RadarUi, SecureTradeUi, ShopUi,
-    SocialPanel, StackUi, VitaeStatusUi,
+    AllegianceUi, BackpackUi, BookUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentUi,
+    CraftUi, EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi, FriendsPanel, HelpPages,
+    HelpWindow, IngredientUi, Items3dUi, MiniFellowUi, MoneyBagUi, NavigationUi, NetStatusUi,
+    NewSaleUi, OptionsPages, OverviewMapUi, PaperDollUi, PetUi, PkStatusUi, QuestsUi, RadarUi,
+    SecureTradeUi, ShopUi, SocialPanel, StackUi, StoryView, VitaeStatusUi,
 };
 
 /// The HUD's panel state (`gmGamePlayUI`'s children that the client drives each frame).
@@ -107,6 +107,14 @@ pub struct Hud {
     pub navigation: Option<NavigationUi>,
     /// `gmOverviewMapUI`.
     pub overview: Option<OverviewMapUi>,
+    /// `gmBookUI`, shown by the book's use notice.
+    pub book: Option<BookUi>,
+    /// The help window (`KeyStone::OpenHelp`), hidden until a help page opens.
+    pub help: Option<HelpWindow>,
+    /// The help pages, read once on the HUD's worker.
+    pub help_pages: Option<HelpPages>,
+    /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
+    pub story: Option<StoryView>,
 }
 
 impl Hud {
