@@ -95,6 +95,10 @@ pub struct Holder {
     /// rides and its transform. `None` while the holder's body is not loaded, so the object has
     /// no place to be drawn at.
     pub point: Option<HoldPoint>,
+    /// `CHILDINFO::m_offset`: the child's frame in the placed frame. Identity for a holding
+    /// location child; a stuck missile (`CPhysicsObj::StickySetParent`) keeps its rotation to
+    /// the bone it hangs from.
+    pub offset: ac2_math::Frame,
 }
 
 /// The portal space (`PortalSpace::Effect`): the phase and the draw flags for the frame.

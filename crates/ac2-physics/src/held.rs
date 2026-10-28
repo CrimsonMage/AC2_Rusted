@@ -76,7 +76,21 @@ pub fn held_place(
     bone: Ac2Transform,
     point: &HoldPoint,
 ) -> Frame {
-    let info = crate::children::ChildInfo::holding(0, 0);
+    held_place_offset(holder, holder_scale, bone, point, Frame::IDENTITY)
+}
+
+/// [`held_place`] for a child with its own offset frame (`CHILDINFO::m_offset`), as a bone-index
+/// child (`CPhysicsObj::StickySetParent`) has. Its `point` is the bone with an identity
+/// transform: `UpdateChild` takes `CPartGroup::GetBoneMatrix` alone.
+pub fn held_place_offset(
+    holder: Frame,
+    holder_scale: Vec3,
+    bone: Ac2Transform,
+    point: &HoldPoint,
+    offset: Frame,
+) -> Frame {
+    let mut info = crate::children::ChildInfo::holding(0, 0);
+    info.offset = offset;
     crate::children::update_child_frame(holder, holder_scale, &info, bone.compose(&point.transform))
 }
 
@@ -95,7 +109,10 @@ pub fn parent_drawing_position(
 ) -> Option<crate::position::Position> {
     use crate::children::{holding_matrix, update_child_frame, HOLDING_LOCATION_ORIGIN};
 
-    let matrix = if info.location == HOLDING_LOCATION_ORIGIN {
+    let matrix = if info.kind == crate::children::ChildType::BoneIndex {
+        // `CPartGroup::GetBoneMatrix(index)`: the bone alone.
+        bone
+    } else if info.location == HOLDING_LOCATION_ORIGIN {
         Ac2Transform::IDENTITY
     } else {
         holding_matrix(info.location, bone, point?)
@@ -168,6 +185,27 @@ mod tests {
             bone,
             transform: translated(offset),
         }
+    }
+
+    #[test]
+    fn a_bone_index_child_keeps_its_rotation_to_the_bone() {
+        use super::held_place_offset;
+        // The child sits on the holder's bone (z = 1) and keeps a quarter turn about z.
+        let holder = Frame::new(Vec3::new(10.0, 0.0, 0.0), Quat::IDENTITY);
+        let bone = translated(Vec3::new(0.0, 0.0, 1.0));
+        let turn = Quat::from_rotation_z(std::f32::consts::FRAC_PI_2);
+        let at = held_place_offset(
+            holder,
+            Vec3::ONE,
+            bone,
+            &point(0, Vec3::ZERO),
+            Frame::new(Vec3::ZERO, turn),
+        );
+        assert!(
+            (at.origin - Vec3::new(10.0, 0.0, 1.0)).length() < 1e-5,
+            "{at:?}"
+        );
+        assert!(at.orientation.dot(turn).abs() > 0.9999, "{at:?}");
     }
 
     #[test]

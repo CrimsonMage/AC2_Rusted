@@ -37,6 +37,8 @@ pub mod flags {
     pub const NO_VIRTUAL: u32 = 0x10;
     /// `light`.
     pub const LIGHT: u32 = 0x20;
+    /// The `MusicInfo` bit `FXManager::SoundIsDefaultChannelMusic` tests (bit 18).
+    pub const DEFAULT_CHANNEL_MUSIC: u32 = 0x40000;
 }
 
 /// `MasterDBMap::DivineType` for the sound ranges `SoundManager::PlayInternal` accepts.
@@ -334,6 +336,21 @@ impl DatSounds {
             Some(_) => self.get(did, |music: &MusicInfo| music.test(flags::LOOP)),
             None => None,
         }
+        .unwrap_or(false)
+    }
+}
+
+impl DatSounds {
+    /// `FXManager::SoundIsDefaultChannelMusic`: `did` divines to a `MusicInfo` (type
+    /// `0x4000002D`) and the record has [`flags::DEFAULT_CHANNEL_MUSIC`] set. Any other id, or
+    /// a record that does not load, is false.
+    pub fn is_default_channel_music(&self, did: u32) -> bool {
+        if sound_db_type(did) != Some(DB_TYPE_MUSIC_INFO) {
+            return false;
+        }
+        self.get(did, |music: &MusicInfo| {
+            music.test(flags::DEFAULT_CHANNEL_MUSIC)
+        })
         .unwrap_or(false)
     }
 }

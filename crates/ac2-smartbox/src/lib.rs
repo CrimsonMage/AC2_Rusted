@@ -10,6 +10,7 @@ mod blocks;
 pub mod camera;
 mod camera_mouse;
 pub mod cells;
+pub mod fx_manager;
 pub mod fx_objects;
 pub mod membership;
 pub mod missile_follow;

@@ -170,6 +170,9 @@ pub(crate) struct PhysicsObj {
     pub(crate) instance_id: u64,
     /// `m_posDrawing` while the body has a parent (`HasParent`), set by the owner of the child graph.
     pub(crate) parent_drawing_position: Option<Position>,
+    /// `PHYSICSOBJREP::m_partGroup`: the object's part-group tree, once the owner built it from
+    /// the DATs (`load_part_group_tree`). Shared until the body changes it.
+    pub(crate) part_group: Option<std::sync::Arc<crate::part_group::PartGroupTree>>,
 }
 
 impl PhysicsObj {
@@ -235,6 +238,7 @@ impl PhysicsObj {
             wind: Vector::ZERO,
             target_id: 0,
             parent_drawing_position: None,
+            part_group: None,
             desired_collision_mask: crate::collision_types::PhysicsTypeMask::default(),
             instance_id: 0,
             look: LookAtManager::default(),

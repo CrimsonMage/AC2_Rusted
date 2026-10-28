@@ -5,10 +5,8 @@
 
 use std::sync::Arc;
 
-use ac2_anim::Ac2Setup;
 use ac2_core::{CellId, DataId};
-use ac2_dat::DatFileKind;
-use ac2_db::{ResourceStore, TypedResourceRef};
+use ac2_db::ResourceStore;
 use ac2_physics::Terrain;
 use ac2_world::{Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
 
@@ -193,6 +191,10 @@ pub(crate) fn load_body_data(
     // `ICPhysicsObj::makeObject`: an `EntityDesc` (an FX node's object) draws its template's visual.
     let visual = ac2_assets::resolve_ac2_entity_visual(store, visual).map_err(|e| e.to_string())?;
     let body = ac2_smartbox::load_body_data(store, visual)?;
+    let holding = body
+        .parts
+        .as_deref()
+        .map_or_else(|| Arc::from([]), |tree| Arc::from(tree.holdings()));
     Ok(BodyData {
         body,
         fx_sounds: load_fx_sounds(store, visual)?,
@@ -200,39 +202,9 @@ pub(crate) fn load_body_data(
             .map_err(|e| e.to_string())?
             .filter(|table| !table.is_empty())
             .map(Arc::new),
-        holding: load_holding_locations(store, visual)?,
+        // `CPartGroup::GetHoldingLocation`'s search order over the body's part-group tree.
+        holding,
     })
-}
-
-/// The holding locations of every part group's Setup for `visual`, read on the loader thread in
-/// `CPartGroup::GetHoldingLocation`'s search order. A visual with no part groups has none.
-fn load_holding_locations(
-    store: &Arc<ResourceStore>,
-    visual: DataId,
-) -> Result<Arc<[GroupHolding]>, String> {
-    let groups = ac2_render::object::resolve_drawn_groups(store, visual, None)
-        .ok()
-        .flatten();
-    let Some(groups) = groups else {
-        return Ok(Arc::from([]));
-    };
-    let mut holding = Vec::new();
-    for group in ac2_assets::holding_search_order(&groups) {
-        let setup = store
-            .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(
-                DatFileKind::Portal,
-                groups[group].setup,
-                0,
-            ))
-            .map_err(|e| e.to_string())?;
-        for location in setup.iter().flat_map(|setup| setup.holding_points.iter()) {
-            holding.push(GroupHolding {
-                group,
-                location: *location,
-            });
-        }
-    }
-    Ok(holding.into())
 }
 
 /// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them

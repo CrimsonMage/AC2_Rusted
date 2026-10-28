@@ -47,6 +47,15 @@ pub struct Ac2SetupPhysics {
     /// `CSetup::step_down_height`, unscaled (`CPartArray::GetStepDownHeight`).
     pub step_down_height: f32,
     pub allow_free_heading: bool,
+    /// `CSetup::bounding_sphere` (offset 0x7c; `CPartArray::GetBoundingSphere`).
+    pub bounding_sphere: Sphere,
+    /// `CSetup::selection_sphere` (offset 0x8c; `CPartArray::GetSelectionSphere`).
+    pub selection_sphere: Sphere,
+    /// The `BBox` the tail ends with (`CSetup` offset 0x124, `CPartArray::GetPhysicsBoundingBox`):
+    /// minimum corner.
+    pub bounds_min: Vec3,
+    /// Maximum corner of the same box.
+    pub bounds_max: Vec3,
 }
 
 impl ResourcePackedDecode for Ac2SetupPhysics {
@@ -115,6 +124,16 @@ impl ResourcePackedDecode for Ac2SetupPhysics {
         if cursor.remaining() != TAIL_BYTES {
             return Err(malformed("Setup tail length"));
         }
+        let [bounding, selection] = [(); 2].map(|_| -> ResourceResult<Sphere> {
+            let v = cursor.read_f32_items(4)?;
+            Ok(Sphere {
+                origin: Vec3::new(v[0], v[1], v[2]),
+                radius: v[3],
+            })
+        });
+        // `DegradeInfo` (18 distances), a scalar and a word sit between the spheres and the box.
+        cursor.read_bytes(18 * 4 + 4 + 4)?;
+        let b = cursor.read_f32_items(6)?;
         Ok(Self {
             cylspheres,
             spheres,
@@ -123,6 +142,10 @@ impl ResourcePackedDecode for Ac2SetupPhysics {
             step_up_height: step_up_height?,
             step_down_height: step_down_height?,
             allow_free_heading: flags & FLAG_ALLOW_FREE_HEADING != 0,
+            bounding_sphere: bounding?,
+            selection_sphere: selection?,
+            bounds_min: Vec3::new(b[0], b[1], b[2]),
+            bounds_max: Vec3::new(b[3], b[4], b[5]),
         })
     }
 

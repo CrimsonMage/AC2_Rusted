@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use ac2_anim::Ac2Transform;
 use ac2_math::{Frame, Mat4};
-use ac2_physics::{held_place, placement_order, scaled_by_parent};
+use ac2_physics::{held_place_offset, placement_order, scaled_by_parent};
 use ac2_render::object::ObjectPose;
 
 use super::{world_matrix, ClientView, Drawn};
@@ -27,7 +27,7 @@ impl ClientView {
             .collect();
         let holder_of: Vec<Option<usize>> = drawn
             .iter()
-            .map(|child| child.held.and_then(|(id, _)| index.get(&id).copied()))
+            .map(|child| child.held.and_then(|(id, _, _)| index.get(&id).copied()))
             .collect();
         // `CPhysicsObj::GetTotalScale`: a held object's scale carries its holder's total scale
         // (and the holder representation's `m_fChildScale`, 1.0 as `PHYSICSOBJREP` makes it).
@@ -37,7 +37,7 @@ impl ClientView {
             .collect();
         for i in placement_order(&holder_of) {
             let child = &drawn[i];
-            let Some((holder_id, point)) = child.held else {
+            let Some((holder_id, point, offset)) = child.held else {
                 continue;
             };
             let Some(&holder) = index.get(&holder_id) else {
@@ -58,7 +58,7 @@ impl ClientView {
                 .and_then(|pose| pose.group_bones.get(point.group)?.get(point.bone))
                 .copied()
                 .unwrap_or(Ac2Transform::IDENTITY);
-            let at = held_place(frames[holder], holder_scale, bone, &point);
+            let at = held_place_offset(frames[holder], holder_scale, bone, &point, offset);
             frames[i] = at;
             let child_scale = totals[i].map(|own| scaled_by_parent(own, holder_scale, 1.0));
             totals[i] = child_scale;
@@ -146,6 +146,7 @@ mod tests {
             location: 1,
             orientation: None,
             point,
+            offset: ac2_math::Frame::IDENTITY,
         }
     }
 

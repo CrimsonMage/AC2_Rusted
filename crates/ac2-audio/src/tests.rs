@@ -273,6 +273,30 @@ fn the_dats_sounds_decode() {
     );
 }
 
+#[test]
+fn only_music_records_with_the_bit_are_default_channel_music() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let sounds = DatSounds::new(Arc::new(ac2_db::ResourceStore::new(dataset)));
+    // `FXManager::SoundIsDefaultChannelMusic` is the record's bit 18, and false for a `SoundInfo`
+    // or anything that is not a sound id.
+    assert!(!sounds.is_default_channel_music(0x2A00_020F));
+    assert!(!sounds.is_default_channel_music(0x0C00_0000));
+    assert!(!sounds.is_default_channel_music(0x2CFF_FFFF));
+    let mut with_bit = 0;
+    for did in 0x2C00_0001..0x2C00_0200_u32 {
+        if let Some(LoadedSound::Music { info, .. } | LoadedSound::MusicWave { info, .. }) =
+            sounds.load(did)
+        {
+            let bit = info.bit_field & flags::DEFAULT_CHANNEL_MUSIC != 0;
+            assert_eq!(sounds.is_default_channel_music(did), bit, "{did:08X}");
+            with_bit += usize::from(bit);
+        }
+    }
+    println!("{with_bit} default channel music records in the first 512");
+}
+
 fn spatials(sink: &RecordingSink) -> Vec<(u32, Option<Spatial>)> {
     sink.commands()
         .into_iter()

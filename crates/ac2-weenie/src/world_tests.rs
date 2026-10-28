@@ -265,6 +265,30 @@ fn a_faded_object_is_destroyed_once_its_destruction_time_has_passed() {
     assert!(world.objects.get(npc).is_none());
 }
 
+/// `CPhysicsObj::StickySetParent`: the child hangs from the parent's bone as a bone-index child and
+/// comes off the destruction queue (`CBookKeep::RemoveObjectToBeDestroyed`).
+#[test]
+fn a_stuck_object_is_a_bone_index_child_and_is_not_destroyed() {
+    let npc = 0x7000_0000_0000_0042;
+    let mut world = world_with(npc);
+    world.use_time(100.0);
+    world.add_object_to_be_destroyed(npc);
+    assert!(world.is_to_be_destroyed(npc));
+    let offset = ac2_physics::ChildFrame::IDENTITY;
+    assert!(
+        !world.stick_object(npc, 0x7000_0000_0000_0099, 3, offset),
+        "unknown parent"
+    );
+    assert!(!world.stick_object(npc, npc, 3, offset), "not to itself");
+    assert!(world.stick_object(npc, PLAYER, 3, offset));
+    assert!(!world.is_to_be_destroyed(npc));
+    let links = world.objects.links();
+    assert_eq!(links.parent_of(npc), Some(PLAYER));
+    let info = links.info_of(npc).unwrap();
+    assert_eq!(info.kind, ac2_physics::ChildType::BoneIndex);
+    assert_eq!(info.location, 3);
+}
+
 #[test]
 fn an_object_out_of_view_is_destroyed_after_25_seconds_unless_it_comes_back() {
     let npc = 0x7000_0000_0000_0042;

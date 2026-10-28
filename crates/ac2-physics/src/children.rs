@@ -16,6 +16,9 @@ use crate::held::HoldPoint;
 /// matrix is the identity, no Setup holding location is read.
 pub const HOLDING_LOCATION_ORIGIN: u32 = 0x4000_0003;
 
+/// A `CHILDINFO` offset frame: origin and rotation in AC axes.
+pub type ChildFrame = Frame;
+
 /// `ChildType`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChildType {
@@ -182,6 +185,19 @@ impl ChildGraph {
             return false;
         }
         if !self.add_child(parent, child, location, 0, Vec3::ZERO, false) {
+            return false;
+        }
+        self.unset_parent(child);
+        self.parents.insert(child, parent);
+        true
+    }
+
+    /// `CPhysicsObj::StickySetParent`: `child` becomes a bone-index child of `parent` at `bone`
+    /// with `offset` (`AddChildInternal(BONE_INDEX_CHILDTYPE)`); on success it leaves its old
+    /// parent (`unset_parent`) and the caller takes it out of the world, as for
+    /// [`ChildGraph::set_parent`]. False when `AddChildInternal` refuses.
+    pub fn sticky_set_parent(&mut self, child: u64, parent: u64, bone: u32, offset: Frame) -> bool {
+        if !self.add_child_internal(parent, child, ChildType::BoneIndex, bone, offset, false) {
             return false;
         }
         self.unset_parent(child);

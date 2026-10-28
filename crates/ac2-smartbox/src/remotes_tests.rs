@@ -99,3 +99,14 @@ fn an_object_in_the_world_is_listed_in_its_cell_and_leaves_with_it() {
     assert!(remotes.membership().inq_objects(cell, false).is_empty());
     assert!(remotes.membership().dynamic_objects(cell).is_empty());
 }
+
+#[test]
+fn a_stuck_body_leaves_the_world_without_being_queued() {
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    remotes.leave_world_for_parent(7);
+    assert!(!remotes.get(7).unwrap().in_world);
+    // Out of the world already: it leaves its lost cell instead; nothing panics.
+    remotes.leave_world_for_parent(7);
+    remotes.leave_world_for_parent(99);
+}

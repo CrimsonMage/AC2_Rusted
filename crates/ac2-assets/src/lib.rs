@@ -97,7 +97,9 @@ pub use ac2_mesh::{Ac2Mesh, Ac2MeshFragment};
 pub use ac2_particle_desc::{
     Ac2ParticleEmitterDesc, Ac2ParticleKeyframe, Ac2ParticleSystemDesc, Ac2WaveformVec3,
 };
-pub use ac2_physics_mesh::{Ac2PhysicsBspNode, Ac2PhysicsMesh, Ac2PhysicsPolygon, Ac2SetupPhysics};
+pub use ac2_physics_mesh::{
+    Ac2CylSphere, Ac2PhysicsBspNode, Ac2PhysicsMesh, Ac2PhysicsPolygon, Ac2SetupPhysics,
+};
 pub(crate) use ac2_static_model::resolve_ac2_visual_setup;
 pub use ac2_static_model::{
     decode_ac2_posed_model, decode_ac2_static_model, resolve_ac2_entity_visual,

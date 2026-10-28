@@ -442,7 +442,16 @@ impl Client {
                         id,
                         location: info.location,
                         orientation: o.orientation,
-                        point: self.holding_point(id, info.location),
+                        // A bone-index child (`StickySetParent`) rides the bone alone.
+                        point: match info.kind {
+                            ac2_physics::ChildType::BoneIndex => Some(HoldPoint {
+                                group: 0,
+                                bone: info.location as usize,
+                                transform: ac2_anim::Ac2Transform::IDENTITY,
+                            }),
+                            _ => self.holding_point(id, info.location),
+                        },
+                        offset: info.offset,
                     });
                 let in_world = remote.is_some_and(|r| r.in_world());
                 // Contained objects are in an inventory; only placed, held or in-world ones
@@ -554,9 +563,37 @@ impl Client {
     /// (`StickySetParent`) needs the holder's bone matrices; see `Known Gaps` in the catalog.
     pub(crate) fn missile_events_taken(&mut self, events: &[(u64, ac2_physics::MissileEvent)]) {
         let follow = self.remotes.follow_missiles(events);
+        for (missile, object) in follow.stick {
+            self.stick_missile(missile, object);
+        }
         self.pending_streaks.extend(follow.streaks);
         for (id, seconds) in follow.destroy {
             self.session.fade_and_destroy_object(id, seconds);
+        }
+    }
+
+    /// `CPhysicsObj::StickySetParent(object)` on `missile`: it hangs from the nearest bone of
+    /// the object's root part array (`CalculateBoneIndexAndOffset`) as a bone-index child, leaves
+    /// the world, and is no longer queued for destruction. The view then places it on that bone
+    /// of the object's posed skeleton every frame (`CPhysicsObj::UpdateChild`).
+    fn stick_missile(&mut self, missile: u64, object: u64) {
+        let Some(at) = self
+            .remotes
+            .get(missile)
+            .and_then(|r| r.body())
+            .map(|b| b.position())
+        else {
+            return;
+        };
+        let holder = match self.player.as_ref().filter(|p| p.id == object) {
+            Some(player) => player.body.as_ref().map(|b| &b.physics),
+            None => self.remotes.get(object).and_then(|r| r.body()),
+        };
+        let Some((bone, offset)) = holder.and_then(|body| body.sticky_attachment(&at)) else {
+            return;
+        };
+        if self.session.stick_object(missile, object, bone, offset) {
+            self.remotes.leave_world_for_parent(missile);
         }
     }
 
@@ -583,11 +620,18 @@ impl Client {
                     };
                     let position = holder_body.drawing_position(self.render_interpolation);
                     let point = self.holding_point(holder, info.location);
+                    let bone = match info.kind {
+                        ac2_physics::ChildType::BoneIndex => {
+                            holder_body.bone_transform(info.location)
+                        }
+                        _ => None,
+                    }
+                    .unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
                     ac2_physics::parent_drawing_position(
                         &position,
                         scale_of(holder_body),
                         info,
-                        ac2_anim::Ac2Transform::IDENTITY,
+                        bone,
                         point.as_ref(),
                     )
                 });

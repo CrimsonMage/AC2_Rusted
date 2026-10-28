@@ -724,6 +724,11 @@ impl<B: AsRef<BodyData>> Remotes<B> {
         remote.object = data.object;
         let mut body = PhysicsBody::new(start, data.shape, data.motion);
         body.set_radius(data.radius);
+        if let Some(parts) = data.parts {
+            body.set_part_group(parts);
+            // `CPhysicsObj::InitObjectEnd`: `PHYSICSOBJREP::CacheHasPhysicsBSP` sets the state bit.
+            body.cache_has_physics_bsp();
+        }
         if ethereal {
             // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
             // physics type, which the object's list entry carries (`sync_shadow`).
@@ -980,6 +985,13 @@ impl<B> Remotes<B> {
             }
             self.push_lost_cell(position.cell_id, id);
         }
+    }
+
+    /// `CPhysicsObj::StickySetParent`'s `LeaveWorld`: the object is out of the world and, as
+    /// `CBookKeep::RemoveObjectToBeDestroyed` follows at once, not queued for destruction.
+    pub fn leave_world_for_parent(&mut self, id: u64) {
+        let mut queued = Vec::new();
+        self.leave_world(id, &mut queued);
     }
 
     /// `CPhysicsObj::LeaveWorld`: out of the world (`HandleLeaveWorld`), or, already out, out of

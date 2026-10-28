@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 783 done, 165 partial, 228 to do, 948 skipped.
+2124 retail functions: 827 done, 170 partial, 177 to do, 950 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1242,18 +1242,18 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (10/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (12/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 
 ### FXManager
 - [x] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
-- [ ] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — needs port: FX manager effect
-- [ ] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — needs port: FX manager effect
+- [~] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — ac2-smartbox fx_manager.rs Remotes::do_slider_fx (tested): the emitter's DoSlider(0, slider, scalar, ramp) and, with propagate, DoSliderOnChild on each direct child. The FX node type that calls it (a slider FX in an FXTable) is not decoded by ac2-assets yet, so nothing drives it
+- [~] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — Not ported: DoRepulseFX forwards to PHYSICSOBJREP::CreateParticleRepulsor (the particle repulsor system is not in ac2-render); ac2-assets does not decode repulsor FX nodes
 - [x] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [ ] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — needs port: FX manager effect
-- [ ] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — needs port: FX manager effect
+- [~] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — Not ported: DoCameraFX forwards to CameraManager::DoCameraFX (camera FX scripts are not in ac2-smartbox's camera); ac2-assets does not decode camera FX nodes
+- [x] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
 
 ### ChannelPrefs
 - [-] `ChannelPrefs::LoadChannelPrefs` · 005053f0 · legions 004f3730 — admin/debug or text-file tooling
@@ -1269,7 +1269,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
-- [ ] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — needs port: FX manager effect
+- [~] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step: the scalar product and the apply-or-remove choice. PHYSICSOBJREP::DoAppearanceFX / RemoveAppearanceFX (applied appearance keys on the object) are not ported and ac2-assets does not decode appearance FX nodes
 
 ### DBObjGrabber<FxScript>
 - [x] `DBObjGrabber<FxScript>::DBObjGrabber<FxScript>` · 00505ca0 · legions 004f3f70 — ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
@@ -1281,7 +1281,7 @@ Legend and workflow: [README](README.md).
 - [~] `FXManager::FireParticleFX` · 00505dd0 · legions 004f3ff0 — scene/particles.rs fired(): posed bone found through the part groups by name, holding transform, bone offset without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Static world sources place through the same part-group search (ac2-assets placement)
 - [x] `FXManager::SoundIsLooping` · 005060e0 · legions 004f4300 — ac2-audio/ac2-client: 3D emitters and FX sounds
 - [x] `FXManager::ParticleIsLooping` · 00506190 · legions 004f43b0 — ac2-assets Ac2ParticleSystemDesc::is_looping, flagged per PSDesc on the loader thread (ac2_visual_particles.rs looping_flags)
-- [ ] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — needs port: FX manager effect
+- [x] `FXManager::SoundIsDefaultChannelMusic` · 005061f0 · legions 004f4410 — ac2-audio data.rs DatSounds::is_default_channel_music (MusicInfo bit 0x40000 of a 0x4000002D record)
 
 ### SmartArray<PlayingSoundContext>
 - [-] `SmartArray<PlayingSoundContext>::operator=` · 00506260 · legions 004f4480 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -1320,7 +1320,7 @@ Legend and workflow: [README](README.md).
 ### FXManager
 - [-] `FXManager::~FXManager` · 00508660 · legions 004f6790 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::StreamPack` · 00508750 · legions 004f6880 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `FXManager::GetCurrentFX` · 005087c0 · legions 004f68f0 — needs port: FX manager effect
+- [~] `FXManager::GetCurrentFX` · 005087c0 · legions 004f68f0 — ac2-smartbox fx_objects.rs FxObjects::current_fx: the non-startup FX ids with a record; the scalar and target of each are not kept (only FX with object facts have a record)
 
 ### _STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>
 - [-] `_STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>::operator[]` · 00508860 · legions 004f6990 — STL/MSVC or archive template helper; Rust collections replace it
@@ -1988,38 +1988,38 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (29/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (41/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
 - [-] `CPartArray::SetupCompositor` · 004ee000 · legions 004e0970 — render plumbing
 - [-] `CPartArray::SetAnimMapID` · 004ee050 · legions 004e09c0 — render plumbing
 - [x] `CPartArray::UpdateBones` · 004ee0c0 · legions 004e0a20 — ac2-render object/skeleton.rs (render-side bones)
-- [ ] `CPartArray::SetBoundingObject` · 004ee1e0 · legions 004e0b40 — needs port: cite-only physics-object method
+- [x] `CPartArray::SetBoundingObject` · 004ee1e0 · legions 004e0b40 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) set_bounding_object: the Setup's sphere list is replaced for this array (retail writes the shared CSetup); ac2-physics body_parts.rs (PhysicsBody over its part-group tree) set_bounding_object also replaces the body's collision spheres
 - [x] `CPartArray::SetPlacementFrameID` · 004ee200 · legions 004e0b60 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 - [-] `CPartArray::InitParts` · 004ee2b0 · legions 004e0c10 — render plumbing
 - [-] `CPartArray::DestroyParts` · 004ee380 · legions 004e0ce0 — render plumbing
-- [~] `CPartArray::InitBones` · 004ee3e0 · legions 004e0d40 — ac2-render skeleton: placement frame 0 only
+- [x] `CPartArray::InitBones` · 004ee3e0 · legions 004e0d40 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) init_bones (physics side: transforms, bone matrices, placement frame); the render skeleton is ac2-render's own
 - [-] `CPartArray::DestroyBones` · 004ee4d0 · legions 004e0e30 — render plumbing
-- [ ] `CPartArray::GetSelectionSphere` · 004ee540 · legions 004e0ea0 — needs port: cite-only physics-object method
+- [x] `CPartArray::GetSelectionSphere` · 004ee540 · legions 004e0ea0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) selection_sphere (CSetup offset 0x8c, decoded by Ac2SetupPhysics)
 - [x] `CPartArray::GetNumSphere` · 004ee580 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `CPartArray::GetSphere` · 004ee590 — CPartArray::GetSphere - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
-- [ ] `CPartArray::GetNumCylsphere` · 004ee5a0 — needs port: cite-only physics-object method
-- [ ] `CPartArray::GetCylsphere` · 004ee5b0 — needs port: cite-only physics-object method
-- [ ] `CPartArray::GetRadius` · 004ee5c0 · legions 004e0f20 — needs port: cite-only physics-object method
+- [x] `CPartArray::GetNumCylsphere` · 004ee5a0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) num_cylsphere. No standalone Legions body (folded or inlined); the Setup count it reads is the one the Legions collision code uses
+- [x] `CPartArray::GetCylsphere` · 004ee5b0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) cylspheres. No standalone Legions body (folded or inlined)
+- [x] `CPartArray::GetRadius` · 004ee5c0 · legions 004e0f20 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) radius (CSetup::radius, unscaled)
 - [x] `CPartArray::GetHeight` · 004ee5d0 · legions 004e0f30 — CPartArray::GetHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
 - [x] `CPartArray::AllowsFreeHeading` · 004ee5e0 · legions 004e0f40 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `CPartArray::GetStepUpHeight` · 004ee5f0 · legions 004e0f50 — CPartArray::GetStepUpHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
 - [x] `CPartArray::GetStepDownHeight` · 004ee610 · legions 004e0f70 — CPartArray::GetStepDownHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
 - [x] `CPartArray::SetStepDownHeight` · 004ee630 · legions 004e0f90 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `CPartArray::GetPhysicsBoundingBox` · 004ee650 · legions 004e0fb0 — needs port: cite-only physics-object method
+- [x] `CPartArray::GetPhysicsBoundingBox` · 004ee650 · legions 004e0fb0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) physics_bounding_box (the Setup's trailing BBox, offset 0x124)
 - [x] `CPartArray::GetPhysicsContainmentRadius` · 004ee660 · legions 004e0fc0 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `CPartArray::CacheHasMatrixWeights` · 004ee670 · legions 004e0fd0 — ac2-render object/skeleton.rs (render-side bones)
 - [-] `CPartArray::BuildRenderBoundingBox` · 004ee6c0 · legions 004e1020 — render plumbing
 - [-] `CPartArray::CacheRenderBoundingBox` · 004ee700 · legions 004e1060 — render plumbing
 - [-] `CPartArray::BuildDefaultRenderBoundingBox` · 004ee720 · legions 004e1080 — render plumbing
 - [-] `CPartArray::CacheDefaultRenderBoundingBox` · 004ee760 · legions 004e10c0 — render plumbing
-- [ ] `CPartArray::CacheHasPhysicsBSP` · 004ee780 · legions 004e10e0 — needs port: cite-only physics-object method
+- [x] `CPartArray::CacheHasPhysicsBSP` · 004ee780 · legions 004e10e0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) cache_has_physics_bsp: any part's mesh has a physics BSP sets m_state bit 12; ac2-smartbox and the client call it as InitObjectEnd does
 - [x] `CPartArray::FindObjCollisions` · 004ee7d0 · legions 004e1130 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `CPartArray::TraceRayThroughPartsPhysics` · 004ee860 · legions 004e11c0 — ac2-physics los (Terrain::los_check)
 - [x] `CPartArray::RefreshMatrices` · 004ee8f0 · legions 004e1250 — ac2-render object/skeleton.rs (render-side bones)
@@ -2032,15 +2032,15 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::FindBoneType` · 004eeaa0 · legions 004e1400 — ac2-assets ac2_drawn_groups.rs rest_named_bones (the same search as ObjectSkeleton::named_bones; cross-checked against it in ac2-render fx_bone_tests)
 - [x] `CPartArray::FindMatrixForBoneType` · 004eeac0 · legions 004e1420 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
-- [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — needs port: cite-only physics-object method
+- [x] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) init_internal: the render box rebuild it makes is render plumbing, so it only reports success
 - [~] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
 - [x] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `CPartArray::DeactivateStreakEffects` · 004eed80 · legions 004e16e0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-- [ ] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
-- [ ] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — needs port: cite-only physics-object method
+- [x] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) set_setup (SetSetupID with the Setup already loaded by the loader thread: same DID returns early, else bones and parts rebuilt and the placement id reset)
+- [x] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) bounding_sphere (the Setup's, else the static zero sphere)
 - [~] `CPartArray::QueueParticleSystems` · 004eef90 · legions 004e18d0 — ac2-render scene/particles.rs attached(): offset x posed bone, holding transform x posed bone, removed rotation; ac2-assets attaches() drops a bone-anchored node no part group has, and placement() takes the bone from the part-group search (rest_named_bones)
-- [ ] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — needs port: cite-only physics-object method
+- [x] `CPartArray::TraceRayThroughParts` · 004ef290 · legions 004e1bd0 — ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) trace_ray_through_parts: each part's first-degrade triangles in part space (inverse of the part matrix), RayIntersectsTriList's plane-side tests and nearest hit, delta as a fraction of the ray length
 - [-] `CPartArray::SetPartGroupData` · 004ef8f0 · legions 004e2230 — render plumbing
 
 ### LocationType
@@ -2074,53 +2074,53 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (16/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (29/44)
 
 ### CPartGroup
-- [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00 — needs port: cite-only physics-object method
+- [x] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00 — ac2-physics part_group.rs (CPartGroup tree in an arena) init_setup (SetSetupID then InitInternal)
 - [x] `CPartGroup::SetParentOffset` · 004f4610 · legions 004e6e30 — ac2-render object/skeleton.rs (render-side bones)
 - [x] `CPartGroup::TraceRayPhysics` · 004f4670 · legions 004e6e90 — ac2-physics los (Terrain::los_check)
-- [ ] `CPartGroup::GetBoneMatrix` · 004f46d0 · legions 004e6ef0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::GetBoneMatrix` · 004f46d0 · legions 004e6ef0 — ac2-physics part_group.rs (CPartGroup tree in an arena) / ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) bone_matrix(index)
 - [-] `CPartGroup::CPartGroup` · 004f46e0 · legions 004e6f00 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CPartGroup::~CPartGroup` · 004f47a0 · legions 004e6fc0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CPartGroup::SetOwnerID` · 004f47e0 · legions 004e7000 — render plumbing
 - [-] `CPartGroup::SetupCompositor` · 004f4830 · legions 004e7050 — render plumbing
-- [ ] `CPartGroup::RemoveChild` · 004f48d0 · legions 004e70f0 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::GetPartGroup` · 004f4980 · legions 004e71a0 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::GetTransitionGTime` · 004f49d0 · legions 004e71f0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::RemoveChild` · 004f48d0 · legions 004e70f0 — ac2-physics part_group.rs (CPartGroup tree in an arena) remove_child: the child detaches and its offset resets to identity with no parent bone
+- [x] `CPartGroup::GetPartGroup` · 004f4980 · legions 004e71a0 — ac2-physics part_group.rs (CPartGroup tree in an arena) get_part_group: depth first, own key first
+- [x] `CPartGroup::GetTransitionGTime` · 004f49d0 · legions 004e71f0 — ac2-physics part_group.rs (CPartGroup tree in an arena) transition_group_count: the group count the walk adds (the summed time is not touched in Legions)
 - [x] `CPartGroup::DoAnimation` · 004f4a40 · legions 004e7260 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [~] `CPartGroup::GetComboCVel` · 004f4aa0 · legions 004e72c0 — ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 - [ ] `CPartGroup::GetHoldLocations` · 004f4b20 · legions 004e7340 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::SetParentConnection` · 004f4bb0 · legions 004e73d0 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::DestroyChildren` · 004f4bf0 · legions 004e7410 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::SetCellID` · 004f4c90 · legions 004e74b0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::SetParentConnection` · 004f4bb0 · legions 004e73d0 — ac2-physics part_group.rs (CPartGroup tree in an arena) set_parent_connection
+- [x] `CPartGroup::DestroyChildren` · 004f4bf0 · legions 004e7410 — ac2-physics part_group.rs (CPartGroup tree in an arena) destroy_children
+- [-] `CPartGroup::SetCellID` · 004f4c90 · legions 004e74b0 — CPartGroup::SetCellID hands the cell to every CPhysicsPart for drawing; the cell lives with ac2-render's object placement, nothing in the physics side stores it
 - [x] `CPartGroup::UpdateBones` · 004f4ce0 · legions 004e7500 — ac2-render object/skeleton.rs (render-side bones)
-- [ ] `CPartGroup::TraceRay` · 004f4d20 · legions 004e7540 — needs port: cite-only physics-object method
+- [x] `CPartGroup::TraceRay` · 004f4d20 · legions 004e7540 — ac2-physics part_group.rs (CPartGroup tree in an arena) trace_ray: own parts then each child, nearest hit wins; the body's trace_ray_parts calls it. ac2-render selection.rs still picks with its own triangle test
 - [-] `CPartGroup::Draw` · 004f4e20 · legions 004e7640 — render plumbing
 - [x] `CPartGroup::RefreshMatrices` · 004f4f10 · legions 004e7730 — ac2-render object/skeleton.rs (render-side bones)
 - [x] `CPartGroup::SetPlacementFrameID` · 004f4fc0 · legions 004e77e0 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 - [-] `CPartGroup::BuildRenderBoundingBox` · 004f5020 · legions 004e7840 — render plumbing
 - [-] `CPartGroup::BuildDefaultRenderBoundingBox` · 004f5070 · legions 004e7890 — render plumbing
-- [ ] `CPartGroup::CacheHasPhysicsBSP` · 004f50c0 · legions 004e78e0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::CacheHasPhysicsBSP` · 004f50c0 · legions 004e78e0 — ac2-physics part_group.rs (CPartGroup tree in an arena) cache_has_physics_bsp
 - [x] `CPartGroup::FindObjCollisions` · 004f5110 · legions 004e7930 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `CPartGroup::HasHoldingLocation` · 004f5180 · legions 004e79a0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [x] `CPartGroup::GetHoldingLocation` · 004f51f0 · legions 004e7a10 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [-] `CPartGroup::CacheAnimations` · 004f5270 · legions 004e7a90 — render plumbing
-- [ ] `CPartGroup::FindMatrixForBoneType` · 004f52b0 · legions 004e7ad0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::FindMatrixForBoneType` · 004f52b0 · legions 004e7ad0 — ac2-physics part_group.rs (CPartGroup tree in an arena) find_matrix_for_bone_type (first group in search order; the bone's matrix in its own group)
 - [x] `CPartGroup::FindBoneType` · 004f5320 · legions 004e7b40 — ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 - [ ] `CPartGroup::DestroyParticleSystem` · 004f53a0 · legions 004e7bc0 — needs port: cite-only physics-object method
 - [~] `CPartGroup::ApplyAtomCollection` · 004f5400 · legions 004e7c20 — ac2-render model.rs: mesh + material atoms; opacity atoms not applied (none in the DATs)
-- [ ] `CPartGroup::UpdatePartGroupFromPGDD` · 004f5540 · legions 004e7d30 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::ResetParentConnection` · 004f5590 · legions 004e7d80 — needs port: cite-only physics-object method
+- [x] `CPartGroup::UpdatePartGroupFromPGDD` · 004f5540 · legions 004e7d30 — ac2-physics part_group.rs (CPartGroup tree in an arena) update_part_group
+- [x] `CPartGroup::ResetParentConnection` · 004f5590 · legions 004e7d80 — ac2-physics part_group.rs (CPartGroup tree in an arena) reset_parent_connection
 - [x] `CPartGroup::CheckRefreshMatrices` · 004f5660 · legions 004e7e50 — ac2-render object/skeleton.rs (render-side bones)
 - [x] `CPartGroup::AddChild` · 004f5710 · legions 004e7f00 — CPartGroup::AddChild - CPartGroup FindBoneType (ac2_fx.rs) and AddChild (ac2-render model.rs)
-- [ ] `CPartGroup::HandleResidualChildren` · 004f5770 · legions 004e7f60 — needs port: cite-only physics-object method
+- [x] `CPartGroup::HandleResidualChildren` · 004f5770 · legions 004e7f60 — ac2-physics part_group.rs (CPartGroup tree in an arena) handle_residual_children
 - [x] `CPartGroup::BuildAndApplyAtomCollection` · 004f5910 · legions 004e8100 — ac2-render object/model.rs load_object_model_with
 - [x] `CPartGroup::SubInit` · 004f5980 · legions 004e8170 — ac2-render object/model.rs load_object_model_with
 - [x] `CPartGroup::Init` · 004f59f0 · legions 004e81e0 — ac2-render object/model.rs load_object_model_with
 - [x] `CPartGroup::InitVisualDesc` · 004f5aa0 · legions 004e8290 — ac2-render object/model.rs load_object_model_with
-- [ ] `CPartGroup::CompareAndModify` · 004f5ac0 · legions 004e82b0 — needs port: cite-only physics-object method
-- [ ] `CPartGroup::CompareAndModifyChildren` · 004f5b80 · legions 004e8370 — needs port: cite-only physics-object method
+- [~] `CPartGroup::CompareAndModify` · 004f5ac0 · legions 004e82b0 — ac2-physics part_group.rs (CPartGroup tree in an arena) compare_and_modify over Ac2TotalVisualDesc: key and Setup reloaded, connection point reset, children compared, residuals removed. The atom collection (meshes, materials) it applies via BuildAndApplyAtomCollection is ac2-render's, and nothing feeds a changed description to the body's tree yet
+- [~] `CPartGroup::CompareAndModifyChildren` · 004f5b80 · legions 004e8370 — ac2-physics part_group.rs (CPartGroup tree in an arena) compare_and_modify_children (see CompareAndModify)
 
 ## `portal/shared/src/physobj/path/progresschecker.cpp.c` (4/8)
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (247/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (255/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2186,9 +2186,9 @@ Legend and workflow: [README](README.md).
 
 ### CPhysicsObj
 - [ ] `CPhysicsObj::InitDataIDObject` · 004de1a0 · legions 004d0c00 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetBoundingObject` · 004de1f0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::SetBoundingObject` · 004de1f0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) set_bounding_object
 - [-] `CPhysicsObj::GetDataID` · 004de210 — admin/debug helper
-- [ ] `CPhysicsObj::GetPartGroup` · 004de220 · legions 004d0c80 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetPartGroup` · 004de220 · legions 004d0c80 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) part_group / part_group_with_key
 - [x] `CPhysicsObj::RecvEvt_SetGlobalModifier` · 004de230 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `CPhysicsObj::RecvEvt_AddTerrainModifier` · 004de250 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [x] `CPhysicsObj::RecvEvt_ClearTerrainModifiers` · 004de270 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
@@ -2215,17 +2215,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ApplyVisualDescToPhysicsObj` · 004de530 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::GetNumSphere` · 004de550 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `CPhysicsObj::GetSphere` · 004de560 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `CPhysicsObj::GetNumCylsphere` · 004de570 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetCylsphere` · 004de580 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetNumCylsphere` · 004de570 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) num_cylsphere. No Legions body (folded)
+- [x] `CPhysicsObj::GetCylsphere` · 004de580 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) cylspheres. No Legions body (folded)
 - [x] `CPhysicsObj::GetRadius` · 004de590 · legions 004d0ff0 — ac2-physics moveto (slice 3)
 - [x] `CPhysicsObj::GetHeight` · 004de5b0 · legions 004d1010
 - [x] `CPhysicsObj::GetStepUpHeight` · 004de5d0
 - [x] `CPhysicsObj::SetStepDownHeight` · 004de5f0 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `CPhysicsObj::GetDepth` · 004de610 — ac2-physics body_access.rs PhysicsBody::depth
 - [x] `CPhysicsObj::AllowsFreeHeading` · 004de620 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `CPhysicsObj::GetSortingSphere` · 004de640 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetSortingSphere` · 004de640 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) sorting_sphere (PHYSICSOBJREP::GetBoundingSphere; the zero sphere without a representation)
 - [ ] `CPhysicsObj::IsVisible` · 004de660 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetSelectionSphere` · 004de680 · legions 004d10e0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::GetSelectionSphere` · 004de680 · legions 004d10e0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) selection_sphere: the Setup's sphere scaled by the representation's scale (centre per axis, radius by z) and again by the object's m_vScale
 - [x] `CPhysicsObj::SetGlobalModifier` · 004de6d0 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 - [x] `CPhysicsObj::AddTerrainModifier` · 004de6e0 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 - [x] `CPhysicsObj::ClearTerrainModifiers` · 004de6f0 — terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
@@ -2348,7 +2348,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::get_heading` · 004e0af0 — ac2-physics body_access.rs PhysicsBody::vector_heading / heading
 - [x] `CPhysicsObj::get_vector_heading` · 004e0b10 — ac2-physics body_access.rs PhysicsBody::vector_heading / heading
 - [x] `CPhysicsObj::calc_heading` · 004e0b30 — ac2-physics body_access.rs PhysicsBody::calc_heading over Position::heading_to
-- [ ] `CPhysicsObj::HasBoneType` · 004e0b50 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::HasBoneType` · 004e0b50 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) has_bone_type
 - [x] `CPhysicsObj::HasHoldingLocation` · 004e0b60 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [~] `CPhysicsObj::FXSetParent` · 004e0b90 · legions 004d35f0 — FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, ac2-physics fx_follow.rs follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
 - [x] `CPhysicsObj::set_parent` · 004e0c00 · legions 004d3660 — CPhysicsObj::set_parent - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2589,7 +2589,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 - [~] `CPhysicsObj::Draw` · 004e7db0 — _bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); lights, selection, shadow colour elsewhere or not ported
 - [x] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-- [~] `CPhysicsObj::StickySetParent` · 004e8750 — Legions has it (vtable slot 0x3f0 = 0x4db130, the admin body: nearest bone of the new parent, BoneIndex child, parent set; the earlier admin-only note was wrong). The detonation queues MissileEvent::StickTo and Remotes::follow_missiles hands it to the client, which does not apply it: the client's holder follow (view/held.rs) places holding-location children only, and the parent's posed bone matrices live in ac2-render
+- [x] `CPhysicsObj::StickySetParent` · 004e8750 — Legions 0x4db130. ac2-physics body_parts.rs sticky_attachment (the child's position relative to the holder's, nearest bone of the root part array, rotation relative to it, offset origin zeroed as CalculateBoneIndexAndOffset does) + children.rs ChildGraph::sticky_set_parent (BoneIndex child, then unset_parent as set_parent does: vtable 0x3f4 and 0x160 are the same pair set_parent calls) + ac2-weenie Session::stick_object (also CBookKeep::RemoveObjectToBeDestroyed) + ac2-smartbox Remotes::leave_world_for_parent + ac2-client Client::stick_missile; view/held.rs places a BoneIndex child on the holder's posed root bone with its offset (held_place_offset)
 - [x] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::unparent_children` · 004e88a0 · legions 004db280 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::GetTotalVisualDesc` · 004e88e0 — needs port: cite-only physics-object method
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (98/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (107/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2823,28 +2823,28 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — the named bone an FX attach point reads, live each frame (ac2-physics fx_follow.rs follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
-- [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) has_bone_type (FindMatrixForBoneType into a temporary)
 - [x] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 - [x] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
-- [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) part_group_with_key
 - [x] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetSphere` · 004f1e10 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `PHYSICSOBJREP::GetNumCylsphere` · 004f1e20 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetCylsphere` · 004f1e30 · legions 004e46f0 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::GetNumCylsphere` · 004f1e20 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) num_cylsphere
+- [x] `PHYSICSOBJREP::GetCylsphere` · 004f1e30 · legions 004e46f0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) cylspheres (Legions folds this body onto PHYSICSOBJREP::GetPartGroup)
 - [x] `PHYSICSOBJREP::GetRadius` · 004f1e40 · legions 004e4740 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetHeight` · 004f1e50 · legions 004e4750 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::AllowsFreeHeading` · 004f1e60 · legions 004e4780 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetStepUpHeight` · 004f1e70 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetStepDownHeight` · 004f1e80 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `PHYSICSOBJREP::GetBoundingSphere` · 004f1e90 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetSelectionSphere` · 004f1ea0 · legions 004e47a0 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::GetBoundingSphere` · 004f1e90 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) sorting_sphere
+- [x] `PHYSICSOBJREP::GetSelectionSphere` · 004f1ea0 · legions 004e47a0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) selection_sphere (the representation's half)
 - [x] `PHYSICSOBJREP::SetStepDownHeight` · 004f1ef0 · legions 004e4810 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `PHYSICSOBJREP::SetBoundingObject` · 004f1f00 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetPhysicsBoundingBox` · 004f1f10 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::SetBoundingObject` · 004f1f00 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) set_bounding_object
+- [x] `PHYSICSOBJREP::GetPhysicsBoundingBox` · 004f1f10 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) physics_bounding_box
 - [x] `PHYSICSOBJREP::GetPhysicsContainmentRadius` · 004f1f20 · legions 004e4820 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
-- [ ] `PHYSICSOBJREP::CacheHasPhysicsBSP` · 004f1f30 · legions 004e4830 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::CacheHasPhysicsBSP` · 004f1f30 · legions 004e4830 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) cache_has_physics_bsp
 - [x] `PHYSICSOBJREP::FindObjCollisions` · 004f1f40 · legions 004e4840 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `PHYSICSOBJREP::SetCellID` · 004f1f50 — needs port: cite-only physics-object method
+- [-] `PHYSICSOBJREP::SetCellID` · 004f1f50 — PHYSICSOBJREP::SetCellID forwards the cell to CPartGroup::SetCellID, which only reaches CPhysicsPart for drawing (render side)
 - [x] `PHYSICSOBJREP::GetEffectsScale` · 004f1f60 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetVdescScale` · 004f1f90 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)

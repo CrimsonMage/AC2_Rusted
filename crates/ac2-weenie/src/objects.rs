@@ -153,6 +153,22 @@ impl ObjectTable {
         self.objects.remove(&id);
     }
 
+    /// `CPhysicsObj::StickySetParent`: `child` hangs from `parent` at bone `bone` of the parent's
+    /// root part array with `offset` (the child's frame in the bone's). False when either is
+    /// unknown to the table or the parent refuses the child.
+    pub fn stick(
+        &mut self,
+        child: u64,
+        parent: u64,
+        bone: u32,
+        offset: ac2_physics::ChildFrame,
+    ) -> bool {
+        if !self.objects.contains_key(&child) || !self.objects.contains_key(&parent) {
+            return false;
+        }
+        self.links.sticky_set_parent(child, parent, bone, offset)
+    }
+
     /// The physics child lists (`CPhysicsObj::m_pParent`, `m_pChildren`).
     pub fn links(&self) -> &ac2_physics::ChildGraph {
         &self.links

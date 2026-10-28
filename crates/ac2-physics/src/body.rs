@@ -958,6 +958,9 @@ mod access;
 #[path = "body_anim.rs"]
 mod anim;
 
+#[path = "body_parts.rs"]
+mod parts;
+
 #[cfg(test)]
 mod tests {
     use super::*;

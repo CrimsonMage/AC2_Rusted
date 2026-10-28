@@ -183,6 +183,22 @@ impl World {
         true
     }
 
+    /// `CPhysicsObj::StickySetParent` on the table: the link, then the destruction queue forgets
+    /// the child.
+    pub fn stick_object(
+        &mut self,
+        child: u64,
+        parent: u64,
+        bone: u32,
+        offset: ac2_physics::ChildFrame,
+    ) -> bool {
+        if !self.objects.stick(child, parent, bone, offset) {
+            return false;
+        }
+        self.remove_object_to_be_destroyed(child);
+        true
+    }
+
     /// `CBookKeep::RemoveObjectToBeDestroyed`: the object (and its children) came back.
     pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
         for object in std::iter::once(id).chain(self.objects.children(id)) {

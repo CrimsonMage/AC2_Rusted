@@ -415,7 +415,7 @@ fn vertex_stride(format: u32) -> usize {
 }
 
 mod setup;
-pub use setup::Ac2SetupPhysics;
+pub use setup::{Ac2CylSphere, Ac2SetupPhysics};
 
 #[cfg(test)]
 mod tests;

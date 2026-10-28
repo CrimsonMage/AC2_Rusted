@@ -58,7 +58,7 @@ struct Drawn<'a> {
     follow: Option<FxFollow>,
     /// The holder's id and the holding location the object hangs from: it is placed there each
     /// frame (`CPhysicsObj::UpdateChild`).
-    held: Option<(u64, HoldPoint)>,
+    held: Option<(u64, HoldPoint, Frame)>,
     /// The placement frame a held object's parts take (`PHYSICSOBJREP::SetPlacementFrame` from the
     /// holder's `orientation_id`); `None` for an object that is not held.
     placement: Option<u32>,
@@ -140,7 +140,7 @@ fn viewer_distances(drawn: &[Drawn<'_>], frames: &[Frame], eye: ac2_math::Vec3) 
         .enumerate()
         .map(|(index, d)| {
             d.held
-                .and_then(|(holder, _)| drawn.iter().position(|h| h.id == holder))
+                .and_then(|(holder, _, _)| drawn.iter().position(|h| h.id == holder))
                 .map_or(own[index], |holder| own[holder])
         })
         .collect()
@@ -193,7 +193,9 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                     o.anim_scale,
                 ),
                 follow: o.fx_follow,
-                held: o.holder.and_then(|holder| Some((holder.id, holder.point?))),
+                held: o
+                    .holder
+                    .and_then(|holder| Some((holder.id, holder.point?, holder.offset))),
                 placement: o.holder.and_then(|holder| holder.orientation),
                 adaptive: o.adaptive_degrade,
             })

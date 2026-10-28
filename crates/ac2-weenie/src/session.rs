@@ -376,6 +376,19 @@ impl OnlineSession {
         self.world.fade_and_destroy_object(id, destruction)
     }
 
+    /// `CPhysicsObj::StickySetParent`'s child-list part: `child` becomes a bone-index child of
+    /// `parent`, and, as the function ends, leaves the destruction queue
+    /// (`CBookKeep::RemoveObjectToBeDestroyed`). False when the table refuses the link.
+    pub fn stick_object(
+        &mut self,
+        child: u64,
+        parent: u64,
+        bone: u32,
+        offset: ac2_physics::ChildFrame,
+    ) -> bool {
+        self.world.stick_object(child, parent, bone, offset)
+    }
+
     /// `CBookKeep::RemoveObjectToBeDestroyed` (`CBookKeep::HandleEnterWorld`).
     pub fn remove_object_to_be_destroyed(&mut self, id: u64) {
         self.world.remove_object_to_be_destroyed(id);

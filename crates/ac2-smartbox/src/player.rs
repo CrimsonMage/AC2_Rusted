@@ -9,7 +9,7 @@ use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
 use ac2_physics::{
     load_body_animation, load_body_shape, load_object_scale, load_object_shape, BodyAnimation,
-    BodyShape, ObjectShape, PhysicsBody, Position, Vector,
+    BodyShape, ObjectShape, PartGroupTree, PhysicsBody, Position, Vector,
 };
 use ac2_world::{load_ac2_motion_interp_desc, Ac2MotionInterpDesc};
 
@@ -31,6 +31,9 @@ pub struct BodyData {
     /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
     /// and its root scale, when it has any: the object other movers collide with.
     pub object: Option<(Arc<ObjectShape>, Vector)>,
+    /// The body's part-group tree (`PHYSICSOBJREP::m_partGroup`): its Setups' bones, spheres,
+    /// cylspheres and holding locations. `None` for a visual that draws no groups.
+    pub parts: Option<Arc<PartGroupTree>>,
 }
 
 /// A body's collision shape, motion description, radius and animation for `visual` (its
@@ -67,12 +70,16 @@ pub fn load_body_data(store: &Arc<ResourceStore>, visual: DataId) -> Result<Body
         )),
         None => None,
     };
+    let parts = ac2_physics::load_part_group_tree(store, visual)
+        .map_err(|e| e.to_string())?
+        .map(Arc::new);
     Ok(BodyData {
         shape,
         motion,
         radius,
         animation,
         object,
+        parts,
     })
 }
 
@@ -94,6 +101,11 @@ impl PlayerBody {
         let mut physics = PhysicsBody::new(position, data.shape, data.motion);
         physics.set_player(true);
         physics.set_radius(data.radius);
+        if let Some(parts) = data.parts {
+            physics.set_part_group(parts);
+            // `CPhysicsObj::InitObjectEnd`: `PHYSICSOBJREP::CacheHasPhysicsBSP` sets the state bit.
+            physics.cache_has_physics_bsp();
+        }
         if let Some(animation) = data.animation {
             physics.set_animation(animation);
         }

@@ -299,6 +299,32 @@ impl FxObjects {
         id
     }
 
+    /// `FXManager::DestroyObject`: an object with a temporary id (`IIDUtils::VerifyTemporary`,
+    /// `temporary`: the caller's `id_type` answer) fades and is destroyed; any other is left
+    /// alone. Returns whether it was.
+    pub fn destroy_object(&mut self, id: u64, temporary: bool, now: f64) -> bool {
+        if temporary {
+            self.fade_and_destroy(id, now);
+        }
+        temporary
+    }
+
+    /// `FXManager::GetCurrentFX`: the FX ids running on `emitter` that are not startup FX
+    /// (`m_bStartupFX` clear), in id order (`map<unsigned long, ...>`). Only FX with object
+    /// facts have a record here; the scalar and target of each are not kept.
+    pub fn current_fx(&self, emitter: u64) -> Vec<u32> {
+        let mut ids: Vec<u32> = self
+            .records
+            .get(&emitter)
+            .into_iter()
+            .flatten()
+            .filter(|(_, record)| !record.startup)
+            .map(|(&fx, _)| fx)
+            .collect();
+        ids.sort_unstable();
+        ids
+    }
+
     /// `CObjectMaint::FadeAndDestroyObject(id, 0.5, 3.0)`.
     pub fn fade_and_destroy(&mut self, id: u64, now: f64) {
         self.fades.insert(
@@ -489,5 +515,22 @@ mod tests {
             [0.5, 1.0, 1.0, 0.0]
         );
         assert_eq!(drawn_tint([1.0; 4], [1.0, 1.0, 1.0, 0.25])[3], 0.25);
+    }
+
+    /// `FXManager::GetCurrentFX` lists the running FX that are not startup FX, and
+    /// `FXManager::DestroyObject` fades only temporary ids.
+    #[test]
+    fn current_fx_skips_startup_fx_and_destroy_object_wants_a_temporary_id() {
+        let mut fx = FxObjects::default();
+        let node = vdesc_node(10.0);
+        fx.start(1, 5, &[node], 0.0);
+        fx.start(1, 3, &[node], 0.0);
+        fx.start_startup(1, 4, &[node]);
+        assert_eq!(fx.current_fx(1), vec![3, 5]);
+        assert!(fx.current_fx(2).is_empty());
+        assert!(!fx.destroy_object(0x8000_0000_0000_0001, false, 1.0));
+        assert!(fx.fades.is_empty());
+        assert!(fx.destroy_object(FX_OBJECT_BASE | 1, true, 1.0));
+        assert!(fx.fades.contains_key(&(FX_OBJECT_BASE | 1)));
     }
 }

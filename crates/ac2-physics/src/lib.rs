@@ -67,6 +67,13 @@ mod objects_dynamic_tests;
 mod objects_real_data_tests;
 #[cfg(test)]
 mod objects_tests;
+mod part_array;
+#[cfg(test)]
+mod part_array_real_data_tests;
+#[cfg(test)]
+mod part_array_tests;
+mod part_group;
+mod part_load;
 mod part_pose;
 mod physics_material;
 mod physics_obj;
@@ -101,8 +108,8 @@ pub use body::{
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use children::{
-    holding_matrix, scaled_by_parent, update_child_frame, ChildGraph, ChildInfo, ChildList,
-    ChildType, HOLDING_LOCATION_ORIGIN,
+    holding_matrix, scaled_by_parent, update_child_frame, ChildFrame, ChildGraph, ChildInfo,
+    ChildList, ChildType, HOLDING_LOCATION_ORIGIN,
 };
 pub use collide_property::{CollideProperty, CollideType, PropertyDescs, TERRAIN_TYPE_PROPERTY};
 pub use collision_impact::ImpactReport;
@@ -119,8 +126,8 @@ pub use frame::Frame;
 pub use fx_follow::{follow_frame, placed_at, FxFollow};
 pub use heading::Heading;
 pub use held::{
-    find_holding_point, has_holding_location, held_place, parent_drawing_position, placement_order,
-    GroupHolding, HoldPoint,
+    find_holding_point, has_holding_location, held_place, held_place_offset,
+    parent_drawing_position, placement_order, GroupHolding, HoldPoint,
 };
 pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,
@@ -144,6 +151,9 @@ pub use moveto::{
     MOVE_TO_OBJECT, MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
 };
 pub use objects::{BBox, ObjectShape, StaticObject};
+pub use part_array::{PartArray, PartMesh, PartSetup, HAS_PHYSICS_BSP_STATE};
+pub use part_group::{FoundHolding, PartGroup, PartGroupTree};
+pub use part_load::{load_part_group_tree, load_part_setup};
 pub use part_pose::{drawn_place, part_poses, PartPose};
 pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};

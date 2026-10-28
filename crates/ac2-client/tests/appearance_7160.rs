@@ -279,6 +279,7 @@ fn wielding_containing_and_the_weenie_container_follow_the_events() {
             location: 2,
             orientation: Some(5),
             point: None,
+            offset: ac2_math::Frame::IDENTITY,
         })
     );
     assert!(!sword.in_world);

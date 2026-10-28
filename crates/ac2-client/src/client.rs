@@ -575,6 +575,11 @@ impl Client {
         // `CPhysicsObj::IsThePlayer`: the player's id is `ICPhysicsObj::player_id`.
         physics.set_player(true);
         physics.set_radius(data.body.radius);
+        if let Some(parts) = data.body.parts {
+            physics.set_part_group(parts);
+            // `CPhysicsObj::InitObjectEnd`: `PHYSICSOBJREP::CacheHasPhysicsBSP` sets the state bit.
+            physics.cache_has_physics_bsp();
+        }
         if let Some(animation) = data.body.animation {
             physics.set_animation(animation);
         }
