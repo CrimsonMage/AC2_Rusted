@@ -29,13 +29,18 @@ impl HudView {
                         .map(|p| (p.x, p.y, p.rotation, p.shown, p.opacity)),
                 );
             }
-            // `gmRadarUI::ListenToMessage`'s `ForceDraw`: the radar field alone, each frame.
+            // `gmRadarUI::ListenToMessage`'s `ForceDraw`: the radar field alone, each frame. Its
+            // pixels only change when `gmRadarUI::Update` plots different blips (or the tree or the
+            // images change, which compose the whole HUD), so the field is uploaded only then.
             let field = self.radar.as_ref().and_then(|r| r.field());
             let layer = field.and_then(|f| self.layer_roots.iter().position(|&r| r == f));
             if let (Some(field), Some(layer), Some(radar)) = (field, layer, &self.radar) {
-                let mut surface = tree.compose_root(field, images);
-                radar.draw(&mut surface);
-                self.overlay.replace_pixels(gpu, layer, &surface.rgba);
+                if self.radar_uploaded.as_deref() != Some(radar.pixels()) {
+                    let mut surface = tree.compose_root(field, images);
+                    radar.draw(&mut surface);
+                    self.overlay.replace_pixels(gpu, layer, &surface.rgba);
+                    self.radar_uploaded = Some(radar.pixels().to_vec());
+                }
             }
             return;
         }
@@ -53,6 +58,7 @@ impl HudView {
         if let Some(net) = &self.net {
             net.draw_bandwidth_graph(tree, &mut surfaces);
         }
+        self.radar_uploaded = self.radar.as_ref().map(|radar| radar.pixels().to_vec());
         self.layer_roots = surfaces.iter().map(|surface| surface.root).collect();
         self.overlay.set_layers(
             gpu,

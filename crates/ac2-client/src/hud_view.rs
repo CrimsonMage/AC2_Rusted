@@ -122,6 +122,9 @@ pub(crate) struct HudView {
     /// frameworks, which have the string tables).
     pub(crate) radar_cell: Option<u32>,
     pub(crate) radar_coordinates: Option<String>,
+    /// The blips last uploaded over the radar field's layer. The field is composed and uploaded
+    /// again only when these change (or the whole HUD is composed).
+    pub(crate) radar_uploaded: Option<Vec<(i32, i32, [u8; 4])>>,
     /// The navigation panel's game date and time, rendered for the calendar they were rendered
     /// for (`GameTime::InqCurrentGameDateTimeString`).
     pub(crate) navigation_time: Option<(ac2_world::GameDateTime, String, String)>,
