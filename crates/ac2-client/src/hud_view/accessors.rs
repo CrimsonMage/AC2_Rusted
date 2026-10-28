@@ -159,7 +159,7 @@ impl HudView {
 
     /// The shortcut bar's slots.
     pub(crate) fn shortcut_slots(&self) -> usize {
-        let (Some((tree, _)), Some(bar)) = (&self.hud, &self.shortcuts) else {
+        let (Some((tree, _)), Some(bar)) = (&self.hud, &self.panels.shortcuts) else {
             return 0;
         };
         bar.elements()
@@ -170,7 +170,14 @@ impl HudView {
     /// The first chat window's log text.
     pub(crate) fn chat_log(&self) -> Option<String> {
         let (tree, _) = self.hud.as_ref()?;
-        let log = self.chat.as_ref()?.logs().first().copied().flatten()?;
+        let log = self
+            .panels
+            .chat
+            .as_ref()?
+            .logs()
+            .first()
+            .copied()
+            .flatten()?;
         tree.get(log)?.text()
     }
 
@@ -186,7 +193,7 @@ impl HudView {
 
     /// Whether a toolbar panel is shown.
     pub(crate) fn panel_shown(&self, child: ToolbarChild) -> bool {
-        match (&self.hud, &self.toolbar) {
+        match (&self.hud, &self.panels.toolbar) {
             (Some((tree, _)), Some(toolbar)) => toolbar.shown(tree, child),
             _ => false,
         }

@@ -22,7 +22,9 @@ impl HudView {
         events: &[SessionEvent],
     ) -> PassOut {
         let HudView {
-            hud,
+            hud, panels: state, ..
+        } = self;
+        let ac2_ui::Hud {
             chat,
             death,
             dialogs,
@@ -31,10 +33,6 @@ impl HudView {
             popup_backlog,
             shortcuts,
             toolbar,
-            panels: state,
-            ..
-        } = self;
-        let ac2_ui::Hud {
             allegiance,
             assistance,
             catalog,

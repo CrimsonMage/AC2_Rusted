@@ -13,7 +13,7 @@ impl HudView {
     /// the events the slot made (the key's own teardown included), so a story skipped this frame
     /// hides this frame.
     pub(crate) fn story_frameworks(&mut self, client: &mut Client) {
-        for message in &self.player_messages {
+        for message in &self.panels.player_messages {
             if message.message == GLOBAL_KEY_PRESS && message.data as u32 == SKIP_STORY_MESSAGE {
                 client.story_key(SKIP_STORY_MESSAGE);
             }
@@ -26,7 +26,8 @@ impl HudView {
             .is_some_and(|(story, _)| story.fades_by_media());
         client.story_fades_on_hud = fades;
         let fade_done = self.panels.story.as_ref().is_some_and(|story| {
-            self.player_messages
+            self.panels
+                .player_messages
                 .iter()
                 .any(|message| story.is_fade_done(message))
         });
@@ -34,7 +35,7 @@ impl HudView {
             client.story_fade_done();
         }
         let events = client.take_story_events();
-        let strings = self.strings.clone();
+        let strings = self.panels.strings.clone();
         let gameplay = match (self.panels.story.as_mut(), self.hud.as_mut()) {
             (Some(story), Some((tree, _))) => story.frame_events(tree, events, strings.as_deref()),
             _ => return,

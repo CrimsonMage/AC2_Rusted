@@ -67,15 +67,7 @@ impl HudView {
         messages: &[UiMessage],
     ) -> PassOut {
         let HudView {
-            hud,
-            dialogs,
-            game_dialogs,
-            panels: state,
-            shift_held,
-            shortcuts,
-            toolbar,
-            toolbar_layout,
-            ..
+            hud, panels: state, ..
         } = self;
         let Some((tree, _)) = hud else {
             return PassOut::default();
@@ -100,7 +92,7 @@ impl HudView {
             tree,
             now: state.now,
             server_time: frame.server_time,
-            shift_held: *shift_held,
+            shift_held: state.shift_held,
             selection: frame.selection.as_ref().map(|s| s.id),
             friend_target: friend_target(frame.selection.as_ref()),
             name_looks: &looks,
@@ -108,11 +100,11 @@ impl HudView {
             consignment_charge: &mut charge,
             options: &mut state.options,
             options_host: &mut host,
-            toolbar_layout: toolbar_layout.as_ref(),
-            game_dialogs,
-            dialogs,
-            toolbar,
-            shortcuts,
+            toolbar_layout: state.toolbar_layout.as_ref(),
+            game_dialogs: &mut state.game_dialogs,
+            dialogs: &mut state.dialogs,
+            toolbar: &mut state.toolbar,
+            shortcuts: &mut state.shortcuts,
             skills: &mut state.skills,
             overview: &mut state.overview,
             fellowship: &mut state.fellowship,

@@ -25,13 +25,13 @@ impl HudView {
         frame: &ClientFrame,
         events: &[SessionEvent],
     ) {
-        let Some(strings) = self.strings.clone() else {
+        let Some(strings) = self.panels.strings.clone() else {
             return;
         };
         if !frame.in_world {
             return;
         }
-        let messages = self.player_messages.clone();
+        let messages = self.panels.player_messages.clone();
         let Some(book) = self.panels.book.as_mut() else {
             return;
         };

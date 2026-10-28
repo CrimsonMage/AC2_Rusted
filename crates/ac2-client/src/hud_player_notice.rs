@@ -23,11 +23,7 @@ impl HudView {
         let HudView {
             hud,
             panels: state,
-            dialogs,
             dirty,
-            item_selection,
-            shortcuts,
-            toolbar,
             ..
         } = self;
         let Some((tree, _)) = hud else {
@@ -37,7 +33,7 @@ impl HudView {
             tree,
             now: state.now,
             dirty,
-            item_selection,
+            item_selection: &mut state.item_selection,
             vitals: &mut state.vitals,
             effects: &mut state.effects,
             vitae: &mut state.vitae,
@@ -46,7 +42,7 @@ impl HudView {
             stack: &mut state.stack,
             external_container: &mut state.external_container,
             secure_trade: &mut state.secure_trade,
-            dialogs,
+            dialogs: &mut state.dialogs,
             shop: &mut state.shop,
             catalog: &mut state.catalog,
             consignment: &mut state.consignment,
@@ -60,9 +56,9 @@ impl HudView {
             backpack: &mut state.backpack,
             examination: &mut state.examination,
             skills: &mut state.skills,
-            shortcuts,
+            shortcuts: &mut state.shortcuts,
             money: &mut state.money,
-            toolbar,
+            toolbar: &mut state.toolbar,
             damage: &mut state.damage,
         };
         let requests =

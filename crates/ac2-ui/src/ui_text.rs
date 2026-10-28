@@ -78,6 +78,7 @@ pub const MAP_COORDS_TABLE: u32 = 0x4000_0007;
 
 /// The string tables the UI renders from, all loaded on a worker: every table, and the DIDs of
 /// the tables the UI names by enum (`StringInfo::SetTableEnum`, group `0x40000004`).
+#[derive(Debug)]
 pub struct UiStringTables {
     pub tables: PreloadedStringTables,
     /// Enum `0x41000018`.

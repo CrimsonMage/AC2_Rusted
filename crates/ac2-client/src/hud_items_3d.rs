@@ -28,7 +28,7 @@ impl HudView {
         picked: Option<Option<u64>>,
     ) -> Vec<Command> {
         let mut commands = Vec::new();
-        let Some(strings) = self.strings.clone() else {
+        let Some(strings) = self.panels.strings.clone() else {
             return commands;
         };
         let Some(items) = self.panels.items_3d.as_mut() else {
@@ -44,7 +44,7 @@ impl HudView {
             ui_table: strings.ui_table,
             enums: &strings.enums,
         };
-        let requests = items.frame_pass(tree, &player, picked, &self.player_messages);
+        let requests = items.frame_pass(tree, &player, picked, &self.panels.player_messages);
         for request in requests {
             crate::ui_inventory::item_request(
                 request,

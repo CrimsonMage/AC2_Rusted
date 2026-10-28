@@ -85,28 +85,13 @@ impl HudView {
         Self {
             pending: Some(receive),
             hud: None,
-            panels: ac2_ui::Hud::default(),
-            chat: None,
-            toolbar: None,
-            shortcuts: None,
-            player_race: None,
-            toolbar_layout: None,
-            item_selection: 0,
-            dialogs: None,
-            death: ac2_ui::DeathPanel::default(),
-            game_dialogs: ac2_ui::GameplayDialogs::default(),
-            popup_backlog: Vec::new(),
-            display_backlog: Vec::new(),
-            shift_held: false,
+            panels: {
+                let mut panels = ac2_ui::Hud::default();
+                panels.pending_strings = Some(pending_strings);
+                panels
+            },
             gameplay_shown: true,
             story_hid_gameplay: None,
-            hud_key_pending: false,
-            use_key_pending: false,
-            player_messages: Vec::new(),
-            strings: None,
-            pending_strings: Some(pending_strings),
-            player_loaded: false,
-            early_lines: Vec::new(),
             chat_text,
             images,
             overlay: {
@@ -177,7 +162,7 @@ impl HudView {
                     // The player's options are not read yet: the chat starts on
                     // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).
                     chat.reload_chat_settings(&mut tree, &ChatSettings::default());
-                    for (kind, text) in self.early_lines.drain(..) {
+                    for (kind, text) in self.panels.early_lines.drain(..) {
                         chat.display(kind, &text);
                     }
                 }
@@ -190,13 +175,13 @@ impl HudView {
                     pets.show(&mut tree, true);
                 }
                 self.hud = Some((tree, images));
-                self.panels = ac2_ui::Hud::new(reticle, names, damage);
+                self.panels.set_overlays(reticle, names, damage);
                 self.panels.mini_fellow = mini_fellow;
                 self.panels.pets = pets;
-                self.chat = chat;
-                self.toolbar = Some(toolbar);
+                self.panels.chat = chat;
+                self.panels.toolbar = Some(toolbar);
                 self.show_toolbar(true);
-                self.shortcuts = shortcuts;
+                self.panels.shortcuts = shortcuts;
                 self.panels.skills = skills;
                 self.panels.craft = craft;
                 self.panels.ingredient = ingredient;
@@ -212,8 +197,8 @@ impl HudView {
                 self.panels.net = Some(indicators.net);
                 self.panels.vitae = Some(indicators.vitae);
                 self.panels.pk = Some(indicators.pk);
-                self.toolbar_layout = toolbar_layout;
-                self.dialogs = Some(dialogs);
+                self.panels.toolbar_layout = toolbar_layout;
+                self.panels.dialogs = Some(dialogs);
                 self.panels.stack = stack;
                 self.panels.external_container = external_container;
                 self.panels.secure_trade = secure_trade;

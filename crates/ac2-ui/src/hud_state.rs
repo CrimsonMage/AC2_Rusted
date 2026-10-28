@@ -3,6 +3,9 @@
 //! The client owns the element tree and the GPU surfaces; this state takes the tree as an argument
 //! and reads no client type, so the overlays' logic runs on plain frame data.
 
+use std::sync::mpsc::Receiver;
+use std::sync::Arc;
+
 use ac2_net::protocol::SelectionInfo;
 use ac2_world::GameDateTime;
 
@@ -14,11 +17,13 @@ use crate::reticle::{Reticle, ReticleOutcome, ReticleTarget};
 use crate::skill_tree::SkillTreeUi;
 use crate::vitals::VitalsUi;
 use crate::{
-    AllegianceUi, BackpackUi, BookUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentUi,
-    CraftUi, EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi, FriendsPanel, HelpPages,
-    HelpWindow, IngredientUi, Items3dUi, MiniFellowUi, MoneyBagUi, NavigationUi, NetStatusUi,
-    NewSaleUi, OptionsPages, OverviewMapUi, PaperDollUi, PetUi, PkStatusUi, QuestsUi, RadarUi,
-    SecureTradeUi, ShopUi, SocialPanel, StackUi, StoryView, VitaeStatusUi,
+    AllegianceUi, BackpackUi, BookUi, CatalogUi, CharacterUi, ChatOptionsUi, ChatUi, ConsignmentUi,
+    CraftUi, DeathPanel, DialogFactory, DisplayNotice, EffectsUi, ExaminationUi,
+    ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs, HelpPages, HelpWindow,
+    IngredientUi, Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NavigationUi, NetStatusUi,
+    NewSaleUi, OptionsPages, OverviewMapUi, PaperDollUi, PetUi, PkStatusUi, PopupQuestion,
+    QuestsUi, RadarUi, SecureTradeUi, ShopUi, ShortcutUi, SocialPanel, StackUi, StoryView,
+    ToolbarUi, UiMessage, UiStringTables, VitaeStatusUi,
 };
 
 /// The HUD's panel state (`gmGamePlayUI`'s children that the client drives each frame).
@@ -115,21 +120,61 @@ pub struct Hud {
     pub help_pages: Option<HelpPages>,
     /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
     pub story: Option<StoryView>,
+    /// `gmChatUI`, the chat window.
+    pub chat: Option<ChatUi>,
+    /// `gmToolbarUI`, the toolbar.
+    pub toolbar: Option<ToolbarUi>,
+    /// `gmShortcutUI`, the shortcut bar.
+    pub shortcuts: Option<ShortcutUi>,
+    /// The toolbar's layout, read once with the toolbar.
+    pub toolbar_layout: Option<Arc<LayoutDesc>>,
+    /// The player's race (int 290) as the frameworks last read it (the doll's height).
+    pub player_race: Option<i32>,
+    /// The selection the item slots last saw.
+    pub item_selection: u64,
+    /// `gmGamePlayUI`'s dialog factory, made with the HUD.
+    pub dialogs: Option<DialogFactory>,
+    /// `gmGamePlayUI`'s death dialog (`_deathContext`).
+    pub death: DeathPanel,
+    /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
+    pub game_dialogs: GameplayDialogs,
+    /// The script questions raised and not yet asked: they wait for the HUD's dialogs.
+    pub popup_backlog: Vec<PopupQuestion>,
+    /// The message boxes raised in the world and not yet shown (`RecvNotice_DisplayMessage`
+    /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
+    /// so these wait for the HUD rather than being dropped.
+    pub display_backlog: Vec<DisplayNotice>,
+    /// The tree's messages for the frameworks that ask the player.
+    pub player_messages: Vec<UiMessage>,
+    /// The frameworks that ask the player have been loaded from it.
+    pub player_loaded: bool,
+    /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
+    /// frame's input last said.
+    pub shift_held: bool,
+    /// The `0x4100000C` key was pressed this frame; the frameworks run it, where the client's
+    /// story state is.
+    pub hud_key_pending: bool,
+    /// The `0x4100000D` use key was pressed this frame.
+    pub use_key_pending: bool,
+    /// Every string table, loaded on a worker, and the UI table's DID (enum `0x41000018`).
+    pub strings: Option<Arc<UiStringTables>>,
+    /// The string tables while they load on the worker.
+    pub pending_strings: Option<Receiver<UiStringTables>>,
+    /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
+    pub early_lines: Vec<(u32, String)>,
 }
 
 impl Hud {
     /// The overlays the HUD's build made (`gm3DTextUI`'s reticle, name plates and damage texts).
-    pub fn new(
+    pub fn set_overlays(
+        &mut self,
         reticle: Option<Reticle>,
         names: Option<NamePlates>,
         damage: Option<DamageTexts>,
-    ) -> Self {
-        Self {
-            reticle,
-            names,
-            damage,
-            ..Self::default()
-        }
+    ) {
+        self.reticle = reticle;
+        self.names = names;
+        self.damage = damage;
     }
 
     /// The HUD's clock for this frame (`Timer::cur_time`, seconds).

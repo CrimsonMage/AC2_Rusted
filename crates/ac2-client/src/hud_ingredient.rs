@@ -118,13 +118,13 @@ impl HudView {
         frame: &ClientFrame,
         events: &[SessionEvent],
     ) -> Vec<Command> {
-        let Some(strings) = self.strings.clone() else {
+        let Some(strings) = self.panels.strings.clone() else {
             return Vec::new();
         };
         if !frame.in_world {
             return Vec::new();
         }
-        let messages = self.player_messages.clone();
+        let messages = self.panels.player_messages.clone();
         let Some(panel) = self.panels.ingredient.as_mut() else {
             return Vec::new();
         };

@@ -180,7 +180,7 @@ impl ClientView {
     /// The window pixel at the centre of the shortcut bar's slot `index`.
     pub fn shortcut_slot_center(&self, index: usize) -> Option<(i32, i32)> {
         let (tree, _) = self.hud.hud.as_ref()?;
-        let (_, list) = self.hud.shortcuts.as_ref()?.elements();
+        let (_, list) = self.hud.panels.shortcuts.as_ref()?.elements();
         let slot = *tree.list_items(list?).get(index)?;
         Some(self.window_center(tree, slot))
     }

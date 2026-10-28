@@ -249,7 +249,7 @@ impl ClientView {
     /// The paper doll's scene while its viewport shows, with the player's appearance.
     fn update_doll(&mut self, gpu: &Gpu, frame: &ClientFrame, wait: bool) {
         let viewports: Vec<_> = self.hud.doll_viewport().into_iter().collect();
-        let race = self.hud.player_race;
+        let race = self.hud.panels.player_race;
         self.doll.update(
             gpu,
             viewports,

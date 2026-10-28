@@ -83,19 +83,23 @@ impl HudView {
         script_notices: &[ScriptNotice],
         doll_pick: Option<Option<u32>>,
     ) -> Vec<Command> {
-        let messages = std::mem::take(&mut self.player_messages);
+        let messages = std::mem::take(&mut self.panels.player_messages);
         // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
         // is up yet: the dialogs are the game's own, always there in retail. A question that
         // comes before the HUD's dialogs waits in the backlog and is asked when they are.
-        self.popup_backlog.extend(ac2_ui::popup_questions(events));
+        self.panels
+            .popup_backlog
+            .extend(ac2_ui::popup_questions(events));
         // `gmGamePlayUI::RecvNotice_DisplayMessage` is registered with the HUD's children
         // (`gmGamePlayUI::SetupChildren`), so a box raised in the world waits for the HUD; before
         // the world there is no handler and the notice is gone, as in retail.
         if frame.in_world {
-            self.display_backlog.extend(ac2_ui::display_notices(events));
+            self.panels
+                .display_backlog
+                .extend(ac2_ui::display_notices(events));
         }
         let mut out = PassOut::default();
-        let Some(strings) = self.strings.clone() else {
+        let Some(strings) = self.panels.strings.clone() else {
             return out.commands;
         };
         if !frame.in_world || self.hud.is_none() {
@@ -147,14 +151,14 @@ impl HudView {
     ) -> Reloads {
         let HudView {
             hud,
-            chat,
             dirty,
-            player_loaded,
-            player_race,
             panels: state,
             ..
         } = self;
         let ac2_ui::Hud {
+            chat,
+            player_loaded,
+            player_race,
             character,
             chat_options,
             net,
@@ -317,14 +321,12 @@ impl HudView {
     /// The first frame in the world (`!player_loaded`): the panels read the player once.
     fn init_pass(&mut self, player: &ClientPlayer<'_>, frame: &ClientFrame) {
         let HudView {
-            hud,
+            hud, panels: state, ..
+        } = self;
+        let ac2_ui::Hud {
             item_selection,
             player_loaded,
             toolbar_layout,
-            panels: state,
-            ..
-        } = self;
-        let ac2_ui::Hud {
             allegiance,
             backpack,
             effects,

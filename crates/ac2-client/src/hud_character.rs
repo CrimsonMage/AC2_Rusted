@@ -33,7 +33,7 @@ impl HudView {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
             self.panels.character.as_mut(),
-            self.dialogs.as_mut(),
+            self.panels.dialogs.as_mut(),
         ) else {
             return;
         };
@@ -45,7 +45,7 @@ impl HudView {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
             self.panels.character.as_mut(),
-            self.dialogs.as_mut(),
+            self.panels.dialogs.as_mut(),
         ) else {
             return;
         };
@@ -58,7 +58,7 @@ impl HudView {
         let (Some((tree, _)), Some(page), Some(dialogs)) = (
             self.hud.as_mut(),
             self.panels.character.as_mut(),
-            self.dialogs.as_mut(),
+            self.panels.dialogs.as_mut(),
         ) else {
             return;
         };

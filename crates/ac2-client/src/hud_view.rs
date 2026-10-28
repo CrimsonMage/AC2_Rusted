@@ -14,8 +14,7 @@ use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, GameplayChild, GameplayHud, Modifiers, ReticleOutcome,
-    ReticleTarget, ShortcutUi, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree,
-    GAMEPLAY_SHOW_KEY,
+    ReticleTarget, ToolbarChild, ToolbarUi, UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -29,48 +28,10 @@ pub(crate) struct HudView {
     pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
     /// The HUD's panel state: `gm3DTextUI`'s reticle, name plates and damage texts, and the clock.
     pub(crate) panels: ac2_ui::Hud,
-    pub(crate) chat: Option<ChatUi>,
-    pub(crate) toolbar: Option<ToolbarUi>,
-    pub(crate) shortcuts: Option<ShortcutUi>,
-    /// The player's race (int 290) as the frameworks last read it (the doll's height).
-    pub(crate) player_race: Option<i32>,
-    pub(crate) toolbar_layout: Option<Arc<ac2_ui::LayoutDesc>>,
-    /// The selection the item slots last saw.
-    pub(crate) item_selection: u64,
-    pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// `gmGamePlayUI::m_shown`: the HUD is shown (`gmGamePlayUI::Show`, the `0x4100000C` key).
     pub(crate) gameplay_shown: bool,
     /// The gameplay panels' show state before a story hid them (`None` with no story playing).
     pub(crate) story_hid_gameplay: Option<bool>,
-    /// The `0x4100000C` key was pressed this frame; [`HudView::frameworks`] runs it, where the
-    /// client's story state is.
-    hud_key_pending: bool,
-    /// The `0x4100000D` use key was pressed this frame ([`HudView::take_use_key`]).
-    use_key_pending: bool,
-    /// `gmGamePlayUI`'s death dialog (`_deathContext`).
-    pub(crate) death: ac2_ui::DeathPanel,
-    /// `gmGamePlayUI`'s wait, message and offer contexts (`_waitContext`, `_messageContexts`).
-    pub(crate) game_dialogs: ac2_ui::GameplayDialogs,
-    /// The script questions raised and not yet asked: they wait for the HUD's dialogs (see
-    /// [`HudView::frameworks`](crate::hud_player)).
-    pub(crate) popup_backlog: Vec<ac2_ui::PopupQuestion>,
-    /// The message boxes raised in the world and not yet shown (`RecvNotice_DisplayMessage`
-    /// before the HUD's dialogs exist); retail's handler is registered with the HUD's children,
-    /// so these wait for the HUD rather than being dropped.
-    pub(crate) display_backlog: Vec<ac2_ui::DisplayNotice>,
-    /// Whether shift is held (`GetKeyState(VK_SHIFT)` for the melting confirmation), as the
-    /// frame's input last said.
-    pub(crate) shift_held: bool,
-    /// The tree's messages for the frameworks that ask the player
-    /// ([`HudView::frameworks`](crate::hud_player)).
-    pub(crate) player_messages: Vec<UiMessage>,
-    /// Every string table, loaded on a worker, and the UI table's DID (enum `0x41000018`).
-    pub(crate) strings: Option<Arc<ac2_ui::UiStringTables>>,
-    pending_strings: Option<Receiver<ac2_ui::UiStringTables>>,
-    /// The frameworks that ask the player have been loaded from it.
-    pub(crate) player_loaded: bool,
-    /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
-    early_lines: Vec<(u32, String)>,
     /// Images set after the build, loaded on demand.
     images: ac2_ui::UiImageLoader,
     /// The chat lines being rendered (`StringDownload`).
@@ -112,7 +73,7 @@ impl HudView {
         actions: &[(u32, f32, bool)],
         modifiers: Modifiers,
     ) -> Vec<UiMessage> {
-        self.shift_held = modifiers.shift;
+        self.panels.shift_held = modifiers.shift;
         let Some((tree, _)) = &mut self.hud else {
             return Vec::new();
         };
@@ -125,8 +86,8 @@ impl HudView {
                 tree.stop_input(action);
             }
         }
-        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
-        self.player_messages.extend(messages.iter().cloned());
+        let messages = pump(tree, &mut self.panels.chat, &self.panels.toolbar, modifiers);
+        self.panels.player_messages.extend(messages.iter().cloned());
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -144,9 +105,9 @@ impl HudView {
             }
             let key = message.data as u32;
             if key == GAMEPLAY_SHOW_KEY {
-                self.hud_key_pending = true;
+                self.panels.hud_key_pending = true;
             } else if key == ac2_ui::USE_KEY {
-                self.use_key_pending = true;
+                self.panels.use_key_pending = true;
             } else if let Some(child) = ac2_ui::child_for_key(key) {
                 if self.gameplay_shown {
                     self.set_child_shown(child, !self.child_shown(child));
@@ -161,7 +122,11 @@ impl HudView {
             return false;
         };
         match child {
-            GameplayChild::Toolbar => self.toolbar.as_ref().is_some_and(|t| t.bar_shown(tree)),
+            GameplayChild::Toolbar => self
+                .panels
+                .toolbar
+                .as_ref()
+                .is_some_and(|t| t.bar_shown(tree)),
             GameplayChild::Statusbar => ac2_ui::statusbar_shown(tree),
             GameplayChild::Radar => self.panels.radar.as_ref().is_some_and(|r| r.shown(tree)),
         }
@@ -201,20 +166,20 @@ impl HudView {
 
     /// Whether the use key was pressed since the last call (`gmCWInterface::UseSelection`).
     pub(crate) fn take_use_key(&mut self) -> bool {
-        std::mem::take(&mut self.use_key_pending)
+        std::mem::take(&mut self.panels.use_key_pending)
     }
 
     /// `gmGamePlayUI::ListenToMessage` case `0x4100000C`: the HUD toggles unless a death dialog is
     /// open or a logout is requested, and `gmGamePlayUI::Show` ignores it while a please-wait
     /// dialog or a story holds the UI.
     pub(crate) fn gameplay_show_key(&mut self, story_active: bool) {
-        if !std::mem::take(&mut self.hud_key_pending) {
+        if !std::mem::take(&mut self.panels.hud_key_pending) {
             return;
         }
-        if self.death.context() != 0 || self.game_dialogs.end_session_requested() {
+        if self.panels.death.context() != 0 || self.panels.game_dialogs.end_session_requested() {
             return;
         }
-        if self.game_dialogs.wait_context() != 0 || story_active {
+        if self.panels.game_dialogs.wait_context() != 0 || story_active {
             return;
         }
         self.set_gameplay_shown(!self.gameplay_shown);
@@ -237,8 +202,8 @@ impl HudView {
         for &(ch, key) in characters {
             tree.character(ch, key, modifiers);
         }
-        let messages = pump(tree, &mut self.chat, &self.toolbar, modifiers);
-        self.player_messages.extend(messages.iter().cloned());
+        let messages = pump(tree, &mut self.panels.chat, &self.panels.toolbar, modifiers);
+        self.panels.player_messages.extend(messages.iter().cloned());
         if tree.take_changed() {
             self.dirty = true;
         }
@@ -247,14 +212,15 @@ impl HudView {
 
     /// What the chat asked since the last call (lines to send, history steps).
     pub(crate) fn take_chat_requests(&mut self) -> Vec<ChatRequest> {
-        self.chat
+        self.panels
+            .chat
             .as_mut()
             .map_or_else(Vec::new, ChatUi::take_requests)
     }
 
     /// `CM_UI::SendNotice_OpenExaminationPanel` (`gmExaminationUI::RecvNotice_OpenExaminationPanel`).
     pub(crate) fn open_examination(&mut self) {
-        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
+        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.panels.toolbar) {
             toolbar.show(tree, ToolbarChild::Examination, true);
             if tree.take_changed() {
                 self.dirty = true;
@@ -264,7 +230,7 @@ impl HudView {
 
     /// `ChatWindow::RecvNotice_ReloadChatSettings` with the player's chat options.
     pub(crate) fn reload_chat_settings(&mut self, settings: &ChatSettings) {
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.panels.chat) {
             chat.reload_chat_settings(tree, settings);
             if tree.take_changed() {
                 self.dirty = true;
@@ -274,7 +240,7 @@ impl HudView {
 
     /// `ChatWindow::DisplayCmdHistory`'s answer: the entry line shows `text`.
     pub(crate) fn set_chat_entry(&mut self, text: &str) {
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.panels.chat) {
             chat.set_entry_text(tree, text);
             if tree.take_changed() {
                 self.dirty = true;
@@ -284,7 +250,7 @@ impl HudView {
 
     /// `ChatWindow::DoAssistedTell`: the entry line becomes a tell to `target`.
     pub(crate) fn assisted_tell(&mut self, target: &str) {
-        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.chat) {
+        if let (Some((tree, _)), Some(chat)) = (&mut self.hud, &mut self.panels.chat) {
             chat.assisted_tell(tree, target);
             if tree.take_changed() {
                 self.dirty = true;
@@ -296,21 +262,25 @@ impl HudView {
     /// preclude the reticle and the name plates keep (`CM_UI::SendNotice_PrecludeFromBottom`,
     /// which the next frame's update applies).
     pub(crate) fn show_toolbar(&mut self, shown: bool) {
-        if let (Some((tree, _)), Some(toolbar), Some(reticle)) =
-            (&mut self.hud, &self.toolbar, self.panels.reticle_mut())
-        {
-            reticle.precluded_bottom = toolbar.show_bar(tree, shown);
+        // The bar's height is taken only while the reticle the preclude is kept on exists.
+        let has_reticle = self.panels.reticle_mut().is_some();
+        let bottom = match (&mut self.hud, &self.panels.toolbar) {
+            (Some((tree, _)), Some(toolbar)) if has_reticle => Some(toolbar.show_bar(tree, shown)),
+            _ => None,
+        };
+        if let (Some(bottom), Some(reticle)) = (bottom, self.panels.reticle_mut()) {
+            reticle.precluded_bottom = bottom;
             self.dirty = true;
         }
         // `gmShortcutUI::Show` from `gmToolbarUI::Show`.
-        if let (Some((tree, _)), Some(bar)) = (&mut self.hud, &self.shortcuts) {
+        if let (Some((tree, _)), Some(bar)) = (&mut self.hud, &self.panels.shortcuts) {
             bar.show(tree, shown);
         }
     }
 
     /// `gmToolbarUI`'s panel show (a toolbar button or key).
     pub(crate) fn show_panel(&mut self, child: ToolbarChild, shown: bool) {
-        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.toolbar) {
+        if let (Some((tree, _)), Some(toolbar)) = (&mut self.hud, &self.panels.toolbar) {
             toolbar.show(tree, child, shown);
             // `gmQuestsUI::Show` when the Quest child changed.
             if let Some(quests) = self.panels.quests.as_mut() {
@@ -331,19 +301,19 @@ impl HudView {
 
     /// `CM_Communication::SendNotice_DisplayStringInfo`'s text for the chat windows.
     pub(crate) fn chat_display(&mut self, kind: u32, text: &str) {
-        match &mut self.chat {
+        match &mut self.panels.chat {
             Some(chat) => chat.display(kind, text),
-            None => self.early_lines.push((kind, text.to_owned())),
+            None => self.panels.early_lines.push((kind, text.to_owned())),
         }
     }
 
     /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
     pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
         self.panels.set_now(now);
-        if let Some(pending) = &self.pending_strings {
+        if let Some(pending) = &self.panels.pending_strings {
             if let Ok(tables) = pending.try_recv() {
-                self.strings = Some(Arc::new(tables));
-                self.pending_strings = None;
+                self.panels.strings = Some(Arc::new(tables));
+                self.panels.pending_strings = None;
             }
         }
         if let Some(pending) = &self.pending {
@@ -371,11 +341,11 @@ impl HudView {
                 doll.follow_panel(tree);
             }
             // `gmShortcutUI::UpdateTimeLeft`: the skills on reset fill their slots' meters.
-            if let Some(bar) = &mut self.shortcuts {
+            if let Some(bar) = &mut self.panels.shortcuts {
                 bar.update_time_left(tree, now);
             }
             self.sounds.extend(tree.take_sounds());
-            if let Some(chat) = &mut self.chat {
+            if let Some(chat) = &mut self.panels.chat {
                 chat.global_loop(tree);
             }
             if tree.take_changed() {
