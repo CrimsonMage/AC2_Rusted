@@ -555,3 +555,82 @@ fn sell_without_a_shopper_sends_nothing() {
     assert!(server.borrow().script_requests.is_empty());
     assert!(client.take_script_problems().is_empty());
 }
+
+/// The script with the player attached as the client runs it: the tables preloaded before the
+/// frame loop and the data cache-only, so a WState the store needs is read by a loader thread
+/// once the VM asks for it (`attach_scripts`, `DatScriptData::set_cache_only`).
+fn with_cache_only_script() -> Option<(
+    ac2_client::Client,
+    std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
+)> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
+    let store = ac2_db::ResourceStore::new(dataset.clone());
+    let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
+        .unwrap()
+        .unwrap();
+    let program = Arc::new(Program::from_stream(&wlib.stream));
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    data.preload_states();
+    data.preload_skill_states(&program);
+    data.set_cache_only(true);
+    let (mut client, server) = entered_with(spawn(), Arc::new(CacheOnlyWorld(data.clone())));
+    client.attach_scripts(
+        ScriptHost::new(program, Box::new(data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
+    let idle = FrameInput::default();
+    for _ in 0..10 {
+        step(&mut client, &server, &idle);
+    }
+    Some((client, server))
+}
+
+/// The synthetic world, with the loader threads serving the script VM's missed reads.
+struct CacheOnlyWorld(DatScriptData);
+
+impl ac2_client::WorldData for CacheOnlyWorld {
+    fn load_block(&self, terrain: &mut ac2_physics::Terrain, block: u32) -> Result<bool, String> {
+        Synthetic.load_block(terrain, block)
+    }
+    fn body(&self, visual: Option<u32>) -> Result<ac2_client::BodyData, String> {
+        Synthetic.body(visual)
+    }
+    fn game_clock(&self) -> Option<ac2_world::GameClock> {
+        None
+    }
+    fn load_script_data(&self, read: ac2_script::vm::DataRequest) {
+        self.0.load(read);
+    }
+}
+
+/// Retail reads a store's WState with a blocking `DBObj::Get` on the first visit (no preload at
+/// login: `CWDistributor::Construct`), so the first visit right after login costs one read, not
+/// a retry of the whole call. Here the read is a loader request, and the store's `ViewStore`
+/// lands within a frame budget of the open, with no script problem and no call dropped.
+#[test]
+fn a_first_store_visit_after_login_completes_within_a_frame_budget() {
+    const FRAME_BUDGET: usize = 60;
+    let Some((mut client, server)) = with_cache_only_script() else {
+        return;
+    };
+    let Some(_template) = open_template_store(&server) else {
+        return;
+    };
+    let idle = FrameInput::default();
+    let mut frames = 0;
+    let mut viewed = false;
+    while frames < FRAME_BUDGET && !viewed {
+        frames += 1;
+        for event in step(&mut client, &server, &idle) {
+            if let SessionEvent::Notice(GameplayNotice::ViewStore(_)) = event {
+                viewed = true;
+            }
+        }
+    }
+    assert!(
+        viewed,
+        "the first store visit did not complete in {FRAME_BUDGET} frames"
+    );
+    assert!(client.take_script_problems().is_empty());
+}
