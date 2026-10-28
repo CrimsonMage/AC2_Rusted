@@ -1,10 +1,9 @@
 //! The portal space's full-screen fader (`PortalSpace::Effect::Render`'s `DrawScreenQuad` of
 //! `m_cFaderColor`, SRCALPHA over INVSRCALPHA), drawn over the world while the effect asks for it.
 
-use ac2_gpu::{Gpu, ScreenQuad};
 use ac2_render::portal::Draw;
 
-use crate::frame::PortalFrame;
+use crate::{Gpu, ScreenQuad};
 
 /// The fader's quad and the colour it draws this frame, if any.
 pub struct PortalFader {
@@ -20,14 +19,11 @@ impl PortalFader {
         }
     }
 
-    /// The frame's fader: `m_bDrawFader`, with its colour.
-    pub fn update(&mut self, gpu: &Gpu, portal: &PortalFrame) {
-        let Draw {
-            fader, fader_color, ..
-        } = portal.draw;
-        self.drawn = fader;
-        if fader {
-            self.quad.set_color(&gpu.queue, fader_color);
+    /// The frame's fader: `m_bDrawFader`, with its colour (the portal effect's `draw`).
+    pub fn update(&mut self, gpu: &Gpu, draw: &Draw) {
+        self.drawn = draw.fader;
+        if draw.fader {
+            self.quad.set_color(&gpu.queue, draw.fader_color);
         }
     }
 

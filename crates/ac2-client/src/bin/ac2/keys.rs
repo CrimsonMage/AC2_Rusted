@@ -3,6 +3,10 @@
 
 use winit::keyboard::KeyCode;
 
+/// The screenshot key (`gmUIFlow::ListenToMessage`'s screenshot action, `0x41000017`): its
+/// release takes a screenshot (`ac2_gpu::screenshot`).
+pub const SCREENSHOT_KEY: u32 = 0x4100_0017;
+
 /// The `DIK_*` code of a physical key, where DirectInput has one.
 pub fn dik(code: KeyCode) -> Option<u32> {
     use KeyCode::*;

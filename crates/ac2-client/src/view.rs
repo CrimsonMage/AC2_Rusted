@@ -75,7 +75,7 @@ pub struct ClientView {
     /// The inventory's paper doll scene (`gmPaperDollUI`).
     doll: crate::paper_doll_scene::PaperDollScene,
     /// The portal space's fader (`PortalSpace::Effect`'s `DrawScreenQuad`).
-    fader: crate::view_portal::PortalFader,
+    fader: ac2_gpu::PortalFader,
     /// The tone map the world and the paper doll reach the window through.
     presenter: ac2_gpu::ScenePresenter,
     /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
@@ -180,7 +180,7 @@ impl ClientView {
             doll: crate::paper_doll_scene::PaperDollScene::new(store, Arc::clone(&world)),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu),
-            fader: crate::view_portal::PortalFader::new(gpu, format),
+            fader: ac2_gpu::PortalFader::new(gpu, format),
             presenter: ac2_gpu::ScenePresenter::new(gpu, format),
             world_drawn: true,
         }
@@ -287,7 +287,7 @@ impl ClientView {
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
         profile_scope!("view.prepare");
         self.world_drawn = frame.portal.world_drawn();
-        self.fader.update(gpu, &frame.portal);
+        self.fader.update(gpu, &frame.portal.draw);
         let Some(camera) = self.camera(frame) else {
             return false;
         };

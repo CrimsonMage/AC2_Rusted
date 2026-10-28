@@ -117,7 +117,6 @@ mod ui_sources;
 #[cfg(feature = "window")]
 pub mod view;
 #[cfg(feature = "window")]
-mod view_portal;
 mod window_presentation;
 mod world_data;
 

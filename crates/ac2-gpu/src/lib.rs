@@ -12,8 +12,10 @@ mod object_draw;
 mod object_pipelines;
 mod object_state;
 mod pixel_program;
+mod portal_fader;
 mod scene;
 mod screen_quad;
+pub mod screenshot;
 mod shading;
 mod shadow_map;
 mod sky;
@@ -24,6 +26,7 @@ mod ui;
 
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
+pub use portal_fader::PortalFader;
 pub use scene::{SceneObject, SceneRenderer};
 pub use screen_quad::ScreenQuad;
 pub use shading::srgb_to_linear;

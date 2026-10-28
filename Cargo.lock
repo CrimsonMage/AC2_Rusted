@@ -132,6 +132,7 @@ dependencies = [
  "ac2-render",
  "ac2-world",
  "bytemuck",
+ "image",
  "png",
  "pollster",
  "wgpu",

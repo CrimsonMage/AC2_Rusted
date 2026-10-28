@@ -1,21 +1,17 @@
-//! The screenshot key (`0x41000017`). Retail's `gmUIFlow::ListenToMessage` takes the key's release
-//! (`0xffff0004`) and calls `Device::SaveScreenshot`, which renders the frame, numbers the file
-//! (`capN.jpg`, the first N not yet taken in the AC2 directory) and writes it with
-//! `RenderSurface::SaveJPG`. Here the frame is the presented surface, copied before it is presented
-//! and encoded as JPEG by the `image` crate. The read-back stalls the frame; the encode and the file
-//! write run on a worker thread, so the frame thread never writes a file.
+//! The screenshot readback and file (`Device::SaveScreenshot`): the presented surface is copied to
+//! the CPU before it is presented, the frame is numbered (`capN.jpg`, the first N not yet taken in
+//! the AC2 directory) and encoded as JPEG (`RenderSurface::SaveJPG`) by the `image` crate. The
+//! read-back stalls the frame; the encode and the file write run on a worker thread, so the frame
+//! thread never writes a file. The key that asks for one is the shell's (`bin/ac2/keys.rs`).
 
 use std::fs::OpenOptions;
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::{Receiver, TryRecvError};
 
-use ac2_gpu::Gpu;
+use crate::Gpu;
 use image::codecs::jpeg::JpegEncoder;
 use image::ExtendedColorType;
-
-/// `gmUIFlow::ListenToMessage`'s screenshot action.
-pub const SCREENSHOT_KEY: u32 = 0x4100_0017;
 
 /// `Device::SaveScreenshot`'s bound on the numbering scan.
 const MAX_NUMBER: u32 = 100_000;
@@ -200,7 +196,6 @@ mod tests {
     fn names_follow_retail_numbering() {
         assert_eq!(file_name(0), "cap0.jpg");
         assert_eq!(file_name(17), "cap17.jpg");
-        assert_eq!(SCREENSHOT_KEY, 0x4100_0017);
     }
 
     #[test]

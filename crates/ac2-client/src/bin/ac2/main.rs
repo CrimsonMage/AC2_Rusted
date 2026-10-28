@@ -32,7 +32,6 @@ mod cmdline;
 mod instance;
 mod keys;
 mod pregame;
-mod screenshot;
 
 use cmdline::{parse_args, Args};
 
@@ -44,7 +43,7 @@ use std::time::{Duration, Instant};
 use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
 use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld, WindowPresentation};
-use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
+use ac2_gpu::{render_to, screenshot, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{wheel_event_delta, Controls, InputEvent, SelectionUi, WheelAccumulator};
 use ac2_weenie::{CharacterChoice, GameplayNotice, OnlineConfig, OnlineSession, SessionEvent};
@@ -385,7 +384,7 @@ impl App {
         let screenshot = messages.iter().any(|message| {
             message.message == ac2_ui::GLOBAL_KEY_RELEASE
                 && message.element.is_none()
-                && message.data as u32 == screenshot::SCREENSHOT_KEY
+                && message.data as u32 == keys::SCREENSHOT_KEY
         });
         let (actions, characters, _) = state.controls.take_text_input();
         messages.extend(view.text_input(&actions, &characters, modifiers));
