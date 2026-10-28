@@ -712,6 +712,9 @@ pub struct Tuning {
     pub hover_height: f32,
 }
 
+#[path = "body_access.rs"]
+mod access;
+
 #[path = "body_anim.rs"]
 mod anim;
 

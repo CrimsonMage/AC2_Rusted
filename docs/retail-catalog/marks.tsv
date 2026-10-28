@@ -4467,16 +4467,16 @@ key	status	note
 004de500	x	CPhysicsObj::RecvEvt_DoTargettedFX - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004de520	x	CPhysicsObj::RecvEvt_StopFX - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004de530	_	needs port: cite-only physics-object method
-004de550	_	needs port: cite-only physics-object method
-004de560	_	needs port: cite-only physics-object method
+004de550	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004de560	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004de570	_	needs port: cite-only physics-object method
 004de580	_	needs port: cite-only physics-object method
 004de590	x	ac2-physics moveto (slice 3)
 004de5b0	x	
 004de5d0	x	
-004de5f0	_	needs port: cite-only physics-object method
-004de610	_	needs port: cite-only physics-object method
-004de620	_	needs port: cite-only physics-object method
+004de5f0	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004de610	x	ac2-physics body_access.rs PhysicsBody::depth
+004de620	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004de640	_	needs port: cite-only physics-object method
 004de660	_	needs port: cite-only physics-object method
 004de680	_	needs port: cite-only physics-object method
@@ -4515,28 +4515,28 @@ key	status	note
 004dec30	x	ac2-physics interp (slice 3)
 004dec50	x	ac2-physics interp (slice 3)
 004dec70	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-004decb0	_	needs port: cite-only physics-object method
-004dece0	_	needs port: cite-only physics-object method
-004ded10	_	needs port: cite-only physics-object method
-004ded30	_	needs port: cite-only physics-object method
-004ded50	_	needs port: cite-only physics-object method
-004ded80	_	needs port: cite-only physics-object method
-004deda0	_	needs port: cite-only physics-object method
-004dedc0	_	needs port: cite-only physics-object method
-004dedf0	_	needs port: cite-only physics-object method
-004dee10	_	needs port: cite-only physics-object method
-004dee30	_	needs port: cite-only physics-object method
-004dee50	_	needs port: cite-only physics-object method
-004dee70	_	needs port: cite-only physics-object method
+004decb0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004dece0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004ded10	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004ded30	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004ded50	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004ded80	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004deda0	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dedc0	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dedf0	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dee10	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dee30	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dee50	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004dee70	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004deea0	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
 004deef0	_	needs port: cite-only physics-object method
 004def40	_	needs port: cite-only physics-object method
 004def50	_	needs port: cite-only physics-object method
 004defc0	_	needs port: cite-only physics-object method
-004df050	_	needs port: cite-only physics-object method
-004df0b0	_	needs port: cite-only physics-object method
+004df050	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004df0b0	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004df190	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-004df1f0	_	needs port: cite-only physics-object method
+004df1f0	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004df300	_	needs port: cite-only physics-object method
 004df360	_	needs port: cite-only physics-object method
 004df370	_	needs port: cite-only physics-object method
@@ -4582,12 +4582,12 @@ key	status	note
 004e0620	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e06c0	x	
 004e0720	-	state-bit flag accessor
-004e0730	_	needs port: cite-only physics-object method
+004e0730	x	ac2-physics body_access.rs PhysicsBody::set_no_cell_position (position and previous position)
 004e0760	_	needs port: cite-only physics-object method
 004e0770	_	needs port: cite-only physics-object method
-004e07e0	_	needs port: cite-only physics-object method
-004e0820	_	needs port: cite-only physics-object method
-004e0860	_	needs port: cite-only physics-object method
+004e07e0	x	ac2-physics body_access.rs PhysicsBody::is_moving (squared speed over 0.0002, f64 sum)
+004e0820	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e0860	x	ac2-physics body_access.rs PhysicsBody::set_omega_velocity / omega_velocity
 004e0890	x	ac2-physics anim_pose fire_impulse
 004e08d0	-	state-bit flag accessor
 004e0950	-	state-bit flag accessor
@@ -4595,9 +4595,9 @@ key	status	note
 004e09f0	-	state-bit flag accessor
 004e0a40	-	state-bit flag accessor
 004e0a70	x	
-004e0af0	x	
-004e0b10	-	state-bit flag accessor
-004e0b30	_	needs port: cite-only physics-object method
+004e0af0	x	ac2-physics body_access.rs PhysicsBody::vector_heading / heading
+004e0b10	x	ac2-physics body_access.rs PhysicsBody::vector_heading / heading
+004e0b30	x	ac2-physics body_access.rs PhysicsBody::calc_heading over Position::heading_to
 004e0b50	_	needs port: cite-only physics-object method
 004e0b60	_	needs port: cite-only physics-object method
 004e0b90	~	FX-created objects hang from their emitter at creation (ac2-physics fx_follow.rs placed_at, ac2-assets Ac2FxAttach::rest) and are re-placed each frame on the emitter's live bone or holding point in the view (view/fx_follow.rs, ac2-physics fx_follow.rs follow_frame); the physics frame stays at rest. The emitter's scale scales the offset as particle systems do (the creation place is unscaled). A point the emitter lacks is not placed: retail's AddChild does not check it and the bone matrix is then unset, so retail's place is undefined (dropped, known gap).
@@ -4622,9 +4622,9 @@ key	status	note
 004e13a0	-	render plumbing
 004e13e0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 004e1410	-	render plumbing
-004e1450	_	needs port: cite-only physics-object method
+004e1450	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004e1480	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
-004e14b0	_	needs port: cite-only physics-object method
+004e14b0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004e14e0	-	state-bit flag accessor
 004e1520	x	
 004e1550	-	render plumbing
@@ -4634,7 +4634,7 @@ key	status	note
 004e1640	-	state-bit flag accessor
 004e1670	-	state-bit flag accessor
 004e16b0	-	state-bit flag accessor
-004e16f0	_	needs port: cite-only physics-object method
+004e16f0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004e1720	_	needs port: cite-only physics-object method
 004e1740	-	render plumbing
 004e1780	-	render plumbing
@@ -4658,45 +4658,45 @@ key	status	note
 004e20b0	~	ac2-client remote.rs
 004e2100	~	ac2-client remote.rs over PhysicsBody::place (flags 0x11)
 004e2160	~	teleport flow in ac2-client (client_teleport.rs); not yet: run-lock reset, target clear, portal tunnel advancement (GeneratePortals), the portal sounds
-004e21c0	_	needs port: cite-only physics-object method
-004e21d0	_	needs port: cite-only physics-object method
+004e21c0	-	retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
+004e21d0	-	retail cell freelist bookkeeping; Rust cells are Arc-owned and freed on last drop
 004e21e0	x	ac2-client remote.rs
 004e2220	x	ac2-client remote.rs
 004e2240	x	ac2-client remote.rs
 004e2260	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004e2290	x	CPhysicsObj::SetHoverHeight - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e22a0	x	CPhysicsObj::ResetHoverHeight - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004e22b0	_	needs port: cite-only physics-object method
-004e22c0	_	needs port: cite-only physics-object method
-004e22d0	_	needs port: cite-only physics-object method
-004e22e0	_	needs port: cite-only physics-object method
+004e22b0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004e22c0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004e22d0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004e22e0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
 004e22f0	x	Collision impact minimum (CCollisionManager::SetMinReportedImpactXY): scale times the standard values' mMaxForwardVel plus 0.1 (SetVelocityScale), and Z (SetMinReportedImpactZ): jump scale times mJumpImpulse plus 0.1 (SetJumpScale, the field read through CPartArray::GetOpacity). ac2-physics collision_impact.rs, body.rs set_velocity_scale/set_jump_scale. Tests: collision_impact tests. Retail skips the minimum when the object has no collision manager; here it is always kept (no manager).
-004e2340	_	needs port: cite-only physics-object method
+004e2340	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
 004e2350	x	CPhysicsObj::SetJumpScale - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004e23a0	_	needs port: cite-only physics-object method
+004e23a0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
 004e23b0	~	instance stamp kept per object in ac2-weenie ObjectTable
-004e23d0	_	needs port: cite-only physics-object method
-004e23f0	_	needs port: cite-only physics-object method
-004e2400	_	needs port: cite-only physics-object method
-004e2410	_	needs port: cite-only physics-object method
+004e23d0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e23f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2400	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2410	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2440	_	needs port: cite-only physics-object method
 004e2480	_	needs port: cite-only physics-object method
-004e24f0	_	needs port: cite-only physics-object method
-004e2500	_	needs port: cite-only physics-object method
-004e2510	_	needs port: cite-only physics-object method
-004e2520	_	needs port: cite-only physics-object method
+004e24f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2500	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2510	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2520	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2530	_	needs port: cite-only physics-object method
 004e2570	_	needs port: cite-only physics-object method
 004e25b0	_	needs port: cite-only physics-object method
 004e2630	_	needs port: cite-only physics-object method
 004e2650	_	needs port: cite-only physics-object method
 004e2670	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004e26c0	_	needs port: cite-only physics-object method
-004e26f0	_	needs port: cite-only physics-object method
-004e2720	_	needs port: cite-only physics-object method
-004e2750	_	needs port: cite-only physics-object method
+004e26c0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e26f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2720	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004e2750	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2760	-	admin/debug or text-file tooling
-004e2770	_	needs port: cite-only physics-object method
+004e2770	~	forwarder to StoryManager (AC2_Rusted-combat worker)
 004e2790	_	needs port: cite-only physics-object method
 004e27e0	_	needs port: cite-only physics-object method
 004e2800	-	render plumbing
@@ -4725,7 +4725,7 @@ key	status	note
 004e3350	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e33d0	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 004e3510	_	needs port: cite-only physics-object method
-004e3550	_	needs port: cite-only physics-object method
+004e3550	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004e35f0	_	needs port: cite-only physics-object method
 004e36a0	_	needs port: cite-only physics-object method
 004e39b0	_	needs port: cite-only physics-object method
@@ -4782,7 +4782,7 @@ key	status	note
 004e6650	_	needs port: cite-only physics-object method
 004e6690	_	needs port: cite-only physics-object method
 004e66a0	_	needs port: cite-only physics-object method
-004e6710	_	needs port: cite-only physics-object method
+004e6710	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e6720	x	CPhysicsObj::is_newer_then_update - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004e6780	x	ac2-weenie ObjectTable::apply_action (newer position stamp), then LeaveWorld
 004e67c0	~	ac2-weenie: newer position stamp, the holder, location and placement frame
@@ -4798,12 +4798,12 @@ key	status	note
 004e6c40	_	needs port: cite-only physics-object method
 004e6c50	~	ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 004e6d00	_	needs port: cite-only physics-object method
-004e6d20	_	needs port: cite-only physics-object method
-004e6d60	_	needs port: cite-only physics-object method
-004e6da0	_	needs port: cite-only physics-object method
-004e6de0	_	needs port: cite-only physics-object method
-004e6e60	_	needs port: cite-only physics-object method
-004e6eb0	_	needs port: cite-only physics-object method
+004e6d20	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e6d60	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e6da0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e6de0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e6e60	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e6eb0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e6f30	_	needs port: cite-only physics-object method
 004e6f80	_	needs port: cite-only physics-object method
 004e6ff0	x	
@@ -4828,13 +4828,13 @@ key	status	note
 004e8b00	-	render plumbing
 004e8b60	_	needs port: cite-only physics-object method
 004e8bc0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004e8d10	_	needs port: cite-only physics-object method
+004e8d10	~	forwarder to StoryManager (AC2_Rusted-combat worker)
 004e8d50	_	needs port: cite-only physics-object method
-004e8d80	_	needs port: cite-only physics-object method
-004e8de0	_	needs port: cite-only physics-object method
-004e8e40	_	needs port: cite-only physics-object method
-004e8ec0	_	needs port: cite-only physics-object method
-004e8f20	_	needs port: cite-only physics-object method
+004e8d80	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e8de0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e8e40	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e8ec0	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
+004e8f20	~	forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 004e8f80	x	
 004e9040	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004e90c0	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
@@ -4858,28 +4858,28 @@ key	status	note
 004eaa30	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 004eab90	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004ead40	_	needs port: cite-only physics-object method
-004ead60	_	needs port: cite-only physics-object method
+004ead60	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004ead70	-	admin/debug or text-file tooling
 004ead80	-	admin/debug or text-file tooling
 004ead90	_	needs port: cite-only physics-object method
-004eada0	_	needs port: cite-only physics-object method
+004eada0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eadb0	_	needs port: cite-only physics-object method
 004eade0	_	needs port: cite-only physics-object method
-004eae00	_	needs port: cite-only physics-object method
-004eae10	_	needs port: cite-only physics-object method
+004eae00	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
+004eae10	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004eae20	x	CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004eae30	_	needs port: cite-only physics-object method
+004eae30	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eae40	_	needs port: cite-only physics-object method
 004eae50	_	needs port: cite-only physics-object method
 004eae60	-	state-bit flag accessor
 004eae70	-	state-bit flag accessor
 004eae80	-	state-bit flag accessor
 004eae90	-	state-bit flag accessor
-004eaea0	_	needs port: cite-only physics-object method
-004eaed0	_	needs port: cite-only physics-object method
-004eaee0	_	needs port: cite-only physics-object method
+004eaea0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
+004eaed0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
+004eaee0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eaef0	x	
-004eaf00	_	needs port: cite-only physics-object method
+004eaf00	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eaf10	x	ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
 004eaf20	x	CPhysicsObj::is_nodraw - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004eaf30	-	render plumbing
@@ -4900,8 +4900,8 @@ key	status	note
 004eb060	-	state-bit flag accessor
 004eb070	-	state-bit flag accessor
 004eb080	x	
-004eb090	_	needs port: cite-only physics-object method
-004eb0a0	_	needs port: cite-only physics-object method
+004eb090	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
+004eb0a0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
 004eb0b0	-	state-bit flag accessor
 004eb0c0	-	state-bit flag accessor
 004eb0d0	x	
@@ -4914,7 +4914,7 @@ key	status	note
 004eb160	-	state-bit flag accessor
 004eb170	-	state-bit flag accessor
 004eb180	-	admin/debug or text-file tooling
-004eb190	_	needs port: cite-only physics-object method
+004eb190	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004eb1a0	_	needs port: cite-only physics-object method
 004eb1b0	x	
 004eb1c0	_	needs port: cite-only physics-object method
@@ -4926,8 +4926,8 @@ key	status	note
 004eb230	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 004eb250	_	needs port: cite-only physics-object method
 004eb260	_	needs port: cite-only physics-object method
-004eb280	_	needs port: cite-only physics-object method
-004eb320	_	needs port: cite-only physics-object method
+004eb280	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
+004eb320	~	forwarder to CDetectionManager; the body has no detection manager yet, it lands with the CDetectionManager port (AC2_Rusted-combat worker)
 004eb370	~	no player-distance range checks, parent or missile paths
 004eb4c0	_	needs port: cite-only physics-object method
 004eb600	-	admin/debug or text-file tooling
@@ -4987,18 +4987,18 @@ key	status	note
 004ee3e0	~	ac2-render skeleton: placement frame 0 only
 004ee4d0	-	render plumbing
 004ee540	_	needs port: cite-only physics-object method
-004ee580	_	needs port: cite-only physics-object method
+004ee580	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004ee590	x	CPartArray::GetSphere - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
 004ee5a0	_	needs port: cite-only physics-object method
 004ee5b0	_	needs port: cite-only physics-object method
 004ee5c0	_	needs port: cite-only physics-object method
 004ee5d0	x	CPartArray::GetHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
-004ee5e0	_	needs port: cite-only physics-object method
+004ee5e0	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004ee5f0	x	CPartArray::GetStepUpHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
 004ee610	x	CPartArray::GetStepDownHeight - CPartArray sphere/height/step reads, ac2-assets ac2_physics_mesh setup.rs and loader.rs
-004ee630	_	needs port: cite-only physics-object method
+004ee630	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004ee650	_	needs port: cite-only physics-object method
-004ee660	_	needs port: cite-only physics-object method
+004ee660	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004ee670	x	ac2-render object/skeleton.rs (render-side bones)
 004ee6c0	-	render plumbing
 004ee700	-	render plumbing
@@ -5074,44 +5074,44 @@ key	status	note
 004f14f0	_	needs port: cite-only physics-object method
 004f1500	_	needs port: cite-only physics-object method
 004f1510	_	needs port: cite-only physics-object method
-004f1540	_	needs port: cite-only physics-object method
-004f1560	_	needs port: cite-only physics-object method
+004f1540	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
+004f1560	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1580	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15c0	_	needs port: cite-only physics-object method
 004f15d0	_	needs port: cite-only physics-object method
 004f15e0	_	needs port: cite-only physics-object method
-004f15f0	_	needs port: cite-only physics-object method
-004f1610	_	needs port: cite-only physics-object method
+004f15f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
+004f1610	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1630	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
 004f1650	x	terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 004f1670	x	terrain modifier chain CPhysicsObj -> PHYSICSOBJREP -> CMotionInterp mTerrainMods: ac2-physics MotionInterp terrain_mods (add/clear), reached through body.rs
 004f1690	x	SetMIDESC: loader thread reads the MotionInterpDesc (Request::MotionDesc, world_data motion_desc); client_objects request_motion_desc / motion_desc_loaded swap the body's table (MotionInterp::set_desc); missing DBObj keeps the table
 004f16b0	x	PHYSICSOBJREP::SetHoverHeight - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f16d0	_	needs port: cite-only physics-object method
-004f16f0	_	needs port: cite-only physics-object method
-004f1710	_	needs port: cite-only physics-object method
-004f1730	_	needs port: cite-only physics-object method
-004f1750	_	needs port: cite-only physics-object method
+004f16d0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004f16f0	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004f1710	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004f1730	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
+004f1750	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
 004f1770	x	PHYSICSOBJREP::SetVelocityScale - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
-004f1790	_	needs port: cite-only physics-object method
+004f1790	x	ac2-physics body_access.rs / body.rs PhysicsBody hover_height, default_hover_height, velocity_scale, acceleration_scale, jump_scale, set_acceleration_scale, reset_hover_height over CMotionInterp
 004f17b0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f17c0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-004f17d0	_	needs port: cite-only physics-object method
-004f17e0	_	needs port: cite-only physics-object method
-004f17f0	_	needs port: cite-only physics-object method
-004f1800	_	needs port: cite-only physics-object method
+004f17d0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004f17e0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004f17f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
+004f1800	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004f1830	_	needs port: cite-only physics-object method
 004f1860	-	render plumbing
 004f1870	_	needs port: cite-only physics-object method
-004f1880	_	needs port: cite-only physics-object method
-004f18a0	_	needs port: cite-only physics-object method
+004f1880	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
+004f18a0	x	ac2-physics body_access.rs PhysicsBody::set_omega_velocity / omega_velocity
 004f18f0	_	needs port: cite-only physics-object method
-004f1910	_	needs port: cite-only physics-object method
-004f1930	_	needs port: cite-only physics-object method
+004f1910	x	ac2-physics body_access.rs PhysicsBody::depth
+004f1930	x	ac2-physics body_access.rs PhysicsBody::has_water
 004f1950	_	needs port: cite-only physics-object method
-004f1970	_	needs port: cite-only physics-object method
-004f19d0	_	needs port: cite-only physics-object method
+004f1970	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
+004f19d0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004f1a20	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 004f1a40	_	needs port: cite-only physics-object method
@@ -5128,25 +5128,25 @@ key	status	note
 004f1dd0	_	needs port: cite-only physics-object method
 004f1de0	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
 004f1df0	_	needs port: cite-only physics-object method
-004f1e00	_	needs port: cite-only physics-object method
-004f1e10	_	needs port: cite-only physics-object method
+004f1e00	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004f1e10	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1e20	_	needs port: cite-only physics-object method
 004f1e30	_	needs port: cite-only physics-object method
-004f1e40	_	needs port: cite-only physics-object method
-004f1e50	_	needs port: cite-only physics-object method
-004f1e60	_	needs port: cite-only physics-object method
-004f1e70	_	needs port: cite-only physics-object method
-004f1e80	_	needs port: cite-only physics-object method
+004f1e40	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004f1e50	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004f1e60	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004f1e70	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
+004f1e80	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1e90	_	needs port: cite-only physics-object method
 004f1ea0	_	needs port: cite-only physics-object method
-004f1ef0	_	needs port: cite-only physics-object method
+004f1ef0	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1f00	_	needs port: cite-only physics-object method
 004f1f10	_	needs port: cite-only physics-object method
-004f1f20	_	needs port: cite-only physics-object method
+004f1f20	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1f30	_	needs port: cite-only physics-object method
 004f1f40	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1f50	_	needs port: cite-only physics-object method
-004f1f60	_	needs port: cite-only physics-object method
+004f1f60	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1fb0	x	ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 004f1fe0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
@@ -5165,11 +5165,11 @@ key	status	note
 004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
 004f2540	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-004f2590	_	needs port: cite-only physics-object method
-004f25b0	_	needs port: cite-only physics-object method
+004f2590	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
+004f25b0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
 004f25d0	_	needs port: cite-only physics-object method
-004f25e0	_	needs port: cite-only physics-object method
-004f2620	_	needs port: cite-only physics-object method
+004f25e0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
+004f2620	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2690	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
 004f26c0	_	needs port: cite-only physics-object method
@@ -5188,9 +5188,9 @@ key	status	note
 004f2830	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f2860	_	needs port: cite-only physics-object method
 004f2880	_	needs port: cite-only physics-object method
-004f28a0	_	needs port: cite-only physics-object method
-004f28f0	_	needs port: cite-only physics-object method
-004f2940	_	needs port: cite-only physics-object method
+004f28a0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
+004f28f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
+004f2940	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f2990	_	needs port: cite-only physics-object method
 004f2a00	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f2ad0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it

@@ -1,0 +1,348 @@
+//! `PhysicsBody`'s retail accessors: the `CPhysicsObj` getters and state-bit tests, and the
+//! `PHYSICSOBJREP` forwarders that read the body's motion interpreter (`CMotionInterp`) and
+//! its physics object. Retail splits them across the object, its representation and the part
+//! array; here one body holds all three, so each is one method.
+
+use crate::fpu::ld;
+use crate::heading::Heading;
+use crate::physics_obj::{PhysicsObj, LANDSCAPE_CONTACT_TS, SLIDING_TS};
+use crate::physics_obj_contact::WATER_CONTACT_TS;
+use crate::position::Position;
+use crate::vector::{Plane, Sphere, Vector};
+
+use super::PhysicsBody;
+
+/// `PhysicsState` bits `CPhysicsObj`'s setters and getters test.
+const REPORT_COLLISIONS_PS: u32 = 0x4;
+const IGNORE_COLLISIONS_PS: u32 = 0x8;
+const MISSILE_PS: u32 = 0x20;
+const ALIGN_PATH_PS: u32 = 0x80;
+const HAS_PHYSICS_BSP_PS: u32 = 0x1000;
+const IN_WORKSPACE_PS: u32 = 0x1000_0000;
+/// `CPhysicsObj::IsMoving`: the squared speed above which a body counts as moving.
+const MOVING_SPEED_SQUARED: f32 = 0.0002;
+
+impl PhysicsObj {
+    fn set_state_bit(&mut self, bit: u32, on: bool) {
+        if on {
+            self.state |= bit;
+        } else {
+            self.state &= !bit;
+        }
+    }
+}
+
+impl PhysicsBody {
+    /// `CPhysicsObj::GetDepth` and `PHYSICSOBJREP::GetDepth`: how deep in water the body is.
+    pub fn depth(&self) -> f32 {
+        self.object.depth
+    }
+
+    /// `PHYSICSOBJREP::HasWater` (`CPhysicsObj::m_bHasWater`).
+    pub fn has_water(&self) -> bool {
+        self.object.has_water
+    }
+
+    /// `CPhysicsObj::on_ground`: in contact and standing on a walkable surface.
+    pub fn on_ground(&self) -> bool {
+        self.object.has_contact() && self.object.on_walkable()
+    }
+
+    /// `CPhysicsObj::off_ground`: not in contact.
+    pub fn off_ground(&self) -> bool {
+        !self.object.has_contact()
+    }
+
+    /// `PHYSICSOBJREP::HasContact`.
+    pub fn has_contact(&self) -> bool {
+        self.object.has_contact()
+    }
+
+    /// `CPhysicsObj::has_sliding`: `SLIDING_TS`.
+    pub fn has_sliding(&self) -> bool {
+        self.object.transient_state & SLIDING_TS != 0
+    }
+
+    /// `CPhysicsObj::contact_is_water`: `WATER_CONTACT_TS`.
+    pub fn contact_is_water(&self) -> bool {
+        self.object.transient_state & WATER_CONTACT_TS != 0
+    }
+
+    /// `CPhysicsObj::m_transient_state & LANDSCAPE_CONTACT_TS`: the contact is the landscape's.
+    pub fn contact_is_landscape(&self) -> bool {
+        self.object.transient_state & LANDSCAPE_CONTACT_TS != 0
+    }
+
+    /// `PHYSICSOBJREP::GetContactPlane`: the plane the body stands on (its contact plane is
+    /// kept as the last one found, so this is also valid in the air).
+    pub fn contact_plane(&self) -> Plane {
+        self.object.contact_plane
+    }
+
+    /// `CPhysicsObj::reports_collisions` (`m_state & REPORT_COLLISIONS_PS`).
+    pub fn reports_collisions(&self) -> bool {
+        self.object.state & REPORT_COLLISIONS_PS != 0
+    }
+
+    /// `CPhysicsObj::ignore_collisions` (`m_state & IGNORE_COLLISIONS_PS`).
+    pub fn ignore_collisions(&self) -> bool {
+        self.object.state & IGNORE_COLLISIONS_PS != 0
+    }
+
+    /// `CPhysicsObj::HasPhysicsBSP` (`m_state & HAS_PHYSICS_BSP_PS`).
+    pub fn has_physics_bsp(&self) -> bool {
+        self.object.state & HAS_PHYSICS_BSP_PS != 0
+    }
+
+    /// `CPhysicsObj::IsInWorkspace` (`m_state` bit 28).
+    pub fn is_in_workspace(&self) -> bool {
+        self.object.state & IN_WORKSPACE_PS != 0
+    }
+
+    /// `CPhysicsObj::SetInWorkspace`.
+    pub fn set_in_workspace(&mut self, in_workspace: bool) {
+        self.object.set_state_bit(IN_WORKSPACE_PS, in_workspace);
+    }
+
+    /// `CPhysicsObj::set_missile` (`MISSILE_PS`).
+    pub fn set_missile(&mut self, missile: bool) {
+        self.object.set_state_bit(MISSILE_PS, missile);
+    }
+
+    /// `CPhysicsObj::align_to_path` (`ALIGN_PATH_PS`).
+    pub fn align_to_path(&mut self, align: bool) {
+        self.object.set_state_bit(ALIGN_PATH_PS, align);
+    }
+
+    /// `CPhysicsObj::m_state`.
+    pub fn physics_state(&self) -> u32 {
+        self.object.state
+    }
+
+    /// `CPhysicsObj::IsMoving`: the squared speed is over `0.0002`.
+    pub fn is_moving(&self) -> bool {
+        let v = self.object.velocity;
+        let (x, y, z) = (ld(v.x), ld(v.y), ld(v.z));
+        ld(MOVING_SPEED_SQUARED) < z * z + y * y + x * x
+    }
+
+    /// `PHYSICSOBJREP::GetOmegaVelocity` (`CPhysicsObj::m_vOmegaVelocity`).
+    pub fn omega_velocity(&self) -> Vector {
+        self.object.omega
+    }
+
+    /// `CPhysicsObj::set_omega_velocity`: the angular velocity is assigned as is.
+    pub fn set_omega_velocity(&mut self, omega: Vector) {
+        self.object.omega = omega;
+    }
+
+    /// `CPhysicsObj::m_vVelocity`.
+    pub fn velocity(&self) -> Vector {
+        self.object.velocity
+    }
+
+    /// `PHYSICSOBJREP::GetAnimVelocity` (`CPhysicsObj::m_vAnimVelocity`).
+    pub fn anim_velocity(&self) -> Vector {
+        self.object.anim_velocity
+    }
+
+    /// `PHYSICSOBJREP::GetAcceleration` (`CMotionInterp::GetAcceleration`, local axes).
+    pub fn acceleration(&self) -> Vector {
+        self.object.motion.acceleration()
+    }
+
+    /// `PHYSICSOBJREP::GetOmegaAcceleration` (`CMotionInterp::GetOmegaAcceleration`).
+    pub fn omega_acceleration(&self) -> Vector {
+        self.object.motion.omega_acceleration()
+    }
+
+    /// `PHYSICSOBJREP::GetDesiredVelocity` (`CMotionInterp::mLocalDesiredVel`).
+    pub fn desired_velocity(&self) -> Vector {
+        self.object.motion.local_desired_velocity()
+    }
+
+    /// `PHYSICSOBJREP::GetTerrainType` (`CMotionInterp::GetTerrainType`).
+    pub fn terrain_type(&self) -> u32 {
+        self.object.motion.terrain_type()
+    }
+
+    /// `PHYSICSOBJREP::GetEffectsScale` (`CPhysicsObj::GetScale`): the object's own scale.
+    pub fn effects_scale(&self) -> Vector {
+        self.object.scale
+    }
+
+    /// `PHYSICSOBJREP::GetWaterMultiplier` (`CMotionInterp::GetWaterMultiplier`).
+    pub fn water_multiplier(&self) -> f32 {
+        self.object.motion.water_multiplier()
+    }
+
+    /// `PHYSICSOBJREP::GetSeaFloorMultiplier` (`CMotionInterp::GetSeaFloorMultiplier`).
+    pub fn sea_floor_multiplier(&self) -> f32 {
+        self.object.motion.sea_floor_multiplier()
+    }
+
+    /// `CPhysicsObj::GetHoverHeight` (`CMotionInterp::GetHoverHeight`): the server's height, else
+    /// the motion table's for the desired element.
+    pub fn hover_height(&self) -> f32 {
+        self.object
+            .motion
+            .hover_height(self.object.desired_element())
+    }
+
+    /// `CPhysicsObj::GetDefaultHoverHeight` (`CMotionInterp::GetDefaultHoverHeight`): the motion
+    /// table's height for the desired element, whatever the server set.
+    pub fn default_hover_height(&self) -> f32 {
+        self.object
+            .motion
+            .motion_values(self.object.desired_element())
+            .hover_height
+    }
+
+    /// `CPhysicsObj::GetVelocityScale` (`CMotionInterp::GetVelocityScale`).
+    pub fn velocity_scale(&self) -> f32 {
+        self.object.motion.velocity_scale()
+    }
+
+    /// `CPhysicsObj::GetAccelerationScale` (`CMotionInterp::GetAccelerationScale`).
+    pub fn acceleration_scale(&self) -> f32 {
+        self.object.motion.acceleration_scale()
+    }
+
+    /// `CPhysicsObj::GetJumpScale` (`m_fJumpScale`).
+    pub fn jump_scale(&self) -> f32 {
+        self.object.jump_scale
+    }
+
+    /// `PHYSICSOBJREP::IsTurningTo` (`CMotionInterp::IsTurningTo`).
+    pub fn is_turning_to(&self) -> bool {
+        self.object.motion.is_turning_to()
+    }
+
+    /// `CPhysicsObj::get_heading` (`Frame::get_heading` of the body's frame).
+    pub fn heading(&self) -> Heading {
+        self.object.position.frame.heading()
+    }
+
+    /// `CPhysicsObj::get_vector_heading` (`Frame::get_vector_heading`): the forward axis.
+    pub fn vector_heading(&self) -> Vector {
+        self.object.position.frame.vector_heading()
+    }
+
+    /// `CPhysicsObj::calc_heading`: the compass heading from the body toward `target`
+    /// (`Position::heading`).
+    pub fn calc_heading(&self, target: &Position) -> Heading {
+        self.object.position.heading_to(target)
+    }
+
+    /// `CPhysicsObj::SetNoCellPosition`: the position and the previous position both become
+    /// `position`, without any cell residency.
+    pub fn set_no_cell_position(&mut self, position: Position) {
+        self.object.position = position;
+        self.object.prev_position = position;
+    }
+
+    /// `CPhysicsObj::GetRadius` (`PHYSICSOBJREP::GetRadius`): the Setup radius, scaled.
+    pub fn radius(&self) -> f32 {
+        self.object.radius()
+    }
+
+    /// `PHYSICSOBJREP::GetStepUpHeight` (`CPartArray::GetStepUpHeight`), unscaled.
+    pub fn step_up_height(&self) -> f32 {
+        self.object.shape.step_up_height
+    }
+
+    /// `PHYSICSOBJREP::GetStepDownHeight` (`CPartArray::GetStepDownHeight`), unscaled.
+    pub fn step_down_height(&self) -> f32 {
+        self.object.shape.step_down_height
+    }
+
+    /// `CPhysicsObj::SetStepDownHeight` (`CPartArray::SetStepDownHeight`).
+    pub fn set_step_down_height(&mut self, step: f32) {
+        self.object.shape.step_down_height = step;
+    }
+
+    /// `CPhysicsObj::AllowsFreeHeading` (`CPartArray::AllowsFreeHeading`).
+    pub fn allows_free_heading(&self) -> bool {
+        self.object.shape.allow_free_heading
+    }
+
+    /// `CPhysicsObj::GetNumSphere` (`CPartArray::GetNumSphere`).
+    pub fn num_sphere(&self) -> usize {
+        self.object.shape.spheres.len()
+    }
+
+    /// `CPhysicsObj::GetSphere` (`CPartArray::GetSphere`): the Setup's collision spheres.
+    pub fn spheres(&self) -> &[Sphere] {
+        &self.object.shape.spheres
+    }
+
+    /// `CPartArray::GetPhysicsContainmentRadius`: the Setup's containment radius of the
+    /// body's spheres, unscaled.
+    pub fn physics_containment_radius(&self) -> f32 {
+        self.object.setup_containment
+    }
+
+    /// `CPhysicsObj::m_fViewDistance` (`CPhysicsObj::GetDistanceToViewer`).
+    pub fn distance_to_viewer(&self) -> f32 {
+        self.object.view_distance
+    }
+
+    /// `CPhysicsObj::GetLookAtX` (`m_fHeadX`).
+    pub fn look_at_x(&self) -> f32 {
+        self.object.head_x
+    }
+
+    /// `CPhysicsObj::GetLookAtZ` (`m_fHeadZ`).
+    pub fn look_at_z(&self) -> f32 {
+        self.object.head_z
+    }
+
+    /// `CPhysicsObj::GetPhysicsCollideMask` (`m_blocking_mask`) as the bits the server sets.
+    pub fn physics_collide_mask(&self) -> u64 {
+        self.object.blocking.bits()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::test_support::body_at;
+    use crate::vector::Vector;
+
+    #[test]
+    fn state_bits_and_motion_getters_follow_the_object() {
+        let mut body = body_at(70.0, 30.0, 50.0);
+        assert!(body.reports_collisions());
+        assert!(!body.ignore_collisions());
+        assert!(!body.is_in_workspace());
+        body.set_in_workspace(true);
+        assert!(body.is_in_workspace());
+        body.set_in_workspace(false);
+        assert!(!body.is_in_workspace());
+        body.set_missile(true);
+        body.align_to_path(true);
+        assert_eq!(body.physics_state() & 0xa0, 0xa0);
+        body.set_missile(false);
+        assert_eq!(body.physics_state() & 0xa0, 0x80);
+        assert!(!body.is_moving());
+        body.set_velocity([0.0, 0.0, 0.1]);
+        assert!(body.is_moving());
+        body.set_velocity([0.0, 0.0, 0.01]);
+        assert!(!body.is_moving());
+        body.set_omega_velocity(Vector::new(1.0, 2.0, 3.0));
+        assert_eq!(body.omega_velocity(), Vector::new(1.0, 2.0, 3.0));
+        assert_eq!(body.off_ground(), !body.has_contact());
+        assert_eq!(body.velocity_scale(), 1.0);
+        assert_eq!(body.jump_scale(), 1.0);
+    }
+
+    #[test]
+    fn no_cell_position_sets_both_positions() {
+        let mut body = body_at(70.0, 30.0, 50.0);
+        let mut target = body.position();
+        target.frame.origin.x += 5.0;
+        body.set_no_cell_position(target);
+        assert_eq!(body.position(), target);
+        assert_eq!(body.previous_position(), target);
+        assert!(body.calc_heading(&target).degrees() == 0.0);
+    }
+}
