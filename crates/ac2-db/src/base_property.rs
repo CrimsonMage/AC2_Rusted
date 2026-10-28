@@ -10,8 +10,9 @@ use ac2_math::waveform::kind;
 use ac2_math::{AFrame, Quat, Vec3, Waveform};
 
 use crate::property::{
-    TYPE_BOOL, TYPE_COLOR, TYPE_DATA_FILE, TYPE_ENUM, TYPE_FLOAT, TYPE_INTEGER, TYPE_LONG_INTEGER,
-    TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING, TYPE_STRING_INFO, TYPE_VECTOR, TYPE_WAVEFORM,
+    ac2_property_desc, Ac2PropertyDesc, TYPE_BOOL, TYPE_COLOR, TYPE_DATA_FILE, TYPE_ENUM,
+    TYPE_FLOAT, TYPE_INTEGER, TYPE_LONG_INTEGER, TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING,
+    TYPE_STRING_INFO, TYPE_VECTOR, TYPE_WAVEFORM,
 };
 use crate::string_info::{RenderInfo, RenderVar};
 
@@ -427,22 +428,59 @@ impl BasePropertyValue {
     }
 }
 
-/// `BaseProperty`: a property's name, its `MasterProperty` type and its value. The value is
-/// `None` until a type is set and a value class exists for it (retail's `m_propertyValue`).
+/// `BaseProperty`: a property's name, its `MasterProperty` type, its group (`m_propertyGroup`, the
+/// `BasePropertyDesc` group the name takes) and its value. The value is `None` until a type is set
+/// and a value class exists for it (retail's `m_propertyValue`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct BaseProperty {
     pub name: u32,
     pub value_type: u32,
+    pub group: u32,
     pub value: Option<BasePropertyValue>,
 }
 
 impl BaseProperty {
-    /// `BaseProperty::BaseProperty`: no name, no type and no value.
+    /// `BaseProperty::BaseProperty`: no name, no type, no group and no value.
     pub fn new(name: u32) -> Self {
         Self {
             name,
             value_type: 0,
+            group: 0,
             value: None,
+        }
+    }
+
+    /// `BaseProperty::SetPropertyName` over the installed `MasterProperty`: see
+    /// [`BaseProperty::set_property_name_with`].
+    pub fn set_property_name(&mut self, name: u32) -> bool {
+        self.set_property_name_with(name, ac2_property_desc)
+    }
+
+    /// `BaseProperty::SetPropertyName`: the name is kept even when it has no desc. A name with a
+    /// desc takes that desc's group and type, then its default value; the result is whether the
+    /// type has a value class.
+    pub fn set_property_name_with(
+        &mut self,
+        name: u32,
+        desc_of: impl Fn(u32) -> Option<Ac2PropertyDesc>,
+    ) -> bool {
+        self.name = name;
+        let Some(desc) = desc_of(name) else {
+            return false;
+        };
+        self.group = desc.group;
+        if !self.set_property_type(desc.value_type) {
+            return false;
+        }
+        self.init_to_default_value();
+        true
+    }
+
+    /// `BaseProperty::InitToDefaultValue`: a fresh value of the property's type. The desc's
+    /// default value is not in the packed `MasterProperty`, so the value class default stands.
+    pub fn init_to_default_value(&mut self) {
+        if self.value_type != 0 {
+            self.value = BasePropertyValue::new_for_type(self.value_type);
         }
     }
 

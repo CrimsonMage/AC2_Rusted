@@ -117,3 +117,65 @@ fn several_groups_join_their_bits() {
     );
     assert_eq!(mask, (1 << 3) | (1 << 9));
 }
+
+/// A `PStringBase<char>` as the `MasterProperty` record packs it: u16 length, the scrambled
+/// bytes, and padding to a 4-byte boundary.
+fn packed_pstring(text: &[u8]) -> Vec<u8> {
+    let mut scrambled = text.to_vec();
+    ac2_core::pstring::munge(&mut scrambled);
+    let mut out = (text.len() as u16).to_le_bytes().to_vec();
+    out.extend_from_slice(&scrambled);
+    while !out.len().is_multiple_of(4) {
+        out.push(0);
+    }
+    out
+}
+
+fn master_property_bytes(names: &[(u32, &[u8])], descs: &[[u32; 6]]) -> Vec<u8> {
+    let word = |v: u32| v.to_le_bytes();
+    let mut b = Vec::new();
+    b.extend_from_slice(&word(0x4000_0042));
+    b.extend_from_slice(&word(0));
+    b.extend_from_slice(&word(0));
+    b.extend_from_slice(&word(names.len() as u32));
+    for (id, text) in names {
+        b.extend_from_slice(&word(*id));
+        b.extend(packed_pstring(text));
+    }
+    b.extend_from_slice(&word(descs.len() as u32));
+    for desc in descs {
+        for v in desc {
+            b.extend_from_slice(&word(*v));
+        }
+    }
+    b
+}
+
+#[test]
+fn master_property_names_decode_and_look_up_both_ways() {
+    use crate::ResourcePackedDecode;
+    let qdid = ac2_core::QualifiedDataId::new(ac2_core::DataId::new(0x4000_0042), 0x4000_0042);
+    let bytes = master_property_bytes(
+        &[(0x1000_0001, b"Alpha"), (0x1000_0002, b"Beta!")],
+        // name, type, group, data, report to weenie, required
+        &[[0x1000_0001, 0x4000_0003, 0x4000_0002, 0, 0, 0]],
+    );
+    let types = crate::Ac2PropertyTypes::decode_packed(qdid, 0, &bytes).expect("decodes");
+    assert_eq!(types.name(0x1000_0001), Some(&b"Alpha"[..]));
+    assert_eq!(types.name(0x1000_0002), Some(&b"Beta!"[..]));
+    assert_eq!(types.name(0x1000_0009), None);
+    assert_eq!(types.name_to_enum(b"Beta!"), Some(0x1000_0002));
+    assert_eq!(types.name_to_enum(b"Gamma"), None);
+    let desc = types.desc(0x1000_0001).expect("desc");
+    assert_eq!((desc.value_type, desc.group), (0x4000_0003, 0x4000_0002));
+    assert!(types.desc(0x1000_0002).is_none());
+}
+
+#[test]
+fn master_property_name_record_must_end_where_its_descs_do() {
+    use crate::ResourcePackedDecode;
+    let qdid = ac2_core::QualifiedDataId::new(ac2_core::DataId::new(0x4000_0042), 0x4000_0042);
+    let mut bytes = master_property_bytes(&[(1, b"A")], &[]);
+    bytes.extend_from_slice(&[0, 0, 0, 0]);
+    assert!(crate::Ac2PropertyTypes::decode_packed(qdid, 0, &bytes).is_err());
+}

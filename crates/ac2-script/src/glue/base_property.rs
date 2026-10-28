@@ -10,12 +10,14 @@
 //!
 //! `InqStringInfo` / `SetStringInfo` copy a `StringInfo` native to and from the value
 //! (`StringInfoPropertyValue::InqStringInfo` / `SetStringInfo`, the one-argument slots 0x80 and
-//! 0x88). Not bound: `GetPropertyName`, `GetPropertyType`, `GetGroupName` and the name efuns,
-//! which need the property name tables.
+//! 0x88). The name efuns read the `MasterProperty` names (`ac2_db::ac2_property_name`) and the
+//! type names (`EnumMapper::GetString(0x40000013, type)`); `GetPropertyName`, `GetPropertyType`
+//! and `GetGroupName` return the property's name, type and group words.
 
-use ac2_db::BasePropertyValue;
+use ac2_db::{ac2_property_name, ac2_property_name_enum, BaseProperty, BasePropertyValue};
 use ac2_math::Vec3;
 
+use super::enums::mapper_name;
 use super::{narrow, out_native, Call, INT_RESULT};
 use crate::data::{render_info, script_string_info};
 use crate::native::NativeObject;
@@ -42,6 +44,13 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gBaseProperty::CallEFun_SetPackageID" => set_package_id,
             "gBaseProperty::CallEFun_InqStringInfo" => inq_string_info,
             "gBaseProperty::CallEFun_SetStringInfo" => set_string_info,
+            "gBaseProperty::CallEFun_GetPropertyName" => get_property_name,
+            "gBaseProperty::CallEFun_GetPropertyType" => get_property_type,
+            "gBaseProperty::CallEFun_GetGroupName" => get_group_name,
+            "gBaseProperty::CallEFun_InqPropertyNameW" => inq_property_name_w,
+            "gBaseProperty::CallEFun_SetPropertyName" => set_property_name,
+            "gBaseProperty::CallEFun_SetPropertyNameW" => set_property_name_w,
+            "gBaseProperty::CallEFun_InqPropertyTypeW" => inq_property_type_w,
             _ => continue,
         };
         efuns.register(id, function);
@@ -289,6 +298,118 @@ fn set_string_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
             .as_mut()
             .is_some_and(|slot| slot.set_string_info(info)),
         _ => return vm.bad_this(this),
+    };
+    ret_flag(ctx, ok);
+    InterpStatus::Success
+}
+
+/// The `BaseProperty` `this` names, read as one word: the out word of the 0-argument getters.
+fn property_word(vm: &mut Vm, ctx: &mut Context, read: fn(&BaseProperty) -> u32) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let word = match vm.native(this) {
+        Some(NativeObject::BaseProperty(property)) => read(property),
+        _ => return vm.bad_this(this),
+    };
+    Call::new(ctx).ret(2, word, INT_RESULT);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_GetPropertyName()`: `BaseProperty::m_propertyName`.
+fn get_property_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    property_word(vm, ctx, |p| p.name)
+}
+
+/// `gBaseProperty::CallEFun_GetPropertyType()`: `BaseProperty::m_propertyType`.
+fn get_property_type(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    property_word(vm, ctx, |p| p.value_type)
+}
+
+/// `gBaseProperty::CallEFun_GetGroupName()`: `BaseProperty::m_propertyGroup` (the group word the
+/// retail efun returns).
+fn get_group_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    property_word(vm, ctx, |p| p.group)
+}
+
+/// Widens a name for a `wpstring` out argument.
+fn widen(text: &[u8]) -> Vec<u16> {
+    text.iter().map(|&c| u16::from(c)).collect()
+}
+
+/// Writes `text` into the `wpstring` out argument `out` and returns the flag.
+fn write_wstring(
+    vm: &mut Vm,
+    ctx: &mut Context,
+    out: u32,
+    text: Vec<u16>,
+    found: bool,
+) -> InterpStatus {
+    let target = out_native(vm, ctx, out);
+    match vm.native_mut(target) {
+        Some(NativeObject::WString(out_text)) => *out_text = text,
+        _ => return vm.bad_this(target),
+    }
+    ret_flag(ctx, found);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_InqPropertyNameW(wpstring &)`: the property's name; the flag is 0 and
+/// the string empty when the `MasterProperty` names no such property.
+fn inq_property_name_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, out) = this_and_arg(ctx);
+    let name = match vm.native(this) {
+        Some(NativeObject::BaseProperty(property)) => property.name,
+        _ => return vm.bad_this(this),
+    };
+    let text = ac2_property_name(name);
+    let found = text.is_some();
+    write_wstring(vm, ctx, out, widen(text.unwrap_or_default()), found)
+}
+
+/// `gBaseProperty::CallEFun_InqPropertyTypeW(wpstring &)`: the name of the property's type in the
+/// `0x40000013` enum (`EnumMapper::GetString`); empty and 0 when it has none.
+fn inq_property_type_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, out) = this_and_arg(ctx);
+    let value_type = match vm.native(this) {
+        Some(NativeObject::BaseProperty(property)) => property.value_type,
+        _ => return vm.bad_this(this),
+    };
+    let text = mapper_name(vm.data(), PROPERTY_TYPE_ENUM, value_type);
+    let found = text.is_some();
+    write_wstring(vm, ctx, out, widen(&text.unwrap_or_default()), found)
+}
+
+/// The enum `BaseProperty::InqPropertyTypeW` names property types with.
+const PROPERTY_TYPE_ENUM: u32 = 0x4000_0013;
+
+/// `gBaseProperty::CallEFun_SetPropertyName(int)`: `BaseProperty::SetPropertyName(name)`.
+fn set_property_name(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, name) = this_and_arg(ctx);
+    let ok = match vm.native_mut(this) {
+        Some(NativeObject::BaseProperty(property)) => property.set_property_name(name),
+        _ => return vm.bad_this(this),
+    };
+    ret_flag(ctx, ok);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_SetPropertyNameW(wpstring)`: the name is looked up in the
+/// `MasterProperty` names (`InqPropertyNameEnum`) and set; an unknown name changes nothing.
+fn set_property_name_w(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, arg) = this_and_arg(ctx);
+    if !matches!(vm.native(this), Some(NativeObject::BaseProperty(_))) {
+        return vm.bad_this(this);
+    }
+    let source = out_native(vm, ctx, arg);
+    let bytes = match vm.wstring(source) {
+        Some(text) => narrow(text),
+        None => return vm.bad_this(source),
+    };
+    let ok = match ac2_property_name_enum(&bytes) {
+        Some(name) => match vm.native_mut(this) {
+            Some(NativeObject::BaseProperty(property)) => property.set_property_name(name),
+            _ => false,
+        },
+        None => false,
     };
     ret_flag(ctx, ok);
     InterpStatus::Success

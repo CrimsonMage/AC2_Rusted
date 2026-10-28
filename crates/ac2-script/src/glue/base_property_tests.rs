@@ -277,3 +277,216 @@ fn string_info_efuns_answer_zero_for_other_types() {
     };
     assert_eq!(info.string_id, 3);
 }
+
+/// The DAT-backed VM (the `MasterProperty` names and the type enum read from the local data),
+/// or `None` without `AC2_DAT_DIR`.
+fn dat_vm() -> Option<Vm> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
+    let store = ac2_db::ResourceStore::new(dataset.clone());
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
+    let mut efuns = EFuns::new();
+    register_pure(&mut efuns);
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    Some(Vm::new(
+        Arc::new(program),
+        Box::new(crate::data::DatScriptData::new(dataset, store)),
+        efuns,
+    ))
+}
+
+/// The wide string a `wpstring` native holds.
+fn wide(text: &str) -> Vec<u16> {
+    text.encode_utf16().collect()
+}
+
+#[test]
+fn property_name_efuns_name_known_properties_from_the_dat() {
+    let Some(mut vm) = dat_vm() else {
+        return;
+    };
+    // `LightType` (0x40000002) and `LightDiffuse` (0x40000008) are in the local MasterProperty.
+    let p = property_ref(&mut vm, BaseProperty::new(0x4000_0002));
+    let (_, name) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyName"),
+        &[],
+        p,
+    );
+    assert_eq!(name, 0x4000_0002);
+    let out = vm.new_wstring(Vec::new());
+    let (_, found) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqPropertyNameW"),
+        &[out],
+        p,
+    );
+    assert_eq!(found, 1);
+    assert_eq!(vm.wstring(out), Some(&wide("LightType")[..]));
+
+    // SetPropertyNameW names a property by its text; its desc gives the type and group.
+    let text = vm.new_wstring(wide("LightDiffuse"));
+    let (_, set) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_SetPropertyNameW"),
+        &[text],
+        p,
+    );
+    assert_eq!(set, 1);
+    let (_, name) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyName"),
+        &[],
+        p,
+    );
+    assert_eq!(name, 0x4000_0008);
+    let desc = ac2_db::ac2_property_desc(0x4000_0008).expect("LightDiffuse has a desc");
+    let (_, ty) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyType"),
+        &[],
+        p,
+    );
+    assert_eq!(ty, desc.value_type);
+    let (_, group) = call(&mut vm, id("gBaseProperty::CallEFun_GetGroupName"), &[], p);
+    assert_eq!(group, desc.group);
+
+    // The `0x40000013` type enum maps to the mapper DID 0x23000022, which the Legions DVD does not
+    // hold: retail names no type there, so the efun answers 0 with an empty string.
+    let type_out = vm.new_wstring(vec![b'x' as u16]);
+    let (_, named) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqPropertyTypeW"),
+        &[type_out],
+        p,
+    );
+    assert_eq!(named, 0);
+    assert_eq!(vm.wstring(type_out), Some(&[][..]));
+
+    // A name no table holds changes nothing and answers 0.
+    let unknown = vm.new_wstring(wide("NoSuchPropertyName"));
+    let (_, miss) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_SetPropertyNameW"),
+        &[unknown],
+        p,
+    );
+    assert_eq!(miss, 0);
+    let (_, name) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyName"),
+        &[],
+        p,
+    );
+    assert_eq!(name, 0x4000_0008);
+}
+
+#[test]
+fn property_getters_read_the_name_type_and_group_words() {
+    let mut vm = vm();
+    let mut p = BaseProperty::new(0x1234_5678);
+    p.value_type = 0x4000_0003;
+    p.group = 0x4000_0002;
+    let r = property_ref(&mut vm, p);
+    let (_, name) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyName"),
+        &[],
+        r,
+    );
+    assert_eq!(name, 0x1234_5678);
+    let (_, ty) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_GetPropertyType"),
+        &[],
+        r,
+    );
+    assert_eq!(ty, 0x4000_0003);
+    let (_, group) = call(&mut vm, id("gBaseProperty::CallEFun_GetGroupName"), &[], r);
+    assert_eq!(group, 0x4000_0002);
+}
+
+#[test]
+fn a_property_type_without_its_enum_names_nothing() {
+    // No DAT: the `0x40000013` enum is not there, so the type name is empty and the flag 0.
+    let mut vm = vm();
+    let mut p = BaseProperty::new(1);
+    p.value_type = 0x4000_0005;
+    let r = property_ref(&mut vm, p);
+    let out = vm.new_wstring(vec![b'x' as u16]);
+    let (_, found) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqPropertyTypeW"),
+        &[out],
+        r,
+    );
+    assert_eq!(found, 0);
+    assert_eq!(vm.wstring(out), Some(&[][..]));
+}
+
+/// A script data source whose only table is the property type enum (`0x40000013`) mapper, with
+/// the names of two types.
+struct TypeEnum;
+
+impl crate::vm::ScriptData for TypeEnum {
+    fn wstate(&self, _did: u32) -> Option<crate::vm::StateRef> {
+        None
+    }
+
+    fn enum_did(&self, value: u32, group: u32) -> Option<u32> {
+        (value == 0x4000_0013 && group == crate::data::EMAPPER_GROUP).then_some(0x2300_0022)
+    }
+
+    fn db_type(&self, did: u32) -> Option<u32> {
+        (did == 0x2300_0022).then_some(crate::data::DB_TYPE_ENUM_MAPPER)
+    }
+
+    fn enum_mapper(
+        &self,
+        did: u32,
+    ) -> Option<Box<dyn std::ops::Deref<Target = crate::data::EnumMapper>>> {
+        (did == 0x2300_0022).then(|| {
+            let mapper = crate::data::EnumMapper {
+                did,
+                base: 0,
+                names: vec![
+                    (0x4000_0003, b"Float".to_vec()),
+                    (0x4000_0005, b"Color".to_vec()),
+                ],
+            };
+            Box::new(Box::new(mapper)) as Box<dyn std::ops::Deref<Target = crate::data::EnumMapper>>
+        })
+    }
+}
+
+#[test]
+fn property_type_names_come_from_the_type_enum() {
+    let mut efuns = EFuns::new();
+    register_pure(&mut efuns);
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut vm = Vm::new(Arc::new(program), Box::new(TypeEnum), efuns);
+    let mut p = BaseProperty::new(1);
+    p.value_type = 0x4000_0005;
+    let r = property_ref(&mut vm, p);
+    let out = vm.new_wstring(Vec::new());
+    let (_, found) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqPropertyTypeW"),
+        &[out],
+        r,
+    );
+    assert_eq!(found, 1);
+    assert_eq!(vm.wstring(out), Some(&wide("Color")[..]));
+    // A type the enum does not name answers 0 and an empty string.
+    let mut other = BaseProperty::new(1);
+    other.value_type = 0x4000_0009;
+    let r = property_ref(&mut vm, other);
+    let out = vm.new_wstring(vec![b'x' as u16]);
+    let (_, missing) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqPropertyTypeW"),
+        &[out],
+        r,
+    );
+    assert_eq!(missing, 0);
+    assert_eq!(vm.wstring(out), Some(&[][..]));
+}

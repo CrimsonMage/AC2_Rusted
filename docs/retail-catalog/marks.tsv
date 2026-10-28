@@ -7103,9 +7103,9 @@ key	status	note
 0054b280	x	ac2-script glue (wlog, random, behavior, enums: gDBCache)
 0054b360	_	needs port: BaseProperty InqStringW (weenie property string)
 0054b430	_	needs port: BaseProperty SetStringW (weenie property string)
-0054b480	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054b4f0	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054b560	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+0054b480	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
+0054b4f0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
+0054b560	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054b5d0	_	needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
 0054b640	_	needs port: weenie property get/set efuns (gBaseProperty Inq*/Set*, names, package ids, positions)
 0054b6b0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -7116,8 +7116,8 @@ key	status	note
 0054b980	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 0054ba10	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054baa0	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
-0054bb30	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054bbb0	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+0054bb30	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
+0054bbb0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054bc30	x	ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 0054bcc0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054bd40	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -7129,8 +7129,8 @@ key	status	note
 0054c190	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 0054c250	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c310	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
-0054c3c0	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054c460	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
+0054c3c0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
+0054c460	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
 0054c500	x	ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 0054c5b0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c650	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -13445,21 +13445,21 @@ key	status	note
 006b1f50	_	needs port: BaseProperty::IsReportedToWeenie (reporter flag)
 006b1f60	_	needs port: BaseProperty::IsInquirable (inquiry flag)
 006b1f70	_	needs port: BaseProperty::IsDefaultValue
-006b1fa0	_	needs port: BaseProperty::InitToDefaultValue
+006b1fa0	~	fresh value of the type; the desc's default value is not in the packed MasterProperty, so the value class default stands
 006b2000	-	skip: DAT writing/saving/packing (tools only) (DiskConBase::IsExpandable is the DAT growth check)
 006b2010	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b2060	_	needs port: BaseProperty::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
 006b20f0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b2110	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b2130	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-006b2180	~	value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
+006b2180	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 006b21e0	_	needs port: BaseProperty::InqPropertyBit
 006b2210	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b2250	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b22c0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
-006b2310	_	needs port: BaseProperty::SetPropertyNameW (wide property name)
-006b2380	_	needs port: BaseProperty::InqPropertyNameW (wide property name)
-006b2440	_	needs port: BaseProperty::InqPropertyTypeW (wide property type name)
+006b2310	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+006b2380	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+006b2440	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 006b2510	_	needs port: BaseProperty::GetOutputString (typed value to output text)
 006b2650	-	skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files
 006b2890	_	needs port: PropertyGroup::InqPropertyGroupName
@@ -13565,8 +13565,8 @@ key	status	note
 006b4ab0	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b4ad0	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 006b4b80	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
-006b4be0	_	needs port: MasterProperty::InqPropertyNameEnum
-006b4c50	_	needs port: MasterProperty::InqPropertyNameString
+006b4be0	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+006b4c50	x	ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 006b4cc0	_	needs port (check): implemented as crates/ac2-db/src/property.rs but uncited; MasterProperty::StreamPack (MasterProperty table load)
 006b4e40	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b4e70	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)

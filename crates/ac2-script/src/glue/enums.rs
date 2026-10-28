@@ -102,6 +102,12 @@ fn enum_of(data: &dyn ScriptData, t: Table, name: &[u8]) -> Option<u32> {
     }
 }
 
+/// `EnumMapper::GetString(mapid, value)` (the static form): the name `value` has in the table
+/// `mapid` names, if there is one.
+pub(super) fn mapper_name(data: &dyn ScriptData, mapid: u32, value: u32) -> Option<Vec<u8>> {
+    table(data, mapid).and_then(|t| string_of(data, t, value))
+}
+
 fn widen(s: &[u8]) -> Vec<u16> {
     s.iter().map(|&b| u16::from(b)).collect()
 }

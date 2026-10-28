@@ -54,10 +54,42 @@ pub struct Ac2PropertyDesc {
     pub report_to_weenie: u32,
 }
 
-/// Property name -> `BasePropertyDesc`, from `MasterProperty::m_properties`.
+/// Property name -> `BasePropertyDesc`, from `MasterProperty::m_properties`, and the property
+/// names (`MasterProperty::m_emapper`, an `EnumMapper` from id to name).
 #[derive(Debug, Default)]
 pub struct Ac2PropertyTypes {
     descs: HashMap<u32, Ac2PropertyDesc>,
+    names: HashMap<u32, Vec<u8>>,
+}
+
+impl Ac2PropertyTypes {
+    /// `EnumMapper::GetString` over the property names: the name of property `id`.
+    pub fn name(&self, id: u32) -> Option<&[u8]> {
+        self.names.get(&id).map(Vec::as_slice)
+    }
+
+    /// `EnumMapper::GetEnum` over the property names: the id `name` gives.
+    pub fn name_to_enum(&self, name: &[u8]) -> Option<u32> {
+        self.names
+            .iter()
+            .find_map(|(id, text)| (text.as_slice() == name).then_some(*id))
+    }
+
+    /// The `BasePropertyDesc` of property `name`.
+    pub fn desc(&self, name: u32) -> Option<Ac2PropertyDesc> {
+        self.descs.get(&name).copied()
+    }
+
+    /// Every property id and its name, in id order.
+    pub fn names(&self) -> Vec<(u32, &[u8])> {
+        let mut names: Vec<_> = self
+            .names
+            .iter()
+            .map(|(id, n)| (*id, n.as_slice()))
+            .collect();
+        names.sort_unstable_by_key(|(id, _)| *id);
+        names
+    }
 }
 
 impl ResourcePackedDecode for Ac2PropertyTypes {
@@ -81,10 +113,12 @@ impl ResourcePackedDecode for Ac2PropertyTypes {
         // `EnumMapper`: base enum, reserved word, then (id, name) pairs of the property names.
         let _base = cursor.read_u32()?;
         let _reserved = cursor.read_u32()?;
-        let names = count(&mut cursor, 6).map_err(malformed)?;
-        for _ in 0..names {
-            cursor.read_u32()?;
-            skip_pstring(&mut cursor, 1).map_err(malformed)?;
+        let count_names = count(&mut cursor, 6).map_err(malformed)?;
+        let mut names = HashMap::with_capacity(count_names);
+        for _ in 0..count_names {
+            let id = cursor.read_u32()?;
+            let name = read_pstring_bytes(&mut cursor).map_err(malformed)?;
+            names.insert(id, name);
         }
         // `PAutoGrowHashTable<ulong, BasePropertyDesc>`: name, then type, group, data word
         // (`m_data`, the bit an ethereal property sets), report-to-weenie and required flags.
@@ -111,11 +145,13 @@ impl ResourcePackedDecode for Ac2PropertyTypes {
         if cursor.remaining() != 0 {
             return Err(malformed("trailing bytes after MasterProperty"));
         }
-        Ok(Self { descs })
+        Ok(Self { descs, names })
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.descs.len() * 24
+        std::mem::size_of::<Self>()
+            + self.descs.len() * 24
+            + self.names.values().map(|n| 16 + n.len()).sum::<usize>()
     }
 }
 
@@ -134,9 +170,33 @@ pub fn install_ac2_property_types(store: &ResourceStore) -> ResourceResult<bool>
     };
     let owned = Ac2PropertyTypes {
         descs: table.descs.clone(),
+        names: table.names.clone(),
     };
     let _ = PROPERTY_TYPES.set(Arc::new(owned));
     Ok(true)
+}
+
+/// `MasterProperty::InqPropertyNameString` against the installed table: the name of property
+/// `name`, if the table is installed and names it.
+pub fn ac2_property_name(name: u32) -> Option<&'static [u8]> {
+    PROPERTY_TYPES.get()?.name(name)
+}
+
+/// Every installed property id and name, in id order (`None` before the table is installed).
+pub fn ac2_property_names() -> Option<Vec<(u32, Vec<u8>)>> {
+    let table = PROPERTY_TYPES.get()?;
+    Some(
+        table
+            .names()
+            .into_iter()
+            .map(|(id, name)| (id, name.to_vec()))
+            .collect(),
+    )
+}
+
+/// `MasterProperty::InqPropertyNameEnum` against the installed table: the property id `name` is.
+pub fn ac2_property_name_enum(name: &[u8]) -> Option<u32> {
+    PROPERTY_TYPES.get()?.name_to_enum(name)
 }
 
 /// `MasterProperty::InqPropertyType` against the installed table: the value type of property
@@ -241,6 +301,24 @@ fn skip_string_info(cursor: &mut ArchiveCursor<'_>) -> Result<(), &'static str> 
         return Err("StringInfo variables are not supported");
     }
     Ok(())
+}
+
+/// `PStringBase<char>::UnPack`: u16 length (0xFFFF escapes to a u32), the scrambled bytes
+/// (descrambled here, as the client's UnPack does), 4-byte align.
+fn read_pstring_bytes(cursor: &mut ArchiveCursor<'_>) -> Result<Vec<u8>, &'static str> {
+    let short = cursor.read_u16().map_err(|_| "record ended early")?;
+    let len = if short == 0xFFFF {
+        word(cursor)? as usize
+    } else {
+        usize::from(short)
+    };
+    let mut bytes = cursor
+        .read_bytes(len)
+        .map_err(|_| "record ended early")?
+        .to_vec();
+    ac2_core::pstring::unmunge(&mut bytes);
+    cursor.align_to(4).map_err(|_| "record ended early")?;
+    Ok(bytes)
 }
 
 /// `PStringBase::UnPack`: u16 length (0xFFFF escapes to a u32), characters, 4-byte align.

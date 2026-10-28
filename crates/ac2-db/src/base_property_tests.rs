@@ -300,3 +300,51 @@ fn nested_string_info_variables_compare_as_string_infos() {
     });
     assert!(!x.is_equal(&other));
 }
+
+fn desc(value_type: u32, group: u32) -> crate::Ac2PropertyDesc {
+    crate::Ac2PropertyDesc {
+        value_type,
+        group,
+        data: 0,
+        report_to_weenie: 0,
+    }
+}
+
+#[test]
+fn set_property_name_takes_the_desc_group_type_and_a_default_value() {
+    let desc_of = |name: u32| match name {
+        0x1000_0001 => Some(desc(TYPE_FLOAT, 0x4000_0002)),
+        0x1000_0002 => Some(desc(0x4000_010A, 0x4000_0002)),
+        _ => None,
+    };
+    let mut p = BaseProperty::new(0);
+    p.value = Some(BasePropertyValue::Bool(true));
+    assert!(p.set_property_name_with(0x1000_0001, desc_of));
+    assert_eq!(
+        (p.name, p.value_type, p.group),
+        (0x1000_0001, TYPE_FLOAT, 0x4000_0002)
+    );
+    assert_eq!(p.value, Some(BasePropertyValue::Float(0.0)));
+    // A desc whose type has no value class: the name, group and type are set, the answer is no.
+    assert!(!p.set_property_name_with(0x1000_0002, desc_of));
+    assert_eq!((p.name, p.value_type), (0x1000_0002, 0x4000_010A));
+    assert_eq!(p.value, None);
+    // A name with no desc keeps the name and changes nothing else.
+    assert!(!p.set_property_name_with(0x1000_0009, desc_of));
+    assert_eq!(
+        (p.name, p.value_type, p.group),
+        (0x1000_0009, 0x4000_010A, 0x4000_0002)
+    );
+}
+
+#[test]
+fn init_to_default_value_allocates_a_fresh_value_of_the_type() {
+    let mut p = BaseProperty::new(3);
+    p.set_property_type(TYPE_INTEGER);
+    p.value = Some(BasePropertyValue::Integer(9));
+    p.init_to_default_value();
+    assert_eq!(p.value, Some(BasePropertyValue::Integer(0)));
+    let mut untyped = BaseProperty::new(3);
+    untyped.init_to_default_value();
+    assert_eq!(untyped.value, None);
+}

@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 159 done, 15 partial, 147 to do, 312 skipped.
+633 retail functions: 165 done, 15 partial, 141 to do, 312 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -511,13 +511,13 @@ Legend and workflow: [README](README.md).
 ### CharUtils
 - [x] `CharUtils::IsVowel` · 006bc600 · legions 006515a0 — ac2-db string_meta_text / string_state (CRT C locale classes)
 
-## `portal/shared/src/property/baseproperty.cpp.c` (2/22)
+## `portal/shared/src/property/baseproperty.cpp.c` (6/22)
 
 ### BaseProperty
 - [ ] `BaseProperty::IsReportedToWeenie` · 006b1f50 · legions 0064b1e0 — needs port: BaseProperty::IsReportedToWeenie (reporter flag)
 - [ ] `BaseProperty::IsInquirable` · 006b1f60 · legions 0064b1f0 — needs port: BaseProperty::IsInquirable (inquiry flag)
 - [ ] `BaseProperty::IsDefaultValue` · 006b1f70 · legions 0064b200 — needs port: BaseProperty::IsDefaultValue
-- [ ] `BaseProperty::InitToDefaultValue` · 006b1fa0 · legions 0064b230 — needs port: BaseProperty::InitToDefaultValue
+- [~] `BaseProperty::InitToDefaultValue` · 006b1fa0 · legions 0064b230 — fresh value of the type; the desc's default value is not in the packed MasterProperty, so the value class default stands
 
 ### DiskConBase
 - [-] `DiskConBase::IsExpandable` · 006b2000 · legions 0064b290 — skip: DAT writing/saving/packing (tools only) (DiskConBase::IsExpandable is the DAT growth check)
@@ -528,14 +528,14 @@ Legend and workflow: [README](README.md).
 - [-] `BaseProperty::BaseProperty` · 006b20f0 · legions 0064b380 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::~BaseProperty` · 006b2110 · legions 0064b3a0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `BaseProperty::operator=` · 006b2130 · legions 0064b3c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [~] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410 — value type via PropertyTypes (MasterProperty::InqPropertyType); group lookup and defaults not modelled
+- [x] `BaseProperty::SetPropertyName` · 006b2180 · legions 0064b410 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [ ] `BaseProperty::InqPropertyBit` · 006b21e0 · legions 0064b470 — needs port: BaseProperty::InqPropertyBit
 - [x] `BaseProperty::Compare` · 006b2210 · legions 0064b4a0 — ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 - [~] `BaseProperty::StreamPack` · 006b2250 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `BaseProperty::BaseProperty` · 006b22c0 · legions 0064b550 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `BaseProperty::SetPropertyNameW` · 006b2310 · legions 0064b5a0 — needs port: BaseProperty::SetPropertyNameW (wide property name)
-- [ ] `BaseProperty::InqPropertyNameW` · 006b2380 · legions 0064b610 — needs port: BaseProperty::InqPropertyNameW (wide property name)
-- [ ] `BaseProperty::InqPropertyTypeW` · 006b2440 · legions 0064b6d0 — needs port: BaseProperty::InqPropertyTypeW (wide property type name)
+- [x] `BaseProperty::SetPropertyNameW` · 006b2310 · legions 0064b5a0 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+- [x] `BaseProperty::InqPropertyNameW` · 006b2380 · legions 0064b610 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+- [x] `BaseProperty::InqPropertyTypeW` · 006b2440 · legions 0064b6d0 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [ ] `BaseProperty::GetOutputString` · 006b2510 · legions 0064b7a0 — needs port: BaseProperty::GetOutputString (typed value to output text)
 - [-] `BaseProperty::ValueFromFileNode` · 006b2650 — skip: admin/debug text or tool code (no client use in Legions); ValueFromFileNode parses text source files
 - [-] `BaseProperty::ToFileNode` · 006b26b0 — text source format (admin tools)
@@ -555,7 +555,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BasePropertyDesc::StreamPack` · 006b7070 · legions 0064ef20 — needs port: BasePropertyDesc::StreamPack (typed load of property descriptions)
 - [-] `BasePropertyDesc::FromFileNode` · 006b7100 — text source format (admin tools)
 
-## `portal/shared/src/property/masterproperty.cpp.c` (31/130)
+## `portal/shared/src/property/masterproperty.cpp.c` (33/130)
 
 ### BoolPropertyValue
 - [-] `BoolPropertyValue::ToFileNode` · 006b3d50 — text source format (admin tools)
@@ -662,8 +662,8 @@ Legend and workflow: [README](README.md).
 - [~] `PositionPropertyValue::StreamPack` · 006b4b80 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
 ### MasterProperty
-- [ ] `MasterProperty::InqPropertyNameEnum` · 006b4be0 · legions 0064d510 — needs port: MasterProperty::InqPropertyNameEnum
-- [ ] `MasterProperty::InqPropertyNameString` · 006b4c50 · legions 0064d560 — needs port: MasterProperty::InqPropertyNameString
+- [x] `MasterProperty::InqPropertyNameEnum` · 006b4be0 · legions 0064d510 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
+- [x] `MasterProperty::InqPropertyNameString` · 006b4c50 · legions 0064d560 — ac2-db property names: MasterProperty name table (the m_emapper pairs, descrambled) read by ac2_property_name / ac2_property_name_enum; BaseProperty::SetPropertyName[W] (group and type from the desc, then a fresh value); tests property_tests.rs, tests/master_property_names.rs
 - [ ] `MasterProperty::StreamPack` · 006b4cc0 · legions 0064d5b0 — needs port (check): implemented as crates/ac2-db/src/property.rs but uncited; MasterProperty::StreamPack (MasterProperty table load)
 
 ### BoolPropertyValue
