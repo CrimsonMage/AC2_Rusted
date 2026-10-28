@@ -9857,9 +9857,9 @@ key	status	note
 005eae20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005eafc0	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 005eb100	x	ac2-ui media.rs / transition.rs
-005eb1f0	_	needs port (check): UIElement::StartResizing behaviour; implemented area ac2-ui element.rs but uncited
-005eb370	_	needs port (check): UIElement::StopResizing behaviour; implemented area ac2-ui element.rs but uncited
-005eb430	_	needs port (check): UIElement::MouseResizeElement behaviour; implemented area ac2-ui element.rs but uncited
+005eb1f0	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+005eb370	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+005eb430	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 005eb9c0	_	needs port (check): UIElement::AddImageToState behaviour; implemented area ac2-ui element.rs but uncited
 005ebaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ebb80	x	ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
@@ -10139,14 +10139,14 @@ key	status	note
 005f7f30	_	needs port (check): UIElement_Tree::UIElement_Tree lifecycle (create/teardown: listeners, children, surfaces); ac2-ui tree_view.rs / tree_scroll.rs
 005f8000	_	needs port (check): UIElement_Tree::Create behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
 005f8030	_	needs port (check): UIElement_Tree::Register behaviour; implemented area ac2-ui tree_view.rs / tree_scroll.rs but uncited
-005f8050	_	needs port (check): UIElement_Resizebar::MouseDown behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f81d0	_	needs port (check): UIElement_Resizebar::MouseUp behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8230	_	needs port (check): UIElement_Resizebar::UpdateLayout behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8300	_	needs port (check): UIElement_Resizebar::SetState behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8320	_	needs port (check): UIElement_Resizebar::SetAttribute_Bool behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f8360	_	needs port (check): UIElement_Resizebar::UIElement_Resizebar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui window_locations.rs
-005f83c0	_	needs port (check): UIElement_Resizebar::Create behaviour; implemented area ac2-ui window_locations.rs but uncited
-005f83f0	_	needs port (check): UIElement_Resizebar::Register behaviour; implemented area ac2-ui window_locations.rs but uncited
+005f8050	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+005f81d0	x	ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+005f8230	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+005f8300	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+005f8320	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+005f8360	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+005f83c0	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+005f83f0	~	ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 005f8410	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs
 005f8420	_	needs port (check): UIElement_Viewport::Create behaviour; implemented area ac2-ui scene_viewport.rs but uncited
 005f8480	x	pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

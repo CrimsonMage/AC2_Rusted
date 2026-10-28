@@ -176,6 +176,9 @@ pub mod ksml;
 #[cfg(test)]
 mod ksml_tests;
 mod ksml_xml;
+mod resize;
+#[cfg(test)]
+mod resize_tests;
 #[cfg(test)]
 mod scroll_coverage_tests;
 #[cfg(test)]

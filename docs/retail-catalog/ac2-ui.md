@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1099 done, 353 partial, 455 to do, 340 skipped.
+2247 retail functions: 1104 done, 359 partial, 444 to do, 340 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2746,7 +2746,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIRegion::NotifyMouseUp` · 005e3310 · legions 005a40d0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [ ] `UIRegion::UIRegion` · 005e33c0 · legions 005a4180 — needs port (check): UIRegion::UIRegion empty-box ctor; element.rs comment only
 
-## `portal/client/src/uielement/system/uielement.cpp.c` (53/104)
+## `portal/client/src/uielement/system/uielement.cpp.c` (56/104)
 
 ### UIRectangleObject
 - [ ] `UIRectangleObject::SetColor` · 005e8b30 · legions 005a9790 — needs port (check): UIRectangleObject::SetColor behaviour; implemented area ac2-gpu ui.rs but uncited
@@ -2842,9 +2842,9 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement::GetPositionFromState` · 005eae20 · legions 005ab9f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [~] `UIElement::SetVisible` · 005eafc0 · legions 005abb90 — ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 - [x] `UIElement::StartTransition` · 005eb100 · legions 005abcd0 — ac2-ui media.rs / transition.rs
-- [ ] `UIElement::StartResizing` · 005eb1f0 · legions 005abdc0 — needs port (check): UIElement::StartResizing behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::StopResizing` · 005eb370 · legions 005abf40 — needs port (check): UIElement::StopResizing behaviour; implemented area ac2-ui element.rs but uncited
-- [ ] `UIElement::MouseResizeElement` · 005eb430 · legions 005ac000 — needs port (check): UIElement::MouseResizeElement behaviour; implemented area ac2-ui element.rs but uncited
+- [x] `UIElement::StartResizing` · 005eb1f0 · legions 005abdc0 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+- [x] `UIElement::StopResizing` · 005eb370 · legions 005abf40 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+- [x] `UIElement::MouseResizeElement` · 005eb430 · legions 005ac000 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
 - [ ] `UIElement::AddImageToState` · 005eb9c0 · legions 005ac590 — needs port (check): UIElement::AddImageToState behaviour; implemented area ac2-ui element.rs but uncited
 - [x] `UIElement::AddAttributesForState` · 005ebaf0 · legions 005ac6c0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 - [x] `UIElement::InqLocation` · 005ebb80 · legions 005ac750 — ac2-ui window_locations.rs (inq_locations / apply_locations, clip conversions, drag bar movement); tests window_locations_tests.rs on real HUD
@@ -3357,17 +3357,17 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_PanelPage::StartUseActive` · 005f8910 · legions 005b9440 — ac2-ui panel.rs
 - [ ] `UIElement_PanelPage::Register` · 005f8980 · legions 005b94b0 — needs port (check): UIElement_PanelPage::Register behaviour; implemented area ac2-ui panel.rs but uncited
 
-## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (0/8)
+## `portal/client/src/uielement/types/uielement_resizebar.cpp.c` (2/8)
 
 ### UIElement_Resizebar
-- [ ] `UIElement_Resizebar::MouseDown` · 005f8050 · legions 005b8b80 — needs port (check): UIElement_Resizebar::MouseDown behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::MouseUp` · 005f81d0 · legions 005b8d00 — needs port (check): UIElement_Resizebar::MouseUp behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::UpdateLayout` · 005f8230 · legions 005b8d60 — needs port (check): UIElement_Resizebar::UpdateLayout behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::SetState` · 005f8300 · legions 005b8e30 — needs port (check): UIElement_Resizebar::SetState behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::SetAttribute_Bool` · 005f8320 · legions 005b8e50 — needs port (check): UIElement_Resizebar::SetAttribute_Bool behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::UIElement_Resizebar` · 005f8360 · legions 005b8e90 — needs port (check): UIElement_Resizebar::UIElement_Resizebar lifecycle (create/teardown: listeners, children, surfaces); ac2-ui window_locations.rs
-- [ ] `UIElement_Resizebar::Create` · 005f83c0 — needs port (check): UIElement_Resizebar::Create behaviour; implemented area ac2-ui window_locations.rs but uncited
-- [ ] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — needs port (check): UIElement_Resizebar::Register behaviour; implemented area ac2-ui window_locations.rs but uncited
+- [x] `UIElement_Resizebar::MouseDown` · 005f8050 · legions 005b8b80 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+- [x] `UIElement_Resizebar::MouseUp` · 005f81d0 · legions 005b8d00 — ac2-ui resize.rs: the grip's border_* attributes pick the edge (border_of, MouseDown), the drag moves the edges within min/max and the display (resized_box, MouseResizeElement), a resize_line outline is applied at the release (StopResizing); resize_tests.rs on the HUD strip and the chat strip layouts
+- [~] `UIElement_Resizebar::UpdateLayout` · 005f8230 · legions 005b8d60 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [~] `UIElement_Resizebar::SetState` · 005f8300 · legions 005b8e30 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [~] `UIElement_Resizebar::SetAttribute_Bool` · 005f8320 · legions 005b8e50 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [~] `UIElement_Resizebar::UIElement_Resizebar` · 005f8360 · legions 005b8e90 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [~] `UIElement_Resizebar::Create` · 005f83c0 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [~] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
 
 ## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (11/28)
 

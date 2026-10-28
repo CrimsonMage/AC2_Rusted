@@ -61,7 +61,7 @@ pub fn clip_to_pixel(cx: f32, cy: f32, width: i32, height: i32) -> (i32, i32) {
 /// An element moved by its drag bar: the start of the drag and where the element was.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub(crate) struct Movement {
-    element: usize,
+    pub(crate) element: usize,
     start_pointer: (i32, i32),
     start_pos: (i32, i32),
 }

@@ -137,6 +137,7 @@ impl UiTree {
         // (`UpdateMouse` runs in the next `UseTime`).
         self.drag_mouse_move();
         self.movement_mouse_move();
+        self.resize_mouse_move();
         self.text_drag_move();
         self.update_mouse();
     }
@@ -298,8 +299,9 @@ impl UiTree {
         self.update_mouse();
         self.drag_mouse_up(action);
         if action == UI_LEFT_BUTTON {
-            // The release ends a move, by a drag bar or by Alt + drag.
+            // The release ends a move, by a drag bar or by Alt + drag, and a resize by its grip.
             self.end_movement();
+            self.end_resizing();
         }
     }
 
@@ -333,6 +335,7 @@ impl UiTree {
             *processed = true;
         }
         self.dragbar_mouse_down(index, action);
+        self.resizebar_mouse_down(index, action);
         self.button_mouse_down(index, action, processed);
         self.menu_mouse_down(index, action, processed);
         self.text_mouse_down(index, action);

@@ -246,6 +246,8 @@ pub struct UiTree {
     pub(crate) drag: crate::drag::DragState,
     /// The element being moved by its drag bar (`UIElement::m_moving`).
     pub(crate) movement: Option<crate::window_locations::Movement>,
+    /// A window being resized by its grip (`UIElement::m_resizing`).
+    pub(crate) resizing: Option<crate::resize::Resizing>,
     /// A window that saves its location moved (`location_changed`), until taken.
     pub(crate) locations_changed: bool,
     /// The clipboard the text elements copy, cut and paste through (`text_clip.rs`).
@@ -321,6 +323,7 @@ impl UiTree {
             new_tooltip_owner: None,
             drag: crate::drag::DragState::default(),
             movement: None,
+            resizing: None,
             locations_changed: false,
             text_clipboard: std::sync::Arc::new(crate::text_clipboard::MemoryClipboard::default()),
             text_drag: None,

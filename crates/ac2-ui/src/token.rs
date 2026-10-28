@@ -93,3 +93,14 @@ pub const ALLOW_RESIZE: u32 = tokenize("allow_resize");
 /// `Token_Dragbar` (the `UIElement_Dragbar` class) and its `disabled` attribute.
 pub const DRAGBAR: u32 = tokenize("dragbar");
 pub const DRAGBAR_DISABLED: u32 = tokenize("disabled");
+/// `Token_Resizebar` (the `UIElement_Resizebar` class), its `border_left` / `border_right` /
+/// `border_top` / `border_bottom` attributes (which edge the grip drags), and its `disabled`
+/// attribute (`Token_Resizebar_disabled`, the same name as the drag bar's).
+pub const RESIZEBAR: u32 = tokenize("resizebar");
+pub const BORDER_LEFT: u32 = tokenize("border_left");
+pub const BORDER_RIGHT: u32 = tokenize("border_right");
+pub const BORDER_TOP: u32 = tokenize("border_top");
+pub const BORDER_BOTTOM: u32 = tokenize("border_bottom");
+pub const RESIZEBAR_DISABLED: u32 = tokenize("disabled");
+/// `Token_Element_resize_line`: a window resized by an outline, moved and sized at the release.
+pub const RESIZE_LINE: u32 = tokenize("resize_line");
