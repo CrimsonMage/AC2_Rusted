@@ -589,7 +589,7 @@ key	status	note
 00423690	x	ac2-physics bsp/tree.rs, position.rs: physics-BSP collision in mesh space (asm float order; Legions identical)
 00423750	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
 004237a0	-	notice handlers are registered per object by the session in Rust (no per-object handler table)
-004237d0	~	ac2-ui selection_notices.rs last_attacker_notice; ac2-client target_select.rs: the auto-target select with nothing selected. Producer ECM_Physics::SendNotice_E_LastAttacker (from StoryManager::DoStoryHook) not ported, so no notice arrives yet; LookAtSelection not modelled. Legions identical
+004237d0	x	ac2-ui selection_notices.rs last_attacker_notice (kept by ac2-weenie progress.rs for the last attacker key); ac2-client target_select.rs selects with auto-target on and nothing selected, then hud_request LookAtSelection. Producer: client_story.rs (ECM_Physics::SendNotice_E_LastAttacker). Legions identical
 00423820	x	ac2-ui selection_notices.rs set_targeting_pointer: usage cursor swapped in, saved cursor restored (real-data test); ac2-client target_select.rs routes the notice
 004238f0	x	ac2-ui target_cycle.rs farther(): the nearer-by-distance-then-id order
 00423970	x	ac2-ui target_cycle.rs type_vs_key(): the type bits against the key ranges
@@ -3043,7 +3043,7 @@ key	status	note
 00496d60	x	CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 00496de0	x	ac2-weenie session.rs: every created object (CObjectMaint::FinishEntityCreation) pushes GameplayNotice::CreateObject
 00496e70	_	needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
-00496f00	x	implemented: cited at crates/ac2-weenie/src/notice.rs:150
+00496f00	x	ac2-client client_story.rs do_story_hook: a damage hook on the player with a harmful skill (gmCWInterface::IsSkillHarmful) raises GameplayNotice::LastAttacker { object: player, attacker: the story's m_attacker_id }; combat_7160 a_creature_striking_the_player_is_its_last_attacker
 00496f90	x	ac2-weenie session.rs: an UpdateVisualDesc object action (SetLocalVisualDesc) pushes GameplayNotice::LocalVisualDescUpdate
 00497010	_	needs port: notice ModeUpdate to the UI/client; no citation in crates/
 00497090	_	needs port: notice NextFrameDrawn to the UI/client; no citation in crates/
@@ -5674,7 +5674,7 @@ key	status	note
 00514cd0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00514d20	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00514dd0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00514ff0	~	ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (gmCWInterface::GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0). Not yet: missile hooks (types 2, 3), SendNotice_E_LastAttacker; combat_view_7160 sees Damage_Hit1 on the target
+00514ff0	~	ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0) with the story's m_attacker_id, and on the player with a harmful skill SendNotice_E_LastAttacker. Not yet: missile hooks (types 2, 3: CreateAndParentMissiles, FireMissile); combat_view_7160 sees Damage_Hit1 on the target
 005152e0	x	ac2-physics story.rs current_hooks: the hooks whose m_animHookNumber the animation has reached
 00515370	x	ac2-physics story.rs finish: one animation hook at a time until every hook fired, then cleanup
 005153b0	x	ac2-physics story.rs StoryManager::do_story: finishes a running story, sorts the hooks by m_animHookNumber (multiset order), runs the attacker behaviour with the next context (ac2-client client_story.rs: body.do_behavior, true unless the body is frozen, as CPhysicsObj::DoBehavior returns 1), else finishes; story_tests.rs, combat_view_7160

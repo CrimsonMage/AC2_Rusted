@@ -208,6 +208,14 @@ impl State {
         }
     }
 
+    /// A creature strikes the player unprovoked: one blow of its melee attack (the player's
+    /// attack is not started).
+    pub fn creature_strikes(&mut self, creature: u64) {
+        if self.is_live_creature(creature) && !self.fight.player_dead {
+            self.hit(creature, PLAYER, MELEE_AUTO_ATTACK, HIT, CREATURE_DAMAGE);
+        }
+    }
+
     /// Queues a combat answer (a test can send one directly).
     pub fn send_combat(&mut self, message: &CombatMessage) {
         self.send_script_call(message.function(), &message.arguments());

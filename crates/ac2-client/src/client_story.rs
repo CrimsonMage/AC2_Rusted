@@ -9,7 +9,7 @@ use ac2_script::host::interface_calls::InterfaceCalls;
 use ac2_script::host::IFunArg;
 use ac2_script::native::{FxAndBehavior, NativeObject};
 use ac2_ui::{story_scenes, StoryEvent};
-use ac2_weenie::{GameplayNotice, SceneInfo, SessionEvent};
+use ac2_weenie::{GameplayNotice, SceneInfo, SessionEvent, NO_SELECTION};
 
 use crate::client::Client;
 use crate::scripts_queries::ifun;
@@ -265,7 +265,8 @@ impl Client {
     /// skill and the hook's attack hook number and attack result): the attacker's FX on the
     /// story's `object`, the target's reaction and FX on the hook's target, and the weapon's on
     /// its weapon. Then a damage hook reaches the script as `gmCWInterface::DoUIDamage` with
-    /// `object` as the context. Missile hooks (types 2 and 3) are not played.
+    /// the story's attacker, and a harmful skill on the player names that attacker in a
+    /// `LastAttacker` notice. Missile hooks (types 2 and 3) are not played.
     fn do_story_hook(&mut self, object: u64, story: &PhysicsStory, hook: &StoryHook) {
         if let Some(info) = self.story_fx_info(story, hook) {
             if info.attacker_fx != 0 {
@@ -292,8 +293,11 @@ impl Client {
         let Some(target) = hook.target else {
             return;
         };
+        // The story's attacker (`PhysicsStory::m_attacker_id`), not the object it plays on: a
+        // victim's story names who hit it.
+        let attacker = story.attacker.unwrap_or(NO_SELECTION);
         let args = [
-            IFunArg::Long(object),
+            IFunArg::Long(attacker),
             IFunArg::Long(target),
             IFunArg::Int(story.skill.unwrap_or(0)),
             IFunArg::Int(hook.attack_result.unwrap_or(0)),
@@ -304,6 +308,19 @@ impl Client {
         ];
         // A call that fails leaves the hook's text out; the problem is in the scripts' list.
         let _ = self.call_ifun(ifun::DO_UI_DAMAGE, &args);
+        // A harmful skill on the player names its attacker: `ECM_Physics::SendNotice_E_LastAttacker`
+        // on the player, which `gmSelectionUI` keeps for its key and auto-selects with.
+        let skill = story.skill.unwrap_or(0);
+        if self.session.player() == Some(target)
+            && skill != 0
+            && self.is_skill_harmful(skill).unwrap_or(false)
+        {
+            self.story_outbox
+                .push(SessionEvent::Notice(GameplayNotice::LastAttacker {
+                    object: target,
+                    attacker,
+                }));
+        }
     }
 
     /// The `FXAndBehaviorInfo` the script fills for the hook; `None` without a script, or when

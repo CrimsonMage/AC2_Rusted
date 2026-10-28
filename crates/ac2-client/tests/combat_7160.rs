@@ -21,7 +21,8 @@ use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_weenie::{GameplayNotice, SessionEvent};
 use common::*;
 use legions_server_double::{
-    lifestone, Spawn, CORPSE, CORPSE_ITEM, CORPSE_SKIN, CREATURE_ONE, MELEE_AUTO_ATTACK, PLAYER,
+    lifestone, Spawn, CORPSE, CORPSE_ITEM, CORPSE_SKIN, CREATURE_ONE, CREATURE_TWO,
+    MELEE_AUTO_ATTACK, PLAYER,
 };
 
 fn spawn() -> Spawn {
@@ -715,6 +716,47 @@ fn a_declined_resurrection_offer_runs_the_clear_ifun_on_the_script() {
         &server,
         vec![Command::ClearResurrectionRequest],
         1,
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
+/// A creature's blow on the player names it the last attacker (`StoryManager::DoStoryHook`
+/// raises `ECM_Physics::SendNotice_E_LastAttacker` for a harmful skill on the player), which
+/// `gmSelectionUI` keeps for its last attacker key and auto-selects with.
+#[test]
+fn a_creature_striking_the_player_is_its_last_attacker() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    let last_attackers = |events: Vec<SessionEvent>| -> Vec<u64> {
+        notices(events)
+            .into_iter()
+            .filter_map(|n| match n {
+                GameplayNotice::LastAttacker { object, attacker } if object == PLAYER => {
+                    Some(attacker)
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    server.borrow_mut().creature_strikes(CREATURE_TWO);
+    let events = advance(&mut client, &server, 0.5);
+    assert_eq!(last_attackers(events), vec![CREATURE_TWO]);
+    assert_eq!(
+        client.session().progress().selection.last_attacker,
+        Some(CREATURE_TWO)
+    );
+    server.borrow_mut().creature_strikes(CREATURE_ONE);
+    let events = advance(&mut client, &server, 0.5);
+    assert_eq!(last_attackers(events), vec![CREATURE_ONE]);
+    // The player's own blow on a creature names no attacker of the player.
+    select_creature(&mut client, &server);
+    let mut events = events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    events.extend(advance(&mut client, &server, HIT_INTERVAL + 0.5));
+    assert_eq!(
+        last_attackers(events),
+        vec![CREATURE_ONE],
+        "the creature's blow back only"
     );
     assert!(client.take_script_problems().is_empty());
 }

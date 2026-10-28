@@ -1443,7 +1443,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60 — CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 - [x] `ECM_Physics::SendNotice_CreateObject` · 00496de0 — ac2-weenie session.rs: every created object (CObjectMaint::FinishEntityCreation) pushes GameplayNotice::CreateObject
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70 — needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
-- [x] `ECM_Physics::SendNotice_E_LastAttacker` · 00496f00 — implemented: cited at crates/ac2-weenie/src/notice.rs:150
+- [x] `ECM_Physics::SendNotice_E_LastAttacker` · 00496f00 — ac2-client client_story.rs do_story_hook: a damage hook on the player with a harmful skill (gmCWInterface::IsSkillHarmful) raises GameplayNotice::LastAttacker { object: player, attacker: the story's m_attacker_id }; combat_7160 a_creature_striking_the_player_is_its_last_attacker
 - [x] `ECM_Physics::SendNotice_LocalVisualDescUpdate` · 00496f90 · legions 0048f660 — ac2-weenie session.rs: an UpdateVisualDesc object action (SetLocalVisualDesc) pushes GameplayNotice::LocalVisualDescUpdate
 - [ ] `ECM_Physics::SendNotice_ModeUpdate` · 00497010 — needs port: notice ModeUpdate to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_NextFrameDrawn` · 00497090 — needs port: notice NextFrameDrawn to the UI/client; no citation in crates/

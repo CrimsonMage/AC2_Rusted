@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1277 done, 341 partial, 134 to do, 495 skipped.
+2247 retail functions: 1278 done, 340 partial, 134 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -447,7 +447,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (12/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (13/24)
 
 ### LandDefs
 - [ ] `LandDefs::in_bounds` · 004233a0 · legions 00423170 — needs port: LandDefs::in_bounds behaviour
@@ -466,7 +466,7 @@ Legend and workflow: [README](README.md).
 ### gmSelectionUI
 - [-] `gmSelectionUI::RegisterObjectMessages` · 00423750 · legions 00423520 — notice handlers are registered per object by the session in Rust (no per-object handler table)
 - [-] `gmSelectionUI::RecvNotice_CreateObject` · 004237a0 — notice handlers are registered per object by the session in Rust (no per-object handler table)
-- [~] `gmSelectionUI::RecvNotice_E_LastAttacker` · 004237d0 · legions 004235a0 — ac2-ui selection_notices.rs last_attacker_notice; ac2-client target_select.rs: the auto-target select with nothing selected. Producer ECM_Physics::SendNotice_E_LastAttacker (from StoryManager::DoStoryHook) not ported, so no notice arrives yet; LookAtSelection not modelled. Legions identical
+- [x] `gmSelectionUI::RecvNotice_E_LastAttacker` · 004237d0 · legions 004235a0 — ac2-ui selection_notices.rs last_attacker_notice (kept by ac2-weenie progress.rs for the last attacker key); ac2-client target_select.rs selects with auto-target on and nothing selected, then hud_request LookAtSelection. Producer: client_story.rs (ECM_Physics::SendNotice_E_LastAttacker). Legions identical
 - [x] `gmSelectionUI::RecvNotice_SetTargetingPointer` · 00423820 — ac2-ui selection_notices.rs set_targeting_pointer: usage cursor swapped in, saved cursor restored (real-data test); ac2-client target_select.rs routes the notice
 - [x] `gmSelectionUI::Farther` · 004238f0 · legions 004236c0 — ac2-ui target_cycle.rs farther(): the nearer-by-distance-then-id order
 - [x] `gmSelectionUI::TargetTypeVsKey` · 00423970 · legions 00423740 — ac2-ui target_cycle.rs type_vs_key(): the type bits against the key ranges
