@@ -23,6 +23,7 @@ pub mod sky;
 pub mod streak;
 mod streak_objects;
 pub mod terrain;
+pub mod ui_scene;
 mod view;
 
 pub use image::{

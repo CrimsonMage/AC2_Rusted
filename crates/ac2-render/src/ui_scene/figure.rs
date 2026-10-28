@@ -3,10 +3,10 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
+use crate::object::ObjectPose;
 use ac2_anim::Ac2Transform;
 use ac2_assets::Ac2VisualDesc;
 use ac2_math::{Frame, Mat4, Vec3};
-use ac2_render::object::ObjectPose;
 
 use super::data::SceneData;
 
@@ -109,7 +109,7 @@ impl Placed {
 
 /// `CPhysicsObj::add_child`: the child's frame on its parent's location (the parent's scale
 /// moves the location, not the child's size).
-pub(crate) fn held_frame(parent: &Frame, scale: Vec3, location: &Ac2Transform) -> Frame {
+pub fn held_frame(parent: &Frame, scale: Vec3, location: &Ac2Transform) -> Frame {
     let offset = parent.orientation * (location.offset * scale);
     Frame::new(
         parent.origin + offset,

@@ -188,6 +188,7 @@ dependencies = [
  "ac2-math",
  "ac2-physics",
  "ac2-prefs",
+ "ac2-smartbox",
  "ac2-world",
 ]
 

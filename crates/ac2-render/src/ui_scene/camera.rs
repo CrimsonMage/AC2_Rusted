@@ -14,9 +14,9 @@
 //! disabled; a scene without lights gets ambient 0.1 and the sun along (0.3, -0.9, -1) at
 //! half white (`SetAmbientLight`, `SetSunlight`).
 
+use crate::object::{object_point_lights, PointLight, SceneLight};
+use crate::{Camera, SceneLighting};
 use ac2_math::Vec3;
-use ac2_render::object::{object_point_lights, PointLight, SceneLight};
-use ac2_render::{Camera, SceneLighting};
 use ac2_world::{Ac2LightKind, Ac2StaticLight};
 
 use super::data::{CameraData, LightData, SceneData, LIGHT_DIRECTIONAL};
@@ -38,10 +38,7 @@ const CAMERA_LIGHT_AMBIENT: f32 = 0.1;
 
 /// The camera entity a viewport names (`UIElement_Viewport::SetCameraID`), else the scene's
 /// first.
-pub(crate) fn camera_entity<'a>(
-    scene: &'a SceneData,
-    name: Option<&str>,
-) -> Option<&'a CameraData> {
+pub fn camera_entity<'a>(scene: &'a SceneData, name: Option<&str>) -> Option<&'a CameraData> {
     scene
         .cameras
         .iter()
@@ -52,7 +49,7 @@ pub(crate) fn camera_entity<'a>(
 /// `SceneTool::SetupCamera`: the camera at its frame; an orthographic one (`vertical_scale`
 /// metres high) from [`ORTHO_DISTANCE`] behind. Also the distance the eye stands behind the
 /// camera's origin (for the fog).
-pub(crate) fn scene_camera(camera: &CameraData) -> (Camera, f32) {
+pub fn scene_camera(camera: &CameraData) -> (Camera, f32) {
     let forward = camera.frame.orientation * Vec3::Y;
     let origin = camera.frame.origin;
     if !camera.orthographic {
@@ -81,7 +78,7 @@ pub(crate) fn scene_camera(camera: &CameraData) -> (Camera, f32) {
 /// The frame's lighting and the point lights each object gets: the scene's lights linked
 /// (`LinkLight`) with the sun off, or the default sun and ambient. `camera_light` is avatar
 /// modification's direction for `Light_1`.
-pub(crate) fn scene_lighting(scene: &SceneData, camera_light: Option<Vec3>) -> SceneLighting {
+pub fn scene_lighting(scene: &SceneData, camera_light: Option<Vec3>) -> SceneLighting {
     let fog = scene.fog;
     let mut lighting = SceneLighting {
         light_dir: Vec3::ZERO,
@@ -139,7 +136,7 @@ fn set_directional(lighting: &mut SceneLighting, direction: Vec3, color: [f32; 3
 
 /// The scene's point lights as static lights (`LightSource` at the entity's origin); with a
 /// camera light, `Light_1` is directional instead.
-pub(crate) fn point_lights(scene: &SceneData, camera_light: bool) -> Vec<SceneLight> {
+pub fn point_lights(scene: &SceneData, camera_light: bool) -> Vec<SceneLight> {
     scene
         .lights
         .iter()
@@ -163,7 +160,7 @@ pub(crate) fn point_lights(scene: &SceneData, camera_light: bool) -> Vec<SceneLi
 }
 
 /// `SceneTool::CacheStaticLights` for an object at `position` with radius `radius`.
-pub(crate) fn object_lights(lights: &[SceneLight], position: Vec3, radius: f32) -> Vec<PointLight> {
+pub fn object_lights(lights: &[SceneLight], position: Vec3, radius: f32) -> Vec<PointLight> {
     object_point_lights(lights, position, radius, false)
 }
 

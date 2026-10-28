@@ -11,9 +11,8 @@
 //! viewport (`ac2_render::selection::pick_part` over every physics object of the scene) and the
 //! mesh type of the part hit (`ObjectSelection::meshType`).
 
-pub(crate) mod camera;
+pub(crate) use ac2_render::ui_scene::camera;
 pub(crate) mod data;
-mod figure;
 mod render;
 
 use std::collections::hash_map::DefaultHasher;
@@ -33,10 +32,10 @@ use ac2_render::Camera;
 use ac2_ui::SceneViewport;
 use ac2_world::Ac2WorldSource;
 
-pub use data::{CameraData, EntityData, LightData, ObjectData, SceneData};
+pub use ac2_render::ui_scene::data::{CameraData, EntityData, LightData, ObjectData, SceneData};
+use ac2_render::ui_scene::figure::held_frame;
+pub use ac2_render::ui_scene::figure::{figure_key, scene_figures, At, Drawn, Figure, Placed};
 use data::{Request, SceneLoader};
-use figure::held_frame;
-pub use figure::{figure_key, scene_figures, At, Drawn, Figure, Placed};
 pub use render::render_with_scenes;
 
 /// Per-frame time for taking finished model loads (`DBCache::UseTime`'s pump).
@@ -193,10 +192,9 @@ impl UiScenes {
             else {
                 continue;
             };
-            let mut physics =
-                PhysicsBody::new(Position::default(), body.body.shape, body.body.motion);
-            physics.set_radius(body.body.radius);
-            if let Some(animation) = body.body.animation {
+            let mut physics = PhysicsBody::new(Position::default(), body.shape, body.motion);
+            physics.set_radius(body.radius);
+            if let Some(animation) = body.animation {
                 physics.set_animation(animation);
             }
             if let Some(mode) = figure.mode {
