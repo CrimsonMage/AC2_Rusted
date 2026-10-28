@@ -173,16 +173,18 @@ pub fn load_help_table(
 pub const KEYSTONE_PANEL_KEY: u32 = 0x4000_00BB;
 
 /// The help buttons whose panel's `ListenToMessage` opens a topic (`elementID == ...HelpButton`,
-/// then `KeyStone::OpenHelp`), as (button element name, topic id). `gmBookUI` and `gmSocialUI`
-/// return their help request from their own panel instead. `ShopHelpButton` is both `gmShopUI`'s
-/// and `gmShopNewSaleUI`'s; the HUD routes the new-sale one while its dialog shows.
+/// then `KeyStone::OpenHelp`), as (button element name, topic id). The name is the one the class
+/// tokenizes in its init (`Tokenize("ConsignmentHelpButton")`, admin 7148). `gmBookUI` and
+/// `gmSocialUI` return their help request from their own panel instead. `gmShopNewSaleUI` has its
+/// own button (`NewSaleHelpButton`), which opens the consignment page; it is not the shop's.
 pub const HELP_BUTTONS: &[(&str, &str)] = &[
     ("ShopHelpButton", "ID_Help_Shop"),
     ("CatalogHelpButton", "ID_Help_ShopCatalog"),
-    ("HelpButton", "ID_Help_ShopConsignment"),
+    ("ConsignmentHelpButton", "ID_Help_ShopConsignment"),
+    ("NewSaleHelpButton", "ID_Help_ShopConsignment"),
     ("SkillHelpButton", "ID_Help_Skill"),
     ("NavigationHelpButton", "ID_Help_Navigation"),
-    ("OptionHelpButton", "ID_Help_Option"),
+    ("OptionsHelpButton", "ID_Help_Option"),
     ("OverviewMapHelpButton", "ID_Help_OverviewMap"),
     ("InventoryHelpButton", "ID_Help_Inventory"),
     ("QuestHelpButton", "ID_Help_Quest"),

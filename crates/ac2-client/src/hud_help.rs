@@ -14,11 +14,6 @@ use ac2_ui::{
 
 use crate::hud_view::HudView;
 
-/// The shop button of the new-sale dialog shares its element name (`ShopHelpButton`) with the
-/// shop's; it opens the consignment page while the dialog shows, the shop's page otherwise.
-const SHOP_TOPIC: &str = "ID_Help_Shop";
-const CONSIGNMENT_TOPIC: &str = "ID_Help_ShopConsignment";
-
 impl HudView {
     /// `KeyStone::OpenHelp(token)`: the topic's page in the help window (token 0 is the default
     /// page). The window reads the pages it already holds; no file is read here.
@@ -69,12 +64,6 @@ impl HudView {
             return None;
         }
         let topic = help_button_topic(message.element_id)?;
-        let shop_dialog = self.new_sale.as_ref().is_some_and(|panel| panel.is_shown());
-        let id = if shop_dialog && topic.id == SHOP_TOPIC {
-            CONSIGNMENT_TOPIC
-        } else {
-            topic.id
-        };
-        Some(tokenize(id))
+        Some(tokenize(topic.id))
     }
 }

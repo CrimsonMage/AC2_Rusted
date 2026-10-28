@@ -163,6 +163,8 @@ mod story_view_tests;
 pub use story_view::StoryView;
 pub mod help;
 #[cfg(test)]
+mod help_buttons_tests;
+#[cfg(test)]
 mod help_tests;
 pub mod help_view;
 #[cfg(test)]
