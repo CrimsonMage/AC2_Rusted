@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 768 done, 171 partial, 454 to do, 511 skipped.
+1904 retail functions: 770 done, 172 partial, 451 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1390,7 +1390,7 @@ Legend and workflow: [README](README.md).
 ### PSmartArray<PStringBase<unsigned_short>_>
 - [-] `PSmartArray<PStringBase<unsigned_short>_>::StreamPack` · 00493de0 — STL/container internals: a Rust collection replaces it
 
-## `portal/client/src/events/ecm_physics.cpp.c` (43/59)
+## `portal/client/src/events/ecm_physics.cpp.c` (44/59)
 
 ### TargetPosition
 - [-] `TargetPosition::TargetPosition` · 00494c30 · legions 0048d400 — constructor of plain data: Rust struct init replaces it
@@ -1440,7 +1440,7 @@ Legend and workflow: [README](README.md).
 
 ### ECM_Physics
 - [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
-- [ ] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60 — needs port: notice BeingDeleted to the UI/client; no citation in crates/
+- [x] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60 — CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 - [ ] `ECM_Physics::SendNotice_CreateObject` · 00496de0 — needs port: notice CreateObject to the UI/client; no citation in crates/
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70 — needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
 - [x] `ECM_Physics::SendNotice_E_LastAttacker` · 00496f00 — implemented: cited at crates/ac2-weenie/src/notice.rs:150
@@ -2583,7 +2583,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWInterface::~CWInterface` · 0052e2b0 · legions 005125f0 — destructor: Rust Drop replaces it
 - [ ] `CWInterface::HandleCreation` · 0052e2e0 — needs port: interface handle creation; no citation in crates/
 - [ ] `CWInterface::HandleDestruction` · 0052e3c0 · legions 00512700 — needs port: interface handle destruction; no citation in crates/
-- [ ] `CWInterface::ObjectBeingDestructed` · 0052e3f0 · legions 00512730 — needs port: interface object being destructed; no citation in crates/
+- [~] `CWInterface::ObjectBeingDestructed` · 0052e3f0 · legions 00512730 — CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
 - [ ] `CWInterface::HandleEnterWorld` · 0052e410 · legions 00512750 — needs port: interface handle enter world; no citation in crates/
 - [ ] `CWInterface::HandleLeaveWorld` · 0052e440 · legions 00512780 — needs port: interface handle leave world; no citation in crates/
 - [ ] `CWInterface::HandlePostLeaveWorld` · 0052e470 · legions 005127b0 — needs port: interface handle post leave world; no citation in crates/
@@ -2827,11 +2827,11 @@ Legend and workflow: [README](README.md).
 - [ ] `CWBookKeeper::RemoveObjectToBeDestroyed` · 0052de00 · legions 005122a0 — needs port: cwbook keeper::remove object to be destroyed; no citation in crates/
 - [-] `CWBookKeeper::~CWBookKeeper` · 0052de10 · legions 005122b0 — destructor: Rust Drop replaces it
 
-## `portal/shared/src/weenie/weenieobject.cpp.c` (1/9)
+## `portal/shared/src/weenie/weenieobject.cpp.c` (2/9)
 
 ### CWeenieObject
 - [x] `CWeenieObject::IsMobile` · 0052fa90 · legions 00513c50 — implemented: cited at crates/ac2-physics/src/body.rs:218
-- [ ] `CWeenieObject::ObjectBeingDestructed` · 0052fab0 · legions 00513c70 — needs port: cweenie object::object being destructed; no citation in crates/
+- [x] `CWeenieObject::ObjectBeingDestructed` · 0052fab0 · legions 00513c70 — CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 - [-] `CWeenieObject::CWeenieObject` · 0052fad0 · legions 00513c90 — constructor of plain data: Rust struct init replaces it
 - [-] `CWeenieObject::GetNoticeHandlers` · 0052fb00 · legions 00513cc0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 - [-] `CWeenieObject::RegisterNoticeHandler` · 0052fb40 · legions 00513d00 — notice-handler registry: Rust dispatches notices by enum, no handler list

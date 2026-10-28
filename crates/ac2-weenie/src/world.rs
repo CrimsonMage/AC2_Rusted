@@ -184,6 +184,12 @@ impl World {
         if self.objects.get(id).is_none() {
             return;
         }
+        // `CBookKeep::ObjectBeingDestructed`: the object's physics children are let go and each
+        // is queued for destruction as an out-of-view object (`CBookKeep::AddObjectToBeDestroyed`,
+        // 25 s unless it comes back). Their own children go with them.
+        for child in self.objects.children(id) {
+            self.add_object_to_be_destroyed(child);
+        }
         self.objects.remove(id);
         self.bookies.remove(&id);
         self.destruction.forget(id);

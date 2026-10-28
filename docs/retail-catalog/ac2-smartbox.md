@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 91 done, 35 partial, 90 to do, 46 skipped.
+262 retail functions: 91 done, 36 partial, 89 to do, 46 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -26,7 +26,7 @@ Legend and workflow: [README](README.md).
 - [x] `CBookKeep::RemoveObjectToBeDestroyed` · 004da060 · legions 004ccad0
 - [x] `CBookKeep::HandleEnterWorld` · 004da0f0 · legions 004ccb60
 - [x] `CBookKeep::HandleLeaveWorld` · 004da120 · legions 004ccb90
-- [ ] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0 — needs port (check): bookie cell change / creation / parent / destruction; ac2-weenie world.rs has enter, leave and lost-cell bookkeeping but no citation here
+- [~] `CBookKeep::ObjectBeingDestructed` · 004da150 · legions 004ccbc0 — CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
 - [x] `CBookKeep::HandleVisualOrderedBlob` · 004da200 · legions 004ccc70
 
 ## `portal/client/src/objects/clostcell.cpp.c` (2/4)

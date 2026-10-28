@@ -265,6 +265,41 @@ fn an_object_out_of_view_is_destroyed_after_25_seconds_unless_it_comes_back() {
     assert_eq!(world.use_time(151.0), [WorldEvent::Destroyed(npc)]);
 }
 
+/// `CBookKeep::ObjectBeingDestructed`: a child held by the destroyed object is queued for
+/// destruction 25 s after the parent goes, and stays if it comes back.
+#[test]
+fn a_destroyed_objects_children_are_queued_for_destruction() {
+    let npc = 0x7000_0000_0000_0042;
+    let child = 0x7000_0000_0000_0043;
+    let mut world = world_with(npc);
+    world.receive(blob(0x0300_0004, 4, create_object(child, 1, 0)), 10.0);
+    // `RecvEvt_Parent`: the child (instance 1) is held by the npc (instance 4) at location 0.
+    let mut parent = npc.to_le_bytes().to_vec();
+    parent.extend(4u16.to_le_bytes());
+    parent.extend(1u16.to_le_bytes());
+    parent.extend([0u8; 8]);
+    world.receive(
+        blob(0x0300_0005, 5, object_event(0x0001_0087, child, 1, &parent)),
+        10.0,
+    );
+    assert_eq!(
+        world.objects.get(child).and_then(|o| o.parent),
+        Some((npc, 0))
+    );
+    world.receive(
+        blob(0x0300_0006, 6, object_event(0x0001_00C2, npc, 4, &[])),
+        10.0,
+    );
+    assert_eq!(world.use_time(10.0), [WorldEvent::Destroyed(npc)]);
+    assert!(world.is_to_be_destroyed(child));
+    assert!(world.use_time(34.9).is_empty());
+    world.remove_object_to_be_destroyed(child);
+    assert!(world.use_time(40.0).is_empty());
+    assert!(world.objects.get(child).is_some());
+    world.add_object_to_be_destroyed(child);
+    assert_eq!(world.use_time(65.0), [WorldEvent::Destroyed(child)]);
+}
+
 #[test]
 fn leave_world_on_a_newer_stamp_queues_the_object_for_destruction() {
     let npc = 0x7000_0000_0000_0042;

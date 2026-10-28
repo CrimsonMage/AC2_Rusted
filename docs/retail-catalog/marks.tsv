@@ -3040,7 +3040,7 @@ key	status	note
 00496b00	x	ac2-physics physics_obj_impulse.rs add_impulse / add_targeted_impulse (velocity add, contact cleared, push from the target's position); ac2-net physics_event.rs decodes 0x10098/0x10099; ac2-client motion.rs apply_from; tests physics_obj_tests impulse cases, physics_event tests, tests/impulse_7160.rs. The contact argument is passed through as a velocity-setter note, not separated
 00496c10	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00496cb0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
-00496d60	_	needs port: notice BeingDeleted to the UI/client; no citation in crates/
+00496d60	x	CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 00496de0	_	needs port: notice CreateObject to the UI/client; no citation in crates/
 00496e70	_	needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
 00496f00	x	implemented: cited at crates/ac2-weenie/src/notice.rs:150
@@ -4362,7 +4362,7 @@ key	status	note
 004da060	x	
 004da0f0	x	
 004da120	x	
-004da150	_	needs port (check): bookie cell change / creation / parent / destruction; ac2-weenie world.rs has enter, leave and lost-cell bookkeeping but no citation here
+004da150	~	CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
 004da200	x	
 004da230	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 004da250	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
@@ -6128,7 +6128,7 @@ key	status	note
 0052e2b0	-	destructor: Rust Drop replaces it
 0052e2e0	_	needs port: interface handle creation; no citation in crates/
 0052e3c0	_	needs port: interface handle destruction; no citation in crates/
-0052e3f0	_	needs port: interface object being destructed; no citation in crates/
+0052e3f0	~	CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
 0052e410	_	needs port: interface handle enter world; no citation in crates/
 0052e440	_	needs port: interface handle leave world; no citation in crates/
 0052e470	_	needs port: interface handle post leave world; no citation in crates/
@@ -6177,7 +6177,7 @@ key	status	note
 0052f990	x	implemented: cited at crates/ac2-client/src/chat_commands.rs:3
 0052fa10	_	needs port: interface add shell help by string id; no citation in crates/
 0052fa90	x	implemented: cited at crates/ac2-physics/src/body.rs:218
-0052fab0	_	needs port: cweenie object::object being destructed; no citation in crates/
+0052fab0	x	CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 0052fad0	-	constructor of plain data: Rust struct init replaces it
 0052fb00	-	notice-handler registry: Rust dispatches notices by enum, no handler list
 0052fb40	-	notice-handler registry: Rust dispatches notices by enum, no handler list
