@@ -17,7 +17,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [-] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs selection_changed: the meters, the name and now the selection's radar-look colour (font_color_red/green/blue from the radar blip, white without a look; ac2-client view/overlays.rs). Not ported: the off-screen indicator (hidden) and the name's quantity (GetName(quantity))
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -123,10 +123,10 @@ Legend and workflow: [README](README.md).
 
 ### gmBookUI
 - [x] `gmBookUI::AddNewlines` · 0041f480 · legions 0041f260 — ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
-- [x] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: header cut to the field width less 19; no ellipsis (its literal is not resolved)
+- [x] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: the text plus L" " (a space, Legions 0x9cbaf0, not an ellipsis) is measured; wider than a positive limit, characters come off until it fits and the text keeps the space
 - [~] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
 - [~] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
-- [~] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs BookUi::clipboard_text -> BookRequest::Copy; no clipboard device in the client (hud_book.rs drops it); the <H> replacement literal is not resolved
+- [~] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs BookUi::clipboard_text: title + L"\n\n" (Legions 0x9cbb28), page text, text after the first <T>, <H> -> empty (0x9c71f0), </H> -> newline, <BR> -> three newlines; BookRequest::Copy reaches the client but hud_book.rs drops it (no clipboard device wired)
 - [~] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 
 ## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (4/7)
@@ -134,11 +134,11 @@ Legend and workflow: [README](README.md).
 ### gmCameraUI
 - [-] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-- [~] `gmCameraUI::SendKey` · 0042bb50 — needs port (check): gmCameraUI::SendKey behaviour; implemented area ac2-ui camera_ui.rs but uncited
+- [~] `gmCameraUI::SendKey` · 0042bb50 — ac2-ui camera_ui.rs CameraUi::action (the four arrow UI actions re-sent as turn and move actions with the action as its key, device 1; Legions has SendKey inlined at the end of gmCameraUI::ListenToMessage 0x42BAA0). Not ported: the guard that drops the key when either IUIManager current-object query (vtable +0xb4, +0xb8) is true
 - [x] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [-] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
-- [x] `gmCameraUI::RecvNotice_UpdateCanMouseLook` · 0042bf50 — needs port (check): gmCameraUI::RecvNotice_UpdateCanMouseLook behaviour; implemented area ac2-ui camera_ui.rs but uncited
+- [x] `gmCameraUI::RecvNotice_UpdateCanMouseLook` · 0042bf50 — ac2-ui camera_ui.rs CameraUi::recv_notice_update_can_mouse_look (m_canMouseLook is a count: +1 for 0, -1 for non-zero; UpdateCamera follows) via controls.rs Controls::update_can_mouse_look; senders: DialogFactory (MakeDialog 0, DialogDone and a queued CloseDialog 1; dialog.rs take_mouse_look_notices) and the story slot (gameplay_story.rs MouseLook); ac2-client bin/ac2/main.rs passes both on. The Legions handler is an undecompiled vtable slot (ctor registers notice 0x455)
 
 ## `ac2/client/src/ui/gameplay/gmexternalcontainerui.cpp.c` (7/8)
 
@@ -265,7 +265,7 @@ Legend and workflow: [README](README.md).
 
 ### gmIngredientUI
 - [~] `gmIngredientUI::DestroyManagedElements` · 00415890 · legions 00415680 — ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
-- [x] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0 — ac2-ui ingredient.rs update_craft_button: ghosted while pending, mounted, out of the spinner range or past the difficulty cutoff. Not: the tooltips and the button text (their string ids are not in the decompile)
+- [x] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0 — ac2-ui ingredient.rs update_craft_button: pending only ghosts; mounted / spinner out of range / difficulty past the cutoff ghost with the ID_Craft_CraftButton_Disabled caption on CraftButtonText and the ID_Craft_TT_Mounted / InvalidSpinner / TooHard tooltip; otherwise a ghosted button gets ID_Craft_CraftButton back and no tooltip
 
 ### (free functions)
 - [x] `gmIngredientUI_DDCB` · 00415b70 — ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
@@ -273,7 +273,7 @@ Legend and workflow: [README](README.md).
 ### gmIngredientUI
 - [x] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: ID_Craft_Cost with the cost as value, on CostField (ingredient_ui_7160 asserts the text)
 - [x] `gmIngredientUI::Scale_` · 00415c50 · legions 00415a40 — ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
-- [x] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0 — ac2-ui ingredient.rs create_managed: the root made from the gameplay layout (the top-level element holding IngredientListBox; its own DAT id is not in the decompile), the list, spinner, labels and buttons looked up
+- [x] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0 — ac2-ui ingredient.rs create_managed: root RealIngredientField (Legions DAT_00a46a44), RecipeLabel, RecipeMiscText, CostField, IngredientListBox with the drop check, spinner field and buttons, AutoPopulateButton, CraftButton and CraftButtonText
 - [~] `gmIngredientUI::Show` · 00415e60 · legions 00415c50 — ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
 - [x] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0 — ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 - [x] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00 — ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
@@ -297,7 +297,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::RecvNotice_UpdateInventory` · 00416da0 — ac2-ui ingredient_slots.rs item_changed: an object in a slot is checked again (client hud_ingredient.rs)
 - [x] `gmIngredientUI::RecvNotice_UpdateContainer` · 00416df0 · legions 00416bb0 — ac2-ui ingredient_slots.rs item_changed on the container notice's item
 - [x] `gmIngredientUI::RecvNotice_ItemUpdate` · 00416e40 · legions 00416c00 — ac2-ui ingredient_slots.rs item_changed on ItemUpdate
-- [x] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60 — ac2-ui ingredient.rs open: name, description, spinner range and value, cost, skill level, the slots from InqRecipeIngredients, the craft button and the difficulty. Not: the misc text's value string (its id is not in the decompile). The spinner starts at last_spinner (the Init decompile overlays two adaptors)
+- [x] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60 — ac2-ui ingredient.rs open: name in RecipeLabel, the charges line ID_Craft_Charges in RecipeMiscText (hidden without charges), spinner range and value, cost, skill level, slots from InqRecipeIngredients, craft button, difficulty. The spinner starts at last_spinner (the Init decompile overlays two adaptors)
 - [x] `gmIngredientUI::MultiOpRemoveIngredientSlot` · 00417290 · legions 00417050 — ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
 - [x] `gmIngredientUI::UpdateIngredientSlot` · 004173f0 · legions 004171b0 — ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
 - [~] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out; gmIngredientUI_DDCB now refuses what is not an item from a container (drag_tests). Not tested through the HUD with a real pack drag
@@ -307,8 +307,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::UpdateRecipeFromSpinnerChange` · 00417b00 · legions 004178c0 — ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
 - [x] `gmIngredientUI::AutoPopulateIngredients` · 00417d20 · legions 00417ae0 — ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
 - [x] `gmIngredientUI::DoClose` · 00418060 · legions 00417e20 — ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
-- [~] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs step_spinner: the up and down buttons move the value in range (read-only spinners do not). Not: the typed spinner entry and its commit (its message id is not in the decompile)
-- [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient.rs message and ingredient_slots.rs message: the spinner buttons, auto-populate, the craft button, a drop on the list, an object dragged out of its slot. Not: the close button (its element name is not in the layout the decompile names), the typed spinner entry
+- [~] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs tick: typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped to the range, UpdateRecipeFromSpinnerChange). Not ported: the 15 s dormancy that destroys the panel (DestroyManagedElements)
+- [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 - [~] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot (icon from the object's item display, draggable); a failure frees the slot; a new spinner value follows. Not: the object's notice registration and the icon desc (the item display's icon only)
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
 - [-] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — no Legions 7160 counterpart: the DVD client's gmIngredientUI::DoClose closes the panel at once, with no close confirmation (admin only)
@@ -326,17 +326,17 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/gmoverviewmapui.cpp.c` (1/6)
 
 ### gmOverviewMapUI
-- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
+- [~] `gmOverviewMapUI::CreateManagedElements` · 0043e150 · legions 0043e9a0 — ac2-ui overview_map.rs: label is Panel_Label_OverviewMap, client area OverviewMapClientArea, close OverviewMapCloseButton (admin Tokenize strings); the help button is a generic help button (hud_help.rs ID_Help_OverviewMap). The field is hidden with the HUD rather than made on show and destroyed on hide
 - [-] `gmOverviewMapUI::~gmOverviewMapUI` · 0043e1c0 · legions 0043ea10 — C++ destructors and scalar deleting destructors: the Rust drop and the tree own these elements
-- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
+- [~] `gmOverviewMapUI::Show` · 0043e230 · legions 0043ea80 — ac2-ui overview_map.rs: label is Panel_Label_OverviewMap, client area OverviewMapClientArea, close OverviewMapCloseButton (admin Tokenize strings); the help button is a generic help button (hud_help.rs ID_Help_OverviewMap). The field is hidden with the HUD rather than made on show and destroyed on hide
 - [x] `gmOverviewMapUI::ShowMap` · 0043e290 · legions 0043eae0 — ac2-ui overview_map.rs: shows the overview and sets the label and client area to the map's state (the map buttons that call it are not identified in the layout)
 - [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs map_for_button/message: the four zoom buttons (Osteth, Omishan, Arramora, LinvakMassif) call show_map with their map state; the close button hides. Client routes UiMessage to it (ac2-client hud_player_message.rs). Not: KnorrMap (its button id is not bound: Legions binds DAT_00a4b640 as both the coordinates text and the Knorr-style message), the help page (KeyStone::OpenHelp)
-- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: the label is the first text element (the retail label token is not known); the field is hidden with the HUD rather than made on show and destroyed on hide; the help button's KeyStone::OpenHelp opens the help window (hud_help.rs)
+- [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: label is Panel_Label_OverviewMap, client area OverviewMapClientArea, close OverviewMapCloseButton (admin Tokenize strings); the help button is a generic help button (hud_help.rs ID_Help_OverviewMap). The field is hidden with the HUD rather than made on show and destroyed on hide
 
 ## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (11/18)
 
 ### gmPetUI
-- [~] `gmPetUI::Show` · 004188d0 · legions 00418690 — ac2-ui pets.rs show: the framework's shown state; the HUD shows it at build. The option-driven show (GetShowPetUI) is set by set_show_pet_ui, not yet wired from the options page
+- [~] `gmPetUI::Show` · 004188d0 · legions 00418690 — ac2-ui pets.rs show: the framework's shown state; the option-driven show (GetShowPetUI) is now set from the options reload (frame_passes.rs reload_pass)
 - [x] `gmPetUI::GetNextMode` · 00418920 · legions 004186e0 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 - [x] `gmPetUI::GetPreviousMode` · 00418950 · legions 00418710 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 
@@ -345,19 +345,19 @@ Legend and workflow: [README](README.md).
 
 ### gmPetUI
 - [x] `gmPetUI::UpdateState` · 00418cb0 · legions 00418a70 — ac2-ui pets.rs update_state: the PetPanel state (pets / nopets), the four buttons ghosted, the root drawn only with a pet listed and the UI on; tests in pets_tests.rs
-- [x] `gmPetUI::RecvNotice_ReloadGameplayOptions` · 00418e20 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
-- [x] `gmPetUI::RecvNotice_RemovePet` · 00419130 — Legions 7160 routes no RemovePet here (slot 0x6c is a no-op stub), so the row stays; the typed notice is parsed in ac2-script
-- [x] `gmPetUI::RecvNotice_SelectionChanged` · 004191d0 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
+- [x] `gmPetUI::RecvNotice_ReloadGameplayOptions` · 00418e20 — Legions has it (undecompiled vtable slot 0x418c00: UpdateState). ac2-ui frame_passes.rs reload_pass calls PetUi::set_show_pet_ui from the options profile (PROFILE_HIDE_PET_UI) on every options reload
+- [x] `gmPetUI::RecvNotice_RemovePet` · 00419130 — Legions 0x418F70 (undecompiled slot). ac2-ui pets.rs PetUi::remove_pet: the pet leaves the table and its row the list; UpdateState runs either way
+- [x] `gmPetUI::RecvNotice_SelectionChanged` · 004191d0 — Legions 0x419010 (undecompiled slot, matches admin). ac2-ui pets.rs PetUi::selection_changed: old row unselected (and its Name stops being editable when the selection moves), new listed pet's row selected; via pet_notice on GameplayNotice::SelectionChanged
 - [-] `gmPetUI::~gmPetUI` · 00419430 · legions 00419270 — C++ destructor: the Rust drop and the HUD's tree own the panel's elements
 - [x] `gmPetUI::Refresh` · 00419580 · legions 004193c0 — ac2-ui pets.rs tick: the five-second pass, each row's wanted mode sent (PetAction::Mode -> Command::PetMode), the unsafe pet back to safe
 - [x] `gmPetUI::RecvNotice_PetIsUnderAttack` · 00419730 — ac2-ui pets.rs pet_under_attack: the Name state unsafe and the attack time; HUD routes PetIsUnderAttack (ac2-client hud_pets.rs)
 - [x] `gmPetUI::ListenToMessage` · 00419810 · legions 00419650 — ac2-ui pets.rs tick: the refresh message's five-second gate (the HUD calls it each frame, ac2-client hud_player.rs)
 - [~] `gmPetUI::RequestSetPetMode` · 00419840 · legions 00419680 — ac2-ui pets.rs step_mode: the row's wanted mode and its text; the row's server mode is not changed (UpdatePetMode is a no-op in Legions)
-- [~] `gmPetUI::RecvNotice_AddPet` · 004199d0 — ac2-ui pets.rs add_pet: the row, name and mode, listed once; the pet's icon image (AddImageToState) is not set; the HUD routes AddPet (ac2-client hud_pets.rs)
-- [x] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0 — Legions 7160 routes no UpdatePetMode here (gmNoticeHandler slot 0x70 is a no-op stub); not ported as a notice, the typed notice is parsed in ac2-script
-- [~] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: the buttons (attack on the selection, return, heal, buff), the arrows, and a row press selecting its pet; the name edit (RequestSetPetName from the text) is not ported (the command is, see the CallIFun rows)
+- [~] `gmPetUI::RecvNotice_AddPet` · 004199d0 — Legions 0x419810 (undecompiled slot). ac2-ui pets.rs PetUi::add_pet: row, mode, name through UpdatePetName, Icon image (AddImageToState icon, 0), UpdateState. A pet already listed is skipped (retail replaces its table entry and leaves the old row in the list)
+- [x] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0 — Legions 0x4199B0 (named in the Legions decompile; the notice is a live slot, not a stub). ac2-ui pets.rs PetUi::update_pet_mode
+- [~] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: the buttons, the arrows, a press on a row selecting its pet, and the right press (0x40000005) making the row's Name editable, selected and active; its deactivated asks RequestSetPetName when the text differs (ignoring case) and shows the stored name again (PetAction::Rename -> Command::PetRename). Not ported: the set_show_state / location_changed branches of the panel itself
 - [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
-- [x] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — no Legions 7160 counterpart (no legions_address in the index; the Legions gmPetUI has no such notice function beside UpdatePetMode); the pet panel's show option and selection are driven by pets.rs set_show_pet_ui and the HUD
+- [x] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — Legions 0x41A1E0 (undecompiled slot). ac2-ui pets.rs PetUi::update_pet_name: the first (...) (open not first, a close after it) removed from the server's name (PStringBase::replace with L""), stored as PetInfo::name and set on the row's Name
 
 ## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (28/35)
 
@@ -503,7 +503,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShopConsignmentUI
 - [~] `gmShopConsignmentUI::UpdatePortraitPosition` · 0041b0b0 · legions 004424c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
-- [x] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240 — not modelled: the mount state, the drag-from-list notice and the server selection notice
+- [x] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240 — ac2-ui consignment.rs ConsignmentUi::recv_update_mount_state keeps the flag (retail reads it only to redraw the player portrait in RecvNotice_LocalVisualDescUpdate, which is not modelled); routed by shop_notices.rs consignment_notice
 
 ### gmShopUI
 - [~] `gmShopUI::RecvNotice_LeaveStore` · 0041b250 — ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
@@ -520,14 +520,14 @@ Legend and workflow: [README](README.md).
 - [~] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with: the item definition id comes from ConsignmentSource::item_did, which the client does not yet supply (no stacking restock in the game)
 - [~] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 - [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
-- [~] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [~] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — the 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera) is not modelled in ac2-ui; the mount flag it reads is kept (recv_update_mount_state)
 - [x] `gmShopConsignmentUI::UpdatePosition` · 0041b7e0 · legions 0041b640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::CreateManagedElements` · 0041b8b0 · legions 0041b710 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::Show` · 0041b950 · legions 0041b7b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::Select` · 0041ba10 · legions 0041b870 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::DestroyManagedElements` · 0041bc00 · legions 0041ba20 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::RecvNotice_HandleDragFrom` · 0041bc90 — not modelled: the mount state, the drag-from-list notice and the server selection notice
-- [x] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — not modelled: the mount state, the drag-from-list notice and the server selection notice
+- [x] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 - [x] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [~] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
@@ -1144,7 +1144,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [-] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — no Legions 7160 counterpart (no legions_address in the index): admin-only or renamed; not ported
-- [~] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — needs port (check): gmShortcutUI::FIXMESetupItemElement behaviour; implemented area ac2-ui shortcut.rs but uncited
+- [~] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — ac2-ui shortcut.rs make_element sets the slot icon from the shortcut info and check_item keeps the pending state. Not ported: the tooltip (the object's name with quantity, or ID_Item_TT_WaitingForServer while the weenie is unknown), SetIconDesc layers (first layer only) and the _pendingCreate append for a not-yet-created weenie (Legions 0x437830)
 - [-] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — notice handlers are registered per object by the session in Rust (no per-object handler table)
 - [~] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
@@ -1201,7 +1201,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DItemsUI
 - [~] `gm3DItemsUI::gm3DItemsUI` · 00440520 · legions 00440d80 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): DDCB on ItemSelectionField and its ItemIcon found; the global loop and message registrations are the HUD's routing, and the notice handler 0x45a is not registered
-- [x] `gm3DItemsUI::~gm3DItemsUI` · 00440650 · legions 00440eb0 — needs port (check): gm3DItemsUI dtor closes the stack dialogs; items_3d.rs cite is on contexts() getter
+- [x] `gm3DItemsUI::~gm3DItemsUI` · 00440650 · legions 00440eb0 — ac2-ui items_3d.rs Items3dUi::contexts lists the two stack dialogs to close (CloseStackUI item, money); the panel lives for the whole HUD and the stack dialog is dropped with it, so no separate close is needed
 - [x] `gm3DItemsUI::RecvNotice_StackUIDone` · 004406b0 · legions 00440f10 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the dialog's answer finishes the item drop or leaves the money bag for the target
 - [x] `gm3DItemsUI::StartItemDrop` · 00440700 · legions 00440f60 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): an unworn item whose FromID is the player starts the search
 - [x] `gm3DItemsUI::StartMoneyDrop` · 004407f0 · legions 00441050 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160)
@@ -1363,7 +1363,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmClientUI::ConfirmRecall` · 00446710 · legions 00447250 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310 — ac2-ui client_page.rs ClientPage::clear_confirmations; client_page tests
-- [x] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-ui dialog.rs TimedField: 15 s countdown, yes or no, a timeout answers no; the question's string ID is not identified (fallback text used)
+- [x] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-ui client_page.rs verify_render_options: a timed dialog (type 0x40000005) once while open, text ID_Option_RenderText (DAT_00a4f870 = Tokenize string of the admin initializer). The DVD UI string table has no such entry (client_page_7160 test), so the port asks its own question
 - [-] `gmClientUI::MonitorChange` · 00446890 — admin 7148 only (IPreferenceMonitor Change/Reload forwarding to an expander); Legions 7160 has no match and the port's preferences have no monitors
 - [x] `gmClientUI::Changed` · 004468d0 · legions 00447410 — ac2-ui client_options_page.rs update_buttons (Apply and Recall ghost while the bank holds no change, over ClientPage::buttons); ac2-client client_options.rs options_changed
 - [x] `gmClientUI::LookupExpander` · 00446910 · legions 00447450 — ac2-ui client_page.rs ClientPage::lookup_expander over SECTION_ORDER; client_page tests
@@ -1452,19 +1452,19 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::SelectCraftSkillCategory` · 004494f0 · legions 0044a150 — ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
 - [x] `gmCraftUI::SelectRecipe` · 00449550 · legions 0044a1b0 — ac2-ui craft.rs select_recipe: the recipe's examination (data_id), the selected recipe kept even at 0; tested through the recipe button
 - [x] `gmCraftUI::GetRecipeIcon` · 004495b0 · legions 0044a210 — ac2-ui craft_pages.rs recipe_icon: the recipe's icon, else the selected skill's; tested with the recipe row
-- [x] `gmCraftUI::MakeLevelText` · 00449610 — level text used by the skill display (craft_pages.rs level_text, buffed state); the row use of the state argument and the token output are not ported
+- [x] `gmCraftUI::MakeLevelText` · 00449610 — ac2-ui craft_pages.rs level_text: Legions 0x44A270 (unnamed in the decompile): ID_Craft_SkillLevelNormal with level, or Buffed/Debuffed with the difference when the state argument is set; the state-token output is unused by the caller
 - [x] `gmCraftUI::RefreshCraftSkillDisplay` · 00449700 · legions 0044a360 — ac2-ui craft_pages.rs refresh_skill_display: name, icon, selected field, level text (MakeLevelText buffed state), raise ghosting and raise text on SelectedLevel when the page has RaiseCraftButton; craft_ui_7160 asserts the level text
-- [x] `gmCraftUI::MakeCraftSkill` · 004499e0 · legions 0044a640 — ac2-ui craft_pages.rs make_skill: DID on row and back button, name in enabled/disabled state, selected row. Not: the level text and its states (DAT string ids), the name's truncation with an ellipsis
-- [x] `gmCraftUI::MakeCraftSkillCategory` · 00449bb0 · legions 0044a810 — ac2-ui craft_pages.rs make_category: DID, forward/back button, name, selected row. Not: the name's truncation with an ellipsis
-- [x] `gmCraftUI::MakeRecipe` · 00449ce0 · legions 0044a940 — ac2-ui craft_pages.rs make_recipe: icon (recipe's or skill's), button and name, selected row. Not: the name's truncation with an ellipsis
+- [x] `gmCraftUI::MakeCraftSkill` · 004499e0 · legions 0044a640 — ac2-ui craft_pages.rs make_skill: DID on row and back button, name state enabled/disabled, ellipsis cut with tooltip (ID_Ellipsis), Level text ID_Craft_Rating with the level and state buff/debuff/stateless, selected row. String and element names from the admin Tokenize initializers matched by position (tools in the worker scratchpad)
+- [x] `gmCraftUI::MakeCraftSkillCategory` · 00449bb0 · legions 0044a810 — ac2-ui craft_pages.rs make_category: DID, forward/back button, name with ellipsis cut and tooltip, selected row
+- [x] `gmCraftUI::MakeRecipe` · 00449ce0 · legions 0044a940 — ac2-ui craft_pages.rs make_recipe: icon, button, name state (disabled while m_timeUseAgain, a double, is above 0), ellipsis cut and tooltip, selected row
 - [x] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10 — ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
 - [x] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 - [-] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00 — the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
 - [-] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — no Legions 7160 counterpart: the DVD client's gmCraftUI has no ExaminationRequestChanged notice (the examined row's highlight is admin only)
 - [x] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010 — ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
-- [x] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page: a row per craft skill (CraftSkillList), made from the player's craft registry. Partial: the rows' level text (string id unresolved)
-- [x] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_category_page: the skill header, a row per category. Partial: the header's level text and the categories' truncation (see MakeCraftSkill and MakeCraftSkillCategory)
-- [x] `gmCraftUI::RefreshRecipePage` · 0044a6e0 · legions 0044b340 — ac2-ui craft_pages.rs refresh_recipe_page: the category header, the shown recipes of the category, the skill display. Partial: the truncation and the raise text (string ids unresolved)
+- [x] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
+- [x] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
+- [x] `gmCraftUI::RefreshRecipePage` · 0044a6e0 · legions 0044b340 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 - [x] `gmCraftUI::RefreshCraftPanel` · 0044a8e0 · legions 0044b540 — ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
 - [~] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
 - [x] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790 — ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
@@ -1574,7 +1574,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (11/20)
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
+- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs message: add, remove and status buttons; the buttons follow the selection (set_target). Not modelled: the status drop-down's LocalStatus setting, the IsMoving reset of the menu and the GUN away/dnd text
 - [x] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: the status drop-down follows the server's local status (RecvNotice_LocalStatus, broadcast as SetSelectedIndex does)
 
@@ -1587,12 +1587,12 @@ Legend and workflow: [README](README.md).
 - [-] `TextPredicate::TextPredicate` · 0043a6f0 · legions 0043af40 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled. Not modelled: the GUN away/dnd status text, the drop-down's IsMoving reset on the global loop (0xFFFF0005) and the server status setting the drop-down (LocalStatus)
 - [x] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070 — ac2-ui friends_panel.rs: FriendsPanel::message on StatusDropDownMenu's new selection -> status_request; ac2-client friends_command sends the GUN flags and the emote
 - [x] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — ac2-ui friends_panel.rs (set_target, update_add: add enabled for another player's name with no list row selected and not a friend; remove for a selected friend) and ac2-client hud_friends.rs friend_target (the selection's IsPlayer and not the local player, weenie type 0x14 & 0x1F); tested on the real social layout in friends_panel_tests.rs
-- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
-- [x] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — ac2-ui friends_panel.rs: the add and remove buttons follow the game selection (set_target, called every frame from hud_player pick_pass, since Legions has no selection notice here); the status drop-down's LocalStatus setting and the IsMoving reset of the menu are not modelled; GUN mode away/dnd text not shown
+- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs message: add, remove and status buttons; the buttons follow the selection (set_target). Not modelled: the status drop-down's LocalStatus setting, the IsMoving reset of the menu and the GUN away/dnd text
+- [x] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — Legions has the handler (an undecompiled vtable slot); ac2-ui friends_panel.rs set_target follows the game selection every frame (hud_player pick_pass), which gives the add and remove buttons the same state as the notice did
 
 ### PList<TurbineUserStatus>
 - [-] `PList<TurbineUserStatus>::UnPack` · 0043b020 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -1600,7 +1600,7 @@ Legend and workflow: [README](README.md).
 ### gmFriendsUI
 - [x] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 - [x] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the status drop-down is wired and filled; add target name not read from the selection (add ghosted); GUN mode away/dnd text not shown; IsMoving reset of the drop-down (global 0xFFFF0005) and the server status setting the drop-down (LocalStatus) not modelled
+- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled. Not modelled: the GUN away/dnd status text, the drop-down's IsMoving reset on the global loop (0xFFFF0005) and the server status setting the drop-down (LocalStatus)
 - [x] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 - [x] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
@@ -1881,7 +1881,7 @@ Legend and workflow: [README](README.md).
 
 ### gmDataPatchUI
 - [x] `gmDataPatchUI::SetErrorMsg` · 004115f0 · legions 004115d0 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
-- [~] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610 — needs port (check): gmDataPatchUI::OnConnectFailed behaviour; implemented area ac2-ui pregame/data_patch.rs but uncited
+- [~] `gmDataPatchUI::OnConnectFailed` · 00411630 · legions 00411610 — the error text selection by NetError (ID_DataPatch_ConnectFailed variants, GUN world name, crypto error) is not ported: ac2-ui pregame/data_patch.rs only sets ID_DataPatch_ConnectingGUN / Connected; login failures are shown by the login screen instead
 - [x] `gmDataPatchUI::Connect` · 00411890 · legions 00411870 — ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 
 ### (free functions)
