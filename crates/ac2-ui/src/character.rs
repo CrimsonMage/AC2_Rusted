@@ -531,6 +531,55 @@ impl CharacterUi {
         self.update_buttons(tree);
     }
 
+    /// The options page's tab opens: its `opened` message, as the tree sends it.
+    pub fn open_tab(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
+        self.send(tree, dialogs, "CharacterTab", None, MSG_OPENED);
+    }
+
+    /// The player ticks or unticks option `name`'s checkbox: its highlight, then its message.
+    pub fn tick(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, name: &str, on: bool) {
+        let Some(control) = self.control(name) else {
+            return;
+        };
+        tree.set_bool(control, tokenize("highlighted"), on);
+        self.send(
+            tree,
+            dialogs,
+            "CheckboxButton",
+            Some(control),
+            MSG_HIGHLIGHT_STATE_CHANGE,
+        );
+    }
+
+    /// The player presses one of the options page's buttons (`ApplyButton`, `RecallButton`,
+    /// `DefaultButton`), found under the page.
+    pub fn press(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, element_id: &str) {
+        let element = tree.child_recursive(self.page, tokenize(element_id));
+        self.send(tree, dialogs, element_id, element, MSG_BUTTON_RELEASE_ON);
+    }
+
+    /// One message to the options page, as the tree would send it.
+    fn send(
+        &mut self,
+        tree: &mut UiTree,
+        dialogs: &mut DialogFactory,
+        element_id: &str,
+        element: Option<usize>,
+        message: u32,
+    ) {
+        self.message(
+            tree,
+            dialogs,
+            &UiMessage {
+                element_id: tokenize(element_id),
+                element,
+                message,
+                data: 0,
+                item: None,
+            },
+        );
+    }
+
     /// Sets an option's value as its control would when the player changes it (`0` or `1` for a
     /// checkbox, the range's value for a slider, the choice for a drop-down), then the buttons.
     /// Returns false for an unknown option or a choice outside the drop-down.
