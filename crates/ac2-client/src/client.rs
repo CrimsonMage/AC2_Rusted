@@ -715,8 +715,8 @@ impl Client {
             // `CPhysics::UpdatePhysics` on `Timer::local_time`.
             let quanta = self.physics_clock.advance(now);
             let cur_time = self.session.cur_time();
-            // The player's impacts, in the order its quanta recorded them.
-            let mut impacts = Vec::new();
+            // The player's collision reports, one per quantum, in the order they were made.
+            let mut reports = Vec::new();
             for _ in 0..quanta {
                 self.track_move_to_target();
                 let player = self
@@ -726,7 +726,11 @@ impl Client {
                     .and_then(|p| p.body.as_mut());
                 if let Some(body) = player {
                     body.physics.step_quantum(&self.terrain);
-                    impacts.extend(body.physics.take_impact_report());
+                    // `CPhysicsObj::ReportCollisions`: the world's materials are not wired yet.
+                    reports.extend(
+                        body.physics
+                            .report_collisions(&ac2_physics::ContactMaterials::default(), false),
+                    );
                     // `SmartBox::PlayerPhysicsUpdatedCallback`.
                     if !self.camera.mouse_look {
                         self.update_camera(PHYSICS_QUANTUM, true);
@@ -735,9 +739,9 @@ impl Client {
                 // `CPhysics::UpdateAllPhysics`: the other objects.
                 self.remotes.step_quantum(&mut self.terrain, cur_time);
             }
-            // `CPhysicsObj::ReportCollisions` for the player: its script hears each impact.
+            // `CPhysicsObj::ReportCollisions` for the player: its script hears each report.
             if let Some(id) = self.player.as_ref().map(|p| p.id) {
-                for report in impacts {
+                for report in reports {
                     self.collision_reported(id, report, &mut events);
                 }
             }

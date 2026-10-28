@@ -6,7 +6,7 @@ use std::sync::Arc;
 use ac2_anim::Ac2AnimEvent;
 use ac2_world::Ac2MotionInterpDesc;
 
-use crate::collision_impact::ImpactReport;
+use crate::collision_report::{CollisionReport, ContactMaterials};
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
@@ -513,11 +513,53 @@ impl PhysicsBody {
         self.object.impact_speed
     }
 
-    /// The impact an environment contact recorded and the collision report has not taken yet
-    /// (`CCollisionManager::ReportCollision` copies `m_collision_normal` and `m_impact_speed` into
-    /// the profile, then clears `m_has_normal`). Taking it clears it: one report per impact.
-    pub fn take_impact_report(&mut self) -> Option<ImpactReport> {
-        self.object.impact_report.take()
+    /// `CPhysicsObj::ReportCollisions`: the collision report at the body's clock
+    /// (`CCollisionManager::ReportCollision`). `force_end` ends every reported record. Returns
+    /// the report only when it lists something (`CollisionProfile::NonEmpty`).
+    pub fn report_collisions(
+        &mut self,
+        materials: &ContactMaterials,
+        force_end: bool,
+    ) -> Option<CollisionReport> {
+        self.report(materials, force_end, false)
+    }
+
+    /// `CPhysicsObj::EndAllCollisions`: ends every record the body has reported and drops its
+    /// object table (`CCollisionManager::ReportCollision` with both end flags set).
+    pub fn end_all_collisions(&mut self, materials: &ContactMaterials) -> Option<CollisionReport> {
+        self.report(materials, true, true)
+    }
+
+    fn report(
+        &mut self,
+        materials: &ContactMaterials,
+        end_reporting: bool,
+        end_all: bool,
+    ) -> Option<CollisionReport> {
+        let contact = crate::collision_report::BodyContact {
+            plane: self
+                .object
+                .has_contact()
+                .then_some(self.object.contact_plane),
+            in_water: self.object.transient_state & crate::physics_obj_contact::WATER_CONTACT_TS
+                != 0,
+            on_landscape: self.object.transient_state & crate::physics_obj::LANDSCAPE_CONTACT_TS
+                != 0,
+            in_environment: self.object.transient_state
+                & crate::physics_obj_contact::ENVIRONMENT_CONTACT_TS
+                != 0,
+        };
+        let flags = crate::collision_report::ReportFlags {
+            end_reporting,
+            end_all,
+            active: true,
+        };
+        let now = self.object.cur_time;
+        let report = self
+            .object
+            .collision_manager
+            .report(now, contact, *materials, flags);
+        (!report.is_empty()).then_some(report)
     }
 
     /// `CCollisionManager::SetCollisionState` on a script's `CollisionParameters`: a non-zero

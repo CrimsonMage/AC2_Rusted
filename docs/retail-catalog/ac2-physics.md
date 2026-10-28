@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 501 done, 110 partial, 736 to do, 777 skipped.
+2124 retail functions: 504 done, 124 partial, 719 to do, 777 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -732,7 +732,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910 — needs port: collision reports and properties
 - [ ] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0 — needs port: collision reports and properties
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (3/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (4/61)
 
 ### CollisionParameters
 - [ ] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — needs port: ethereal/collision parameter state
@@ -748,13 +748,13 @@ Legend and workflow: [README](README.md).
 - [ ] `CCollisionManager::HasConflict` · 004f63f0 · legions 004e8be0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateCollidePhysicsMask` · 004f64f0 · legions 004e8ce0 — needs port: collision reports and properties
-- [~] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — gate modelled (ac2-physics collision_impact.rs); collision manager sounds and reports not ported
+- [x] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [ ] `CCollisionManager::SetNoCollisionNormal` · 004f65a0 · legions 004e8d90 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetContactPlane` · 004f65b0 · legions 004e8da0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetInWater` · 004f65f0 · legions 004e8de0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetOutOfWater` · 004f6610 · legions 004e8e00 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetOnLandscape` · 004f6620 · legions 004e8e10 — needs port: collision reports and properties
-- [ ] `CCollisionManager::SetOffLandscape` · 004f6640 · legions 004e8e30 — needs port: collision reports and properties
+- [~] `CCollisionManager::SetContactPlane` · 004f65b0 · legions 004e8da0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::SetInWater` · 004f65f0 · legions 004e8de0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::SetOutOfWater` · 004f6610 · legions 004e8e00 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::SetOnLandscape` · 004f6620 · legions 004e8e10 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::SetOffLandscape` · 004f6640 · legions 004e8e30 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [ ] `CCollisionManager::SetTerrainType` · 004f6650 · legions 004e8e40 — needs port: collision reports and properties
 
 ### Vector
@@ -805,25 +805,25 @@ Legend and workflow: [README](README.md).
 - [-] `CollidePropertyList::operator=` · 004f7510 · legions 004e9d40 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### CCollisionManager
-- [ ] `CCollisionManager::ReportEnvironmentalProperties` · 004f7570 · legions 004e9da0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::EndEnvironmentalProperties` · 004f75d0 · legions 004e9e00 — needs port: collision reports and properties
-- [ ] `CCollisionManager::ReportWaterProperties` · 004f7690 · legions 004e9ec0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::ReportSurfaceProperties` · 004f7700 · legions 004e9f30 — needs port: collision reports and properties
+- [~] `CCollisionManager::ReportEnvironmentalProperties` · 004f7570 · legions 004e9da0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::EndEnvironmentalProperties` · 004f75d0 · legions 004e9e00 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::ReportWaterProperties` · 004f7690 · legions 004e9ec0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::ReportSurfaceProperties` · 004f7700 · legions 004e9f30 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [ ] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — needs port: collision reports and properties
 - [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
 - [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
-- [ ] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — needs port: collision reports and properties
+- [~] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [ ] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — needs port: collision reports and properties
 - [ ] `CCollisionManager::RemoveObjectCollision` · 004f7f60 · legions 004ea7b0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::FindInPropertyList` · 004f8050 · legions 004ea8a0 — needs port: collision reports and properties
 - [-] `CCollisionManager::~CCollisionManager` · 004f8420 · legions 004eac70 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `CCollisionManager::EndInWater` · 004f85b0 · legions 004eae00 — needs port: collision reports and properties
-- [ ] `CCollisionManager::EndOnLandscape` · 004f8610 · legions 004eae60 — needs port: collision reports and properties
+- [~] `CCollisionManager::EndInWater` · 004f85b0 · legions 004eae00 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::EndOnLandscape` · 004f8610 · legions 004eae60 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [ ] `CCollisionManager::AddPusherProperties` · 004f8670 · legions 004eaec0 — needs port: collision reports and properties
-- [ ] `CCollisionManager::AddToCollideList` · 004f9260 · legions 004ebab0 — needs port: collision reports and properties
-- [~] `CCollisionManager::ReportCollision` · 004f9390 · legions 004ebbe0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
+- [~] `CCollisionManager::AddToCollideList` · 004f9260 · legions 004ebab0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CCollisionManager::ReportCollision` · 004f9390 · legions 004ebbe0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [ ] `CCollisionManager::AddToPropertyList` · 004f9a00 · legions 004ec250 — needs port: collision reports and properties
 
 ### PHashTable<InstanceID,ObjCollisionType>
@@ -837,7 +837,7 @@ Legend and workflow: [README](README.md).
 
 ### CCollisionManager
 - [-] `CCollisionManager::CCollisionManager` · 004fa110 · legions 004ec960 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `CCollisionManager::AddObjectCollision` · 004fa2f0 · legions 004ecb40 — needs port: collision reports and properties
+- [~] `CCollisionManager::AddObjectCollision` · 004fa2f0 · legions 004ecb40 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 
 ## `portal/shared/src/physobj/collision/collisionparameters.cpp.c` (7/15)
 
@@ -886,8 +886,8 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<ObjCollisionProfile>::AddToEnd` · 006a0650 · legions 0063d480 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### CollisionProfile
-- [ ] `CollisionProfile::AddAsBeginCollision` · 006a06b0 · legions 0063d4e0 — needs port: collision reports and properties
-- [ ] `CollisionProfile::AddAsEndCollision` · 006a06d0 · legions 0063d500 — needs port: collision reports and properties
+- [~] `CollisionProfile::AddAsBeginCollision` · 006a06b0 · legions 0063d4e0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+- [~] `CollisionProfile::AddAsEndCollision` · 006a06d0 · legions 0063d500 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [-] `CollisionProfile::operator=` · 006a06f0 · legions 0063d520 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ## `portal/shared/src/physobj/collision/objcollisiontype.cpp.c` (0/4)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (148/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (150/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2610,8 +2610,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
-- [~] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
-- [ ] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::ReportCollisions` · 004e9040 · legions 004dba20 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
+- [x] `CPhysicsObj::EndAllCollisions` · 004e90c0 · legions 004dbaa0 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 - [~] `CPhysicsObj::add_shadows_to_cells` · 004e9140 · legions 004dbb20 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [ ] `CPhysicsObj::AddChild` · 004e9200 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::RemoveChild` · 004e92b0 — needs port: cite-only physics-object method

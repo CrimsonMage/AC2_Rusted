@@ -184,6 +184,10 @@ pub struct StaticObject {
     /// The position its cell list was built for, while the list may be reused (`None` for a
     /// static object, which never moves). See `Terrain::move_object`.
     pub(crate) covered: Option<Position>,
+    /// The object's `InstanceID` when it is a server object a collision report names
+    /// (`CCollisionManager::AddObjectCollision` lists only objects with an id). `None` for
+    /// scenery.
+    pub(crate) instance_id: Option<u64>,
 }
 
 impl StaticObject {
@@ -221,7 +225,19 @@ impl StaticObject {
             blocking: PhysicsTypeMask::default(),
             ethereal: false,
             covered: None,
+            instance_id: None,
         }
+    }
+
+    /// Names the object by its server `InstanceID`, so collision reports list it.
+    pub fn with_instance_id(mut self, id: u64) -> Self {
+        self.instance_id = Some(id);
+        self
+    }
+
+    /// The object's `InstanceID` and whether it is ethereal, when it has an id.
+    pub(crate) fn identity(&self) -> Option<(u64, bool)> {
+        self.instance_id.map(|id| (id, self.ethereal))
     }
 
     /// Sets the blocking physics-type bits (`CPhysicsObj::SetPhysicsCollideMask`).

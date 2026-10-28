@@ -116,7 +116,7 @@ pub struct Remote {
 /// `CPhysicsObj::add_to_cells` / `remove_from_cells` and `CObjCell::AddObject` /
 /// `RemoveObject` for one remote: while the object is in the world with a body and a shape, its
 /// entry in the world's object lists is at its body's position; otherwise it is not listed.
-fn sync_shadow(remote: &mut Remote, terrain: &mut Terrain) {
+fn sync_shadow(guid: u64, remote: &mut Remote, terrain: &mut Terrain) {
     // The entry's blocking mask is the body's (`CPhysicsObj::IsBlocking` reads m_blocking_mask),
     // so it is re-read on every sync: a body's bits can change between syncs.
     let wanted = match (&remote.body, &remote.object, remote.in_world) {
@@ -131,8 +131,10 @@ fn sync_shadow(remote: &mut Remote, terrain: &mut Terrain) {
     };
     match (wanted, remote.shadow) {
         (Some((position, shape, scale, mobile, blocking)), None) => {
-            let mut object =
-                StaticObject::dynamic(position, scale, shape, mobile).with_blocking_mask(blocking);
+            // The object is named by its guid, so a collision report lists it.
+            let mut object = StaticObject::dynamic(position, scale, shape, mobile)
+                .with_blocking_mask(blocking)
+                .with_instance_id(guid);
             object.set_ethereal(remote.ethereal);
             let id = terrain.insert_object(object);
             remote.shadow = Some(id);
@@ -408,8 +410,8 @@ impl<B> Remotes<B> {
     /// Every remote's entry in the world's object lists is brought up to date (after the
     /// session's events and the FX objects' changes).
     pub fn sync_shadows(&mut self, terrain: &mut Terrain) {
-        for remote in self.objects.values_mut() {
-            sync_shadow(remote, terrain);
+        for (&guid, remote) in self.objects.iter_mut() {
+            sync_shadow(guid, remote, terrain);
         }
     }
 
@@ -427,14 +429,14 @@ impl<B> Remotes<B> {
     /// `CPhysics::UpdateAllPhysics` for the objects: each one in the world and in physics range
     /// runs the quantum. `cur_time` is the server clock the positions were stamped on.
     pub fn step_quantum(&mut self, terrain: &mut Terrain, cur_time: f64) {
-        for remote in self.objects.values_mut() {
+        for (&guid, remote) in self.objects.iter_mut() {
             if remote.in_world && remote.active {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);
                     body.step_quantum(terrain);
                 }
             }
-            sync_shadow(remote, terrain);
+            sync_shadow(guid, remote, terrain);
         }
     }
 

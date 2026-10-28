@@ -4836,8 +4836,8 @@ key	status	note
 004e8ec0	_	needs port: cite-only physics-object method
 004e8f20	_	needs port: cite-only physics-object method
 004e8f80	x	
-004e9040	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
-004e90c0	_	needs port: cite-only physics-object method
+004e9040	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
+004e90c0	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004e9140	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9200	_	needs port: cite-only physics-object method
 004e92b0	_	needs port: cite-only physics-object method
@@ -5283,13 +5283,13 @@ key	status	note
 004f63f0	_	needs port: collision reports and properties
 004f64d0	_	needs port: collision reports and properties
 004f64f0	_	needs port: collision reports and properties
-004f6520	~	gate modelled (ac2-physics collision_impact.rs); collision manager sounds and reports not ported
+004f6520	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004f65a0	_	needs port: collision reports and properties
-004f65b0	_	needs port: collision reports and properties
-004f65f0	_	needs port: collision reports and properties
-004f6610	_	needs port: collision reports and properties
-004f6620	_	needs port: collision reports and properties
-004f6640	_	needs port: collision reports and properties
+004f65b0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f65f0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f6610	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f6620	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f6640	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004f6650	_	needs port: collision reports and properties
 004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 004f66c0	-	C++ constructor/destructor; Rust constructor and Drop replace it
@@ -5310,31 +5310,31 @@ key	status	note
 004f7440	_	needs port: collision reports and properties
 004f74b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f7510	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-004f7570	_	needs port: collision reports and properties
-004f75d0	_	needs port: collision reports and properties
-004f7690	_	needs port: collision reports and properties
-004f7700	_	needs port: collision reports and properties
+004f7570	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f75d0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f7690	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f7700	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004f7770	_	needs port: collision reports and properties
 004f7930	_	needs port: collision reports and properties
 004f7b10	_	needs port: collision reports and properties
 004f7ca0	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
-004f7db0	_	needs port: collision reports and properties
+004f7db0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004f7e30	_	needs port: collision reports and properties
 004f7ed0	_	needs port: collision reports and properties
 004f7f60	_	needs port: collision reports and properties
 004f8050	_	needs port: collision reports and properties
 004f8420	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004f85b0	_	needs port: collision reports and properties
-004f8610	_	needs port: collision reports and properties
+004f85b0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f8610	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004f8670	_	needs port: collision reports and properties
-004f9260	_	needs port: collision reports and properties
-004f9390	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
+004f9260	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f9390	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004f9a00	_	needs port: collision reports and properties
 004f9a30	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004f9d30	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004f9f10	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004fa110	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004fa2f0	_	needs port: collision reports and properties
+004fa2f0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 004fa540	x	PackObj::UNPACK_TYPE - PackObj type-15 check, ac2-script bytestream/mod.rs
 004fa580	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 004fa5b0	_	needs port: object detection
@@ -7020,15 +7020,15 @@ key	status	note
 00548af0	-	not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
 00548b60	-	not bound: the Legions dispatcher wires these ids to unlabeled bodies (LAB_0052xxxx, no decompiled body); the admin 7148 bodies call unrelated code (CWBookKeeper::GetBookie, CPhysicsObj::get_cell_id, Client::GetPort), so no reliable semantics
 00548bd0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-00548c40	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548cb0	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548d60	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548e00	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548ea0	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548f40	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
-00548fe0	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+00548c40	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548cb0	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548d60	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548e00	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548ea0	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548f40	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
+00548fe0	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
 00549080	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-00549150	x	ac2-script glue/collision.rs: the report's lists and contact (native/collision.rs CollisionProfile fields): GetObject, the four property getters, FindObject, HasContact, IsEndContact read the report's lists and contact plane (glue tests in host/tests/collision.rs). The lists are filled by no producer yet (the object collision table and landscape/water materials are not ported)
+00549150	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
 005491f0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 00549250	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 005492b0	_	needs port: collision parameter setters/getters (physics and placement types, ethereal list)
@@ -13004,8 +13004,8 @@ key	status	note
 006a0490	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a0560	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 006a0650	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
-006a06b0	_	needs port: collision reports and properties
-006a06d0	_	needs port: collision reports and properties
+006a06b0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+006a06d0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 006a06f0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a0980	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 006a0a20	_	needs port: collision reports and properties

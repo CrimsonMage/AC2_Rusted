@@ -20,8 +20,8 @@ use crate::transition::{Transition, TransitionObject};
 use crate::vector::Vector;
 
 /// `WATER_CONTACT_TS` and `ENVIRONMENT_CONTACT_TS`.
-const WATER_CONTACT_TS: u32 = 0x8;
-const ENVIRONMENT_CONTACT_TS: u32 = 0x800;
+pub(crate) const WATER_CONTACT_TS: u32 = 0x8;
+pub(crate) const ENVIRONMENT_CONTACT_TS: u32 = 0x800;
 /// The standing-jump behaviour `JumpLogic` asks for.
 const BEHAVIOR_JUMP: u32 = 0x4000_000a;
 /// `handle_all_collisions` reflects velocity with this elasticity (`1 + 0.005`).
@@ -126,6 +126,8 @@ impl PhysicsObj {
     /// `CPhysicsObj::transition` (from the current position, not an admin move) and, on
     /// success, `SetPositionInternal(CTransition*)`. Returns whether the body moved.
     pub(crate) fn transition_to(&mut self, end: Position, terrain: &Terrain) -> bool {
+        // `CCollisionManager`'s check time for this transition's touches.
+        self.collision_manager.begin_check(self.cur_time);
         let contact = self.has_contact().then_some((
             self.contact_plane_cell_id,
             self.contact_plane,
@@ -163,6 +165,12 @@ impl PhysicsObj {
         let found = transition.find_valid_position(terrain);
         if transition.object_info.kill_velocity {
             self.kill_velocity();
+        }
+        // `CCollisionManager::AddObjectCollision` for each server object the transition hit.
+        for &id in &transition.collision_info.collide_objects {
+            if let Some((instance, ethereal)) = terrain.object_identity(id) {
+                self.collision_manager.touch(instance, ethereal);
+            }
         }
         if !found {
             return false;
@@ -280,7 +288,7 @@ impl PhysicsObj {
                 self.velocity,
             ) {
                 self.impact_speed = Some(report.speed);
-                self.impact_report = Some(report);
+                self.collision_manager.set_impact(report);
             }
         }
         let left_ground = !prev_on_walkable || !self.on_walkable();

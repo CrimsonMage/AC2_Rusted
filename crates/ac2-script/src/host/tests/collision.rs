@@ -395,3 +395,116 @@ fn a_mask_efun_answers_the_master_property_table() {
         );
     }
 }
+
+/// A physics report fills the profile the efuns read: the impact (`HasCollided`), the contact
+/// plane (`HasContact`), an object that began (`GetObject`) and a surface material
+/// (`GetSurfaceProperty`). An end report answers `IsEndCollision`.
+#[test]
+fn a_physics_report_fills_the_profile_the_efuns_read() {
+    use ac2_physics::{
+        CollisionReport, ContactRecord, ImpactReport, ObjectRecord, Plane, PropertyRecord,
+        RecordState, Vector,
+    };
+    let report = CollisionReport {
+        impact: Some(ImpactReport {
+            normal: Vector::new(0.0, 0.0, 1.0),
+            speed: 3.0,
+        }),
+        contact: Some(ContactRecord {
+            plane: Plane {
+                n: Vector::new(0.0, 0.6, 0.8),
+                d: 2.5,
+            },
+            state: RecordState::Begin,
+        }),
+        objects: vec![ObjectRecord {
+            id: 0x77,
+            state: RecordState::Begin,
+            ethereal: true,
+        }],
+        surface: vec![PropertyRecord {
+            id: 9,
+            state: RecordState::Begin,
+        }],
+        ..CollisionReport::default()
+    };
+    let (mut host, handle) = host_with_profile(CollisionProfile::from_report(&report));
+
+    let normal = host
+        .vm
+        .refs
+        .create_native(ntype::VECTOR, NativeObject::Vector([0.0, 0.0, 0.0]));
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_000C, &[normal, 0], handle, 4),
+        1
+    );
+    assert_eq!(
+        host.vm.native(normal),
+        Some(&NativeObject::Vector([0.0, 0.0, 1.0]))
+    );
+
+    let plane = host
+        .vm
+        .refs
+        .create_native(ntype::PLANE, NativeObject::Plane(([0.0; 3], 0.0)));
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_000E, &[plane], handle, 3),
+        1
+    );
+    assert_eq!(
+        host.vm.native(plane),
+        Some(&NativeObject::Plane(([0.0, 0.6, 0.8], 2.5)))
+    );
+
+    let out = host.vm.refs.create_native(
+        ntype::OBJ_COLLISION_PROFILE,
+        NativeObject::ObjCollisionProfile(ObjCollisionProfile::default()),
+    );
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_0002, &[0, out], handle, 4),
+        1
+    );
+    let Some(NativeObject::ObjCollisionProfile(o)) = host.vm.native(out) else {
+        panic!("the object out native");
+    };
+    assert_eq!((o.id, o.start_collide, o.is_ethereal), (0x77, true, true));
+
+    let surface = host.vm.refs.create_native(
+        ntype::COLLIDE_PROPERTY,
+        NativeObject::CollideProperty(CollideProperty::default()),
+    );
+    assert_eq!(
+        efun_result(&mut host.vm, 0x001B_0009, &[0, surface], handle, 4),
+        1
+    );
+    let Some(NativeObject::CollideProperty(c)) = host.vm.native(surface) else {
+        panic!("the surface out native");
+    };
+    assert_eq!(c.id, 9);
+
+    // An end report: the contact ends and no impact is listed.
+    let end = CollisionReport {
+        contact: Some(ContactRecord {
+            plane: Plane {
+                n: Vector::new(0.0, 0.0, 1.0),
+                d: 0.0,
+            },
+            state: RecordState::End,
+        }),
+        ..CollisionReport::default()
+    };
+    let (mut ended, end_handle) = host_with_profile(CollisionProfile::from_report(&end));
+    assert_eq!(
+        efun_result(&mut ended.vm, 0x001B_000F, &[], end_handle, 2),
+        1,
+        "IsEndContact"
+    );
+    assert_eq!(
+        efun_result(&mut ended.vm, 0x001B_000D, &[], end_handle, 2),
+        0
+    );
+    assert_eq!(
+        efun_result(&mut ended.vm, 0x001B_000C, &[normal, 0], end_handle, 4),
+        0
+    );
+}

@@ -103,7 +103,8 @@ pub(crate) struct PhysicsObj {
     /// blocks, set from its ethereal properties (`CPhysicsObj::ApplyEtherealProperty`).
     pub(crate) blocking: crate::collision_types::PhysicsTypeMask,
     pub(crate) impact_speed: Option<f32>,
-    pub(crate) impact_report: Option<crate::collision_impact::ImpactReport>,
+    /// `CCollisionManager`: the objects, layers and contact the collision reports list.
+    pub(crate) collision_manager: crate::collision_report::CollisionManager,
     /// The element of a body without a behaviour table. Retail's `ModeTracker` never changes
     /// element without one; this port takes the element at once instead so tableless bodies
     /// still swim and fall.
@@ -176,7 +177,7 @@ impl PhysicsObj {
             world_id: None,
             blocking: crate::collision_types::PhysicsTypeMask::default(),
             impact_speed: None,
-            impact_report: None,
+            collision_manager: Default::default(),
             element: ELEMENT_GROUND,
             motion,
             anim: AnimRep::unanimated(),

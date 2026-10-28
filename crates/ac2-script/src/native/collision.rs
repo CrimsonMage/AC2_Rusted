@@ -83,6 +83,50 @@ impl Default for CollisionProfile {
 }
 
 impl CollisionProfile {
+    /// `CollisionProfile` as a physics report fills it (`CCollisionManager::ReportCollision`):
+    /// the impact in state 0, the contact plane with its begin or end, and the object and
+    /// property lists. A property record's begin or end is not kept (the script's
+    /// `CollideProperty` has no begin flag yet), only its id.
+    pub fn from_report(report: &ac2_physics::CollisionReport) -> Self {
+        use ac2_physics::RecordState;
+        let mut profile = Self::default();
+        if let Some(impact) = report.impact {
+            profile.collision_normal = [impact.normal.x, impact.normal.y, impact.normal.z];
+            profile.impact_speed = impact.speed;
+            profile.state = 0;
+        }
+        if let Some(contact) = report.contact {
+            let n = contact.plane.n;
+            profile.contact_plane = ([n.x, n.y, n.z], contact.plane.d);
+            profile.contact_state = match contact.state {
+                RecordState::Begin => 0,
+                RecordState::End => 1,
+            };
+        }
+        profile.objects = report
+            .objects
+            .iter()
+            .map(|o| ObjCollisionProfile {
+                id: o.id,
+                start_collide: o.state == RecordState::Begin,
+                is_ethereal: o.ethereal,
+            })
+            .collect();
+        let properties = |records: &[ac2_physics::PropertyRecord]| {
+            records
+                .iter()
+                .map(|r| CollideProperty {
+                    id: r.id,
+                    collide_type: 0,
+                })
+                .collect::<Vec<_>>()
+        };
+        profile.env_properties = properties(&report.environment);
+        profile.surface_properties = properties(&report.surface);
+        profile.water_properties = properties(&report.water);
+        profile
+    }
+
     /// `CollisionProfile::HasCollided`: the normal and speed, when the report has a collision
     /// (state 0 or 2).
     pub fn has_collided(&self) -> Option<([f32; 3], f32)> {

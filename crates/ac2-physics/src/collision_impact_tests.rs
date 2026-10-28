@@ -3,6 +3,7 @@
 //! `CCollisionManager::ReportCollision` take).
 
 use crate::body::{MovementInput, PHYSICS_QUANTUM};
+use crate::collision_report::ContactMaterials;
 use crate::test_support::{body_at, terrain};
 
 /// `CPhysicsObj::InitObjectEnd` with the standard walking values (hover 0, forward speed 4, jump
@@ -51,9 +52,14 @@ fn a_landing_impact_is_taken_once_by_the_report() {
     for _ in 0..(2.0 / PHYSICS_QUANTUM).round() as usize {
         body.step_quantum(&ground);
     }
-    let report = body.take_impact_report().expect("the landing is an impact");
-    assert!(report.speed > 0.0, "{report:?}");
-    assert!((report.normal.z - 1.0).abs() < 1e-3, "{report:?}");
+    let report = body
+        .report_collisions(&ContactMaterials::default(), false)
+        .expect("the landing reports");
+    let impact = report.impact.expect("the landing is an impact");
+    assert!(impact.speed > 0.0, "{impact:?}");
+    assert!((impact.normal.z - 1.0).abs() < 1e-3, "{impact:?}");
     assert!(body.last_impact_speed().is_some());
-    assert_eq!(body.take_impact_report(), None);
+    // Taken: the next report lists no impact (its contact began in the first).
+    let next = body.report_collisions(&ContactMaterials::default(), false);
+    assert!(next.as_ref().is_none_or(|r| r.impact.is_none()), "{next:?}");
 }

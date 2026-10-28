@@ -244,12 +244,12 @@ impl Client {
     }
 
     /// `CPhysicsObj::ReportCollisions` -> `CWInterface::HandleCollision`: the object's script
-    /// hears the impact it recorded (its contact normal and speed, as a `CollisionProfile`).
-    /// Only an object whose script runs and owns the IFun hears it.
+    /// hears the collision report (its impact, contact, objects and materials, as a
+    /// `CollisionProfile`). Only an object whose script runs and owns the IFun hears it.
     pub(crate) fn collision_reported(
         &mut self,
         id: u64,
-        report: ac2_physics::ImpactReport,
+        report: ac2_physics::CollisionReport,
         out: &mut Vec<SessionEvent>,
     ) {
         let function = ac2_weenie::IFUN_HANDLE_COLLISION;
@@ -259,8 +259,7 @@ impl Client {
         if !scripts.owned.contains(&function) || !scripts.running.contains(&id) {
             return;
         }
-        let normal = [report.normal.x, report.normal.y, report.normal.z];
-        let profile = ac2_script::native::CollisionProfile::impact(normal, report.speed);
+        let profile = ac2_script::native::CollisionProfile::from_report(&report);
         let args = [IFunArg::Vm(
             ac2_script::native::ntype::COLLISION_PROFILE,
             ac2_script::native::NativeObject::CollisionProfile(Box::new(profile)),

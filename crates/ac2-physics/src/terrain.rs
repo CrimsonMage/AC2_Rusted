@@ -196,6 +196,15 @@ impl Terrain {
     }
 
     /// Marks object `id` ethereal to every mover (or solid again); see `StaticObject::set_ethereal`.
+    /// The `InstanceID` and ethereal flag of object `id`, when it is a server object
+    /// (`StaticObject::with_instance_id`). `None` for scenery and freed slots.
+    pub(crate) fn object_identity(&self, id: u32) -> Option<(u64, bool)> {
+        match self.objects.get(id as usize) {
+            Some(Some((object, _))) => object.identity(),
+            _ => None,
+        }
+    }
+
     pub fn set_object_ethereal(&mut self, id: u32, ethereal: bool) {
         if let Some(Some((object, _))) = self.objects.get_mut(id as usize) {
             object.set_ethereal(ethereal);
