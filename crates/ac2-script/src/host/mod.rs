@@ -13,6 +13,7 @@ mod ifun;
 pub mod ifun_ids;
 mod interface;
 mod inventory_globals;
+pub mod inventory_queries;
 pub mod item_queries;
 pub mod latent;
 mod notices;

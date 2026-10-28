@@ -5,48 +5,50 @@
 //! data), and the caller falls back to the frame's mirror.
 
 use ac2_net::protocol::ntype;
-use ac2_script::host::{IFunArg, IFunResult, IFunReturn, OutValue};
-use ac2_script::native::{NativeObject, RefKey};
-use ac2_script::vm::InterpStatus;
 
-use crate::client::Client;
+use super::ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
+use super::queries::ScriptQueries;
+use super::ui_calls;
+use crate::native::{NativeObject, RefKey};
+use crate::vm::InterpStatus;
 
 /// `ggmCWInterface::CallIFun_DoIHaveItem` (`gmCWInterface::DoIHaveItem`: the item, an int).
-pub(crate) const DO_I_HAVE_ITEM: u32 = 0x00B4_0015;
+pub const DO_I_HAVE_ITEM: u32 = 0x00B4_0015;
 /// `ggmCWInterface::CallIFun_InqSimpleInvByLocTable`: an `ALHash` the script fills, location
 /// to item.
-pub(crate) const INQ_SIMPLE_INV_BY_LOC_TABLE: u32 = 0x00B4_0014;
+pub const INQ_SIMPLE_INV_BY_LOC_TABLE: u32 = 0x00B4_0014;
 /// `ggmCWInterface::CallIFun_InqAllInventoryIIDList`: an `LList` of instance ids the script
 /// fills.
-pub(crate) const INQ_ALL_INVENTORY_IID_LIST: u32 = 0x00B4_011A;
+pub const INQ_ALL_INVENTORY_IID_LIST: u32 = 0x00B4_011A;
 /// `ggmCWInterface::CallIFun_IsOnInventory` (`gmCWInterface::IsOnInventory`: the item, an int).
-pub(crate) const IS_ON_INVENTORY: u32 = 0x00B4_00D0;
+pub const IS_ON_INVENTORY: u32 = 0x00B4_00D0;
 
-impl Client {
+/// The inventory queries, on any [`ScriptQueries`] (the client implements the port).
+pub trait InventoryQueries: ScriptQueries {
     /// An inventory query on the player's script, its result when the VM ran it to the end.
     fn inventory_query(&mut self, function: u32, args: &[IFunArg]) -> Option<IFunResult> {
-        let result = self.script_query(function, args, IFunReturn::Word)?;
+        let result = ui_calls::script_query(self, function, args, IFunReturn::Word)?;
         (result.outcome.status == InterpStatus::Terminated && result.outcome.fault.is_none())
             .then_some(result)
     }
 
     /// `gmCWInterface::DoIHaveItem`: the player lists `item` in a pack or wears it. `None`
     /// without an answer from the script.
-    pub fn do_i_have_item(&mut self, item: u64) -> Option<bool> {
+    fn do_i_have_item(&mut self, item: u64) -> Option<bool> {
         let result = self.inventory_query(DO_I_HAVE_ITEM, &[IFunArg::Long(item)])?;
         Some(result.retval != 0)
     }
 
     /// `gmCWInterface::IsOnInventory`: the script's answer for `item` (see the money bag's drop
     /// test). `None` without an answer from the script.
-    pub fn is_on_inventory(&mut self, item: u64) -> Option<bool> {
+    fn is_on_inventory(&mut self, item: u64) -> Option<bool> {
         let result = self.inventory_query(IS_ON_INVENTORY, &[IFunArg::Long(item)])?;
         Some(result.retval != 0)
     }
 
     /// `gmCWInterface::InqSimpleInvByLocTable`: each worn location and the item at it, in the
     /// script's table order. `None` without an answer from the script.
-    pub fn equipped_by_location(&mut self) -> Option<Vec<(u32, u64)>> {
+    fn equipped_by_location(&mut self) -> Option<Vec<(u32, u64)>> {
         let result = self.inventory_query(
             INQ_SIMPLE_INV_BY_LOC_TABLE,
             &[IFunArg::Filled(ntype::AL_HASH)],
@@ -66,7 +68,7 @@ impl Client {
 
     /// `gmCWInterface::InqAllInventoryIIDList`: every item the player carries (its containers'
     /// and equipment's ids, the script's order). `None` without an answer from the script.
-    pub fn inventory_ids(&mut self) -> Option<Vec<u64>> {
+    fn inventory_ids(&mut self) -> Option<Vec<u64>> {
         let result = self.inventory_query(
             INQ_ALL_INVENTORY_IID_LIST,
             &[IFunArg::Filled(ntype::L_LIST)],
@@ -77,3 +79,5 @@ impl Client {
         }
     }
 }
+
+impl<P: ScriptQueries + ?Sized> InventoryQueries for P {}

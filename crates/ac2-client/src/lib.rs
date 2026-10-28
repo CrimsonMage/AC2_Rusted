@@ -87,7 +87,7 @@ mod hud_shop;
 mod hud_story;
 #[cfg(feature = "window")]
 mod hud_view;
-mod inventory_queries;
+
 mod loader;
 mod motion;
 #[cfg(feature = "window")]

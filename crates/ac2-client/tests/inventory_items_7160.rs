@@ -13,6 +13,7 @@ use ac2_client::{Client, Command, FrameInput};
 use ac2_core::DataId;
 use ac2_net::protocol::{InvTransmuteAllDesc, ScriptRequest, StringVariable};
 use ac2_script::data::DatScriptData;
+use ac2_script::host::inventory_queries::InventoryQueries;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};

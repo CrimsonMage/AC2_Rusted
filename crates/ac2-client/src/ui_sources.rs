@@ -5,6 +5,7 @@
 use std::cell::RefCell;
 
 use ac2_db::PreloadedStringTables;
+use ac2_script::host::inventory_queries::InventoryQueries;
 use ac2_ui::{
     Shortcut, ShortcutOptions, ShortcutSource, SkillNode, SkillPanel, SkillSource, SkillStatus,
     SkillVar, UiStrings, UiText,
