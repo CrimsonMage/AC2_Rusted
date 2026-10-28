@@ -81,7 +81,26 @@ impl WindowPresentation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ac2_prefs::NoNames;
+    use ac2_prefs::NameTable;
+
+    /// Every key and the device section named, as the DAT names them: a key with no name is
+    /// not registered.
+    struct Named;
+
+    impl NameTable for Named {
+        fn section_name(&self, id: u32) -> Option<String> {
+            (id == ac2_render::prefs::DEVICE_SECTION).then(|| "Rendering".to_owned())
+        }
+        fn key_name(&self, id: u32) -> Option<String> {
+            Some(format!("Key{id:08X}"))
+        }
+        fn enum_name(&self, _map: u32, _label: u32) -> Option<String> {
+            None
+        }
+        fn enum_label(&self, _map: u32, _name: &str) -> Option<u32> {
+            None
+        }
+    }
 
     #[test]
     fn the_flags_map_to_the_window_and_the_surface() {
@@ -115,7 +134,7 @@ mod tests {
             WindowPresentation::from_bank(&bank),
             WindowPresentation::from_flags(true, false, true)
         );
-        ac2_render::prefs::register_device(&mut bank, &NoNames);
+        ac2_render::prefs::register_device(&mut bank, &Named);
         assert_eq!(
             WindowPresentation::from_bank(&bank),
             WindowPresentation::from_flags(true, false, true)

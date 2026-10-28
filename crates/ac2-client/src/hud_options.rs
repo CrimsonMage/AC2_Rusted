@@ -226,9 +226,9 @@ mod tests {
     #[test]
     fn a_graphics_change_sends_the_scene_once_and_leaves_the_window_alone() {
         let mut last = None;
-        let first = live_effects(&[0x4000_0043], scene(6), Some(false), &mut last);
+        let first = live_effects(&[0x4000_0043], scene(6), None, &mut last);
         assert_eq!(first, vec![OptionsEffect::Scene(scene(6))]);
-        let again = live_effects(&[0x4000_0043], scene(6), Some(false), &mut last);
+        let again = live_effects(&[0x4000_0043], scene(6), None, &mut last);
         assert!(again.is_empty(), "the same scene is not sent twice");
     }
 
