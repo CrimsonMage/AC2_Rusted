@@ -63,6 +63,8 @@ pub(crate) struct Remote {
     shadow: Option<u32>,
     /// An FX object: ethereal to every mover (`FXManager::DoCreateObjectFX`).
     ethereal: bool,
+    /// The alpha moves an FX object makes once its body exists (`DoCreateObjectFX`'s sliders).
+    alpha_moves: Option<[(f32, f32); 2]>,
     /// The emitter and attach point of an FX object that hangs from one (`FXSetParent`).
     fx_follow: Option<FxFollow>,
 }
@@ -283,6 +285,7 @@ impl Remotes {
                 object: None,
                 shadow: None,
                 ethereal: false,
+                alpha_moves: None,
                 fx_follow: None,
             },
         );
@@ -344,6 +347,11 @@ impl Remotes {
         if let Some(object) = cx.session.objects().get(id) {
             let mode = object.mode.unwrap_or(0);
             crate::motion::describe(&mut body, mode, &object.behaviors, &object.sliders);
+        }
+        if let Some(moves) = remote.alpha_moves.take() {
+            for (pos, time) in moves {
+                body.do_slider(0, crate::fx_objects::ALPHA_SLIDER, pos, time);
+            }
         }
         remote.body = Some(body);
         let held = cx
@@ -614,6 +622,7 @@ impl Remotes {
         visual: u32,
         position: Position,
         fx_follow: Option<FxFollow>,
+        alpha_moves: [(f32, f32); 2],
         cx: &mut Context<'_>,
     ) {
         self.objects.insert(
@@ -630,6 +639,7 @@ impl Remotes {
                 object: None,
                 shadow: None,
                 ethereal: true,
+                alpha_moves: Some(alpha_moves),
                 fx_follow,
             },
         );
@@ -838,6 +848,7 @@ mod entity_mask_tests {
             object: Some((shape, ac2_physics::Vector::new(1.0, 1.0, 1.0))),
             shadow: None,
             ethereal: false,
+            alpha_moves: None,
             fx_follow: None,
         }
     }

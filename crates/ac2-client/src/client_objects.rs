@@ -363,6 +363,7 @@ impl Client {
                     pose: body
                         .map(|b| crate::motion::pose(b, self.pose_blend_time()))
                         .unwrap_or_default(),
+                    anim_scale: body.map_or([1.0; 4], |b| b.draw_scale()),
                 })
             })
             .chain(self.local_object_frames())
@@ -403,6 +404,7 @@ impl Client {
                     wielder: None,
                     appearance: Default::default(),
                     pose: crate::motion::pose(body, self.pose_blend_time()),
+                    anim_scale: body.draw_scale(),
                 })
             })
             .collect()

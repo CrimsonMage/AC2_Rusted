@@ -454,3 +454,30 @@ fn look_at_turns_the_head_toward_the_target() {
         "an empty target releases the look"
     );
 }
+
+/// `FXManager::DoCreateObjectFX`'s alpha: the object starts clear (`DoSlider(0, 0x4000001a, 0,
+/// 0)`), then fades to opaque over its ramp; the draw scale carries the alpha.
+#[test]
+fn an_fx_created_object_fades_in_from_clear_through_the_draw_scale() {
+    const ALPHA: u32 = 0x4000_001a;
+    let mut body = remote_body();
+    assert!(body.do_slider(0, ALPHA, 0.0, 0.0));
+    assert_eq!(body.draw_scale(), [1.0, 1.0, 1.0, 0.0], "clear at once");
+    assert!(body.do_slider(0, ALPHA, 1.0, 0.25));
+    let mut now = 0.0;
+    let mut alphas = Vec::new();
+    for _ in 0..6 {
+        now += 0.05;
+        body.update_animation(0.05, now, &mut Random::default());
+        alphas.push(body.draw_scale()[3]);
+    }
+    assert!(
+        alphas.windows(2).all(|pair| pair[0] <= pair[1]),
+        "{alphas:?}"
+    );
+    assert!(
+        alphas[0] > 0.0 && alphas[0] < 1.0,
+        "the fade runs: {alphas:?}"
+    );
+    assert_eq!(*alphas.last().unwrap(), 1.0, "opaque by the ramp's end");
+}

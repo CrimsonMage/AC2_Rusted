@@ -24,6 +24,8 @@ const RESTORE_SECONDS: f32 = 0.1;
 const FADE_SECONDS: f64 = 0.5;
 const DESTROY_SECONDS: f64 = 3.0;
 const WHITE: [f32; 4] = [1.0; 4];
+/// The slider `FXManager::DoCreateObjectFX` moves an object's alpha on (`CPhysicsObj::DoSlider`).
+pub(crate) const ALPHA_SLIDER: u32 = 0x4000_001a;
 
 /// The FX state the object part keeps per emitter and FX id (`FXState`'s object fields).
 #[derive(Debug, Clone, PartialEq, Default)]
@@ -80,6 +82,16 @@ pub(crate) struct PendingObject {
     pub(crate) emitter: u64,
     pub(crate) visual: u32,
     pub(crate) attach: Ac2FxObjectAttach,
+    /// The node's `m_ramp_time`, which sets how long the object takes to fade in.
+    pub(crate) ramp_time: f32,
+}
+
+/// The two alpha moves `FXManager::DoCreateObjectFX` makes on a created object, as
+/// `(pos, time)` for `CPhysicsObj::DoSlider(0, ALPHA_SLIDER, pos, time)`: the object starts
+/// clear at once, then fades to opaque over `ramp_time`, or over 0.25 s when that is zero.
+pub(crate) fn create_alpha_moves(ramp_time: f32) -> [(f32, f32); 2] {
+    let fade_in = if ramp_time == 0.0 { 0.25 } else { ramp_time };
+    [(0.0, 0.0), (1.0, fade_in)]
 }
 
 /// What the renderer tints and hides: each object's colour times its fade, and the hidden ones.
@@ -274,6 +286,7 @@ impl FxObjects {
             emitter,
             visual: node.vdesc,
             attach: node.attach,
+            ramp_time: node.ramp_time,
         });
         id
     }
@@ -357,6 +370,12 @@ impl FxObjects {
     }
 }
 
+/// `PHYSICSOBJREP::Draw`: the drawn colour is the object's colour (its FX colour and fade) times
+/// its animation colour scale (the colour and opacity sliders). Computed in f64, rounded once.
+pub(crate) fn drawn_tint(colour: [f32; 4], anim: [f32; 4]) -> [f32; 4] {
+    std::array::from_fn(|i| (f64::from(colour[i]) * f64::from(anim[i])) as f32)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -392,6 +411,22 @@ mod tests {
     }
 
     /// A startup FX is not stopped by `StopFX` (`m_bStartupFX` without the force flag).
+    /// `DoCreateObjectFX`'s alpha moves: an instant clear, then a fade over the ramp (0.25 s for
+    /// a zero ramp).
+    #[test]
+    fn a_created_object_fades_in_over_its_ramp_time() {
+        assert_eq!(create_alpha_moves(0.0), [(0.0, 0.0), (1.0, 0.25)]);
+        assert_eq!(create_alpha_moves(0.5), [(0.0, 0.0), (1.0, 0.5)]);
+        let mut fx = FxObjects::default();
+        let node = Ac2FxObject {
+            ramp_time: 2.0,
+            ..vdesc_node(0.0)
+        };
+        fx.start(7, 9, &[node], 0.0);
+        let pending = fx.take_pending();
+        assert_eq!(pending[0].ramp_time, 2.0);
+    }
+
     #[test]
     fn a_startup_fx_keeps_running_through_stop() {
         let mut fx = FxObjects::default();
@@ -432,5 +467,19 @@ mod tests {
         fx.stop(7, 9, &[node], 2.0);
         assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));
         assert_eq!(fx.colour(7, 2.2), None, "back to white");
+    }
+
+    /// An object whose alpha slider is at 0 draws clear; white animation leaves the FX colour.
+    #[test]
+    fn the_animation_scale_multiplies_the_fx_colour() {
+        assert_eq!(
+            drawn_tint([1.0, 0.5, 0.25, 1.0], [1.0; 4]),
+            [1.0, 0.5, 0.25, 1.0]
+        );
+        assert_eq!(
+            drawn_tint([1.0; 4], [0.5, 1.0, 1.0, 0.0]),
+            [0.5, 1.0, 1.0, 0.0]
+        );
+        assert_eq!(drawn_tint([1.0; 4], [1.0, 1.0, 1.0, 0.25])[3], 0.25);
     }
 }

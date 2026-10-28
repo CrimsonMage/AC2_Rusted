@@ -224,6 +224,20 @@ impl PhysicsBody {
         self.object.anim.anim_opacity
     }
 
+    /// `PHYSICSOBJREP::Draw`'s colour scale: the drawn colour is the object's colour times this,
+    /// per channel (r, g, b from `m_animcolor`) and in alpha `m_animopacity * m_animcolor.a`.
+    /// White (all ones) until a colour or opacity slider moves.
+    pub fn draw_scale(&self) -> [f32; 4] {
+        let anim = &self.object.anim;
+        let alpha = f64::from(anim.anim_opacity) * f64::from(anim.anim_color[3]);
+        [
+            anim.anim_color[0],
+            anim.anim_color[1],
+            anim.anim_color[2],
+            alpha as f32,
+        ]
+    }
+
     /// `CPhysicsObj::GetMode`: the mode the animation has reached.
     pub fn mode(&self) -> u32 {
         self.object.anim.modes.mode()

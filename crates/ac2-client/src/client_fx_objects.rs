@@ -154,8 +154,14 @@ impl Client {
                 terrain: &mut self.terrain,
                 player,
             };
-            self.remotes
-                .add_local(object.id, object.visual, position, follow, &mut cx);
+            self.remotes.add_local(
+                object.id,
+                object.visual,
+                position,
+                follow,
+                crate::fx_objects::create_alpha_moves(object.ramp_time),
+                &mut cx,
+            );
         }
         for id in self.fx_objects.step(now) {
             if self.remotes.is_local(id) {

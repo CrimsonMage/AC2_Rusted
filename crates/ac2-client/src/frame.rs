@@ -72,6 +72,9 @@ pub struct ObjectFrame {
     /// The root Setup's bones relative to their parents as the animation left them, when its
     /// physics object exists.
     pub pose: Vec<crate::motion::PartPose>,
+    /// `PHYSICSOBJREP::Draw`'s colour scale ([`ac2_physics::PhysicsBody::draw_scale`]): the
+    /// animation colour and opacity sliders, white until moved. The drawn tint multiplies it.
+    pub anim_scale: [f32; 4],
 }
 
 /// An FX-created object's emitter and where on it the object hangs.
