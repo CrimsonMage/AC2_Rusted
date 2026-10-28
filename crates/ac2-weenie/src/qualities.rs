@@ -31,6 +31,9 @@ pub struct WeenieQualities {
     pub long_ints: BTreeMap<u32, i64>,
 }
 
+/// The bool quality `CBaseQualities::IsMobile` asks for.
+const MOBILE_QUALITY: u32 = 8;
+
 fn table<T: Clone>(pairs: &[(u32, T)]) -> BTreeMap<u32, T> {
     pairs.iter().cloned().collect()
 }
@@ -42,6 +45,17 @@ impl WeenieQualities {
             weenie: Some(weenie),
             ..Self::default()
         }
+    }
+
+    /// `CBaseQualities::SetWeenieDesc`: the description is replaced by a copy of `weenie`.
+    pub fn set_weenie_desc(&mut self, weenie: WeenieDesc) {
+        self.weenie = Some(weenie);
+    }
+
+    /// `CBaseQualities::IsMobile`: the bool quality 8, mobile unless it reads 0 (an absent
+    /// quality leaves the default 1).
+    pub fn is_mobile(&self) -> bool {
+        self.inq_bool(MOBILE_QUALITY).unwrap_or(1) != 0
     }
 
     /// `CBaseQualities::operator=` from an unpacked `CBaseQualities` (`CopyWeenieDesc`, then
@@ -133,6 +147,68 @@ impl WeenieQualities {
 /// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::Inq*` answers only a field that
 /// was set), then the quality's table. Retail then asks `m_defaults` (the class defaults),
 /// which the client does not have.
+/// `CBaseQualities::TruncateInt` (Legions 0x00507AE0): a change that wrapped (a decrease
+/// by a positive `modifier` or an increase by a negative one, or no change at all) is pulled
+/// to the bound it wrapped toward, then the result is clamped to `[minimum, maximum]`.
+pub fn truncate_int(modifier: i32, old: i32, minimum: i32, maximum: i32, new: i32) -> i32 {
+    let mut value = new;
+    if modifier < 0 {
+        if old < value {
+            value = minimum;
+        }
+        if value > maximum {
+            value = maximum;
+        }
+    } else if old <= value {
+        if value > maximum {
+            value = maximum;
+        }
+    } else {
+        value = maximum;
+    }
+    value.max(minimum)
+}
+
+/// `CBaseQualities::TruncateLongInt` (Legions 0x00507B20): [`truncate_int`] over 64 bits.
+pub fn truncate_long_int(modifier: i64, old: i64, minimum: i64, maximum: i64, new: i64) -> i64 {
+    let mut value = new;
+    if modifier < 0 {
+        if old < value {
+            value = minimum;
+        }
+        if value > maximum {
+            value = maximum;
+        }
+    } else if old <= value {
+        if value > maximum {
+            value = maximum;
+        }
+    } else {
+        value = maximum;
+    }
+    value.max(minimum)
+}
+
+/// `CBaseQualities::TruncateFloat` (Legions 0x00507BB0). Unlike the integer forms, a positive
+/// modifier that lowers the value sets the maximum, and no equal-value branch exists.
+pub fn truncate_float(modifier: f32, old: f32, minimum: f32, maximum: f32, new: f32) -> f32 {
+    let mut value = new;
+    if modifier < 0.0 {
+        if old < value {
+            value = minimum;
+        }
+    } else if value < old {
+        value = maximum;
+    }
+    if value > maximum {
+        value = maximum;
+    }
+    if value < minimum {
+        value = minimum;
+    }
+    value
+}
+
 impl WeenieQualities {
     fn desc(&self, stype: u32) -> Option<&WeenieDesc> {
         self.weenie.as_ref().filter(|_| stype < 0x1_0000)
@@ -487,5 +563,45 @@ mod tests {
         assert_eq!(scripts.inq_int(0x26B), Some(9));
         assert_eq!(scripts.weenie.as_ref().unwrap().quantity, Some(3));
         assert!(!scripts.ints.contains_key(&0x26B));
+    }
+}
+
+#[cfg(test)]
+mod truncate_tests {
+    use super::*;
+
+    #[test]
+    fn an_int_change_is_clamped_to_its_bounds() {
+        assert_eq!(truncate_int(5, 10, 0, 100, 12), 12);
+        assert_eq!(truncate_int(5, 10, 0, 100, 150), 100);
+        assert_eq!(truncate_int(-5, 10, 0, 100, 3), 3);
+        assert_eq!(truncate_int(-5, 10, 0, 100, -4), 0);
+    }
+
+    #[test]
+    fn a_wrapped_int_change_goes_to_the_bound_it_wrapped_toward() {
+        // A positive change that went down wrapped past the maximum.
+        assert_eq!(truncate_int(5, 10, 0, 100, 8), 100);
+        // A negative change that went up wrapped past the minimum.
+        assert_eq!(truncate_int(-5, 10, 0, 100, 12), 0);
+        assert_eq!(truncate_long_int(5, 10, 0, 100, 8), 100);
+        assert_eq!(truncate_long_int(-5, 10, 0, 100, 12), 0);
+    }
+
+    #[test]
+    fn a_long_int_uses_the_full_64_bit_range() {
+        let big = 1_i64 << 40;
+        assert_eq!(truncate_long_int(1, big, 0, i64::MAX, big + 1), big + 1);
+        assert_eq!(truncate_long_int(1, big, 0, big, big + 1), big);
+    }
+
+    #[test]
+    fn a_float_wrapped_upward_by_a_positive_modifier_keeps_its_value_within_bounds() {
+        assert_eq!(truncate_float(0.5, 1.0, 0.0, 10.0, 1.5), 1.5);
+        // A positive change that went down (overflow) takes the maximum.
+        assert_eq!(truncate_float(0.5, 1.0, 0.0, 10.0, 0.5), 10.0);
+        // A negative change that went up takes the minimum.
+        assert_eq!(truncate_float(-0.5, 1.0, 0.0, 10.0, 1.5), 0.0);
+        assert_eq!(truncate_float(0.0, 3.0, 0.0, 2.0, 3.0), 2.0);
     }
 }

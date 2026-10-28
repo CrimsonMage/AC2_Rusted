@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 214 done, 30 partial, 40 to do, 215 skipped.
+499 retail functions: 220 done, 31 partial, 33 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -568,7 +568,7 @@ Legend and workflow: [README](README.md).
 - [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 - [x] `CharacterSet::StreamPack` · 006db7f0
 
-## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (1/66)
+## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (3/66)
 
 ### PackObj
 - [-] `PackObj::VERIFY_ADDR` · 00516990 · legions 005049c0 — retail buffer-overrun assert; Rust slice reads are bounds-checked
@@ -578,13 +578,13 @@ Legend and workflow: [README](README.md).
 - [-] `CBaseQualities::GetDBOType` · 00516a00 — DBO type constant
 - [-] `CBaseQualities::CBaseQualities` · 00516a10 · legions 00504a40 — constructor of plain data
 - [x] `CBaseQualities::InitDefaults` · 00516a50 · legions 00504a80 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
-- [ ] `CBaseQualities::IsMobile` · 00516aa0 · legions 00504ad0 — needs port: quality mobility query (CBaseQualities::IsMobile)
+- [x] `CBaseQualities::IsMobile` · 00516aa0 · legions 00504ad0 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [-] `CBaseQualities::Allocate` · 00516ac0 — retail DBO or table allocation; Rust owns values directly
 - [-] `CBaseQualities::Clear` · 00516ad0 · legions 00504b00 — teardown or reset of plain data
 - [-] `CBaseQualities::~CBaseQualities` · 00516cf0 · legions 00504d20 — destructor of plain data
-- [ ] `CBaseQualities::GetPackHeader` · 00516d10 · legions 00504d40 — needs port: qualities pack header and writer (CBaseQualities::GetPackHeader, Pack)
+- [x] `CBaseQualities::GetPackHeader` · 00516d10 · legions 00504d40 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [-] `CBaseQualities::GetPackSize` · 00516df0 · legions 00504e20 — pack size pre-pass; Rust encodes into its own buffer
-- [ ] `CBaseQualities::Pack` · 00516f80 — needs port: qualities pack header and writer (CBaseQualities::GetPackHeader, Pack)
+- [~] `CBaseQualities::Pack` · 00516f80 — ac2-net Qualities::to_bytes: header, DID, weenie desc and tables in UnPack order; empty tables skipped; PHashTable bucket index written as 0 (retail IntrusiveHashTable index and order not kept)
 - [-] `CBaseQualities::GetIntTableIterator` · 00517170 · legions 00505230 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetLongIntTableIterator` · 005171c0 · legions 00505280 — retail hash-table iteration plumbing; Rust maps are iterated directly
 - [-] `CBaseQualities::GetBoolTableIterator` · 00517210 · legions 005052d0 — retail hash-table iteration plumbing; Rust maps are iterated directly
@@ -672,17 +672,17 @@ Legend and workflow: [README](README.md).
 - [~] `CBaseQualities::UnPack` · 005192f0 · legions 005074a0 — unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 - [-] `CBaseQualities::operator=` · 00519840 · legions 005079f0 — assignment or comparison of plain data (operator=, ==, <)
 
-## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (29/69)
+## `portal/shared/src/gameplay/qualities/basequalitiesstats.cpp.c` (33/69)
 
 ### CBaseQualities
 - [ ] `CBaseQualities::InqWeenieDescription` · 00519880 — needs port: weenie description from qualities (CBaseQualities::InqWeenieDescription, SetWeenieDesc)
 - [-] `CBaseQualities::AllocateWeenieDesc` · 005198a0 · legions 00507a50 — retail DBO or table allocation; Rust owns values directly
 - [-] `CBaseQualities::CopyWeenieDesc` · 005198d0 · legions 00507a80 — copy of plain data (Clone)
-- [ ] `CBaseQualities::TruncateInt` · 00519930 · legions 00507ae0 — needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
-- [ ] `CBaseQualities::TruncateLongInt` · 00519970 · legions 00507b20 — needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
-- [ ] `CBaseQualities::TruncateFloat` · 00519a00 · legions 00507bb0 — needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
+- [x] `CBaseQualities::TruncateInt` · 00519930 · legions 00507ae0 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
+- [x] `CBaseQualities::TruncateLongInt` · 00519970 · legions 00507b20 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
+- [x] `CBaseQualities::TruncateFloat` · 00519a00 · legions 00507bb0 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [x] `CBaseQualities::IsInWeenieDesc` · 00519a60 · legions 00507c10
-- [ ] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70 — needs port: weenie description from qualities (CBaseQualities::InqWeenieDescription, SetWeenieDesc)
+- [x] `CBaseQualities::SetWeenieDesc` · 00519ac0 · legions 00507c70 — ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 - [-] `CBaseQualities::DumpWeenieDesc` · 00519af0 · legions 00507ca0 — admin dump/verify debug helper
 - [x] `CBaseQualities::RemoveInt` · 00519ba0 · legions 00507d50 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [~] `CBaseQualities::InqInt` · 00519c10 · legions 00507dc0 — WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)

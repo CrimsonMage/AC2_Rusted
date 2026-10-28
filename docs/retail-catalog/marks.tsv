@@ -5710,13 +5710,13 @@ key	status	note
 00516a00	-	DBO type constant
 00516a10	-	constructor of plain data
 00516a50	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
-00516aa0	_	needs port: quality mobility query (CBaseQualities::IsMobile)
+00516aa0	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 00516ac0	-	retail DBO or table allocation; Rust owns values directly
 00516ad0	-	teardown or reset of plain data
 00516cf0	-	destructor of plain data
-00516d10	_	needs port: qualities pack header and writer (CBaseQualities::GetPackHeader, Pack)
+00516d10	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 00516df0	-	pack size pre-pass; Rust encodes into its own buffer
-00516f80	_	needs port: qualities pack header and writer (CBaseQualities::GetPackHeader, Pack)
+00516f80	~	ac2-net Qualities::to_bytes: header, DID, weenie desc and tables in UnPack order; empty tables skipped; PHashTable bucket index written as 0 (retail IntrusiveHashTable index and order not kept)
 00517170	-	retail hash-table iteration plumbing; Rust maps are iterated directly
 005171c0	-	retail hash-table iteration plumbing; Rust maps are iterated directly
 00517210	-	retail hash-table iteration plumbing; Rust maps are iterated directly
@@ -5774,11 +5774,11 @@ key	status	note
 00519880	_	needs port: weenie description from qualities (CBaseQualities::InqWeenieDescription, SetWeenieDesc)
 005198a0	-	retail DBO or table allocation; Rust owns values directly
 005198d0	-	copy of plain data (Clone)
-00519930	_	needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
-00519970	_	needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
-00519a00	_	needs port: quality value truncation to retail storage width (CBaseQualities::TruncateInt, TruncateLongInt, TruncateFloat)
+00519930	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
+00519970	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
+00519a00	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 00519a60	x	
-00519ac0	_	needs port: weenie description from qualities (CBaseQualities::InqWeenieDescription, SetWeenieDesc)
+00519ac0	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 00519af0	-	admin dump/verify debug helper
 00519ba0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 00519c10	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
