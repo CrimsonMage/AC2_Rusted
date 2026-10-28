@@ -44,6 +44,7 @@ impl Client {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
                             self.fx_objects.start(*id, fx, &nodes, now);
+                            self.fx_objects.start_streaks(*id, fx, table);
                         }
                     }
                     Ac2AnimEvent::StopFx { fx } => {
@@ -51,6 +52,7 @@ impl Client {
                             .map(|table| fx_nodes(table, fx))
                             .unwrap_or_default();
                         self.fx_objects.stop(*id, fx, &nodes, now);
+                        self.fx_objects.stop_streaks(*id, fx);
                     }
                     _ => {}
                 }
@@ -113,12 +115,20 @@ impl Client {
         let remotes = &self.remotes;
         self.fx_objects
             .retain_startup(|id| Some(id) == player_id || remotes.tracks(id));
-        for id in self.fx_objects.emitters() {
-            let gone = Some(id) != player_id
+        let is_gone = |id: u64| {
+            Some(id) != player_id
                 && remotes.get(id).is_none()
-                && id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS;
-            if gone {
+                && id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS
+        };
+        for id in self.fx_objects.emitters() {
+            if is_gone(id) {
                 self.fx_objects.remove_emitter(id, now);
+            }
+        }
+        // A streak's emitter may have no FX left running: its streaks go with it all the same.
+        for id in self.fx_objects.streaked_emitters() {
+            if is_gone(id) {
+                self.fx_objects.remove_streaks(id);
             }
         }
     }

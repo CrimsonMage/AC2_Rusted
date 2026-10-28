@@ -315,6 +315,7 @@ impl Client {
         let prefs = self.prefs.take()?;
         self.apply_sound_preferences(prefs.bank());
         self.apply_light_preferences(prefs.bank());
+        self.apply_streak_preferences(prefs.bank());
         self.camera
             .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
         let scene = prefs.scene_options();

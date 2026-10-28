@@ -476,6 +476,9 @@ impl App {
         let lights = self.client.take_object_light_starts();
         let gone = self.client.take_object_lights_gone();
         view.set_object_lights(&lights, &gone);
+        // The streaks the objects' FX made, started, stopped or destroyed since the last frame.
+        let streaks = self.client.take_object_streak_calls();
+        view.set_object_streaks(&streaks, self.client.streaks_enabled());
         view.update(&state.gpu, &frame, LOAD_BUDGET);
         // The HUD's sounds play from the client's sound manager on its next frame.
         if let Some(audio) = self.client.audio_mut() {
@@ -840,6 +843,7 @@ fn run(args: Args) -> Result<(), String> {
     let scene_options = prefs.scene_options();
     client.apply_sound_preferences(prefs.bank());
     client.apply_light_preferences(prefs.bank());
+    client.apply_streak_preferences(prefs.bank());
     client.attach_prefs(prefs);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {

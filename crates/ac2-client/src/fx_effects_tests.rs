@@ -243,6 +243,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
     .expect("the human is posed");
     let placements = [ObjectPlacement {
         emitter: EMITTER,
+        cell: 0,
         frame: ac2_math::Frame::new(at, ac2_math::Quat::IDENTITY),
         scale: Vec3::ONE,
         bones: posed.bones,

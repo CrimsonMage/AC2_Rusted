@@ -115,6 +115,14 @@ pub(crate) struct FxObjects {
     pending: Vec<PendingObject>,
     next: u64,
     now: f64,
+    /// The FX whose start ran its streak nodes and has not stopped (`FXManager::m_current_fx`
+    /// for the streak part of `DoTargettedFX`), and the emitters that hold streaks.
+    pub(crate) streaking: BTreeSet<(u64, u32)>,
+    pub(crate) streaked: BTreeSet<u64>,
+    /// The streak calls the renderer takes, in order (see [`crate::fx_streaks::ObjectStreakCall`]).
+    pub(crate) streak_calls: Vec<crate::fx_streaks::ObjectStreakCall>,
+    /// `StreakEffects` is off: no streak is made (`DoStreakFX` returns without one).
+    pub(crate) streaks_off: bool,
 }
 
 impl FxObjects {
@@ -253,6 +261,7 @@ impl FxObjects {
             self.teardown(emitter, record, now);
         }
         self.colours.remove(&emitter);
+        self.streaking.retain(|(id, _)| *id != emitter);
     }
 
     /// `FXManager::StopFX`'s and `UseTime`'s shared teardown: the FX's objects fade and go, its

@@ -24,6 +24,7 @@ use ac2_world::Ac2WorldSource;
 
 use crate::frame::{ClientFrame, FxFollow};
 use crate::fx_particles::{ObjectLightStart, ObjectParticleStart};
+use crate::fx_streaks::ObjectStreakCall;
 use crate::hud_view::HudView;
 use crate::motion::PartPose;
 
@@ -285,6 +286,24 @@ impl ClientView {
         }
     }
 
+    /// The streaks the objects' FX made, started, stopped and destroyed (`FXManager::DoStreakFX`,
+    /// `StartStreak`, `StopStreak`), in order; `visible` is `StreakEffects` (the ribbons draw only
+    /// while it is on).
+    pub fn set_object_streaks(&mut self, calls: &[ObjectStreakCall], visible: bool) {
+        for call in calls {
+            match *call {
+                ObjectStreakCall::Create { emitter, spec } => {
+                    self.scene.start_object_streak(emitter, spec);
+                }
+                ObjectStreakCall::Activate { emitter, on } => {
+                    self.scene.set_object_streaks_active(emitter, on);
+                }
+                ObjectStreakCall::Gone { emitter } => self.scene.remove_object_streaks(emitter),
+            }
+        }
+        self.scene.set_streaks_visible(visible);
+    }
+
     /// Where each drawn object stands this frame, with its posed root bones, for the particle
     /// systems it runs and the holding points they attach to.
     fn object_placements(
@@ -306,6 +325,7 @@ impl ClientView {
                     .unwrap_or_default();
                 Some(ObjectPlacement {
                     emitter: drawn.id,
+                    cell: drawn.cell,
                     frame: *frame,
                     scale: *scale,
                     bones,
