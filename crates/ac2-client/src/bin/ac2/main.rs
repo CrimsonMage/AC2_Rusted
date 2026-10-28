@@ -922,6 +922,7 @@ fn run(args: Args) -> Result<(), String> {
 }
 
 fn main() {
+    ac2_db::install_frame_workers();
     let result = parse_args().and_then(run);
     if let Err(message) = result {
         eprintln!("ac2: {message}");

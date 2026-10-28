@@ -144,6 +144,7 @@ fn parse_args() -> Result<Args, String> {
 }
 
 fn main() {
+    ac2_db::install_frame_workers();
     let args = match parse_args() {
         Ok(args) => args,
         Err(message) => {

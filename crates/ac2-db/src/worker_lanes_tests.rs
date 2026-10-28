@@ -84,3 +84,12 @@ fn frame_map_from_a_pool_thread_stays_serial() {
     assert_eq!(mapped, items.iter().map(|v| v * 2).collect::<Vec<_>>());
     assert_eq!(lanes.frame_counts(), (0, 1));
 }
+
+#[test]
+fn frame_workers_leave_the_frame_thread_its_core_and_stop_at_eight() {
+    assert_eq!(frame_worker_count(1), 1);
+    assert_eq!(frame_worker_count(2), 1);
+    assert_eq!(frame_worker_count(4), 3);
+    assert_eq!(frame_worker_count(9), 8);
+    assert_eq!(frame_worker_count(64), MAX_FRAME_WORKERS);
+}

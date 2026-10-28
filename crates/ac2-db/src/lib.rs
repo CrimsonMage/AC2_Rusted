@@ -127,6 +127,7 @@ pub use typed_cache::{
 };
 pub use typed_ref::TypedResourceRef;
 pub use worker_lanes::{
-    frame_map, frame_map_on, frame_map_with_threshold, global_worker_lanes,
-    install_global_worker_lanes, WorkerLaneWaiter, WorkerLanes, FRAME_PARALLEL_MIN_ITEMS,
+    frame_map, frame_map_on, frame_map_with_threshold, frame_worker_count, global_worker_lanes,
+    install_frame_workers, install_global_worker_lanes, WorkerLaneWaiter, WorkerLanes,
+    FRAME_PARALLEL_MIN_ITEMS, MAX_FRAME_WORKERS,
 };

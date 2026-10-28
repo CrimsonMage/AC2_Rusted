@@ -122,6 +122,32 @@ impl WorkerLanes {
 
 static INSTALLED: OnceLock<Arc<WorkerLanes>> = OnceLock::new();
 
+/// Frame helper threads for `logical` logical cores: one fewer (the frame thread works too), at
+/// most `MAX_FRAME_WORKERS`. Frame splits are a few milliseconds of work; past eight helpers the
+/// chunk hand-off costs more than it saves, and on a slow many-core CPU more threads only add
+/// coordination.
+pub fn frame_worker_count(logical: usize) -> usize {
+    logical.saturating_sub(1).clamp(1, MAX_FRAME_WORKERS)
+}
+
+/// The most frame helper threads [`frame_worker_count`] gives.
+pub const MAX_FRAME_WORKERS: usize = 8;
+
+/// Builds rayon's global pool with [`frame_worker_count`] threads for this machine and installs
+/// its lanes, frame splits on. For the composition roots (the client and the tools) only, once,
+/// before any rayon work; a later call, or a pool someone already built, leaves things as they are.
+pub fn install_frame_workers() {
+    let logical = std::thread::available_parallelism().map_or(1, usize::from);
+    let threads = frame_worker_count(logical);
+    let built = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .thread_name(|index| format!("ac2-frame-{index}"))
+        .build_global();
+    if built.is_ok() {
+        let _ = install_global_worker_lanes(Arc::new(WorkerLanes::new(threads, true)));
+    }
+}
+
 /// Installs the lanes for rayon's global pool. Only the composition root that built that pool
 /// calls this; the first installation wins.
 pub fn install_global_worker_lanes(lanes: Arc<WorkerLanes>) -> Result<(), Arc<WorkerLanes>> {

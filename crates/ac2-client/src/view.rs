@@ -15,7 +15,7 @@ use ac2_core::DataId;
 use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
 use ac2_math::{Frame, Mat4, Quat, Vec3};
 use ac2_physics::PartPose;
-use ac2_render::object::ObjectPose;
+use ac2_render::object::{ObjectPose, PoseRig};
 use ac2_render::object_fx::{follow_emitters, object_placements, world_matrix, FxSlot};
 use ac2_render::scene::WorldScene;
 use ac2_render::Camera;
@@ -294,11 +294,14 @@ impl ClientView {
         self.scene.set_clock(time);
         let drawn = drawn_objects(frame);
         let mut frames: Vec<Frame> = drawn.iter().map(|drawn| self.drawn_frame(drawn)).collect();
-        let mut placed: Vec<_> = drawn
+        // Each object's pose is its own (`CPartArray::UpdateBones` per object), so the poses are
+        // split across the frame workers.
+        let rigged: Vec<_> = drawn
             .iter()
             .zip(&frames)
-            .map(|(drawn, at)| self.placed(drawn, *at))
+            .map(|(drawn, at)| (drawn, *at, self.scene.object_rig(drawn.key)))
             .collect();
+        let mut placed = ac2_db::frame_map(&rigged, |&(drawn, at, rig)| placed(drawn, at, rig?));
         let slots = fx_slots(&drawn);
         follow_emitters(&self.scene, &slots, &mut frames, &mut placed);
         self.follow_holders(&drawn, &mut frames, &mut placed);
@@ -343,16 +346,9 @@ impl ClientView {
         )
     }
 
-    /// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`),
-    /// standing at `at`.
+    /// [`placed`] for one drawn object standing at `at`, once its model is loaded.
     fn placed(&self, drawn: &Drawn<'_>, at: Frame) -> Option<(u64, Mat4, Option<ObjectPose>)> {
-        let key = drawn.key;
-        let (rig, scale) = self.scene.object_rig(key)?;
-        let world = world_matrix(*scale, at);
-        let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
-        let placement = drawn.placement.unwrap_or(0);
-        let pose = rig.pose_placed((!bones.is_empty()).then_some(bones.as_slice()), placement);
-        Some((key, world, pose))
+        placed(drawn, at, self.scene.object_rig(drawn.key)?)
     }
 
     /// Whether the reticle cleared the selection since the last call (send
@@ -406,4 +402,18 @@ impl ClientView {
             |pass| self.fader.draw(pass),
         );
     }
+}
+
+/// A drawn object's model key, model-to-world matrix and pose (`CPartArray::UpdateBones`),
+/// standing at `at` with its loaded `rig` and scale.
+fn placed(
+    drawn: &Drawn<'_>,
+    at: Frame,
+    (rig, scale): &(PoseRig, Vec3),
+) -> Option<(u64, Mat4, Option<ObjectPose>)> {
+    let world = world_matrix(*scale, at);
+    let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
+    let placement = drawn.placement.unwrap_or(0);
+    let pose = rig.pose_placed((!bones.is_empty()).then_some(bones.as_slice()), placement);
+    Some((drawn.key, world, pose))
 }
