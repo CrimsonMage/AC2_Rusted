@@ -4501,15 +4501,15 @@ key	status	note
 004de9c0	x	ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 004de9d0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9e0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004de9f0	_	needs port: cite-only physics-object method
-004dea00	_	needs port: cite-only physics-object method
+004de9f0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004dea00	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
 004dea10	x	CPhysicsObj::IsMovingTo - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004dea20	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004dea30	_	needs port: cite-only physics-object method
+004dea30	_	ac2-physics PhysicsBody::last_do_motion_values (CMotionInterp last do-motion vector)
 004dea50	_	needs port: cite-only physics-object method
-004dea70	_	needs port: cite-only physics-object method
-004deab0	_	needs port: cite-only physics-object method
-004deac0	_	needs port: cite-only physics-object method
+004dea70	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004deab0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004deac0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
 004dead0	x	ac2-physics interp (slice 3)
 004deb70	x	ac2-physics interp (slice 3)
 004dec30	x	ac2-physics interp (slice 3)
@@ -4869,7 +4869,7 @@ key	status	note
 004eae10	x	ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 004eae20	x	CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 004eae30	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
-004eae40	_	needs port: cite-only physics-object method
+004eae40	_	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 004eae50	_	needs port: cite-only physics-object method
 004eae60	-	state-bit flag accessor
 004eae70	-	state-bit flag accessor
@@ -5070,9 +5070,9 @@ key	status	note
 004f1480	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f14a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f14c0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-004f14e0	_	needs port: cite-only physics-object method
-004f14f0	_	needs port: cite-only physics-object method
-004f1500	_	needs port: cite-only physics-object method
+004f14e0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004f14f0	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+004f1500	_	structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
 004f1510	_	needs port: cite-only physics-object method
 004f1540	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1560	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5080,7 +5080,7 @@ key	status	note
 004f15a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004f15c0	_	needs port: cite-only physics-object method
 004f15d0	_	needs port: cite-only physics-object method
-004f15e0	_	needs port: cite-only physics-object method
+004f15e0	_	ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
 004f15f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1610	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f1630	x	ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
@@ -5109,12 +5109,12 @@ key	status	note
 004f18f0	_	needs port: cite-only physics-object method
 004f1910	x	ac2-physics body_access.rs PhysicsBody::depth
 004f1930	x	ac2-physics body_access.rs PhysicsBody::has_water
-004f1950	_	needs port: cite-only physics-object method
+004f1950	_	the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 004f1970	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f19d0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f1a00	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 004f1a20	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-004f1a40	_	needs port: cite-only physics-object method
+004f1a40	_	ac2-physics PhysicsBody::is_sliding_down / local_velocity
 004f1a70	_	needs port: cite-only physics-object method
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5125,8 +5125,8 @@ key	status	note
 004f1d70	~	Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 004f1da0	~	the named bone an FX attach point reads, live each frame (ac2-physics fx_follow.rs follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 004f1db0	_	needs port: cite-only physics-object method
-004f1dd0	_	needs port: cite-only physics-object method
-004f1de0	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
+004f1dd0	_	ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
+004f1de0	~	ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
 004f1df0	_	needs port: cite-only physics-object method
 004f1e00	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 004f1e10	x	ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
@@ -5167,7 +5167,7 @@ key	status	note
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2590	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f25b0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
-004f25d0	_	needs port: cite-only physics-object method
+004f25d0	_	ac2-physics PhysicsBody::is_sliding_down / local_velocity
 004f25e0	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2620	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f2670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -5186,8 +5186,8 @@ key	status	note
 004f2800	-	render plumbing
 004f2810	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f2830	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004f2860	_	needs port: cite-only physics-object method
-004f2880	_	needs port: cite-only physics-object method
+004f2860	_	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+004f2880	_	ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
 004f28a0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f28f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f2940	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5195,10 +5195,10 @@ key	status	note
 004f2a00	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f2ad0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f2c30	_	needs port: cite-only physics-object method
-004f2cc0	_	needs port: cite-only physics-object method
-004f2d20	_	needs port: cite-only physics-object method
-004f2d70	_	needs port: cite-only physics-object method
-004f2df0	_	needs port: cite-only physics-object method
+004f2cc0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004f2d20	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004f2d70	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+004f2df0	_	ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
 004f2e70	~	ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 004f3280	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f3460	_	needs port: cite-only physics-object method

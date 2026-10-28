@@ -23,6 +23,38 @@ const IN_WORKSPACE_PS: u32 = 0x1000_0000;
 const MOVING_SPEED_SQUARED: f32 = 0.0002;
 
 impl PhysicsBody {
+    /// `CPhysicsObj::IsSlidingDown`: in contact but not on walkable ground.
+    pub fn is_sliding_down(&self) -> bool {
+        self.object.has_contact() && !self.object.on_walkable()
+    }
+
+    /// `CPhysicsObj::get_local_velocity`: the world velocity in the body's own axes.
+    pub fn local_velocity(&self) -> Vector {
+        self.object
+            .position
+            .frame
+            .global_to_local_vec(self.object.velocity)
+    }
+
+    /// `CPhysicsObj::GetStandardMotionValues` (`PHYSICSOBJREP::GetStandardMotionValues`): the
+    /// peace-on-earth motion values, the static default without a motion table.
+    pub fn standard_motion_values(&self) -> ac2_world::Ac2MotionValues {
+        self.object.motion.standard_motion_values()
+    }
+
+    /// `CPhysicsObj::GetDesiredMotionValues`: the desired mode state's values, else the
+    /// element's default mode, else the static default.
+    pub fn desired_motion_values(&self) -> ac2_world::Ac2MotionValues {
+        let (element, mode) = (self.object.desired_element(), self.object.motion.mode());
+        self.object.motion.desired_motion_values(element, mode)
+    }
+
+    /// `CPhysicsObj::GetLastDoMotionValues` (`CMotionInterp::GetLastDoMotionValues`): the
+    /// do-motion vector last applied.
+    pub fn last_do_motion_values(&self) -> Vector {
+        self.object.motion.last_do_motion()
+    }
+
     /// The body's own total scale without any parent (`CPhysicsObj::GetTotalScale`'s first
     /// product): the representation's scale (the Setup's visual scale) times `GetScale`, each
     /// component stored as `float`. [`crate::ChildGraph::total_scale`] adds the parent chain.
@@ -423,6 +455,21 @@ impl PhysicsBody {
 mod tests {
     use crate::test_support::body_at;
     use crate::vector::Vector;
+
+    #[test]
+    fn contact_and_velocity_queries_follow_the_object() {
+        let mut body = body_at(70.0, 30.0, 50.0);
+        assert!(!body.is_sliding_down());
+        body.object_mut().transient_state |= crate::physics_obj::CONTACT_TS;
+        assert!(body.is_sliding_down(), "contact without walkable ground");
+        body.object_mut().transient_state |= crate::physics_obj::ON_WALKABLE_TS;
+        assert!(!body.is_sliding_down());
+        body.set_velocity([0.0, 3.0, 0.0]);
+        let local = body.local_velocity();
+        assert!((local.x * local.x + local.y * local.y + local.z * local.z - 9.0).abs() < 1e-3);
+        assert_eq!(body.last_do_motion_values(), Vector::ZERO);
+        assert_eq!(body.standard_motion_values(), body.desired_motion_values());
+    }
 
     #[test]
     fn scale_sets_the_total_scale_and_marks_a_scaled_bsp_body() {

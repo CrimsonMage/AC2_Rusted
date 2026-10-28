@@ -2247,15 +2247,15 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::IsDoingBehavior` · 004de9c0 — ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 - [x] `CPhysicsObj::GetSliderCurrentValue` · 004de9d0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::GetSliderDesiredValue` · 004de9e0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetStandardMotionValues` · 004dea00 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [ ] `CPhysicsObj::GetStandardMotionValues` · 004dea00 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
 - [x] `CPhysicsObj::IsMovingTo` · 004dea10 · legions 004d1470 — CPhysicsObj::IsMovingTo - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::InterruptMoveTo` · 004dea20 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::GetLastDoMotionValues` · 004dea30 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::GetLastDoMotionValues` · 004dea30 — ac2-physics PhysicsBody::last_do_motion_values (CMotionInterp last do-motion vector)
 - [ ] `CPhysicsObj::GetRemoteDoMotionValues` · 004dea50 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetMotionInterpreter` · 004deab0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::GetModeTracker` · 004deac0 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::SetMotionInterpreter` · 004dea70 · legions 004d14d0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [ ] `CPhysicsObj::GetMotionInterpreter` · 004deab0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [ ] `CPhysicsObj::GetModeTracker` · 004deac0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
 - [x] `CPhysicsObj::InterpolateAndImpulse` · 004dead0 · legions 004d1530 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::InterpolateTo` · 004deb70 · legions 004d15d0 — ac2-physics interp (slice 3)
 - [x] `CPhysicsObj::StopInterpolating` · 004dec30 · legions 004d1690 — ac2-physics interp (slice 3)
@@ -2643,7 +2643,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::GetLookAtZ` · 004eae10 — ac2-physics body_access.rs PhysicsBody::distance_to_viewer / look_at_x / look_at_z / physics_collide_mask
 - [x] `CPhysicsObj::IsInWorld` · 004eae20 — CPhysicsObj::IsInWorld - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::IsInWorkspace` · 004eae30 — ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
-- [ ] `CPhysicsObj::GetCell` · 004eae40 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::GetCell` · 004eae40 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 - [ ] `CPhysicsObj::GetFrame` · 004eae50 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::get_state` · 004eae60 — state-bit flag accessor
 - [-] `CPhysicsObj::is_dynamic` · 004eae70 — state-bit flag accessor
@@ -2769,9 +2769,9 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::IsDoingBehavior` · 004f1480 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetSliderCurrentValue` · 004f14a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `PHYSICSOBJREP::GetSliderDesiredValue` · 004f14c0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `PHYSICSOBJREP::GetMotionInterpreter` · 004f14e0 · legions 004e3e30 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetModeTracker` · 004f14f0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetSliderTracker` · 004f1500 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::GetMotionInterpreter` · 004f14e0 · legions 004e3e30 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [ ] `PHYSICSOBJREP::GetModeTracker` · 004f14f0 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
+- [ ] `PHYSICSOBJREP::GetSliderTracker` · 004f1500 — structural: the body's PhysicsObj holds the CMotionInterp (motion), ModeTracker (anim.modes) and slider tracker (anim.sliders) directly; ac2-physics anim_rep.rs, physics_obj.rs
 - [ ] `PHYSICSOBJREP::GetIID` · 004f1510 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetSeaFloorMultiplier` · 004f1540 · legions 004e3e70 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetWaterMultiplier` · 004f1560 · legions 004e3e90 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -2779,7 +2779,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::InterruptMoveTo` · 004f15a0 · legions 004e3ed0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `PHYSICSOBJREP::HandleBehaviorDone` · 004f15c0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::HandleReleaseDone` · 004f15d0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::HandleMoveToCallback` · 004f15e0 — ac2-physics moveto/manager.rs HandleMoveToCallback results via PhysicsBody::take_move_to_results
 - [x] `PHYSICSOBJREP::IsMovingTo` · 004f15f0 · legions 004e3f20 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::IsTurningTo` · 004f1610 · legions 004e3f40 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::SetGlobalModifier` · 004f1630 — ac2-physics body.rs set_global_modifier -> motion_interp.rs global_mod (keys the motion table lookup); ac2-client motion.rs apply; test motion_interp_tests a_global_modifier_selects_its_motion_values
@@ -2808,12 +2808,12 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetHeightAboveWalkable` · 004f18f0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetDepth` · 004f1910 — ac2-physics body_access.rs PhysicsBody::depth
 - [x] `PHYSICSOBJREP::HasWater` · 004f1930 · legions 004e4260 — ac2-physics body_access.rs PhysicsBody::has_water
-- [ ] `PHYSICSOBJREP::GetCell` · 004f1950 · legions 004e4280 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::GetCell` · 004f1950 · legions 004e4280 — the Rust body names its cell by id (PhysicsBody::position().cell_id); no CObjCell pointer to return
 - [x] `PHYSICSOBJREP::GetVectorHeading` · 004f1970 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetHeading` · 004f19d0 · legions 004e4300 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [~] `PHYSICSOBJREP::GetTriggerUpdate` · 004f1a00 — the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
 - [x] `PHYSICSOBJREP::GetConstraintFactor` · 004f1a20 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-- [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::GetLocalVelocity` · 004f1a40 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
 - [ ] `PHYSICSOBJREP::GetTransitionCVel` · 004f1a70 · legions 004e43a0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::DoAnimation` · 004f1ad0 — ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 - [x] `PHYSICSOBJREP::GetComboCVel` · 004f1b00 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2824,8 +2824,8 @@ Legend and workflow: [README](README.md).
 - [~] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — the named bone an FX attach point reads, live each frame (ac2-physics fx_follow.rs follow_frame over the emitter's posed named bones). A missing bone keeps the object's last place (retail: undefined). Not used for other children.
 - [ ] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — needs port: cite-only physics-object method
-- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
+- [ ] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
+- [~] `PHYSICSOBJREP::GetHoldingLocation` · 004f1de0 · legions 004e46e0 — ac2-physics held.rs has_holding_location / find_holding_point over the holder's part-group Setup holding lists
 - [ ] `PHYSICSOBJREP::GetPartGroup` · 004f1df0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetNumSphere` · 004f1e00 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
 - [x] `PHYSICSOBJREP::GetSphere` · 004f1e10 — ac2-physics body_access.rs PhysicsBody shape getters over BodyShape (num_sphere, spheres, allows_free_heading, set_step_down_height, step_up/down_height, radius, height, physics_containment_radius)
@@ -2866,7 +2866,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::UpdateAnimation` · 004f2560 · legions 004e4e60 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `PHYSICSOBJREP::GetTerrainType` · 004f2590 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::HasContact` · 004f25b0 — ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
-- [ ] `PHYSICSOBJREP::IsSlidingDown` · 004f25d0 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::IsSlidingDown` · 004f25d0 — ac2-physics PhysicsBody::is_sliding_down / local_velocity
 - [x] `PHYSICSOBJREP::GetContactPlane` · 004f25e0 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetAnimVelocity` · 004f2620 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::IsThePlayer` · 004f2670 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
@@ -2891,8 +2891,8 @@ Legend and workflow: [README](README.md).
 - [-] `SliderInterpolator::SliderInterpolator` · 004f2830 · legions 004e5110 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### PHYSICSOBJREP
-- [ ] `PHYSICSOBJREP::GetModeState` · 004f2860 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetDesiredModeState` · 004f2880 · legions 004e5160 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::GetModeState` · 004f2860 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
+- [ ] `PHYSICSOBJREP::GetDesiredModeState` · 004f2880 · legions 004e5160 — ac2-anim ModeTracker mode state / desired mode state; PhysicsBody::mode and desired element
 - [x] `PHYSICSOBJREP::GetAcceleration` · 004f28a0 · legions 004e5220 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetDesiredVelocity` · 004f28f0 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 - [x] `PHYSICSOBJREP::GetOmegaAcceleration` · 004f2940 — ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -2906,10 +2906,10 @@ Legend and workflow: [README](README.md).
 
 ### PHYSICSOBJREP
 - [ ] `PHYSICSOBJREP::GetSliderInterpolator` · 004f2c30 · legions 004e5420 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetMotionValuesForElement` · 004f2cc0 · legions 004e54b0 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0 — needs port: cite-only physics-object method
+- [ ] `PHYSICSOBJREP::GetMotionValuesForElement` · 004f2cc0 · legions 004e54b0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [ ] `PHYSICSOBJREP::GetMotionValues` · 004f2d20 · legions 004e5510 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [ ] `PHYSICSOBJREP::GetDesiredMotionValues` · 004f2d70 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
+- [ ] `PHYSICSOBJREP::GetStandardMotionValues` · 004f2df0 — ac2-physics motion_interp.rs motion_values / motion_values_for_element / desired_motion_values / standard_motion_values; PhysicsBody::desired_motion_values and standard_motion_values forward
 - [~] `PHYSICSOBJREP::PrepareObjectForDrawing` · 004f2e70 · legions 004e5660 — ac2-render scene/object_lights.rs place: light fade in/out and lifespan (opacity), origin = object frame times offset, spent lights dropped; object particle systems follow the object's frame (scene/particles.rs place_objects); cell and water-plane placement not ported
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f3280 · legions 004e5a40 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [ ] `PHYSICSOBJREP::GetBaseSetupName` · 004f3460 — needs port: cite-only physics-object method
