@@ -18,6 +18,20 @@ impl Vector {
         Self { x, y, z }
     }
 
+    /// `Vector::FromSpherical(length, heading, pitch)`, both angles in degrees: the angles scale
+    /// by the `float` `0.017453292`, the products stay on the x87 stack and each component is
+    /// stored as `float`.
+    pub(crate) fn from_spherical(length: f32, heading: f32, pitch: f32) -> Self {
+        let to_radians = ld(0.017_453_292_f32);
+        let cos_pitch = (ld(pitch) * to_radians).cos();
+        let sin_heading = (ld(heading) * to_radians).sin();
+        let x = st(sin_heading * cos_pitch * ld(length));
+        let cos_heading = (ld(heading) * to_radians).cos();
+        let y = st(cos_heading * cos_pitch * ld(length));
+        let z = st((ld(pitch) * to_radians).sin() * ld(length));
+        Self::new(x, y, z)
+    }
+
     /// `x*x + y*y + z*z`.
     #[inline]
     pub(crate) fn mag2_xyz(self) -> f64 {

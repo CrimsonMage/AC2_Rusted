@@ -252,8 +252,27 @@ impl Frame {
         self.cache_quaternion();
     }
 
+    /// `Frame::OrientFrame`: the rotation whose local y axis is `forward` and local z axis is
+    /// `up` (the x axis is their cross product), then `cache_quaternion`.
+    pub(crate) fn orient_frame(&mut self, up: Vector, forward: Vector) {
+        let (ux, uy, uz) = (ld(up.x), ld(up.y), ld(up.z));
+        let (fx, fy, fz) = (ld(forward.x), ld(forward.y), ld(forward.z));
+        self.m = [
+            st(fy * uz - uy * fz),
+            st(ux * fz - fx * uz),
+            st(uy * fx - ux * fy),
+            forward.x,
+            forward.y,
+            forward.z,
+            up.x,
+            up.y,
+            up.z,
+        ];
+        self.cache_quaternion();
+    }
+
     /// `Frame::cache_quaternion` (`Quaternion::SetRotationAxes` of the cached axes).
-    fn cache_quaternion(&mut self) {
+    pub(crate) fn cache_quaternion(&mut self) {
         let m = self.m.map(ld);
         let (x, y, z) = ([m[0], m[1], m[2]], [m[3], m[4], m[5]], [m[6], m[7], m[8]]);
         let yz_trace = ld(st(z[2] + y[1]));

@@ -5610,7 +5610,7 @@ key	status	note
 00510ef0	x	ac2-core random.rs Random::check (RollDice(0,1) <= chance)
 00510f20	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00510f30	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-00510f40	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+00510f40	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 00510fb0	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00510fd0	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00511050	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
@@ -5621,50 +5621,50 @@ key	status	note
 00511360	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00511380	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00511390	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-005113f0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+005113f0	~	not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
 00511560	-	vector/frame math
 005115a0	x	ac2-script glue::position (ported beside the gPosition glue)
 00511670	-	C++ constructor/destructor; Rust constructor and Drop replace it
 005117b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 005117f0	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00511810	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-00511900	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+00511900	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 00511bb0	x	ac2-physics missile.rs calc_min_max_time (the Ghidra control flow; the compare operands are floats)
-00511d10	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
-00511f90	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+00511d10	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
+00511f90	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 00512000	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00512180	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 005121d0	x	ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
 005122f0	x	ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
 005124b0	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 00512790	x	ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-005127c0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00512890	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+005127c0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00512890	~	not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
 00512940	-	plain field accessor on a runtime record; Rust struct field replaces it
 00512990	-	plain field accessor on a runtime record; Rust struct field replaces it
-005129d0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+005129d0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 00512a70	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-00512cc0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00512dc0	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+00512cc0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00512dc0	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 00513020	x	ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-00513120	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-005135e0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513760	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513850	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513920	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+00513120	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+005135e0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513760	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513850	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513920	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 00513b20	x	ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-00513cc0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513d30	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513d80	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513e60	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00513e90	_	not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+00513cc0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513d30	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513d80	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513e60	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00513e90	x	ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 00513fe0	x	ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-00514070	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00514330	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-005144d0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-005145c0	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00514740	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-00514830	_	not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+00514070	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00514330	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+005144d0	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+005145c0	~	not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
+00514740	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+00514830	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 005148d0	_	needs port: story missile creation
 005149b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a30	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -13182,7 +13182,7 @@ key	status	note
 006aae30	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
 006aae50	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
 006aae80	x	MissileParameters::MissileParameters - script struct values decoded in ac2-script native/structs.rs (structs.rs:55, 104)
-006aaf40	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+006aaf40	x	ac2-physics missile_params_copy.rs (bitfield-driven merge, not a plain copy)
 006ab140	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 006ab580	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
 006ab5a0	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
@@ -13219,7 +13219,7 @@ key	status	note
 006abc40	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
 006abc60	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
 006abc70	-	plain missile parameter field; ac2-script glue/missile.rs holds the values
-006abc80	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+006abc80	x	ac2-physics missile_params_copy.rs (bitfield-driven merge, not a plain copy)
 006abe20	x	ac2-physics moveto (slice 3)
 006abe50	x	ac2-physics moveto (slice 3)
 006abf00	x	ac2-physics moveto (slice 3)

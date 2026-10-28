@@ -1,8 +1,8 @@
 //! Retail `Position`: a cell id and a frame relative to that cell's landblock.
 
-use crate::fpu::{ld, st};
+use crate::fpu::{ld, st, F_EPSILON};
 use crate::frame::Frame;
-use crate::landdefs::get_block_offset;
+use crate::landdefs::{get_block_offset, LAND_WIDTH};
 use crate::vector::{Plane, Vector};
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -57,6 +57,62 @@ impl Position {
             other.cell_id,
             other.frame.origin,
         )
+    }
+}
+
+impl Position {
+    /// `Position::IsValid`: `LandDefs::inbound_valid_cellid` (a land cell, an env cell or the
+    /// block cell, in a block on the map) and `AFrame::IsValid` (finite origin and rotation, the
+    /// rotation's squared length stored as `float` within `F_EPSILON` of 1).
+    pub fn is_valid(&self) -> bool {
+        let local = self.cell_id & 0xFFFF;
+        let id_ok =
+            (1..=64).contains(&local) || (0x100..=0xFFFD).contains(&local) || local == 0xFFFF;
+        let block = self.cell_id >> 16;
+        let x = ((block & 0xFF00) >> 8) << 3;
+        let y = (block & 0xFF) << 3;
+        let inbound = id_ok && (x as i32) < LAND_WIDTH && (y as i32) < LAND_WIDTH;
+        let o = self.frame.origin;
+        let q = self.frame.q;
+        let finite = [o.x, o.y, o.z, q.w, q.x, q.y, q.z]
+            .iter()
+            .all(|v| !v.is_nan());
+        let norm =
+            st(ld(q.w) * ld(q.w) + ld(q.x) * ld(q.x) + ld(q.y) * ld(q.y) + ld(q.z) * ld(q.z));
+        inbound && finite && !norm.is_nan() && (ld(norm) - 1.0).abs() < ld(F_EPSILON)
+    }
+
+    /// `Position::ForwardVector`: the frame's local y axis (`(m6 + m0) * 0 + m3` and so on).
+    pub fn forward_vector(&self) -> Vector {
+        let m = self.frame.m.map(ld);
+        Vector::new(
+            st((m[6] + m[0]) * 0.0 + m[3]),
+            st((m[7] + m[1]) * 0.0 + m[4]),
+            st((m[8] + m[2]) * 0.0 + m[5]),
+        )
+    }
+
+    /// `Position::GetLocalHeading(p)`: the heading toward `other` in this frame's own axes (the
+    /// compass heading of the local-space offset to it; zero when that is shorter than
+    /// `F_EPSILON`).
+    pub fn local_heading(&self, other: &Position) -> crate::heading::Heading {
+        let block = get_block_offset(self.cell_id, other.cell_id);
+        let o = other.frame.origin;
+        let global = Vector::new(
+            st(ld(block.x) + ld(o.x)),
+            st(ld(block.y) + ld(o.y)),
+            st(ld(block.z) + ld(o.z)),
+        );
+        let v = self.frame.global_to_local(global);
+        let length = (ld(v.x) * ld(v.x) + ld(v.y) * ld(v.y)).sqrt();
+        if length < ld(F_EPSILON) {
+            return crate::heading::Heading::ZERO;
+        }
+        let inverse = 1.0 / length;
+        let nx = ld(st(ld(v.x) * inverse));
+        crate::heading::Heading::from_radians(st(
+            crate::frame::FIVE_HALVES_PI - (inverse * ld(v.y)).atan2(nx)
+        ))
     }
 }
 

@@ -48,7 +48,10 @@ mod loader_anim;
 mod look_at;
 mod los;
 mod missile;
+mod missile_flight;
+mod missile_gravity;
 mod missile_guidance;
+mod missile_params_copy;
 mod motion;
 mod motion_interp;
 mod motion_interp_behaviors;
@@ -122,6 +125,8 @@ pub use missile::{
     targeting_bits, MissileHost, MissileManager, MissileParameters, MissileTargetingParameters,
     TargetPosition, MISSILE_FLIGHT_FX,
 };
+pub use missile_flight::{MissileFlightHost, ObjectTarget};
+pub use missile_gravity::greater_pitch;
 pub use motion::{apply_motion, apply_motion_from, apply_motion_owned, MotionEvent};
 pub use motion_interp::MotionInterp;
 pub use moveto::{

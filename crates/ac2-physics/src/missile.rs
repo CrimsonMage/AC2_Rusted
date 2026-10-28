@@ -16,6 +16,7 @@
 use crate::fpu::{epsilon_squared, ld, st, F_EPSILON};
 use crate::frame::Frame;
 use crate::position::Position;
+use crate::target::TargetStatus;
 use crate::vector::Vector;
 
 /// `MissileParameters`: how a missile flies. `MissileParameters::MissileParameters` gives the
@@ -287,6 +288,7 @@ pub const MISSILE_FLIGHT_FX: u32 = 0x4000_0001;
 /// `CMissileManager`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MissileManager {
+    pub target_status: TargetStatus,
     pub info: MissileParameters,
     pub target_info: MissileTargetingParameters,
     pub target_pos: TargetPosition,
@@ -313,6 +315,7 @@ impl Default for MissileManager {
     /// `CMissileManager::CMissileManager`.
     fn default() -> Self {
         Self {
+            target_status: TargetStatus::Undef,
             info: MissileParameters::default(),
             target_info: MissileTargetingParameters::default(),
             target_pos: TargetPosition::default(),

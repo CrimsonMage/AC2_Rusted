@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 734 done, 153 partial, 426 to do, 811 skipped.
+2124 retail functions: 759 done, 156 partial, 400 to do, 809 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1848,7 +1848,7 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::Update` · 0050c960 · legions 004fa9d0 — ac2-physics moveto (slice 3)
 
-## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (25/58)
+## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (48/58)
 
 ### Random
 - [x] `Random::Check` · 00510ef0 · legions 004fef00 — ac2-core random.rs Random::check (RollDice(0,1) <= chance)
@@ -1856,7 +1856,7 @@ Legend and workflow: [README](README.md).
 ### CMissileManager
 - [x] `CMissileManager::Place` · 00510f20 · legions 004fef30 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::Fire` · 00510f30 · legions 004fef40 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-- [ ] `CMissileManager::ClientInitMissileParameters` · 00510f40 · legions 004fef50 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [x] `CMissileManager::ClientInitMissileParameters` · 00510f40 · legions 004fef50 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 - [x] `CMissileManager::IsInWorld` · 00510fb0 · legions 004fefc0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::GetMinTime` · 00510fd0 · legions 004fefe0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::GetMaxTime` · 00511050 · legions 004ff060 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
@@ -1867,7 +1867,7 @@ Legend and workflow: [README](README.md).
 - [x] `CMissileManager::ReportOutOfFuel` · 00511360 · legions 004ff370 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::SetActivated` · 00511380 · legions 004ff390 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::SetMoving` · 00511390 · legions 004ff3a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-- [ ] `CMissileManager::ShouldDetonate` · 005113f0 · legions 004ff400 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [~] `CMissileManager::ShouldDetonate` · 005113f0 · legions 004ff400 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
 
 ### Position
 - [-] `Position::ForwardVector` · 00511560 · legions 004ff570 — vector/frame math
@@ -1882,56 +1882,56 @@ Legend and workflow: [README](README.md).
 - [-] `MissileTargetingParameters::operator=` · 00511810 · legions 004ff820 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### CMissileManager
-- [ ] `CMissileManager::CalcGravitationalClosest` · 00511900 · legions 004ff910 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+- [x] `CMissileManager::CalcGravitationalClosest` · 00511900 · legions 004ff910 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 - [x] `CMissileManager::CalcMinMaxTime` · 00511bb0 · legions 004ffbc0 — ac2-physics missile.rs calc_min_max_time (the Ghidra control flow; the compare operands are floats)
-- [ ] `CMissileManager::CalcGravitationalPitch` · 00511d10 · legions 004ffd20 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
-- [ ] `CMissileManager::GreaterPitch` · 00511f90 · legions 004fffa0 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+- [x] `CMissileManager::CalcGravitationalPitch` · 00511d10 · legions 004ffd20 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
+- [x] `CMissileManager::GreaterPitch` · 00511f90 · legions 004fffa0 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 - [x] `CMissileManager::ChaseVelocity` · 00512000 · legions 00500010 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::AdjustHeight` · 00512180 · legions 00500190 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::GetDesiredVelocity` · 005121d0 · legions 005001e0 — ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
 - [x] `CMissileManager::CollideVelocity` · 005122f0 · legions 00500300 — ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
 - [x] `CMissileManager::UpdateMissilePhysics` · 005124b0 · legions 005004c0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [x] `CMissileManager::GetCurrentVelocity` · 00512790 · legions 005007a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
-- [ ] `CMissileManager::InitHeadingTowardTarget` · 005127c0 · legions 005007d0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::HandleCollision` · 00512890 · legions 005008a0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [x] `CMissileManager::InitHeadingTowardTarget` · 005127c0 · legions 005007d0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [~] `CMissileManager::HandleCollision` · 00512890 · legions 005008a0 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
 
 ### TargetPosition
 - [-] `TargetPosition::Reset` · 00512940 · legions 00500950 — plain field accessor on a runtime record; Rust struct field replaces it
 - [-] `TargetPosition::SetTargetInfo` · 00512990 · legions 005009a0 — plain field accessor on a runtime record; Rust struct field replaces it
 
 ### CMissileManager
-- [ ] `CMissileManager::GetStartPos` · 005129d0 · legions 005009e0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [x] `CMissileManager::GetStartPos` · 005129d0 · legions 005009e0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 - [-] `CMissileManager::StreamPack` · 00512a70 · legions 00500a80 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `CMissileManager::InitPosition` · 00512cc0 · legions 00500cd0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::CalcGravitationalSpeed` · 00512dc0 · legions 00500dd0 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+- [x] `CMissileManager::InitPosition` · 00512cc0 · legions 00500cd0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::CalcGravitationalSpeed` · 00512dc0 · legions 00500dd0 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 - [x] `CMissileManager::PerpAdjust` · 00513020 · legions 00501030 — ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-- [ ] `CMissileManager::CalcAcceleration` · 00513120 · legions 00501130 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::TargetUpdate` · 005135e0 · legions 005015f0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::ClientActivate` · 00513760 · legions 00501770 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::AttemptWorldPlacement` · 00513850 · legions 00501860 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::CalcGravitationalVelocity` · 00513920 · legions 00501930 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+- [x] `CMissileManager::CalcAcceleration` · 00513120 · legions 00501130 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::TargetUpdate` · 005135e0 · legions 005015f0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::ClientActivate` · 00513760 · legions 00501770 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::AttemptWorldPlacement` · 00513850 · legions 00501860 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::CalcGravitationalVelocity` · 00513920 · legions 00501930 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 - [x] `CMissileManager::MaintDistVelocity` · 00513b20 · legions 00501b30 — ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-- [ ] `CMissileManager::SetupTarget` · 00513cc0 · legions 00501cd0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::Initialize` · 00513d30 · legions 00501d40 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::Retarget` · 00513d80 · legions 00501d90 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::ClientInitTargetingParameters` · 00513e60 · legions 00501e70 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::GetInitialGravitationalFlight` · 00513e90 · legions 00501ea0 — not ported: the gravity solver (the decompile garbles the recursion arguments, the min time travels in EDX); needs a per-call asm read. Ballistic missiles are the gap; straight and homing flight is ported (ac2-physics missile.rs, missile_guidance.rs)
+- [x] `CMissileManager::SetupTarget` · 00513cc0 · legions 00501cd0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::Initialize` · 00513d30 · legions 00501d40 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::Retarget` · 00513d80 · legions 00501d90 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::ClientInitTargetingParameters` · 00513e60 · legions 00501e70 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::GetInitialGravitationalFlight` · 00513e90 · legions 00501ea0 — ac2-physics missile_gravity.rs / missile_flight.rs (asm-read: args and x87 spills from the disassembly)
 - [x] `CMissileManager::InterceptVelocity` · 00513fe0 · legions 00501ff0 — ac2-physics missile_guidance.rs (asm-checked; the chase fallback of CollideVelocity writes a scratch vector in retail, so the desired velocity keeps its old value)
-- [ ] `CMissileManager::MissileInfoUpdate` · 00514070 · legions 00502080 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::CalcInitialVelocity` · 00514330 · legions 00502340 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::StartMovement` · 005144d0 · legions 005024e0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::InquireDirection` · 005145c0 · legions 005025d0 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::Update` · 00514740 · legions 00502750 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
-- [ ] `CMissileManager::ClientRetarget` · 00514830 · legions 00502840 — not ported: needs Frame::OrientFrame and the 3x3 clamp of CalcAcceleration (asm read started, see missile_guidance.rs); the flight state machine (Update, MissileInfoUpdate, StartMovement, CalcInitialVelocity, TargetUpdate, SetupTarget) is built on it and on ICPhysicsObj target lookups (MissileHost has no GetObjectA / GetTargetPosition yet)
+- [x] `CMissileManager::MissileInfoUpdate` · 00514070 · legions 00502080 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::CalcInitialVelocity` · 00514330 · legions 00502340 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::StartMovement` · 005144d0 · legions 005024e0 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [~] `CMissileManager::InquireDirection` · 005145c0 · legions 005025d0 — not ported: the decompile of InquireDirection is garbled (asin argument, fall-through) and ShouldDetonate/HandleCollision need ICPhysicsObj vtable slots 0x54c/0x74/0x94/0x620 and CollisionProfile::HasCollided with unknown meaning
+- [x] `CMissileManager::Update` · 00514740 · legions 00502750 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
+- [x] `CMissileManager::ClientRetarget` · 00514830 · legions 00502840 — ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 
-## `portal/shared/src/physobj/missile/missileparameters.cpp.c` (2/25)
+## `portal/shared/src/physobj/missile/missileparameters.cpp.c` (3/25)
 
 ### MissileParameters
 - [-] `MissileParameters::IsSet` · 006aae20 · legions 00643d40 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileParameters::SetDetonatesOnMiss` · 006aae30 · legions 00643d50 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileParameters::SetDetonationProximity` · 006aae50 · legions 00643d70 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [x] `MissileParameters::MissileParameters` · 006aae80 · legions 00643da0 — MissileParameters::MissileParameters - script struct values decoded in ac2-script native/structs.rs (structs.rs:55, 104)
-- [-] `MissileParameters::CopyInto` · 006aaf40 · legions 00643e60 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+- [x] `MissileParameters::CopyInto` · 006aaf40 · legions 00643e60 — ac2-physics missile_params_copy.rs (bitfield-driven merge, not a plain copy)
 - [x] `MissileParameters::StreamPack` · 006ab140 · legions 00644060 — ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 - [-] `MissileParameters::SetSpeedLimits` · 006ab580 · legions 006444a0 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileParameters::SetMaxAcceleration` · 006ab5a0 · legions 006444c0 — plain missile parameter field; ac2-script glue/missile.rs holds the values
@@ -1953,7 +1953,7 @@ Legend and workflow: [README](README.md).
 - [-] `MissileParameters::SetCanLand` · 006ab7d0 · legions 006446f0 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileParameters::SetMaxAccelerationUniform` · 006ab7f0 · legions 00644710 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 
-## `portal/shared/src/physobj/missile/missiletargetingparameters.cpp.c` (1/17)
+## `portal/shared/src/physobj/missile/missiletargetingparameters.cpp.c` (2/17)
 
 ### MissileTargetingParameters
 - [-] `MissileTargetingParameters::~MissileTargetingParameters` · 006ab820 · legions 00644740 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -1976,7 +1976,7 @@ Legend and workflow: [README](README.md).
 - [-] `MissileTargetingParameters::SetMissileDetonationChance` · 006abc40 · legions 00644b60 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileTargetingParameters::SetStartTowardTarget` · 006abc60 · legions 00644b80 — plain missile parameter field; ac2-script glue/missile.rs holds the values
 - [-] `MissileTargetingParameters::SetAlwaysStartTowardTarget` · 006abc70 · legions 00644b90 — plain missile parameter field; ac2-script glue/missile.rs holds the values
-- [-] `MissileTargetingParameters::CopyInto` · 006abc80 · legions 00644ba0 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+- [x] `MissileTargetingParameters::CopyInto` · 006abc80 · legions 00644ba0 — ac2-physics missile_params_copy.rs (bitfield-driven merge, not a plain copy)
 
 ## `portal/shared/src/physobj/packclasses.cpp.c` (4/4)
 
