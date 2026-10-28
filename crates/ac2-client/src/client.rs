@@ -726,11 +726,9 @@ impl Client {
                     .and_then(|p| p.body.as_mut());
                 if let Some(body) = player {
                     body.physics.step_quantum(&self.terrain);
-                    // `CPhysicsObj::ReportCollisions`: the world's materials are not wired yet.
-                    reports.extend(
-                        body.physics
-                            .report_collisions(&ac2_physics::ContactMaterials::default(), false),
-                    );
+                    // `CPhysicsObj::ReportCollisions` with the materials of the body's contact.
+                    let materials = body.physics.contact_materials(&self.terrain);
+                    reports.extend(body.physics.report_collisions(&materials, false));
                     // `SmartBox::PlayerPhysicsUpdatedCallback`.
                     if !self.camera.mouse_look {
                         self.update_camera(PHYSICS_QUANTUM, true);

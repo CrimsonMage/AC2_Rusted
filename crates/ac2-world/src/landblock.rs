@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use ac2_core::QualifiedDataId;
+use ac2_core::{DataId, QualifiedDataId};
 
 use crate::ac2_world::Ac2TerrainSamples;
 use crate::Ac2SurfaceInfo;
@@ -38,6 +38,15 @@ impl LandBlockDesc {
         let side = self.vertex_side();
         (x < side && y < side)
             .then(|| self.samples.normal(x * side + y))
+            .flatten()
+    }
+
+    /// Physics material of vertex (`x`, `y`): its road's, else its terrain's, by slope band
+    /// (`CLandBlock::GetPhysicsMaterial`). `None` where the band names none.
+    pub fn physics_material(&self, x: usize, y: usize) -> Option<DataId> {
+        let side = self.vertex_side();
+        (x < side && y < side)
+            .then(|| self.samples.physics(x * side + y))
             .flatten()
     }
 

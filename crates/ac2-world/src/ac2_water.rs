@@ -26,6 +26,8 @@ pub struct Ac2BlockWater {
     /// `MaterialInstance` drawn above and below the surface.
     pub above_material: DataId,
     pub below_material: DataId,
+    /// `CWaterDesc::GetPhysicsMaterial`'s water-type physics material (`0` when none).
+    pub physics_material: DataId,
     /// Metres per texture repeat (`m_fWaterTiling`).
     pub tiling: f32,
     /// Packed ARGB water colour.
@@ -36,6 +38,7 @@ pub struct Ac2BlockWater {
 struct WaterType {
     above_material: DataId,
     below_material: DataId,
+    physics_material: DataId,
     tiling: f32,
     color: u32,
 }
@@ -95,6 +98,7 @@ impl Ac2WaterSource {
             height,
             above_material: water.above_material,
             below_material: water.below_material,
+            physics_material: water.physics_material,
             tiling: water.tiling,
             color: water.color,
         })
@@ -175,7 +179,7 @@ fn read_water_type(
     }
     let above_material = DataId::new(word(cursor)?);
     let below_material = DataId::new(word(cursor)?);
-    let _physics_material = word(cursor)?;
+    let physics_material = DataId::new(word(cursor)?);
     let tiling = f32::from_bits(word(cursor)?);
     let _polygon_width = word(cursor)?;
     let color = word(cursor)?;
@@ -203,6 +207,7 @@ fn read_water_type(
         Some(WaterType {
             above_material,
             below_material,
+            physics_material,
             tiling,
             color,
         }),

@@ -82,6 +82,8 @@ pub struct EnvCell {
     pub stab_list: Vec<u32>,
     /// `CObjCell::m_staticShadowList`.
     pub objects: Vec<u32>,
+    /// `CEnvCell::GetPhysicsMaterialDID` (the cell's physics material id, `None` when it has none).
+    pub physics_material: Option<u64>,
 }
 
 impl EnvCell {

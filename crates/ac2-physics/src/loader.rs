@@ -70,6 +70,11 @@ pub fn load_object_scale(store: &ResourceStore, visual: DataId) -> ResourceResul
     Ok(Vector::new(axis(scale.x), axis(scale.y), axis(scale.z)))
 }
 
+/// A physics material's id in the world: its DID, widened to the physics report's `u64`.
+fn material_id(did: DataId) -> u64 {
+    u64::from(did.raw())
+}
+
 /// Makes the landblock holding `block_cell_id` resident with its water plane; returns whether
 /// the block exists.
 pub fn load_terrain_block(
@@ -83,6 +88,8 @@ pub fn load_terrain_block(
     terrain.insert_block(block_cell_id, &block);
     let water = world.water_surface_height(block_cell_id)?;
     terrain.set_block_water(block_cell_id.raw(), water);
+    let water_material = world.water_physics_material(block_cell_id)?;
+    terrain.set_block_water_material(block_cell_id.raw(), water_material.map(material_id));
     Ok(true)
 }
 
@@ -308,6 +315,7 @@ pub fn load_block_interiors(
             seen_outside: cell.seen_outside,
             stab_list: cell.visible_cells.iter().map(|id| id.raw()).collect(),
             objects: Vec::new(),
+            physics_material: cell.physics_material.map(material_id),
         });
         cells.push(cell);
     }

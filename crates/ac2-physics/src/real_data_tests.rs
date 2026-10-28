@@ -9,6 +9,7 @@ use ac2_world::{load_ac2_motion_interp_desc, Ac2WorldSource};
 
 use crate::body::{MovementInput, PhysicsBody, PHYSICS_QUANTUM};
 use crate::cells::CellSource;
+use crate::collision_report::RecordState;
 use crate::fpu::floor_z;
 use crate::frame::Frame;
 use crate::landdefs::lcoord_to_gid;
@@ -30,6 +31,11 @@ struct Scene {
 }
 
 fn scene(x: f32, y: f32) -> Option<Scene> {
+    scene_at(0x7F, 0x7F, x, y)
+}
+
+/// A human standing at (`x`, `y`) in block (`block_x`, `block_y`), with its neighbours resident.
+fn scene_at(block_x: u32, block_y: u32, x: f32, y: f32) -> Option<Scene> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
     let world = Ac2WorldSource::open(Arc::clone(&store))
@@ -38,7 +44,7 @@ fn scene(x: f32, y: f32) -> Option<Scene> {
     let mut terrain = Terrain::new();
     for dx in -1..=1_i32 {
         for dy in -1..=1_i32 {
-            let block = ((0x7F + dx) as u32) << 24 | ((0x7F + dy) as u32) << 16;
+            let block = ((block_x as i32 + dx) as u32) << 24 | ((block_y as i32 + dy) as u32) << 16;
             load_terrain_block(&world, &mut terrain, CellId::new(block | 0xFFFF))
                 .expect("landblock decodes");
         }
@@ -53,7 +59,10 @@ fn scene(x: f32, y: f32) -> Option<Scene> {
     let shape = load_body_shape(&store, DataId::new(HUMAN_MALE_VISUAL))
         .expect("body setup decodes")
         .expect("human body setup");
-    let cell = lcoord_to_gid(0x7F * 8 + (x / 20.0) as i32, 0x7F * 8 + (y / 20.0) as i32);
+    let cell = lcoord_to_gid(
+        block_x as i32 * 8 + (x / 20.0) as i32,
+        block_y as i32 * 8 + (y / 20.0) as i32,
+    );
     let start = Position::new(
         cell,
         Frame::new(Vector::new(x, y, 0.0), Quaternion::IDENTITY),
@@ -164,4 +173,80 @@ fn a_human_walks_at_the_motion_interp_forward_speed() {
             scene.forward_speed
         );
     }
+}
+
+/// Block 0xCB4D: a body standing on a vertex that names a landscape material reports that
+/// material as a landscape record (`CCollisionManager::SetOnLandscape` and `ReportSurfaceProperties`).
+#[test]
+fn a_body_on_the_landscape_reports_its_vertex_material() {
+    const BLOCK_CELL: u32 = 0xCB4D_FFFF;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let desc = world
+        .load_landblock(CellId::new(BLOCK_CELL))
+        .expect("landblock decodes")
+        .expect("block 0xCB4D");
+    let (vx, vy) = (1..16)
+        .flat_map(|x| (1..16).map(move |y| (x, y)))
+        .find(|&(x, y)| desc.physics_material(x, y).is_some())
+        .expect("block 0xCB4D names a landscape material");
+    let expected = desc
+        .physics_material(vx, vy)
+        .map(|did| u64::from(did.raw()))
+        .expect("material");
+    // A quarter metre off the vertex, so the nearest vertex is (vx, vy).
+    let Some(mut scene) = scene_at(0xCB, 0x4D, vx as f32 * 10.0 + 0.5, vy as f32 * 10.0 + 0.5)
+    else {
+        return;
+    };
+    let mut surface = Vec::new();
+    for _ in 0..(1.0 / PHYSICS_QUANTUM).round() as usize {
+        scene.body.step_quantum(&scene.terrain);
+        let materials = scene.body.contact_materials(&scene.terrain);
+        if let Some(report) = scene.body.report_collisions(&materials, false) {
+            surface.extend(report.surface);
+        }
+    }
+    assert!(
+        surface
+            .iter()
+            .any(|record| record.id == expected && record.state == RecordState::Begin),
+        "landscape records {surface:?}, expected material {expected}"
+    );
+}
+
+/// The loader gives each resident block's water its water type's physics material, as
+/// `CLandBlock::GetWaterPhysicsMaterial` reads it, and a block without water has none.
+#[test]
+fn resident_water_carries_its_water_type_material() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let mut terrain = Terrain::new();
+    let mut water_blocks = 0;
+    for (bx, by) in [(0x7F_u32, 0x7F_u32), (0xCB, 0x4D)] {
+        for dx in -2..=2_i32 {
+            for dy in -2..=2_i32 {
+                let block = ((bx as i32 + dx) as u32) << 24 | ((by as i32 + dy) as u32) << 16;
+                let cell = CellId::new(block | 0xFFFF);
+                load_terrain_block(&world, &mut terrain, cell).expect("landblock decodes");
+                let expected = world
+                    .water_physics_material(cell)
+                    .expect("water material reads")
+                    .map(|did| u64::from(did.raw()));
+                assert_eq!(terrain.water_material(block | 1), expected);
+                water_blocks += usize::from(expected.is_some());
+            }
+        }
+    }
+    assert!(water_blocks > 0, "the sampled blocks hold water");
 }

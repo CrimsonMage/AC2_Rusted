@@ -192,6 +192,7 @@ fn rooms() -> Terrain {
         seen_outside: true,
         stab_list: vec![ROOM_B],
         objects: Vec::new(),
+        physics_material: None,
     });
     let mut b_walls = door_wall(4.0, 1.0);
     b_walls.push(solid_wall(8.0, -1.0));
@@ -207,6 +208,7 @@ fn rooms() -> Terrain {
         seen_outside: false,
         stab_list: vec![ROOM_A],
         objects: Vec::new(),
+        physics_material: None,
     });
     terrain.connect_block(BLOCK, &[ROOM_A]);
     terrain
@@ -336,4 +338,21 @@ fn placing_in_a_room_puts_the_body_on_its_floor() {
     );
     assert_eq!(body.place(misnamed, 0, &world), SetPositionError::Ok);
     assert_eq!(body.position().cell_id, ROOM_A);
+}
+
+#[test]
+fn an_interior_cell_names_its_physics_material() {
+    let mut terrain = Terrain::new();
+    terrain.insert_env_cell(EnvCell {
+        cell_id: ROOM_A,
+        position: Position::new(ROOM_A, Frame::new(v(80.0, 80.0, 0.0), Quaternion::IDENTITY)),
+        structure: room(0.0, 4.0, Vec::new()),
+        portals: Vec::new(),
+        seen_outside: false,
+        stab_list: Vec::new(),
+        objects: Vec::new(),
+        physics_material: Some(77),
+    });
+    assert_eq!(terrain.env_material(ROOM_A), Some(77));
+    assert_eq!(terrain.env_material(ROOM_B), None);
 }

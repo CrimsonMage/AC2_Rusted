@@ -190,3 +190,37 @@ fn ac2_landblock_vertices_carry_shadow_light_colour_bits() {
     assert!(colours.iter().any(|c| *c != 0));
     assert!(block.vertex_colour(side, 0).is_none());
 }
+
+/// Every water block near the sampled landblocks names its water type's physics material
+/// (`CLandBlock::GetWaterPhysicsMaterial`), and a block without water names none.
+#[test]
+fn water_blocks_name_their_physics_material() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = crate::Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let mut water_blocks = 0;
+    for (bx, by) in [(0x7F, 0x7F), (0xCB, 0x4D)] {
+        for dx in -2..=2_i32 {
+            for dy in -2..=2_i32 {
+                let block = ((bx + dx) as u32) << 24 | ((by + dy) as u32) << 16 | 0xFFFF;
+                let cell = ac2_core::CellId::new(block);
+                let height = world
+                    .water_surface_height(cell)
+                    .expect("water height reads");
+                let material = world
+                    .water_physics_material(cell)
+                    .expect("water material reads");
+                assert!(
+                    height.is_none() || material.is_some(),
+                    "water block {block:#010x} names no physics material"
+                );
+                water_blocks += usize::from(height.is_some());
+            }
+        }
+    }
+    eprintln!("water blocks in the sampled area: {water_blocks}");
+}

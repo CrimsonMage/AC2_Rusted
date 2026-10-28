@@ -276,6 +276,7 @@ fn room(terrain: &mut Terrain) {
         seen_outside: true,
         stab_list: Vec::new(),
         objects: Vec::new(),
+        physics_material: None,
     });
     terrain.connect_block(0x7F7F_FFFF, &[ROOM]);
 }

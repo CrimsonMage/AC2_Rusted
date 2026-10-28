@@ -71,6 +71,8 @@ mod real_data_tests;
 mod shapes;
 mod terrain;
 #[cfg(test)]
+mod terrain_material_tests;
+#[cfg(test)]
 mod test_support;
 mod transition;
 mod vector;

@@ -23,14 +23,26 @@ use crate::vector::Vector;
 /// Terrain polygons per block side.
 const SIDE_POLYGON_COUNT: usize = SIDE_VERTEX_COUNT - 1;
 
+/// One resident block's water and physics materials.
+#[derive(Debug, Clone, Default)]
+struct BlockSurface {
+    /// `CLandBlockData::m_waterPlane` height, where the block has water.
+    water: Option<f32>,
+    /// `CWaterDesc::GetPhysicsMaterial` of the block's water type.
+    water_material: Option<u64>,
+    /// The vertex physics materials, x-major (`CLandBlock::GetPhysicsMaterial`'s table); empty
+    /// until set.
+    land_materials: Vec<Option<u64>>,
+}
+
 /// The resident landblocks' land cells and interior cells, keyed by cell id, and their static
 /// objects.
 #[derive(Debug, Clone, Default)]
 pub struct Terrain {
     cells: HashMap<u32, LandCell>,
     env_cells: HashMap<u32, EnvCell>,
-    /// `CLandBlockData::m_waterPlane` heights of the blocks that have water.
-    water: HashMap<u32, f32>,
+    /// Each resident block's water and physics materials.
+    surfaces: HashMap<u32, BlockSurface>,
     /// Objects by id (a removed object leaves `None`) and the cells their shadow box covers.
     objects: Vec<Option<(StaticObject, Vec<u32>)>>,
     /// Ids a removed object left free, reused by the next insert.
@@ -56,6 +68,11 @@ impl Terrain {
         self.insert_heights(block_cell_id.raw(), &heights, |x, y| {
             desc.ac2_polygon_is_hole(x, y, 1)
         });
+        let grid = (0..SIDE_VERTEX_COUNT)
+            .flat_map(|x| (0..SIDE_VERTEX_COUNT).map(move |y| (x, y)))
+            .map(|(x, y)| desc.physics_material(x, y).map(|did| u64::from(did.raw())))
+            .collect();
+        self.set_block_materials(block_cell_id.raw(), grid);
     }
 
     /// Makes a landblock resident from a 17 x 17 x-major vertex height grid (metres) and a
@@ -130,7 +147,7 @@ impl Terrain {
         let block = block_cell_id & 0xFFFF_0000;
         self.cells.retain(|id, _| id & 0xFFFF_0000 != block);
         self.env_cells.retain(|id, _| id & 0xFFFF_0000 != block);
-        self.water.remove(&block);
+        self.surfaces.remove(&block);
         for id in 0..self.objects.len() as u32 {
             let owned = self.objects[id as usize]
                 .as_ref()
@@ -318,7 +335,7 @@ impl Terrain {
         let Terrain {
             cells,
             env_cells,
-            water,
+            surfaces,
             objects,
             free: _,
         } = other;
@@ -334,7 +351,7 @@ impl Terrain {
             cell.objects = self.shadowing(id);
             self.env_cells.insert(id, cell);
         }
-        self.water.extend(water);
+        self.surfaces.extend(surfaces);
         for (object, _) in objects.into_iter().flatten() {
             self.insert_object(object);
         }
@@ -376,9 +393,72 @@ impl Terrain {
     pub fn set_block_water(&mut self, block_cell_id: u32, height: Option<f32>) {
         let block = block_cell_id & 0xFFFF_0000;
         match height {
-            Some(height) => self.water.insert(block, height),
-            None => self.water.remove(&block),
+            Some(height) => self.surfaces.entry(block).or_default().water = Some(height),
+            None => {
+                if let Some(surface) = self.surfaces.get_mut(&block) {
+                    surface.water = None;
+                    surface.water_material = None;
+                }
+            }
+        }
+    }
+
+    /// Sets a block's water physics material (`CWaterDesc::GetPhysicsMaterial` of its water type);
+    /// `None` where the type names none.
+    pub fn set_block_water_material(&mut self, block_cell_id: u32, material: Option<u64>) {
+        let block = block_cell_id & 0xFFFF_0000;
+        self.surfaces.entry(block).or_default().water_material = material;
+    }
+
+    /// Sets a block's vertex physics materials, x-major, one per terrain vertex. A grid of the
+    /// wrong size is ignored.
+    pub fn set_block_materials(&mut self, block_cell_id: u32, grid: Vec<Option<u64>>) {
+        if grid.len() != SIDE_VERTEX_COUNT * SIDE_VERTEX_COUNT {
+            return;
+        }
+        self.surfaces
+            .entry(block_cell_id & 0xFFFF_0000)
+            .or_default()
+            .land_materials = grid;
+    }
+
+    /// `CLandBlock::GetPhysicsMaterial`: the physics material of the land vertex nearest the
+    /// body's `position` (`LandDefs::GetNearestPixel`), `None` off resident land or where that
+    /// vertex names no material.
+    pub fn land_material(&self, position: &Position) -> Option<u64> {
+        if !is_outside(position.cell_id) {
+            return None;
+        }
+        let mut cell_id = position.cell_id;
+        let mut point = position.frame.origin;
+        if !adjust_to_outside(&mut cell_id, &mut point) {
+            return None;
+        }
+        self.land_cell(cell_id)?;
+        let grid = &self.surfaces.get(&(cell_id & 0xFFFF_0000))?.land_materials;
+        let spacing = st(ld(BLOCK_LENGTH) / SIDE_POLYGON_COUNT as f64);
+        let nearest = |v: f32| {
+            (v / spacing)
+                .round()
+                .clamp(0.0, (SIDE_VERTEX_COUNT - 1) as f32) as usize
         };
+        grid.get(nearest(point.x) * SIDE_VERTEX_COUNT + nearest(point.y))
+            .copied()
+            .flatten()
+    }
+
+    /// `CLandBlock::GetWaterPhysicsMaterial`: the water material of the block holding `cell_id`,
+    /// when that block has water.
+    pub fn water_material(&self, cell_id: u32) -> Option<u64> {
+        let surface = self.surfaces.get(&(cell_id & 0xFFFF_0000))?;
+        // The block must have water (its plane) for its material to apply.
+        surface.water?;
+        surface.water_material
+    }
+
+    /// `CEnvCell::GetPhysicsMaterialDID`: the physics material of the resident interior cell.
+    pub fn env_material(&self, cell_id: u32) -> Option<u64> {
+        self.env_cells.get(&cell_id)?.physics_material
     }
 
     /// The height (AC z) of the water surface over `cell_id`'s block, `None` where it holds none
@@ -392,7 +472,7 @@ impl Terrain {
     /// plane, `z = height`.
     pub(crate) fn water_plane(&self, cell_id: u32) -> Option<crate::vector::Plane> {
         self.land_cell(cell_id)?;
-        let height = *self.water.get(&(cell_id & 0xFFFF_0000))?;
+        let height = self.surfaces.get(&(cell_id & 0xFFFF_0000))?.water?;
         Some(crate::vector::Plane::new(
             Vector::new(0.0, 0.0, 1.0),
             -height,

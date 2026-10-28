@@ -2604,7 +2604,7 @@ key	status	note
 0047dea0	_	needs port: landscape cell (terrain polygon) queries and visibility
 0047deb0	_	needs port: landscape cell (terrain polygon) queries and visibility
 0047dec0	_	needs port: landscape cell (terrain polygon) queries and visibility
-0047df20	_	needs port: landscape cell (terrain polygon) queries and visibility
+0047df20	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 0047df40	x	ac2-physics los (Terrain::los_check)
 0047df80	-	retail free-object pool (DBOCache exception, AGENTS.md)
 0047dfe0	_	needs port: landscape cell (terrain polygon) queries and visibility
@@ -2645,7 +2645,7 @@ key	status	note
 0047fbd0	_	needs port: indoor env cell: visibility, lights, portals, rendering
 0047fd00	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00480180	_	needs port: indoor env cell: visibility, lights, portals, rendering
-004801b0	_	needs port: indoor env cell: visibility, lights, portals, rendering
+004801b0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 004801c0	-	SmartArray container operation (Vec replaces it)
 00480320	_	needs port: landblock id and coordinate arithmetic
 00480390	_	needs port: landblock id and coordinate arithmetic
@@ -2798,8 +2798,8 @@ key	status	note
 00489de0	-	constructor (struct init; Rust builds it directly)
 00489e40	-	constructor (struct init; Rust builds it directly)
 00489f70	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-0048a060	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-0048a0e0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
+0048a060	~	Nearest vertex in the block's material table (LandDefs::GetNearestPixel). Road or terrain is chosen per vertex (road where the vertex has a road band), not by CLandBlock::OnRoad's polygon test. Not verified against retail on a road edge.
+0048a0e0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 0048a160	x	
 0048a330	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048a390	-	SmartArray container operation (Vec replaces it)
@@ -4563,7 +4563,7 @@ key	status	note
 004dffe0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004e0050	_	needs port: cite-only physics-object method
 004e0080	_	needs port: cite-only physics-object method
-004e00a0	_	needs port: cite-only physics-object method
+004e00a0	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
 004e0190	x	ac2-physics los (Terrain::los_check)
 004e01a0	-	admin/debug or text-file tooling
 004e0200	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
@@ -5286,10 +5286,10 @@ key	status	note
 004f6520	x	ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
 004f65a0	_	needs port: collision reports and properties
 004f65b0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f65f0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f6610	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f6620	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f6640	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f65f0	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f6610	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f6620	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f6640	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
 004f6650	_	needs port: collision reports and properties
 004f6690	x	ac2-net protocol::native pack+unpack (Legions layouts; WState graphs round-trip byte-exact); ac2-script still decodes its own copy until it switches
 004f66c0	-	C++ constructor/destructor; Rust constructor and Drop replace it
@@ -5310,15 +5310,15 @@ key	status	note
 004f7440	_	needs port: collision reports and properties
 004f74b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f7510	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-004f7570	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f75d0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f7690	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
-004f7700	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f7570	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f75d0	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f7690	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
+004f7700	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
 004f7770	_	needs port: collision reports and properties
 004f7930	_	needs port: collision reports and properties
 004f7b10	_	needs port: collision reports and properties
 004f7ca0	~	CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
-004f7db0	~	ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
+004f7db0	~	ac2-physics collision_report.rs and PhysicsBody::contact_materials: the landscape, water and environment records carry the material DID the terrain gives (the vertex, the block's water type, the interior cell). Not ported: the CollidePropertyList and CollideProperty arrays (per-property ids, begin/change/end per property), RemovePropertiesAndErase, the 0x40000036 terrain-type property (SetTerrainType, UpdateLandTerrain, UpdateWaterTerrain) and the PhysicsMaterial property groups that UpdatePropertyArray reads.
 004f7e30	_	needs port: collision reports and properties
 004f7ed0	_	needs port: collision reports and properties
 004f7f60	_	needs port: collision reports and properties
@@ -5918,7 +5918,7 @@ key	status	note
 005213a0	_	needs port: water descriptors
 005213c0	_	needs port: water descriptors
 005213f0	_	needs port: water descriptors
-00521410	_	needs port: water descriptors
+00521410	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 00521430	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00521480	_	needs port: water descriptors (DAT decode)
 00521ad0	-	constructor (struct init; Rust builds it directly)
@@ -5938,8 +5938,8 @@ key	status	note
 00522480	_	needs port: surface descriptors (terrain surface materials, road) (sub-object DID list for async sub-object resolution, AGENTS.md)
 00522520	x	
 00522580	x	
-005225e0	_	needs port: surface descriptors (terrain surface materials, road)
-00522630	_	needs port: surface descriptors (terrain surface materials, road)
+005225e0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
+00522630	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 00522680	-	copy assignment of plain data (Rust clone/move)
 00522710	-	constructor (struct init; Rust builds it directly)
 00522770	-	DBO type tag (Rust typed decoders)
@@ -13851,7 +13851,7 @@ key	status	note
 006c5910	x	
 006c5990	_	needs port: landscape scene, surfaces, materials and vertex colours (sub-object DID list for async sub-object resolution, AGENTS.md)
 006c59d0	x	
-006c5a50	_	needs port: landscape scene, surfaces, materials and vertex colours
+006c5a50	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 006c5ab0	-	constructor (struct init; Rust builds it directly)
 006c5ae0	-	destructor (Rust Drop)
 006c5ca0	_	needs port: DAT counted list (DAT decode)

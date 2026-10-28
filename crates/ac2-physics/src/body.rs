@@ -524,6 +524,27 @@ impl PhysicsBody {
         self.report(materials, force_end, false)
     }
 
+    /// The materials of the body's current contact, read from the resident world: the landscape
+    /// vertex under the body when it is on the landscape (`CPhysicsObj::SetContactInfo`), the
+    /// block's water when it is in water (`CLandBlock::GetWaterPhysicsMaterial`), and the interior
+    /// cell's material when it is in one (`CPhysicsObj::UpdateCellMaterial`).
+    pub fn contact_materials(&self, terrain: &Terrain) -> ContactMaterials {
+        let position = self.object.position;
+        let state = self.object.transient_state;
+        let on = |flag: u32| state & flag != 0;
+        ContactMaterials {
+            landscape: on(crate::physics_obj::LANDSCAPE_CONTACT_TS)
+                .then(|| terrain.land_material(&position))
+                .flatten(),
+            water: on(crate::physics_obj_contact::WATER_CONTACT_TS)
+                .then(|| terrain.water_material(position.cell_id))
+                .flatten(),
+            environment: on(crate::physics_obj_contact::ENVIRONMENT_CONTACT_TS)
+                .then(|| terrain.env_material(position.cell_id))
+                .flatten(),
+        }
+    }
+
     /// `CPhysicsObj::EndAllCollisions`: ends every record the body has reported and drops its
     /// object table (`CCollisionManager::ReportCollision` with both end flags set).
     pub fn end_all_collisions(&mut self, materials: &ContactMaterials) -> Option<CollisionReport> {

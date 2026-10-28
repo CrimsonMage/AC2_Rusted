@@ -39,6 +39,10 @@ pub struct Ac2TerrainSamples {
     holes: Vec<bool>,
     /// `CLandBlockData::GetColor` per vertex: the shadow-light bits the vertex is lit by.
     colours: Vec<u32>,
+    /// The physics material per vertex: its road's, else its terrain's, by the vertex's slope band
+    /// (`CLandBlock::GetPhysicsMaterial` over `CSurfaceDesc::GetPhysicsMaterial` and
+    /// `GetRoadPhysicsMaterial`). `None` where the band names none.
+    physics: Vec<Option<DataId>>,
 }
 
 impl Ac2TerrainSamples {
@@ -54,6 +58,10 @@ impl Ac2TerrainSamples {
 
     pub(crate) fn is_hole(&self, index: usize) -> bool {
         self.holes.get(index).copied().unwrap_or(false)
+    }
+
+    pub(crate) fn physics(&self, index: usize) -> Option<DataId> {
+        self.physics.get(index).copied().flatten()
     }
 
     pub(crate) fn colour(&self, index: usize) -> Option<u32> {
@@ -188,6 +196,26 @@ impl Ac2WorldSource {
     /// `None` when the block holds no water. Reads only the cached
     /// height record, so a physics quantum can ask every step.
     pub fn water_surface_height(&self, block_cell_id: CellId) -> ResourceResult<Option<f32>> {
+        Ok(self
+            .resident_block_water(block_cell_id)?
+            .map(|water| water.height))
+    }
+
+    /// The physics material of the block's water (`CLandBlock::GetWaterPhysicsMaterial`:
+    /// `CWaterDesc::GetPhysicsMaterial` of the water type the block selects). `None` where the
+    /// block holds no water or its type names no material.
+    pub fn water_physics_material(&self, block_cell_id: CellId) -> ResourceResult<Option<DataId>> {
+        Ok(self
+            .resident_block_water(block_cell_id)?
+            .map(|water| water.physics_material)
+            .filter(|did| did.raw() != 0))
+    }
+
+    /// The block's water as its record and water description give it, `None` when it has none.
+    fn resident_block_water(
+        &self,
+        block_cell_id: CellId,
+    ) -> ResourceResult<Option<crate::Ac2BlockWater>> {
         let did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0x0000_FFFF);
         let Some(record) =
             self.store
@@ -207,8 +235,7 @@ impl Ac2WorldSource {
         Ok(self
             .water
             .as_ref()
-            .and_then(|water| water.block_water(block_cell_id, &self.height_table, min_height))
-            .map(|water| water.height))
+            .and_then(|water| water.block_water(block_cell_id, &self.height_table, min_height)))
     }
 
     /// Placed `CLandBlockInfo` entities of one landblock.
@@ -328,6 +355,7 @@ impl Ac2WorldSource {
             road: vec![Ac2SurfaceInfo::default(); AC2_SAMPLES],
             holes: vec![false; AC2_SAMPLES],
             colours: vec![0; AC2_SAMPLES],
+            physics: vec![None; AC2_SAMPLES],
         };
         for x in 0..AC2_SIDE_VERTICES {
             for y in 0..AC2_SIDE_VERTICES {
@@ -359,6 +387,24 @@ impl Ac2WorldSource {
                 {
                     samples.road[index] = info;
                 }
+                // `CSurfaceDesc::GetRoadPhysicsMaterial` then `GetPhysicsMaterial`: the road's
+                // material where the vertex has a road, else the terrain's; each band's
+                // `LScapeSurfaceType::GetPhysicsMaterial` is the first band the pitch falls in.
+                let road_material = self
+                    .surfaces
+                    .road(road)
+                    .and_then(|surface| surface.group_for_pitch(pitch_squared))
+                    .map(|group| group.physics_material);
+                let terrain_material = self
+                    .terrain
+                    .surface_type(terrain)
+                    .and_then(|id| self.surfaces.surface(id))
+                    .and_then(|surface| surface.group_for_pitch(pitch_squared))
+                    .map(|group| group.physics_material);
+                samples.physics[index] = [road_material, terrain_material]
+                    .into_iter()
+                    .flatten()
+                    .find(|did| did.raw() != 0);
             }
         }
         samples
@@ -448,6 +494,7 @@ mod hole_tests {
             road: vec![Default::default(); AC2_SAMPLES],
             holes,
             colours: vec![0; AC2_SAMPLES],
+            physics: vec![None; AC2_SAMPLES],
         };
         LandBlockDesc::new(
             QualifiedDataId::new(DataId::new(0x4592_FFFF), 0),

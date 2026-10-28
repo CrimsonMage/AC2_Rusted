@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 180 done, 23 partial, 334 to do, 452 skipped.
+989 retail functions: 187 done, 24 partial, 326 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (18/140)
+## `portal/shared/src/cell/envcell.cpp.c` (19/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -59,7 +59,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::BuildOptionalProperties` · 00480180 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [ ] `CEnvCell::GetPhysicsMaterialDID` · 004801b0 — needs port: indoor env cell: visibility, lights, portals, rendering
+- [x] `CEnvCell::GetPhysicsMaterialDID` · 004801b0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### SmartArray<unsigned_long>
 - [-] `SmartArray<unsigned_long>::SetNElements` · 004801c0 · legions 0047a160 — SmartArray container operation (Vec replaces it)
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (23/72)
+## `portal/shared/src/cell/landblock.cpp.c` (24/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
@@ -321,8 +321,8 @@ Legend and workflow: [README](README.md).
 ### CLandBlock
 - [-] `CLandBlock::CLandBlock` · 00489e40 · legions 00483750 — constructor (struct init; Rust builds it directly)
 - [ ] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::GetPhysicsMaterial` · 0048a060 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
+- [~] `CLandBlock::GetPhysicsMaterial` · 0048a060 — Nearest vertex in the block's material table (LandDefs::GetNearestPixel). Road or terrain is chosen per vertex (road where the vertex has a road band), not by CLandBlock::OnRoad's polygon test. Not verified against retail on a road edge.
+- [x] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [x] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
 - [ ] `CLandBlock::RemoveDynamicObject` · 0048a330 · legions 00483c20 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 
@@ -512,7 +512,7 @@ Legend and workflow: [README](README.md).
 ### CLandBlockQuadTree
 - [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510 — needs port: landblock object quadtree culling and draw
 
-## `portal/shared/src/cell/landcell.cpp.c` (19/38)
+## `portal/shared/src/cell/landcell.cpp.c` (20/38)
 
 ### (free functions)
 - [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910 — needs port: float comparison helper
@@ -553,7 +553,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandCell::GrabVisibleCells` · 0047dea0 — needs port: landscape cell (terrain polygon) queries and visibility
 - [ ] `CLandCell::ReleaseVisibleCells` · 0047deb0 — needs port: landscape cell (terrain polygon) queries and visibility
 - [ ] `CLandCell::UpdateCellMaterial` · 0047dec0 — needs port: landscape cell (terrain polygon) queries and visibility
-- [ ] `CLandCell::GetPhysicsMaterialDID` · 0047df20 — needs port: landscape cell (terrain polygon) queries and visibility
+- [x] `CLandCell::GetPhysicsMaterialDID` · 0047df20 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### Ray
 - [x] `Ray::operator=` · 0047df40 · legions 00477f60 — ac2-physics los (Terrain::los_check)
@@ -1417,13 +1417,13 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeMaterialDesc::LoadMaterial` · 006c3eb0 — text source loader, admin build only
 - [-] `LScapeMaterialDesc::Load` · 006c3f80 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/surface/lscapesurfacetype.cpp.c` (2/11)
+## `portal/shared/src/region/surface/lscapesurfacetype.cpp.c` (3/11)
 
 ### LScapeSurfaceType
 - [x] `LScapeSurfaceType::StreamPack` · 006c5910 · legions 00655c10
 - [ ] `LScapeSurfaceType::GetSubDataIDs` · 006c5990 · legions 00655c90 — needs port: landscape scene, surfaces, materials and vertex colours (sub-object DID list for async sub-object resolution, AGENTS.md)
 - [x] `LScapeSurfaceType::GetVertexInfo` · 006c59d0 · legions 00655cd0
-- [ ] `LScapeSurfaceType::GetPhysicsMaterial` · 006c5a50 · legions 00655d50 — needs port: landscape scene, surfaces, materials and vertex colours
+- [x] `LScapeSurfaceType::GetPhysicsMaterial` · 006c5a50 · legions 00655d50 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `LScapeSurfaceType::LScapeSurfaceType` · 006c5ab0 — constructor (struct init; Rust builds it directly)
 - [-] `LScapeSurfaceType::~LScapeSurfaceType` · 006c5ae0 · legions 00655de0 — destructor (Rust Drop)
 - [-] `LScapeSurfaceType::LoadName` · 006c5b30 — text source loader, admin build only
@@ -1482,7 +1482,7 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialGroup::LoadAlpha` · 006c54d0 — text source loader, admin build only
 - [-] `MaterialGroup::Load` · 006c5550 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/surface/surfacedesc.cpp.c` (3/24)
+## `portal/shared/src/region/surface/surfacedesc.cpp.c` (5/24)
 
 ### CSurfaceDesc
 - [-] `CSurfaceDesc::Destroy` · 00522360 — DBO release (Drop frees on last drop, AGENTS.md)
@@ -1490,8 +1490,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CSurfaceDesc::GetSubDataIDs` · 00522480 — needs port: surface descriptors (terrain surface materials, road) (sub-object DID list for async sub-object resolution, AGENTS.md)
 - [x] `CSurfaceDesc::GetVertexInfo` · 00522520 · legions 0050c9c0
 - [x] `CSurfaceDesc::GetRoadInfo` · 00522580 · legions 0050ca20
-- [ ] `CSurfaceDesc::GetPhysicsMaterial` · 005225e0 · legions 0050ca80 — needs port: surface descriptors (terrain surface materials, road)
-- [ ] `CSurfaceDesc::GetRoadPhysicsMaterial` · 00522630 · legions 0050cad0 — needs port: surface descriptors (terrain surface materials, road)
+- [x] `CSurfaceDesc::GetPhysicsMaterial` · 005225e0 · legions 0050ca80 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
+- [x] `CSurfaceDesc::GetRoadPhysicsMaterial` · 00522630 · legions 0050cad0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### LScapeVertexColorDesc
 - [-] `LScapeVertexColorDesc::operator=` · 00522680 · legions 0050cb20 — copy assignment of plain data (Rust clone/move)
@@ -1578,7 +1578,7 @@ Legend and workflow: [README](README.md).
 - [x] `TerrainType::unpack` · 006c6460 · legions 00656210 — crates/ac2-world/src/ac2_terrain_desc.rs TerrainType::unpack
 - [-] `TerrainType::Load` · 006c65f0 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/water/waterdesc.cpp.c` (1/21)
+## `portal/shared/src/region/water/waterdesc.cpp.c` (2/21)
 
 ### CWaterDesc
 - [-] `CWaterDesc::CWaterDesc` · 00521060 · legions 0050bcd0 — constructor (struct init; Rust builds it directly)
@@ -1594,7 +1594,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWaterDesc::GetBelowMaterial` · 005213a0 · legions 0050c010 — needs port: water descriptors
 - [ ] `CWaterDesc::GetWaterLighting` · 005213c0 · legions 0050c030 — needs port: water descriptors
 - [ ] `CWaterDesc::GetVertexColor` · 005213f0 · legions 0050c060 — needs port: water descriptors
-- [ ] `CWaterDesc::GetPhysicsMaterial` · 00521410 · legions 0050c080 — needs port: water descriptors
+- [x] `CWaterDesc::GetPhysicsMaterial` · 00521410 · legions 0050c080 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `CWaterDesc::Allocate` · 00521430 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [ ] `CWaterDesc::UnPack` · 00521480 — needs port: water descriptors (DAT decode)
 - [-] `CWaterDesc::ToFileNode` · 005215f0 — text source format (admin tools)
