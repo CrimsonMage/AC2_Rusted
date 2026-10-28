@@ -50,6 +50,7 @@ fn missile_remote(z: f32) -> Remote {
         ethereal: false,
         alpha_moves: None,
         fx_follow: None,
+        listed_cell: None,
     }
 }
 
