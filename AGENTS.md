@@ -133,6 +133,13 @@ game rules and server-visible behaviour exactly retail.
   saved. Retail's `Render::InitRenderingPreferences` applied a saved level 1 to 5 (still done, by
   `ClientPrefs::apply_startup_quality`) and otherwise kept the registered defaults, which are
   level 3's medium model and scenery detail, sized for 2002 hardware.
+- Exception: grass frills reach past retail's ring. Retail merged the frills within
+  `(m_current_lscape_radius + 1) * square_length` of the camera cell (`FrillRender::RefreshFrillMesh`,
+  still done) and faded them out between `radius * square_length - 8` and `radius * square_length`
+  metres (`FrillRender::RenderFrillMesh`, 12 to 20 m; that fade is not drawn). The client adds the
+  loaded blocks' other frills out to 160 m (`ac2_render::frill::select_far_frills`, 0.65 of it at
+  the short `LandscapeFrillDistance`), thinned by a fixed per-frill hash from all of them to 30%,
+  each growing in and out from its origin in the vertex stage (`grass_scale` in `object.wgsl`).
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).

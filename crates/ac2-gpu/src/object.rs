@@ -226,6 +226,10 @@ pub struct ObjectInstance<'a> {
     /// The landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term);
     /// 1 leaves it unshadowed.
     pub frill_shade: f32,
+    /// A frill's growth ring (near radius, far radius, its random value; `ac2_render::frill`):
+    /// the vertex stage shrinks it towards its origin as it thins out with distance. Zero draws it
+    /// as authored.
+    pub grass: [f32; 3],
     /// The device's point lights for this object (`SceneTool::CacheStaticLights`), at most 4.
     pub point_lights: &'a [PointLight],
     /// The model posed for this draw (`ObjectModel::pose`); `None` draws its default placement.
@@ -243,6 +247,7 @@ impl<'a> ObjectInstance<'a> {
             tint: [1.0; 4],
             frill_normal: None,
             frill_shade: 1.0,
+            grass: [0.0; 3],
             point_lights: &[],
             pose: None,
             detail: DrawDetail::FULL,

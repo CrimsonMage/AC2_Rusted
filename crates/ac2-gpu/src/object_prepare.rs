@@ -85,7 +85,8 @@ impl ObjectRenderer {
                 let mut data = instance_data(instance.world * transform);
                 if let Some(normal) = instance.frill_normal {
                     data.frill = normal.extend(1.0).to_array();
-                    data.frill_shade = [instance.frill_shade, 0.0, 0.0, 0.0];
+                    let [near, far, hash] = instance.grass;
+                    data.frill_shade = [instance.frill_shade, near, far, hash];
                 }
                 if let Some(first) = skin {
                     data.skin = [base + first, 1, 0, 0];

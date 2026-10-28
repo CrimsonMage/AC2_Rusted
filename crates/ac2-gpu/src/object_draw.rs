@@ -34,7 +34,8 @@ pub(crate) struct InstanceData {
     pub(crate) frill: [f32; 4],
     /// x: the part's first matrix in the bone buffer, y: 1 when its vertices blend.
     pub(crate) skin: [u32; 4],
-    /// x: the landscape self shadow under a merged frill's origin (1 when unshadowed).
+    /// x: the landscape self shadow under a merged frill's origin (1 when unshadowed); y, z, w:
+    /// its growth ring (near and far radius, random value; zero far radius: drawn as authored).
     pub(crate) frill_shade: [f32; 4],
 }
 

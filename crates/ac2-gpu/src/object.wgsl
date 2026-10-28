@@ -56,9 +56,24 @@ struct Instance {
     frill: vec4<f32>,
     // x: the part's first deform matrix in `bones`, y: 1 when its vertices blend.
     skin: vec4<u32>,
-    // x: the landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term).
+    // x: the landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term);
+    // y, z, w: its growth ring (near and far radius, random value; `grass_scale`).
     frill_shade: vec4<f32>,
 };
+
+// How much of a frill stands at `distance` metres (`ac2_render::frill`): whole inside the near
+// ring; past it the share kept thins to 0.3 at the far radius (`grass_density`), and a frill whose
+// random value passes that share shrinks to its origin over a tenth of it, so frills grow in and
+// out instead of popping. The last fifth of the far radius shrinks every frill to nothing.
+fn grass_scale(ring: vec3<f32>, distance: f32) -> f32 {
+    if ring.y <= 0.0 {
+        return 1.0;
+    }
+    let t = clamp((distance - ring.x) / max(ring.y - ring.x, 1e-3), 0.0, 1.0);
+    let density = mix(1.1, 0.3, t);
+    let grow = clamp((density - ring.z) / 0.1, 0.0, 1.0);
+    return grow * (1.0 - smoothstep(0.8 * ring.y, ring.y, distance));
+}
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
 const FLAG_VERTEX_DIFFUSE: u32 = 2u;
@@ -304,6 +319,10 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
                 normal = normal + r.xyz * (weight / (r.w + 1.0));
             }
         }
+    }
+    if inst.frill.w > 0.5 {
+        let origin = inst.model[3].xyz;
+        position = position * grass_scale(inst.frill_shade.yzw, distance(origin, frame.eye.xyz));
     }
     let world = inst.model * vec4(position, 1.0);
     out.clip = frame.view_proj * world;

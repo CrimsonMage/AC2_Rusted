@@ -668,6 +668,7 @@ fn world_instances<'a>(
             Some(ObjectInstance {
                 frill_normal: p.frill_normal,
                 frill_shade: p.frill_shade,
+                grass: p.grass,
                 // `CPartArray::Draw`'s fade on a white colour.
                 tint: [1.0, 1.0, 1.0, p.alpha],
                 detail: p.detail,
