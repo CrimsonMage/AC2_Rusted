@@ -3690,7 +3690,7 @@ key	status	note
 004bc3b0	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 004bc440	_	needs port: resume continuation of latent inq string info value (the script waits and resumes here); no citation in crates/
 004bc510	x	implemented: cited at crates/ac2-weenie/src/session.rs:82
-004bc600	_	needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
+004bc600	~	retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 004bc700	_	needs port: script efun get my package id on the distributor; no citation in crates/
 004bc770	_	needs port: script efun get process id on the distributor; no citation in crates/
@@ -6111,7 +6111,7 @@ key	status	note
 0052ddf0	_	needs port: cwbook keeper::add object to be destroyed; no citation in crates/
 0052de00	_	needs port: cwbook keeper::remove object to be destroyed; no citation in crates/
 0052de10	-	destructor: Rust Drop replaces it
-0052de20	-	singleton constructor: Rust builds the object directly
+0052de20	x	entity WState read on demand (DBObj::Get, blocking); a cache-only miss waits for the loader and retries create_weenie (host/mod.rs create_weenie, host/tests/create.rs); package WStates preloaded before the frame loop (main.rs)
 0052dee0	-	destructor: Rust Drop replaces it
 0052df00	_	needs port: script VM get context state (CWDistributor); no citation in crates/
 0052df20	-	crash reporting: admin/debug tooling
@@ -6156,7 +6156,7 @@ key	status	note
 0052e7c0	_	needs port: interface inq next history item; no citation in crates/
 0052e7d0	_	needs port: interface display text; no citation in crates/
 0052e7f0	_	needs port: interface display string info; no citation in crates/
-0052e810	_	needs port: interface preload wslsingletons; no citation in crates/
+0052e810	~	retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 0052e870	_	needs port: interface check detection type match; no citation in crates/
 0052e8c0	_	needs port: interface inq string info value; no citation in crates/
 0052e960	_	needs port: `anonymous-namespace'::client latent efun activator::on trigger; no citation in crates/

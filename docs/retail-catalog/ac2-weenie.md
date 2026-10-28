@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 751 done, 170 partial, 472 to do, 511 skipped.
+1904 retail functions: 752 done, 172 partial, 470 to do, 510 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -2296,7 +2296,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_HandleTeleportStart` · 004bc3b0 · legions 004b12a0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 - [ ] `gCWInterface::Resume_InqStringInfoValue` · 004bc440 · legions 004b1330 — needs port: resume continuation of latent inq string info value (the script waits and resumes here); no citation in crates/
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
-- [ ] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — needs port: script IFun preload wslsingletons on the client interface; no citation in crates/
+- [~] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 
 ## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (15/85)
 
@@ -2555,10 +2555,10 @@ Legend and workflow: [README](README.md).
 ### CWAllocator
 - [ ] `CWAllocator::Init` · 0052dd70 · legions 00512210 — needs port: weenie allocator init; no citation in crates/
 
-## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (5/13)
+## `portal/shared/src/weenie/distributor/wdistributor.cpp.c` (6/13)
 
 ### CWDistributor
-- [-] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — singleton constructor: Rust builds the object directly
+- [x] `CWDistributor::Construct` · 0052de20 · legions 005122c0 — entity WState read on demand (DBObj::Get, blocking); a cache-only miss waits for the loader and retries create_weenie (host/mod.rs create_weenie, host/tests/create.rs); package WStates preloaded before the frame loop (main.rs)
 - [-] `CWDistributor::~CWDistributor` · 0052dee0 · legions 00512380 — destructor: Rust Drop replaces it
 - [ ] `CWDistributor::GetContextState` · 0052df00 · legions 005123a0 — needs port: script VM get context state (CWDistributor); no citation in crates/
 - [-] `CWDistributor::HandleCrash` · 0052df20 — crash reporting: admin/debug tooling
@@ -2611,7 +2611,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — needs port: interface inq next history item; no citation in crates/
 - [ ] `CWInterface::DisplayText` · 0052e7d0 · legions 00512b10 — needs port: interface display text; no citation in crates/
 - [ ] `CWInterface::DisplayStringInfo` · 0052e7f0 · legions 00512b30 — needs port: interface display string info; no citation in crates/
-- [ ] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50 — needs port: interface preload wslsingletons; no citation in crates/
+- [~] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 - [ ] `CWInterface::CheckDetectionTypeMatch` · 0052e870 · legions 00512bb0 — needs port: interface check detection type match; no citation in crates/
 - [ ] `CWInterface::InqStringInfoValue` · 0052e8c0 · legions 00512c00 — needs port: interface inq string info value; no citation in crates/
 

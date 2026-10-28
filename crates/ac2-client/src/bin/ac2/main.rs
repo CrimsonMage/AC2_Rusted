@@ -824,8 +824,12 @@ fn run(args: Args) -> Result<(), String> {
         .map_err(|e| e.to_string())?
         .ok_or("the DATs hold no script library")?;
     let program = Arc::new(ac2_script::vm::Program::from_stream(&wlib.stream));
-    // Before the frame loop: what the interpreter reads between instructions stays resident,
-    // and from then on the VM only reads what is resident.
+    // Before the frame loop: the tables and the package WStates (`0x70000000 | pid`, singletons
+    // and class defaults) stay resident, and from then on the VM only reads what is resident.
+    // Other WStates are not preloaded, as retail does not: `CWDistributor::Construct` reads an
+    // entity's WState with `DBObj::Get` on first use, and `ReferenceTable::GetSingleton` fills a
+    // singleton on its first call. A cache-only miss waits for a loader read
+    // (`ScriptHost::create_weenie`, `Vm::finish_efun`), so the first visit to a store pays one read.
     script_data.preload_tables();
     script_data.preload_states();
     script_data.preload_skill_states(&program);
