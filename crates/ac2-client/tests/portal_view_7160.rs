@@ -1,7 +1,8 @@
 //! The portal space drawn headless on the real DATs (`AC2_DAT_DIR`) against the Legions 7160
 //! server double: the town block is drawn, then the player is teleported to the 0299 interior
-//! and the frame in the portal space's tunnel phase is drawn without the world: the tunnel's
-//! textured rings, the fader and the HUD. Writes `target/ac2-snapshots/portal_town.png` and `portal_tunnel.png`; skipped
+//! and the frame in the portal space's tunnel phase is drawn without the world: the background
+//! mesh, the tunnel's textured rings, the clouds' particles, the fader and the HUD, all through
+//! the scene target and the tone map. Writes `target/ac2-snapshots/portal_town.png` and `portal_tunnel.png`; skipped
 //! without a GPU adapter.
 
 #![cfg(feature = "window")]
@@ -89,6 +90,8 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    // `PortalSpace::Effect::Initialize`'s cloud system, as the binary sets it at startup.
+    client.set_portal_clouds(ac2_render::portal::load_clouds_desc(&store));
     // The tunnel's materials, from the DAT's enum map (the view uploads them itself).
     let portal_mats = ac2_client::portal_materials(&store);
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
@@ -162,16 +165,53 @@ fn the_tunnel_phase_draws_the_textured_rings_and_no_world() {
     }
     assert_eq!(tunnel.portal.phase, Phase::Active, "the tunnel phase");
     assert!(!tunnel.portal.world_drawn());
+    // The tunnel runs on: the portals ahead discharge cloud particles, and the frame with the
+    // most of them is the one drawn.
+    let mut fullest = tunnel.clone();
+    for _ in 0..(4 * 64) {
+        client.use_time(&idle).unwrap();
+        server.borrow_mut().elapsed += STEP;
+        let frame = client.frame();
+        if frame.portal.phase == Phase::Active
+            && frame.portal.clouds.vertices.len() > fullest.portal.clouds.vertices.len()
+        {
+            fullest = frame;
+        }
+    }
+    let tunnel = fullest;
+    assert!(
+        !tunnel.portal.clouds.vertices.is_empty(),
+        "the tunnel's clouds have live particles after the tunnel has run"
+    );
     assert!(view.prepare(&gpu, &tunnel, aspect, 0.0));
     view.render(&gpu, &target.color_view, &target.depth_view, true);
     let tunnel_rgba = target.read_rgba(&gpu.device, &gpu.queue);
     write_png("portal_tunnel.png", &tunnel_rgba);
     let tunnel_mean = mean_luminance(&tunnel_rgba);
+    // The background mesh and the clouds each contribute pixels: the frame differs without them.
+    let mut without = |edit: &dyn Fn(&mut ac2_client::ClientFrame)| {
+        let mut frame = tunnel.clone();
+        edit(&mut frame);
+        assert!(view.prepare(&gpu, &frame, aspect, 0.0));
+        view.render(&gpu, &target.color_view, &target.depth_view, true);
+        target.read_rgba(&gpu.device, &gpu.queue)
+    };
+    let no_background = without(&|f| f.portal.draw.background = false);
+    let no_clouds = without(&|f| f.portal.clouds = Default::default());
+    let differing = |a: &[u8], b: &[u8]| {
+        a.chunks_exact(4)
+            .zip(b.chunks_exact(4))
+            .filter(|(x, y)| x != y)
+            .count()
+    };
+    let background_pixels = differing(&tunnel_rgba, &no_background);
+    let cloud_pixels = differing(&tunnel_rgba, &no_clouds);
+    eprintln!("background pixels {background_pixels}, cloud pixels {cloud_pixels}");
+    assert!(background_pixels > 500, "the background mesh draws");
+    assert!(cloud_pixels > 50, "the cloud particles draw");
     eprintln!("town mean {town_mean:.1}, tunnel mean {tunnel_mean:.1}");
-    assert!(
-        tunnel_mean < town_mean * 0.8,
-        "the world is not drawn in the tunnel ({tunnel_mean} vs {town_mean})"
-    );
+    // The world is not drawn (`world_drawn` above); the tunnel's brightness is its own, so the
+    // town's is not a bound on it.
     // The rings are textured with the DAT's materials (0x40000013 inner, 0x40000014 outer): both
     // resolve to an image, and the tunnel's pixels vary (a flat fill would not).
     assert!(

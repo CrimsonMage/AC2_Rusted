@@ -118,6 +118,16 @@ impl Client {
         }
     }
 
+    /// `PortalSpace::Effect::Initialize`'s cloud system (`PSManager::CreateParticleSystem` of PSDesc
+    /// `0x40000015`), from the description read at setup (`ac2_render::portal::load_clouds_desc`).
+    pub fn set_portal_clouds(
+        &mut self,
+        desc: Option<std::sync::Arc<ac2_assets::Ac2ParticleSystemDesc>>,
+    ) {
+        let now = self.session.local_time();
+        self.portal.set_clouds(desc, now);
+    }
+
     /// `SmartBox::EnterPortalSpace(bInstantly)` (`WorldRender::EnterPortalSpace`).
     pub(crate) fn enter_portal_space(&mut self, instantly: bool) {
         let now = self.session.local_time();
@@ -150,6 +160,7 @@ impl Client {
             draw: *drawn,
             teleporting: self.teleporting,
             tunnel: drawn.tunnels.then(|| self.portal.tunnel_frame()),
+            clouds: self.portal.cloud_geometry().clone(),
         }
     }
 

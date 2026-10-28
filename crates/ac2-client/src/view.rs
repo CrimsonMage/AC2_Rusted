@@ -77,7 +77,7 @@ pub struct ClientView {
     deselect: bool,
     /// The inventory's paper doll scene (`gmPaperDollUI`).
     doll: crate::paper_doll_scene::PaperDollScene,
-    /// The portal space: the fader and the tunnel (`PortalSpace::Effect::Render`).
+    /// The portal space: the fader, background, tunnel and clouds (`PortalSpace::Effect::Render`).
     portal: ac2_gpu::PortalDraw,
     /// The tone map the world and the paper doll reach the window through.
     presenter: ac2_gpu::ScenePresenter,
@@ -87,19 +87,18 @@ pub struct ClientView {
 }
 
 /// The portal space's draws, with the tunnel's materials (`PortalSpace::Effect::Initialize`'s
-/// `0x40000013` and `0x40000014`) decoded and uploaded here, at setup, not on the frame thread.
-fn portal_draw(
-    gpu: &Gpu,
-    format: wgpu::TextureFormat,
-    store: &ac2_db::ResourceStore,
-) -> ac2_gpu::PortalDraw {
-    let mut portal = ac2_gpu::PortalDraw::new(gpu, format);
+/// `0x40000013` and `0x40000014`), the background mesh and the clouds' material decoded and
+/// uploaded here, at setup, not on the frame thread.
+fn portal_draw(gpu: &Gpu, store: &ac2_db::ResourceStore) -> ac2_gpu::PortalDraw {
+    let mut portal = ac2_gpu::PortalDraw::new(gpu);
     let materials = crate::portal_materials(store);
-    let mut load = |did| ac2_render::load_material_image(store, did).ok().flatten();
+    let models = ac2_render::portal::load_portal_models(store);
+    let mut load = |key| ac2_render::load_image(store, key).ok().flatten();
     portal.preload(
         gpu,
         DataId::new(materials.inner),
         DataId::new(materials.outer),
+        &models,
         &mut load,
     );
     portal
@@ -222,7 +221,7 @@ impl ClientView {
             ),
             scene: WorldScene::new(world, radius),
             renderer: SceneRenderer::new(gpu),
-            portal: portal_draw(gpu, format, &store),
+            portal: portal_draw(gpu, &store),
             presenter: ac2_gpu::ScenePresenter::new(gpu, format),
             world_drawn: true,
         }
@@ -316,6 +315,7 @@ impl ClientView {
     /// shows them (the running client; headless renders wait instead).
     pub fn set_stream_pipelines(&mut self, stream: bool) {
         self.renderer.set_stream_pipelines(stream);
+        self.portal.set_stream_pipelines(stream);
     }
 
     /// Waits for every outstanding load (headless snapshots).
@@ -343,17 +343,29 @@ impl ClientView {
             gpu,
             &frame.portal.draw,
             frame.portal.tunnel.as_ref(),
+            &frame.portal.clouds,
             aspect,
+            time,
         );
+        if frame.portal.tunnel.is_some() {
+            // The post chain's occlusion reads the depth of the portal pass.
+            self.presenter.set_camera(ac2_gpu::AoCamera {
+                fov_y: ac2_gpu::TUNNEL_FOV_Y,
+                near: ac2_gpu::TUNNEL_NEAR,
+                far: ac2_gpu::TUNNEL_FAR,
+            });
+        }
         let Some(camera) = self.camera(frame) else {
             return false;
         };
         self.scene.set_clock(time);
-        self.presenter.set_camera(ac2_gpu::AoCamera {
-            fov_y: camera.fov_y,
-            near: camera.near,
-            far: camera.far,
-        });
+        if frame.portal.tunnel.is_none() {
+            self.presenter.set_camera(ac2_gpu::AoCamera {
+                fov_y: camera.fov_y,
+                near: camera.near,
+                far: camera.far,
+            });
+        }
         let drawn = drawn_objects(frame);
         let mut frames: Vec<Frame> = drawn.iter().map(|drawn| self.drawn_frame(drawn)).collect();
         // Each object's pose is its own (`CPartArray::UpdateBones` per object), so the poses are
@@ -459,6 +471,7 @@ impl ClientView {
         profile_scope!("view.render");
         let (overlay, roots) = self.hud.layers_for_scenes();
         let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
+        let draw_portal: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.portal.draw(pass);
         crate::ui_scene::render_with_scenes(
             gpu,
             &self.presenter,
@@ -470,7 +483,7 @@ impl ClientView {
             roots,
             &[self.doll.scenes()],
             (world && self.world_drawn).then_some(draw_world),
-            |pass| self.portal.draw(pass),
+            self.portal.drawn().then_some(draw_portal),
         );
     }
 }

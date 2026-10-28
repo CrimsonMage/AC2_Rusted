@@ -3,10 +3,10 @@
 //! own that clears the depth (`UIScene::Render`'s clear) and sets the device viewport to the
 //! root's rectangle.
 //!
-//! The world and each scene draw in linear light into the presenter's HDR target and reach the
-//! window through its tone map (`ac2_gpu::ToneMap`); a scene's tone map composites over the UI
-//! surfaces behind it where the scene drew. The UI surfaces themselves draw straight to the
-//! window.
+//! The world, the portal space and each scene draw in linear light into the presenter's HDR target
+//! and reach the window through its tone map (`ac2_gpu::ToneMap`); a scene's tone map composites
+//! over the UI surfaces behind it where the scene drew. The UI surfaces themselves draw straight
+//! to the window.
 
 use ac2_gpu::{Gpu, ScenePresenter, UiOverlay};
 
@@ -15,8 +15,9 @@ use crate::ui_scale::UiScale;
 use ac2_ui::SceneViewport;
 
 /// Draws into `color` (cleared to `clear`, an sRGB colour) on the window `scale` fits the UI
-/// to: `world` (when there is one) through the tone map, then `first` (drawn to the window
-/// format), then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
+/// to: `world` (when there is one), then `portal` (the portal space, from its own camera over a
+/// cleared depth) in the scene target, both through the tone map with the world's post chain,
+/// then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
 /// of `scenes`' prepared viewports after its root's layer.
 #[allow(clippy::too_many_arguments)]
 pub fn render_with_scenes(
@@ -30,7 +31,7 @@ pub fn render_with_scenes(
     layer_roots: &[usize],
     scenes: &[&UiScenes],
     world: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
-    first: impl FnOnce(&mut wgpu::RenderPass<'_>),
+    portal: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
 ) {
     let mut views: Vec<(usize, usize, SceneViewport)> = scenes
         .iter()
@@ -48,29 +49,33 @@ pub fn render_with_scenes(
         .collect();
     views.sort_by_key(|(layer, ..)| *layer);
     let (width, height) = scale.window;
-    let hdr = (world.is_some() || !views.is_empty()).then(|| presenter.target(gpu, width, height));
+    let scene = world.is_some() || portal.is_some();
+    let hdr = (scene || !views.is_empty()).then(|| presenter.target(gpu, width, height));
     let mut encoder = gpu.device.create_command_encoder(&Default::default());
-    // `Turbine::Client::UseTime`'s clear, then the world in the scene target.
-    if let (Some(world), Some(hdr)) = (world, &hdr) {
+    // `Turbine::Client::UseTime`'s clear, then the world, then `PortalSpace::Effect::Render`, in
+    // the scene target.
+    if let (true, Some(hdr)) = (scene, &hdr) {
         let [r, g, b] = clear.map(|c| ac2_gpu::srgb_to_linear(c.clamp(0.0, 1.0)));
-        hdr.render(gpu, &mut encoder, [r, g, b, 1.0], None, world);
-        // Bloom and eye adaptation over the world alone, before any viewport scene draws in.
+        hdr.render(gpu, &mut encoder, [r, g, b, 1.0], None, |pass| {
+            if let Some(world) = world {
+                world(pass);
+            }
+        });
+        if let Some(portal) = portal {
+            hdr.render_over(gpu, &mut encoder, portal);
+        }
+        // Bloom and eye adaptation over the world and portal alone, before any viewport scene
+        // draws in.
         presenter.post(gpu, &mut encoder, hdr);
     }
     let mut pass_clear = Some(clear);
-    let mut first = Some(first);
+    let mut head = true;
     let mut next = 0;
     let mut pending: Option<[u32; 4]> = None;
     for (layer, owner, viewport) in views.iter() {
         {
             let mut pass = begin_pass(gpu, &mut encoder, color, depth, pass_clear.take());
-            output_head(
-                &mut pass,
-                presenter,
-                hdr.as_deref(),
-                world.is_some(),
-                &mut first,
-            );
+            output_head(&mut pass, presenter, hdr.as_deref(), scene, &mut head);
             if let (Some(rect), Some(hdr)) = (pending.take(), &hdr) {
                 presenter.tonemap().draw(&mut pass, hdr, Some(rect));
             }
@@ -100,13 +105,7 @@ pub fn render_with_scenes(
     }
     {
         let mut pass = begin_pass(gpu, &mut encoder, color, depth, pass_clear.take());
-        output_head(
-            &mut pass,
-            presenter,
-            hdr.as_deref(),
-            world.is_some(),
-            &mut first,
-        );
+        output_head(&mut pass, presenter, hdr.as_deref(), scene, &mut head);
         if let (Some(rect), Some(hdr)) = (pending.take(), &hdr) {
             presenter.tonemap().draw(&mut pass, hdr, Some(rect));
         }
@@ -116,21 +115,21 @@ pub fn render_with_scenes(
     gpu.queue.submit([encoder.finish()]);
 }
 
-/// The start of the first window pass: the world's tone map (when it drew), then `first`.
+/// The start of the first window pass: the scene's tone map (when the world or the portal space
+/// drew).
 fn output_head(
     pass: &mut wgpu::RenderPass<'_>,
     presenter: &ScenePresenter,
     hdr: Option<&ac2_gpu::HdrTarget>,
-    world: bool,
-    first: &mut Option<impl FnOnce(&mut wgpu::RenderPass<'_>)>,
+    scene: bool,
+    head: &mut bool,
 ) {
-    let Some(first) = first.take() else {
+    if !std::mem::take(head) {
         return;
-    };
-    if let (true, Some(hdr)) = (world, hdr) {
+    }
+    if let (true, Some(hdr)) = (scene, hdr) {
         presenter.draw_world(pass, hdr);
     }
-    first(pass);
 }
 
 /// A pass over `color` (cleared to `clear`, else kept) with its depth cleared.

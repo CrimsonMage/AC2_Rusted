@@ -1,8 +1,11 @@
 //! Portal space (Legions `portal/client/src/smartbox/worldrender/portalspace.cpp`): the
 //! teleport's fade and tunnel effect, drawn in place of the world while the player is in transit.
 
+pub mod assets;
 pub mod camera;
 pub mod clouds;
+#[cfg(test)]
+mod clouds_tests;
 pub mod effect;
 #[cfg(test)]
 mod effect_tests;
@@ -10,6 +13,7 @@ pub mod tunnel;
 #[cfg(test)]
 mod tunnel_tests;
 
+pub use assets::{load_clouds_desc, load_portal_models, portal_settings, PortalModels};
 pub use camera::{portal_camera, PortalCamera};
 pub use clouds::PortalClouds;
 pub use effect::{Draw, Phase, PortalSound, PortalSpace, TunnelFrame};

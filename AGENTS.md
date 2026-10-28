@@ -53,6 +53,11 @@ game rules and server-visible behaviour exactly retail.
   bloom, eye adaptation (half the metered difference from a daylight key, within one stop) and a
   light vignette. UI viewport scenes skip the chain and composite over their panel where they
   drew. Do not add a retail/modern switch.
+- Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
+  background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
+  they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a
+  cleared depth (after the world while it fades), and take the world's post chain and the one tone
+  map; the fader's colour is decoded to linear light.
 - Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a
   drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
   Here a window with a drag bar still moves by it, and any other top-level HUD window moves by

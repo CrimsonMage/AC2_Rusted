@@ -361,7 +361,7 @@ impl PregameView {
             &self.layer_roots,
             &scenes,
             None,
-            |_| {},
+            None,
         );
     }
 

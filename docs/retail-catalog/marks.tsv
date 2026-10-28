@@ -8411,14 +8411,14 @@ key	status	note
 00585f40	x	ac2-math perlin.rs, matrix.rs; ac2-render portal/tunnel.rs; tests: tunnel_tests, perlin, matrix
 00585f90	x	ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
 00586220	x	ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
-00586650	~	materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
+00586650	x	materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 00586720	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 00586740	x	ac2-render portal/tunnel.rs update_geometry(current, start, scale): ring base is m_nLastPortalPassed, start is the transparent depth, memory order reversed (closing vertex first), x stored as float, 1/w in f64; alpha ramp verified (0.8+0.2(1-X/15), 0.8(1-X/149)^2)
 00586eb0	x	ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
 00586f50	x	ac2-render portal/tunnel.rs and effect.rs: GeneratePortals' local matrix carries (0,3,0); Think's phase machine, fader, tunnel advance; StartNow/StopNow sounds via ac2-client play_portal_sounds
-00587360	~	ac2-gpu portal_tunnel.rs draws the rings (outer then inner, textured); the background mesh (0x40000016 CBaseMesh::DrawMesh) and the clouds (ParticleSystem 0x40000015) are not drawn yet
-00587da0	~	materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
-00587db0	~	materials 0x40000013/0x40000014 and the sounds load (client_teleport.rs); the clouds' PSDesc and the background CDataMesh are not loaded yet
+00587360	~	ac2-gpu portal_space.rs: fader, background mesh 0x40000016 at the eye with the opacity as alpha, outer then inner rings, discharge loop (ac2-render portal/clouds.rs, has_particle reset in GeneratePortals) and cloud particles, all into the HDR scene target from the portal camera; not yet: SetFOV(mFarDistance*m_fCameraFOVScale) is unresolved (fixed 65 degrees), lights/fog/sun taken as an unlit white-ambient environment
+00587da0	x	materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
+00587db0	x	materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 00588050	x	ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 005880a0	_	needs port: UV translate (scrolling texture coordinates)
 005880f0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)

@@ -34,7 +34,7 @@ pub use ac2_render::scene::SceneObject;
 pub use ao::AoCamera;
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
-pub use portal_space::PortalDraw;
+pub use portal_space::{PortalDraw, TUNNEL_FAR, TUNNEL_FOV_Y, TUNNEL_NEAR};
 pub use portal_tunnel::{PortalTunnel, TUNNEL_VERTICES};
 pub use quality::{quality_level_for, suggested_quality_level};
 pub use scene::SceneRenderer;

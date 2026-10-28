@@ -8,10 +8,15 @@
 //! the fader's channels through a double's halves (`dTimeNow._0_4_`, `._4_4_`): the Shutdown
 //! phases' fader is (0, 1, 1, alpha), the Startup phase 0's (0, 0, 0, alpha).
 
+use std::sync::Arc;
+
+use ac2_assets::Ac2ParticleSystemDesc;
 use ac2_core::Random;
 
 use super::camera::{portal_camera, PortalCamera};
+use super::clouds::PortalClouds;
 use super::tunnel::{make_safe_index, start_for_visibility, Tunnel, TunnelVertex, PORTALS};
+use crate::particles::{CameraBasis, ParticleGeometry};
 
 /// The tunnel for one frame: the vertices of the inner and outer rings and the camera they are
 /// seen from.
@@ -95,7 +100,7 @@ const PHASE_SECONDS: f64 = 1.0;
 const SHUTDOWN_FADER: [f32; 3] = [0.0, 1.0, 1.0];
 
 /// `PortalSpace::Effect`: the teleport's portal-space effect, without the tunnel geometry.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct PortalSpace {
     /// `m_bWantPortalSpace`: the effect is asked to run (`Start`) or to stop (`Stop`).
     want: bool,
@@ -116,6 +121,10 @@ pub struct PortalSpace {
     tunnel: Tunnel,
     /// The sounds `StartNow` and `StopNow` asked for since the client last took them.
     sounds: Vec<PortalSound>,
+    /// `m_pTunnelCloudsParticleSystem`.
+    clouds: PortalClouds,
+    /// The clouds' particles `Render` queued this frame, laid out for the tunnel's camera.
+    cloud_geometry: ParticleGeometry,
 }
 
 impl Default for PortalSpace {
@@ -138,6 +147,48 @@ impl PortalSpace {
             last_portal: 0,
             tunnel: Tunnel::new(),
             sounds: Vec::new(),
+            clouds: PortalClouds::default(),
+            cloud_geometry: ParticleGeometry::default(),
+        }
+    }
+
+    /// `Initialize`'s `PSManager::CreateParticleSystem(PSDesc, 0)` at client time `now`: the
+    /// clouds' system (none when the DAT has no description).
+    pub fn set_clouds(&mut self, desc: Option<Arc<Ac2ParticleSystemDesc>>, now: f64) {
+        self.clouds = PortalClouds::new(desc, now);
+    }
+
+    /// The clouds (`m_pTunnelCloudsParticleSystem`).
+    pub fn clouds(&self) -> &PortalClouds {
+        &self.clouds
+    }
+
+    /// The clouds' particles queued by the last [`PortalSpace::render_clouds`].
+    pub fn cloud_geometry(&self) -> &ParticleGeometry {
+        &self.cloud_geometry
+    }
+
+    /// The cloud part of `PortalSpace::Effect::Render`, once per drawn frame at client time
+    /// `now`: while the tunnels are drawn, the portals ahead discharge a particle each
+    /// ([`PortalClouds::discharge`]) and the system is queued at the identity frame for the
+    /// tunnel's camera. Nothing is queued when the tunnels are not drawn.
+    pub fn render_clouds(&mut self, now: f64, random: &mut Random) {
+        self.cloud_geometry.vertices.clear();
+        self.cloud_geometry.indices.clear();
+        if self.phase == Phase::Inactive || !self.draw.tunnels {
+            return;
+        }
+        let visibility = self.draw.tunnel_visibility;
+        self.clouds
+            .discharge(&mut self.tunnel, self.last_portal, visibility, now, random);
+        let camera = portal_camera(
+            &self.tunnel,
+            self.last_portal,
+            self.current_position,
+            visibility,
+        );
+        if let Some(basis) = CameraBasis::look_at(camera.eye, camera.target()) {
+            self.cloud_geometry = self.clouds.geometry(now, &basis);
         }
     }
 

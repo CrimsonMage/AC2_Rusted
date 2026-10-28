@@ -95,11 +95,18 @@ impl HdrTarget {
         record: impl FnOnce(&mut wgpu::RenderPass<'_>),
     ) {
         let timestamps = gpu.pass_timestamps("scene");
+        let [r, g, b, a] = clear;
+        let load = wgpu::LoadOp::Clear(wgpu::Color {
+            r: f64::from(r),
+            g: f64::from(g),
+            b: f64::from(b),
+            a: f64::from(a),
+        });
         let mut pass = begin(
             encoder,
             &self.color_view,
             &self.depth_view,
-            clear,
+            load,
             timestamps,
         );
         if let Some([x, y, w, h]) = viewport {
@@ -108,21 +115,35 @@ impl HdrTarget {
         }
         record(&mut pass);
     }
+
+    /// Records one more pass over what the scene target holds: colour kept, depth cleared to far,
+    /// so a second scene seen from its own camera (the portal space's, drawn over the world while
+    /// it fades) draws over the first without its depth. Timed as `scene`.
+    pub fn render_over(
+        &self,
+        gpu: &Gpu,
+        encoder: &mut wgpu::CommandEncoder,
+        record: impl FnOnce(&mut wgpu::RenderPass<'_>),
+    ) {
+        let timestamps = gpu.pass_timestamps("scene");
+        let mut pass = begin(
+            encoder,
+            &self.color_view,
+            &self.depth_view,
+            wgpu::LoadOp::Load,
+            timestamps,
+        );
+        record(&mut pass);
+    }
 }
 
 fn begin<'a>(
     encoder: &'a mut wgpu::CommandEncoder,
     color: &'a wgpu::TextureView,
     depth: &'a wgpu::TextureView,
-    [r, g, b, a]: [f32; 4],
+    color_load: wgpu::LoadOp<wgpu::Color>,
     timestamp_writes: Option<wgpu::RenderPassTimestampWrites<'a>>,
 ) -> wgpu::RenderPass<'a> {
-    let color_load = wgpu::LoadOp::Clear(wgpu::Color {
-        r: f64::from(r),
-        g: f64::from(g),
-        b: f64::from(b),
-        a: f64::from(a),
-    });
     encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
         label: Some("ac2 hdr scene"),
         color_attachments: &[Some(wgpu::RenderPassColorAttachment {
