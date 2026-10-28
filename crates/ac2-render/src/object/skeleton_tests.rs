@@ -174,6 +174,39 @@ fn child_group_hangs_from_the_parent_bone_and_connection_point() {
     );
 }
 
+/// `CPartGroup::GetHoldingLocation` on a child group returns that group's `m_boneMatrices` folded
+/// with its `m_mFinal`: a child bone's model-space position, the same as its part's origin.
+#[test]
+fn a_child_groups_holding_bone_is_its_model_space_bone() {
+    let frame = [
+        transform([0.0, 0.0, 1.0], 1.0, Quat::IDENTITY),
+        transform([0.0, 1.0, 0.0], 3.0, Quat::IDENTITY),
+    ];
+    let parent = setup(frame, frame);
+    let root = SkeletonGroup::new(DataId::new(0x0400_0001), &parent, false, None);
+    let child = SkeletonGroup::new(
+        DataId::new(0x0400_0002),
+        &parent,
+        false,
+        Some((0, &parent, 7)),
+    );
+    let skeleton = ObjectSkeleton {
+        groups: vec![root, child],
+    };
+    let poses = skeleton.pose(None);
+    let root_bones = skeleton.root_bones(None);
+    let bones = skeleton.group_bones(&poses, &root_bones);
+    assert_eq!(bones.len(), 2);
+    assert!(bones[0][1].offset.abs_diff_eq(root_bones[1].offset, 1e-5));
+    assert!(
+        bones[1][0]
+            .offset
+            .abs_diff_eq(Vec3::new(0.0, 1.0, 2.5), 1e-5),
+        "{:?}",
+        bones[1][0]
+    );
+}
+
 #[test]
 fn blend_sums_weighted_bones_without_renormalising() {
     let matrices = [

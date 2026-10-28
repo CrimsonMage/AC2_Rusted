@@ -197,6 +197,26 @@ pub fn resolve_drawn_groups(
     }
 }
 
+/// The groups in `CPartGroup::GetHoldingLocation`'s search order: a group's own holding list
+/// first (`CPartArray::GetHoldingLocation`), then each child group's search in turn, children in
+/// list order and depth first. Entries are indices into `groups`; a child always follows its
+/// parent in the list, which bounds the walk.
+pub fn holding_search_order(groups: &[DrawnGroup]) -> Vec<usize> {
+    fn visit(groups: &[DrawnGroup], index: usize, order: &mut Vec<usize>) {
+        order.push(index);
+        for (child, group) in groups.iter().enumerate().skip(index + 1) {
+            if group.parent.is_some_and(|(parent, _)| parent == index) {
+                visit(groups, child, order);
+            }
+        }
+    }
+    let mut order = Vec::with_capacity(groups.len());
+    if !groups.is_empty() {
+        visit(groups, 0, &mut order);
+    }
+    order
+}
+
 /// Every part group's bones at rest, by name, in `CPartGroup::FindBoneType`'s search order: a
 /// group's own bones, then each child group's search in turn (`ObjectSkeleton::named_bones` at the
 /// rest pose). A bone is its model-space transform in its group, scale stripped as
@@ -289,4 +309,29 @@ fn default_locals(setup: &Ac2Setup) -> Vec<Ac2Transform> {
             }
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use ac2_core::DataId;
+
+    use super::{holding_search_order, DrawnGroup};
+
+    fn group(parent: Option<usize>) -> DrawnGroup {
+        DrawnGroup {
+            key: 0,
+            setup: DataId::new(0x0400_0001),
+            parent: parent.map(|parent| (parent, 0)),
+            atoms: Default::default(),
+        }
+    }
+
+    /// Root 0 with children 1 and 2; 3 hangs from 1. Retail searches 0, then 1 and its child 3,
+    /// then 2.
+    #[test]
+    fn the_holding_search_is_own_list_then_each_child_depth_first() {
+        let groups = [group(None), group(Some(0)), group(Some(0)), group(Some(1))];
+        assert_eq!(holding_search_order(&groups), vec![0, 1, 3, 2]);
+        assert!(holding_search_order(&[]).is_empty());
+    }
 }

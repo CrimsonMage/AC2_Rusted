@@ -60,7 +60,7 @@ impl ClientView {
             let bone = holder_pose
                 .2
                 .as_ref()
-                .and_then(|pose| pose.bones.get(point.bone))
+                .and_then(|pose| pose.group_bones.get(point.group)?.get(point.bone))
                 .copied()
                 .unwrap_or(Ac2Transform::IDENTITY);
             let at = held_place(frames[holder], *holder_scale, bone, &point);
@@ -96,6 +96,7 @@ mod tests {
 
     fn point(bone: usize, offset: Vec3) -> HoldPoint {
         HoldPoint {
+            group: 0,
             bone,
             transform: translated(offset),
         }

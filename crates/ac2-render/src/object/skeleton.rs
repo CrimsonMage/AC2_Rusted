@@ -415,6 +415,30 @@ impl ObjectSkeleton {
         }
     }
 
+    /// Every group's model-space bones, the transforms `CPartGroup::GetHoldingLocation` hands back
+    /// for a holding location (`CPartArray::m_boneMatrices` of the group that lists it). Group 0
+    /// takes `root_bones`; a child group's bone is its bone matrix times `CPartGroup::m_mFinal`,
+    /// read back as a transform, as `named_bones` reads it.
+    pub fn group_bones(
+        &self,
+        poses: &[GroupPose],
+        root_bones: &[Ac2Transform],
+    ) -> Vec<Vec<Ac2Transform>> {
+        (0..self.groups.len())
+            .map(|index| {
+                if index == 0 {
+                    return root_bones.to_vec();
+                }
+                poses.get(index).map_or_else(Vec::new, |pose| {
+                    pose.bones
+                        .iter()
+                        .map(|bone| transform_of(&multiply(bone, &pose.matrix)))
+                        .collect()
+                })
+            })
+            .collect()
+    }
+
     /// The root group's model-space bones (`CPartArray::m_boneMatrices`, which carry no scale), as
     /// the transforms `pose` builds them from: each bone's parent-relative local composed up its
     /// chain. `root` is taken as `pose` takes it.

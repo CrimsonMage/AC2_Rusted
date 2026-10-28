@@ -102,6 +102,9 @@ pub struct Holder {
 /// bone's space.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct HoldPoint {
+    /// The part group whose Setup lists the location (`CPartGroup::GetHoldingLocation`): an index
+    /// into the holder's drawn groups.
+    pub group: usize,
     pub bone: usize,
     pub transform: ac2_anim::Ac2Transform,
 }

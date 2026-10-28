@@ -380,10 +380,11 @@ impl Client {
             .body_data(visual)?
             .holding
             .iter()
-            .find(|point| point.id == location)?;
+            .find(|point| point.location.id == location)?;
         Some(HoldPoint {
-            bone: point.bone,
-            transform: point.transform,
+            group: point.group,
+            bone: point.location.bone,
+            transform: point.location.transform,
         })
     }
 

@@ -31,9 +31,18 @@ pub struct BodyData {
     /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
     /// and its root scale, when it has any: the object other movers collide with.
     pub object: Option<(Arc<ObjectShape>, Vector)>,
-    /// The root Setup's holding locations (`CSetup`'s `LocationType` list), which the objects
-    /// held by this one hang from (`CPartArray::GetHoldingLocation`); empty without a Setup.
-    pub holding: Arc<[Ac2Location]>,
+    /// The holding locations of every part group's Setup, in `CPartGroup::GetHoldingLocation`'s
+    /// search order (the first entry for an id is the one retail finds); the objects held by this
+    /// one hang from them. Empty without a Setup.
+    pub holding: Arc<[GroupHolding]>,
+}
+
+/// A Setup holding location (`CSetup`'s `LocationType` list) and the part group whose Setup lists
+/// it: the group's index in the visual's drawn groups.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct GroupHolding {
+    pub group: usize,
+    pub location: Ac2Location,
 }
 
 /// The world data the client reads, shared with its loader threads.
@@ -218,22 +227,35 @@ pub(crate) fn load_body_data(
     })
 }
 
-/// The root Setup's holding locations for `visual` (`CSetup`'s holding list), read on the loader
-/// thread. A visual with no part groups or no Setup has none.
+/// The holding locations of every part group's Setup for `visual`, read on the loader thread in
+/// `CPartGroup::GetHoldingLocation`'s search order. A visual with no part groups has none.
 fn load_holding_locations(
     store: &Arc<ResourceStore>,
     visual: DataId,
-) -> Result<Arc<[Ac2Location]>, String> {
+) -> Result<Arc<[GroupHolding]>, String> {
     let groups = ac2_render::object::resolve_drawn_groups(store, visual, None)
         .ok()
         .flatten();
-    let Some(root) = groups.as_ref().and_then(|g| g.first()).map(|g| g.setup) else {
+    let Some(groups) = groups else {
         return Ok(Arc::from([]));
     };
-    let setup = store
-        .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(DatFileKind::Portal, root, 0))
-        .map_err(|e| e.to_string())?;
-    Ok(setup.map_or_else(|| Arc::from([]), |setup| Arc::clone(&setup.holding_points)))
+    let mut holding = Vec::new();
+    for group in ac2_assets::holding_search_order(&groups) {
+        let setup = store
+            .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                groups[group].setup,
+                0,
+            ))
+            .map_err(|e| e.to_string())?;
+        for location in setup.iter().flat_map(|setup| setup.holding_points.iter()) {
+            holding.push(GroupHolding {
+                group,
+                location: *location,
+            });
+        }
+    }
+    Ok(holding.into())
 }
 
 /// The visual's FX sounds and which of them loop (`FXManager::SoundIsLooping` reads them
