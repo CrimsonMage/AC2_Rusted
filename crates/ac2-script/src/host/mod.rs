@@ -24,6 +24,7 @@ pub mod port;
 pub mod queries;
 pub mod radar;
 mod skill_panel;
+pub mod skill_requests;
 pub mod social_queries;
 pub mod ui_calls;
 

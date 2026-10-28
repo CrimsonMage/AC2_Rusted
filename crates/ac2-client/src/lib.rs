@@ -101,7 +101,6 @@ mod remote;
 mod scripts;
 mod scripts_io;
 mod scripts_queries;
-mod skills;
 mod tables;
 #[cfg(feature = "window")]
 mod target_select;

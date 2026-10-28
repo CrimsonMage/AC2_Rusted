@@ -9,6 +9,7 @@
 use std::sync::Arc;
 
 use ac2_net::protocol::{ExaminationRequest, SelectionInfo};
+use ac2_script::host::skill_requests::SkillRequests;
 use ac2_script::host::{IFunArg, OutValue};
 use ac2_ui::SavedWindow;
 use ac2_weenie::{SessionEvent, NO_SELECTION};
