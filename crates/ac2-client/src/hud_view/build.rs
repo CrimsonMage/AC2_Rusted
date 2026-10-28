@@ -189,10 +189,10 @@ impl HudView {
                 if let Some(pets) = pets.as_mut() {
                     pets.show(&mut tree, true);
                 }
-                self.panels.mini_fellow = mini_fellow;
-                self.panels.pets = pets;
                 self.hud = Some((tree, images));
                 self.panels = ac2_ui::Hud::new(reticle, names, damage);
+                self.panels.mini_fellow = mini_fellow;
+                self.panels.pets = pets;
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
                 self.show_toolbar(true);
