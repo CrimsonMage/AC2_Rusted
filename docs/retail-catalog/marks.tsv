@@ -736,17 +736,17 @@ key	status	note
 0042d330	x	ac2-ui dialog.rs
 0042d350	x	ac2-ui dialog.rs
 0042d3c0	x	ac2-ui dialog.rs
-0042d3f0	_	needs port (check): ResurrectDialog::ListenToMessage behaviour; implemented area ac2-ui dialog.rs but uncited
-0042d420	_	needs port (check): ResurrectDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+0042d3f0	x	ac2-ui dialog.rs: the ResurrectDialog (ResurrectField, its TextField given the text at create) closes on ResurrectButton's release with DialogOutcome::Resurrect (CM_UI::SendNotice_CloseResurrectDialog), then DialogFactory::CloseDialog
+0042d420	x	ac2-ui dialog.rs: the ResurrectDialog (ResurrectField, its TextField given the text at create) closes on ResurrectButton's release with DialogOutcome::Resurrect (CM_UI::SendNotice_CloseResurrectDialog), then DialogFactory::CloseDialog
 0042d440	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 0042d4e0	x	ac2-ui dialog.rs
 0042d500	x	ac2-ui dialog.rs
 0042d560	x	ac2-ui dialog.rs
-0042d590	_	needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
-0042d5d0	_	needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
-0042d670	_	needs port (check): TimedDialog::SetDelay; dialog.rs TIMED_DELAY constant is cited, not the function
+0042d590	x	ac2-ui dialog.rs message: a timed dialog's YesButton / NoButton release answers DialogOutcome::Confirmation (SendNotice_CloseConfirmationDialog(context, yes)) and closes it
+0042d5d0	x	ac2-ui dialog.rs tick (the global loop): TIMED_DELAY 15 s from the first tick (SetDelay(0xf)), the seconds left shown, and at the end the dialog answers no and closes. Its only user (gmClientUI::VerifyRenderOptions) asks with ID_Option_RenderText, which the DVD string table lacks, so the port shows its own text with the seconds appended instead of the string's time variable
+0042d670	x	ac2-ui dialog.rs tick (the global loop): TIMED_DELAY 15 s from the first tick (SetDelay(0xf)), the seconds left shown, and at the end the dialog answers no and closes. Its only user (gmClientUI::VerifyRenderOptions) asks with ID_Option_RenderText, which the DVD string table lacks, so the port shows its own text with the seconds appended instead of the string's time variable
 0042d6e0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-0042d7b0	_	needs port (check): TimedDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+0042d7b0	x	ac2-ui dialog.rs create: the timed dialog uses the ConfirmationField layout (retail's _dialogField is ConfirmationField too) and sets QuestionText
 0042d7f0	x	ac2-ui dialog.rs
 0042d830	x	ac2-ui dialog.rs
 0042d850	x	ac2-ui dialog.rs

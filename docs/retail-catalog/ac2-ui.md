@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1271 done, 341 partial, 140 to do, 495 skipped.
+2247 retail functions: 1277 done, 341 partial, 134 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1970,21 +1970,21 @@ Legend and workflow: [README](README.md).
 - [x] `MessageDialog::SetText` · 0042d330 · legions 0042d100 — ac2-ui dialog.rs
 - [x] `MessageDialog::MessageDialog` · 0042d350 · legions 0042d120 — ac2-ui dialog.rs
 
-## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (0/3)
+## `ac2/client/src/ui/util/dialog/resurrectdialog.cpp.c` (2/3)
 
 ### ResurrectDialog
-- [ ] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — needs port (check): ResurrectDialog::ListenToMessage behaviour; implemented area ac2-ui dialog.rs but uncited
-- [ ] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — needs port (check): ResurrectDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+- [x] `ResurrectDialog::ListenToMessage` · 0042d3f0 · legions 0042d1c0 — ac2-ui dialog.rs: the ResurrectDialog (ResurrectField, its TextField given the text at create) closes on ResurrectButton's release with DialogOutcome::Resurrect (CM_UI::SendNotice_CloseResurrectDialog), then DialogFactory::CloseDialog
+- [x] `ResurrectDialog::SetText` · 0042d420 · legions 0042d1f0 — ac2-ui dialog.rs: the ResurrectDialog (ResurrectField, its TextField given the text at create) closes on ResurrectButton's release with DialogOutcome::Resurrect (CM_UI::SendNotice_CloseResurrectDialog), then DialogFactory::CloseDialog
 - [-] `ResurrectDialog::ResurrectDialog` · 0042d440 · legions 0042d210 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `ac2/client/src/ui/util/dialog/timeddialog.cpp.c` (0/5)
+## `ac2/client/src/ui/util/dialog/timeddialog.cpp.c` (4/5)
 
 ### TimedDialog
-- [ ] `TimedDialog::ListenToMessage` · 0042d590 · legions 0042d360 — needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
-- [ ] `TimedDialog::ListenToMessage` · 0042d5d0 · legions 0042d3a0 — needs port (check): TimedDialog::ListenToMessage; hud_options.rs cite is a module doc
-- [ ] `TimedDialog::SetDelay` · 0042d670 · legions 0042d440 — needs port (check): TimedDialog::SetDelay; dialog.rs TIMED_DELAY constant is cited, not the function
+- [x] `TimedDialog::ListenToMessage` · 0042d590 · legions 0042d360 — ac2-ui dialog.rs message: a timed dialog's YesButton / NoButton release answers DialogOutcome::Confirmation (SendNotice_CloseConfirmationDialog(context, yes)) and closes it
+- [x] `TimedDialog::ListenToMessage` · 0042d5d0 · legions 0042d3a0 — ac2-ui dialog.rs tick (the global loop): TIMED_DELAY 15 s from the first tick (SetDelay(0xf)), the seconds left shown, and at the end the dialog answers no and closes. Its only user (gmClientUI::VerifyRenderOptions) asks with ID_Option_RenderText, which the DVD string table lacks, so the port shows its own text with the seconds appended instead of the string's time variable
+- [x] `TimedDialog::SetDelay` · 0042d670 · legions 0042d440 — ac2-ui dialog.rs tick (the global loop): TIMED_DELAY 15 s from the first tick (SetDelay(0xf)), the seconds left shown, and at the end the dialog answers no and closes. Its only user (gmClientUI::VerifyRenderOptions) asks with ID_Option_RenderText, which the DVD string table lacks, so the port shows its own text with the seconds appended instead of the string's time variable
 - [-] `TimedDialog::TimedDialog` · 0042d6e0 · legions 0042d4b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [ ] `TimedDialog::SetText` · 0042d7b0 · legions 0042d580 — needs port (check): TimedDialog::SetText behaviour; implemented area ac2-ui dialog.rs but uncited
+- [x] `TimedDialog::SetText` · 0042d7b0 · legions 0042d580 — ac2-ui dialog.rs create: the timed dialog uses the ConfirmationField layout (retail's _dialogField is ConfirmationField too) and sets QuestionText
 
 ## `ac2/client/src/ui/util/dialog/waitdialog.cpp.c` (2/2)
 
