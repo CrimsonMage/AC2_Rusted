@@ -125,6 +125,9 @@ pub struct UiElement {
     pub(crate) drag_drop: Option<crate::drag::DragCheck>,
     /// `UIElement_Button::mousePressedOnButton`.
     pub(crate) button_pressed: bool,
+    /// `UIElement_Button::hotClickingInProgress` and `nextHotClickTime`.
+    pub(crate) hot_clicking: bool,
+    pub(crate) next_hot_click: f64,
     /// A root's surface object: shown (`UIObject` show, apart from the element's own
     /// visibility) and rotated about its centre in degrees (`UISurfaceObject::SetRotateVals`).
     pub(crate) shown: bool,
@@ -499,6 +502,8 @@ impl UiTree {
             drag_out: None,
             drag_drop: None,
             button_pressed: false,
+            hot_clicking: false,
+            next_hot_click: 0.0,
             shown: true,
             rotation: 0,
             media_state: None,

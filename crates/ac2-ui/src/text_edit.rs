@@ -81,6 +81,8 @@ impl UiTree {
             self.deactivate(previous);
         }
         self.active = Some(index);
+        // `UIElement_Button::Activate`: the state is refreshed.
+        self.button_update_state(index);
         if self.el(index).text.as_ref().is_some_and(|t| t.editable) {
             self.broadcast(index, message("activated"), 0);
             self.changed = true;
@@ -100,6 +102,8 @@ impl UiTree {
             return;
         }
         self.active = None;
+        // `UIElement_Button::Deactivate`: the state is refreshed.
+        self.button_update_state(index);
         if self.el(index).text.as_ref().is_some_and(|t| t.editable) {
             self.broadcast(index, message("deactivated"), 0);
             self.changed = true;

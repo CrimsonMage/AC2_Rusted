@@ -185,3 +185,43 @@ fn the_wheel_over_the_thumb_reaches_the_bar() {
     wheel_over_the_thumb_steps_the_bar("field");
     wheel_over_the_thumb_steps_the_bar("button");
 }
+
+/// `UIElement_Button::StartUseActive` clicks at once; `Global_Loop` repeats the click from
+/// 0.3 s on, then every 0.1 s (counted from the click due), until the release.
+#[test]
+fn a_held_hot_button_repeats_its_click() {
+    let (mut tree, slider) = tree();
+    tree.global_loop(10.0);
+    // Stop locations 0, 0.25 .. 1: put the bar at 1 and hold the left button (a step back).
+    tree.scrollbar_set_position(slider, 1.0);
+    point(&mut tree, 4, 24);
+    tree.start_input(0x4000_0004, 1.0);
+    assert_eq!(
+        tree.scrollbar_position(slider),
+        0.75,
+        "the press clicks once"
+    );
+    tree.global_loop(10.2);
+    assert_eq!(
+        tree.scrollbar_position(slider),
+        0.75,
+        "before the first interval"
+    );
+    tree.global_loop(10.31);
+    assert_eq!(tree.scrollbar_position(slider), 0.5);
+    tree.global_loop(10.39);
+    assert_eq!(
+        tree.scrollbar_position(slider),
+        0.5,
+        "the next click is due at 10.4"
+    );
+    tree.global_loop(10.41);
+    assert_eq!(tree.scrollbar_position(slider), 0.25);
+    tree.stop_input(0x4000_0004);
+    tree.global_loop(11.0);
+    assert_eq!(
+        tree.scrollbar_position(slider),
+        0.25,
+        "released: no more clicks"
+    );
+}

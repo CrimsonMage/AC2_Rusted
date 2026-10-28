@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1199 done, 368 partial, 179 to do, 501 skipped.
+2247 retail functions: 1206 done, 368 partial, 162 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -2623,9 +2623,9 @@ Legend and workflow: [README](README.md).
 - [-] `UIChildFramework::UIChildFramework` · 005fe110 · legions 005bec10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `UIChildFramework::~UIChildFramework` · 005fe140 · legions 005bec40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `UIChildFramework::CreateAndAddRootElement` · 005fe170 · legions 005bec70 — ac2-ui hud.rs
-- [ ] `UIChildFramework::RemoveRootElement` · 005fe190 · legions 005bec90 — needs port (check): UIChildFramework::RemoveRootElement behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIChildFramework::GetUIFlow` · 005fe1a0 · legions 005beca0 — needs port (check): UIChildFramework::GetUIFlow behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIChildFramework::Shown` · 005fe1b0 · legions 005becb0 — needs port (check): UIChildFramework::Shown behaviour; implemented area ac2-ui hud.rs but uncited
+- [-] `UIChildFramework::RemoveRootElement` · 005fe190 · legions 005bec90 — child-framework plumbing (root list, parent forwarding); ac2-ui panels own their roots as UiTree indices and Hud calls them directly
+- [-] `UIChildFramework::GetUIFlow` · 005fe1a0 · legions 005beca0 — child-framework plumbing (root list, parent forwarding); ac2-ui panels own their roots as UiTree indices and Hud calls them directly
+- [-] `UIChildFramework::Shown` · 005fe1b0 · legions 005becb0 — child-framework plumbing (root list, parent forwarding); ac2-ui panels own their roots as UiTree indices and Hud calls them directly
 
 ## `portal/client/src/uielement/framework/uiflow.cpp.c` (4/8)
 
@@ -2642,15 +2642,15 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/uielement/framework/uiframework.cpp.c` (0/9)
 
 ### UIFramework
-- [ ] `UIFramework::GetUIPersistantData` · 005fd7d0 · legions 005be300 — needs port (check): UIFramework::GetUIPersistantData behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIFramework::CreateElement` · 005fd7f0 · legions 005be320 — needs port (check): UIFramework::CreateElement(id, template); craft_pages.rs cite is on a caller
+- [-] `UIFramework::GetUIPersistantData` · 005fd7d0 · legions 005be300 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
+- [-] `UIFramework::CreateElement` · 005fd7f0 · legions 005be320 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
 - [-] `UIFramework::UIFramework` · 005fd810 · legions 005be340 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `UIFramework::~UIFramework` · 005fd840 · legions 005be370 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [ ] `UIFramework::Show` · 005fd860 · legions 005be390 — needs port (check): UIFramework::Show; book.rs cite is on a shown field
-- [ ] `UIFramework::FindChild` · 005fd8a0 · legions 005be3d0 — needs port (check): UIFramework::FindChild behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIFramework::LocationApplied` · 005fd8d0 · legions 005be400 — needs port (check): UIFramework::LocationApplied behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIFramework::RemoveChild` · 005fd940 · legions 005be470 — needs port (check): UIFramework::RemoveChild behaviour; implemented area ac2-ui hud.rs but uncited
-- [ ] `UIFramework::AddChild` · 005fd970 · legions 005be4a0 — needs port (check): UIFramework::AddChild behaviour; implemented area ac2-ui hud.rs but uncited
+- [-] `UIFramework::Show` · 005fd860 · legions 005be390 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
+- [-] `UIFramework::FindChild` · 005fd8a0 · legions 005be3d0 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
+- [-] `UIFramework::LocationApplied` · 005fd8d0 · legions 005be400 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
+- [-] `UIFramework::RemoveChild` · 005fd940 · legions 005be470 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
+- [-] `UIFramework::AddChild` · 005fd970 · legions 005be4a0 — child-framework list bookkeeping (a SmartArray of UIChildFramework with swap-remove, Show/LocationApplied fan-out); ac2-ui Hud owns its panels as typed fields and calls them directly, so no framework object or child list exists. CreateElement is UiTree::create_element/create_root
 
 ## `portal/client/src/uielement/framework/uimainframework.cpp.c` (3/11)
 
@@ -3140,20 +3140,20 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::SetAttribute_DataID` · 005f1a50 · legions 005b2580 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 - [ ] `UIElement_Text::ListenToMessage` · 005f1aa0 · legions 005b25d0 — needs port (check): UIElement_Text::ListenToMessage; menu.rs cite is a menu selection broadcast
 
-## `portal/client/src/uielement/types/uielement_button.cpp.c` (4/16)
+## `portal/client/src/uielement/types/uielement_button.cpp.c` (11/16)
 
 ### UIElement_Button
 - [~] `UIElement_Button::UIElement_Button` · 005fb4e0 · legions 005bc010 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [-] `UIElement_Button::Create` · 005fb540 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [ ] `UIElement_Button::Global_Loop` · 005fb570 · legions 005bc0a0 — needs port (check): UIElement_Button::Global_Loop behaviour; implemented area ac2-ui button.rs but uncited
-- [ ] `UIElement_Button::ListenToMessage` · 005fb5f0 · legions 005bc120 — needs port (check): UIElement_Button::ListenToMessage behaviour; implemented area ac2-ui button.rs but uncited
+- [x] `UIElement_Button::Global_Loop` · 005fb570 · legions 005bc0a0 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
+- [x] `UIElement_Button::ListenToMessage` · 005fb5f0 · legions 005bc120 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
 - [x] `UIElement_Button::UpdateState` · 005fb620 · legions 005bc150 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 - [x] `UIElement_Button::SetState` · 005fb710 · legions 005bc240 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-- [ ] `UIElement_Button::IsActivatable` · 005fb770 · legions 005bc2a0 — needs port (check): UIElement_Button::IsActivatable behaviour; implemented area ac2-ui button.rs but uncited
-- [ ] `UIElement_Button::Activate` · 005fb7a0 · legions 005bc2d0 — needs port (check): UIElement_Button::Activate behaviour; implemented area ac2-ui button.rs but uncited
-- [ ] `UIElement_Button::Deactivate` · 005fb7c0 · legions 005bc2f0 — needs port (check): UIElement_Button::Deactivate behaviour; implemented area ac2-ui button.rs but uncited
-- [ ] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310 — needs port (check): UIElement_Button::StartUseActive behaviour; implemented area ac2-ui button.rs but uncited
-- [ ] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0 — needs port (check): UIElement_Button::EndUseActive behaviour; implemented area ac2-ui button.rs but uncited
+- [x] `UIElement_Button::IsActivatable` · 005fb770 · legions 005bc2a0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
+- [x] `UIElement_Button::Activate` · 005fb7a0 · legions 005bc2d0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
+- [x] `UIElement_Button::Deactivate` · 005fb7c0 · legions 005bc2f0 — ac2-ui button.rs is_activatable (ghosted is never activatable, else the activatable attribute); text_edit.rs activate/deactivate refresh a button's state
+- [x] `UIElement_Button::StartUseActive` · 005fb7e0 · legions 005bc310 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
+- [x] `UIElement_Button::EndUseActive` · 005fb870 · legions 005bc3a0 — ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
 - [~] `UIElement_Button::SetAttribute_Bool` · 005fb940 · legions 005bc470 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
 - [-] `UIElement_Button::Register` · 005fb9b0 · legions 005bc4e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [~] `UIElement_Button::MouseDown` · 005fb9d0 · legions 005bc500 — ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)

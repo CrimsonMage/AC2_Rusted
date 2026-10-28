@@ -9,7 +9,9 @@
 //! A left press on a `hot_button` also broadcasts `hot_click` (and steps the scroll bars that
 //! name the button).
 //!
-//! Not modelled yet: hot buttons' repeating clicks while held, activation by keyboard.
+//! A held hot button repeats the click (`UIElement_Button::Global_Loop`).
+//!
+//! `Activate` and `Deactivate` refresh the button's state (`UIElement_Button::Activate`).
 
 use crate::element::UiTree;
 use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
@@ -23,6 +25,11 @@ use crate::token::{
 };
 
 const BUTTON_HOT: u32 = tokenize("hot_button");
+const HOT_CLICK_FIRST_INTERVAL: u32 = tokenize("hot_click_first_interval");
+const HOT_CLICK_INTERVAL: u32 = tokenize("hot_click_interval");
+/// `UIElement_Button::UIElement_Button` sets both intervals: 0.3 s, then 0.1 s.
+const DEFAULT_HOT_CLICK_FIRST_INTERVAL: f32 = 0.3;
+const DEFAULT_HOT_CLICK_INTERVAL: f32 = 0.1;
 /// `ButtonMsg_hot_click`.
 const MSG_HOT_CLICK: u32 = tokenize("hot_click");
 
@@ -91,6 +98,35 @@ impl UiTree {
         }
     }
 
+    /// `UIElement_Button::Global_Loop` (run by `ListenToMessage` on the global loop message):
+    /// while a hot click is in progress and its time has come, the click goes out again and the
+    /// next one is one `hot_click_interval` after the one due (not after now).
+    pub(crate) fn button_global_loop(&mut self, index: usize) {
+        if !self.is_button(index) || !self.el(index).hot_clicking {
+            return;
+        }
+        let now = self.time;
+        if self.el(index).next_hot_click > now {
+            return;
+        }
+        self.broadcast(index, MSG_HOT_CLICK, 0);
+        self.scrollbar_hot_click(index);
+        let interval = self
+            .float_attribute(index, HOT_CLICK_INTERVAL)
+            .unwrap_or(DEFAULT_HOT_CLICK_INTERVAL);
+        let el = self.el_mut(index);
+        el.next_hot_click += f64::from(interval);
+    }
+
+    /// `UIElement::IsActivatable` (the `activatable` attribute) and
+    /// `UIElement_Button::IsActivatable`: a ghosted button is never activatable.
+    pub fn is_activatable(&self, index: usize) -> bool {
+        if self.is_button(index) && self.bool_attribute(index, BUTTON_GHOSTED) {
+            return false;
+        }
+        self.bool_attribute(index, tokenize("activatable"))
+    }
+
     fn button_broadcasts(&self, index: usize) -> bool {
         !self.bool_attribute(index, BUTTON_GHOSTED)
             || self.bool_attribute(index, BUTTON_BROADCAST_WHEN_GHOSTED)
@@ -114,10 +150,18 @@ impl UiTree {
         }
         if self.button_broadcasts(index) {
             self.broadcast(index, MSG_MOUSE_PRESS, action as i32);
-            // A hot button clicks once on the press (the repeats while held are not modelled).
+            // `StartUseActive`: a hot button clicks at once, then `button_global_loop` repeats
+            // the click from `hot_click_first_interval` on, every `hot_click_interval`.
             if is_left(action) && self.bool_attribute(index, BUTTON_HOT) {
-                self.broadcast(index, MSG_HOT_CLICK, action as i32);
+                self.broadcast(index, MSG_HOT_CLICK, 0);
                 self.scrollbar_hot_click(index);
+                let first = self
+                    .float_attribute(index, HOT_CLICK_FIRST_INTERVAL)
+                    .unwrap_or(DEFAULT_HOT_CLICK_FIRST_INTERVAL);
+                let now = self.time;
+                let el = self.el_mut(index);
+                el.hot_clicking = true;
+                el.next_hot_click = f64::from(first) + now;
             }
         }
     }
@@ -132,6 +176,8 @@ impl UiTree {
         }
         let ghosted = self.bool_attribute(index, BUTTON_GHOSTED);
         if is_left(action) {
+            // `EndUseActive`.
+            self.el_mut(index).hot_clicking = false;
             self.el_mut(index).button_pressed = false;
             if self.el(index).mouse_over && !ghosted && self.bool_attribute(index, BUTTON_BOOLEAN) {
                 let highlighted = self.bool_attribute(index, BUTTON_HIGHLIGHTED);
