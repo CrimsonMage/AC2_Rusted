@@ -6,6 +6,7 @@
 //! `LScapeMaterialInfo::CombineMaterials` stacks them, and an offscreen target that can be read
 //! back for headless checks. Colour math stays in gamma space as the retail D3D blender did.
 
+mod ao;
 mod frame;
 mod object;
 mod object_draw;
@@ -28,6 +29,7 @@ mod ui;
 mod ui_scenes;
 
 pub use ac2_render::scene::SceneObject;
+pub use ao::AoCamera;
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use portal_fader::PortalFader;

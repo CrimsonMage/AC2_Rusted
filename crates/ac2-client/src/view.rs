@@ -302,6 +302,11 @@ impl ClientView {
             return false;
         };
         self.scene.set_clock(time);
+        self.presenter.set_camera(ac2_gpu::AoCamera {
+            fov_y: camera.fov_y,
+            near: camera.near,
+            far: camera.far,
+        });
         let drawn = drawn_objects(frame);
         let mut frames: Vec<Frame> = drawn.iter().map(|drawn| self.drawn_frame(drawn)).collect();
         // Each object's pose is its own (`CPartArray::UpdateBones` per object), so the poses are

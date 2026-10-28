@@ -18,6 +18,8 @@
 @group(1) @binding(0) var bloom: texture_2d<f32>;
 @group(1) @binding(1) var bloom_sampler: sampler;
 @group(1) @binding(2) var exposure: texture_2d<f32>;
+// The world's ambient occlusion at half size (`ao.rs`); white when neutral.
+@group(1) @binding(3) var occlusion: texture_2d<f32>;
 
 const EXPOSURE: f32 = 1.0;
 const START_COMPRESSION: f32 = 0.76;
@@ -65,7 +67,8 @@ fn fs(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     let post = textureLoad(exposure, vec2(0, 0), 0);
     // The bloom's sum over its levels, as their mean, mixed into the scene in linear light.
     let glow = textureSampleLevel(bloom, bloom_sampler, uv, 0.0).rgb * post.a;
-    var c = mix(max(texel.rgb, vec3(0.0)), glow, post.g) * exp2(post.r);
+    let ao = textureSampleLevel(occlusion, bloom_sampler, uv, 0.0).r;
+    var c = mix(max(texel.rgb, vec3(0.0)) * ao, glow, post.g) * exp2(post.r);
     // The vignette: 0 at the centre, 1 in the corners whatever the aspect.
     let aspect = vec2(size.x / size.y, 1.0);
     let edge = length((uv - 0.5) * aspect) / length(0.5 * aspect);

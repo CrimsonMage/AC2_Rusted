@@ -45,9 +45,10 @@ game rules and server-visible behaviour exactly retail.
   It covers lighting (GGX for lit objects), sky, clouds, weather and the tone map.
   Scenes draw unclamped into an `Rgba16Float` target (`ac2_gpu::HdrTarget`); one Khronos PBR Neutral tone map
   (`ac2_gpu::ToneMap`) reaches the window, and the UI draws after it. Before it, the world alone
-  takes a post chain (`ac2_gpu` `post.rs`): a dual-filter bloom, eye adaptation (half the metered
-  difference from a daylight key, within one stop) and a light vignette. UI viewport scenes skip
-  the chain and composite over their panel where they drew. Do not add a retail/modern switch.
+  takes a post chain (`ac2_gpu` `post.rs`, `ao.rs`): ambient occlusion from depth, a dual-filter
+  bloom, eye adaptation (half the metered difference from a daylight key, within one stop) and a
+  light vignette. UI viewport scenes skip the chain and composite over their panel where they
+  drew. Do not add a retail/modern switch.
 - Exception: every HUD window can be moved and keeps its place. Retail moved only windows with a
   drag bar and saved only `save_loc` windows to the server (`gmCWInterface::SetUISaveLocations`).
   Here a window with a drag bar still moves by it, and any other top-level HUD window moves by

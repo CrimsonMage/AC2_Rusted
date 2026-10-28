@@ -7,6 +7,7 @@
 //! curve, then sRGB encode) once, before the UI's
 //! surfaces draw over it. What is drawn, in which order and with which blend stays retail's.
 
+use crate::ao::{AoCamera, AoPipelines};
 use crate::post::{PostChain, PostPipelines};
 use crate::{Gpu, DEPTH_FORMAT};
 
@@ -158,13 +159,15 @@ pub struct ToneMap {
     neutral: wgpu::BindGroup,
 }
 
-/// The tone map's post inputs: `bloom` (sampled with `sampler`) and the one-texel `exposure`.
+/// The tone map's post inputs: `bloom` (sampled with `sampler`), the one-texel `exposure` and
+/// the ambient occlusion `ao`.
 pub(crate) fn post_inputs(
     device: &wgpu::Device,
     layout: &wgpu::BindGroupLayout,
     bloom: &wgpu::TextureView,
     sampler: &wgpu::Sampler,
     exposure: &wgpu::TextureView,
+    ao: &wgpu::TextureView,
 ) -> wgpu::BindGroup {
     device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("ac2 tone map post"),
@@ -181,6 +184,10 @@ pub(crate) fn post_inputs(
             wgpu::BindGroupEntry {
                 binding: 2,
                 resource: wgpu::BindingResource::TextureView(exposure),
+            },
+            wgpu::BindGroupEntry {
+                binding: 3,
+                resource: wgpu::BindingResource::TextureView(ao),
             },
         ],
     })
@@ -217,6 +224,7 @@ impl ToneMap {
                     count: None,
                 },
                 entry(2, wgpu::TextureSampleType::Float { filterable: true }),
+                entry(3, wgpu::TextureSampleType::Float { filterable: true }),
             ],
         });
         // One black texel serves as both the bloom and the exposure: EV 0, bloom and vignette 0.
@@ -236,12 +244,42 @@ impl ToneMap {
                 view_formats: &[],
             })
             .create_view(&Default::default());
+        // And one white texel: no occlusion.
+        let white = device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("ac2 tone map no occlusion"),
+            size: wgpu::Extent3d {
+                width: 1,
+                height: 1,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: crate::ao::AO_FORMAT,
+            usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+            view_formats: &[],
+        });
+        gpu.queue.write_texture(
+            white.as_image_copy(),
+            &[255],
+            wgpu::TexelCopyBufferLayout {
+                offset: 0,
+                bytes_per_row: None,
+                rows_per_image: None,
+            },
+            wgpu::Extent3d {
+                width: 1,
+                height: 1,
+                depth_or_array_layers: 1,
+            },
+        );
         let neutral = post_inputs(
             device,
             &post_layout,
             &black,
             &device.create_sampler(&Default::default()),
             &black,
+            &white.create_view(&Default::default()),
         );
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 tone map"),
@@ -348,7 +386,10 @@ pub struct ScenePresenter {
     tonemap: ToneMap,
     target: std::cell::RefCell<Option<HdrTarget>>,
     post_pipelines: PostPipelines,
+    ao_pipelines: AoPipelines,
     post: std::cell::RefCell<Option<PostChain>>,
+    /// The world camera's projection for the occlusion, once the view has set it.
+    camera: std::cell::Cell<Option<AoCamera>>,
 }
 
 impl ScenePresenter {
@@ -357,8 +398,15 @@ impl ScenePresenter {
             tonemap: ToneMap::new(gpu, output),
             target: std::cell::RefCell::new(None),
             post_pipelines: PostPipelines::new(gpu),
+            ao_pipelines: AoPipelines::new(gpu),
             post: std::cell::RefCell::new(None),
+            camera: std::cell::Cell::new(None),
         }
+    }
+
+    /// The world camera's projection for the next [`Self::post`] (its ambient occlusion).
+    pub fn set_camera(&self, camera: AoCamera) {
+        self.camera.set(Some(camera));
     }
 
     /// Records the world's post chain (bloom and eye adaptation) over `hdr`, once per frame after
@@ -369,12 +417,19 @@ impl ScenePresenter {
             *post = Some(PostChain::new(
                 gpu,
                 &self.post_pipelines,
+                &self.ao_pipelines,
                 &self.tonemap.post_layout,
                 hdr,
             ));
         }
         if let Some(chain) = post.as_ref() {
-            chain.record(gpu, &self.post_pipelines, encoder);
+            chain.record(
+                gpu,
+                &self.post_pipelines,
+                &self.ao_pipelines,
+                encoder,
+                self.camera.get(),
+            );
         }
     }
 

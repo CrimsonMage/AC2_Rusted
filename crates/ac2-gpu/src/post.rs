@@ -11,6 +11,7 @@ use std::time::Instant;
 
 use bytemuck::{Pod, Zeroable};
 
+use crate::ao::{AoCamera, AoPipelines, AoTargets};
 use crate::{Gpu, HdrTarget, HDR_FORMAT};
 
 /// Bloom levels below the half-size first one, at most; fewer when the output is small.
@@ -197,6 +198,7 @@ pub(crate) struct PostChain {
     tonemap_inputs: [wgpu::BindGroup; 2],
     uniform: wgpu::Buffer,
     levels: usize,
+    ao: AoTargets,
     /// The texel the last frame wrote.
     current: Cell<usize>,
     /// When the last frame adapted; `None` before the first, which takes its target at once.
@@ -207,9 +209,11 @@ impl PostChain {
     pub(crate) fn new(
         gpu: &Gpu,
         pipes: &PostPipelines,
+        ao_pipes: &AoPipelines,
         tonemap_layout: &wgpu::BindGroupLayout,
         hdr: &HdrTarget,
     ) -> Self {
+        let ao = AoTargets::new(gpu, ao_pipes, hdr);
         let device = &gpu.device;
         let target = |label, width: u32, height: u32| {
             device
@@ -312,6 +316,7 @@ impl PostChain {
                 &bloom,
                 &pipes.sampler,
                 &exposure[written],
+                &ao.blurred,
             )
         });
         let smallest = &down_views[levels - 1];
@@ -326,6 +331,7 @@ impl PostChain {
             tonemap_inputs,
             uniform,
             levels,
+            ao,
             current: Cell::new(0),
             last: Cell::new(None),
         }
@@ -341,8 +347,11 @@ impl PostChain {
         &self,
         gpu: &Gpu,
         pipes: &PostPipelines,
+        ao_pipes: &AoPipelines,
         encoder: &mut wgpu::CommandEncoder,
+        camera: Option<AoCamera>,
     ) {
+        self.ao.record(gpu, ao_pipes, encoder, camera);
         let now = Instant::now();
         let (step, instant) = match self.last.replace(Some(now)) {
             Some(last) => ((now - last).as_secs_f32().min(MAX_STEP_SECONDS), 0.0),
