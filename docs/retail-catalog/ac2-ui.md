@@ -102,7 +102,7 @@ Legend and workflow: [README](README.md).
 
 ### gmBookUI
 - [x] `gmBookUI::CreateManagedElements` · 0041eaa0 · legions 0041e8c0 — ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
-- [x] `gmBookUI::Show` · 0041eb50 · legions 0041e970 — ac2-ui book.rs BookUi::show; ac2-client hud_book.rs shows it on the use notice
+- [x] `gmBookUI::Show` · 0041eb50 · legions 0041e970 — ac2-ui book.rs BookUi::show; book_pass shows it on the use notice (hud_book.rs delegates)
 - [x] `gmBookUI::SynchSliderBar` · 0041ebc0 · legions 0041e9e0 — ac2-ui book.rs BookUi::sync_slider (BookSliderBar x position)
 - [x] `gmBookUI::PreviousPage` · 0041ec50 · legions 0041ea70 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
 - [x] `gmBookUI::NextPage` · 0041ec70 · legions 0041ea90 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
@@ -125,9 +125,9 @@ Legend and workflow: [README](README.md).
 - [x] `gmBookUI::AddNewlines` · 0041f480 · legions 0041f260 — ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
 - [~] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: header cut to the field width less 19; no ellipsis (its literal is not resolved)
 - [~] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
-- [~] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs BookUi::recv_use_book: state from the notice's mode, title, body pages, image on the foreground. The decompile's parameter types are shifted (mode read as a string); the notice's order is used
+- [~] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 - [~] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs BookUi::clipboard_text -> BookRequest::Copy; no clipboard device in the client (hud_book.rs drops it); the <H> replacement literal is not resolved
-- [~] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs BookUi::message: close, page turn, slider, buttons; help and copy requests dropped in ac2-client (no help viewer, no clipboard)
+- [~] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 
 ## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (3/7)
 

@@ -496,7 +496,7 @@ key	status	note
 0041e8d0	x	ac2-ui shop.rs recv_update_store: rebuilds the list while shown
 0041e940	~	ac2-ui shop.rs recv_view_store: name, description, portrait, sort text, sales; the first vtable call is untraced
 0041eaa0	x	ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
-0041eb50	x	ac2-ui book.rs BookUi::show; ac2-client hud_book.rs shows it on the use notice
+0041eb50	x	ac2-ui book.rs BookUi::show; book_pass shows it on the use notice (hud_book.rs delegates)
 0041ebc0	x	ac2-ui book.rs BookUi::sync_slider (BookSliderBar x position)
 0041ec50	x	ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
 0041ec70	x	ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
@@ -512,9 +512,9 @@ key	status	note
 0041f480	x	ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
 0041f510	~	ac2-ui book.rs truncate_to_width: header cut to the field width less 19; no ellipsis (its literal is not resolved)
 0041f7c0	~	ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
-0041ff30	~	ac2-ui book.rs BookUi::recv_use_book: state from the notice's mode, title, body pages, image on the foreground. The decompile's parameter types are shifted (mode read as a string); the notice's order is used
+0041ff30	~	ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 00420010	~	ac2-ui book.rs BookUi::clipboard_text -> BookRequest::Copy; no clipboard device in the client (hud_book.rs drops it); the <H> replacement literal is not resolved
-00420320	~	ac2-ui book.rs BookUi::message: close, page turn, slider, buttons; help and copy requests dropped in ac2-client (no help viewer, no clipboard)
+00420320	~	ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
 00420400	-	teardown: the HUD tree is dropped whole
 00420460	x	ac2-ui external_container.rs
 00420520	x	ac2-ui: the panel hears every object's notices (no per-object registration)

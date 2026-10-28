@@ -14,6 +14,8 @@
 
 use std::sync::Arc;
 
+use ac2_weenie::{GameplayNotice, SessionEvent};
+
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
@@ -44,6 +46,34 @@ pub enum BookRequest {
     OpenHelp,
     /// `gmBookUI::SendBookToClipboard`: the book's text for the clipboard.
     Copy(String),
+}
+
+/// `gmBookUI` on the frame: the use notices in `events` show the book
+/// (`RecvNotice_UseBook`), then the book's `messages` run [`BookUi::message`]. Returns the
+/// requests in message order.
+pub fn book_pass(
+    book: &mut BookUi,
+    tree: &mut UiTree,
+    strings: &dyn UiStrings,
+    events: &[SessionEvent],
+    messages: &[UiMessage],
+) -> Vec<BookRequest> {
+    for event in events {
+        if let SessionEvent::Notice(GameplayNotice::UseBook {
+            show_controls,
+            mode,
+            title,
+            text,
+            image,
+        }) = event
+        {
+            book.recv_use_book(tree, strings, *show_controls, *mode, title, text, *image);
+        }
+    }
+    messages
+        .iter()
+        .filter_map(|message| book.message(tree, strings, message))
+        .collect()
 }
 
 /// `gmBookUI`'s state over its elements.
