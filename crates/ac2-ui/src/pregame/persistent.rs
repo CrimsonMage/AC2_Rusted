@@ -43,11 +43,11 @@ impl PersistentData {
     /// slot.
     pub fn add_identity(&mut self, identity: CharacterIdentity) -> Option<usize> {
         let set = self.characters.as_mut()?;
-        if let Some(slot) = set.characters.iter().position(|c| c.id == identity.id) {
-            return Some(slot);
+        let id = identity.id;
+        match ac2_gameplay::character::add_identity(&mut set.characters, identity, None) {
+            Some(slot) => Some(slot),
+            None => ac2_gameplay::character::which_slot(&set.characters, id),
         }
-        set.characters.push(identity);
-        Some(set.characters.len() - 1)
     }
 
     /// `GetGenSlot`.

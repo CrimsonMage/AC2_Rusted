@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 210 done, 30 partial, 44 to do, 215 skipped.
+499 retail functions: 213 done, 30 partial, 41 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -544,28 +544,28 @@ Legend and workflow: [README](README.md).
 - [-] `CharacterIdentity::operator=` · 006db080 · legions 006644f0 — assignment or comparison of plain data (operator=, ==, <)
 - [x] `CharacterIdentity::StreamPack` · 006db0f0 · legions 00664560
 
-## `portal/shared/src/gameplay/character/characterset.cpp.c` (6/14)
+## `portal/shared/src/gameplay/character/characterset.cpp.c` (9/14)
 
 ### CharacterSet
-- [ ] `CharacterSet::WhichSlot` · 006db150 · legions 006645c0 — needs port: character set slot lookup (CharacterSet::WhichSlot)
+- [x] `CharacterSet::WhichSlot` · 006db150 · legions 006645c0 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 - [x] `CharacterSet::GetIdentity` · 006db1a0 · legions 00664610 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [-] `CharacterSet::GetName` · 006db1d0 · legions 00664640 — trivial accessor of a plain struct (CharacterIdentity name)
 - [-] `CharacterSet::GetID` · 006db210 · legions 00664680 — trivial accessor of a plain struct (CharacterIdentity name)
 - [x] `CharacterSet::SetGreyedOutFor` · 006db270 · legions 006646e0 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [x] `CharacterSet::GetGreyedOutFor` · 006db2b0 · legions 00664720 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 - [-] `CharacterSet::CharacterSet` · 006db3e0 · legions 00664850 — constructor of plain data
-- [ ] `CharacterSet::IncludesIdentity` · 006db430 · legions 006648b0 — needs port: character set identity membership (CharacterSet::IncludesIdentity)
+- [x] `CharacterSet::IncludesIdentity` · 006db430 · legions 006648b0 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 
 ### PSmartArray<CharacterIdentity>
 - [x] `PSmartArray<CharacterIdentity>::StreamPack` · 006db450 · legions 006648d0
 
 ### SmartArray<CharacterIdentity>
 - [-] `SmartArray<CharacterIdentity>::AddToEnd` · 006db520 · legions 006649a0 — container template instance; Rust collections replace it
-- [ ] `SmartArray<CharacterIdentity>::InsertOrderedByIndex` · 006db570 · legions 006649f0 — needs port: ordered character list insert (SmartArray<CharacterIdentity>::InsertOrderedByIndex)
+- [x] `SmartArray<CharacterIdentity>::InsertOrderedByIndex` · 006db570 · legions 006649f0 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 
 ### CharacterSet
 - [-] `CharacterSet::operator=` · 006db620 · legions 00664aa0 — assignment or comparison of plain data (operator=, ==, <)
-- [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-ui pregame/persistent.rs over ac2_net CharacterSet
+- [x] `CharacterSet::AddIdentity` · 006db7a0 · legions 00664c30 — ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 - [x] `CharacterSet::StreamPack` · 006db7f0
 
 ## `portal/shared/src/gameplay/qualities/basequalities.cpp.c` (1/66)

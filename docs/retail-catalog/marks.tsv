@@ -14197,19 +14197,19 @@ key	status	note
 006db030	-	constructor of plain data
 006db080	-	assignment or comparison of plain data (operator=, ==, <)
 006db0f0	x	
-006db150	_	needs port: character set slot lookup (CharacterSet::WhichSlot)
+006db150	x	ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 006db1a0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 006db1d0	-	trivial accessor of a plain struct (CharacterIdentity name)
 006db210	-	trivial accessor of a plain struct (CharacterIdentity name)
 006db270	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 006db2b0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
 006db3e0	-	constructor of plain data
-006db430	_	needs port: character set identity membership (CharacterSet::IncludesIdentity)
+006db430	x	ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 006db450	x	
 006db520	-	container template instance; Rust collections replace it
-006db570	_	needs port: ordered character list insert (SmartArray<CharacterIdentity>::InsertOrderedByIndex)
+006db570	x	ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 006db620	-	assignment or comparison of plain data (operator=, ==, <)
-006db7a0	x	ac2-ui pregame/persistent.rs over ac2_net CharacterSet
+006db7a0	x	ac2-gameplay character.rs (which_slot, includes_identity, insert_ordered_by_index, add_identity); ac2-ui pregame/persistent.rs delegates
 006db7f0	x	
 006db860	-	pack size pre-pass; Rust encodes into its own buffer
 006db890	_	needs port: QualityFilter wire (no Rust counterpart)
