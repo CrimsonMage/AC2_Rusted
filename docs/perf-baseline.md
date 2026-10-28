@@ -84,7 +84,7 @@ sexes visible, the player in the middle.
 ## GPU pass times and VRAM
 
 The bench line ends with `vram_allocated_bytes` and `vram_reserved_bytes`: what the device's
-allocator holds after the run (`Gpu::allocator_bytes`; Vulkan and DX12 report it, Metal and GL
+allocator holds after the run (`Gpu::allocator_bytes`; Vulkan reports it, GL and Metal
 print 0). `--gpu-times` also times each render pass with timestamp queries (`Gpu::headless_timed`,
 `crates/ac2-gpu/src/timing.rs`) and adds `gpu_p50_ms` (the frame's summed passes) and one
 `gpu_<label>_p50_ms` per pass label: `scene` (the HDR world), `ui` (tone map and HUD) and
@@ -107,6 +107,40 @@ Measured 2026-10-28 on an RTX 5060 Ti (NVIDIA driver, Vulkan), `profiling` profi
 The crowd's cost is on the CPU: of the 2.5 ms `render` step the GPU's passes take 0.87 ms, so the
 rest is recording and submitting 2308 draws, and `prepare` takes 3.5 ms more. Instanced draws
 (fewer, larger calls) are the first lever, ahead of any GPU-side work.
+
+## Frame workers and instanced object draws
+
+Two changes cut the crowd's CPU cost; the image is unchanged (see below).
+
+- **Frame workers.** `ac2_db::install_frame_workers` (called first in the `ac2` binary and
+  `world-viewer`) builds rayon's global pool with `frame_worker_count` threads (logical cores
+  minus one, at most 8) and installs its `WorkerLanes`. Until now nothing installed them, so
+  `frame_map` always ran inline. `ClientView::prepare` now poses the drawn objects through
+  `frame_map` (`placed`, `CPartArray::UpdateBones` per object): 2.8 ms to 0.45 ms per frame for
+  the 400-figure crowd.
+- **Instanced draws.** The object pass splits its per-draw uniform: what a layer's instances share
+  (material, stages, point lights) stays a dynamic-offset uniform, and what each instance owns
+  (model matrix, skin, frill normal and shade) moves to a storage array the vertex stage reads at
+  `instance_index`. A group's depth-writing layers are laid out by model, part, batch and layer,
+  and consecutive layers with the same pipeline, part and uniform become one instanced draw. Each
+  layer's uniform is built once at upload (animated and tinted layers still rebuild per frame).
+  The crowd's 2308 draws become 665.
+
+Changing the order between objects in the depth-writing queue changes only partly transparent
+texels where two objects overlap: snapshots of `--crowd 100` and `--crowd 400` differ from the
+previous build on 59 and 16 of 921600 pixels, by at most 1 of 255; `--fly` is identical.
+
+Measured 2026-10-28, `profiling` profile, load average 12 to 20 from other sessions (compare the
+rows with each other only):
+
+| `--walk 4 --crowd 400 --bench 600` | p50_ms | prepare_p50_ms | render_p50_ms | draws |
+|---|---|---|---|---|
+| before | 7.15 to 7.93 | 4.15 to 4.58 | 2.84 to 3.15 | 2308 |
+| after | 4.39 to 4.99 | 2.37 to 2.75 | 1.80 to 1.97 | 665 |
+
+Pinned to two cores (`taskset -c 0-1`) the frame workers alone took prepare from 4.58 to 3.64 ms,
+and on four cores from 4.30 to 3.29 ms: `available_parallelism` follows the affinity mask, so the
+pool shrinks with it and a small machine does not get slower.
 
 ## Known gaps
 

@@ -32,15 +32,12 @@ impl ObjectRenderer {
             else {
                 continue;
             };
-            if draw.deferred {
-                continue;
-            }
             if current != Some(draw.key) {
                 pass.set_pipeline(self.pipelines.pipeline(&draw.key));
                 current = Some(draw.key);
             }
             let batch = &part.batches[draw.batch];
-            pass.set_bind_group(1, &self.draw_group, &[draw.offset]);
+            pass.set_bind_group(1, &self.draws.group, &[draw.offset]);
             let textures = &batch.passes[draw.layer].textures;
             if bound_textures != Some(std::ptr::from_ref(textures)) {
                 pass.set_bind_group(2, textures, &[]);
@@ -51,7 +48,11 @@ impl ObjectRenderer {
                 pass.set_index_buffer(part.indices.slice(..), wgpu::IndexFormat::Uint32);
                 bound_part = Some(std::ptr::from_ref(part));
             }
-            pass.draw_indexed(batch.range.clone(), 0, 0..1);
+            pass.draw_indexed(
+                batch.range.clone(),
+                0,
+                draw.first_instance..draw.first_instance + draw.instances,
+            );
         }
     }
 

@@ -164,7 +164,7 @@ impl Gpu {
     }
 
     /// GPU memory the device's allocator holds, `(allocated, reserved)` bytes, on the backends
-    /// that report it (Vulkan, DX12; `None` on Metal and GL).
+    /// that report it (Vulkan; `None` on GL and Metal).
     pub fn allocator_bytes(&self) -> Option<(u64, u64)> {
         let report = self.device.generate_allocator_report()?;
         Some((report.total_allocated_bytes, report.total_reserved_bytes))

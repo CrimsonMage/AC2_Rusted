@@ -39,7 +39,19 @@ impl ObjectRenderer {
         });
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object draw"),
-            entries: &[uniform(0, true)],
+            entries: &[
+                uniform(0, true),
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::VERTEX,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Storage { read_only: true },
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
+            ],
         });
         let mut texture_entries = Vec::new();
         for binding in 0..4 {
@@ -110,7 +122,7 @@ impl ObjectRenderer {
             ],
             immediate_size: 0,
         });
-        let (draw_buffer, draw_group) = draw_storage(device, &draw_layout, DRAW_STRIDE * 64);
+        let draws = draw_storage(device, &draw_layout, DRAW_STRIDE * 64, INSTANCE_BYTES * 64);
         let (bone_buffer, bone_group) = bone_storage(device, &bone_layout, BONE_BYTES * 64);
         let pipelines = PipelineCompiler::new(gpu, &layout, format, module);
         Self {
@@ -124,9 +136,9 @@ impl ObjectRenderer {
             shadow_matrix: Mat4::ZERO,
             draw_layout,
             texture_layout,
-            draw_buffer,
-            draw_group,
+            draws,
             draw_capacity: DRAW_STRIDE * 64,
+            instance_capacity: INSTANCE_BYTES * 64,
             bone_layout,
             bone_buffer,
             bone_group,
@@ -141,6 +153,11 @@ impl ObjectRenderer {
             scratch_entries: Vec::new(),
             scratch_opaque: Vec::new(),
             scratch_translucent: Vec::new(),
+            scratch_instances: Vec::new(),
+            scratch_model_ranks: HashMap::new(),
+            scratch_order: Vec::new(),
+            scratch_waiting: HashSet::new(),
+            scratch_last_uniform: None,
             scratch_bones: Vec::new(),
             scratch_bytes: Vec::new(),
             scratch_vertices: Vec::new(),

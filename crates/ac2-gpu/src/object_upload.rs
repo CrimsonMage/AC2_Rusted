@@ -56,6 +56,7 @@ impl ObjectRenderer {
                     .map(|pass| GpuPass {
                         textures: self.stage_group(gpu, &pass, load),
                         program: self.program_id(&pass),
+                        uniform: draw_uniform(&pass),
                         pass,
                     })
                     .collect();

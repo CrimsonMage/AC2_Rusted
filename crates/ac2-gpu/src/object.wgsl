@@ -27,8 +27,8 @@ struct Frame {
     shadow: mat4x4<f32>,
 };
 
+// What the instances of one draw share: the layer's material, stages and the point lights.
 struct Draw {
-    model: mat4x4<f32>,
     ambient: vec4<f32>,
     diffuse: vec4<f32>,
     specular: vec4<f32>,
@@ -42,13 +42,18 @@ struct Draw {
     alpha_ops: array<vec4<u32>, 4>,
     // Per stage: texture matrix rows 0 and 1.
     matrices: array<vec4<f32>, 8>,
-    // A frill's world normal for every vertex when w = 1 (`FrillRender::RefreshFrillMesh`).
-    frill: vec4<f32>,
     // x: point lights on the device (`m_nPtLights`, at most 4).
     point_count: vec4<u32>,
     // Per point light: origin (w = range^2), diffuse, specular, attenuation (constant, linear,
     // squared).
     points: array<vec4<f32>, 16>,
+};
+
+// One placed copy of a draw's part, at `@builtin(instance_index)` (vertex stage only).
+struct Instance {
+    model: mat4x4<f32>,
+    // A frill's world normal for every vertex when w = 1 (`FrillRender::RefreshFrillMesh`).
+    frill: vec4<f32>,
     // x: the part's first deform matrix in `bones`, y: 1 when its vertices blend.
     skin: vec4<u32>,
     // x: the landscape self shadow under a merged frill's origin (`GetShadowColor`'s self term).
@@ -97,6 +102,7 @@ fn landscape_shadow(p: vec3<f32>) -> vec3<f32> {
     return saturate(sum / 25.0);
 }
 @group(1) @binding(0) var<uniform> draw: Draw;
+@group(1) @binding(1) var<storage, read> instances: array<Instance>;
 @group(2) @binding(0) var tex0: texture_2d<f32>;
 @group(2) @binding(1) var tex1: texture_2d<f32>;
 @group(2) @binding(2) var tex2: texture_2d<f32>;
@@ -269,21 +275,22 @@ fn point_to_light(basis: Basis, position: vec3<f32>) -> vec3<f32> {
 }
 
 @vertex
-fn vs(input: VsIn) -> VsOut {
+fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
     var out: VsOut;
+    let inst = instances[instance];
     // `BlendLitVertices` (`RenderVertexBuffer::BlendVertices` at high model detail): each
     // influence with a non-zero weight adds its deformed point over the homogeneous w, times the
     // weight, and its deformed normal over (w + 1); weights and normal are not renormalised. Bump
     // tangents keep their bind-pose values (`AnimateVertex` copies them).
     var position = input.position;
     var normal = input.normal;
-    if draw.skin.y != 0u {
+    if inst.skin.y != 0u {
         position = vec3(0.0);
         normal = vec3(0.0);
         for (var k = 0u; k < 4u; k = k + 1u) {
             let weight = input.weights[k];
             if weight != 0.0 {
-                let m = bones[draw.skin.x + input.bone_index[k]];
+                let m = bones[inst.skin.x + input.bone_index[k]];
                 let h = m * vec4(input.position, 1.0);
                 let r = m * vec4(input.normal, 0.0);
                 position = position + h.xyz * (weight / h.w);
@@ -291,21 +298,21 @@ fn vs(input: VsIn) -> VsOut {
             }
         }
     }
-    let world = draw.model * vec4(position, 1.0);
+    let world = inst.model * vec4(position, 1.0);
     out.clip = frame.view_proj * world;
     let view_pos = (frame.view * world).xyz;
     var basis: Basis;
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
-    basis.normal = normalize((draw.model * vec4(normal, 0.0)).xyz);
+    basis.normal = normalize((inst.model * vec4(normal, 0.0)).xyz);
     var vertex_color = input.color;
-    if draw.frill.w > 0.5 {
+    if inst.frill.w > 0.5 {
         // Merged frill vertices: the frill's up axis, and the landscape shadow colour at the
         // frill's origin (`FrillRenderType::AddPos`).
-        basis.normal = normalize(draw.frill.xyz);
-        vertex_color = vec4(landscape_shadow(draw.model[3].xyz) * draw.frill_shade.x, 1.0);
+        basis.normal = normalize(inst.frill.xyz);
+        vertex_color = vec4(landscape_shadow(inst.model[3].xyz) * inst.frill_shade.x, 1.0);
     }
-    basis.tangent_s = normalize((draw.model * vec4(input.tangent_s, 0.0)).xyz);
-    basis.tangent_t = normalize((draw.model * vec4(input.tangent_t, 0.0)).xyz);
+    basis.tangent_s = normalize((inst.model * vec4(input.tangent_s, 0.0)).xyz);
+    basis.tangent_t = normalize((inst.model * vec4(input.tangent_t, 0.0)).xyz);
     basis.to_eye = normalize(frame.eye.xyz - world.xyz);
     basis.bump_light = select(basis.to_eye, frame.sun_inv_dir.xyz, sun_on());
     // `f_CalculateViewNormalReflectionVector` in view space.

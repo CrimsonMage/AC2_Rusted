@@ -18,7 +18,8 @@ use bytemuck::{Pod, Zeroable};
 use wgpu::util::DeviceExt;
 
 use crate::object_draw::{
-    bone_storage, draw_storage, draw_uniform, mark_sky, set_point_lights, DrawUniform, SkyRole,
+    bone_storage, draw_storage, draw_uniform, instance_data, mark_sky, set_point_lights,
+    DrawStorage, DrawUniform, InstanceData, SkyRole, INSTANCE_BYTES,
 };
 use crate::object_pipelines::PipelineCompiler;
 use crate::object_state::{
@@ -94,6 +95,8 @@ const BONE_BYTES: u64 = 64;
 /// One drawn layer of a batch: its state and the bind group of its stage textures.
 struct GpuPass {
     pass: LayerPass,
+    /// `pass`'s draw uniform without point lights, built once at upload.
+    uniform: DrawUniform,
     /// Shader module index: 0 for the stage cascade, else the layer's pixel shader.
     program: u32,
     textures: wgpu::BindGroup,
@@ -127,6 +130,11 @@ pub struct GpuObjectModel {
     /// The farthest vertex from the model's origin.
     radius: f32,
 }
+
+/// A draw uniform fits its dynamic-offset slot, and instance blocks pack at the storage array's
+/// 16-byte stride.
+const _: () = assert!(std::mem::size_of::<DrawUniform>() as u64 <= DRAW_STRIDE);
+const _: () = assert!(INSTANCE_BYTES.is_multiple_of(16));
 
 /// Every `GpuVertex` is a whole number of 4-byte words, so `write_buffer` sizes need no padding.
 const _: () = assert!(std::mem::size_of::<GpuVertex>().is_multiple_of(4));
@@ -170,17 +178,29 @@ pub fn sky_backdrop(instances: &[ObjectInstance<'_>]) -> Option<usize> {
         .map(|(index, _)| index)
 }
 
-/// One draw of the frame: pipeline, uniform offset, and instance/part/batch/layer indices.
+/// One draw of the frame: pipeline, uniform offset, the instance/part/batch/layer it draws, and
+/// the run of instance blocks it covers (`instances` copies of that part, the first at
+/// `first_instance`, all of the same model).
 #[derive(Clone, Copy)]
 struct QueuedDraw {
     key: PipelineKey,
-    /// The instance waits for a pipeline still compiling, so none of its draws record.
-    deferred: bool,
     offset: u32,
     instance: usize,
     part: usize,
     batch: usize,
     layer: usize,
+    first_instance: u32,
+    instances: u32,
+}
+
+/// One layer of one instance, laid out by `prepare` before draws merge.
+#[derive(Clone, Copy)]
+struct DrawEntry {
+    uniform: DrawUniform,
+    data: InstanceData,
+    draw: QueuedDraw,
+    /// The address of the instance's model: entries of one model may merge.
+    model: usize,
 }
 
 /// One placed model.
@@ -245,9 +265,9 @@ pub struct ObjectRenderer {
     shadow_matrix: Mat4,
     draw_layout: wgpu::BindGroupLayout,
     texture_layout: wgpu::BindGroupLayout,
-    draw_buffer: wgpu::Buffer,
-    draw_group: wgpu::BindGroup,
+    draws: DrawStorage,
     draw_capacity: u64,
+    instance_capacity: u64,
     bone_layout: wgpu::BindGroupLayout,
     bone_buffer: wgpu::Buffer,
     bone_group: wgpu::BindGroup,
@@ -264,9 +284,17 @@ pub struct ObjectRenderer {
     shadow_format: wgpu::TextureFormat,
     /// `prepare`'s working storage, cleared and refilled each frame so steady frames allocate
     /// nothing. Never shrunk.
-    scratch_entries: Vec<(DrawUniform, QueuedDraw)>,
-    scratch_opaque: Vec<(DrawUniform, QueuedDraw)>,
-    scratch_translucent: Vec<(f32, (DrawUniform, QueuedDraw))>,
+    scratch_entries: Vec<DrawEntry>,
+    scratch_opaque: Vec<DrawEntry>,
+    scratch_translucent: Vec<(f32, DrawEntry)>,
+    scratch_instances: Vec<InstanceData>,
+    /// Each model's rank by first appearance in the group being laid out.
+    scratch_model_ranks: HashMap<usize, u32>,
+    /// The group's depth-writing layers' sort keys (model rank, part, batch, layer) and indices.
+    scratch_order: Vec<((u32, usize, usize, usize), u32)>,
+    scratch_waiting: HashSet<(usize, usize)>,
+    /// The uniform of the draw `prepare` queued last, which the next entry may share.
+    scratch_last_uniform: Option<DrawUniform>,
     scratch_bones: Vec<[[f32; 4]; 4]>,
     scratch_bytes: Vec<u8>,
     /// `set_geometry`'s converted vertices.

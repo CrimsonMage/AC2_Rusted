@@ -1,5 +1,7 @@
 //! The per-draw uniform block of the object pass (`RenderDeviceD3D::SetupVertexShaderConstants`
-//! and `SetupState` for one layer) and the buffers that hold the frame's draws and bone matrices.
+//! and `SetupState` for one layer), the per-instance block its vertex shader reads, and the buffers
+//! that hold the frame's draws, instances and bone matrices. One draw covers a run of instances
+//! that share a layer and its uniform, so the uniform carries only what all of them share.
 
 use ac2_math::Mat4;
 use ac2_render::object::{LayerPass, PointLight, VertexProgram, MAX_POINT_LIGHTS};
@@ -8,7 +10,6 @@ use bytemuck::{Pod, Zeroable};
 #[repr(C)]
 #[derive(Clone, Copy, Pod, Zeroable)]
 pub(crate) struct DrawUniform {
-    model: [[f32; 4]; 4],
     ambient: [f32; 4],
     diffuse: [f32; 4],
     specular: [f32; 4],
@@ -17,15 +18,37 @@ pub(crate) struct DrawUniform {
     color_ops: [[u32; 4]; 4],
     alpha_ops: [[u32; 4]; 4],
     matrices: [[f32; 4]; 8],
+    point_count: [u32; 4],
+    /// Per point light: origin and range^2, diffuse, specular, attenuation. Read by the pixel
+    /// stage too, so it stays in the uniform rather than the vertex-only instance block.
+    points: [[f32; 4]; 16],
+}
+
+/// One instance of a draw (`Instance` in `object.wgsl`, read by the vertex stage only, at
+/// `@builtin(instance_index)`).
+#[repr(C)]
+#[derive(Clone, Copy, Pod, Zeroable)]
+pub(crate) struct InstanceData {
+    model: [[f32; 4]; 4],
     /// A frill's normal for every vertex (xyz) when w is 1 (`RefreshFrillMesh`).
     pub(crate) frill: [f32; 4],
-    point_count: [u32; 4],
-    /// Per point light: origin and range^2, diffuse, specular, attenuation.
-    points: [[f32; 4]; 16],
     /// x: the part's first matrix in the bone buffer, y: 1 when its vertices blend.
     pub(crate) skin: [u32; 4],
     /// x: the landscape self shadow under a merged frill's origin (1 when unshadowed).
     pub(crate) frill_shade: [f32; 4],
+}
+
+/// Bytes of one [`InstanceData`] in the instance storage buffer.
+pub(crate) const INSTANCE_BYTES: u64 = std::mem::size_of::<InstanceData>() as u64;
+
+/// A part drawn at `model` (mesh to world), rigid and not a frill.
+pub(crate) fn instance_data(model: Mat4) -> InstanceData {
+    InstanceData {
+        model: model.to_cols_array_2d(),
+        frill: [0.0; 4],
+        skin: [0; 4],
+        frill_shade: [1.0, 0.0, 0.0, 0.0],
+    }
 }
 
 /// `VSLightState` constants of up to four point lights.
@@ -42,30 +65,55 @@ pub(crate) fn set_point_lights(uniform: &mut DrawUniform, lights: &[PointLight])
     }
 }
 
+/// The frame's draw uniforms (`draws` bytes, read at a dynamic offset) and instance blocks
+/// (`instances` bytes), and their bind group.
+pub(crate) struct DrawStorage {
+    pub(crate) draws: wgpu::Buffer,
+    pub(crate) instances: wgpu::Buffer,
+    pub(crate) group: wgpu::BindGroup,
+}
+
 pub(crate) fn draw_storage(
     device: &wgpu::Device,
     layout: &wgpu::BindGroupLayout,
-    size: u64,
-) -> (wgpu::Buffer, wgpu::BindGroup) {
-    let buffer = device.create_buffer(&wgpu::BufferDescriptor {
+    draws: u64,
+    instances: u64,
+) -> DrawStorage {
+    let draws = device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("ac2 object draws"),
-        size,
+        size: draws,
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+    let instances = device.create_buffer(&wgpu::BufferDescriptor {
+        label: Some("ac2 object instances"),
+        size: instances,
+        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
     });
     let group = device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("ac2 object draws"),
         layout,
-        entries: &[wgpu::BindGroupEntry {
-            binding: 0,
-            resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
-                buffer: &buffer,
-                offset: 0,
-                size: wgpu::BufferSize::new(std::mem::size_of::<DrawUniform>() as u64),
-            }),
-        }],
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::Buffer(wgpu::BufferBinding {
+                    buffer: &draws,
+                    offset: 0,
+                    size: wgpu::BufferSize::new(std::mem::size_of::<DrawUniform>() as u64),
+                }),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: instances.as_entire_binding(),
+            },
+        ],
     });
-    (buffer, group)
+    DrawStorage {
+        draws,
+        instances,
+        group,
+    }
 }
 
 /// The storage buffer of the frame's bone matrices.
@@ -139,7 +187,7 @@ pub(crate) fn mark_sky(uniform: &mut DrawUniform, pass: &LayerPass, role: SkyRol
     };
 }
 
-pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
+pub(crate) fn draw_uniform(pass: &LayerPass) -> DrawUniform {
     let program = match pass.program {
         VertexProgram::Unlit => 0,
         VertexProgram::Lit => 1,
@@ -168,7 +216,6 @@ pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
     .enumerate()
     .fold(0_u32, |acc, (bit, on)| acc | (u32::from(*on) << bit));
     let mut uniform = DrawUniform {
-        model: model.to_cols_array_2d(),
         ambient: pass.ambient,
         diffuse: pass.diffuse,
         specular: pass.specular,
@@ -182,11 +229,8 @@ pub(crate) fn draw_uniform(model: Mat4, pass: &LayerPass) -> DrawUniform {
         color_ops: [[1, 2, 1, 1]; 4],
         alpha_ops: [[2, 1, 0xFFFF_FFFF, 0]; 4],
         matrices: [[0.0; 4]; 8],
-        frill: [0.0; 4],
         point_count: [0; 4],
         points: [[0.0; 4]; 16],
-        skin: [0; 4],
-        frill_shade: [1.0, 0.0, 0.0, 0.0],
     };
     for (index, stage) in pass.stages.iter().enumerate().take(4) {
         uniform.color_ops[index] = [
