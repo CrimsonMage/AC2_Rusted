@@ -231,6 +231,7 @@ dependencies = [
  "ac2-net",
  "ac2-physics",
  "ac2-prefs",
+ "ac2-render",
  "ac2-script",
  "ac2-weenie",
  "ac2-world",

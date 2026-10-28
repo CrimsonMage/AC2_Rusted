@@ -9,7 +9,7 @@ use crate::{
     shop_stack_calls, social_dialog_outcomes, AllegianceUi, AssistancePanel, CatalogUi,
     CharacterUi, ChatOptionsUi, ChatUi, ConsignmentUi, DeathPanel, DialogFactory, DialogRequest,
     DisplayNotice, ExaminationUi, FellowshipUi, GameplayDialogs, HudRequest, HudSource, MoneyBagUi,
-    NewSaleUi, OptionsMessages, PetUi, PopupQuestion, SecureTradeUi, ShopRequest, ShopUi,
+    NewSaleUi, OptionsHost, OptionsPages, PetUi, PopupQuestion, SecureTradeUi, ShopRequest, ShopUi,
     ShortcutCalls, ShortcutRequest, ShortcutUi, SkillTreeUi, StackUi, ToolbarUi, UiTree,
 };
 
@@ -29,7 +29,9 @@ pub struct TickPanels<'a> {
     pub popup_backlog: &'a mut Vec<PopupQuestion>,
     pub display_backlog: &'a mut Vec<DisplayNotice>,
     /// `gmClientUI`'s page.
-    pub options: &'a mut dyn OptionsMessages,
+    pub options: &'a mut OptionsPages,
+    /// The client side of `gmClientUI` (its preferences and live applies).
+    pub options_host: &'a mut dyn OptionsHost,
     /// The client's shortcut calls (`gmShortcutUI`'s use and set).
     pub shortcut_calls: &'a mut dyn ShortcutCalls,
     pub game_dialogs: &'a mut GameplayDialogs,
@@ -68,6 +70,7 @@ pub fn tick_pass<P: HudSource>(
         popup_backlog,
         display_backlog,
         options,
+        options_host,
         shortcut_calls,
         game_dialogs,
         death,
@@ -180,7 +183,7 @@ pub fn tick_pass<P: HudSource>(
         }
         // The client page's questions and its requests (`gmClientUI::Apply`, Recall, Default).
         options.outcomes(tree, dialogs, &outcomes);
-        options.run(tree, dialogs);
+        options.run(options_host, tree, dialogs);
     }
     // `gmSecureTradeUI`'s calls on the player (`gmCWInterface::*Trade*`).
     if let Some(panel) = secure_trade.as_mut() {

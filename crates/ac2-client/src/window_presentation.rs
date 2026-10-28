@@ -26,19 +26,6 @@ pub const FULL_SCREEN: u32 = ac2_render::prefs::FULL_SCREEN;
 pub const TRIPLE_BUFFERING: u32 = 0x4000_0005;
 /// `ID_Rendering_SyncToDisplayRefresh`.
 pub const SYNC_TO_DISPLAY_REFRESH: u32 = 0x4000_0006;
-/// `ID_Rendering_OptimalRefreshRate` (skipped, see the module docs).
-pub const OPTIMAL_REFRESH_RATE: u32 = 0x4000_0007;
-/// `ID_Rendering_Antialiasing` (skipped, see the module docs).
-pub const ANTIALIASING: u32 = 0x4000_0060;
-
-/// The display keys whose change the window and the surface take.
-pub const DISPLAY_KEYS: [u32; 5] = [
-    FULL_SCREEN,
-    TRIPLE_BUFFERING,
-    SYNC_TO_DISPLAY_REFRESH,
-    OPTIMAL_REFRESH_RATE,
-    ANTIALIASING,
-];
 
 /// The window's fullscreen state, the surface's vertical sync and its frame latency.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -151,9 +138,9 @@ mod tests {
 
     #[test]
     fn the_display_keys_are_the_device_section() {
-        for key in DISPLAY_KEYS {
+        for key in ac2_ui::DISPLAY_KEYS {
             assert_eq!(key >> 24, 0x40, "{key:08x} is a preference key");
         }
-        assert!(DISPLAY_KEYS.contains(&FULL_SCREEN));
+        assert!(ac2_ui::DISPLAY_KEYS.contains(&FULL_SCREEN));
     }
 }

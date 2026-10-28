@@ -129,6 +129,9 @@ pub trait OptionsPrefs {
     /// The bank, for the page's changes and the applies.
     fn bank_mut(&mut self) -> &mut PreferenceBank;
 
+    /// The DAT's name tables (sections, keys and enum labels), for the page's rows.
+    fn name_table(&self) -> &dyn NameTable;
+
     /// Saves the file on a worker thread (`PreferenceBank::Save`).
     fn save(&mut self) -> JoinHandle<io::Result<()>>;
 
@@ -207,6 +210,10 @@ pub trait OptionsPrefs {
 impl<N: NameTable> OptionsPrefs for PrefsFile<N> {
     fn bank(&self) -> &PreferenceBank {
         PrefsFile::bank(self)
+    }
+
+    fn name_table(&self) -> &dyn NameTable {
+        self.names()
     }
 
     fn bank_mut(&mut self) -> &mut PreferenceBank {

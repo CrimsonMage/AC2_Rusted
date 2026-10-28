@@ -52,10 +52,7 @@ impl HudView {
         let Some((tree, _)) = hud else {
             return PassOut::default();
         };
-        let mut page = ClientOptions {
-            pages: options,
-            player,
-        };
+        let mut host = ClientOptions { player };
         let mut calls = ClientShortcuts { player };
         let panels = TickPanels {
             tree,
@@ -63,7 +60,8 @@ impl HudView {
             selection: frame.selection.as_ref().map(|s| s.id),
             popup_backlog,
             display_backlog,
-            options: &mut page,
+            options,
+            options_host: &mut host,
             shortcut_calls: &mut calls,
             game_dialogs,
             death,

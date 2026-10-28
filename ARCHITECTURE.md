@@ -55,6 +55,8 @@ they are built: script after `ac2-weenie`, gameplay after script, audio after `a
 `ac2_script::host::latent::completions`), which precedes it in the order.
 `ac2-ui` depends on `ac2-script` (the saved window locations are `UISaveLocations`, the
 script's native layout, `ac2_ui::window_locations`); script sits before ui in the order.
+`ac2-ui` also depends on `ac2-render` (the client options page's scene options, `ac2_ui::OptionsPages`);
+render sits before ui in the order.
 
 ## Milestones
 

@@ -43,8 +43,8 @@ mod sound_space;
 pub use ac2_audio::{PortalSoundIds, RainSoundIds};
 pub use ac2_smartbox::fx_objects::FxLooks;
 pub use ac2_ui::add_map_note;
+pub use ac2_ui::OptionsEffect;
 pub use client_prefs::{ClientPrefs, DatNames};
-pub use hud_options::OptionsEffect;
 pub use sound_ids::{portal_sound_ids, rain_sound_ids};
 pub use target_select::pick_targets;
 pub use window_presentation::WindowPresentation;
@@ -70,7 +70,6 @@ mod hud_ingredient;
 mod hud_items_3d;
 #[cfg(feature = "window")]
 mod hud_navigation;
-mod hud_options;
 mod hud_pets;
 #[cfg(feature = "window")]
 mod hud_player;

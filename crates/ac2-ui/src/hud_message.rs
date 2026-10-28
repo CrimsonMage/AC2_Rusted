@@ -8,34 +8,15 @@ use std::sync::Arc;
 use crate::{
     assistance_message, select_key_calls, select_key_of, shop_stack_calls, AllegianceUi,
     AssistancePanel, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentRequest,
-    ConsignmentUi, DialogFactory, DialogOutcome, EffectsUi, ExamineEffect,
-    ExternalContainerRequest, ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs,
-    HudRequest, HudSource, Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates,
-    NewSaleSource, NewSaleUi, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi, SecureTradeUi,
-    ShopUi, Shortcut, ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi, ToolbarChild,
-    ToolbarUi, UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE, GLOBAL_KEY_PRESS,
-    LOGOUT_ACTION,
+    ConsignmentUi, DialogFactory, EffectsUi, ExamineEffect, ExternalContainerRequest,
+    ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs, HudRequest, HudSource,
+    Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates, NewSaleSource,
+    NewSaleUi, OptionsHost, OptionsPages, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi,
+    SecureTradeUi, ShopUi, Shortcut, ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi,
+    ToolbarChild, ToolbarUi, UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE,
+    GLOBAL_KEY_PRESS, LOGOUT_ACTION,
 };
 use crate::{item_dialog, ItemRequest};
-
-/// The client options page's share of the HUD (`gmClientUI`), which the client answers over its
-/// preferences.
-pub trait OptionsMessages {
-    /// `gmClientUI::gmClientUI`: the page's widgets, made once the HUD's tree, its toolbar layout
-    /// and the preferences are there.
-    fn make(&mut self, tree: &mut UiTree, toolbar: Option<&Arc<LayoutDesc>>);
-    /// The page's share of a UI message.
-    fn message(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, message: &UiMessage);
-    /// The confirmations' answers (the page's questions among them).
-    fn outcomes(
-        &mut self,
-        tree: &mut UiTree,
-        dialogs: &mut DialogFactory,
-        outcomes: &[DialogOutcome],
-    );
-    /// Runs the page's requests on the client's preferences, then shows the values again.
-    fn run(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory);
-}
 
 /// The client's shortcut calls (`gmShortcutUI`'s requests on the player's script and session).
 pub trait ShortcutCalls {
@@ -66,7 +47,9 @@ pub struct MessagePanels<'a> {
     /// The consignment charge the script returns (`consignment_charge`, 0 when unknown).
     pub consignment_charge: &'a mut dyn FnMut() -> f32,
     /// `gmClientUI`'s page.
-    pub options: &'a mut dyn OptionsMessages,
+    pub options: &'a mut OptionsPages,
+    /// The client side of `gmClientUI` (its preferences and live applies).
+    pub options_host: &'a mut dyn OptionsHost,
     /// The toolbar's layout, which the options page's widgets are made over.
     pub toolbar_layout: Option<&'a Arc<LayoutDesc>>,
     pub game_dialogs: &'a mut GameplayDialogs,
@@ -121,6 +104,7 @@ pub fn message_pass<P: HudSource>(
         max_purchase,
         consignment_charge,
         options,
+        options_host,
         toolbar_layout,
         game_dialogs,
         dialogs,
@@ -167,7 +151,7 @@ pub fn message_pass<P: HudSource>(
         panel.story_global_loop(tree, player, || player.act_list());
     }
     // `gmClientUI`'s widgets, once the HUD and the preferences are there.
-    options.make(tree, toolbar_layout);
+    options.make(options_host, tree, toolbar_layout);
     // `TimedDialog`'s countdown: a question run out answers no.
     if let Some(dialogs) = dialogs.as_mut() {
         dialogs.tick(tree, now);
@@ -206,7 +190,7 @@ pub fn message_pass<P: HudSource>(
             out.extend(page.take_requests().into_iter().map(HudRequest::ChatOption));
         }
         if let Some(dialogs) = dialogs.as_mut() {
-            options.message(tree, dialogs, message);
+            options.message(options_host, tree, dialogs, message);
         }
         if let (Some(skills), Some(dialogs)) = (skills.as_mut(), dialogs.as_mut()) {
             skills.message(tree, dialogs, player, message);

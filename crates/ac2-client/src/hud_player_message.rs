@@ -2,50 +2,32 @@
 //! messages over the panels in the frameworks' order, and the requests it returns become gameplay
 //! commands ([`hud_request_commands`]). The client options page is answered over the client here.
 
-use std::sync::Arc;
-
-use ac2_ui::{
-    DialogFactory, DialogOutcome, LayoutDesc, MessagePanels, OptionsMessages, Shortcut,
-    ShortcutCalls, UiMessage, UiTree,
-};
+use ac2_render::prefs::SceneOptions;
+use ac2_ui::{MessagePanels, OptionsHost, OptionsPrefs, Shortcut, ShortcutCalls, UiMessage};
 
 use crate::frame::ClientFrame;
 use crate::hud_friends::friend_target;
-use crate::hud_options::OptionsPages;
 use crate::hud_player::{name_looks, PassOut};
 use crate::hud_request::hud_request_commands;
 use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
 
-/// `gmClientUI`'s page over the player's client: the page's widgets and its messages need the
-/// client's preferences.
+/// `gmClientUI`'s side over the player's client: the page's preferences and the live applies
+/// need the client, which `ac2_ui::OptionsPages` reaches through [`OptionsHost`].
 pub(crate) struct ClientOptions<'a, 'b> {
-    pub(crate) pages: &'a mut OptionsPages,
     pub(crate) player: &'a ClientPlayer<'b>,
 }
 
-impl OptionsMessages for ClientOptions<'_, '_> {
-    fn make(&mut self, tree: &mut UiTree, toolbar: Option<&Arc<LayoutDesc>>) {
-        self.pages.make(&self.player.client.borrow(), tree, toolbar);
+impl OptionsHost for ClientOptions<'_, '_> {
+    fn with_prefs(&mut self, f: &mut dyn FnMut(&mut dyn OptionsPrefs)) -> Option<()> {
+        let mut client = self.player.client.borrow_mut();
+        let prefs = client.prefs_mut()?;
+        f(prefs.file_mut());
+        Some(())
     }
 
-    fn message(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, message: &UiMessage) {
-        self.pages
-            .message(&mut self.player.client.borrow_mut(), tree, dialogs, message);
-    }
-
-    fn outcomes(
-        &mut self,
-        tree: &mut UiTree,
-        dialogs: &mut DialogFactory,
-        outcomes: &[DialogOutcome],
-    ) {
-        self.pages.outcomes(tree, dialogs, outcomes);
-    }
-
-    fn run(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory) {
-        self.pages
-            .run(&mut self.player.client.borrow_mut(), tree, dialogs);
+    fn apply_live(&mut self) -> Option<SceneOptions> {
+        self.player.client.borrow_mut().apply_live_preferences()
     }
 }
 
@@ -142,10 +124,7 @@ impl HudView {
                 .consignment_charge()
                 .unwrap_or(0.0)
         };
-        let mut page = ClientOptions {
-            pages: options,
-            player,
-        };
+        let mut host = ClientOptions { player };
         let panels = MessagePanels {
             tree,
             now: *now,
@@ -156,7 +135,8 @@ impl HudView {
             name_looks: &looks,
             max_purchase: &mut most,
             consignment_charge: &mut charge,
-            options: &mut page,
+            options,
+            options_host: &mut host,
             toolbar_layout: toolbar_layout.as_ref(),
             game_dialogs,
             dialogs,

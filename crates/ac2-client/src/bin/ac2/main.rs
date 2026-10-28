@@ -472,8 +472,11 @@ impl App {
                     view.set_scene_options(options);
                     self.scene_options = options;
                 }
-                ac2_client::OptionsEffect::Presentation(presentation) => {
-                    state.apply_presentation(presentation);
+                ac2_client::OptionsEffect::Display => {
+                    // The display section's values, read as they are now (a verified change).
+                    if let Some(prefs) = self.client.prefs() {
+                        state.apply_presentation(WindowPresentation::from_bank(prefs.bank()));
+                    }
                 }
             }
         }

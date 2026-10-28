@@ -194,7 +194,7 @@ impl ClientView {
 
     /// What the options pages' applies changed that the window or the scene must take: the scene's
     /// options and the fullscreen state (the frame's owner applies them).
-    pub fn take_options_effects(&mut self) -> Vec<crate::hud_options::OptionsEffect> {
+    pub fn take_options_effects(&mut self) -> Vec<ac2_ui::OptionsEffect> {
         self.hud.options.take_effects()
     }
 
