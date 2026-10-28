@@ -16,6 +16,7 @@ mod gun;
 mod ifun;
 pub mod ifun_ids;
 mod interface;
+pub mod interface_calls;
 mod inventory_globals;
 pub mod inventory_queries;
 pub mod item_queries;
@@ -232,6 +233,12 @@ impl ScriptHost {
     }
 
     /// The lines the scripts entered for the chat shell since the last call, in order.
+    /// The commands the scripts asked help for since the last call
+    /// (`CWInterface::DisplayHelpText`).
+    pub fn take_help_requests(&mut self) -> Vec<String> {
+        std::mem::take(&mut self.vm.help_requests)
+    }
+
     pub fn take_shell_lines(&mut self) -> Vec<String> {
         std::mem::take(&mut self.vm.shell_lines)
     }

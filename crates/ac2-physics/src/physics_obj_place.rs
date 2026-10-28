@@ -136,6 +136,7 @@ impl PhysicsObj {
         };
         if let Some(material) = material {
             self.update_gravity(Some(&material));
+            self.cell_material = Some(material);
         }
     }
 

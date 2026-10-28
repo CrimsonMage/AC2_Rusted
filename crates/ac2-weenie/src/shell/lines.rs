@@ -22,6 +22,7 @@ pub(super) const TABLE_COMMUNICATION: u32 = crate::tables::TABLE_ENUM_COMMUNICAT
 pub(super) const TABLE_ALLEGIANCE: u32 = crate::tables::TABLE_ENUM_TELL;
 pub(super) const TABLE_FELLOWSHIP: u32 = crate::tables::TABLE_ENUM_FELLOWSHIP;
 pub(super) const TABLE_CHANNELS: u32 = crate::tables::TABLE_ENUM_CHANNELS;
+pub(super) const TABLE_SHELL: u32 = crate::tables::TABLE_ENUM_SHELL;
 pub(super) const TABLE_CHAT_WINDOW: u32 = crate::tables::TABLE_ENUM_CHAT_WINDOW;
 
 /// Variables: a player's name, a channel's name.

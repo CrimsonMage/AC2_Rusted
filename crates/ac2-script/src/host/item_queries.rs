@@ -3,7 +3,11 @@
 //! `GetPotentiallyPluralizedName`, `GetStackable`, `GetMaxStackSize`, `HasDurability`,
 //! `GetDurabilityLevel`, `GetMaxDurabilityLevel`, `GetMaxContainerSize`: `gmEntity` 0x10,
 //! 0x23, 0x10B, 0xB, 0x2E, 0x158, 0x159, 0x15B, 0xC over the item's qualities), plus the
-//! session's icon layers and the value its weenie carries (through the script port).
+//! session's icon layers and the value its weenie carries (through the script port). The IFuns
+//! are `ggmCWInterface::CallIFun_GetQuantity`, `CallIFun_GetIconID`,
+//! `CallIFun_GetPotentiallyPluralizedName`, `CallIFun_GetStackable`, `CallIFun_GetMaxStackSize`,
+//! `CallIFun_HasDurability`, `CallIFun_GetDurabilityLevel`, `CallIFun_GetMaxDurabilityLevel` and
+//! `CallIFun_GetMaxContainerSize`, each run on the item's own process.
 
 use ac2_net::protocol::StringInfo;
 use ac2_net::protocol::{ntype, EffectUiNode, NativeObject, ScriptList};

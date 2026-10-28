@@ -5,7 +5,8 @@
 /// Which history the chat window walks.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ChatHistory {
-    /// The lines entered (`CWInterface::InqPrev/NextHistoryItem`).
+    /// The lines entered (`CWInterface::InqPrevHistoryItem` / `CWInterface::InqNextHistoryItem`,
+    /// over `CShell::InqPrevHistoryItem` / `InqNextHistoryItem`).
     Command,
     /// The names told (`gmCWInterface::InqPrev/NextRetellHistoryItem`).
     Retell,

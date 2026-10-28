@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 782 done, 166 partial, 228 to do, 948 skipped.
+2124 retail functions: 783 done, 165 partial, 228 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (246/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (247/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2397,7 +2397,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::ApplyGameplayProperty` · 004e1b30 · legions 004d4590 — ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 - [ ] `CPhysicsObj::BuildOptionalProperties` · 004e1b80 · legions 004d45e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetObjectProperties` · 004e1bf0 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::InqCurrentProperties` · 004e1c30 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+- [x] `CPhysicsObj::InqCurrentProperties` · 004e1c30 — ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 - [~] `CPhysicsObj::InqCurrentProperty` · 004e1c60 — PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
 - [~] `CPhysicsObj::get_object_info` · 004e1c90 · legions 004d46f0 — no admin moves or missiles
 - [x] `CPhysicsObj::AdjustPosition` · 004e1d70 · legions 004d47d0 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)

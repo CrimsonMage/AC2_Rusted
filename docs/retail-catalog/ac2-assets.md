@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 120 done, 17 partial, 228 to do, 420 skipped.
+785 retail functions: 122 done, 17 partial, 226 to do, 420 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (14/62)
@@ -872,7 +872,7 @@ Legend and workflow: [README](README.md).
 - [-] `AppearanceInfo::AppearanceInfo` · 0064aa60 · legions 005fa100 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `AppearanceInfo::AppearanceInfo` · 0064aaa0 · legions 005fa140 — ctor/dtor of plain data; Rust constructs and drops values
 
-## `portal/shared/src/objdesc/appearance/appearancetable.cpp.c` (2/24)
+## `portal/shared/src/objdesc/appearance/appearancetable.cpp.c` (3/24)
 
 ### (free functions)
 - [ ] `STREAMPACK` · 00648cf0 · legions 00486a30 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
@@ -885,7 +885,7 @@ Legend and workflow: [README](README.md).
 - [ ] `AppearanceTable::AddBaseAppearanceDID` · 00649330 — needs port: appearance/visual record: AppearanceTable::AddBaseAppearanceDID (atom insert rule)
 - [x] `AppearanceTable::GetAtoms` · 00649370 · legions 005f9060 — ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 - [ ] `AppearanceTable::HasAppearanceKey` · 00649470 · legions 005f9140 — needs port: appearance/visual record: AppearanceTable::HasAppearanceKey
-- [ ] `AppearanceTable::InqAppearanceKeyModList` · 00649540 · legions 005f91f0 — needs port: appearance/visual record: AppearanceTable::InqAppearanceKeyModList (property inquiry)
+- [x] `AppearanceTable::InqAppearanceKeyModList` · 00649540 · legions 005f91f0 — ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 - [ ] `AppearanceTable::InqTsysAppearanceKeyModCount` · 00649650 · legions 005f92e0 — needs port: appearance/visual record: AppearanceTable::InqTsysAppearanceKeyModCount (property inquiry)
 - [ ] `AppearanceTable::CalculateAppearanceModsBelowThreshold` · 006497a0 — needs port: appearance/visual record: AppearanceTable::CalculateAppearanceModsBelowThreshold
 
@@ -912,12 +912,12 @@ Legend and workflow: [README](README.md).
 - [-] `AppearanceTable::CopyInto` · 0064a3d0 · legions 005f9c70 — copy of plain data; Rust clones values
 - [-] `AppearanceTable::FromFileNode` · 0064a3f0 — text source format (admin tools)
 
-## `portal/shared/src/objdesc/appearance/appearancetableadaptor.cpp.c` (0/3)
+## `portal/shared/src/objdesc/appearance/appearancetableadaptor.cpp.c` (1/3)
 
 ### AppearanceTableAdaptor
 - [ ] `AppearanceTableAdaptor::HasAppearanceKey` · 0064aaf0 · legions 005fa190 — needs port: appearance/visual record: AppearanceTableAdaptor::HasAppearanceKey
 - [ ] `AppearanceTableAdaptor::InqTsysAppearanceKeyModCount` · 0064ab50 · legions 005fa1e0 — needs port: appearance/visual record: AppearanceTableAdaptor::InqTsysAppearanceKeyModCount (property inquiry)
-- [ ] `AppearanceTableAdaptor::InqAppearanceKeyModList` · 0064abc0 — needs port: appearance/visual record: AppearanceTableAdaptor::InqAppearanceKeyModList (property inquiry)
+- [x] `AppearanceTableAdaptor::InqAppearanceKeyModList` · 0064abc0 — ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 
 ## `portal/shared/src/objdesc/appearance/appliedappearancekey.cpp.c` (2/7)
 

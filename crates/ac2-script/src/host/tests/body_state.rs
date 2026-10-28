@@ -39,6 +39,7 @@ fn is_outside_reads_the_cell() {
     let snapshot = |cell| BodySnapshot {
         cell,
         collision: ac2_physics::CollisionParameters::default(),
+        properties: None,
     };
     assert_eq!(efun_result(&mut host.vm, 0x0080_0036, &[], 9, 2), 0);
     host.set_body_snapshot(0x55, Some(snapshot(0xA9B4_0021)));
@@ -71,6 +72,7 @@ fn collision_state_and_non_latent_behavior() {
         Some(BodySnapshot {
             cell: 0xA9B4_0021,
             collision: state,
+            properties: None,
         }),
     );
     let native = host.vm.refs.create_native(
@@ -98,4 +100,60 @@ fn collision_state_and_non_latent_behavior() {
         host.take_physics(),
         vec![(0x55, ObjectAction::DoBehavior(Box::new(params)))]
     );
+}
+
+/// `InqCurrentProperties` copies the body's cell material collection into the collection native
+/// and answers 1; without a cell material it answers 0 and leaves the collection alone.
+#[test]
+fn current_properties_copy_the_cell_material() {
+    use ac2_db::{Ac2PropertyGroup, Ac2PropertyValue};
+    let mut host = host_with_weenie();
+    let snapshot = |properties| BodySnapshot {
+        cell: 0xA9B4_0021,
+        collision: ac2_physics::CollisionParameters::default(),
+        properties,
+    };
+    let native = host.vm.refs.create_native(
+        crate::native::ntype::PROPERTY_COLLECTION,
+        crate::native::NativeObject::PropertyCollection(Default::default()),
+    );
+    host.set_body_snapshot(0x55, Some(snapshot(None)));
+    assert_eq!(efun_result(&mut host.vm, 0x0080_004A, &[native], 9, 3), 0);
+    let groups = vec![Ac2PropertyGroup {
+        name: 7,
+        properties: vec![Ac2PropertyValue {
+            name: 0x1000_0002,
+            value_type: 0x4000_0001,
+            bytes: 1u32.to_le_bytes().to_vec().into(),
+        }],
+    }];
+    host.set_body_snapshot(
+        0x55,
+        Some(snapshot(Some(std::sync::Arc::new(
+            ac2_physics::PhysicsMaterial { id: 1, groups },
+        )))),
+    );
+    assert_eq!(efun_result(&mut host.vm, 0x0080_004A, &[native], 9, 3), 1);
+    // (Which group a property lands in comes from the installed MasterProperty descs, which
+    // this unit host has none of; the copy itself is `PropertyCollection::add_property`'s.)
+    assert!(matches!(
+        host.vm.native(native),
+        Some(crate::native::NativeObject::PropertyCollection(_))
+    ));
+}
+
+/// `DisplayHelpText(cmd)` queues the command word for the shell and answers nothing else.
+#[test]
+fn display_help_text_queues_the_command() {
+    let mut host = host_with_weenie();
+    let native = host.vm.new_wstring("tell".encode_utf16().collect());
+    let mut ctx = crate::vm::Context::new(1, None);
+    ctx.enter(0).unwrap();
+    ctx.push(native, crate::vm::tag::REF).unwrap();
+    ctx.push(9, crate::vm::tag::REF).unwrap();
+    assert_eq!(
+        host.vm.run_efun(0x007F_0053, &mut ctx),
+        crate::vm::InterpStatus::Success
+    );
+    assert_eq!(host.take_help_requests(), vec!["tell".to_string()]);
 }

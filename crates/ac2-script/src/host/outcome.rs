@@ -143,6 +143,7 @@ pub fn outcome<P: ScriptPort + ?Sized>(
         Ok(_) => {}
     }
     let lines = scripts.host.take_shell_lines();
+    let help = scripts.host.take_help_requests();
     for (object, flag) in scripts.host.take_no_draw() {
         if flag {
             scripts.no_draw.insert(object);
@@ -167,6 +168,9 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     // The lines the scripts entered for the chat shell (`CWInterface::ProcessText`), in order.
     for line in lines {
         out.extend(port.process_text(&line));
+    }
+    for cmd in help {
+        out.extend(port.display_help(&cmd));
     }
     for call in calls {
         port.send_interp(call.function, pack_values(&call.args), call.encrypt);

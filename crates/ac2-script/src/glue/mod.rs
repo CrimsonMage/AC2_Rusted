@@ -12,6 +12,7 @@
 //! value below the last argument. Int and bool results are tagged `BOOL` (4), references `REF`.
 
 mod act_info;
+mod appearance_table;
 mod base_property;
 mod behavior;
 mod chargen;
@@ -112,6 +113,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     craft_natives::register(efuns);
     friend_natives::register(efuns);
     entity_desc::register(efuns);
+    appearance_table::register(efuns);
     shortcut::register(efuns);
     reserved_ids::register(efuns);
     turbine_gun::register(efuns);

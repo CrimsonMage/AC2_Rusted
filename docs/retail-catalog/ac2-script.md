@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1689 done, 32 partial, 336 to do, 411 skipped.
+2468 retail functions: 1690 done, 32 partial, 335 to do, 411 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1317,7 +1317,7 @@ Legend and workflow: [README](README.md).
 - [x] `gALMultiMapIter::CallEFun_next` · 0054e7b0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gALMultiMapIter::CallEFun_prev` · 0054e850 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gappearancetableadaptor.cpp.c` (1/5)
 
 ### gAppearanceTableAdaptor
 - [ ] `gAppearanceTableAdaptor::CallEFun_HasAppearanceKey` · 0054c920 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
@@ -1327,7 +1327,7 @@ Legend and workflow: [README](README.md).
 - [~] `gCharacterGenSystem::AListToValueList` · 0054c9d0 · legions 0046b500 — ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 
 ### gAppearanceTableAdaptor
-- [ ] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [x] `gAppearanceTableAdaptor::CallEFun_InqAppearanceKeyModList` · 0054ca40 — ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 - [ ] `gAppearanceTableAdaptor::CallEFun_InqTsysAppearanceKeyModCount` · 0054caf0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
 ## `portal/shared/src/interp/glue/gappinfohash.cpp.c` (0/1)

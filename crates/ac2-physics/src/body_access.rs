@@ -86,6 +86,13 @@ impl PhysicsBody {
         &self.object.property_info
     }
 
+    /// `CPhysicsObj::InqCurrentProperties`: a copy of the cell material's collection
+    /// (`m_pCellMaterial->m_collection`, set by `UpdateCellMaterial`); `None` (retail's 0) while
+    /// the body has taken no cell material.
+    pub fn cell_material(&self) -> Option<std::sync::Arc<crate::PhysicsMaterial>> {
+        self.object.cell_material.clone()
+    }
+
     /// `CPhysicsObj::m_physics_material`: the physics material DID the physics property named.
     pub fn physics_material_id(&self) -> u32 {
         self.object.physics_material

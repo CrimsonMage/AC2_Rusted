@@ -73,8 +73,8 @@ pub use texture_dxt::{decode_block_compressed_texture, BlockCompressedTextureFor
 
 pub use ac2_appearance::{
     ac2_appearance_atoms, ac2_appearance_material_atoms, ac2_dungeon_appearance_table,
-    ac2_enum_did, load_ac2_material_with_atoms, Ac2Atoms, Ac2MaterialAtom, Ac2MeshAtom,
-    Ac2OpacityAtom, Ac2PartGroupAtom,
+    ac2_enum_did, load_ac2_appearance_table, load_ac2_material_with_atoms, Ac2Atoms,
+    Ac2MaterialAtom, Ac2MeshAtom, Ac2OpacityAtom, Ac2PartGroupAtom, AppearanceTable,
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_drawn_groups::{

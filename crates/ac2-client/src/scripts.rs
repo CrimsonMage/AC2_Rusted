@@ -243,11 +243,37 @@ impl Client {
             Some(ac2_script::host::body_state::BodySnapshot {
                 cell: p.position().cell_id,
                 collision: body.physics.script_collision_state(),
+                properties: body.physics.cell_material(),
             })
         });
+        // The remote objects whose scripts run: what their scripts read of their bodies.
+        let remote_snapshots: Vec<(u64, ac2_script::host::body_state::BodySnapshot)> = self
+            .scripts
+            .as_ref()
+            .map(|s| {
+                s.running
+                    .iter()
+                    .filter(|id| Some(**id) != player_id)
+                    .filter_map(|id| {
+                        let body = self.remotes.get(*id)?.body()?;
+                        Some((
+                            *id,
+                            ac2_script::host::body_state::BodySnapshot {
+                                cell: body.position().cell_id,
+                                collision: body.script_collision_state(),
+                                properties: body.cell_material(),
+                            },
+                        ))
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
         let Some(scripts) = self.scripts.as_mut() else {
             return;
         };
+        for (id, snapshot) in remote_snapshots {
+            scripts.host.set_body_snapshot(id, Some(snapshot));
+        }
         scripts.host.set_time(cur_time);
         scripts.host.set_player_position(player.map(|p| {
             let (origin, rotation) = (p.frame.origin, p.frame.q);

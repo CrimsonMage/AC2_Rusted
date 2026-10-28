@@ -387,6 +387,54 @@ pub fn ac2_appearance_atoms(
     collect_atoms(store, table, key, scalar, only_part_groups, atoms, 0)
 }
 
+/// `DBObj::Get` of the `AppearanceTable` at `table` (`AppearanceTableAdaptor::
+/// InqAppearanceKeyModList`'s first step); `None` when it is missing.
+pub fn load_ac2_appearance_table(
+    store: &ResourceStore,
+    table: DataId,
+) -> ResourceResult<Option<AppearanceTable>> {
+    Ok(load::<Ac2AppearanceTable>(store, table)?.map(AppearanceTable))
+}
+
+/// A loaded `AppearanceTable`, for [`AppearanceTable::key_mods`].
+pub struct AppearanceTable(CachedResource<Ac2AppearanceTable>);
+
+impl AppearanceTable {
+    /// `AppearanceTable::InqAppearanceKeyModList(key)`: the intensities of the collections `key`
+    /// holds, base tables first, each placed by `List<float>::insert_sort` (ascending, equal
+    /// values after the held ones).
+    pub fn key_mods(&self, store: &ResourceStore, key: u32) -> ResourceResult<Vec<f32>> {
+        let mut list = Vec::new();
+        key_mods(store, &self.0, key, &mut list, 0)?;
+        Ok(list)
+    }
+}
+
+fn key_mods(
+    store: &ResourceStore,
+    table: &Ac2AppearanceTable,
+    key: u32,
+    list: &mut Vec<f32>,
+    depth: usize,
+) -> ResourceResult<()> {
+    if depth > MAX_BASE_DEPTH {
+        return Ok(());
+    }
+    for base in &table.base {
+        if let Some(base) = load::<Ac2AppearanceTable>(store, *base)? {
+            key_mods(store, &base, key, list, depth + 1)?;
+        }
+    }
+    for (intensity, _) in table.atoms.get(&key).into_iter().flatten() {
+        let at = list
+            .iter()
+            .position(|held| intensity < held)
+            .unwrap_or(list.len());
+        list.insert(at, *intensity);
+    }
+    Ok(())
+}
+
 fn collect_atoms(
     store: &ResourceStore,
     table: DataId,

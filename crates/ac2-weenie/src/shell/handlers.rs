@@ -154,6 +154,34 @@ impl ChatState {
         }
     }
 
+    /// `CWInterface::DisplayHelpText(cmd)` over `CPlayerShell::GetHelpText`: an empty `cmd` shows
+    /// every command's help after `ID_HelpListLabel`; a command with help shows its text
+    /// (display type 8, nothing when the text is empty); any other shows
+    /// `ID_UnrecognizedCommand` with `CMD` set to it (display type 1). Both strings are in the
+    /// shell's table (enum 0x40000009).
+    pub fn display_help(&self, cmd: &str, tables: &StringTableIds) -> Vec<ShellAction> {
+        let shell = |name: &str| line(tables, TABLE_SHELL, ac2_net::tokenize(name.as_bytes()));
+        if cmd.is_empty() {
+            let mut out = vec![show(KIND_INFO, shell("ID_HelpListLabel"))];
+            let all = self.commands.all_cmd_help();
+            if !all.is_empty() {
+                out.push(show(KIND_INFO, literal(&all)));
+            }
+            return out;
+        }
+        match self.commands.cmd_help(cmd) {
+            None => {
+                let variable = ac2_net::tokenize(b"CMD");
+                vec![show(
+                    KIND_ERROR,
+                    with(shell("ID_UnrecognizedCommand"), variable, literal(cmd)),
+                )]
+            }
+            Some(text) if text.is_empty() => Vec::new(),
+            Some(text) => vec![show(KIND_INFO, literal(&text))],
+        }
+    }
+
     fn help(&self, handler: u32) -> ShellAction {
         show(KIND_INFO, literal(&self.commands.help(handler)))
     }

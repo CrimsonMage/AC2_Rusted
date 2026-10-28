@@ -101,48 +101,107 @@ impl Client {
         self.remotes.motion(object, action, None);
     }
 
+    /// The physics body of the weenie `object` a script acted on: the player's, or a remote
+    /// object's (`CWPhysicsObject::m_phys_obj` is any weenie's body).
+    fn script_body_mut(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
+        match self.player.as_mut().filter(|p| p.id == object) {
+            Some(player) => player.body.as_mut().map(|b| &mut b.physics),
+            None => self.remotes.body_mut(object),
+        }
+    }
+
     /// A body state change a script made (`CPhysicsObj::set_movement_frozen`,
-    /// `set_animation_frozen`, `set_edge_slide`): the player's body takes it. Remote bodies are
-    /// not driven by scripts here (see the catalog).
+    /// `set_animation_frozen`, `set_edge_slide`): the weenie's body takes it, the player's or a
+    /// remote object's.
     pub(crate) fn apply_body_state(
         &mut self,
         object: u64,
         state: ac2_script::host::body_state::BodyState,
     ) {
         use ac2_script::host::body_state::BodyState;
-        let Some(body) = self
-            .player
-            .as_mut()
-            .filter(|p| p.id == object)
-            .and_then(|p| p.body.as_mut())
-        else {
+        let Some(physics) = self.script_body_mut(object) else {
             return;
         };
         match state {
-            BodyState::MovementFrozen(frozen) => body.physics.set_movement_frozen(frozen),
-            BodyState::AnimationFrozen(frozen) => body.physics.set_animation_frozen(frozen),
-            BodyState::EdgeSlide(slide) => body.physics.set_edge_slide(slide),
+            BodyState::MovementFrozen(frozen) => physics.set_movement_frozen(frozen),
+            BodyState::AnimationFrozen(frozen) => physics.set_animation_frozen(frozen),
+            BodyState::EdgeSlide(slide) => physics.set_edge_slide(slide),
         }
     }
 
-    /// `CCollisionManager::SetCollisionState` for a script's `CollisionParameters`: the player's
-    /// body takes the non-zero impact minimums. Remote bodies keep theirs (their scripts are not
-    /// run here; see the catalog).
+    /// `CCollisionManager::SetCollisionState` for a script's `CollisionParameters`: the weenie's
+    /// body (the player's or a remote object's) takes the non-zero impact minimums.
     pub(crate) fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32) {
-        if let Some(body) = self
-            .player
-            .as_mut()
-            .filter(|p| p.id == object)
-            .and_then(|p| p.body.as_mut())
-        {
-            body.physics.set_collision_minimums(xy, z);
+        if let Some(physics) = self.script_body_mut(object) {
+            physics.set_collision_minimums(xy, z);
         }
     }
 
-    /// `CCollisionManager::SetCollisionState` for a script's collision sets: the player's body
-    /// merges the script's placement and movement ethereal and physics-type sets (only the sets
-    /// its bits name). Remote bodies keep theirs, as with the minimums.
+    /// `CCollisionManager::SetCollisionState` for a script's collision sets: the weenie's body
+    /// (the player's or a remote object's) merges the script's placement and movement ethereal
+    /// and physics-type sets (only the sets its bits name).
     pub(crate) fn apply_collision_sets(
+        &mut self,
+        object: u64,
+        sets: &ac2_physics::CollisionParameters,
+    ) {
+        if self.player.as_ref().is_some_and(|p| p.id == object) {
+            self.apply_player_collision_sets(object, sets);
+            return;
+        }
+        if !self.remotes.tracks(object) {
+            return;
+        }
+        // The other bodies `GetObjectA` can answer for, taken before the subject is borrowed.
+        let mut peers: std::collections::HashMap<u64, ac2_physics::ConflictPeer> = self
+            .remotes
+            .iter()
+            .filter(|(id, _)| *id != object)
+            .filter_map(|(id, remote)| {
+                let body = remote.body()?;
+                Some((
+                    id,
+                    ac2_physics::ConflictPeer {
+                        id,
+                        ..body.conflict_peer()
+                    },
+                ))
+            })
+            .collect();
+        if let Some((id, body)) = self
+            .player
+            .as_ref()
+            .and_then(|p| Some((p.id, p.body.as_ref()?)))
+        {
+            peers.insert(
+                id,
+                ac2_physics::ConflictPeer {
+                    id,
+                    ..body.physics.conflict_peer()
+                },
+            );
+        }
+        let peer = |id: u64| peers.get(&id).cloned();
+        let Some(physics) = self.remotes.body_mut(object) else {
+            return;
+        };
+        physics.set_instance_id(object);
+        let effects = physics.set_collision_state(sets, &peer);
+        for effect in effects {
+            if let Some(other) = self.remotes.body_mut(effect.object) {
+                other.add_to_temp_ethereal_list(effect.add);
+            } else if let Some(player) = self
+                .player
+                .as_mut()
+                .filter(|p| p.id == effect.object)
+                .and_then(|p| p.body.as_mut())
+            {
+                player.physics.add_to_temp_ethereal_list(effect.add);
+            }
+        }
+    }
+
+    fn apply_player_collision_sets(
         &mut self,
         object: u64,
         sets: &ac2_physics::CollisionParameters,

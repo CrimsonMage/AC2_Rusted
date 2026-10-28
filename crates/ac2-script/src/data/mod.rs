@@ -68,6 +68,7 @@ struct Resident {
     places: Option<CachedResource<PlacesTable>>,
     string_state: Option<CachedResource<ac2_db::StringState>>,
     entities: HashMap<u32, EntityProperties>,
+    key_mods: HashMap<(u32, u32), Arc<Vec<f32>>>,
     visuals: HashMap<u32, Arc<ac2_weenie::Appearance>>,
     defaults: HashMap<u32, Arc<ac2_weenie::WeenieQualities>>,
     absent: HashSet<DataRequest>,
@@ -182,6 +183,13 @@ impl DatScriptData {
                 }
                 None => false,
             },
+            DataRequest::AppearanceKeyMods(did, key) => match self.read_key_mods(did, key) {
+                Some(mods) => {
+                    self.resident().key_mods.insert((did, key), mods);
+                    true
+                }
+                None => false,
+            },
             DataRequest::ClassDefaults(did) => match self.read_defaults(did) {
                 Some(defaults) => {
                     self.resident().defaults.insert(did, defaults);
@@ -193,6 +201,14 @@ impl DatScriptData {
         if !found {
             self.resident().absent.insert(request);
         }
+    }
+
+    /// `AppearanceTableAdaptor::InqAppearanceKeyModList`'s read.
+    fn read_key_mods(&self, did: u32, key: u32) -> Option<Arc<Vec<f32>>> {
+        let table = ac2_assets::load_ac2_appearance_table(&self.store, DataId::new(did))
+            .ok()
+            .flatten()?;
+        table.key_mods(&self.store, key).ok().map(Arc::new)
     }
 
     /// A qualities record's packed body (`DB_TYPE_QUALITIES`, the same layout as the player
@@ -399,6 +415,21 @@ impl ScriptData for DatScriptData {
             return Some(defaults);
         }
         self.miss(DataRequest::ClassDefaults(did));
+        None
+    }
+
+    fn appearance_key_mods(&self, did: u32, key: u32) -> Option<Arc<Vec<f32>>> {
+        if let Some(mods) = self.resident().key_mods.get(&(did, key)).cloned() {
+            return Some(mods);
+        }
+        if !self.cache_only() {
+            let mods = self.read_key_mods(did, key)?;
+            self.resident()
+                .key_mods
+                .insert((did, key), Arc::clone(&mods));
+            return Some(mods);
+        }
+        self.miss(DataRequest::AppearanceKeyMods(did, key));
         None
     }
 

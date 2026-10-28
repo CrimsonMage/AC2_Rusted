@@ -35,6 +35,9 @@ pub enum BodyState {
 pub struct BodySnapshot {
     pub cell: u32,
     pub collision: ac2_physics::CollisionParameters,
+    /// The cell material's property groups (`CPhysicsObj::InqCurrentProperties`), when the body
+    /// has one.
+    pub properties: Option<std::sync::Arc<ac2_physics::PhysicsMaterial>>,
 }
 
 impl ScriptHost {
@@ -66,6 +69,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x0080_002B, toggle_place_marker_objects);
     efuns.register(0x0080_0036, is_outside);
     efuns.register(0x0080_000B, get_collision_state);
+    efuns.register(0x0080_004A, inq_current_properties);
     efuns.register(0x0080_001C, do_behavior_non_latent);
 }
 
@@ -141,6 +145,33 @@ fn get_collision_state(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         _ => return vm.bad_this(target),
     }
     Call::new(ctx).ret(3, u32::from(state.is_some()), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_InqCurrentProperties(PropertyCollection *)` ->
+/// `CWPhysicsObject::InqCurrentProperties` -> `CPhysicsObj::InqCurrentProperties`: the collection
+/// becomes a copy of the body's cell material collection and the efun answers 1; 0 (the
+/// collection untouched) while the body has no cell material or no body exists.
+fn inq_current_properties(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let reference = Call::new(ctx).word(2);
+    let target = out_native(vm, ctx, reference);
+    let properties = vm.bodies.get(&id).and_then(|b| b.properties.clone());
+    if let Some(material) = &properties {
+        match vm.native_mut(target) {
+            Some(NativeObject::PropertyCollection(collection)) => {
+                **collection = ac2_db::PropertyCollection::default();
+                for property in material.groups.iter().flat_map(|g| g.properties.iter()) {
+                    collection.add_property(&property.to_base_property());
+                }
+            }
+            _ => return vm.bad_this(target),
+        }
+    }
+    Call::new(ctx).ret(3, u32::from(properties.is_some()), tag::INT);
     InterpStatus::Success
 }
 

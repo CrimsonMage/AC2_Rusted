@@ -101,6 +101,9 @@ pub enum DataRequest {
     VisualDesc(u32),
     /// The class defaults at a qualities DID (`CBaseQualities::m_defaults`, DB type 0x40000019).
     ClassDefaults(u32),
+    /// An `AppearanceTable` (DB type 0x40000022) and the key whose collections' intensities a
+    /// script asked for (`AppearanceTableAdaptor::InqAppearanceKeyModList`).
+    AppearanceKeyMods(u32, u32),
 }
 
 /// An entity description's properties in stream order (`PropertyCollection` flattened).
@@ -133,6 +136,13 @@ pub trait ScriptData {
     /// `m_properties`). `None` when it is not held or not read yet (a cache-only host records a
     /// [`DataRequest::EntityDesc`] and the efun runs again once loaded).
     fn entity_properties(&self, _did: u32) -> Option<EntityProperties> {
+        None
+    }
+
+    /// `AppearanceTableAdaptor::InqAppearanceKeyModList(did, key)`: the intensities the table
+    /// `did` (with its base tables) holds for `key`, ascending. `None` when the table is missing
+    /// or not read yet (a cache-only host records a [`DataRequest::AppearanceKeyMods`]).
+    fn appearance_key_mods(&self, _did: u32, _key: u32) -> Option<std::sync::Arc<Vec<f32>>> {
         None
     }
 
@@ -257,6 +267,8 @@ pub struct Vm {
     /// The chat lines the scripts entered for the shell (`CWInterface::ProcessText`, efun
     /// 0x7F0052), in order; the client runs each through its chat shell.
     pub shell_lines: Vec<String>,
+    /// The commands the scripts asked help for (`gCWInterface::CallEFun_DisplayHelpText`), in order.
+    pub help_requests: Vec<String>,
     /// The no-draw changes the scripts asked of weenies' physics objects
     /// (`CWPhysicsObject::SetNoDrawPhysics`, efun 0x800057): the object and the flag, in order.
     pub no_draw: Vec<(u64, bool)>,
@@ -403,6 +415,7 @@ impl Vm {
             outbox: Default::default(),
             owners: Default::default(),
             shell_lines: Vec::new(),
+            help_requests: Vec::new(),
             no_draw: Vec::new(),
             physics: Vec::new(),
             body_states: Vec::new(),

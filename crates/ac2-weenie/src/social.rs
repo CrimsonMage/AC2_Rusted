@@ -15,33 +15,33 @@ use crate::notice::GameplayNotice;
 /// stubs).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SocialRequest {
-    /// `DoFellowshipCreate(name, social, lootingMethod)` (`CPlayer` 0xE3).
+    /// `DoFellowshipCreate(name, social, lootingMethod)` (`CPlayer` 0xE3). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipCreate`.
     FellowshipCreate {
         name: String,
         social: u32,
         looting: u32,
     },
-    /// `DoFellowshipRecruit(target)` (`CPlayer` 0x9C).
+    /// `DoFellowshipRecruit(target)` (`CPlayer` 0x9C). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipRecruit`.
     FellowshipRecruit(u64),
-    /// `DoFellowshipRecruitAccept` (`CPlayer` 0x14): the recruiter (instance id 400).
+    /// `DoFellowshipRecruitAccept` (`CPlayer` 0x14): the recruiter (instance id 400). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept`.
     FellowshipRecruitAccept,
-    /// `DoFellowshipRecruitDecline(context)` (`CPlayer` 0xEB; the panel passes 0x138D).
+    /// `DoFellowshipRecruitDecline(context)` (`CPlayer` 0xEB; the panel passes 0x138D). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline`.
     FellowshipRecruitDecline(u32),
-    /// `DoFellowshipLeave` (`CPlayer` 0x1C).
+    /// `DoFellowshipLeave` (`CPlayer` 0x1C). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipLeave`.
     FellowshipLeave,
-    /// `DoFellowshipDisband` (`CPlayer` 0x86).
+    /// `DoFellowshipDisband` (`CPlayer` 0x86). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipDisband`.
     FellowshipDisband,
-    /// `DoFellowshipDismiss(target)` (`CPlayer` 0x26).
+    /// `DoFellowshipDismiss(target)` (`CPlayer` 0x26). Its wrapper is `ggmCWInterface::CallIFun_DoFellowshipDismiss`.
     FellowshipDismiss(u64),
-    /// `SwearAllegiance` (`CPlayer` 0x7F): to the selection.
+    /// `SwearAllegiance` (`CPlayer` 0x7F): to the selection. Its wrapper is `ggmCWInterface::CallIFun_SwearAllegiance`.
     SwearAllegiance,
-    /// `BreakAllegiance(target)` (`CPlayer` 0xB).
+    /// `BreakAllegiance(target)` (`CPlayer` 0xB). Its wrapper is `ggmCWInterface::CallIFun_BreakAllegiance`.
     BreakAllegiance(u64),
-    /// `AcceptVassal` (`CPlayer` 0x12B): the would-be vassal (instance id 450).
+    /// `AcceptVassal` (`CPlayer` 0x12B): the would-be vassal (instance id 450). Its wrapper is `ggmCWInterface::CallIFun_AcceptVassal`.
     AcceptVassal,
-    /// `DeclineVassal(context)` (`CPlayer` 0xBF).
+    /// `DeclineVassal(context)` (`CPlayer` 0xBF). Its wrapper is `ggmCWInterface::CallIFun_DeclineVassal`.
     DeclineVassal(u32),
-    /// `QueryAllegianceProfile(target)` (`CPlayer` 0xEA).
+    /// `QueryAllegianceProfile(target)` (`CPlayer` 0xEA). Its wrapper is `ggmCWInterface::CallIFun_QueryAllegianceProfile`.
     QueryAllegianceProfile(u64),
 }
 

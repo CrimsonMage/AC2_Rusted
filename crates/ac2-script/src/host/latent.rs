@@ -1,7 +1,9 @@
 //! The latent script physics: `gCWPhysicsObject::CallEFun_DoMode` and `CallEFun_DoBehavior` start
 //! the mode or behaviour on the weenie's body and stop the context until it is done. The body
 //! reports the end with `CPhysicsObj::HandleModeDone` / `HandleBehaviorDone` (the context and an
-//! error, 0 when done), and [`ScriptHost::resume_latent`] runs `ggmCWInterface::Resume_DoMode` /
+//! error, 0 when done; `CWInterface::HandleModeDone` and `CWInterface::HandleBehaviorDone`
+//! forward to `gCWPhysicsObject::Resume_DoMode` / `Resume_DoBehavior`), and
+//! [`ScriptHost::resume_latent`] runs `ggmCWInterface::Resume_DoMode` /
 //! `Resume_DoBehavior`: the out parameter takes the error, the efun's frame closes and the context
 //! runs on.
 

@@ -1466,7 +1466,7 @@ key	status	note
 004507d0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450800	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450830	~	ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
-00450860	_	needs port: interface get available experience; no citation in crates/
+00450860	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 004508a0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 004508d0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 00450900	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -1487,7 +1487,7 @@ key	status	note
 00450c60	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450c80	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00450cc0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00450d00	_	needs port: interface gunhandle reauthentication; no citation in crates/
+00450d00	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
 00450d10	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00450d40	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 00450d70	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
@@ -1499,13 +1499,13 @@ key	status	note
 00450e60	~	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 00450ea0	x	ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 00450ed0	x	ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
-00450f00	~	ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
+00450f00	x	ItemStats::max_stack and the IFun on the item's process (ItemQueries, GetMaxStackSize wrapper)
 00450f30	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00450f50	x	ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 00450f80	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00450fa0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 00450fc0	x	ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
-00450ff0	_	needs port: interface register commands; no citation in crates/
+00450ff0	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 00451010	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 00451030	x	implemented: cited at crates/ac2-ui/src/death.rs:12
 00451050	x	implemented: cited at crates/ac2-ui/src/external_container.rs:6
@@ -1560,10 +1560,10 @@ key	status	note
 004518e0	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 00451910	x	ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 00451930	x	ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-00451960	_	needs port: interface inq next retell history item; no citation in crates/
-00451990	_	needs port: interface inq prev retell history item; no citation in crates/
-004519c0	_	needs port: interface inq next reply history item; no citation in crates/
-004519f0	_	needs port: interface inq prev reply history item; no citation in crates/
+00451960	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+00451990	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+004519c0	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+004519f0	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 00451a20	~	client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 00451a60	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 00451aa0	x	implemented: cited at crates/ac2-ui/src/gameplay_story.rs:9
@@ -1579,7 +1579,7 @@ key	status	note
 00451bf0	x	ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 00451c10	x	implemented: cited at crates/ac2-ui/src/target_cycle.rs:61
 00451c50	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-00451c90	_	needs port: interface do assisted tell; no citation in crates/
+00451c90	x	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 00451cb0	x	gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 00451cf0	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 00451d10	x	ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1592,8 +1592,8 @@ key	status	note
 00451df0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-00451e60	_	needs port: interface get missile information from wsl; no citation in crates/
-00451eb0	_	needs port: interface get fxand behavior information from wsl; no citation in crates/
+00451e60	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+00451eb0	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
 00451ef0	x	ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 00451f50	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00451f70	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
@@ -1640,12 +1640,12 @@ key	status	note
 00453c10	x	implemented: cited at crates/ac2-weenie/src/shell/state.rs:191
 00453de0	x	no timer: the question is held by GameplayDialogs popups until its answer (the awakener's keep-alive trigger has no Rust counterpart)
 00453e30	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
-00453ed0	_	needs port: weenie allocator create; no citation in crates/
-00453f20	_	needs port: weenie allocator allocate weenie object internal; no citation in crates/
-00453f60	_	needs port: weenie desc allocation by type is not cited (gmCWAllocator::AllocateWeenieDesc_Internal)
-00453f80	_	needs port: weenie desc allocation by type is not cited (gmCWAllocator::AllocateWeenieDesc_Internal)
-00454010	_	needs port: weenie allocator allocate efun dispatcher; no citation in crates/
-00454030	_	needs port: weenie allocator allocate native factory; no citation in crates/
+00453ed0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00453f20	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00453f60	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00453f80	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00454010	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+00454030	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 00454060	x	implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
 00454080	x	implemented: cited at crates/ac2-script/src/vm/refs.rs:121
 004540e0	-	admin/debug/logging tooling: not in the client
@@ -1735,9 +1735,9 @@ key	status	note
 00457610	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 004576d0	x	implemented: cited at crates/ac2-script/src/vm/mod.rs:352
 00457730	x	ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
-004577c0	_	needs port: script IFun accept vassal on the client interface; no citation in crates/
+004577c0	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 00457850	x	ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
-00457a20	_	needs port: script IFun break allegiance on the client interface; no citation in crates/
+00457a20	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 00457af0	~	ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 00457bd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00457c90	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1747,91 +1747,91 @@ key	status	note
 00458090	x	implemented: cited at crates/ac2-client/src/scripts_queries.rs:27
 00458120	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 004581b0	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-00458240	_	needs port: script IFun decline vassal on the client interface; no citation in crates/
+00458240	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 004582f0	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00458380	~	Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
-00458410	_	needs port: script IFun do assisted tell on the client interface; no citation in crates/
+00458410	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 00458500	x	ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
-004585e0	_	needs port: script IFun do fellowship create on the client interface; no citation in crates/
-00458710	_	needs port: script IFun do fellowship disband on the client interface; no citation in crates/
-004587a0	_	needs port: script IFun do fellowship dismiss on the client interface; no citation in crates/
-00458870	_	needs port: script IFun do fellowship leave on the client interface; no citation in crates/
-00458900	_	needs port: script IFun do fellowship recruit on the client interface; no citation in crates/
-004589d0	_	needs port: script IFun do fellowship recruit accept on the client interface; no citation in crates/
-00458a60	_	needs port: script IFun do fellowship recruit decline on the client interface; no citation in crates/
+004585e0	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+00458710	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+004587a0	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+00458870	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+00458900	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+004589d0	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+00458a60	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 00458b10	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 00458bf0	x	implemented: cited at crates/ac2-client/src/scripts_queries.rs:19
 00458dd0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 00458ec0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00458fe0	~	ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 00459140	~	ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
-00459240	_	needs port: script IFun gunevent friend start on the client interface; no citation in crates/
-00459340	_	needs port: script IFun gunevent friend status on the client interface; no citation in crates/
-00459420	_	needs port: script IFun gunevent hear from room on the client interface; no citation in crates/
-004595a0	_	needs port: script IFun gunhandle reauthentication on the client interface; no citation in crates/
-00459630	_	needs port: script IFun get accept allegiance request on the client interface; no citation in crates/
-004596d0	_	needs port: script IFun get accept fellowship request on the client interface; no citation in crates/
-00459770	_	needs port: script IFun get accept trade request on the client interface; no citation in crates/
-00459810	_	needs port: script IFun get auto target on the client interface; no citation in crates/
+00459240	x	ac2-client friends.rs raises it on the player's VM with the list of TurbineUserStatus (IFUN_GUN_EVENT_FRIEND_*); asserted in friends_script_7160
+00459340	x	ac2-client friends.rs raises it on the player's VM with the list of TurbineUserStatus (IFUN_GUN_EVENT_FRIEND_*); asserted in friends_script_7160
+00459420	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+004595a0	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+00459630	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+004596d0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00459770	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00459810	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 004598b0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-00459970	_	needs port: script IFun get available experience on the client interface; no citation in crates/
-00459a30	_	needs port: script IFun get bypass gold melting confirmation dlg on the client interface; no citation in crates/
+00459970	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00459a30	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 00459ad0	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 00459b70	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 00459d30	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
-0045a000	_	needs port: script IFun get damage text range other on the client interface; no citation in crates/
-0045a0a0	_	needs port: script IFun get durability level on the client interface; no citation in crates/
-0045a140	_	needs port: script IFun get fxand behavior information from wsl on the client interface; no citation in crates/
+0045a000	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045a0a0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+0045a140	~	ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	needs port: script IFun get gameplay options on the client interface; no citation in crates/
 0045a620	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-0045a6c0	_	needs port: script IFun get icon id on the client interface; no citation in crates/
-0045a760	_	needs port: script IFun get last selection on the client interface; no citation in crates/
-0045a820	_	needs port: script IFun get latency indicator graph on the client interface; no citation in crates/
+0045a6c0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+0045a760	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045a820	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045a8c0	~	ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
-0045a960	_	needs port: script IFun get max durability level on the client interface; no citation in crates/
+0045a960	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 0045aa00	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-0045aae0	_	needs port: script IFun get max stack size on the client interface; no citation in crates/
-0045ab80	_	needs port: script IFun get missile information from wsl on the client interface; no citation in crates/
-0045adb0	_	needs port: script IFun get potentially pluralized name on the client interface; no citation in crates/
+0045aae0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+0045ab80	~	ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+0045adb0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 0045ae80	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 0045af20	x	ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
-0045afc0	_	needs port: script IFun get radar mask on the client interface; no citation in crates/
-0045b060	_	needs port: script IFun get selection on the client interface; no citation in crates/
-0045b120	_	needs port: script IFun get shortcut height on the client interface; no citation in crates/
-0045b1c0	_	needs port: script IFun get shortcut insta scroll on the client interface; no citation in crates/
-0045b260	_	needs port: script IFun get shortcut locked on the client interface; no citation in crates/
-0045b300	_	needs port: script IFun get show damage text on the client interface; no citation in crates/
-0045b3a0	_	needs port: script IFun get show damage text other on the client interface; no citation in crates/
-0045b440	_	needs port: script IFun get show fellows on map on the client interface; no citation in crates/
-0045b4e0	_	needs port: script IFun get show object names on the client interface; no citation in crates/
-0045b580	_	needs port: script IFun get show pkdamage on the client interface; no citation in crates/
-0045b620	_	needs port: script IFun get show pet ui on the client interface; no citation in crates/
-0045b6c0	_	needs port: script IFun get show radar coords on the client interface; no citation in crates/
-0045b760	_	needs port: script IFun get show shortcut numbers on the client interface; no citation in crates/
+0045afc0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b060	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b120	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b1c0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b260	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b300	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b3a0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b440	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b4e0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b580	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b620	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b6c0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045b760	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045b800	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045b8c0	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045b960	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 0045ba40	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-0045bb20	_	needs port: script IFun get stackable on the client interface; no citation in crates/
+0045bb20	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 0045bbc0	~	read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 0045bc60	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 0045bd60	x	gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
-0045be20	_	needs port: script IFun has durability on the client interface; no citation in crates/
-0045bec0	_	needs port: script IFun has something selected on the client interface; no citation in crates/
-0045bf60	_	needs port: script IFun hear tell on the client interface; no citation in crates/
+0045be20	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+0045bec0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045bf60	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 0045c0f0	x	ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
-0045c2a0	_	needs port: script IFun inq alias on the client interface; no citation in crates/
+0045c2a0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045c4a0	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 0045c630	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045c7c0	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045c950	x	net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 0045cb20	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 0045ccc0	x	ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); the VM's gEffectUINode efuns fill it, tested with the login registry and WM_Effect 0x17/0x16
-0045ce60	_	needs port: script IFun inq next reply history item on the client interface; no citation in crates/
-0045d000	_	needs port: script IFun inq next retell history item on the client interface; no citation in crates/
-0045d1a0	_	needs port: script IFun inq prev reply history item on the client interface; no citation in crates/
-0045d340	_	needs port: script IFun inq prev retell history item on the client interface; no citation in crates/
+0045ce60	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045d000	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045d1a0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+0045d340	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045d4e0	~	client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 0045d660	~	ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 0045d870	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -1839,7 +1839,7 @@ key	status	note
 0045db70	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045dd60	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 0045dfc0	x	lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-0045e180	_	needs port: script IFun inq root panel from race on the client interface; no citation in crates/
+0045e180	x	ac2-script host/queries.rs root_panel_from_race (IFun 0xB40020)
 0045e2c0	~	read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 0045e450	x	client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 0045e660	~	answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
@@ -1847,7 +1847,7 @@ key	status	note
 0045e9c0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045eb90	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 0045ed00	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-0045edc0	_	needs port: script IFun is fellowship member on the client interface; no citation in crates/
+0045edc0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045eea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 0045ef60	x	the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 0045f040	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -1862,8 +1862,8 @@ key	status	note
 0045f860	x	ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 0045f8f0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045f9a0	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-0045fac0	_	needs port: script IFun query allegiance profile on the client interface; no citation in crates/
-0045fb90	_	needs port: script IFun register commands on the client interface; no citation in crates/
+0045fac0	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+0045fb90	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045fc20	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0045fd60	_	needs port: script IFun request attack state change on the client interface; no citation in crates/
 0045fe20	x	ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
@@ -1890,17 +1890,17 @@ key	status	note
 00460df0	x	ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 00460ea0	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 00460f50	~	query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-00460fe0	_	needs port: script IFun reset reply history index on the client interface; no citation in crates/
-00461070	_	needs port: script IFun reset retell history index on the client interface; no citation in crates/
-00461100	_	needs port: script IFun result call create on the client interface; no citation in crates/
+00460fe0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00461070	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00461100	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 004612c0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004613d0	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 004614e0	-	admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart [vtable-checked: not a slot of any located Legions vtable]
-00461620	_	needs port: script IFun result get ignored list on the client interface; no citation in crates/
-00461760	_	needs port: script IFun result ignored add on the client interface; no citation in crates/
-00461870	_	needs port: script IFun result ignored delete on the client interface; no citation in crates/
-00461980	_	needs port: script IFun result send to room on the client interface; no citation in crates/
-00461ab0	_	needs port: script IFun result send to user on the client interface; no citation in crates/
+00461620	-	admin 7148 only: Legions 7160 has no wrapper and no ignored-list IFun
+00461760	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+00461870	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+00461980	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+00461ab0	~	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 00461c10	~	IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 00461ce0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00461d90	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -1912,7 +1912,7 @@ key	status	note
 00462230	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 00462320	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 00462410	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-004624c0	_	needs port: script IFun set examination request on the client interface; no citation in crates/
+004624c0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 004625a0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462650	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00462700	x	implemented: cited at crates/ac2-client/src/scripts.rs:329
@@ -1929,19 +1929,19 @@ key	status	note
 00462f10	x	implemented: cited at crates/ac2-client/src/scripts.rs:210
 00462fc0	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00463070	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
-00463150	_	needs port: script IFun set which shortcut set on the client interface; no citation in crates/
+00463150	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 00463200	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-004632f0	_	needs port: script IFun should auto target on the client interface; no citation in crates/
+004632f0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 00463390	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 00463440	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-004634f0	_	needs port: script IFun start examination on the client interface; no citation in crates/
+004634f0	~	ac2-script InterfaceCalls start_examination: the wrapper pushes one word it never sets (decompile shows the caller's stack slot), sent as 0; the examination panel itself uses the session stand-in (Command::StartExamination)
 00463580	x	ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 00463660	x	
-004636f0	_	needs port: script IFun stop examination on the client interface; no citation in crates/
-00463780	_	needs port: script IFun swear allegiance on the client interface; no citation in crates/
+004636f0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+00463780	x	ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 00463810	~	ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 004638e0	~	ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
-004639e0	_	needs port: script IFun update open on the client interface; no citation in crates/
+004639e0	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 00463ae0	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 00463b70	x	ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 00463c00	x	ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
@@ -3267,8 +3267,8 @@ key	status	note
 004a79d0	-	STL/container internals: a Rust collection replaces it
 004a7a10	-	STL/container internals: a Rust collection replaces it
 004a7a90	-	constructor of plain data: Rust struct init replaces it
-004a7b10	_	needs port: dbobj::pack; no citation in crates/
-004a7b30	_	needs port: dbobj::un pack; no citation in crates/
+004a7b10	-	base-class virtuals of the DB object cache; the Rust DB objects decode through ac2-db ResourcePackedDecode per type and the client never writes DAT records
+004a7b30	-	base-class virtuals of the DB object cache; the Rust DB objects decode through ac2-db ResourcePackedDecode per type and the client never writes DAT records
 004a7b50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 004a7bd0	-	STL/container internals: a Rust collection replaces it
 004a7c00	-	STL/container internals: a Rust collection replaces it
@@ -3653,14 +3653,14 @@ key	status	note
 004babb0	x	Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 004bac40	_	needs port: resume continuation of latent do slider (the script waits and resumes here); no citation in crates/
 004bacd0	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
-004bad70	_	needs port: script efun inq current properties on the physics object; no citation in crates/
+004bad70	x	ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 004bae10	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004baeb0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004baf50	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004baff0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004bb090	_	needs port: resume continuation of latent release behavior (the script waits and resumes here); no citation in crates/
 004bb120	_	needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
-004bb200	_	needs port: script efun display help text on the interface; no citation in crates/
+004bb200	x	ac2-script host/interface.rs display_help_text (efun 0x007F0053) -> ScriptPort::display_help -> ChatState::display_help; unit-tested (efun queues the word, shell shows help / unrecognized-command lines)
 004bb260	_	needs port: script efun sleep on the interface; no citation in crates/
 004bb370	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 004bb3f0	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
@@ -4647,7 +4647,7 @@ key	status	note
 004e1b30	x	ac2-physics physics_obj_property.rs (apply_property dispatch by property group, kept in property_info, physics material, graphics-state and game-draw bits, ethereal blocking bits); IsDefaultValue not modelled (every property kept)
 004e1b80	_	needs port: cite-only physics-object method
 004e1bf0	_	needs port: cite-only physics-object method
-004e1c30	~	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
+004e1c30	x	ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 004e1c60	~	PhysicsBody::current_properties lists the kept properties; MasterProperty optional-property fill (BuildOptionalProperties) not ported
 004e1c90	~	no admin moves or missiles
 004e1d70	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -6074,10 +6074,10 @@ key	status	note
 0052c460	_	needs port: degrade level name parsing (detail settings)
 0052cad0	_	needs port: dbfile2 idtable::get; no citation in crates/
 0052caf0	-	constructor of plain data: Rust struct init replaces it
-0052cb60	_	needs port: weenie allocator clear; no citation in crates/
-0052cb80	_	needs port: weenie allocator allocate weenie object; no citation in crates/
-0052cbd0	_	needs port: weenie allocator allocate weenie desc; no citation in crates/
-0052cbf0	_	needs port: weenie allocator allocate weenie desc; no citation in crates/
+0052cb60	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+0052cb80	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+0052cbd0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+0052cbf0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 0052cc10	_	needs port: weenie allocator is mobile by qualities id ; no citation in crates/
 0052cc70	_	needs port: shell reset on teardown: CWAllocator::ResetShell is not modelled (ac2-ui game_dialogs.rs says so)
 0052cc80	_	needs port: weenie allocator reset shell internal; no citation in crates/
@@ -6085,14 +6085,14 @@ key	status	note
 0052cd90	_	needs port: weenie allocator is mobile by package id; no citation in crates/
 0052cdc0	_	needs port: weenie allocator is mobile by data id; no citation in crates/
 0052ce10	-	constructor of plain data: Rust struct init replaces it
-0052ce70	_	needs port: weenie allocator set no dbwlib file; no citation in crates/
-0052cec0	_	needs port: weenie allocator set dbwlib file; no citation in crates/
+0052ce70	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+0052cec0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 0052cf10	x	implemented: cited at crates/ac2-script/src/wlib.rs:17
-0052cfb0	_	needs port: weenie allocator init wlib path; no citation in crates/
+0052cfb0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 0052d0f0	_	needs port: script VM clear (Resolver); no citation in crates/
 0052d100	_	needs port: script VM clear internal (Resolver); no citation in crates/
-0052d160	_	needs port: weenie allocator allocate resolver; no citation in crates/
-0052d1e0	_	needs port: weenie allocator init internal; no citation in crates/
+0052d160	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+0052d1e0	-	engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 0052d270	_	needs port: script VM init (Resolver); no citation in crates/
 0052d340	_	needs port: script VM load byte stream (Resolver); no citation in crates/
 0052d3c0	-	admin/debug/logging tooling: not in the client
@@ -6127,18 +6127,18 @@ key	status	note
 0052e280	-	constructor of plain data: Rust struct init replaces it
 0052e2b0	-	destructor: Rust Drop replaces it
 0052e2e0	_	needs port: interface handle creation; no citation in crates/
-0052e3c0	_	needs port: interface handle destruction; no citation in crates/
+0052e3c0	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 0052e3f0	~	CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
-0052e410	_	needs port: interface handle enter world; no citation in crates/
-0052e440	_	needs port: interface handle leave world; no citation in crates/
-0052e470	_	needs port: interface handle post leave world; no citation in crates/
+0052e410	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+0052e440	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+0052e470	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 0052e490	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 0052e4a0	x	implemented: cited at crates/ac2-client/src/client_teleport.rs:17
-0052e4c0	_	needs port: interface handle character session start; no citation in crates/
-0052e520	_	needs port: interface handle character session end; no citation in crates/
+0052e4c0	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+0052e520	~	ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 0052e530	_	needs port: interface apply properties; no citation in crates/
 0052e570	x	implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:5
-0052e590	_	needs port: interface send server evt encrypt; no citation in crates/
+0052e590	x	ac2-script host/glue.rs SendServerEvt[Encrypt] efun -> ScriptPort::send_interp(encrypt) -> ClientEvent::Interp (queue 7, 0x100D0); bytes asserted in ac2-net client_event tests
 0052e5b0	x	implemented: cited at crates/ac2-script/src/host/interface.rs:277
 0052e5e0	x	implemented: cited at crates/ac2-weenie/src/objects.rs:83
 0052e600	x	implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:21
@@ -6148,12 +6148,12 @@ key	status	note
 0052e6c0	_	needs port: interface handle intersection done; no citation in crates/
 0052e6e0	_	needs port: interface inq detection profile; no citation in crates/
 0052e700	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
-0052e730	_	needs port: interface handle behavior done; no citation in crates/
+0052e730	x	ac2-script host/latent.rs ScriptHost::resume_latent (Resume_DoBehavior / Resume_DoMode), driven by the body's mode and behaviour completions (latent tests)
 0052e750	_	needs port: interface handle release done; no citation in crates/
 0052e770	_	needs port: interface handle slider done; no citation in crates/
-0052e790	_	needs port: interface handle mode done; no citation in crates/
-0052e7b0	_	needs port: interface inq prev history item; no citation in crates/
-0052e7c0	_	needs port: interface inq next history item; no citation in crates/
+0052e790	x	ac2-script host/latent.rs ScriptHost::resume_latent (Resume_DoBehavior / Resume_DoMode), driven by the body's mode and behaviour completions (latent tests)
+0052e7b0	x	ac2-weenie shell/history.rs ChatHistory::Command (CShell::InqPrev/NextHistoryItem), asserted in shell tests
+0052e7c0	x	ac2-weenie shell/history.rs ChatHistory::Command (CShell::InqPrev/NextHistoryItem), asserted in shell tests
 0052e7d0	_	needs port: interface display text; no citation in crates/
 0052e7f0	_	needs port: interface display string info; no citation in crates/
 0052e810	~	retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
@@ -6161,21 +6161,21 @@ key	status	note
 0052e8c0	_	needs port: interface inq string info value; no citation in crates/
 0052e960	_	needs port: `anonymous-namespace'::client latent efun activator::on trigger; no citation in crates/
 0052e970	_	needs port: interface expand text; no citation in crates/
-0052e9c0	_	needs port: interface display help text; no citation in crates/
+0052e9c0	x	ac2-script host/interface.rs display_help_text queues the command; ScriptPort::display_help -> OnlineSession::display_help -> ChatState::display_help (ShellCmdTable::GetHelpText: all or one command's help, ID_UnrecognizedCommand for an unknown one). Only the natively run handlers have help text; a script's AddShellHelp function would need a nested VM call
 0052eaf0	_	needs port: `anonymous-namespace'::sleep awakener::on trigger; no citation in crates/
 0052eb10	_	needs port: `anonymous-namespace'::inq string info value async cache callback::on context finished; no citation in crates/
-0052eb80	_	needs port: interface get output files path; no citation in crates/
+0052eb80	-	authoring/tooling path for the script debug dumps; not the player's client
 0052ed30	-	STL/container internals: a Rust collection replaces it
-0052ee50	_	needs port: citation only in a test; port and cite in the client code
+0052ee50	x	ac2-client scripts.rs Client::chat_line -> OnlineSession::process_text (alias expansion, CPlayerShell::ProcessText, command table) and ac2-script host/shell.rs for script commands; shell tests and chat_commands tests
 0052ef20	x	ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 0052f070	_	needs port: interface resume callback; no citation in crates/
 0052f100	_	needs port: interface sleep; no citation in crates/
 0052f1f0	x	ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 0052f300	_	needs port: interface do help interp; no citation in crates/
 0052f430	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
-0052f6e0	_	needs port: interface add shell help; no citation in crates/
+0052f6e0	x	ac2-script vm ShellTable::add (help) via the AddShellHelp efuns (glue/engine_misc.rs add_shell); asserted in data_bag_tests
 0052f990	x	implemented: cited at crates/ac2-client/src/chat_commands.rs:3
-0052fa10	_	needs port: interface add shell help by string id; no citation in crates/
+0052fa10	x	ac2-script vm ShellTable::add (help) via the AddShellHelp efuns (glue/engine_misc.rs add_shell); asserted in data_bag_tests
 0052fa90	x	implemented: cited at crates/ac2-physics/src/body.rs:218
 0052fab0	x	CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 0052fad0	-	constructor of plain data: Rust struct init replaces it
@@ -6257,7 +6257,7 @@ key	status	note
 005309c0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 005309e0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530a50	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
-00530ae0	_	needs port: physics object inq current properties; no citation in crates/
+00530ae0	x	ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 00530b00	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530b20	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530b40	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
@@ -7143,7 +7143,7 @@ key	status	note
 0054c920	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054c960	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
 0054c9d0	~	ac2-script host::chargen: container conversions done inline (AList/ARHash reads)
-0054ca40	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+0054ca40	x	ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 0054caf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054cb60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0054cbd0	-	C++ constructor of plain data or a container (Rust struct init)
@@ -11756,7 +11756,7 @@ key	status	note
 00649330	_	needs port: appearance/visual record: AppearanceTable::AddBaseAppearanceDID (atom insert rule)
 00649370	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00649470	_	needs port: appearance/visual record: AppearanceTable::HasAppearanceKey
-00649540	_	needs port: appearance/visual record: AppearanceTable::InqAppearanceKeyModList (property inquiry)
+00649540	x	ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 00649650	_	needs port: appearance/visual record: AppearanceTable::InqTsysAppearanceKeyModCount (property inquiry)
 006497a0	_	needs port: appearance/visual record: AppearanceTable::CalculateAppearanceModsBelowThreshold
 006499a0	_	needs port: appearance/visual record: PHashTable::StreamPack (stream decode)
@@ -11786,7 +11786,7 @@ key	status	note
 0064aaa0	-	ctor/dtor of plain data; Rust constructs and drops values
 0064aaf0	_	needs port: appearance/visual record: AppearanceTableAdaptor::HasAppearanceKey
 0064ab50	_	needs port: appearance/visual record: AppearanceTableAdaptor::InqTsysAppearanceKeyModCount (property inquiry)
-0064abc0	_	needs port: appearance/visual record: AppearanceTableAdaptor::InqAppearanceKeyModList (property inquiry)
+0064abc0	x	ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 0064ac30	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064ac60	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064aca0	_	needs port: dependent DIDs of VisualModTable for sub-object resolution (AGENTS.md exception)
@@ -13636,7 +13636,7 @@ key	status	note
 006b7790	-	constructor of plain data: Rust struct init replaces it
 006b77c0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 006b77d0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-006b7800	_	needs port: script VM pack (WLib); no citation in crates/
+006b7800	-	authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 006b7840	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 006b7850	-	teardown and reference release: Rust Drop replaces it
 006b78a0	-	teardown and reference release: Rust Drop replaces it
@@ -13644,11 +13644,11 @@ key	status	note
 006b79e0	-	teardown and reference release: Rust Drop replaces it
 006b79f0	x	implemented: cited at crates/ac2-script/src/wstate.rs:28
 006b7a30	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-006b7a50	_	needs port: script VM pack (WState); no citation in crates/
+006b7a50	-	authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 006b7aa0	x	implemented: cited at crates/ac2-script/src/wstate.rs:4
 006b7b00	-	constructor of plain data: Rust struct init replaces it
 006b7b50	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-006b7b80	_	needs port: script VM pack (WState); no citation in crates/
+006b7b80	-	authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 006b7b90	x	implemented: cited at crates/ac2-script/src/wstate.rs:4
 006b7ba0	-	constructor of plain data: Rust struct init replaces it
 006b7bf0	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it

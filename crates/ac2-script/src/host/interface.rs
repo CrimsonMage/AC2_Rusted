@@ -16,6 +16,7 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007F_000B, get_internal_weenie_object);
     efuns.register(0x007F_0040, is_the_player);
     efuns.register(0x007F_0052, process_text);
+    efuns.register(0x007F_0053, display_help_text);
     // `gCWBookKeeper::CallEFun_{Add,Remove}ObjectToBeDestroyed` (the weenie's book keeper, `this`):
     // `CWBookKeeper` -> `CBookKeep::{Add,Remove}ObjectToBeDestroyed`, which answer 1 whenever
     // `CObjectMaint` exists (it always does here). The destroy list itself is the client's object
@@ -299,6 +300,21 @@ fn process_text(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     };
     vm.shell_lines.push(text);
     Call::new(ctx).ret(3, 0, tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWInterface::CallEFun_DisplayHelpText(cmd)` -> `CWInterface::DisplayHelpText`: the player
+/// shell's help for `cmd` (an empty one asks for all) is shown in the chat windows. The request is
+/// queued; the client's shell answers it (`ScriptPort::display_help`).
+fn display_help_text(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    if let Err(status) = this_weenie(vm, ctx) {
+        return status;
+    }
+    let reference = Call::new(ctx).word(2);
+    let Some(text) = vm.wstring(reference).map(String::from_utf16_lossy) else {
+        return vm.bad_this(reference);
+    };
+    vm.help_requests.push(text);
     InterpStatus::Success
 }
 

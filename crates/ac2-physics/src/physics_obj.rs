@@ -131,6 +131,8 @@ pub(crate) struct PhysicsObj {
     pub(crate) head_z: f32,
     /// `CPhysicsObj::m_pPropertyInfo`: the properties `ApplyPropertyCollection` kept.
     pub(crate) property_info: Vec<ac2_db::Ac2PropertyGroup>,
+    /// `CPhysicsObj::m_pCellMaterial`: the material `UpdateCellMaterial` last took from the cell.
+    pub(crate) cell_material: Option<std::sync::Arc<crate::PhysicsMaterial>>,
     /// `CPhysicsObj::m_physics_material`: the physics material DID the physics property named.
     pub(crate) physics_material: u32,
     /// `CPhysicsObj::m_nGraphicsState`.
@@ -191,6 +193,7 @@ impl PhysicsObj {
             omega_acceleration: Vector::ZERO,
             local_gravity: GRAVITY,
             property_info: Vec::new(),
+            cell_material: None,
             physics_material: 0,
             graphics_state: 0,
             distance_cap_2d: -1.0,

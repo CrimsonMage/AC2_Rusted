@@ -24,13 +24,16 @@ pub const TABLE_ENUM_FELLOWSHIP: u32 = 0x4100_000D;
 pub const TABLE_ENUM_CHANNELS: u32 = 0x4100_001B;
 /// String table enum 0x41000018 (the chat window's strings).
 pub const TABLE_ENUM_CHAT_WINDOW: u32 = 0x4100_0018;
+/// String table enum 0x40000009 (the shell's strings: `ID_DefaultCommand`, `ID_HelpListLabel`,
+/// `ID_UnrecognizedCommand`).
+pub const TABLE_ENUM_SHELL: u32 = 0x4000_0009;
 /// String table enum 0x4100001C (the emote strings: `gmFriendsUI::HandleStatusChange`'s
 /// `StringInfo` for `DoEmote`).
 pub const TABLE_ENUM_EMOTE: u32 = 0x4100_001C;
 
 impl StringTableIds {
     /// The enums the stand-in uses.
-    pub const ENUMS: [u32; 7] = [
+    pub const ENUMS: [u32; 8] = [
         TABLE_ENUM_TELL,
         TABLE_ENUM_COMMUNICATION,
         TABLE_ENUM_USAGE,
@@ -38,6 +41,7 @@ impl StringTableIds {
         TABLE_ENUM_CHANNELS,
         TABLE_ENUM_CHAT_WINDOW,
         TABLE_ENUM_EMOTE,
+        TABLE_ENUM_SHELL,
     ];
 
     pub fn insert(&mut self, table_enum: u32, did: u32) {

@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 865 done, 152 partial, 252 to do, 635 skipped.
+1904 retail functions: 945 done, 171 partial, 131 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (124/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (184/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -644,9 +644,9 @@ Legend and workflow: [README](README.md).
 
 ### ggmCWInterface
 - [x] `ggmCWInterface::CallIFun_AcceptTrade` · 00457730 · legions 00458290 — ac2-client gameplay.rs Command::AcceptTrade: the IFun on the player's VM script (CPlayer's CWInterface graph packed by stub 0x45 -> 0x35); stand-in only without a VM (empty reference)
-- [ ] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320 — needs port: script IFun accept vassal on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_AcceptVassal` · 004577c0 · legions 00458320 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 - [x] `ggmCWInterface::CallIFun_AddEffectDataToProfileByEID` · 00457850 · legions 004583b0 — ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
-- [ ] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580 — needs port: script IFun break allegiance on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_BreakAllegiance` · 00457a20 · legions 00458580 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 - [~] `ggmCWInterface::CallIFun_CanAutoAttackTarget` · 00457af0 · legions 00458650 — ac2-client scripts_queries.rs can_auto_attack_target queries IFun 0xB4000A (combat_7160). Not used by the cycling keys yet: the script answered no for the double's creature (qualities not traced), so target_select.rs candidates keep the creature-not-fellow rule
 - [x] `ggmCWInterface::CallIFun_CanCraftSkillBeRaised` · 00457bd0 · legions 00458730 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_CanSkillBeRaisedByEnum` · 00457c90 · legions 004587f0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -656,91 +656,91 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_ClearResurrectionRequest` · 00458090 · legions 00458bf0 — implemented: cited at crates/ac2-client/src/scripts_queries.rs:27
 - [~] `ggmCWInterface::CallIFun_CloseTradeNegotiations` · 00458120 · legions 00458c80 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [~] `ggmCWInterface::CallIFun_DeclineTrade` · 004581b0 · legions 00458d10 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
-- [ ] `ggmCWInterface::CallIFun_DeclineVassal` · 00458240 · legions 00458da0 — needs port: script IFun decline vassal on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_DeclineVassal` · 00458240 · legions 00458da0 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 - [x] `ggmCWInterface::CallIFun_Dismount` · 004582f0 · legions 00458f40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [~] `ggmCWInterface::CallIFun_DisplaySaleReminders` · 00458380 · legions 00458fd0 — Command::DisplaySaleReminders sends IFun 0xB4013D (scripts.rs); the stub sends nothing with a shopper open, and the sale reminder notice (gmToolbarUI::RecvNotice_ShowSaleReminder) is not shown
-- [ ] `ggmCWInterface::CallIFun_DoAssistedTell` · 00458410 · legions 00459060 — needs port: script IFun do assisted tell on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_DoAssistedTell` · 00458410 · legions 00459060 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_DoEmote` · 00458500 · legions 00459150 — ac2-client friends.rs do_emote: the status's emote is the IFun with the emote StringInfo (table 0x4100001C); gStringUtils IsWordInString efun in ac2-script glue/string_utils.rs (friends_script_7160)
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipCreate` · 004585e0 · legions 00459230 — needs port: script IFun do fellowship create on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipDisband` · 00458710 · legions 00459360 — needs port: script IFun do fellowship disband on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipDismiss` · 004587a0 · legions 004593f0 — needs port: script IFun do fellowship dismiss on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipLeave` · 00458870 · legions 004594c0 — needs port: script IFun do fellowship leave on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruit` · 00458900 · legions 00459550 — needs port: script IFun do fellowship recruit on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620 — needs port: script IFun do fellowship recruit accept on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0 — needs port: script IFun do fellowship recruit decline on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_DoFellowshipCreate` · 004585e0 · legions 00459230 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipDisband` · 00458710 · legions 00459360 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipDismiss` · 004587a0 · legions 004593f0 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipLeave` · 00458870 · legions 004594c0 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipRecruit` · 00458900 · legions 00459550 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipRecruitAccept` · 004589d0 · legions 00459620 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_DoFellowshipRecruitDecline` · 00458a60 · legions 004596b0 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 - [~] `ggmCWInterface::CallIFun_DoIHaveItem` · 00458b10 · legions 00459760 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [x] `ggmCWInterface::CallIFun_DoUIDamage` · 00458bf0 · legions 00459840 — implemented: cited at crates/ac2-client/src/scripts_queries.rs:19
 - [x] `ggmCWInterface::CallIFun_DoesIngredientAutoPopulate` · 00458dd0 · legions 00459a20 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [~] `ggmCWInterface::CallIFun_DragFromMoneyBag` · 00458ec0 · legions 00459b10 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_DragToMoneyBag` · 00458fe0 · legions 00459c30 — ac2-weenie OnlineSession::drag_to_money_bag / drag_from_money_bag (CMoneySystem 0x4 / 0x5 -> WM_Money 0x7 / 0x8, receive_money for 0x6 / 0x9); MoneySystem 0x6's ownership checks and 0x2's room check not mirrored
 - [~] `ggmCWInterface::CallIFun_EquipItem` · 00459140 · legions 00459d90 — ac2-weenie session/inventory.rs equip_item: InvEquipDesc.equip byte-exact (inventory_7160); client EquipItem (inventory_items_7160). Script checks not mirrored
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — needs port: script IFun gunevent friend start on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — needs port: script IFun gunevent friend status on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GUNEvent_HearFromRoom` · 00459420 · legions 0045a070 — needs port: script IFun gunevent hear from room on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GUNHandleReauthentication` · 004595a0 · legions 0045a1f0 — needs port: script IFun gunhandle reauthentication on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetAcceptAllegianceRequest` · 00459630 · legions 0045a280 — needs port: script IFun get accept allegiance request on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetAcceptFellowshipRequest` · 004596d0 · legions 0045a320 — needs port: script IFun get accept fellowship request on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetAcceptTradeRequest` · 00459770 · legions 0045a3c0 — needs port: script IFun get accept trade request on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetAutoTarget` · 00459810 · legions 0045a460 — needs port: script IFun get auto target on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GUNEvent_FriendStart` · 00459240 · legions 00459e90 — ac2-client friends.rs raises it on the player's VM with the list of TurbineUserStatus (IFUN_GUN_EVENT_FRIEND_*); asserted in friends_script_7160
+- [x] `ggmCWInterface::CallIFun_GUNEvent_FriendStatus` · 00459340 · legions 00459f90 — ac2-client friends.rs raises it on the player's VM with the list of TurbineUserStatus (IFUN_GUN_EVENT_FRIEND_*); asserted in friends_script_7160
+- [~] `ggmCWInterface::CallIFun_GUNEvent_HearFromRoom` · 00459420 · legions 0045a070 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+- [~] `ggmCWInterface::CallIFun_GUNHandleReauthentication` · 004595a0 · legions 0045a1f0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+- [x] `ggmCWInterface::CallIFun_GetAcceptAllegianceRequest` · 00459630 · legions 0045a280 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetAcceptFellowshipRequest` · 004596d0 · legions 0045a320 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetAcceptTradeRequest` · 00459770 · legions 0045a3c0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetAutoTarget` · 00459810 · legions 0045a460 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_GetAvailableCraftExperience` · 004598b0 · legions 0045a500 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [ ] `ggmCWInterface::CallIFun_GetAvailableExperience` · 00459970 · legions 0045a5c0 — needs port: script IFun get available experience on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetBypassGoldMeltingConfirmationDlg` · 00459a30 · legions 0045a680 — needs port: script IFun get bypass gold melting confirmation dlg on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetAvailableExperience` · 00459970 · legions 0045a5c0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetBypassGoldMeltingConfirmationDlg` · 00459a30 · legions 0045a680 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_GetConsignmentCharge` · 00459ad0 · legions 0045a720 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
 - [x] `ggmCWInterface::CallIFun_GetContainerSegmentInfo` · 00459b70 · legions 0045a7c0 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `ggmCWInterface::CallIFun_GetContentsInfo` · 00459d30 · legions 0045a980 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
-- [ ] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50 — needs port: script IFun get damage text range other on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0 — needs port: script IFun get durability level on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90 — needs port: script IFun get fxand behavior information from wsl on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+- [~] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90 — ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
 - [x] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — needs port: script IFun get gameplay options on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [ ] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310 — needs port: script IFun get icon id on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0 — needs port: script IFun get last selection on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetLatencyIndicatorGraph` · 0045a820 · legions 0045b470 — needs port: script IFun get latency indicator graph on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetIconID` · 0045a6c0 · legions 0045b310 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+- [x] `ggmCWInterface::CallIFun_GetLastSelection` · 0045a760 · legions 0045b3b0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetLatencyIndicatorGraph` · 0045a820 · legions 0045b470 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [~] `ggmCWInterface::CallIFun_GetMaxContainerSize` · 0045a8c0 · legions 0045b510 — ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
-- [ ] `ggmCWInterface::CallIFun_GetMaxDurabilityLevel` · 0045a960 · legions 0045b5b0 — needs port: script IFun get max durability level on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetMaxDurabilityLevel` · 0045a960 · legions 0045b5b0 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 - [~] `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` · 0045aa00 · legions 0045b650 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-- [ ] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730 — needs port: script IFun get max stack size on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0 — needs port: script IFun get missile information from wsl on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00 — needs port: script IFun get potentially pluralized name on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+- [~] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0 — ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+- [x] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 - [x] `ggmCWInterface::CallIFun_GetPreferredInventoryLocation` · 0045ae80 · legions 0045bad0 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 - [x] `ggmCWInterface::CallIFun_GetQuantity` · 0045af20 · legions 0045bb70 — ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
-- [ ] `ggmCWInterface::CallIFun_GetRadarMask` · 0045afc0 · legions 0045bc10 — needs port: script IFun get radar mask on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetSelection` · 0045b060 · legions 0045bcb0 — needs port: script IFun get selection on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShortcutHeight` · 0045b120 · legions 0045bd70 — needs port: script IFun get shortcut height on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShortcutInstaScroll` · 0045b1c0 · legions 0045be10 — needs port: script IFun get shortcut insta scroll on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShortcutLocked` · 0045b260 · legions 0045beb0 — needs port: script IFun get shortcut locked on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowDamageText` · 0045b300 · legions 0045bf50 — needs port: script IFun get show damage text on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowDamageTextOther` · 0045b3a0 · legions 0045bff0 — needs port: script IFun get show damage text other on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowFellowsOnMap` · 0045b440 · legions 0045c090 — needs port: script IFun get show fellows on map on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowObjectNames` · 0045b4e0 · legions 0045c130 — needs port: script IFun get show object names on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowPKDamage` · 0045b580 · legions 0045c1d0 — needs port: script IFun get show pkdamage on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowPetUI` · 0045b620 · legions 0045c270 — needs port: script IFun get show pet ui on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowRadarCoords` · 0045b6c0 · legions 0045c310 — needs port: script IFun get show radar coords on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_GetShowShortcutNumbers` · 0045b760 · legions 0045c3b0 — needs port: script IFun get show shortcut numbers on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetRadarMask` · 0045afc0 · legions 0045bc10 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetSelection` · 0045b060 · legions 0045bcb0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShortcutHeight` · 0045b120 · legions 0045bd70 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShortcutInstaScroll` · 0045b1c0 · legions 0045be10 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShortcutLocked` · 0045b260 · legions 0045beb0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowDamageText` · 0045b300 · legions 0045bf50 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowDamageTextOther` · 0045b3a0 · legions 0045bff0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowFellowsOnMap` · 0045b440 · legions 0045c090 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowObjectNames` · 0045b4e0 · legions 0045c130 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowPKDamage` · 0045b580 · legions 0045c1d0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowPetUI` · 0045b620 · legions 0045c270 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowRadarCoords` · 0045b6c0 · legions 0045c310 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_GetShowShortcutNumbers` · 0045b760 · legions 0045c3b0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_GetSkillCostToTrainByEnum` · 0045b800 · legions 0045c450 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_GetSkillCredits` · 0045b8c0 · legions 0045c510 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_GetSkillExperienceNeededToLevelByEnum` · 0045b960 · legions 0045c5b0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `ggmCWInterface::CallIFun_GetSkillXPByEnum` · 0045ba40 · legions 0045c690 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
-- [ ] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770 — needs port: script IFun get stackable on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_GetStackable` · 0045bb20 · legions 0045c770 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 - [~] `ggmCWInterface::CallIFun_GetWhichShortcutSet` · 0045bbc0 · legions 0045c810 — read from the same options profile (shortcut_settings.which_set), not IFun 0xB40072 itself
 - [~] `ggmCWInterface::CallIFun_HandlePlayScenesDone` · 0045bc60 · legions 0045c8b0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
 - [x] `ggmCWInterface::CallIFun_HandleWeenieEmote` · 0045bd60 · legions 0045c9b0 — gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
-- [ ] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70 — needs port: script IFun has durability on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10 — needs port: script IFun has something selected on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0 — needs port: script IFun hear tell on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_HasDurability` · 0045be20 · legions 0045ca70 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
+- [x] `ggmCWInterface::CallIFun_HasSomethingSelected` · 0045bec0 · legions 0045cb10 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [~] `ggmCWInterface::CallIFun_HearTell` · 0045bf60 · legions 0045cbb0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 - [x] `ggmCWInterface::CallIFun_InqActInfoList` · 0045c0f0 · legions 0045cd40 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
-- [ ] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0 — needs port: script IFun inq alias on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_InqAlias` · 0045c2a0 · legions 0045cef0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [~] `ggmCWInterface::CallIFun_InqAllInventoryIIDList` · 0045c4a0 · legions 0045d0f0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillAdaptor` · 0045c630 · legions 0045d280 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillCategoryName` · 0045c7c0 · legions 0045d410 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillLevel` · 0045c950 · legions 0045d5a0 — net: craft_script_7160 (client call over the script VM, DAT-backed answer or request bytes)
 - [x] `ggmCWInterface::CallIFun_InqCraftSkillList` · 0045cb20 · legions 0045d770 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
 - [x] `ggmCWInterface::CallIFun_InqEffectList` · 0045ccc0 · legions 0045d910 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); the VM's gEffectUINode efuns fill it, tested with the login registry and WM_Effect 0x17/0x16
-- [ ] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0 — needs port: script IFun inq next reply history item on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50 — needs port: script IFun inq next retell history item on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0 — needs port: script IFun inq prev reply history item on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_InqPrevRetellHistoryItem` · 0045d340 · legions 0045df90 — needs port: script IFun inq prev retell history item on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_InqNextReplyHistoryItem` · 0045ce60 · legions 0045dab0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_InqNextRetellHistoryItem` · 0045d000 · legions 0045dc50 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_InqPrevReplyHistoryItem` · 0045d1a0 · legions 0045ddf0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_InqPrevRetellHistoryItem` · 0045d340 · legions 0045df90 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [~] `ggmCWInterface::CallIFun_InqQuestInfoList` · 0045d4e0 · legions 0045e130 — client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 - [~] `ggmCWInterface::CallIFun_InqRadarLook` · 0045d660 · legions 0045e2b0 — ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script, the ranges from RadarControl; the creature, NPC and player scripts answer no look in the double (no reads, retval 0); no drawing (pixel mapping, tooltip) in ac2-ui
 - [x] `ggmCWInterface::CallIFun_InqRecipeAdaptor` · 0045d870 · legions 0045e4c0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -748,7 +748,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_InqRecipeDifficulty` · 0045db70 · legions 0045e7c0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_InqRecipeIngredients` · 0045dd60 · legions 0045e9b0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
 - [x] `ggmCWInterface::CallIFun_InqRecipeList` · 0045dfc0 · legions 0045ec10 — lead: the lists read the player's CraftRegistry (CPlayer 0x23, slot 0x21; skill ARHash slot 5, recipe ARHash slot 6, keyed by DID; InqRecipeList keeps the recipes whose Recipe 0xA7 is the skill). Filled by WM_Craft 0x19 (the registry: CPlayer 0xC3 -> CPlayer 0x1B), 0x1B (learn by DID: CraftSystem 0x1B -> CraftRegistry 0x5 makes a RecipeRecord), 0x27/0x34 (CraftSkillRecord set), 0x1A/0x37 (known RecipeRecord replaced, else 0x9C51). craft_script_7160 asserts the lists.
-- [ ] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — needs port: script IFun inq root panel from race on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_InqRootPanelFromRace` · 0045e180 · legions 0045edd0 — ac2-script host/queries.rs root_panel_from_race (IFun 0xB40020)
 - [~] `ggmCWInterface::CallIFun_InqShortcutArray` · 0045e2c0 · legions 0045ef10 — read from GetGameplayOptions' profile (scripts_queries.rs shortcut_array, progress_7160), not IFun 0xB40070 itself
 - [x] `ggmCWInterface::CallIFun_InqShortcutInfo` · 0045e450 · legions 0045f0a0 — client shortcut_info (scripts_queries.rs, IFun 0xB4006D); icon in ui_sources ShortcutSource::icon; shortcut_drag_7160 and view tests
 - [~] `ggmCWInterface::CallIFun_InqSimpleInvByLocTable` · 0045e660 · legions 0045f2b0 — answered by the player's script (inventory_queries.rs over the WM_Inventory messages); the UI unions the script's list with the frame mirror, as a move into a side pack is not yet reflected by the script (inventory_items_7160 Known Gap)
@@ -756,7 +756,7 @@ Legend and workflow: [README](README.md).
 - [~] `ggmCWInterface::CallIFun_InqSkillTimeLeft` · 0045e9c0 · legions 0045f610 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `ggmCWInterface::CallIFun_InqUISaveLocations` · 0045eb90 · legions 0045f7e0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 - [x] `ggmCWInterface::CallIFun_IsCraftSkillRaiseable` · 0045ed00 · legions 0045f950 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [ ] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10 — needs port: script IFun is fellowship member on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_IsFellowshipMember` · 0045edc0 · legions 0045fa10 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [~] `ggmCWInterface::CallIFun_IsHeroSkillByEnum` · 0045eea0 · legions 0045faf0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [x] `ggmCWInterface::CallIFun_IsOnInventory` · 0045ef60 · legions 0045fbb0 — the worn test: true for an item the player has equipped, false for pack, side-pack and unknown items (inventory_items_7160); the money bag drop callback is admin-only
 - [x] `ggmCWInterface::CallIFun_IsSkillBeingUntrainedByEnum` · 0045f040 · legions 0045fc90 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -771,8 +771,8 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::Resume_PopupYesNoDialog` · 0045f860 · legions 004604b0 — ac2-client hud_game_dialogs.rs: questions queued in HudView::popup_backlog until the HUD dialogs exist (tests/popup_hud_7160.rs)
 - [~] `ggmCWInterface::CallIFun_PurchaseConfirmed` · 0045f8f0 · legions 00460540 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [~] `ggmCWInterface::CallIFun_PurchaseItem` · 0045f9a0 · legions 004605f0 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
-- [ ] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710 — needs port: script IFun query allegiance profile on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_RegisterCommands` · 0045fb90 · legions 004607e0 — needs port: script IFun register commands on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_QueryAllegianceProfile` · 0045fac0 · legions 00460710 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
+- [x] `ggmCWInterface::CallIFun_RegisterCommands` · 0045fb90 · legions 004607e0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_RequestAddIngredient` · 0045fc20 · legions 00460870 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [ ] `ggmCWInterface::CallIFun_RequestAttackStateChange` · 0045fd60 · legions 004609b0 — needs port: script IFun request attack state change on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_RequestCollect` · 0045fe20 · legions 00460a70 — ac2-client gameplay.rs Command to the scripts.rs IFun; ac2-net request.rs ScriptRequest; tests/store_requests_7160.rs and consignment_script_7160.rs
@@ -799,17 +799,17 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_RequestTrainSkill` · 00460df0 · legions 00461a40 — ac2-client skills.rs: the request's IFun on the player's script (VM stub sends WM_Skill 0x13 / 0x10, bytes asserted in skill_script_7160); the double answers (character.rs answer_skill)
 - [~] `ggmCWInterface::CallIFun_RequestUntrainSkill` · 00460ea0 · legions 00461af0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `ggmCWInterface::CallIFun_RequestUntrainSkillCancel` · 00460f50 · legions 00461ba0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [ ] `ggmCWInterface::CallIFun_ResetReplyHistoryIndex` · 00460fe0 · legions 00461c30 — needs port: script IFun reset reply history index on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_ResetRetellHistoryIndex` · 00461070 · legions 00461cc0 — needs port: script IFun reset retell history index on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50 — needs port: script IFun result call create on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_ResetReplyHistoryIndex` · 00460fe0 · legions 00461c30 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_ResetRetellHistoryIndex` · 00461070 · legions 00461cc0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [~] `ggmCWInterface::CallIFun_Result_CallCreate` · 00461100 · legions 00461d50 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 - [x] `ggmCWInterface::CallIFun_Result_FriendAdd` · 004612c0 · legions 00461f10 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [x] `ggmCWInterface::CallIFun_Result_FriendDelete` · 004613d0 · legions 00462020 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
 - [-] `ggmCWInterface::CallIFun_Result_GetFriendsList` · 004614e0 — admin 7148 only: Legions 7160 has no Result_GetFriendsList wrapper and no IFun 0xB40042; the list arrives in GUNEvent_FriendStart [vtable-checked: not a slot of any located Legions vtable]
-- [ ] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620 — needs port: script IFun result get ignored list on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0 — needs port: script IFun result ignored add on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0 — needs port: script IFun result ignored delete on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_Result_SendToRoom` · 00461980 · legions 004625d0 — needs port: script IFun result send to room on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_Result_SendToUser` · 00461ab0 · legions 00462700 — needs port: script IFun result send to user on the client interface; no citation in crates/
+- [-] `ggmCWInterface::CallIFun_Result_GetIgnoredList` · 00461620 — admin 7148 only: Legions 7160 has no wrapper and no ignored-list IFun
+- [~] `ggmCWInterface::CallIFun_Result_IgnoredAdd` · 00461760 · legions 004623b0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+- [~] `ggmCWInterface::CallIFun_Result_IgnoredDelete` · 00461870 · legions 004624c0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+- [~] `ggmCWInterface::CallIFun_Result_SendToRoom` · 00461980 · legions 004625d0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
+- [~] `ggmCWInterface::CallIFun_Result_SendToUser` · 00461ab0 · legions 00462700 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160; the frame is bound and runs, but the client has no Turbine GUN service, so nothing raises it in play
 - [~] `ggmCWInterface::CallIFun_RevokeItemFromTrade` · 00461c10 · legions 00462860 — IFun body runs on the script VM; its WM_Trade stub id (0xB400B8..BD -> 0x8215_xxxx) traced from the Legions WLib (CWInterface IFun -> stub) and ported in ac2-net gameplay/request.rs
 - [x] `ggmCWInterface::CallIFun_SetAcceptAllegianceRequest` · 00461ce0 · legions 00462930 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetAcceptFellowshipRequest` · 00461d90 · legions 004629e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
@@ -821,7 +821,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetChatPopupFlag` · 00462230 · legions 00462e80 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_SetChatWindowFilter` · 00462320 · legions 00462f70 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_SetDamageTextRangeOther` · 00462410 · legions 00463060 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
-- [ ] `ggmCWInterface::CallIFun_SetExaminationRequest` · 004624c0 · legions 00463110 — needs port: script IFun set examination request on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_SetExaminationRequest` · 004624c0 · legions 00463110 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_SetLatencyIndicatorGraph` · 004625a0 · legions 004631f0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetRadarMask` · 00462650 · legions 004632a0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetSelection` · 00462700 · legions 00463350 — implemented: cited at crates/ac2-client/src/scripts.rs:329
@@ -838,19 +838,19 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_SetShowRadarCoords` · 00462f10 · legions 00463b60 — implemented: cited at crates/ac2-client/src/scripts.rs:210
 - [x] `ggmCWInterface::CallIFun_SetShowShortcutNumbers` · 00462fc0 · legions 00463c10 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_SetUISaveLocations` · 00463070 · legions 00463cc0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
-- [ ] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0 — needs port: script IFun set which shortcut set on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_SetWhichShortcutSet` · 00463150 · legions 00463da0 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_SetWindowOpacity` · 00463200 · legions 00463e50 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-- [ ] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40 — needs port: script IFun should auto target on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_ShouldAutoTarget` · 004632f0 · legions 00463f40 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [~] `ggmCWInterface::CallIFun_SpecialAttackEnded` · 00463390 · legions 00463fe0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
 - [-] `ggmCWInterface::CallIFun_SpecialAttackStarted` · 00463440 · legions 00464090 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
-- [ ] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140 — needs port: script IFun start examination on the client interface; no citation in crates/
+- [~] `ggmCWInterface::CallIFun_StartExamination` · 004634f0 · legions 00464140 — ac2-script InterfaceCalls start_examination: the wrapper pushes one word it never sets (decompile shows the caller's stack slot), sent as 0; the examination panel itself uses the session stand-in (Command::StartExamination)
 - [x] `ggmCWInterface::CallIFun_StopAttacking` · 00463580 · legions 004641f0 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
 - [x] `ggmCWInterface::CallIFun_StopAttackingIfAutoMoving` · 00463660 · legions 004642d0
-- [ ] `ggmCWInterface::CallIFun_StopExamination` · 004636f0 · legions 00464360 — needs port: script IFun stop examination on the client interface; no citation in crates/
-- [ ] `ggmCWInterface::CallIFun_SwearAllegiance` · 00463780 · legions 004643f0 — needs port: script IFun swear allegiance on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_StopExamination` · 004636f0 · legions 00464360 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
+- [x] `ggmCWInterface::CallIFun_SwearAllegiance` · 00463780 · legions 004643f0 — ac2-weenie social.rs SocialRequest::ifun (the IFun id) run on the player's VM by the client; the sent bytes are asserted in social_7160 and allegiance_7160
 - [~] `ggmCWInterface::CallIFun_TransmuteAllFromContainer` · 00463810 · legions 00464480 — ac2-weenie session/inventory.rs transmute_all: InvTransmuteAllDesc (client test transmute_all_asks_the_server_to_transmute_the_container). The double clears the container without resending its lists, so the frame refresh is the server's; checks (CInventorySystem 0x1F) not mirrored
 - [~] `ggmCWInterface::CallIFun_UnEquipItem` · 004638e0 · legions 00464550 — ac2-weenie session/inventory.rs unequip_item: InvEquipDesc.unequip byte-exact (inventory_7160); client UnequipItem (inventory_items_7160). Script checks not mirrored
-- [ ] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650 — needs port: script IFun update open on the client interface; no citation in crates/
+- [x] `ggmCWInterface::CallIFun_UpdateOpen` · 004639e0 · legions 00464650 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_UploadChatOptions` · 00463ae0 · legions 00464750 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ggmCWInterface::CallIFun_UploadGameOptions` · 00463b70 · legions 004647e0 — ac2-client scripts.rs: the IFun ids of these glue calls (the same ids in Legions 7160), run on the VM by Command::SetGameplayOption / UploadGameOptions
 - [x] `ggmCWInterface::CallIFun_UploadUISettings` · 00463c00 · legions 00464870 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
@@ -901,14 +901,14 @@ Legend and workflow: [README](README.md).
 ## `ac2/shared/src/weenie/allocator/gmwallocator.cpp.c` (0/6)
 
 ### gmCWAllocator
-- [ ] `gmCWAllocator::Create` · 00453ed0 · legions 00454f70 — needs port: weenie allocator create; no citation in crates/
-- [ ] `gmCWAllocator::AllocateWeenieObject_Internal` · 00453f20 · legions 00454fc0 — needs port: weenie allocator allocate weenie object internal; no citation in crates/
-- [ ] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f60 · legions 00455000 — needs port: weenie desc allocation by type is not cited (gmCWAllocator::AllocateWeenieDesc_Internal)
-- [ ] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f80 · legions 00455020 — needs port: weenie desc allocation by type is not cited (gmCWAllocator::AllocateWeenieDesc_Internal)
-- [ ] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — needs port: weenie allocator allocate efun dispatcher; no citation in crates/
-- [ ] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — needs port: weenie allocator allocate native factory; no citation in crates/
+- [-] `gmCWAllocator::Create` · 00453ed0 · legions 00454f70 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `gmCWAllocator::AllocateWeenieObject_Internal` · 00453f20 · legions 00454fc0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f60 · legions 00455000 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `gmCWAllocator::AllocateWeenieDesc_Internal` · 00453f80 · legions 00455020 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (165/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (173/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -992,7 +992,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetMaxDurabilityLevel` · 004507d0 · legions 00451910 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetIconID` · 00450800 · legions 00451940 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [~] `gmCWInterface::GetMaxContainerSize` · 00450830 · legions 00451970 — ac2-script item_queries::ItemQueries::container_capacity; ItemStats capacity default 12, the EffectSystem pass is not applied
-- [ ] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — needs port: interface get available experience; no citation in crates/
+- [x] `gmCWInterface::GetAvailableExperience` · 00450860 · legions 004519a0 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 - [x] `gmCWInterface::GetSkillCredits` · 004508a0 · legions 004519e0 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::GetHeroSkillCredits` · 004508d0 · legions 00451a10 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
 - [x] `gmCWInterface::Dismount` · 00450900 · legions 00451a40 — ac2-client target_select.rs run (SelectionAction::StopAttacking -> Command::StopAttacking) and gameplay.rs own_ifun -> IFun 0xB40104 on the VM; toolbar.rs is_dismount_press -> hud_player.rs Command::Dismount -> IFun 0xB400E5; the VM's WM_Combat 0x25 / WM_Player 0x33 calls (ac2-net calls.rs); tests combat_7160 stop_attacking_runs_on_the_vm_for_the_target, dismount_runs_on_the_vm; the double answers the targeted stop
@@ -1013,7 +1013,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::RequestUntrainSkillCancel` · 00450c60 · legions 00451da0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `gmCWInterface::InqSkillTimeLeft` · 00450c80 · legions 00451dc0 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
 - [~] `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum` · 00450cc0 · legions 00451e00 — query or request on the IFun, asserted by skill_script_7160 (untrain and cancel are answered with the repository, whose slot 5 names the skill being untrained; the double completes no untrain timer)
-- [ ] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40 — needs port: interface gunhandle reauthentication; no citation in crates/
+- [~] `gmCWInterface::GUNHandleReauthentication` · 00450d00 · legions 00451e40 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
 - [~] `gmCWInterface::Result_SendToUser` · 00450d10 · legions 00451e50 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [~] `gmCWInterface::Result_SendToRoom` · 00450d40 · legions 00451e80 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
 - [x] `gmCWInterface::Result_FriendAdd` · 00450d70 · legions 00451eb0 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
@@ -1025,13 +1025,13 @@ Legend and workflow: [README](README.md).
 - [~] `gmCWInterface::InqEffectList` · 00450e60 · legions 00451fa0 — ac2-client Client::effect_list (IFun 0xB40062, CPlayer 0x52 -> CEffectSystem 0x7); waits on the VM's gEffectUINode efuns
 - [x] `gmCWInterface::GetStackable` · 00450ea0 · legions 00451fe0 — ac2-weenie ItemStats::of (gmEntity 0x10/0x23/0xB/0x158/0x159/0x15B over the Inq helpers); ac2-client InventoryFrame::items, Client::item_display
 - [x] `gmCWInterface::GetQuantity` · 00450ed0 · legions 00452010 — ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
-- [~] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack: int 261; InventoryGlobals slot-5 default only through the VM
+- [x] `gmCWInterface::GetMaxStackSize` · 00450f00 · legions 00452040 — ItemStats::max_stack and the IFun on the item's process (ItemQueries, GetMaxStackSize wrapper)
 - [x] `gmCWInterface::SetExaminationRequest` · 00450f30 · legions 00452070 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::AddEffectDataToProfileByEID` · 00450f50 · legions 00452090 — ui_examination.rs add_effect_data: IFun 0xB40123 with context, order, id and the profile; the script's own Add* efuns other than AddEffectID stay unbound
 - [x] `gmCWInterface::StartExamination` · 00450f80 · legions 004520c0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::StopExamination` · 00450fa0 · legions 004520e0 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
 - [x] `gmCWInterface::HasSomethingSelected` · 00450fc0 · legions 00452100 — ac2-weenie player_script.rs (PlayerScript: selection, last selection, examination request and panel) and session/gameplay.rs select/examine/start_examination/stop_examination; ac2-client gameplay.rs Command::Select/Examine/StartExamination/StopExamination, target_select.rs snapshot; SetSelection's IFun 0xB40002 runs on the VM (SCRIPT_VM_FUNCTIONS); GetSelection/HasSomethingSelected answered from the mirror, their IFuns are not queried
-- [ ] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130 — needs port: interface register commands; no citation in crates/
+- [x] `gmCWInterface::RegisterCommands` · 00450ff0 · legions 00452130 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 - [x] `gmCWInterface::RequestResurrect` · 00451010 · legions 00452150 — ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
 - [x] `gmCWInterface::ClearResurrectionRequest` · 00451030 · legions 00452170 — implemented: cited at crates/ac2-ui/src/death.rs:12
 - [x] `gmCWInterface::UpdateOpen` · 00451050 · legions 00452190 — implemented: cited at crates/ac2-ui/src/external_container.rs:6
@@ -1086,10 +1086,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::GetAcceptFellowshipRequest` · 004518e0 · legions 00452a60 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
 - [x] `gmCWInterface::SetAcceptTradeRequest` · 00451910 · legions 00452a90 — ac2-client Command::SetGameplayOption / UploadGameOptions: the IFun on the player's script (scripts::option_call, IFun ids in SCRIPT_VM_FUNCTIONS); the page's requests (ac2-ui character.rs)
 - [x] `gmCWInterface::GetAcceptTradeRequest` · 00451930 · legions 00452ab0 — ac2-ui character_options.rs read(): the profile's bit, radar mask, shortcut height and range as the page reads them (the profile from ac2-client options_settings)
-- [ ] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — needs port: interface inq next retell history item; no citation in crates/
-- [ ] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — needs port: interface inq prev retell history item; no citation in crates/
-- [ ] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — needs port: interface inq next reply history item; no citation in crates/
-- [ ] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — needs port: interface inq prev reply history item; no citation in crates/
+- [x] `gmCWInterface::InqNextRetellHistoryItem` · 00451960 · legions 00452ae0 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+- [x] `gmCWInterface::InqPrevRetellHistoryItem` · 00451990 · legions 00452b10 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+- [x] `gmCWInterface::InqNextReplyHistoryItem` · 004519c0 · legions 00452b40 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
+- [x] `gmCWInterface::InqPrevReplyHistoryItem` · 004519f0 · legions 00452b70 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 - [~] `gmCWInterface::InqQuestList` · 00451a20 · legions 00452ba0 — client ui_quests.rs Client::inq_quest_list (IFun 0xB4008E, list as IFunArg::Filled: the out list is approximated, not run against a live login)
 - [x] `gmCWInterface::InqActInfoList` · 00451a60 · legions 00452be0 — ac2-script glue/act_info.rs (ggmActInfo, ggmActInfoList efuns); ac2-net native/act.rs (gmActInfo StreamPack); client ui_quests.rs inq_act_info_list (InqActInfoList IFun 0xB4008F)
 - [x] `gmCWInterface::HandlePlayScenesDone` · 00451aa0 · legions 00452c20 — implemented: cited at crates/ac2-ui/src/gameplay_story.rs:9
@@ -1105,7 +1105,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DoFellowshipRecruitDecline` · 00451bf0 · legions 00452d70 — ac2-client Command::Social(SocialRequest::Fellowship*): the IFun on the VM, else OnlineSession::social_request (WM_Fellowship stubs, byte-exact)
 - [x] `gmCWInterface::IsFellowshipMember` · 00451c10 · legions 00452d90 — implemented: cited at crates/ac2-ui/src/target_cycle.rs:61
 - [x] `gmCWInterface::GetFellowXPHash` · 00451c50 · legions 00452dd0 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
-- [ ] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10 — needs port: interface do assisted tell; no citation in crates/
+- [x] `gmCWInterface::DoAssistedTell` · 00451c90 · legions 00452e10 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call) (interface_calls_7160 runs the frame on the real player script)
 - [x] `gmCWInterface::HandleWeenieEmote` · 00451cb0 · legions 00452e30 — gmCWInterface::HandleWeenieEmote caller is CPhysicsObj::RecvEvt_DoBehavior (admin 004ec680, weenie slot +0x78): ac2-client scripts_io.rs answer_weenie_emote calls IFun 0xB400AA via ScriptHost::call_ifun; ac2-client client_objects.rs apply_remote gates the behaviour on it
 - [x] `gmCWInterface::QueryAllegianceProfile` · 00451cf0 · legions 00452e70 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
 - [x] `gmCWInterface::SwearAllegiance` · 00451d10 · legions 00452e90 — ac2-client Command::Social(SocialRequest allegiance actions): the IFun on the VM, else OnlineSession::social_request (WM_Allegiance stubs)
@@ -1118,8 +1118,8 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DeclineTrade` · 00451df0 · legions 00452f70 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-- [ ] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0 — needs port: interface get missile information from wsl; no citation in crates/
-- [ ] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — needs port: interface get fxand behavior information from wsl; no citation in crates/
+- [~] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+- [~] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
 - [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [~] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
@@ -1682,8 +1682,8 @@ Legend and workflow: [README](README.md).
 
 ### DBObj
 - [-] `DBObj::DBObj` · 004a7a90 · legions 0049ea70 — constructor of plain data: Rust struct init replaces it
-- [ ] `DBObj::Pack` · 004a7b10 — needs port: dbobj::pack; no citation in crates/
-- [ ] `DBObj::UnPack` · 004a7b30 — needs port: dbobj::un pack; no citation in crates/
+- [-] `DBObj::Pack` · 004a7b10 — base-class virtuals of the DB object cache; the Rust DB objects decode through ac2-db ResourcePackedDecode per type and the client never writes DAT records
+- [-] `DBObj::UnPack` · 004a7b30 — base-class virtuals of the DB object cache; the Rust DB objects decode through ac2-db ResourcePackedDecode per type and the client never writes DAT records
 
 ### CNativeFactory
 - [-] `CNativeFactory::HashNativeObject` · 004a7b50 · legions 0049eb30 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
@@ -2262,11 +2262,11 @@ Legend and workflow: [README](README.md).
 - [x] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — ac2-script glue::engine_misc get_my_package_id
 - [~] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (12/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (13/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
-- [ ] `gCWInterface::CallEFun_DisplayHelpText` · 004bb200 — needs port: script efun display help text on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_DisplayHelpText` · 004bb200 — ac2-script host/interface.rs display_help_text (efun 0x007F0053) -> ScriptPort::display_help -> ChatState::display_help; unit-tested (efun queues the word, shell shows help / unrecognized-command lines)
 - [ ] `gCWInterface::CallEFun_Sleep` · 004bb260 — needs port: script efun sleep on the interface; no citation in crates/
 - [x] `gCWInterface::CallEFun_AddShellCmd` · 004bb370 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [x] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
@@ -2298,7 +2298,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [~] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (21/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (22/85)
 
 ### gCWPhysicsObject
 - [-] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
@@ -2380,7 +2380,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWPhysicsObject::Resume_DoMode` · 004babb0 · legions 004afee0 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::Resume_DoSlider` · 004bac40 · legions 004aff70 — needs port: resume continuation of latent do slider (the script waits and resumes here); no citation in crates/
 - [x] `gCWPhysicsObject::CallEFun_GetCollisionState` · 004bacd0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
-- [ ] `gCWPhysicsObject::CallEFun_InqCurrentProperties` · 004bad70 — needs port: script efun inq current properties on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_InqCurrentProperties` · 004bad70 — ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 - [-] `gCWPhysicsObject::CallEFun_InqCurrentProperty` · 004bae10 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_InqCylSphere` · 004baeb0 · legions 004b0160 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_MissileInquireCurrentVelocity` · 004baf50 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
@@ -2488,10 +2488,10 @@ Legend and workflow: [README](README.md).
 
 ### CWAllocator
 - [-] `CWAllocator::CWAllocator` · 0052caf0 · legions 00511070 — constructor of plain data: Rust struct init replaces it
-- [ ] `CWAllocator::Clear` · 0052cb60 · legions 005110e0 — needs port: weenie allocator clear; no citation in crates/
-- [ ] `CWAllocator::AllocateWeenieObject` · 0052cb80 · legions 00511100 — needs port: weenie allocator allocate weenie object; no citation in crates/
-- [ ] `CWAllocator::AllocateWeenieDesc` · 0052cbd0 · legions 00511150 — needs port: weenie allocator allocate weenie desc; no citation in crates/
-- [ ] `CWAllocator::AllocateWeenieDesc` · 0052cbf0 · legions 00511170 — needs port: weenie allocator allocate weenie desc; no citation in crates/
+- [-] `CWAllocator::Clear` · 0052cb60 · legions 005110e0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `CWAllocator::AllocateWeenieObject` · 0052cb80 · legions 00511100 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `CWAllocator::AllocateWeenieDesc` · 0052cbd0 · legions 00511150 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `CWAllocator::AllocateWeenieDesc` · 0052cbf0 · legions 00511170 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [ ] `CWAllocator::IsMobileByQualitiesID_` · 0052cc10 — needs port: weenie allocator is mobile by qualities id ; no citation in crates/
 - [ ] `CWAllocator::ResetShell` · 0052cc70 · legions 00511190 — needs port: shell reset on teardown: CWAllocator::ResetShell is not modelled (ac2-ui game_dialogs.rs says so)
 - [ ] `CWAllocator::ResetShellInternal` · 0052cc80 · legions 005111a0 — needs port: weenie allocator reset shell internal; no citation in crates/
@@ -2503,18 +2503,18 @@ Legend and workflow: [README](README.md).
 - [-] `DBObjGrabber<DBFile2IDTable>::DBObjGrabber<DBFile2IDTable>` · 0052ce10 · legions 00511380 — constructor of plain data: Rust struct init replaces it
 
 ### CWAllocator
-- [ ] `CWAllocator::SetNoDBWLibFile` · 0052ce70 · legions 005113e0 — needs port: weenie allocator set no dbwlib file; no citation in crates/
-- [ ] `CWAllocator::SetDBWLibFile` · 0052cec0 · legions 00511430 — needs port: weenie allocator set dbwlib file; no citation in crates/
+- [-] `CWAllocator::SetNoDBWLibFile` · 0052ce70 · legions 005113e0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `CWAllocator::SetDBWLibFile` · 0052cec0 · legions 00511430 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [x] `CWAllocator::GetDBWLib` · 0052cf10 · legions 00511480 — implemented: cited at crates/ac2-script/src/wlib.rs:17
-- [ ] `CWAllocator::InitWLibPath` · 0052cfb0 · legions 00511520 — needs port: weenie allocator init wlib path; no citation in crates/
+- [-] `CWAllocator::InitWLibPath` · 0052cfb0 · legions 00511520 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
 ### Resolver
 - [ ] `Resolver::Clear` · 0052d0f0 · legions 00511660 — needs port: script VM clear (Resolver); no citation in crates/
 - [ ] `Resolver::Clear_Internal` · 0052d100 · legions 00511670 — needs port: script VM clear internal (Resolver); no citation in crates/
 
 ### CWAllocator
-- [ ] `CWAllocator::AllocateResolver` · 0052d160 · legions 005116d0 — needs port: weenie allocator allocate resolver; no citation in crates/
-- [ ] `CWAllocator::Init_Internal` · 0052d1e0 · legions 00511750 — needs port: weenie allocator init internal; no citation in crates/
+- [-] `CWAllocator::AllocateResolver` · 0052d160 · legions 005116d0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
+- [-] `CWAllocator::Init_Internal` · 0052d1e0 · legions 00511750 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
 ### Resolver
 - [ ] `Resolver::Init` · 0052d270 · legions 005117c0 — needs port: script VM init (Resolver); no citation in crates/
@@ -2576,24 +2576,24 @@ Legend and workflow: [README](README.md).
 - [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — implemented: cited at crates/ac2-script/src/host/mod.rs:2
 - [x] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590 — implemented: cited at crates/ac2-net/src/protocol/server_event.rs:59
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (13/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (22/52)
 
 ### CWInterface
 - [-] `CWInterface::CWInterface` · 0052e280 · legions 005125c0 — constructor of plain data: Rust struct init replaces it
 - [-] `CWInterface::~CWInterface` · 0052e2b0 · legions 005125f0 — destructor: Rust Drop replaces it
 - [ ] `CWInterface::HandleCreation` · 0052e2e0 — needs port: interface handle creation; no citation in crates/
-- [ ] `CWInterface::HandleDestruction` · 0052e3c0 · legions 00512700 — needs port: interface handle destruction; no citation in crates/
+- [~] `CWInterface::HandleDestruction` · 0052e3c0 · legions 00512700 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 - [~] `CWInterface::ObjectBeingDestructed` · 0052e3f0 · legions 00512730 — CBookKeep::ObjectBeingDestructed (004da150): the destroyed object's children are queued for destruction in ac2-weenie world.rs destroy_object_internal (add_object_to_be_destroyed, 25 s). Not modelled: the physobj child detach (vtable 0x3f4) and parent teardown (0x160). CWInterface::ObjectBeingDestructed (0052e3f0) also purges ClientTriggerScheduler events, the ac2-client row ClientTriggerScheduler::PurgeEventsForInterface, not ported
-- [ ] `CWInterface::HandleEnterWorld` · 0052e410 · legions 00512750 — needs port: interface handle enter world; no citation in crates/
-- [ ] `CWInterface::HandleLeaveWorld` · 0052e440 · legions 00512780 — needs port: interface handle leave world; no citation in crates/
-- [ ] `CWInterface::HandlePostLeaveWorld` · 0052e470 · legions 005127b0 — needs port: interface handle post leave world; no citation in crates/
+- [~] `CWInterface::HandleEnterWorld` · 0052e410 · legions 00512750 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+- [~] `CWInterface::HandleLeaveWorld` · 0052e440 · legions 00512780 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+- [~] `CWInterface::HandlePostLeaveWorld` · 0052e470 · legions 005127b0 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 - [x] `CWInterface::HandleTeleportStart` · 0052e490 · legions 005127d0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:12
 - [x] `CWInterface::HandleTeleportEnd` · 0052e4a0 · legions 005127e0 — implemented: cited at crates/ac2-client/src/client_teleport.rs:17
-- [ ] `CWInterface::HandleCharacterSessionStart` · 0052e4c0 · legions 00512800 — needs port: interface handle character session start; no citation in crates/
-- [ ] `CWInterface::HandleCharacterSessionEnd` · 0052e520 · legions 00512860 — needs port: interface handle character session end; no citation in crates/
+- [~] `CWInterface::HandleCharacterSessionStart` · 0052e4c0 · legions 00512800 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
+- [~] `CWInterface::HandleCharacterSessionEnd` · 0052e520 · legions 00512860 — ac2-script host/lifecycle.rs ScriptLifecycle::lifecycle_ifun (the gCWInterface::CallIFun_Handle* frames, run only for IFuns the VM owns): EnterWorld runs as a process starts, Destruction as an object is removed. Leave/PostLeave/session start/end have no caller yet and none of them is in SCRIPT_VM_FUNCTIONS (the stand-ins answer), asserted in interface_calls_7160
 - [ ] `CWInterface::ApplyProperties` · 0052e530 · legions 00512870 — needs port: interface apply properties; no citation in crates/
 - [x] `CWInterface::SendServerEvt` · 0052e570 · legions 005128b0 — implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:5
-- [ ] `CWInterface::SendServerEvtEncrypt` · 0052e590 · legions 005128d0 — needs port: interface send server evt encrypt; no citation in crates/
+- [x] `CWInterface::SendServerEvtEncrypt` · 0052e590 · legions 005128d0 — ac2-script host/glue.rs SendServerEvt[Encrypt] efun -> ScriptPort::send_interp(encrypt) -> ClientEvent::Interp (queue 7, 0x100D0); bytes asserted in ac2-net client_event tests
 - [x] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — implemented: cited at crates/ac2-script/src/host/interface.rs:277
 - [x] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920 — implemented: cited at crates/ac2-weenie/src/objects.rs:83
 - [x] `CWInterface::IsCreature` · 0052e600 · legions 00512940 — implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:21
@@ -2603,12 +2603,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CWInterface::HandleIntersectionDone` · 0052e6c0 · legions 00512a00 — needs port: interface handle intersection done; no citation in crates/
 - [ ] `CWInterface::InqDetectionProfile` · 0052e6e0 · legions 00512a20 — needs port: interface inq detection profile; no citation in crates/
 - [~] `CWInterface::HandleCollision` · 0052e700 · legions 00512a40 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
-- [ ] `CWInterface::HandleBehaviorDone` · 0052e730 · legions 00512a70 — needs port: interface handle behavior done; no citation in crates/
+- [x] `CWInterface::HandleBehaviorDone` · 0052e730 · legions 00512a70 — ac2-script host/latent.rs ScriptHost::resume_latent (Resume_DoBehavior / Resume_DoMode), driven by the body's mode and behaviour completions (latent tests)
 - [ ] `CWInterface::HandleReleaseDone` · 0052e750 · legions 00512a90 — needs port: interface handle release done; no citation in crates/
 - [ ] `CWInterface::HandleSliderDone` · 0052e770 · legions 00512ab0 — needs port: interface handle slider done; no citation in crates/
-- [ ] `CWInterface::HandleModeDone` · 0052e790 · legions 00512ad0 — needs port: interface handle mode done; no citation in crates/
-- [ ] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — needs port: interface inq prev history item; no citation in crates/
-- [ ] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — needs port: interface inq next history item; no citation in crates/
+- [x] `CWInterface::HandleModeDone` · 0052e790 · legions 00512ad0 — ac2-script host/latent.rs ScriptHost::resume_latent (Resume_DoBehavior / Resume_DoMode), driven by the body's mode and behaviour completions (latent tests)
+- [x] `CWInterface::InqPrevHistoryItem` · 0052e7b0 · legions 00512af0 — ac2-weenie shell/history.rs ChatHistory::Command (CShell::InqPrev/NextHistoryItem), asserted in shell tests
+- [x] `CWInterface::InqNextHistoryItem` · 0052e7c0 · legions 00512b00 — ac2-weenie shell/history.rs ChatHistory::Command (CShell::InqPrev/NextHistoryItem), asserted in shell tests
 - [ ] `CWInterface::DisplayText` · 0052e7d0 · legions 00512b10 — needs port: interface display text; no citation in crates/
 - [ ] `CWInterface::DisplayStringInfo` · 0052e7f0 · legions 00512b30 — needs port: interface display string info; no citation in crates/
 - [~] `CWInterface::PreloadWSLSingletons` · 0052e810 · legions 00512b50 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
@@ -2620,7 +2620,7 @@ Legend and workflow: [README](README.md).
 
 ### CWInterface
 - [ ] `CWInterface::ExpandText` · 0052e970 · legions 00512cb0 — needs port: interface expand text; no citation in crates/
-- [ ] `CWInterface::DisplayHelpText` · 0052e9c0 · legions 00512d00 — needs port: interface display help text; no citation in crates/
+- [x] `CWInterface::DisplayHelpText` · 0052e9c0 · legions 00512d00 — ac2-script host/interface.rs display_help_text queues the command; ScriptPort::display_help -> OnlineSession::display_help -> ChatState::display_help (ShellCmdTable::GetHelpText: all or one command's help, ID_UnrecognizedCommand for an unknown one). Only the natively run handlers have help text; a script's AddShellHelp function would need a nested VM call
 
 ### `anonymous-namespace'::SleepAwakener
 - [ ] ``anonymous-namespace'::SleepAwakener::OnTrigger` · 0052eaf0 — needs port: `anonymous-namespace'::sleep awakener::on trigger; no citation in crates/
@@ -2629,22 +2629,22 @@ Legend and workflow: [README](README.md).
 - [ ] ``anonymous-namespace'::InqStringInfoValue_AsyncCacheCallback::OnContextFinished` · 0052eb10 — needs port: `anonymous-namespace'::inq string info value async cache callback::on context finished; no citation in crates/
 
 ### CWInterface
-- [ ] `CWInterface::GetOutputFilesPath` · 0052eb80 · legions 00512ec0 — needs port: interface get output files path; no citation in crates/
+- [-] `CWInterface::GetOutputFilesPath` · 0052eb80 · legions 00512ec0 — authoring/tooling path for the script debug dumps; not the player's client
 
 ### HashTable<PStringBase<unsigned_short>,FunctionID>
 - [-] `HashTable<PStringBase<unsigned_short>,FunctionID>::~HashTable<PStringBase<unsigned_short>,FunctionID>` · 0052ed30 · legions 00512f40 — STL/container internals: a Rust collection replaces it
 
 ### CWInterface
-- [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — needs port: citation only in a test; port and cite in the client code
+- [x] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — ac2-client scripts.rs Client::chat_line -> OnlineSession::process_text (alias expansion, CPlayerShell::ProcessText, command table) and ac2-script host/shell.rs for script commands; shell tests and chat_commands tests
 - [x] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280 — needs port: interface resume callback; no citation in crates/
 - [ ] `CWInterface::Sleep` · 0052f100 — needs port: interface sleep; no citation in crates/
 - [x] `CWInterface::DoCmdInterp` · 0052f1f0 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::DoHelpInterp` · 0052f300 — needs port: interface do help interp; no citation in crates/
 - [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
-- [ ] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0 — needs port: interface add shell help; no citation in crates/
+- [x] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0 — ac2-script vm ShellTable::add (help) via the AddShellHelp efuns (glue/engine_misc.rs add_shell); asserted in data_bag_tests
 - [x] `CWInterface::AddShellCmdByStringID` · 0052f990 · legions 00513b50 — implemented: cited at crates/ac2-client/src/chat_commands.rs:3
-- [ ] `CWInterface::AddShellHelpByStringID` · 0052fa10 · legions 00513bd0 — needs port: interface add shell help by string id; no citation in crates/
+- [x] `CWInterface::AddShellHelpByStringID` · 0052fa10 · legions 00513bd0 — ac2-script vm ShellTable::add (help) via the AddShellHelp efuns (glue/engine_misc.rs add_shell); asserted in data_bag_tests
 
 ## `portal/shared/src/weenie/interp/dbresolver.cpp.c` (0/4)
 
@@ -2669,7 +2669,7 @@ Legend and workflow: [README](README.md).
 - [-] `WLib::WLib` · 006b7790 · legions 0064efb0 — constructor of plain data: Rust struct init replaces it
 - [-] `WLib::GetDBOType` · 006b77c0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `WLib::GetPackSize` · 006b77d0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-- [ ] `WLib::Pack` · 006b7800 · legions 0064f020 — needs port: script VM pack (WLib); no citation in crates/
+- [-] `WLib::Pack` · 006b7800 · legions 0064f020 — authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 - [-] `WLib::Allocate` · 006b7840 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `WLib::ReleaseRefs` · 006b7850 · legions 0064f070 — teardown and reference release: Rust Drop replaces it
 - [-] `WLib::Clear` · 006b78a0 · legions 0064f0c0 — teardown and reference release: Rust Drop replaces it
@@ -2681,12 +2681,12 @@ Legend and workflow: [README](README.md).
 - [-] `WState::Destroy` · 006b79e0 — teardown and reference release: Rust Drop replaces it
 - [x] `WState::GetStateByType` · 006b79f0 · legions 0064f210 — implemented: cited at crates/ac2-script/src/wstate.rs:28
 - [-] `WState::GetPackSize` · 006b7a30 · legions 0064f250 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
-- [ ] `WState::Pack` · 006b7a50 · legions 0064f270 — needs port: script VM pack (WState); no citation in crates/
+- [-] `WState::Pack` · 006b7a50 · legions 0064f270 — authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 - [x] `WState::UnPack` · 006b7aa0 · legions 0064f2c0 — implemented: cited at crates/ac2-script/src/wstate.rs:4
 - [-] `WState::WState` · 006b7b00 · legions 0064f320 — constructor of plain data: Rust struct init replaces it
 - [-] `WState::GetDBOType` · 006b7b50 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 - [-] `WState::GetPackSize` · 006b7b70 — inline copy of 006b7a30
-- [ ] `WState::Pack` · 006b7b80 — needs port: script VM pack (WState); no citation in crates/
+- [-] `WState::Pack` · 006b7b80 — authoring: writes WLib/WState records for the tools; the client only reads them (ac2-script wlib.rs / wstate.rs unpack)
 - [x] `WState::UnPack` · 006b7b90 — implemented: cited at crates/ac2-script/src/wstate.rs:4
 - [-] `WState::WState` · 006b7ba0 · legions 0064f3c0 — constructor of plain data: Rust struct init replaces it
 - [-] `WState::Allocate` · 006b7bf0 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (16/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (17/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2918,7 +2918,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWPhysicsObject::SetNoDrawPhysics` · 005309a0 · legions 00514940 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 - [-] `CWPhysicsObject::SetCloaked` · 005309c0 · legions 00514960 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::SetUndetectable` · 005309e0 · legions 00514980 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-- [ ] `CWPhysicsObject::InqCurrentProperties` · 00530ae0 · legions 00514a80 — needs port: physics object inq current properties; no citation in crates/
+- [x] `CWPhysicsObject::InqCurrentProperties` · 00530ae0 · legions 00514a80 — ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 - [-] `CWPhysicsObject::InqCurrentProperty` · 00530b00 · legions 00514aa0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::GetHeight` · 00530b20 · legions 00514ac0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::GetRadius` · 00530b40 · legions 00514ae0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method

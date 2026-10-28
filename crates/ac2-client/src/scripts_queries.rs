@@ -74,6 +74,10 @@ impl ScriptPort for Client {
         self.chat_line(line)
     }
 
+    fn display_help(&mut self, cmd: &str) -> Vec<SessionEvent> {
+        self.session.display_help(cmd)
+    }
+
     fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypt: bool) {
         self.session.send_interp(function, arguments, encrypt);
     }

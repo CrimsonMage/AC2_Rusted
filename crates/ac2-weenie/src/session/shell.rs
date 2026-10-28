@@ -73,6 +73,19 @@ impl OnlineSession {
         out
     }
 
+    /// `CWInterface::DisplayHelpText(cmd)`: the help the shell has for `cmd` (everything for an
+    /// empty one) as lines for the chat windows.
+    pub fn display_help(&self, cmd: &str) -> Vec<SessionEvent> {
+        self.chat
+            .display_help(cmd, self.script.string_tables())
+            .into_iter()
+            .filter_map(|action| match action {
+                ShellAction::Notice(notice) => Some(SessionEvent::Notice(notice)),
+                _ => None,
+            })
+            .collect()
+    }
+
     /// `CCommunicationSystem` 0x6 / 0x1: speech or a tell from a squelched name is dropped
     /// (`CPlayer` 0x11A); a tell heard sets the /reply name (`CPlayer` 0xD1). Only literal
     /// names are compared (a table name would need the string tables' text).

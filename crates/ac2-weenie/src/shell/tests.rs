@@ -414,3 +414,44 @@ fn heard_room_chat_shows_in_the_window_of_its_room() {
         (KIND_INFO, Some("[Bo] yo"))
     );
 }
+
+/// `CWInterface::DisplayHelpText`: a command with help shows its text (type 8), an unknown one
+/// the unrecognized-command line (type 1) naming it, and an empty command the label then every
+/// help text in name order.
+#[test]
+fn help_is_shown_for_a_command_an_unknown_one_and_all() {
+    let mut state = ChatState::default();
+    let mut c = commands();
+    c.set_help(SAY, "usage: /say".into());
+    state.set_commands(c);
+    let tables = StringTableIds::default();
+    let kinds = |actions: Vec<ShellAction>| -> Vec<(u32, Option<String>)> {
+        actions
+            .into_iter()
+            .filter_map(|a| match a {
+                ShellAction::Notice(GameplayNotice::DisplayStringInfo { kind, text }) => {
+                    Some((kind, text.literal))
+                }
+                _ => None,
+            })
+            .collect()
+    };
+    assert_eq!(
+        kinds(state.display_help("Tell", &tables)),
+        vec![(8, Some("usage: /tell".into()))]
+    );
+    let unknown = state.display_help("nosuch", &tables);
+    let ShellAction::Notice(GameplayNotice::DisplayStringInfo { kind, text }) = &unknown[0] else {
+        panic!("a notice");
+    };
+    assert_eq!(*kind, 1);
+    assert_eq!(text.string_id, ac2_net::tokenize(b"ID_UnrecognizedCommand"));
+    assert_eq!(text.variables.len(), 1);
+    // Every command of a handler with help appears, sorted by name: c, s, say, send, t, tell.
+    let all = kinds(state.display_help("", &tables));
+    assert_eq!(all[0].0, 8);
+    assert_eq!(
+        all[1].1.as_deref(),
+        Some("usage: /sayusage: /sayusage: /sayusage: /tellusage: /tellusage: /tell")
+    );
+}

@@ -210,6 +210,26 @@ impl ChatCommands {
             .find_map(|(names, emote)| is_word_in(names, word).then_some(*emote))
     }
 
+    /// `ShellCmdTable::GetCmdHelpText`: the usage text of the command `cmd` (lowercased), or
+    /// `None` when no help handler is registered for it (`UnknownCmd_ShellHelpStatus`). Only the
+    /// handlers the port runs natively have one here; the script's own `AddShellHelp` functions
+    /// would need a nested VM call.
+    pub fn cmd_help(&self, cmd: &str) -> Option<String> {
+        let (handler, _) = self.commands.get(&lower(cmd))?;
+        self.help.get(handler).cloned()
+    }
+
+    /// `ShellCmdTable::GetAllCmdHelpText`: every command's help text, in the name order of the
+    /// AVL it sorts them into; a command with no text is left out.
+    pub fn all_cmd_help(&self) -> String {
+        let mut names: Vec<&String> = self.commands.keys().collect();
+        names.sort();
+        names
+            .into_iter()
+            .filter_map(|name| self.cmd_help(name))
+            .collect()
+    }
+
     /// `ShellCmdTable::ExpandableCommand`: an unregistered command may be an alias.
     fn expandable(&self, cmd: &str) -> bool {
         self.commands.get(&lower(cmd)).is_none_or(|c| c.1)

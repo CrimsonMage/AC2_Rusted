@@ -38,6 +38,11 @@ pub trait ScriptPort {
         out: &mut Vec<SessionEvent>,
     );
 
+    /// `CWInterface::DisplayHelpText(cmd)`: the shell's help lines for `cmd` (empty: all).
+    fn display_help(&mut self, _cmd: &str) -> Vec<SessionEvent> {
+        Vec::new()
+    }
+
     /// Events the scripts produced outside a frame (a query's output), for the next frame.
     fn push_produced(&mut self, events: Vec<SessionEvent>);
 

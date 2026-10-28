@@ -12,6 +12,25 @@ use super::ifun::IFunArg;
 use super::outcome::outcome;
 use super::port::ScriptPort;
 
+/// The weenie interface's lifecycle IFuns (`gCWInterface::CallIFun_Handle*`, Legions 7160): the
+/// object's script hears that it entered or left the world, or was destroyed.
+pub mod lifecycle_ifun {
+    /// `CWInterface::HandleEnterWorld` -> `gCWInterface::CallIFun_HandleEnterWorld`.
+    pub const HANDLE_ENTER_WORLD: u32 = 0x007F_0017;
+    /// `CWInterface::HandleLeaveWorld` -> `gCWInterface::CallIFun_HandleLeaveWorld`.
+    pub const HANDLE_LEAVE_WORLD: u32 = 0x007F_0018;
+    /// `CWInterface::HandlePostLeaveWorld` -> `gCWInterface::CallIFun_HandlePostLeaveWorld`.
+    pub const HANDLE_POST_LEAVE_WORLD: u32 = 0x007F_0019;
+    /// `CWInterface::HandleDestruction` -> `gCWInterface::CallIFun_HandleDestruction`.
+    pub const HANDLE_DESTRUCTION: u32 = 0x007F_0016;
+    /// `CWInterface::HandleCharacterSessionStart` ->
+    /// `gCWInterface::CallIFun_HandleCharacterSessionStart`.
+    pub const HANDLE_CHARACTER_SESSION_START: u32 = 0x007F_001C;
+    /// `CWInterface::HandleCharacterSessionEnd` ->
+    /// `gCWInterface::CallIFun_HandleCharacterSessionEnd`.
+    pub const HANDLE_CHARACTER_SESSION_END: u32 = 0x007F_001D;
+}
+
 /// The script lifecycle, on any [`ScriptPort`] (the client implements the port).
 pub trait ScriptLifecycle: ScriptPort {
     /// Asks the loader for `id`'s script state (its weenie's package and entity DID). Nothing when
@@ -74,6 +93,8 @@ pub trait ScriptLifecycle: ScriptPort {
         for (function, arguments) in missed {
             self.dispatch_script(id, function, &arguments, &mut events);
         }
+        // `CWInterface::HandleEnterWorld`: the object is in the world as its process starts.
+        self.lifecycle_ifun(id, lifecycle_ifun::HANDLE_ENTER_WORLD, &mut events);
         self.push_produced(events);
     }
 
@@ -139,6 +160,8 @@ pub trait ScriptLifecycle: ScriptPort {
                 }
                 SessionEvent::EnteredWorld(entry) => self.request_script(entry.player),
                 SessionEvent::ObjectRemoved(id) => {
+                    // `CWInterface::HandleDestruction`, before the process goes.
+                    self.lifecycle_ifun(*id, lifecycle_ifun::HANDLE_DESTRUCTION, &mut produced);
                     if let Some(scripts) = self.script_state() {
                         scripts.host.remove_weenie(*id);
                         scripts.running.remove(id);
@@ -161,6 +184,24 @@ pub trait ScriptLifecycle: ScriptPort {
             }
         }
         events.extend(produced);
+    }
+
+    /// `CWInterface::Handle*` for object `id`: the lifecycle IFun `function` (no arguments) on its
+    /// process, run only when the VM owns the call and the process runs (as the stand-ins keep
+    /// the calls they answer). The script's output joins `out`.
+    fn lifecycle_ifun(&mut self, id: u64, function: u32, out: &mut Vec<SessionEvent>) {
+        let Some(scripts) = self.script_state() else {
+            return;
+        };
+        if !scripts.owned.contains(&function) || !scripts.running.contains(&id) {
+            return;
+        }
+        let result = scripts
+            .host
+            .call_ifun(id, function, &[])
+            .map(|r| r.outcome)
+            .map_err(|e| format!("{e:?}"));
+        outcome(self, id, None, result, out);
     }
 
     /// Whether object `id` has a running process (the scripts' copies of it are kept).
