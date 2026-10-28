@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 766 done, 171 partial, 456 to do, 511 skipped.
+1904 retail functions: 768 done, 171 partial, 454 to do, 511 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
@@ -1307,7 +1307,7 @@ Legend and workflow: [README](README.md).
 - [-] `CFactory::MakeCEventQueue` · 004991b0 · legions 004916c0 — engine factory: Rust builds the subsystems directly
 - [-] `CFactory::MakeGlobalEventHandler` · 004991d0 · legions 004916e0 — engine factory: Rust builds the subsystems directly
 
-## `portal/client/src/events/ceventqueue.cpp.c` (9/15)
+## `portal/client/src/events/ceventqueue.cpp.c` (11/15)
 
 ### CEventQueue
 - [-] `CEventQueue::CEventQueue` · 00493f60 · legions 0048c730 — constructor of plain data: Rust struct init replaces it
@@ -1325,13 +1325,13 @@ Legend and workflow: [README](README.md).
 - [-] `NIList<NetBlob_*>::AddToTail` · 004947c0 · legions 0048cf90 — STL/container internals: a Rust collection replaces it
 
 ### CEventQueue
-- [ ] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0 — needs port: cevent queue::queue event; no citation in crates/
-- [x] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060 — implemented: cited at crates/ac2-weenie/src/world.rs:4
+- [x] `CEventQueue::QueueEvent` · 00494810 · legions 0048cfe0 — CEventQueue queue semantics: World::queued (QueueEvent, FIFO Vec) held in EnteringWorld by World::consider_queueing (ConsiderQueueingEvent); World::finish_entering_world (FinishEnteringWorld + FlushQueue) sets InWorld then replays in arrival order; leave_world = DestroyEventQueues. Tests: world_tests entering_* and entering_queue_replays_in_arrival_order_after_create_player
+- [x] `CEventQueue::ConsiderQueueingEvent` · 00494890 · legions 0048d060 — CEventQueue queue semantics: World::queued (QueueEvent, FIFO Vec) held in EnteringWorld by World::consider_queueing (ConsiderQueueingEvent); World::finish_entering_world (FinishEnteringWorld + FlushQueue) sets InWorld then replays in arrival order; leave_world = DestroyEventQueues. Tests: world_tests entering_* and entering_queue_replays_in_arrival_order_after_create_player
 - [x] `CEventQueue::DestroyEventQueues` · 00494960 · legions 0048d130 — implemented: cited at crates/ac2-weenie/src/world.rs:143
 - [-] `CEventQueue::~CEventQueue` · 004949f0 · legions 0048d1c0 — destructor: Rust Drop replaces it
 - [x] `CEventQueue::ProcessNetBlob` · 00494a00 · legions 0048d1d0 — implemented: cited at crates/ac2-weenie/src/world.rs:235
-- [ ] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240 — needs port: cevent queue::flush queue; no citation in crates/
-- [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0 — implemented: cited at crates/ac2-weenie/src/world.rs:378
+- [x] `CEventQueue::FlushQueue` · 00494a70 · legions 0048d240 — CEventQueue queue semantics: World::queued (QueueEvent, FIFO Vec) held in EnteringWorld by World::consider_queueing (ConsiderQueueingEvent); World::finish_entering_world (FinishEnteringWorld + FlushQueue) sets InWorld then replays in arrival order; leave_world = DestroyEventQueues. Tests: world_tests entering_* and entering_queue_replays_in_arrival_order_after_create_player
+- [x] `CEventQueue::FinishEnteringWorld` · 00494b00 · legions 0048d2d0 — CEventQueue queue semantics: World::queued (QueueEvent, FIFO Vec) held in EnteringWorld by World::consider_queueing (ConsiderQueueingEvent); World::finish_entering_world (FinishEnteringWorld + FlushQueue) sets InWorld then replays in arrival order; leave_world = DestroyEventQueues. Tests: world_tests entering_* and entering_queue_replays_in_arrival_order_after_create_player
 - [x] `CEventQueue::UseTime` · 00494b10 · legions 0048d2e0 — implemented: cited at crates/ac2-weenie/src/world.rs:194
 
 ## `portal/client/src/events/ecm_admin.cpp.c` (0/5)

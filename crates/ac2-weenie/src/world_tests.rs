@@ -92,6 +92,31 @@ fn entering_holds_everything_but_create_player_until_it_arrives() {
     assert!(world.objects.get(object).is_some());
 }
 
+/// `CEventQueue::FlushQueue`: the blobs held while entering the world replay in arrival order
+/// once `FinishEnteringWorld` sets the state in-world, after the player is created.
+#[test]
+fn entering_queue_replays_in_arrival_order_after_create_player() {
+    let mut world = World::new(Build::Legions7160);
+    world.start_entering_world();
+    let (first, second) = (0x7000_0000_0000_0001, 0x7000_0000_0000_0002);
+    assert!(world
+        .receive(blob(0x0300_0001, 1, create_object(first, 1, 0)), 0.0)
+        .is_empty());
+    assert!(world
+        .receive(blob(0x0300_0002, 2, create_object(second, 1, 0)), 0.0)
+        .is_empty());
+    let events = world.receive(blob(0x0300_0003, 3, create_player()), 0.0);
+    let created: Vec<u64> = events
+        .iter()
+        .filter_map(|event| match event {
+            WorldEvent::Dispatched(ServerEvent::CreateObject(object)) => Some(object.id),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(created, [first, second]);
+    assert_eq!(world.state(), WorldState::InWorld);
+}
+
 #[test]
 fn events_for_unknown_objects_wait_and_visual_order_is_kept() {
     let mut world = World::new(Build::Legions7160);
