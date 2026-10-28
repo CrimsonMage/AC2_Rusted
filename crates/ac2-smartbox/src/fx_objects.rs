@@ -11,7 +11,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
-use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
+use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach, Ac2VisualFxParticles};
 
 /// The temporary ids the client gives the objects its FX create (`IIDUtils` type 0x13, numbered
 /// from the top of the instance range so they cannot meet the server's own).
@@ -25,21 +25,29 @@ const FADE_SECONDS: f64 = 0.5;
 const DESTROY_SECONDS: f64 = 3.0;
 const WHITE: [f32; 4] = [1.0; 4];
 /// The slider `FXManager::DoCreateObjectFX` moves an object's alpha on (`CPhysicsObj::DoSlider`).
-pub(crate) const ALPHA_SLIDER: u32 = 0x4000_001a;
+pub const ALPHA_SLIDER: u32 = 0x4000_001a;
+
+/// The FX nodes that create or hide objects for `fx` (`FXManager::DoTargettedFX`'s node list).
+pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
+    table
+        .get(fx)
+        .map(|list| list.iter().map(|a| a.object).collect())
+        .unwrap_or_default()
+}
 
 /// The FX state the object part keeps per emitter and FX id (`FXState`'s object fields).
 #[derive(Debug, Clone, PartialEq, Default)]
-pub(crate) struct FxRecord {
+pub struct FxRecord {
     /// `m_bStartupFX`: a startup FX stops only when forced, so `StopFX` leaves it running.
-    pub(crate) startup: bool,
+    pub startup: bool,
     /// `m_object_ids`: the objects the FX created, faded and destroyed when it stops.
-    pub(crate) objects: Vec<u64>,
+    pub objects: Vec<u64>,
     /// `m_objects_to_unhide`: the targets the FX hid.
-    pub(crate) unhide: Vec<u64>,
+    pub unhide: Vec<u64>,
     /// `m_restore_color`: the FX's colour lasts `color_lifetime`, then restores.
-    pub(crate) restore_colour: bool,
+    pub restore_colour: bool,
     /// `m_end_time`: when the FX ends by itself (`None` for never).
-    pub(crate) end: Option<f64>,
+    pub end: Option<f64>,
 }
 
 /// A colour channel set in motion (`PHYSICSOBJREP::SetProperty` with a ramp): linear from
@@ -77,19 +85,19 @@ struct Fade {
 /// An object an FX asked for, to be created by the client at its emitter, where its node's
 /// attachment puts it (`Ac2FxObjectAttach`).
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub(crate) struct PendingObject {
-    pub(crate) id: u64,
-    pub(crate) emitter: u64,
-    pub(crate) visual: u32,
-    pub(crate) attach: Ac2FxObjectAttach,
+pub struct PendingObject {
+    pub id: u64,
+    pub emitter: u64,
+    pub visual: u32,
+    pub attach: Ac2FxObjectAttach,
     /// The node's `m_ramp_time`, which sets how long the object takes to fade in.
-    pub(crate) ramp_time: f32,
+    pub ramp_time: f32,
 }
 
 /// The two alpha moves `FXManager::DoCreateObjectFX` makes on a created object, as
 /// `(pos, time)` for `CPhysicsObj::DoSlider(0, ALPHA_SLIDER, pos, time)`: the object starts
 /// clear at once, then fades to opaque over `ramp_time`, or over 0.25 s when that is zero.
-pub(crate) fn create_alpha_moves(ramp_time: f32) -> [(f32, f32); 2] {
+pub fn create_alpha_moves(ramp_time: f32) -> [(f32, f32); 2] {
     let fade_in = if ramp_time == 0.0 { 0.25 } else { ramp_time };
     [(0.0, 0.0), (1.0, fade_in)]
 }
@@ -105,7 +113,7 @@ pub struct FxLooks {
 
 /// The FX-made objects, colours and hides of every emitter.
 #[derive(Debug, Default)]
-pub(crate) struct FxObjects {
+pub struct FxObjects {
     /// The objects whose startup FX have run (`CPhysicsObj::InitObjectEnd`), once per object.
     startup_objects: HashSet<u64>,
     records: HashMap<u64, HashMap<u32, FxRecord>>,
@@ -119,7 +127,7 @@ pub(crate) struct FxObjects {
 
 impl FxObjects {
     /// The FX's record on `emitter`, when it is running (`FXManager::m_current_fx`).
-    pub(crate) fn record(&self, emitter: u64, fx: u32) -> Option<&FxRecord> {
+    pub fn record(&self, emitter: u64, fx: u32) -> Option<&FxRecord> {
         self.records.get(&emitter)?.get(&fx)
     }
 
@@ -130,7 +138,7 @@ impl FxObjects {
     /// its object is kept as the retail fallback keeps a failed one (`DoCreateObjectFX`).
     /// Returns without a record when no node has an object fact, or when the FX is running
     /// already (`DoTargettedFX` only updates a running FX's scalar).
-    pub(crate) fn start(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
+    pub fn start(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
         if !nodes.iter().any(Ac2FxObject::is_active) || self.record(emitter, fx).is_some() {
             return;
         }
@@ -177,7 +185,7 @@ impl FxObjects {
     /// `FXManager::DoStartupFX`'s object part, run when the object is created: each node that
     /// creates an object does so (`DoCreateObjectFX`), and the FX is recorded as a startup one,
     /// which `StopFX` leaves running. Colour and hides are not part of the startup branch.
-    pub(crate) fn start_startup(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject]) {
+    pub fn start_startup(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject]) {
         if self.record(emitter, fx).is_some() {
             return;
         }
@@ -193,7 +201,7 @@ impl FxObjects {
 
     /// `FXManager::StopFX`'s object part: a running FX (not a startup one) tears down; the
     /// colour of every node that restores is ramped back to white.
-    pub(crate) fn stop(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
+    pub fn stop(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
         if self
             .record(emitter, fx)
             .is_some_and(|record| record.startup)
@@ -210,7 +218,7 @@ impl FxObjects {
 
     /// `FXManager::UseTime`'s expired FX: each one whose end has come tears down, as `stop`
     /// does (the restore of its colour included).
-    pub(crate) fn expire(&mut self, now: f64) {
+    pub fn expire(&mut self, now: f64) {
         let expired: Vec<(u64, u32)> = self
             .records
             .iter()
@@ -228,24 +236,24 @@ impl FxObjects {
     }
 
     /// Marks `object` as having run its startup FX; `false` when it already had.
-    pub(crate) fn mark_startup(&mut self, object: u64) -> bool {
+    pub fn mark_startup(&mut self, object: u64) -> bool {
         self.startup_objects.insert(object)
     }
 
     /// Forgets the startup marks of objects `keep` rejects, so they run again when they return.
-    pub(crate) fn retain_startup(&mut self, keep: impl Fn(u64) -> bool) {
+    pub fn retain_startup(&mut self, keep: impl Fn(u64) -> bool) {
         self.startup_objects.retain(|id| keep(*id));
     }
 
     /// The emitters that have FX records, in id order.
-    pub(crate) fn emitters(&self) -> Vec<u64> {
+    pub fn emitters(&self) -> Vec<u64> {
         let mut ids: Vec<u64> = self.records.keys().copied().collect();
         ids.sort_unstable();
         ids
     }
 
     /// The emitter left the world: its FX stop (`DestroyAllTransientFX`).
-    pub(crate) fn remove_emitter(&mut self, emitter: u64, now: f64) {
+    pub fn remove_emitter(&mut self, emitter: u64, now: f64) {
         let Some(fxs) = self.records.remove(&emitter) else {
             return;
         };
@@ -292,7 +300,7 @@ impl FxObjects {
     }
 
     /// `CObjectMaint::FadeAndDestroyObject(id, 0.5, 3.0)`.
-    pub(crate) fn fade_and_destroy(&mut self, id: u64, now: f64) {
+    pub fn fade_and_destroy(&mut self, id: u64, now: f64) {
         self.fades.insert(
             id,
             Fade {
@@ -303,7 +311,7 @@ impl FxObjects {
     }
 
     /// `DoColorFX`: the emitter's colour ramps to `colour` over `seconds`.
-    pub(crate) fn set_colour(&mut self, emitter: u64, colour: [f32; 4], seconds: f32, now: f64) {
+    pub fn set_colour(&mut self, emitter: u64, colour: [f32; 4], seconds: f32, now: f64) {
         let from = self.colour(emitter, now).unwrap_or(WHITE);
         self.colours.insert(
             emitter,
@@ -317,7 +325,7 @@ impl FxObjects {
     }
 
     /// The emitter's colour now, `None` while it is white.
-    pub(crate) fn colour(&self, emitter: u64, now: f64) -> Option<[f32; 4]> {
+    pub fn colour(&self, emitter: u64, now: f64) -> Option<[f32; 4]> {
         self.colours
             .get(&emitter)
             .filter(|ramp| !(ramp.to == WHITE && ramp.finished(now)))
@@ -325,13 +333,13 @@ impl FxObjects {
     }
 
     /// Takes the objects FX asked for since the last call.
-    pub(crate) fn take_pending(&mut self) -> Vec<PendingObject> {
+    pub fn take_pending(&mut self) -> Vec<PendingObject> {
         std::mem::take(&mut self.pending)
     }
 
     /// The per-frame pass: records the time, drops the colours that have finished at white,
     /// and returns the faded objects whose destruction has come (the client removes them).
-    pub(crate) fn step(&mut self, now: f64) -> Vec<u64> {
+    pub fn step(&mut self, now: f64) -> Vec<u64> {
         self.now = now;
         self.colours
             .retain(|_, ramp| ramp.to != WHITE || !ramp.finished(now));
@@ -349,7 +357,7 @@ impl FxObjects {
     }
 
     /// What the renderer draws differently this frame, at the last step's time.
-    pub(crate) fn looks(&self) -> FxLooks {
+    pub fn looks(&self) -> FxLooks {
         let mut tints = BTreeMap::new();
         for &emitter in self.colours.keys() {
             if let Some(colour) = self.colour(emitter, self.now) {
@@ -372,7 +380,7 @@ impl FxObjects {
 
 /// `PHYSICSOBJREP::Draw`: the drawn colour is the object's colour (its FX colour and fade) times
 /// its animation colour scale (the colour and opacity sliders). Computed in f64, rounded once.
-pub(crate) fn drawn_tint(colour: [f32; 4], anim: [f32; 4]) -> [f32; 4] {
+pub fn drawn_tint(colour: [f32; 4], anim: [f32; 4]) -> [f32; 4] {
     std::array::from_fn(|i| (f64::from(colour[i]) * f64::from(anim[i])) as f32)
 }
 

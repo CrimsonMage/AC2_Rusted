@@ -6,22 +6,15 @@
 //! attached; the objects do not wait for it.
 
 use ac2_anim::Ac2AnimEvent;
-use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach, Ac2VisualFxParticles};
+use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
 use ac2_physics::placed_at;
+use ac2_smartbox::fx_objects::{create_alpha_moves, fx_nodes};
 use ac2_world::GameClock;
 
 use crate::client::Client;
 use crate::frame::FxFollow;
 use crate::remote::Context;
 use ac2_render::fx_particles::startup_light_starts;
-
-/// The FX nodes that create or hide objects for `fx` (`FXManager::DoTargettedFX`'s node list).
-fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
-    table
-        .get(fx)
-        .map(|list| list.iter().map(|a| a.object).collect())
-        .unwrap_or_default()
-}
 
 impl Client {
     /// `FXManager::DoTargettedFX`'s and `FXManager::StopFX`'s object parts for each object's
@@ -181,7 +174,7 @@ impl Client {
                 object.visual,
                 position,
                 follow,
-                crate::fx_objects::create_alpha_moves(object.ramp_time),
+                create_alpha_moves(object.ramp_time),
                 &mut cx,
             );
         }

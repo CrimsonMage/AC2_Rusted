@@ -167,7 +167,7 @@ pub struct Client {
     pub(crate) scripts: Option<crate::scripts::Scripts>,
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
     /// The FX-made objects, colours and hides (`FXManager`'s object parts); no sound device needed.
-    pub(crate) fx_objects: crate::fx_objects::FxObjects,
+    pub(crate) fx_objects: ac2_smartbox::fx_objects::FxObjects,
     /// The FX streaks the objects' FX make (`FXManager`'s streak part) and `StreakEffects`.
     pub(crate) fx_streaks: ac2_render::fx_streaks::FxStreaks,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
@@ -267,7 +267,7 @@ impl Client {
             remotes: Remotes::default(),
             scripts: None,
             audio: None,
-            fx_objects: crate::fx_objects::FxObjects::default(),
+            fx_objects: ac2_smartbox::fx_objects::FxObjects::default(),
             fx_streaks: Default::default(),
             radar: Default::default(),
             friend_events: Vec::new(),

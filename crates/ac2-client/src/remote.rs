@@ -350,7 +350,7 @@ impl Remotes {
         }
         if let Some(moves) = remote.alpha_moves.take() {
             for (pos, time) in moves {
-                body.do_slider(0, crate::fx_objects::ALPHA_SLIDER, pos, time);
+                body.do_slider(0, ac2_smartbox::fx_objects::ALPHA_SLIDER, pos, time);
             }
         }
         remote.body = Some(body);

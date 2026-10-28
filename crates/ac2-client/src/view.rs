@@ -151,7 +151,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 origin: o.origin,
                 rotation: o.rotation,
                 pose: &o.pose,
-                tint: crate::fx_objects::drawn_tint(
+                tint: ac2_smartbox::fx_objects::drawn_tint(
                     frame.fx_looks.tints.get(&o.id).copied().unwrap_or([1.0; 4]),
                     o.anim_scale,
                 ),

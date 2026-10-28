@@ -164,5 +164,5 @@ pub struct ClientFrame {
     /// The map notes (`gmNavigationUI`), in arrival order.
     pub markers: Arc<Vec<MapMarker>>,
     /// The objects an FX hid or tinted (`FXManager`'s hides and colours, and fades).
-    pub fx_looks: crate::fx_objects::FxLooks,
+    pub fx_looks: ac2_smartbox::fx_objects::FxLooks,
 }
