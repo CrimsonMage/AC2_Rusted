@@ -46,6 +46,7 @@ mod loader;
 mod loader_anim;
 mod look_at;
 mod los;
+mod missile;
 mod motion;
 mod motion_interp;
 mod motion_interp_behaviors;
@@ -68,6 +69,7 @@ mod physics_obj_place;
 #[cfg(test)]
 mod physics_obj_tests;
 mod position;
+mod pushers;
 #[cfg(test)]
 mod real_data_tests;
 mod shapes;
@@ -107,6 +109,10 @@ pub use loader::{
 pub use loader_anim::load_body_animation;
 pub use look_at::LookTarget;
 pub use los::{LosParameters, Ray, RayIntersection};
+pub use missile::{
+    chase_velocity, get_gravitational_velocity, get_max_time, get_min_time, MissileHost,
+    MissileManager, MissileParameters, TargetPosition, MISSILE_FLIGHT_FX,
+};
 pub use motion::{apply_motion, apply_motion_from, apply_motion_owned, MotionEvent};
 pub use motion_interp::MotionInterp;
 pub use moveto::{
@@ -119,6 +125,7 @@ pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
+pub use pushers::{PusherSum, PusherValues, Pushers};
 pub use shapes::cylsphere::CylSphere;
 pub use target::{
     TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus, TargetVoyeur,

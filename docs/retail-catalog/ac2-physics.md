@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 652 done, 151 partial, 514 to do, 807 skipped.
+2124 retail functions: 673 done, 152 partial, 490 to do, 809 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -732,7 +732,7 @@ Legend and workflow: [README](README.md).
 - [~] `CollidePropertyList::BeginPropertyCollision` · 006a0ae0 · legions 0063d910 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [~] `CollidePropertyList::EndPropertyCollision` · 006a0b80 · legions 0063d9b0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 
-## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (26/61)
+## `portal/shared/src/physobj/collision/collisionmanager.cpp.c` (29/61)
 
 ### CollisionParameters
 - [x] `CollisionParameters::SetWeeniePlacementType` · 004f6330 · legions 004e8b20 — ac2-physics collision_types.rs CollisionParameters::set_weenie_*/set_physics_*_type
@@ -749,7 +749,7 @@ Legend and workflow: [README](README.md).
 - [x] `CCollisionManager::AddToTempEtherealList` · 004f64d0 · legions 004e8cc0 — ac2-physics collision_types.rs CollisionParameters::add_to_temp_ethereal_list
 - [ ] `CCollisionManager::UpdateCollidePhysicsMask` · 004f64f0 · legions 004e8ce0 — needs port: collision reports and properties
 - [x] `CCollisionManager::SetCollisionNormal` · 004f6520 · legions 004e8d10 — ac2-physics collision_report.rs and PhysicsObj::report_collisions / end_all_collisions (body.rs): ReportCollisions and EndAllCollisions run the collision manager's report (object table, landscape/water/environment layers, contact plane, impact); ac2-client sends each non-empty report to the script's HandleCollision
-- [ ] `CCollisionManager::SetNoCollisionNormal` · 004f65a0 · legions 004e8d90 — needs port: collision reports and properties
+- [x] `CCollisionManager::SetNoCollisionNormal` · 004f65a0 · legions 004e8d90 — ac2-physics collision_report.rs CollisionManager::set_no_collision_normal (m_has_normal = 0)
 - [~] `CCollisionManager::SetContactPlane` · 004f65b0 · legions 004e8da0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [x] `CCollisionManager::SetInWater` · 004f65f0 · legions 004e8de0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::SetOutOfWater` · 004f6610 · legions 004e8e00 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
@@ -810,18 +810,18 @@ Legend and workflow: [README](README.md).
 - [x] `CCollisionManager::ReportWaterProperties` · 004f7690 · legions 004e9ec0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::ReportSurfaceProperties` · 004f7700 · legions 004e9f30 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::UpdatePropertyArray` · 004f7770 · legions 004e9fa0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [ ] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — needs port: collision reports and properties
+- [x] `CCollisionManager::UpdatePusherValues` · 004f7930 · legions 004ea160 — ac2-physics pushers.rs Pushers::update_values (asm-checked: element 1 earth, 2 air, 3 water, 4 seafloor; a walk-on-air pusher replaces the sums, then is added on top); CPhysicsObj::CalcExternalForces calls it
 - [ ] `CCollisionManager::UpdateConflictList` · 004f7b10 · legions 004ea340 — needs port: collision reports and properties
 - [~] `CCollisionManager::SetCollisionState` · 004f7ca0 · legions 004ea510 — CollisionParameters::merge_set_state: bits name the sets, movement and placement masks and the physics type replace, weenie lists merge (EtherealWeenieType::Update). Not kept: the desired movement mask (m_desired_physics_mask) and the manager's temp lists; the body's physics type is collision.physics_type, not a separate m_blocking_mask
 - [x] `CCollisionManager::AddEnvironmentalProperties` · 004f7db0 · legions 004ea620 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::ChangePhysicsMaterial` · 004f7e30 · legions 004ea6a0 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [ ] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — needs port: collision reports and properties
+- [~] `CCollisionManager::RemovePropertiesAndErase` · 004f7ed0 · legions 004ea720 — the pusher part only: PhysicsBody::remove_pusher (ac2-physics pushers.rs). The per-object CollidePropertyList table is not held (SetProperties on objects is not ported)
 - [ ] `CCollisionManager::RemoveObjectCollision` · 004f7f60 · legions 004ea7b0 — needs port: collision reports and properties
 - [ ] `CCollisionManager::FindInPropertyList` · 004f8050 · legions 004ea8a0 — needs port: collision reports and properties
 - [-] `CCollisionManager::~CCollisionManager` · 004f8420 · legions 004eac70 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [x] `CCollisionManager::EndInWater` · 004f85b0 · legions 004eae00 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 - [x] `CCollisionManager::EndOnLandscape` · 004f8610 · legions 004eae60 — ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
-- [ ] `CCollisionManager::AddPusherProperties` · 004f8670 · legions 004eaec0 — needs port: collision reports and properties
+- [x] `CCollisionManager::AddPusherProperties` · 004f8670 · legions 004eaec0 — ac2-physics pushers.rs Pushers::add_properties (x87 adds as f32 stores; the water velocity 0x4000004a alone does not register a pusher, as retail; table order is insertion, retail's bucket order depends on object addresses); reached through PhysicsBody::add_pusher_properties
 - [~] `CCollisionManager::AddToCollideList` · 004f9260 · legions 004ebab0 — ac2-physics collision_report.rs: the object table begin/end rule (1 s after the last touch, end_all) and the landscape, water and environment begin/change/end layers, fed by the body's contact flags and the caller's ContactMaterials. Not ported: the CollidePropertyList and property arrays (per-material records, pusher values, RemovePropertiesAndErase), the m_resolved flag, and the caller does not yet supply the materials
 - [~] `CCollisionManager::ReportCollision` · 004f9390 · legions 004ebbe0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [ ] `CCollisionManager::AddToPropertyList` · 004f9a00 · legions 004ec250 — needs port: collision reports and properties
@@ -1538,7 +1538,7 @@ Legend and workflow: [README](README.md).
 ### InterpolationManager
 - [x] `InterpolationManager::DoConstraint` · 0050e1c0 · legions 004fc230 — ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 - [x] `InterpolationManager::Blip` · 0050e340 · legions 004fc3b0 — ac2-physics interp (slice 3)
-- [ ] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430 — needs port: interpolation manager
+- [-] `InterpolationManager::GetLastReceivedMotionVector` · 0050e430 — admin-only: no Legions body (a debugger accessor of the received motion vector)
 - [x] `InterpolationManager::DoImpulseLogic` · 0050e8b0 · legions 004fc920 — ac2-physics interp (slice 3)
 
 ### _STL::deque<_STL::pair<InterpolationManager::QueuedPosition,float>,_STL::allocator<_STL::pair<InterpolationManager::QueuedPosition,float>_>_>
@@ -1848,25 +1848,25 @@ Legend and workflow: [README](README.md).
 - [x] `MoveToManager::UpdateTurnTo` · 0050c790 · legions 004fa800 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::Update` · 0050c960 · legions 004fa9d0 — ac2-physics moveto (slice 3)
 
-## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (1/58)
+## `portal/shared/src/physobj/missile/missilemanager.cpp.c` (19/58)
 
 ### Random
-- [ ] `Random::Check` · 00510ef0 · legions 004fef00 — needs port: Random::Check
+- [x] `Random::Check` · 00510ef0 · legions 004fef00 — ac2-core random.rs Random::check (RollDice(0,1) <= chance)
 
 ### CMissileManager
-- [ ] `CMissileManager::Place` · 00510f20 · legions 004fef30 — needs port: missile flight
-- [ ] `CMissileManager::Fire` · 00510f30 · legions 004fef40 — needs port: missile flight
+- [x] `CMissileManager::Place` · 00510f20 · legions 004fef30 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::Fire` · 00510f30 · legions 004fef40 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [ ] `CMissileManager::ClientInitMissileParameters` · 00510f40 · legions 004fef50 — needs port: missile flight
-- [ ] `CMissileManager::IsInWorld` · 00510fb0 · legions 004fefc0 — needs port: missile flight
-- [ ] `CMissileManager::GetMinTime` · 00510fd0 · legions 004fefe0 — needs port: missile flight
-- [ ] `CMissileManager::GetMaxTime` · 00511050 · legions 004ff060 — needs port: missile flight
-- [ ] `CMissileManager::GetGravitationalVelocity` · 005110f0 · legions 004ff100 — needs port: missile flight
-- [ ] `CMissileManager::AdjustSpeed` · 005111b0 · legions 004ff1c0 — needs port: missile flight
-- [ ] `CMissileManager::UpdateFuelUse` · 005112d0 · legions 004ff2e0 — needs port: missile flight
-- [ ] `CMissileManager::OutOfFuel` · 00511330 · legions 004ff340 — needs port: missile flight
-- [ ] `CMissileManager::ReportOutOfFuel` · 00511360 · legions 004ff370 — needs port: missile flight
-- [ ] `CMissileManager::SetActivated` · 00511380 · legions 004ff390 — needs port: missile flight
-- [ ] `CMissileManager::SetMoving` · 00511390 · legions 004ff3a0 — needs port: missile flight
+- [x] `CMissileManager::IsInWorld` · 00510fb0 · legions 004fefc0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::GetMinTime` · 00510fd0 · legions 004fefe0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::GetMaxTime` · 00511050 · legions 004ff060 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::GetGravitationalVelocity` · 005110f0 · legions 004ff100 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::AdjustSpeed` · 005111b0 · legions 004ff1c0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::UpdateFuelUse` · 005112d0 · legions 004ff2e0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::OutOfFuel` · 00511330 · legions 004ff340 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::ReportOutOfFuel` · 00511360 · legions 004ff370 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::SetActivated` · 00511380 · legions 004ff390 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::SetMoving` · 00511390 · legions 004ff3a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [ ] `CMissileManager::ShouldDetonate` · 005113f0 · legions 004ff400 — needs port: missile flight
 
 ### Position
@@ -1876,7 +1876,7 @@ Legend and workflow: [README](README.md).
 ### CMissileManager
 - [-] `CMissileManager::CMissileManager` · 00511670 · legions 004ff680 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CMissileManager::~CMissileManager` · 005117b0 · legions 004ff7c0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [ ] `CMissileManager::PlaceAndFire` · 005117f0 · legions 004ff800 — needs port: missile flight
+- [x] `CMissileManager::PlaceAndFire` · 005117f0 · legions 004ff800 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 
 ### MissileTargetingParameters
 - [-] `MissileTargetingParameters::operator=` · 00511810 · legions 004ff820 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -1886,12 +1886,12 @@ Legend and workflow: [README](README.md).
 - [ ] `CMissileManager::CalcMinMaxTime` · 00511bb0 · legions 004ffbc0 — needs port: missile flight
 - [ ] `CMissileManager::CalcGravitationalPitch` · 00511d10 · legions 004ffd20 — needs port: missile flight
 - [ ] `CMissileManager::GreaterPitch` · 00511f90 · legions 004fffa0 — needs port: missile flight
-- [ ] `CMissileManager::ChaseVelocity` · 00512000 · legions 00500010 — needs port: missile flight
-- [ ] `CMissileManager::AdjustHeight` · 00512180 · legions 00500190 — needs port: missile flight
+- [x] `CMissileManager::ChaseVelocity` · 00512000 · legions 00500010 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::AdjustHeight` · 00512180 · legions 00500190 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [ ] `CMissileManager::GetDesiredVelocity` · 005121d0 · legions 005001e0 — needs port: missile flight
 - [ ] `CMissileManager::CollideVelocity` · 005122f0 · legions 00500300 — needs port: missile flight
-- [ ] `CMissileManager::UpdateMissilePhysics` · 005124b0 · legions 005004c0 — needs port: missile flight
-- [ ] `CMissileManager::GetCurrentVelocity` · 00512790 · legions 005007a0 — needs port: missile flight
+- [x] `CMissileManager::UpdateMissilePhysics` · 005124b0 · legions 005004c0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
+- [x] `CMissileManager::GetCurrentVelocity` · 00512790 · legions 005007a0 — ac2-physics missile.rs (asm-checked x87 spills; the ICPhysicsObj calls go through MissileHost)
 - [ ] `CMissileManager::InitHeadingTowardTarget` · 005127c0 · legions 005007d0 — needs port: missile flight
 - [ ] `CMissileManager::HandleCollision` · 00512890 · legions 005008a0 — needs port: missile flight
 
@@ -3116,7 +3116,7 @@ Legend and workflow: [README](README.md).
 - [x] `TargetVoyeur::TargetVoyeur` · 00515520 · legions 00503530 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 - [-] `TargetVoyeur::GetPackSize` · 00515580 · legions 00503590 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [-] `TargetVoyeur::Pack` · 005155a0 · legions 005035b0 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `TargetVoyeur::UnPack` · 00515600 · legions 00503610 — needs port: target tracking and voyeurs
+- [-] `TargetVoyeur::UnPack` · 00515600 · legions 00503610 — archive unpack of a runtime voyeur record (PackObj state), never read from a stream by the client
 
 ### TargetManager
 - [x] `TargetManager::GetInterpolatedPosition` · 00515690 · legions 005036a0 — ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)

@@ -594,6 +594,27 @@ impl PhysicsBody {
         (!report.is_empty()).then_some(report)
     }
 
+    /// `CCollisionManager::AddPusherProperties`: the touched object `key` pushes the body with
+    /// the vector properties of its physics material (`properties`, the object's property list),
+    /// turned by `object`'s frame when the material is local-space. Returns whether it joined.
+    pub fn add_pusher_properties(
+        &mut self,
+        key: u64,
+        object: Option<&crate::position::Position>,
+        properties: &[ac2_db::Ac2PropertyValue],
+    ) -> bool {
+        self.object
+            .collision_manager
+            .pushers
+            .add_properties(key, object, properties)
+    }
+
+    /// `CCollisionManager::RemovePropertiesAndErase`'s pusher part: the touched object `key` no
+    /// longer pushes the body. Returns whether it did.
+    pub fn remove_pusher(&mut self, key: u64) -> bool {
+        self.object.collision_manager.pushers.remove(key)
+    }
+
     /// `CCollisionManager::SetCollisionState` on a script's `CollisionParameters`: a non-zero
     /// `m_min_reported_impactXY` or `Z` replaces the body's minimum; zero keeps it.
     pub fn set_collision_minimums(&mut self, xy: f32, z: f32) {

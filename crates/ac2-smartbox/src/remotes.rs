@@ -13,7 +13,7 @@ use ac2_anim::{Ac2AnimEvent, FxScripts};
 use ac2_core::Random;
 use ac2_physics::{
     CellSource, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position, SetPositionError,
-    StaticObject, Terrain, Vector,
+    StaticObject, TargetOwner, Terrain, Vector,
 };
 use ac2_world::Ac2MotionInterpDesc;
 
@@ -643,6 +643,27 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 effects.extend(self.sync_position_simple(id, position, records, terrain));
             }
         }
+    }
+
+    /// What `TargetManager` reads of the object's body (`TargetOwner`): its id, position,
+    /// velocity, `GetRadius`, `GetHeight` and scale. `None` unless it is in the world with a body.
+    pub fn target_owner(&self, id: u64) -> Option<TargetOwner> {
+        let (position, radius, height) = self.target_info(id)?;
+        let remote = self.objects.get(&id)?;
+        let body = remote.body.as_ref()?;
+        let v = body.movement_state().velocity;
+        let scale = remote
+            .object
+            .as_ref()
+            .map_or(Vector::new(1.0, 1.0, 1.0), |(_, s)| *s);
+        Some(TargetOwner {
+            id,
+            position,
+            velocity: Vector::new(v[0], v[1], v[2]),
+            radius,
+            height,
+            scale,
+        })
     }
 
     /// A move-to target as `TargetManager` reports it: an object in the world with a body, its

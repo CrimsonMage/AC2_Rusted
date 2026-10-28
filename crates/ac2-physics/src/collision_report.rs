@@ -21,6 +21,7 @@ use crate::collide_property::{
 use crate::collision_impact::ImpactReport;
 use crate::collision_types::InstanceId;
 use crate::physics_material::PhysicsMaterial;
+use crate::pushers::Pushers;
 use crate::vector::Plane;
 
 /// The time an object stays reported after its last touch (`1.0 <` in `ReportCollision`).
@@ -216,6 +217,8 @@ pub(crate) struct CollisionManager {
     contact: Option<Plane>,
     /// The impact the contact recorded and no report has taken (`m_has_normal`).
     impact: Option<ImpactReport>,
+    /// `m_pushers`: the objects pushing the body.
+    pub(crate) pushers: Pushers,
 }
 
 impl Default for CollisionManager {
@@ -232,6 +235,7 @@ impl Default for CollisionManager {
             descs: PropertyDescs::default(),
             contact: None,
             impact: None,
+            pushers: Pushers::default(),
         }
     }
 }
@@ -240,6 +244,12 @@ impl CollisionManager {
     /// Starts a collision check at `now` (`m_last_collide_check_time`).
     pub(crate) fn begin_check(&mut self, now: f64) {
         self.check_time = now;
+    }
+
+    /// `CCollisionManager::SetNoCollisionNormal`: the impact the contact recorded is dropped
+    /// (`m_has_normal = 0`).
+    pub(crate) fn set_no_collision_normal(&mut self) {
+        self.impact = None;
     }
 
     /// Records an impact the contact made (`CCollisionManager::SetCollisionNormal`).
@@ -287,11 +297,11 @@ impl CollisionManager {
         self.report_objects(now, flags, &mut out);
         if !flags.active {
             // The impact is discarded, as retail clears `m_has_normal` on every report.
-            self.impact = None;
+            self.set_no_collision_normal();
             return out;
         }
         if flags.end_all {
-            self.impact = None;
+            self.set_no_collision_normal();
             if self.water.reported_in {
                 end_layer(
                     Kind::Water,

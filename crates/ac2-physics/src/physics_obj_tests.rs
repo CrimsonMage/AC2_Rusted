@@ -468,3 +468,47 @@ fn ethereal_bits_accumulate_on_the_body_and_none_clears_them() {
     body.apply_blocking_bits(0);
     assert_eq!(body.blocking_bits(), (1 << 4) | (1 << 5));
 }
+
+fn pusher_vector(name: u32, v: [f32; 3]) -> ac2_db::Ac2PropertyValue {
+    let mut bytes = Vec::new();
+    for c in v {
+        bytes.extend_from_slice(&c.to_le_bytes());
+    }
+    ac2_db::Ac2PropertyValue {
+        name,
+        value_type: 0x4000_0004,
+        bytes: bytes.into_boxed_slice(),
+    }
+}
+
+#[test]
+fn a_general_velocity_pusher_carries_a_grounded_body() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    run(&mut body, &ground, 1.0);
+    let before = body.position().frame.origin;
+    // `CollideProperty` 0x40000042: a general velocity of 1 m/s along +x.
+    assert!(body.add_pusher_properties(9, None, &[pusher_vector(0x4000_0042, [1.0, 0.0, 0.0])]));
+    run(&mut body, &ground, 1.0);
+    let moved = body.position().frame.origin.x - before.x;
+    assert!((moved - 1.0).abs() < 0.05, "moved {moved}");
+    assert!(body.movement_state().contact, "still on the ground");
+    // Once the object is gone the push stops.
+    assert!(body.remove_pusher(9));
+    let at = body.position().frame.origin.x;
+    run(&mut body, &ground, 0.5);
+    assert!((body.position().frame.origin.x - at).abs() < 1e-3);
+}
+
+#[test]
+fn an_upward_pusher_lifts_a_body_off_the_ground_without_gravity() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 50.0);
+    run(&mut body, &ground, 1.0);
+    // `CollideProperty` 0x40000042 with +z: it is lifting (above F_EPSILON).
+    body.add_pusher_properties(3, None, &[pusher_vector(0x4000_0042, [0.0, 0.0, 2.0])]);
+    run(&mut body, &ground, 1.0);
+    let state = body.movement_state();
+    assert!(!state.contact, "{state:?}");
+    assert!(state.origin[2] > 51.0, "{state:?}");
+}

@@ -85,6 +85,12 @@ impl Random {
         let r = self.rand() as f32;
         (f64::from(hi - lo) * f64::from(r) + f64::from(lo)) as f32
     }
+
+    /// `Random::Check`: a roll of `RollDice(0.0, 1.0)` that is at most `chance` (the compiled
+    /// `a < b != (a == b)` is `a <= b`).
+    pub fn check(&mut self, chance: f32) -> bool {
+        self.roll_dice_f32(0.0, 1.0) <= chance
+    }
 }
 
 #[cfg(test)]
@@ -103,6 +109,15 @@ mod tests {
         for _ in 0..1000 {
             let value = random.rand();
             assert!((0.0..=0.999_999_88).contains(&value));
+        }
+    }
+
+    #[test]
+    fn check_passes_at_one_and_never_at_a_negative_chance() {
+        let mut random = Random::default();
+        for _ in 0..200 {
+            assert!(random.check(1.0));
+            assert!(!random.check(-0.5));
         }
     }
 

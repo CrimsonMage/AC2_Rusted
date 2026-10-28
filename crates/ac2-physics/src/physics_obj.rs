@@ -18,6 +18,7 @@ use crate::terrain::Terrain;
 use crate::vector::{Plane, Quaternion, Sphere, Vector};
 
 /// `PhysicsState` bits this port reads.
+pub(crate) const STATIC_PS: u32 = 0x1;
 pub(crate) const GRAVITY_PS: u32 = 0x200;
 pub(crate) const INELASTIC_PS: u32 = 0x2000;
 pub(crate) const EDGE_SLIDE_PS: u32 = 0x8000;
@@ -30,6 +31,8 @@ pub(crate) const DEFAULT_STATE: u32 = 0x0020_8604;
 
 /// `TransientState` bits.
 pub(crate) const CONTACT_TS: u32 = 0x1;
+/// `CPhysicsObj::set_misc_active`'s transient bit.
+pub(crate) const MISC_ACTIVE_TS: u32 = 0x200;
 pub(crate) const ON_WALKABLE_TS: u32 = 0x2;
 pub(crate) const SLIDING_TS: u32 = 0x4;
 pub(crate) const STATIONARY_FALL_TS: u32 = 0x10;
@@ -362,9 +365,8 @@ impl PhysicsObj {
         self.clamp_omega = Some(clamp.omega_z);
         self.calc_acceleration(terrain);
         self.omega_acceleration = self.motion.omega_acceleration();
-        // `CalcExternalForces` without pushers (`CCollisionManager::UpdatePusherValues`): the
-        // fields stay zero and the residual field velocity decays.
-        self.calc_external_forces();
+        // `CalcExternalForces`: the pushers' fields (`CCollisionManager::UpdatePusherValues`).
+        self.calc_external_forces(quantum);
         let v = self.velocity;
         let velocity_mag2 = (ld(v.x) * ld(v.x) + ld(v.y) * ld(v.y)) + ld(v.z) * ld(v.z);
         let velocity_mag2_stored = st(velocity_mag2);

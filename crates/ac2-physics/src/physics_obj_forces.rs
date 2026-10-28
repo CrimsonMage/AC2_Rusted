@@ -1,8 +1,8 @@
 //! `CPhysicsObj`'s force terms: `CalcAcceleration`, `CalcFriction`, `CullVelocity`,
-//! `UpdateRotation` and the pusher-free `CalcExternalForces`.
+//! `UpdateRotation` and `CalcExternalForces`.
 
-use super::{PhysicsObj, GRAVITY_PS, ON_WALKABLE_TS};
-use crate::fpu::{epsilon_squared, ld, st};
+use super::{PhysicsObj, CONTACT_TS, GRAVITY_PS, MISC_ACTIVE_TS, ON_WALKABLE_TS, STATIC_PS};
+use crate::fpu::{epsilon_squared, ld, st, F_EPSILON};
 use crate::frame::Frame;
 use crate::heading::Heading;
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_SEA_FLOOR, ELEMENT_WATER};
@@ -225,13 +225,75 @@ impl PhysicsObj {
         self.omega = Vector::new(x, y, st(z));
     }
 
-    /// `CPhysicsObj::CalcExternalForces` with no pushers (`CCollisionManager::
-    /// UpdatePusherValues` leaves the velocity and acceleration fields zero): the external
-    /// offset is zero, nothing pushes upward, so the object is set affected by gravity again
-    /// (`set_affected_by_gravity(1)`), as retail does every quantum.
-    pub(super) fn calc_external_forces(&mut self) {
+    /// `CPhysicsObj::CalcExternalForces`: the pushers' velocity and acceleration fields for the
+    /// desired element (`CCollisionManager::UpdatePusherValues`), the residual field velocity's
+    /// decay (x0.8 in contact or in water), and the offset the fields move the body this
+    /// quantum (`m_vExternalField`). A strong upward push takes the body off the ground and out
+    /// of gravity; otherwise gravity applies again, and an upward residual gains gravity.
+    /// The intermediate roundings follow the x87 spills of the retail code.
+    pub(super) fn calc_external_forces(&mut self, quantum: f32) {
+        let sum = self
+            .collision_manager
+            .pushers
+            .update_values(self.desired_element());
+        self.walk_on_air = sum.walk_on_air;
+        let vf = sum.velocity;
+        let af = sum.acceleration;
         self.external_field = Vector::ZERO;
-        self.acceleration_field_vel = Vector::ZERO;
-        self.state |= GRAVITY_PS;
+        if self.has_contact() || self.desired_element() == ELEMENT_WATER {
+            let f = self.acceleration_field_vel;
+            let decay = ld(0.8_f32);
+            self.acceleration_field_vel = Vector::new(
+                st(ld(f.x) * decay),
+                st(ld(f.y) * decay),
+                st(ld(f.z) * decay),
+            );
+        }
+        let eps = ld(F_EPSILON);
+        let mag2 = |v: Vector| ld(v.x) * ld(v.x) + ld(v.y) * ld(v.y) + ld(v.z) * ld(v.z);
+        if mag2(self.external_field) < eps {
+            self.external_field = Vector::ZERO;
+        }
+        if mag2(self.acceleration_field_vel) < eps {
+            self.acceleration_field_vel = Vector::ZERO;
+        }
+        if ld(vf.z) > eps || ld(af.z) > eps {
+            self.transient_state &= !CONTACT_TS;
+            if self.state & STATIC_PS == 0 {
+                self.transient_state |= MISC_ACTIVE_TS;
+            }
+            self.state &= !GRAVITY_PS;
+        } else {
+            self.state |= GRAVITY_PS;
+            if ld(self.acceleration_field_vel.z) > 0.0 {
+                let g = self.local_gravity;
+                let f = self.acceleration_field_vel;
+                self.acceleration_field_vel = Vector::new(
+                    st(ld(g.x) + ld(f.x)),
+                    st(ld(g.y) + ld(f.y)),
+                    st(ld(g.z) + ld(f.z)),
+                );
+            }
+        }
+        let q = ld(quantum);
+        let half = ld(0.5_f32);
+        let f = self.acceleration_field_vel;
+        // `a * 0.5 * q * q` per axis: x spills `a * 0.5 * q` to a float before the last product.
+        let term_x = st(ld(st(ld(af.x) * half * q)) * q);
+        let term_y = st(ld(af.y) * half * q * q);
+        let term_z = ld(af.z) * half * q * q;
+        let part_x = st(q * ld(vf.x) + q * ld(f.x));
+        let part_y = st(ld(st(q * ld(vf.y))) + q * ld(f.y));
+        let part_z = st(ld(st(q * ld(vf.z))) + ld(st(q * ld(f.z))));
+        self.external_field = Vector::new(
+            st(ld(part_x) + ld(term_x)),
+            st(ld(part_y) + ld(term_y)),
+            st(ld(part_z) + term_z),
+        );
+        self.acceleration_field_vel = Vector::new(
+            st(ld(af.x) + ld(f.x)),
+            st(ld(af.y) + ld(f.y)),
+            st(ld(af.z) + ld(f.z)),
+        );
     }
 }
