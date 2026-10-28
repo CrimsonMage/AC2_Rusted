@@ -12,6 +12,7 @@ use crate::vm::NoData;
 use crate::{load_wlib, LEGIONS_WLIB_DID};
 
 mod collision;
+mod create;
 mod physics;
 
 fn legions_host() -> Option<ScriptHost> {
