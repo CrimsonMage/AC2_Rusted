@@ -297,7 +297,7 @@ impl ResourcePackedDecode for FogDesc {
     const TYPE_NAME: &'static str = "AC2 FogDesc";
     const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;
 
-    /// `CFogDesc` stream: version, DID, four map DIDs, the has-default word (4-byte aligned), the
+    /// `CFogDesc::UnPack` (the `CFogDesc` stream): version, DID, four map DIDs, the has-default word (4-byte aligned), the
     /// default `FogType`, a count and the `FogType`s.
     fn decode_packed(
         qdid: QualifiedDataId,

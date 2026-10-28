@@ -107,6 +107,52 @@ fn mode_paths_step_through_the_allowed_elements() {
     assert!(!t.next_transition_along_mode_path(&mut key));
 }
 
+/// `CharTemplate::StreamPack`: behaviours (`Behavior::StreamPack`), sliders (`Slider::StreamPack`),
+/// modes (`Mode::StreamPack`), the defaults and `userControlledSliders` all decode and are kept.
+#[test]
+fn the_char_template_keeps_modes_and_user_controlled_sliders() {
+    let w = words(&[
+        0x2F00_0099,
+        // One behaviour: id, low flags, high flags.
+        1,
+        0x4000_0007,
+        AC2_BEHAVIOR_ACTION as u32 | AC2_BEHAVIOR_HOLD as u32,
+        0,
+        // Two sliders: client controlled (0) and weenie controlled (1).
+        2,
+        0x4000_0001,
+        0,
+        0x4000_0002,
+        1,
+        // Two modes: peace and combat.
+        2,
+        PEACE,
+        0,
+        COMBAT,
+        1,
+        G,
+        PEACE,
+        // `userControlledSliders`.
+        1,
+        0x4000_0001,
+    ]);
+    let qdid = QualifiedDataId::new(ac2_core::DataId::new(0x2F00_0099), 0);
+    let template = Ac2CharTemplate::decode_packed(qdid, 0, &w).expect("synthetic template");
+    assert_eq!(
+        template.behavior(0x4000_0007),
+        Some(AC2_BEHAVIOR_ACTION | AC2_BEHAVIOR_HOLD)
+    );
+    assert!(template.is_user_controlled(0x4000_0001));
+    assert!(template.is_network_slider(0x4000_0002));
+    assert_eq!(template.modes[&PEACE], 0);
+    assert_eq!(template.modes[&COMBAT], 1);
+    assert_eq!(
+        (template.default_element, template.default_mode),
+        (G, PEACE)
+    );
+    assert_eq!(template.user_controlled_sliders, vec![0x4000_0001]);
+}
+
 /// The human behaviour table and the character template decode completely (only with
 /// `AC2_DAT_DIR`); every combo's layer indexes the table's layers and every init behaviour is defined.
 #[test]
@@ -147,4 +193,5 @@ fn retail_behavior_tables_decode() {
     assert!(table
         .modes
         .contains_key(&(template.default_element, table.init_mode)));
+    assert!(!template.modes.is_empty());
 }

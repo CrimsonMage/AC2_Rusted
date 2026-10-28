@@ -87,6 +87,37 @@ fn the_behaviour_bitfield_names_the_fields_it_sends() {
     assert_eq!(bare.mode, behavior(&BehaviorParams::default()).mode);
 }
 
+/// The camera and child-fade parameters travel with the behaviour when their bits are set:
+/// `mFadeChildren` 0x100, `mCameraParent` 0x80, `mCameraTarget` 0x40, `mCameraHold` 0x40000,
+/// `mCameraRestore` 0x80000, and `mCameraTargetID` with `mCameraBehavior` 0x200000.
+#[test]
+fn the_behaviour_bitfield_carries_the_camera_and_fade_parameters() {
+    let named = behavior(&BehaviorParams {
+        bitfield: 0x100 | 0x80 | 0x40 | 0x4_0000 | 0x8_0000 | 0x20_0000,
+        fade_children: 1,
+        camera_parent: 1,
+        camera_target_flag: 1,
+        camera_hold: 1,
+        camera_restore: 1,
+        camera_target: 0x77,
+        camera_behavior: 0x4000_0099,
+        ..BehaviorParams::default()
+    });
+    assert!(named.fade_children && named.camera_parent && named.camera_target);
+    assert!(named.camera_hold && named.camera_restore);
+    assert_eq!(
+        (named.camera_target_id, named.camera_behavior),
+        (0x77, 0x4000_0099)
+    );
+    let bare = behavior(&BehaviorParams {
+        bitfield: 0,
+        fade_children: 1,
+        camera_target: 0x77,
+        ..BehaviorParams::default()
+    });
+    assert!(!bare.fade_children && bare.camera_target_id == 0);
+}
+
 /// The conversion keeps the motion actions and drops the rest; a targeted FX plays its
 /// untargeted sound branch.
 #[test]

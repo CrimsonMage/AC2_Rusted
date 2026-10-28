@@ -4,7 +4,8 @@
 
 use ac2_anim::{
     blend_transform, Ac2AnimEvent, Ac2AnimatorContext, Ac2BoneTransform, Ac2Compositor,
-    Ac2ImpulseTrigger, Ac2PoseInput, Ac2SliderTracker, Ac2Transform, Ac2TriggerAction,
+    Ac2ImpulseTrigger, Ac2PoseInput, Ac2SliderInterpolator, Ac2SliderTracker, Ac2Transform,
+    Ac2TriggerAction,
 };
 
 use crate::anim_rep::{AnimRep, BodyAnimation};
@@ -20,6 +21,10 @@ struct PoseContext<'a> {
     vdesc_scale: [f32; 3],
     omega: [f32; 3],
     terrain: u32,
+    /// The global `Random` the animators roll (`AMRandom::Animate`).
+    random: &'a mut ac2_core::Random,
+    /// The setup's bones (`AnimSetup::IsBoneType` compares their type ids).
+    bones: &'a [ac2_anim::Ac2Bone],
 }
 
 impl Ac2AnimatorContext for PoseContext<'_> {
@@ -43,6 +48,22 @@ impl Ac2AnimatorContext for PoseContext<'_> {
     }
     fn terrain_type(&self) -> u32 {
         self.terrain
+    }
+    fn is_bone_type(&self, bone: usize, ty: u32) -> bool {
+        self.bones.get(bone).is_some_and(|b| b.name == ty)
+    }
+    fn slider_interpolator(&self, slider: u32) -> Ac2SliderInterpolator {
+        self.sliders.interpolator(slider)
+    }
+    fn activate_slider_interpolator(&mut self, slider: u32, start: f32, end: f32, length: f32) {
+        self.sliders
+            .activate_interpolator(slider, start, end, length);
+    }
+    fn roll_dice(&mut self, lower: i32, upper: i32) -> i32 {
+        self.random.roll_dice(lower, upper)
+    }
+    fn roll_dice_f32(&mut self, lower: f32, upper: f32) -> f32 {
+        self.random.roll_dice_f32(lower, upper)
     }
 }
 
@@ -113,7 +134,7 @@ impl PhysicsObj {
         if self.anim.can_animate() {
             self.anim
                 .with_modes(|modes, source| modes.update(quantum, source));
-            self.do_animation(refresh, local_time);
+            self.do_animation(refresh, local_time, random);
             self.anim.modes.add_triggers();
             self.sync_mode();
         }
@@ -151,7 +172,7 @@ impl PhysicsObj {
     /// `PHYSICSOBJREP::DoAnimation(refreshBones)`: the bones are posed only when refreshing
     /// (`CPartArray::AddAnimation` adds to the compositor only then); each track's reached
     /// triggers are added to it either way (`DBAnimator::GetTriggers`).
-    fn do_animation(&mut self, refresh: bool, local_time: f64) {
+    fn do_animation(&mut self, refresh: bool, local_time: f64, random: &mut ac2_core::Random) {
         let terrain = self.motion.terrain_type();
         let (anim_velocity, effects_scale, omega) = (
             array(self.anim_velocity),
@@ -181,6 +202,8 @@ impl PhysicsObj {
             vdesc_scale: *vdesc_scale,
             omega,
             terrain,
+            random,
+            bones: &setup.bones,
         };
         if refresh {
             let rest: Vec<Ac2BoneTransform> = setup

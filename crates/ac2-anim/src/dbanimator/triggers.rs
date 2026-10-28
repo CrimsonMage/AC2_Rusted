@@ -115,7 +115,8 @@ impl Ac2DbAnimator {
                     child.triggers(ctx, tracker, ctime, true, out);
                 }
             }
-            Self::Other => {}
+            Self::Random(random) => random.interp.triggers(ctx, tracker, ctime, out),
+            Self::Look | Self::Other => {}
         }
     }
 }

@@ -148,6 +148,8 @@ impl Ac2AnimMap {
     }
 }
 
+/// `AnimMap::StreamPack`: the `DBObj` identity, then `mMapping` (`PHashTable<ulong, ulong>`, the
+/// low 16 bits of its leading word the entry count).
 impl ResourcePackedDecode for Ac2AnimMap {
     const TYPE_NAME: &'static str = "AC2 AnimMap";
     const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;

@@ -170,6 +170,15 @@ impl Ac2ModeTracker {
         }
     }
 
+    /// `ModeTracker::CheckForDynamicFPCamera`: the incoming tracker (else the outgoing one) has an
+    /// active behaviour flagged `DYNAMIC_FP_CAMERA` (`CameraManager::UpdateCamera` asks).
+    pub fn check_for_dynamic_fp_camera(&self) -> bool {
+        self.to
+            .as_ref()
+            .or(self.from.as_ref())
+            .is_some_and(Ac2BehaviorTracker::check_active_behaviors_for_dynamic_fp_camera)
+    }
+
     /// The body's `TriggerUpdate`, which `CPhysicsObj::UpdateAnimation` fires.
     pub fn triggers_mut(&mut self) -> &mut Ac2TriggerUpdate {
         &mut self.triggers
@@ -236,12 +245,12 @@ impl Ac2ModeTracker {
         if let Some(mut env) = env!(self, source) {
             if let Some(mut to) = to.take() {
                 to.stop_all_weenie_behaviors(&mut env);
-                to.destroy(env.triggers);
+                to.destroy(env.triggers, env.events);
             }
             let element = from.element();
             next.init(&mut env, element, mode, Some(&mut from.tracks));
             from.stop_all_weenie_behaviors(&mut env);
-            from.destroy(env.triggers);
+            from.destroy(env.triggers, env.events);
         }
         self.from = Some(next);
         true
@@ -320,7 +329,7 @@ impl Ac2ModeTracker {
         }
         if let Some(to) = self.to.take() {
             if let Some(mut old) = self.from.replace(to) {
-                old.destroy(&mut self.triggers);
+                old.destroy(&mut self.triggers, &mut self.events);
             }
             self.transition_ctime = 0.0;
             self.transition_cvel = 0.0;
@@ -618,7 +627,7 @@ impl Ac2ModeTracker {
             // the transition is timed.
             if let Some(to) = self.to.take() {
                 if let Some(mut old) = self.from.replace(to) {
-                    old.destroy(&mut self.triggers);
+                    old.destroy(&mut self.triggers, &mut self.events);
                 }
             }
             let reached = self.from.as_ref().is_some_and(|from| {

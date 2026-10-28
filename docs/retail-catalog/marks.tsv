@@ -5920,7 +5920,7 @@ key	status	note
 005213f0	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 00521410	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 00521430	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00521480	_	Legions has it: vtable slot 4 of CWaterDesc at 0x0050c0f0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+00521480	x	ac2-world ac2_water.rs: CWaterDesc::UnPack / BlockMap::UnPack are the same streams as StreamPack (Ac2WaterDescRecord, Ac2BlockMap::decode_packed, cited); region::descs_real_tests water_desc_lookups_answer_per_type_on_the_dataset and a_blocks_water_index_is_its_type_map_value decode the dataset's records (Legions vtable slots 0x0050c0f0 and 0x00658d70)
 00521ad0	-	constructor (struct init; Rust builds it directly)
 00521b00	-	DBO type tag (Rust typed decoders)
 00521b10	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -5972,7 +5972,7 @@ key	status	note
 00523d30	x	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 00523d70	x	ac2-audio/ac2-client: ambient environments, groove
 00523dc0	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00523e10	_	Legions has it: vtable slot 4 of CSceneDesc at 0x0050db50 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+00523e10	x	ac2-world ac2_scene/format.rs Ac2SceneDesc::decode_packed (CSceneDesc::UnPack, Legions vtable slot 0x0050db50); the_dataset_scene_desc_decodes_to_its_last_byte
 00524140	x	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 00524180	x	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 005241c0	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -5995,7 +5995,7 @@ key	status	note
 00525030	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 00525050	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 00525080	-	retail free-object pool (DBOCache exception, AGENTS.md)
-005250d0	_	Legions has it: vtable slot 4 of CFogDesc at 0x0050e5a0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+005250d0	x	ac2-world region/fog_desc.rs FogDesc::decode_packed (CFogDesc::UnPack, Legions vtable slot 0x0050e5a0); descs_real_tests fog_desc_decodes_from_the_region_fog_list decodes the dataset's record
 005257a0	x	ac2-world region::sky_objects, ac2-render sky
 00525800	x	
 005258b0	x	
@@ -6003,7 +6003,7 @@ key	status	note
 005259e0	x	
 00525a90	-	DBO release (Drop frees on last drop, AGENTS.md)
 00525af0	x	crates/ac2-world/src/region/ac2_region.rs CDayDesc::StreamPack
-00525b60	_	Legions has it: vtable slot 7 of CDayDesc at 0x0050eb10 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+00525b60	-	CDayDesc::GetSubDataIDs (Legions vtable slot 7 at 0x0050eb10): GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 00525c10	-	admin day-table editor (no client path)
 00525cb0	x	
 00525d30	x	
@@ -8805,7 +8805,7 @@ key	status	note
 005aa300	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 005aa310	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 005aa340	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
-005aa350	_	Legions has it: vtable slot 21 of EnvInfo at 0x006a0200 (vtable audit); was skip: EnvInfo (EAX listener properties, PFileNode-loaded) is never
+005aa350	-	EnvInfo::GetDBOType (Legions vtable slot 21 at 0x006a0200) returns the EnvInfo DBO type tag; EnvInfo itself is never applied in retail (no caller of its property accessors in admin 7148 or Legions 7160; DXSoundDevice::UpdateListener sets DS3D listener data only), so there is no record to type
 005aa360	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 005aa370	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 005aa390	-	EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
@@ -10782,20 +10782,20 @@ key	status	note
 0060d3f0	x	ac2-core random.rs roll_dice_f32: (hi - lo) * rand + lo in f64
 0060d450	x	crates/ac2-script/src/glue/random.rs roll_gaussian (Random::RollGaussianDice, Leva)
 0060d520	x	crates/ac2-script/src/glue/random.rs roll_percentile (Random::RollPercentile)
-0060d540	_	needs port (check): PlacementFrame::Pack has no cited Rust decode
-0060d5a0	_	needs port (check): PlacementFrame::UnPack has no cited Rust decode
+0060d540	-	DAT writer half of the DBObj pack (CharacterSetup::Pack and the PlacementFrame/DegradeInfo packs it calls): the Legions client only unpacks setups (Legions vtable slot 3 of CharacterSetup at 0x005cf460 is the writer; callers: DBObj::SaveToFile and tool paths). The read side is ac2-anim setup.rs (Ac2Setup decode)
+0060d5a0	x	ac2-anim setup.rs Ac2Setup::decode_packed placement loop (PlacementFrame::UnPack: kind, bone count, a TransformBase per bone); setup::retail_setups_decode_ordered_degrade_distances decodes every Setup of the dataset to the last byte
 0060d630	-	trivial setter / list append on plain struct during decode
 0060d690	-	trivial setter / list append on plain struct during decode
-0060d700	_	needs port (check): DegradeInfo::Pack has no cited Rust decode
+0060d700	-	DAT writer half of the DBObj pack (CharacterSetup::Pack and the PlacementFrame/DegradeInfo packs it calls): the Legions client only unpacks setups (Legions vtable slot 3 of CharacterSetup at 0x005cf460 is the writer; callers: DBObj::SaveToFile and tool paths). The read side is ac2-anim setup.rs (Ac2Setup decode)
 0060d800	x	ac2-anim Ac2Setup::degrade (read_degrade_info): 18 distances, low/medium/high
 0060d8f0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0060d940	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
+0060d940	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 0060d980	-	trivial setter / list append on plain struct during decode
 0060db10	-	trivial setter / list append on plain struct during decode
 0060db70	-	trivial setter / list append on plain struct during decode
 0060dbd0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
-0060dbe0	_	needs port (check): CharacterSetup::IsBoneType bone classification; not cited in Rust
-0060dc10	_	needs port (check): CharacterSetup::GetBoneType bone classification; not cited in Rust
+0060dbe0	-	CharacterSetup is the authoring tool's setup object: no Legions address, no callers in the calls table (virtual slots of the tool's skeleton helpers). IsBoneType/GetBoneType/GetParentIndex read bone_info id and parent_index, which Ac2Setup holds as Ac2Bone name and parent; InitLoad builds the mesh-name render_info hash the tool needs. The client reads bones from the DAT (setup.rs)
+0060dc10	-	CharacterSetup is the authoring tool's setup object: no Legions address, no callers in the calls table (virtual slots of the tool's skeleton helpers). IsBoneType/GetBoneType/GetParentIndex read bone_info id and parent_index, which Ac2Setup holds as Ac2Bone name and parent; InitLoad builds the mesh-name render_info hash the tool needs. The client reads bones from the DAT (setup.rs)
 0060dc30	-	hash/list iterator internals (Rust iterators)
 0060dc80	-	hash/list iterator internals (Rust iterators)
 0060dd10	-	trivial setter / list append on plain struct during decode
@@ -10811,7 +10811,7 @@ key	status	note
 0060e2d0	-	operator= of plain data (Rust value assignment)
 0060e320	-	trivial setter / list append on plain struct during decode
 0060e380	-	operator= of plain data (Rust value assignment)
-0060e3d0	~	ac2-physics ObjectShape::new: physics containment radius and box only
+0060e3d0	-	only caller is CharacterSetup::LoadFromFile (the authoring tool's text .setup load; calls table), no Legions body. It computes the height, radius, selection sphere, step heights and physics bounds that the DAT stores and CharacterSetup::UnPack reads back (ac2-assets ac2_physics_mesh/setup.rs); ac2-physics ObjectShape::new derives the containment radius and box for objects from the BSPs, spheres and cylinders
 0060fad0	-	trivial setter / list append on plain struct during decode
 0060fb70	-	trivial setter / list append on plain struct during decode
 0060fc30	-	trivial setter / list append on plain struct during decode
@@ -10820,7 +10820,7 @@ key	status	note
 0060fd80	-	trivial accessor / write-side pack size on setup records
 0060fdc0	x	ac2-render object/skeleton.rs placement(): CharacterSetup::GetPlacementFrame bone transforms
 0060fe10	-	trivial accessor / write-side pack size on setup records
-00610060	_	Legions has it: vtable slot 3 of CharacterSetup at 0x005cf460 (vtable audit); was skip: write-side/admin path with no Legions match (setups and anim
+00610060	-	DAT writer half of the DBObj pack (CharacterSetup::Pack and the PlacementFrame/DegradeInfo packs it calls): the Legions client only unpacks setups (Legions vtable slot 3 of CharacterSetup at 0x005cf460 is the writer; callers: DBObj::SaveToFile and tool paths). The read side is ac2-anim setup.rs (Ac2Setup decode)
 006105a0	x	ac2-anim setup.rs: CharacterSetup::UnPack decode order (file doc cites it)
 00611390	-	admin text source format (ToFileNode), admin tools
 00611b20	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
@@ -10829,9 +10829,9 @@ key	status	note
 006124f0	x	ac2-render object/skeleton.rs rest_matrices
 00612670	x	ac2-render object/skeleton.rs rest_matrices
 006126d0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00612760	_	needs port (check): CharacterSetup::GetParentIndex bone classification; not cited in Rust
+00612760	-	CharacterSetup is the authoring tool's setup object: no Legions address, no callers in the calls table (virtual slots of the tool's skeleton helpers). IsBoneType/GetBoneType/GetParentIndex read bone_info id and parent_index, which Ac2Setup holds as Ac2Bone name and parent; InitLoad builds the mesh-name render_info hash the tool needs. The client reads bones from the DAT (setup.rs)
 00612780	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
-006127e0	_	needs port (check): CharacterSetup::InitLoad load-time init not cited
+006127e0	-	CharacterSetup is the authoring tool's setup object: no Legions address, no callers in the calls table (virtual slots of the tool's skeleton helpers). IsBoneType/GetBoneType/GetParentIndex read bone_info id and parent_index, which Ac2Setup holds as Ac2Bone name and parent; InitLoad builds the mesh-name render_info hash the tool needs. The client reads bones from the DAT (setup.rs)
 00612860	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00612a10	-	AVL container (rebalance, node, add); Rust ordered map
 00612ae0	-	AVL container (rebalance, node, add); Rust ordered map
@@ -12437,14 +12437,14 @@ key	status	note
 00678cf0	-	admin-only tooling (text source, preprocess, EMP or format authoring)
 00678d20	-	admin-only tooling (text source, preprocess, EMP or format authoring)
 00678dc0	-	admin-only tooling (text source, preprocess, EMP or format authoring)
-00678fe0	_	needs port (check): BehaviorParams::IsValid; no Rust validity check found
+00678fe0	-	BehaviorParams::IsValid (mBehaviorID != INVALID): callers are PhysicsStory::get_pack_bitfield/IsNull and StoryManager::DoStory/DoStoryHook (the story manager, a physics-catalog row); ac2-anim reads an unpacked behaviour as id 0 and DoBehavior refuses it as unknown
 00679000	x	ac2-script host (ScriptHost: process creation, dispatch, SendServerEvt, notices)
 00679220	x	ac2-anim; ac2-script native::BehaviorParams also unpacks it
 006795b0	x	ac2-net protocol/physics.rs Default for BehaviorParams: BehaviorParams::SetDefaults values
 00679660	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 006796a0	x	ac2-anim behavior/track.rs Ac2BehaviorParams::new: BehaviorParams::BehaviorParams(ulong) over SetDefaults
-006796f0	_	needs port (check): AnimMap::StreamPack has no cited Rust decode
-006797f0	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
+006796f0	x	ac2-anim animation.rs Ac2AnimMap::decode_packed (AnimMap::StreamPack: DBObj identity, then mMapping); loaded by the human AnimMap in dbanimator::tests::retail_human_animators_load_and_pose_finitely
+006797f0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 00679860	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00679aa0	-	retail DB cache prefetch/flush (AGENTS exception: read on demand, free on last drop)
 00679ca0	x	ac2-anim dbanimator/tree.rs load_ac2_db_animator: AnimMap::GetAnimator
@@ -12455,8 +12455,8 @@ key	status	note
 0067a3e0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0067a430	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0067a440	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0067a460	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
-0067a470	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
+0067a460	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+0067a470	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 0067a480	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a490	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0067a4a0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -12465,16 +12465,16 @@ key	status	note
 0067a4d0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0067a4f0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0067a530	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
-0067a550	_	needs port (check): HasAnimator query/validation; Rust has no cited equivalent
-0067a570	_	needs port (check): CheckAnimationBoneNum query/validation; Rust has no cited equivalent
+0067a550	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+0067a570	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 0067a5a0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-0067a5f0	_	needs port (check): DBAnimator::StreamPack has no cited Rust decode
+0067a5f0	x	ac2-anim dbanimator/tree.rs AnimatorRecord::decode_packed (DBAnimator::StreamPack: the DBObj identity, the animator's type word, Animator::Create, then the type's StreamPack)
 0067a6a0	-	retail DB cache lookup/release (AGENTS exception); Rust loads the template by DID
 0067a700	-	retail DB cache lookup/release (AGENTS exception); Rust loads the template by DID
 0067a720	-	trivial getter on plain struct (Rust default_element / default_mode fields)
 0067a730	-	trivial getter on plain struct (Rust default_element / default_mode fields)
-0067a740	_	needs port (check): CharTemplate::FillDataGraph; AddToDataGraph use outside tools is unverified (AGENTS)
-0067a7d0	~	ac2-anim decode: behaviours, slider controllers, defaults; modes and userControlledSliders skipped
+0067a740	-	CharTemplate::FillDataGraph feeds DBObj::AddToDataGraph (the data-graph prefetch); the only direct caller of AddToDataGraph is admin-only DBOCache::AddObj_Internal (no Legions body), and Legions DBObj::AddToDataGraph (0x006613C0) has none. The client reads each DID on demand
+0067a7d0	x	ac2-anim behavior_table.rs decode_template: behaviours, sliders, modes (isCombat, now kept), defaults and userControlledSliders (now kept); test the_char_template_keeps_modes_and_user_controlled_sliders
 0067a9f0	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 0067ad30	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0067ae40	-	container serialization/helper (Rust collections; elements decoded by their owning class)
@@ -12541,7 +12541,7 @@ key	status	note
 00684b00	x	ac2-anim behavior_table.rs (Legions identical; Legions GetBehavior inlines GetCharTemplate)
 006851d0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00685560	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-00685590	_	needs port (check): ValidModes::StreamPack has no cited Rust decode
+00685590	-	ValidModes (m_available_modes list) has no reader: no function in the index refers to it besides its allocator and own members, so the client never loads it
 006855c0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 006855f0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00685620	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
@@ -12552,7 +12552,7 @@ key	status	note
 00685e50	-	container operator= (Rust collections)
 00685ee0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00686360	-	editor text source / cache allocator (admin tools or Rust value type)
-00686db0	_	needs port (check): EMP text parser present in Legions; confirm the DVD client parses text at runtime
+00686db0	-	EMP text parsers (AnimInfo::ParseComboAttackNode and ParseHelper<EmpGenParse>::Parse): callers are EmpGenParse::ParseEmp and the FromFileNode loaders (tool text sources); the DVD client loads the binary DAT records (Animator::Create + StreamPack)
 00687440	-	container operator= (Rust collections)
 006874d0	-	container serialization/helper (Rust collections; elements decoded by their owning class)
 006877a0	-	editor text source / cache allocator (admin tools or Rust value type)
@@ -12563,41 +12563,41 @@ key	status	note
 006889e0	-	editor text source / cache allocator (admin tools or Rust value type)
 00688d60	-	editor text source / cache allocator (admin tools or Rust value type)
 00688fa0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-00688fe0	_	needs port (check): Trigger::operator< (trigger sort order); Rust cites only operator==
+00688fe0	-	Trigger/ImpulseTrigger/WeenieHook operator< (order by mTime): used only by the STL sorts in AnimInfo::Parse*Node and FxScript::Parse*Node (EMP text parsers, tool paths; calls table). The DAT stores the lists already sorted and the decoders keep stored order
 00689000	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689040	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689080	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 006890c0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689100	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00689180	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-006891f0	_	needs port (check): ImpulseTrigger::operator< (trigger sort order); Rust cites only operator==
+006891f0	-	Trigger/ImpulseTrigger/WeenieHook operator< (order by mTime): used only by the STL sorts in AnimInfo::Parse*Node and FxScript::Parse*Node (EMP text parsers, tool paths; calls table). The DAT stores the lists already sorted and the decoders keep stored order
 00689210	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00689290	_	needs port (check): TriggerUpdate::StreamPack has no cited Rust decode
+00689290	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 006892f0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689330	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 006893b0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 006894d0	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00689680	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-00689710	~	ac2-anim Ac2TriggerUpdate: rolls recorded in add order and drawn on the shared Random when the triggers fire
+00689710	x	ac2-anim behavior/triggers.rs Ac2TriggerUpdate::add_effects_trigger records the probability and intensity rolls in add order and draws them on the shared Random when the triggers fire; AMRandom's roll (animate) comes before the adds in both orders (DoAnimation, then AddTriggers), so the draw sequence is retail's; trigger_tests.rs
 00689880	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-006898e0	_	needs port: slider interpolators (SliderTracker does not model them)
-00689910	_	needs port (check): ModeTransitionKey::StreamPack has no cited Rust decode
-00689970	_	needs port (check): SliderTracker::StreamPack has no cited Rust decode
-006899c0	_	needs port (check): SliderInterpolator::StreamPack has no cited Rust decode
-00689ab0	~	ac2-anim Ac2SliderTracker; slider interpolators not modelled
+006898e0	x	ac2-anim behavior/slider.rs Ac2SliderTracker (SliderInterpolator::Activate, GetSliderInterpolator creating the resting interpolator, Update advancing interpolators after the sliders: time += quantum, an active one past its length rests at its end value); test a_slider_interpolator_ramps_for_its_length_then_rests_at_its_end
+00689910	x	ac2-anim behavior_table.rs decode_template / transition_key (Behavior::StreamPack 64-bit flags, Mode::StreamPack isCombat, Slider::StreamPack controller, ModeTransitionKey::StreamPack); test the_char_template_keeps_modes_and_user_controlled_sliders and retail_behavior_tables_decode
+00689970	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
+006899c0	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
+00689ab0	x	ac2-anim behavior/slider.rs Ac2SliderTracker (SliderInterpolator::Activate, GetSliderInterpolator creating the resting interpolator, Update advancing interpolators after the sliders: time += quantum, an active one past its length rests at its end value); test a_slider_interpolator_ramps_for_its_length_then_rests_at_its_end
 00689c20	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 00689d60	x	ac2-anim Ac2SliderTracker
 00689da0	x	ac2-anim Ac2SliderTracker
 00689de0	x	ac2-anim Ac2SliderTracker
 0068a130	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0068a1d0	x	ac2-anim Ac2SliderTracker
-0068a320	_	needs port: slider interpolators (SliderTracker does not model them)
+0068a320	x	ac2-anim behavior/slider.rs Ac2SliderTracker (SliderInterpolator::Activate, GetSliderInterpolator creating the resting interpolator, Update advancing interpolators after the sliders: time += quantum, an active one past its length rests at its end value); test a_slider_interpolator_ramps_for_its_length_then_rests_at_its_end
 0068a400	x	ac2-anim Ac2SliderTracker
 0068a490	-	container serialization/helper (Rust collections; elements decoded by their owning class)
 0068a660	-	container serialization/helper (Rust collections; elements decoded by their owning class)
 0068a840	x	ac2-anim Ac2SliderTracker
-0068a8b0	~	the TriggerUpdate lives in the mode tracker (ac2-anim), bound lazily as ModeTracker::mTriggers
-0068a8d0	_	needs port: ModeTracker::SetAnimationObj; no Rust animation-object binding found
+0068a8b0	x	ac2-anim behavior/mode_tracker.rs Ac2ModeTracker::triggers_mut: the TriggerUpdate belongs to the mode tracker (ModeTracker::GetTriggerUpdate), fired by physics update_animation
+0068a8d0	-	ModeTracker::SetAnimationObj binds the AnimationObj pointer; Ac2ModeTracker receives the object's queries per call (the Ac2AnimationSource argument of update, do_behavior and the rest) instead of storing a pointer
 0068a900	x	ac2-anim Ac2ModeTracker
 0068a9f0	x	ac2-anim Ac2ModeTracker
 0068aac0	x	ac2-anim Ac2ModeTracker
@@ -12608,38 +12608,38 @@ key	status	note
 0068ad20	x	ac2-anim Ac2ModeTracker
 0068ad50	x	ac2-anim Ac2ModeTracker
 0068ad70	x	ac2-anim Ac2ModeTracker
-0068adb0	_	needs port: dynamic first-person camera (flag only, camera not modelled)
+0068adb0	x	ac2-anim behavior/mode_tracker.rs check_for_dynamic_fp_camera and tracker.rs check_active_behaviors_for_dynamic_fp_camera (incoming tracker else outgoing; any track flagged DYNAMIC_FP_CAMERA); test a_dynamic_first_person_camera_behaviour_is_found_while_it_plays. The consumer, CameraManager::UpdateCamera, is the camera's (ac2-smartbox)
 0068add0	x	ac2-anim: network behaviours and sliders, CharTemplate slider controllers (slice 4)
 0068adf0	x	ac2-anim Ac2ModeTracker
 0068ae30	x	ac2-anim Ac2ModeTracker
-0068ae60	_	needs port (check): ModeTracker::StreamPack has no cited Rust decode
+0068ae60	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 0068b060	x	ac2-anim Ac2ModeTracker
 0068b0b0	x	ac2-anim Ac2ModeTracker
-0068b1d0	~	ac2-anim: transition behaviour, effect and stop effect (fireAndForget once mTriggers is bound)
+0068b1d0	x	ac2-anim behavior/mode_tracker.rs Ac2ModeTracker (start_transitioning: transition behaviour, effect and stop effect through fire_and_forget; update: transition time, swap, AddTriggers after the caller's DoAnimation); the body of the retail function has no camera, fade or clone use
 0068b400	x	ac2-anim Ac2ModeTracker
 0068b450	x	ac2-anim Ac2ModeTracker
-0068b510	~	ac2-anim Ac2ModeTracker; transition effects through fireAndForget; AddTriggers after the caller's DoAnimation
+0068b510	x	ac2-anim behavior/mode_tracker.rs Ac2ModeTracker (start_transitioning: transition behaviour, effect and stop effect through fire_and_forget; update: transition time, swap, AddTriggers after the caller's DoAnimation); the body of the retail function has no camera, fade or clone use
 0068b6c0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0068b730	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0068b770	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-0068b7a0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+0068b7a0	x	ac2-anim dbanimator/compose.rs Ac2Compositor::pose: one AnimBlender per layer of the table, layer weights 1.0, tweak flags stored in reverse layer order, per-bone temp arrays; effect triggers and weenie hooks go through Ac2TriggerUpdate (behavior/triggers.rs); layering tests in dbanimator/tests.rs
 0068b890	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0068bad0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0068bb40	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0068bba0	x	ac2-anim Ac2BehaviorTracker
-0068bbf0	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-0068bd50	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-0068be30	_	needs port (check): BehaviorTracker::StreamPack has no cited Rust decode
+0068bbf0	x	ac2-anim behavior/tracker.rs process_param_flags: children fade out (ChildrenOpacity), FX starts, and for the player the action lock and camera parent/target/restore/targeted camera as Ac2AnimEvents (the client turns them into CameraManager calls); test a_behaviour_fades_the_children_and_drives_the_players_camera
+0068bd50	~	ac2-anim behavior/tracker.rs process_ramping_down_param_flags: children fade back in, the player's camera is restored, the FX stops, weenie behaviours count down. Not modelled: mDestroyOnCompletion (an AnimationObj slot-1 call with 0,0,0,3.0) and the clone end (slot 2, when mTargetID or mVDescToClone is set)
+0068be30	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 0068c0c0	-	container operator= (Rust collections)
 0068c140	-	container serialization/helper (Rust collections; elements decoded by their owning class)
-0068c1e0	~	ac2-anim BehaviorTracker::destroy: weight -1 and AddTrackTriggers; camera/fade restore not modelled
+0068c1e0	x	ac2-anim behavior/tracker.rs destroy: weight -1, AddTrackTriggers, and the children fade back in (ChildrenOpacity 1.0 over 0.25 s) for a track that faded them
 0068c290	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-0068c300	_	needs port: dynamic first-person camera (flag only, camera not modelled)
+0068c300	x	ac2-anim behavior/mode_tracker.rs check_for_dynamic_fp_camera and tracker.rs check_active_behaviors_for_dynamic_fp_camera (incoming tracker else outgoing; any track flagged DYNAMIC_FP_CAMERA); test a_dynamic_first_person_camera_behaviour_is_found_while_it_plays. The consumer, CameraManager::UpdateCamera, is the camera's (ac2-smartbox)
 0068c400	x	ac2-anim Ac2BehaviorTracker
 0068c4c0	x	ac2-anim Ac2BehaviorTracker
 0068c500	x	ac2-anim Ac2BehaviorTracker
 0068c640	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0068c720	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
+0068c720	x	ac2-anim behavior/tracker.rs Ac2BehaviorTracker (update, init, do_behavior); their param handling is process_param_flags (done) and process_ramping_down_param_flags (partial: destroy and clone-end calls)
 0068cbd0	x	ac2-anim Ac2BehaviorTracker
 0068cda0	x	ac2-anim Ac2BehaviorTracker
 0068ce80	x	ac2-anim Ac2BehaviorTracker
@@ -12657,10 +12657,10 @@ key	status	note
 0068d710	-	operator= of plain data (Rust value assignment)
 0068d800	x	ac2-anim Ac2BehaviorTracker
 0068d900	-	container serialization/helper (Rust collections; elements decoded by their owning class)
-0068db80	~	ac2-anim Ac2BehaviorTracker; camera, fade, clone, FX-script and trigger parameters not modelled
-0068dfc0	~	ac2-anim Ac2BehaviorTracker; triggers via TriggerUpdate; camera, fade, clone and FX-script parameters not modelled
+0068db80	x	ac2-anim behavior/tracker.rs Ac2BehaviorTracker (update, init, do_behavior); their param handling is process_param_flags (done) and process_ramping_down_param_flags (partial: destroy and clone-end calls)
+0068dfc0	x	ac2-anim behavior/tracker.rs Ac2BehaviorTracker (update, init, do_behavior); their param handling is process_param_flags (done) and process_ramping_down_param_flags (partial: destroy and clone-end calls)
 0068e410	x	ac2-anim Ac2BehaviorTracker
-0068e480	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0068e480	-	STREAMPACK template wrapper for FXScriptTracker (calls its virtual StreamPack, runtime state); no call site in the Legions wlib scan (host::tests::efun_coverage)
 0068e510	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 0068e620	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 0068e700	-	container serialization/helper (Rust collections; elements decoded by their owning class)
@@ -12686,25 +12686,25 @@ key	status	note
 0068ed70	-	admin text/file source format, admin tools
 0068f1a0	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 0068f360	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0068f380	_	needs port (check): Behavior::StreamPack has no cited Rust decode
+0068f380	x	ac2-anim behavior_table.rs decode_template / transition_key (Behavior::StreamPack 64-bit flags, Mode::StreamPack isCombat, Slider::StreamPack controller, ModeTransitionKey::StreamPack); test the_char_template_keeps_modes_and_user_controlled_sliders and retail_behavior_tables_decode
 0068f3b0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0068f3c0	_	needs port (check): Slider::StreamPack has no cited Rust decode
+0068f3c0	x	ac2-anim behavior_table.rs decode_template / transition_key (Behavior::StreamPack 64-bit flags, Mode::StreamPack isCombat, Slider::StreamPack controller, ModeTransitionKey::StreamPack); test the_char_template_keeps_modes_and_user_controlled_sliders and retail_behavior_tables_decode
 0068f400	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0068f410	_	needs port (check): Mode::StreamPack has no cited Rust decode
+0068f410	x	ac2-anim behavior_table.rs decode_template / transition_key (Behavior::StreamPack 64-bit flags, Mode::StreamPack isCombat, Slider::StreamPack controller, ModeTransitionKey::StreamPack); test the_char_template_keeps_modes_and_user_controlled_sliders and retail_behavior_tables_decode
 0068f440	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
-0068f470	_	needs port (check): WeenieHook::operator< (trigger sort order); Rust cites only operator==
+0068f470	-	Trigger/ImpulseTrigger/WeenieHook operator< (order by mTime): used only by the STL sorts in AnimInfo::Parse*Node and FxScript::Parse*Node (EMP text parsers, tool paths; calls table). The DAT stores the lists already sorted and the decoders keep stored order
 0068f490	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0068f4c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-0068f520	~	ac2-anim Ac2BehaviorTrack; plain behaviours clear their effect triggers each cycle; FX scripts not modelled
+0068f520	x	ac2-anim behavior/track.rs Ac2BehaviorTrack::update (clip time wrap at 64, weight ramp, action ramp in and out, hold loop; a plain behaviour clears its effect triggers each cycle); behavior/tests.rs ramp tests
 0068f980	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0068fa20	-	STL set/tree serialization (Rust collections)
-0068fb60	_	needs port (check): BehaviorTrack::StreamPack has no cited Rust decode
+0068fb60	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 0068fde0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00690040	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00690090	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 006900c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00690130	~	ac2-anim: the caller resolves the script (Ac2FxScriptTracker::resolve); the DBObj::Get is the client's library, not on the physics step
-00690190	_	needs port (check): FXTrack::StreamPack has no cited Rust decode
+00690130	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker::resolve: the FX script is fetched by DID and cached on the track (FXTrack::FillCache); the frame thread never reads, so the caller preloads scripts (fx_scripts.rs load_fx_scripts)
+00690190	-	StreamPack of runtime tracker state (BehaviorTrack, FXTrack, BehaviorTracker, ModeTracker, SliderTracker, TriggerUpdate): nothing calls it: no direct caller in the calls table and no other function in the index refers to these classes' StreamPack; the live state is Ac2ModeTracker/Ac2BehaviorTracker/Ac2SliderTracker/Ac2TriggerUpdate, rebuilt from the server's network behaviour params
 00690220	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 006902a0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
 006902d0	x	ac2-anim fxscript_tracker.rs Ac2FxScriptTracker (timeline, rest at -4, triggers via add_effects_and_impulses); tests in fxscript_tracker_tests.rs
@@ -12713,43 +12713,43 @@ key	status	note
 00690630	-	admin file loader/writer (no DVD client path), admin tools
 00690c60	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00690c90	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00690ca0	_	needs port: AMLook evaluation (Animate); Ac2DbAnimator::Other contributes nothing
-00691090	_	needs port: AMRandom evaluation (GetSubDataIDs); Ac2DbAnimator::Other contributes nothing
-006910a0	_	needs port: AMRandom evaluation (GetRecursiveSubDataIDs); Ac2DbAnimator::Other contributes nothing
-006910b0	_	needs port: AMRandom evaluation (HasAnimator); Ac2DbAnimator::Other contributes nothing
-006910c0	_	needs port: AMRandom evaluation (CheckAnimationBoneNum); Ac2DbAnimator::Other contributes nothing
-006910d0	_	needs port: AMRandom evaluation (GetPeriod); Ac2DbAnimator::Other contributes nothing
-006910e0	_	needs port: AMRandom evaluation (GetType); Ac2DbAnimator::Other contributes nothing
+00690ca0	x	ac2-anim dbanimator/look.rs (AMLook): GetPeriod 1.0, GetTriggers adds nothing, Animate turns the neck and head bones by the 0x40000007-9 look sliders (x87 order, f32 stores); tests in dbanimator/interpolator_tests.rs. The record 0x0500002a decodes to the last byte (retail_animator_records_decode...)
+00691090	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+006910a0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+006910b0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+006910c0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+006910d0	x	ac2-anim dbanimator/interpolator.rs Ac2Random (AMRandom::StreamPack, GetType 0x40000007, GetPeriod, GetTriggers and Animate delegate to the AnimInterpolator; Animate rolls Random::RollDice(float) and (long) through the context and starts the SliderInterpolator); the two DAT records load in retail_animator_records_decode_and_amrandom_loads_its_animators; tests amrandom_starts_a_ramp...
+006910e0	x	ac2-anim dbanimator/interpolator.rs Ac2Random (AMRandom::StreamPack, GetType 0x40000007, GetPeriod, GetTriggers and Animate delegate to the AnimInterpolator; Animate rolls Random::RollDice(float) and (long) through the context and starts the SliderInterpolator); the two DAT records load in retail_animator_records_decode_and_amrandom_loads_its_animators; tests amrandom_starts_a_ramp...
 006910f0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-00691100	_	needs port: AMRandom evaluation (GetTriggers); Ac2DbAnimator::Other contributes nothing
+00691100	x	ac2-anim dbanimator/interpolator.rs Ac2Random (AMRandom::StreamPack, GetType 0x40000007, GetPeriod, GetTriggers and Animate delegate to the AnimInterpolator; Animate rolls Random::RollDice(float) and (long) through the context and starts the SliderInterpolator); the two DAT records load in retail_animator_records_decode_and_amrandom_loads_its_animators; tests amrandom_starts_a_ramp...
 00691130	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00691160	_	needs port: AMRandom evaluation (StreamPack); Ac2DbAnimator::Other contributes nothing
-006911c0	_	needs port: AMRandom evaluation (Animate); Ac2DbAnimator::Other contributes nothing
+00691160	x	ac2-anim dbanimator/interpolator.rs Ac2Random (AMRandom::StreamPack, GetType 0x40000007, GetPeriod, GetTriggers and Animate delegate to the AnimInterpolator; Animate rolls Random::RollDice(float) and (long) through the context and starts the SliderInterpolator); the two DAT records load in retail_animator_records_decode_and_amrandom_loads_its_animators; tests amrandom_starts_a_ramp...
+006911c0	x	ac2-anim dbanimator/interpolator.rs Ac2Random (AMRandom::StreamPack, GetType 0x40000007, GetPeriod, GetTriggers and Animate delegate to the AnimInterpolator; Animate rolls Random::RollDice(float) and (long) through the context and starts the SliderInterpolator); the two DAT records load in retail_animator_records_decode_and_amrandom_loads_its_animators; tests amrandom_starts_a_ramp...
 00691270	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 00691590	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00691610	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 006919c0	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 006919d0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-006919e0	_	needs port: AnimInterpolator evaluation (GetSubDataIDs); Ac2DbAnimator::Other contributes nothing
-00691a10	_	needs port: AnimInterpolator evaluation (CheckAnimationBoneNum); Ac2DbAnimator::Other contributes nothing
-00691a90	_	needs port: AnimInterpolator evaluation (StreamPack); Ac2DbAnimator::Other contributes nothing
-00691ad0	_	needs port: AnimInterpolator evaluation (GetAnimatorWeights); Ac2DbAnimator::Other contributes nothing
-00691b70	_	needs port: AnimInterpolator evaluation (Animate); Ac2DbAnimator::Other contributes nothing
-00691ca0	_	needs port: AnimInterpolator evaluation (GetPeriod); Ac2DbAnimator::Other contributes nothing
+006919e0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+00691a10	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+00691a90	x	ac2-anim dbanimator/interpolator.rs Ac2Interpolator (AnimInterpolator::StreamPack slider and ids, GetAnimatorWeights from the slider interpolator, Animate/GetPeriod crossfade (1-t) and t, GetTriggers merges the effects by weight like AnimCube); tests in dbanimator/interpolator_tests.rs
+00691ad0	x	ac2-anim dbanimator/interpolator.rs Ac2Interpolator (AnimInterpolator::StreamPack slider and ids, GetAnimatorWeights from the slider interpolator, Animate/GetPeriod crossfade (1-t) and t, GetTriggers merges the effects by weight like AnimCube); tests in dbanimator/interpolator_tests.rs
+00691b70	x	ac2-anim dbanimator/interpolator.rs Ac2Interpolator (AnimInterpolator::StreamPack slider and ids, GetAnimatorWeights from the slider interpolator, Animate/GetPeriod crossfade (1-t) and t, GetTriggers merges the effects by weight like AnimCube); tests in dbanimator/interpolator_tests.rs
+00691ca0	x	ac2-anim dbanimator/interpolator.rs Ac2Interpolator (AnimInterpolator::StreamPack slider and ids, GetAnimatorWeights from the slider interpolator, Animate/GetPeriod crossfade (1-t) and t, GetTriggers merges the effects by weight like AnimCube); tests in dbanimator/interpolator_tests.rs
 00691dc0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00691df0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00691e10	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00691ec0	_	needs port: AnimInterpolator evaluation (GetRecursiveSubDataIDs); Ac2DbAnimator::Other contributes nothing
-00691f90	_	needs port: AnimInterpolator evaluation (HasAnimator); Ac2DbAnimator::Other contributes nothing
+00691ec0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+00691f90	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 00692100	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 006921b0	-	container serialization/helper (Rust collections; elements decoded by their owning class)
-00692360	_	needs port: AnimInterpolator evaluation (GetTriggers); Ac2DbAnimator::Other contributes nothing
-00692890	_	needs port: BSPLEAF::ClipToCellBSP (cell BSP clip) not in ac2-physics
-006928a0	_	needs port: AMLook evaluation (GetPeriod); Ac2DbAnimator::Other contributes nothing
+00692360	x	ac2-anim dbanimator/interpolator.rs Ac2Interpolator (AnimInterpolator::StreamPack slider and ids, GetAnimatorWeights from the slider interpolator, Animate/GetPeriod crossfade (1-t) and t, GetTriggers merges the effects by weight like AnimCube); tests in dbanimator/interpolator_tests.rs
+00692890	-	returns 1: AMLook::CheckAnimationBoneNum under a folded name. tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+006928a0	x	ac2-anim dbanimator/look.rs (AMLook): GetPeriod 1.0, GetTriggers adds nothing, Animate turns the neck and head bones by the 0x40000007-9 look sliders (x87 order, f32 stores); tests in dbanimator/interpolator_tests.rs. The record 0x0500002a decodes to the last byte (retail_animator_records_decode...)
 006928b0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-006928c0	_	needs port: AMLook evaluation (GetTriggers); Ac2DbAnimator::Other contributes nothing
-006928d0	_	needs port: AMAngle evaluation (StreamPack); Ac2DbAnimator::Other contributes nothing
-00692960	_	needs port: AMAngle evaluation (Animate); Ac2DbAnimator::Other contributes nothing
+006928c0	x	ac2-anim dbanimator/look.rs (AMLook): GetPeriod 1.0, GetTriggers adds nothing, Animate turns the neck and head bones by the 0x40000007-9 look sliders (x87 order, f32 stores); tests in dbanimator/interpolator_tests.rs. The record 0x0500002a decodes to the last byte (retail_animator_records_decode...)
+006928d0	_	AMAngle (type 0x4000000a, one DAT record 0x050002fd) decodes to Ac2DbAnimator::Other: no pose. Not ported: Animate reads the body's frame and a ground plane (PHYSICSOBJREP position/plane slots) and tilts the bones of its BoneAngleMod list; StreamPack is BoneAngleMod list, min/max x and y
+00692960	_	AMAngle (type 0x4000000a, one DAT record 0x050002fd) decodes to Ac2DbAnimator::Other: no pose. Not ported: Animate reads the body's frame and a ground plane (PHYSICSOBJREP position/plane slots) and tilts the bones of its BoneAngleMod list; StreamPack is BoneAngleMod list, min/max x and y
 00692e50	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 00693210	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00693230	-	container serialization/helper (Rust collections; elements decoded by their owning class)
@@ -12758,12 +12758,12 @@ key	status	note
 006933e0	-	container operator= (Rust collections)
 00693470	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 006934c0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00693560	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
-006935d0	_	needs port (check): CheckAnimationBoneNum query/validation; Rust has no cited equivalent
+00693560	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+006935d0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 00693700	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
-006939f0	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
+006939f0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 00693b50	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-00693c20	_	needs port (check): HasAnimator query/validation; Rust has no cited equivalent
+00693c20	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 00693f70	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00694000	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00694120	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
@@ -12774,46 +12774,46 @@ key	status	note
 006948c0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00694910	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00694960	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00694980	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
-006949a0	_	needs port (check): HasAnimator query/validation; Rust has no cited equivalent
-00694a10	_	needs port (check): CheckAnimationBoneNum query/validation; Rust has no cited equivalent
+00694980	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+006949a0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+00694a10	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 00694a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00694af0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00694b30	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 00694b50	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00694bd0	_	needs port (check): AMHuman::StreamPack has no cited Rust decode
+00694bd0	x	ac2-anim dbanimator/tree.rs AnimatorRecord (AMHuman::StreamPack: the one dbAnimatorID); every human AnimMap animator loads in retail_human_animators_load_and_pose_finitely
 00694c00	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00695020	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
-006950e0	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
+006950e0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 00695170	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 00695320	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-00695330	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
-00695360	_	needs port: AxisCube evaluation (HasAnimator); Ac2DbAnimator::Other contributes nothing
-006953e0	_	needs port: AxisCube evaluation (CheckAnimationBoneNum); Ac2DbAnimator::Other contributes nothing
-00695470	_	needs port: AxisCube evaluation (StreamPack); Ac2DbAnimator::Other contributes nothing
-006954c0	_	needs port: AxisCube evaluation (GetAnimatorWeights); Ac2DbAnimator::Other contributes nothing
+00695330	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+00695360	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+006953e0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+00695470	-	AxisCube (type 0x40000006): no DBAnimator record of the Legions portal DAT uses it (all 5,480 records at 0x0500xxxx are types 1, 2, 3, 5, 7, 8 and 10; retail_animator_records_decode... asserts none is 0x40000006), so nothing the client loads reaches it
+006954c0	-	AxisCube (type 0x40000006): no DBAnimator record of the Legions portal DAT uses it (all 5,480 records at 0x0500xxxx are types 1, 2, 3, 5, 7, 8 and 10; retail_animator_records_decode... asserts none is 0x40000006), so nothing the client loads reaches it
 006955c0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 006955f0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00695620	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-006956a0	_	needs port: AxisCube evaluation (GetRecursiveSubDataIDs); Ac2DbAnimator::Other contributes nothing
-00695770	_	needs port: AxisCube evaluation (Animate); Ac2DbAnimator::Other contributes nothing
-00695920	_	needs port: AxisCube evaluation (GetPeriod); Ac2DbAnimator::Other contributes nothing
+006956a0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+00695770	-	AxisCube (type 0x40000006): no DBAnimator record of the Legions portal DAT uses it (all 5,480 records at 0x0500xxxx are types 1, 2, 3, 5, 7, 8 and 10; retail_animator_records_decode... asserts none is 0x40000006), so nothing the client loads reaches it
+00695920	-	AxisCube (type 0x40000006): no DBAnimator record of the Legions portal DAT uses it (all 5,480 records at 0x0500xxxx are types 1, 2, 3, 5, 7, 8 and 10; retail_animator_records_decode... asserts none is 0x40000006), so nothing the client loads reaches it
 00695a80	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-00695e90	_	needs port: AxisCube evaluation (GetTriggers); Ac2DbAnimator::Other contributes nothing
+00695e90	-	AxisCube (type 0x40000006): no DBAnimator record of the Legions portal DAT uses it (all 5,480 records at 0x0500xxxx are types 1, 2, 3, 5, 7, 8 and 10; retail_animator_records_decode... asserts none is 0x40000006), so nothing the client loads reaches it
 006965a0	-	retail DB cache prefetch/flush (AGENTS exception: read on demand, free on last drop)
-006965e0	_	needs port (check): CheckAnimationBoneNum query/validation; Rust has no cited equivalent
-00696670	_	needs port (check): AnimCube::SliderAndTickList::StreamPack; slider records decoded in dbanimator/tree.rs but uncited
+006965e0	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+00696670	x	ac2-anim dbanimator/tree.rs AnimatorRecord::Cube (AnimCube::SliderAndTickList::StreamPack: the slider id then its tick list); animators of the human AnimMap load in retail_human_animators_load_and_pose_finitely
 006966c0	-	retail DB cache prefetch/flush (AGENTS exception: read on demand, free on last drop)
 00696770	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 006967b0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 006967e0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00696a00	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-00696a90	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
-00696b70	_	needs port (check): HasAnimator query/validation; Rust has no cited equivalent
+00696a90	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
+00696b70	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
 00696ce0	x	ac2-anim animator.rs / dbanimator/tree.rs AnimatorRecord::Cube: AnimCube::StreamPack sliders then children
 00696d80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00696e10	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-00696ea0	_	needs port (check): AnimCube::GetAnimatorWeights overload (other overload is done at 006967e0); cube_weights in dbanimator/tree.rs is uncited
+00696ea0	-	the AnimCube::GetAnimatorWeights(x, y) overload has no Legions body and its only caller is AnimCube::ToFileNode (tool); the client uses the AnimationObj overload (cube_weights, done at 006967e0)
 00697860	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 00697a20	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 00697ff0	-	container operator= (Rust collections)
@@ -12861,14 +12861,14 @@ key	status	note
 0069ab70	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 0069aca0	-	trivial setter / list append on plain struct during decode
 0069ace0	-	trivial setter / list append on plain struct during decode
-0069ad90	_	needs port (check): AnimAsset::ReadBinaryAnim not cited in Rust
+0069ad90	-	AnimAsset::ReadBinaryAnim: only caller is AnimAsset::FromFileNode (tool import of binary animations); the client reads the DAT record (AnimAsset::StreamPackInternal)
 0069af10	-	write-side/admin path with no Legions match (setups and anims are read-only in the DVD client) [vtable-checked: not a slot of any located Legions vtable]
-0069afe0	_	needs port (check): KeyframeLookupTable::StreamPack has no cited Rust decode
-0069b020	_	needs port (check): KeyframeLookupTable::StreamPack has no cited Rust decode
-0069b060	_	needs port (check): KeyframeLookupTable::StreamPack has no cited Rust decode
+0069afe0	x	ac2-anim dbanimator/asset.rs Ac2AnimAsset::decode (AnimAsset::StreamPack calls StreamPackInternal; the KeyframeLookupTable StreamPacks are the per-bone scale, quaternion and weight key tables: a count then (value, time) keys); every human animator decodes in retail_human_animators_load_and_pose_finitely
+0069b020	x	ac2-anim dbanimator/asset.rs Ac2AnimAsset::decode (AnimAsset::StreamPack calls StreamPackInternal; the KeyframeLookupTable StreamPacks are the per-bone scale, quaternion and weight key tables: a count then (value, time) keys); every human animator decodes in retail_human_animators_load_and_pose_finitely
+0069b060	x	ac2-anim dbanimator/asset.rs Ac2AnimAsset::decode (AnimAsset::StreamPack calls StreamPackInternal; the KeyframeLookupTable StreamPacks are the per-bone scale, quaternion and weight key tables: a count then (value, time) keys); every human animator decodes in retail_human_animators_load_and_pose_finitely
 0069b0a0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
-0069b140	_	needs port (check): CheckAnimationBoneNum query/validation; Rust has no cited equivalent
-0069b1f0	_	needs port (check): AnimAsset::StreamPack wrapper; decode is AnimAsset::StreamPackInternal in dbanimator/asset.rs (uncited here)
+0069b140	-	tree-validation query (HasAnimator / CheckAnimationBoneNum fills an error-string list): its only callers are the same query on the sibling animators (calls table), no root caller in admin 7148 or Legions, so it is reached only from the authoring tools' checks; the client never validates animators
+0069b1f0	x	ac2-anim dbanimator/asset.rs Ac2AnimAsset::decode (AnimAsset::StreamPack calls StreamPackInternal; the KeyframeLookupTable StreamPacks are the per-bone scale, quaternion and weight key tables: a count then (value, time) keys); every human animator decodes in retail_human_animators_load_and_pose_finitely
 0069bbf0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0069bd90	x	
 0069be20	x	
@@ -13797,12 +13797,12 @@ key	status	note
 006c19c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 006c1a90	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build) [vtable-checked: not a slot of any located Legions vtable]
 006c1d10	-	constructor (struct init; Rust builds it directly)
-006c1d40	_	Legions has it: vtable slot 14 of AMLook at 0x00653ec0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+006c1d40	-	returns the animator type word 0x40000005 (AMLook; the index name is a folded duplicate, Legions vtable slot 14 at 0x00653ec0); ac2-anim's AnimatorRecord matches the type word (AM_LOOK, dbanimator/tree.rs), a type tag needs no function
 006c1d50	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c1dc0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 006c1e10	x	ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 006c1e60	-	retail free-object pool (DBOCache exception, AGENTS.md)
-006c1eb0	_	Legions has it: vtable slot 13 of SceneFile at 0x00654030 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+006c1eb0	-	SceneFile::CopyInto (Legions vtable slot 13 at 0x00654030) copies the record into another DBObj (version, allow_rotate, frill group, degrades): Rust shares one Arc per DID (AGENTS DBOCache exception) and never copies a loaded scene file
 006c1fa0	x	crates/ac2-world/src/ac2_scene/format.rs SceneFile::StreamPack
 006c24b0	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c2500	-	write path (client reads DATs only)
@@ -13966,7 +13966,7 @@ key	status	note
 006ced20	-	copy assignment of plain data (Rust clone/move)
 006cee50	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
 006ceef0	-	SmartArray container operation (Vec replaces it)
-006cf150	_	Legions has it: vtable slot 4 of BlockMap at 0x00658d70 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+006cf150	x	ac2-world ac2_water.rs: CWaterDesc::UnPack / BlockMap::UnPack are the same streams as StreamPack (Ac2WaterDescRecord, Ac2BlockMap::decode_packed, cited); region::descs_real_tests water_desc_lookups_answer_per_type_on_the_dataset and a_blocks_water_index_is_its_type_map_value decode the dataset's records (Legions vtable slots 0x0050c0f0 and 0x00658d70)
 006cf200	-	write path (client reads DATs only)
 006cf2c0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 006cf300	-	constructor (struct init; Rust builds it directly)
@@ -14998,7 +14998,7 @@ key	status	note
 0072f370	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 0072f380	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0072f3a0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
-0072f3b0	~	ac2-physics ObjectShape::new: physics containment radius and box only
+0072f3b0	-	only caller is CharacterSetup::LoadFromFile (the authoring tool's text .setup load; calls table), no Legions body. It computes the height, radius, selection sphere, step heights and physics bounds that the DAT stores and CharacterSetup::UnPack reads back (ac2-assets ac2_physics_mesh/setup.rs); ac2-physics ObjectShape::new derives the containment radius and box for objects from the BSPs, spheres and cylinders
 0072f4b0	-	DBO plumbing (Destroy/Allocate/GetDBOType/CopyMe/CopyInto): Rust drop, Clone or Arc sharing
 0072f4f0	_	needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
 0072f510	_	needs port (check): Turbine chat manager init and chat client lookup; implemented as ac2-script host/gun.rs ChatServices flags (cited only there)
@@ -15212,11 +15212,11 @@ key	status	note
 00739080	_	needs port: PEnumMapper::AddEnum (no PEnumMapper port found in crates)
 00739320	_	needs port: PEnumMapper::AddEnum overload (no PEnumMapper port found in crates)
 00739400	_	needs port: PEnumMapper::SortEnums (enum value order; no PEnumMapper port found)
-00739420	_	needs port (check): BaseList GetReferences (sub-object DID enumeration; AGENTS sub-object resolution)
+00739420	-	BaseList<ulong,11>::GetReferences is 'return 1' (empty body; the index name is a folded duplicate)
 00739430	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 00739460	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 007397a0	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
-00739990	_	needs port (check): EMP text parser present in Legions; confirm the DVD client parses text at runtime
+00739990	-	EMP text parsers (AnimInfo::ParseComboAttackNode and ParseHelper<EmpGenParse>::Parse): callers are EmpGenParse::ParseEmp and the FromFileNode loaders (tool text sources); the DVD client loads the binary DAT records (Animator::Create + StreamPack)
 0073ab60	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 0073b010	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools
 0073b320	-	admin text source format (ToFileNode/FromFileNode/Parse*Node), admin tools

@@ -1,6 +1,6 @@
 # ac2-audio: Sound
 
-367 retail functions: 140 done, 35 partial, 17 to do, 175 skipped.
+367 retail functions: 140 done, 35 partial, 16 to do, 176 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/cregion/csound/cambientsoundinfo.cpp.c` (4/13)
@@ -459,7 +459,7 @@ Legend and workflow: [README](README.md).
 - [-] `EnvInfo_WIN32::Allocate` · 005aa340 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]
 
 ### EnvInfo
-- [ ] `EnvInfo::GetDBOType` · 005aa350 — Legions has it: vtable slot 21 of EnvInfo at 0x006a0200 (vtable audit); was skip: EnvInfo (EAX listener properties, PFileNode-loaded) is never
+- [-] `EnvInfo::GetDBOType` · 005aa350 — EnvInfo::GetDBOType (Legions vtable slot 21 at 0x006a0200) returns the EnvInfo DBO type tag; EnvInfo itself is never applied in retail (no caller of its property accessors in admin 7148 or Legions 7160; DXSoundDevice::UpdateListener sets DS3D listener data only), so there is no record to type
 
 ### EnvInfo_WIN32
 - [-] `EnvInfo_WIN32::GetBitMask` · 005aa360 — EnvInfo (EAX listener properties, PFileNode-loaded) is never applied in retail: no caller of the property accessors in admin 7148 or Legions 7160 (the only sound-side hand-off is ChangeCellEnd's 'return 1' stub); DXSoundDevice::UpdateListener sets DS3D listener data only. Nothing to port. [vtable-checked: not a slot of any located Legions vtable]

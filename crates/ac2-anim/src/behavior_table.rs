@@ -178,6 +178,7 @@ fn count(
     Ok(count)
 }
 
+/// `ModeTransitionKey::StreamPack`: source element and mode, destination element and mode.
 fn transition_key(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2ModeTransition, Malformed> {
     Ok(Ac2ModeTransition {
         src_element: word(cursor)?,
@@ -303,16 +304,23 @@ pub const AC2_SLIDER_CLIENT_CONTROLLED: u32 = 0;
 pub const AC2_SLIDER_WEENIE_CONTROLLED: u32 = 1;
 
 /// `CharTemplate` (`CharacterTemplate_AnimSysID`): every behaviour's flags, every slider's
-/// controller, and the default element and mode. `CharTemplate::StreamPack`: identity,
-/// `behaviors` (`PHashTable<ulong, Behavior>`, 64-bit flags), `sliders` (`PHashTable<ulong,
-/// Slider>`) and `modes`, the defaults, `userControlledSliders`.
+/// controller, every mode's combat flag, the default element and mode and the user controlled
+/// sliders. `CharTemplate::StreamPack`: identity, `behaviors` (`PHashTable<ulong, Behavior>`,
+/// `Behavior::StreamPack`: 64-bit flags), `sliders` (`PHashTable<ulong, Slider>`,
+/// `Slider::StreamPack`: the controller), `modes` (`PHashTable<ulong, Mode>`,
+/// `Mode::StreamPack`: `isCombat`), `defaultElementID`, `defaultModeID`, then
+/// `userControlledSliders` (`PList<ulong>`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2CharTemplate {
     pub behaviors: HashMap<u32, u64>,
     /// `Slider::controller` by slider id.
     pub sliders: HashMap<u32, u32>,
+    /// `CharTemplate::modes`: `Mode::isCombat` by mode id.
+    pub modes: HashMap<u32, u32>,
     pub default_element: u32,
     pub default_mode: u32,
+    /// `CharTemplate::userControlledSliders` (`PList<ulong>`), in stored order.
+    pub user_controlled_sliders: Vec<u32>,
 }
 
 impl Ac2CharTemplate {
@@ -349,23 +357,26 @@ fn decode_template(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2CharTe
         let key = word(cursor)?;
         sliders.insert(key, word(cursor)?);
     }
+    let mut modes = HashMap::new();
     for _ in 0..count(cursor, 0xFFFF, 8)? {
-        word(cursor)?;
-        word(cursor)?;
+        let key = word(cursor)?;
+        modes.insert(key, word(cursor)?);
     }
     let default_element = word(cursor)?;
     let default_mode = word(cursor)?;
-    for _ in 0..count(cursor, u32::MAX, 4)? {
-        word(cursor)?;
-    }
+    let user_controlled_sliders = (0..count(cursor, u32::MAX, 4)?)
+        .map(|_| word(cursor))
+        .collect::<Result<Vec<_>, _>>()?;
     if cursor.remaining() != 0 {
         return Err("trailing bytes after CharTemplate");
     }
     Ok(Ac2CharTemplate {
         behaviors,
         sliders,
+        modes,
         default_element,
         default_mode,
+        user_controlled_sliders,
     })
 }
 
@@ -388,7 +399,11 @@ impl ResourcePackedDecode for Ac2CharTemplate {
     }
 
     fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.behaviors.len() * 12 + self.sliders.len() * 8
+        std::mem::size_of::<Self>()
+            + self.behaviors.len() * 12
+            + self.sliders.len() * 8
+            + self.modes.len() * 8
+            + self.user_controlled_sliders.len() * 4
     }
 }
 

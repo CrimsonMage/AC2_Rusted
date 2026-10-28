@@ -117,6 +117,9 @@ impl Ac2AnimatorContext for SliderView<'_> {
     fn terrain_type(&self) -> u32 {
         0
     }
+    fn slider_interpolator(&self, slider: u32) -> ac2_anim::Ac2SliderInterpolator {
+        self.0.interpolator(slider)
+    }
 }
 
 impl Ac2AnimationSource for RepSource<'_> {
@@ -153,8 +156,10 @@ impl AnimRep {
         let template = Arc::new(Ac2CharTemplate {
             behaviors: HashMap::new(),
             sliders: HashMap::new(),
+            modes: HashMap::new(),
             default_element: ELEMENT_GROUND,
             default_mode: MODE_DEFAULT,
+            user_controlled_sliders: Vec::new(),
         });
         Self {
             modes: Ac2ModeTracker::new(template),

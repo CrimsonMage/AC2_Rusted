@@ -237,8 +237,10 @@ pub(crate) fn body_animation() -> crate::anim_rep::BodyAnimation {
     let template = Ac2CharTemplate {
         behaviors: HashMap::from([(idle, 0), (0x4000_0003, 0), (mv, 0)]),
         sliders: HashMap::new(),
+        modes: HashMap::new(),
         default_element: ELEMENT_GROUND,
         default_mode: MODE_DEFAULT,
+        user_controlled_sliders: Vec::new(),
     };
     let clip = |x: f32| {
         Arc::new(Ac2DbAnimator::Asset(Arc::new(Ac2AnimAsset {

@@ -193,6 +193,8 @@ impl ResourcePackedDecode for Ac2Setup {
                 })
             })
             .collect::<ResourceResult<Arc<[_]>>>()?;
+        // `PlacementFrame::UnPack`: the frame's kind (its `Placement` enum), the bone count, and a
+        // `TransformBase` per bone.
         let n = count(&mut cursor, 8).ok_or_else(|| malformed("placement count"))?;
         let mut placements = Vec::with_capacity(n);
         for _ in 0..n {

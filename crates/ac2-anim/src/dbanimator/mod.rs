@@ -12,14 +12,18 @@
 
 mod asset;
 mod compose;
+mod interpolator;
+mod look;
 mod tree;
 mod triggers;
 
+use crate::behavior::Ac2SliderInterpolator;
 pub(crate) use asset::{decode_effects, decode_impulses};
 pub use asset::{
     Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AssetBone, Ac2ImpulseTrigger, Ac2WeenieHook,
 };
 pub use compose::{Ac2Compositor, Ac2PoseInput};
+pub use interpolator::{Ac2Interpolator, Ac2Random};
 pub use tree::{load_ac2_db_animator, Ac2CubeSlider, Ac2DbAnimator};
 pub(crate) use triggers::add_effects_and_impulses;
 pub use triggers::Ac2TrackTriggers;
@@ -39,6 +43,25 @@ pub trait Ac2AnimatorContext {
     fn omega(&self) -> [f32; 3];
     /// `GetTerrainType`.
     fn terrain_type(&self) -> u32;
+    /// `GetSliderInterpolator` (the interpolator a new one would be when the slider has none).
+    fn slider_interpolator(&self, _slider: u32) -> Ac2SliderInterpolator {
+        Ac2SliderInterpolator::default()
+    }
+    /// `GetSliderInterpolator` then `SliderInterpolator::Activate`.
+    fn activate_slider_interpolator(&mut self, _slider: u32, _start: f32, _end: f32, _length: f32) {
+    }
+    /// `AnimSetup::IsBoneType`: whether bone `bone` of the animated setup is of bone type `ty`.
+    fn is_bone_type(&self, _bone: usize, _ty: u32) -> bool {
+        false
+    }
+    /// `Random::RollDice(long, long)`: a whole number in `lower..=upper`.
+    fn roll_dice(&mut self, lower: i32, _upper: i32) -> i32 {
+        lower
+    }
+    /// `Random::RollDice(float, float)`.
+    fn roll_dice_f32(&mut self, lower: f32, _upper: f32) -> f32 {
+        lower
+    }
 }
 
 /// The element and mode of the `BehaviorTracker` an animator plays for (`AMSwitchME`).
@@ -139,5 +162,7 @@ pub(crate) fn d3dx_slerp(q1: [f32; 4], q2: [f32; 4], t: f32) -> [f32; 4] {
     ]
 }
 
+#[cfg(test)]
+mod interpolator_tests;
 #[cfg(test)]
 mod tests;

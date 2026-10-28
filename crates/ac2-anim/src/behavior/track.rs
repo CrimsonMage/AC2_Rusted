@@ -1,8 +1,9 @@
 //! `BehaviorParams` and `BehaviorTrack`: one playing behaviour, its clip time, its blend weight
 //! ramping in and out, and the action/hold bookkeeping of `BehaviorTrack::Update`.
 
-/// `BehaviorParams` (the fields the animation state machine reads; camera, clone and FX-script
-/// parameters are not modelled).
+/// `BehaviorParams` (the fields the animation state machine reads, and the camera and
+/// child-fade parameters it hands to the object; the clone, destroy and FX-script parameters are
+/// not modelled).
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2BehaviorParams {
     pub behavior: u32,
@@ -20,6 +21,19 @@ pub struct Ac2BehaviorParams {
     pub send_event: bool,
     /// The weenie context told when the behaviour finishes (0 for none).
     pub context: u32,
+    /// `mFadeChildren`: the object's children fade out while the behaviour plays.
+    pub fade_children: bool,
+    /// `mCameraParent`, `mCameraTarget`, `mCameraHold`, `mCameraRestore`: the player's camera
+    /// follows the object's parent or target part for the behaviour (held until released with
+    /// `camera_hold`), or is restored.
+    pub camera_parent: bool,
+    pub camera_target: bool,
+    pub camera_hold: bool,
+    pub camera_restore: bool,
+    /// `mCameraTargetID` (0 is `INVALID_IID`) and `mCameraBehavior`: an object to run
+    /// `mCameraBehavior` on and aim the camera at.
+    pub camera_target_id: u64,
+    pub camera_behavior: u32,
 }
 
 impl Ac2BehaviorParams {
@@ -37,6 +51,13 @@ impl Ac2BehaviorParams {
             leave_idle_alone: false,
             send_event: true,
             context: 0,
+            fade_children: false,
+            camera_parent: false,
+            camera_target: false,
+            camera_hold: false,
+            camera_restore: false,
+            camera_target_id: 0,
+            camera_behavior: 0,
         }
     }
 }

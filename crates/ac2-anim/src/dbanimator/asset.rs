@@ -92,7 +92,11 @@ fn vec3(cursor: &mut ArchiveCursor<'_>) -> Result<[f32; 3], Malformed> {
 }
 
 impl Ac2AnimAsset {
-    /// `AnimAsset::StreamPackInternal` after the `DBAnimator` id and type words.
+    /// `AnimAsset::StreamPackInternal` (what `AnimAsset::StreamPack` calls) after the `DBAnimator`
+    /// id and type words: the period, the bone count, then per bone the scale, offset, quaternion
+    /// and weight key tables (`KeyframeLookupTable<AnimAssetScaleKey>`, `<AnimAssetOffsetKey>`,
+    /// `<AnimAssetQuatKey>`, `<AnimAssetWeightKey>` `::StreamPack`: a count and the keys), then
+    /// the `AnimInfo` flag and `AnimInfo::StreamPack`.
     pub(crate) fn decode(cursor: &mut ArchiveCursor<'_>) -> Result<Self, Malformed> {
         let period = float(cursor)?;
         let bone_count = count(cursor, MAX_BONES, 0)?;

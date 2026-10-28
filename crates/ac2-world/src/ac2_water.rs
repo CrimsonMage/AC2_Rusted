@@ -189,8 +189,8 @@ impl Ac2WaterSource {
     }
 }
 
-/// `CWaterDesc::StreamPack`: version, DID, height-map and type-map DIDs, an optional default
-/// `WaterType`, then the counted `WaterType`s.
+/// `CWaterDesc::StreamPack` and `CWaterDesc::UnPack` (the same stream): version, DID, height-map
+/// and type-map DIDs, an optional default `WaterType`, then the counted `WaterType`s.
 #[derive(Debug)]
 struct Ac2WaterDescRecord {
     height_map: DataId,
@@ -293,7 +293,8 @@ fn read_water_type(
     ))
 }
 
-/// `BlockMap::StreamPack`: DID, height, width, then `width * height` bytes.
+/// `BlockMap::StreamPack` and `BlockMap::UnPack` (the same stream): DID, height, width, then
+/// `width * height` bytes.
 #[derive(Debug, Clone)]
 pub struct Ac2BlockMap {
     height: u32,

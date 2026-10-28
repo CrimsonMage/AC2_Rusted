@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 347 done, 34 partial, 27 to do, 581 skipped.
+989 retail functions: 351 done, 34 partial, 20 to do, 584 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (37/140)
@@ -795,10 +795,10 @@ Legend and workflow: [README](README.md).
 - [-] `PlacesTable::FromFileNode` · 00639cb0 — text source format (admin tools)
 - [-] `PlacesTable::ToFileNode` · 00639f70 — text source format (admin tools)
 
-## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (1/8)
+## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (2/8)
 
 ### BlockMap
-- [ ] `BlockMap::UnPack` · 006cf150 — Legions has it: vtable slot 4 of BlockMap at 0x00658d70 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [x] `BlockMap::UnPack` · 006cf150 — ac2-world ac2_water.rs: CWaterDesc::UnPack / BlockMap::UnPack are the same streams as StreamPack (Ac2WaterDescRecord, Ac2BlockMap::decode_packed, cited); region::descs_real_tests water_desc_lookups_answer_per_type_on_the_dataset and a_blocks_water_index_is_its_type_map_value decode the dataset's records (Legions vtable slots 0x0050c0f0 and 0x00658d70)
 - [-] `BlockMap::Pack` · 006cf200 — write path (client reads DATs only)
 - [x] `BlockMap::GetValue` · 006cf2c0 · legions 00658ee0 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [-] `BlockMap::BlockMap` · 006cf300 · legions 00658f20 — constructor (struct init; Rust builds it directly)
@@ -887,7 +887,7 @@ Legend and workflow: [README](README.md).
 - [-] `FileNameDesc::FileNameDesc` · 0052bd90 — constructor (struct init; Rust builds it directly)
 - [-] `FileNameDesc::~FileNameDesc` · 0052be40 · legions 00510a30 — destructor (Rust Drop)
 
-## `portal/shared/src/region/fog/fogdesc.cpp.c` (4/15)
+## `portal/shared/src/region/fog/fogdesc.cpp.c` (5/15)
 
 ### CFogDesc
 - [-] `CFogDesc::CFogDesc` · 00524ce0 · legions 0050e1b0 — constructor (struct init; Rust builds it directly)
@@ -900,7 +900,7 @@ Legend and workflow: [README](README.md).
 - [x] `CFogDesc::HasFog` · 00525030 · legions 0050e500 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [x] `CFogDesc::GetFogging` · 00525050 · legions 0050e520 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [-] `CFogDesc::Allocate` · 00525080 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CFogDesc::UnPack` · 005250d0 — Legions has it: vtable slot 4 of CFogDesc at 0x0050e5a0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [x] `CFogDesc::UnPack` · 005250d0 — ac2-world region/fog_desc.rs FogDesc::decode_packed (CFogDesc::UnPack, Legions vtable slot 0x0050e5a0); descs_real_tests fog_desc_decodes_from_the_region_fog_list decodes the dataset's record
 - [-] `CFogDesc::ToFileNode` · 00525280 — text source format (admin tools)
 - [-] `CFogDesc::CheckDupAdd` · 005254d0 — text source format (admin tools)
 - [-] `CFogDesc::LoadFog` · 00525540 — text source loader, admin build only
@@ -1109,7 +1109,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneDegrade::LoadEntity` · 006c2ff0 — text source loader, admin build only
 - [-] `SceneDegrade::FromFileNode` · 006c3070 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenedesc.cpp.c` (3/14)
+## `portal/shared/src/region/scene/scenedesc.cpp.c` (4/14)
 
 ### CSceneDesc
 - [-] `CSceneDesc::CSceneDesc` · 00523b20 · legions 0050d8a0 — constructor (struct init; Rust builds it directly)
@@ -1122,7 +1122,7 @@ Legend and workflow: [README](README.md).
 - [x] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [x] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `CSceneDesc::Allocate` · 00523dc0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CSceneDesc::UnPack` · 00523e10 — Legions has it: vtable slot 4 of CSceneDesc at 0x0050db50 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [x] `CSceneDesc::UnPack` · 00523e10 — ac2-world ac2_scene/format.rs Ac2SceneDesc::decode_packed (CSceneDesc::UnPack, Legions vtable slot 0x0050db50); the_dataset_scene_desc_decodes_to_its_last_byte
 - [-] `CSceneDesc::CheckDupAdd` · 00523ef0 — text source format (admin tools)
 - [-] `CSceneDesc::LoadSceneType` · 00523f60 — text source loader, admin build only
 - [-] `CSceneDesc::FromFileNode` · 00523fe0 — text source format (admin tools)
@@ -1147,14 +1147,14 @@ Legend and workflow: [README](README.md).
 - [-] `SceneFile::SceneFile` · 006c1d10 · legions 00653e90 — constructor (struct init; Rust builds it directly)
 
 ### AMLook
-- [ ] `AMLook::GetType` · 006c1d40 — Legions has it: vtable slot 14 of AMLook at 0x00653ec0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [-] `AMLook::GetType` · 006c1d40 — returns the animator type word 0x40000005 (AMLook; the index name is a folded duplicate, Legions vtable slot 14 at 0x00653ec0); ac2-anim's AnimatorRecord matches the type word (AM_LOOK, dbanimator/tree.rs), a type tag needs no function
 
 ### SceneFile
 - [-] `SceneFile::Destroy` · 006c1d50 · legions 00653ed0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `SceneFile::GetSubDataIDs` · 006c1dc0 · legions 00653f40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneFile::GetCorrectDegrade` · 006c1e10 · legions 00653f90 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneFile::Allocate` · 006c1e60 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `SceneFile::CopyInto` · 006c1eb0 — Legions has it: vtable slot 13 of SceneFile at 0x00654030 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [-] `SceneFile::CopyInto` · 006c1eb0 — SceneFile::CopyInto (Legions vtable slot 13 at 0x00654030) copies the record into another DBObj (version, allow_rotate, frill group, degrades): Rust shares one Arc per DID (AGENTS DBOCache exception) and never copies a loaded scene file
 - [x] `SceneFile::StreamPack` · 006c1fa0 — crates/ac2-world/src/ac2_scene/format.rs SceneFile::StreamPack
 - [-] `SceneFile::ToFileNode` · 006c2150 — text source format (admin tools)
 - [-] `SceneFile::LoadSceneDegrade` · 006c2250 — text source loader, admin build only
@@ -1238,7 +1238,7 @@ Legend and workflow: [README](README.md).
 - [x] `CDayDesc::CalcLightVector` · 005259e0 · legions 0050e990
 - [-] `CDayDesc::Destroy` · 00525a90 · legions 0050ea40 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `CDayDesc::StreamPack` · 00525af0 · legions 0050eaa0 — crates/ac2-world/src/region/ac2_region.rs CDayDesc::StreamPack
-- [ ] `CDayDesc::GetSubDataIDs` · 00525b60 — Legions has it: vtable slot 7 of CDayDesc at 0x0050eb10 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [-] `CDayDesc::GetSubDataIDs` · 00525b60 — CDayDesc::GetSubDataIDs (Legions vtable slot 7 at 0x0050eb10): GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph); DBOCache::GetIfInMemory does not call it, it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs and Ac2DbAnimator's loader recurses by DID (dbanimator/tree.rs Loader::node), so no consumer exists
 - [-] `CDayDesc::CheckDupAdd` · 00525bd0 — text source format (admin tools)
 - [-] `CDayDesc::SetInterpDir` · 00525c10 — admin day-table editor (no client path)
 - [x] `CDayDesc::GetBeforeTime` · 00525cb0 · legions 0050eb80
@@ -1578,7 +1578,7 @@ Legend and workflow: [README](README.md).
 - [x] `TerrainType::unpack` · 006c6460 · legions 00656210 — crates/ac2-world/src/ac2_terrain_desc.rs TerrainType::unpack
 - [-] `TerrainType::Load` · 006c65f0 — admin-only text/file loader (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 
-## `portal/shared/src/region/water/waterdesc.cpp.c` (8/21)
+## `portal/shared/src/region/water/waterdesc.cpp.c` (9/21)
 
 ### CWaterDesc
 - [-] `CWaterDesc::CWaterDesc` · 00521060 · legions 0050bcd0 — constructor (struct init; Rust builds it directly)
@@ -1596,7 +1596,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWaterDesc::GetVertexColor` · 005213f0 · legions 0050c060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [x] `CWaterDesc::GetPhysicsMaterial` · 00521410 · legions 0050c080 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `CWaterDesc::Allocate` · 00521430 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CWaterDesc::UnPack` · 00521480 — Legions has it: vtable slot 4 of CWaterDesc at 0x0050c0f0 (vtable audit); was skip: admin 7148 only: no Legions body (an inlined getter or tool 
+- [x] `CWaterDesc::UnPack` · 00521480 — ac2-world ac2_water.rs: CWaterDesc::UnPack / BlockMap::UnPack are the same streams as StreamPack (Ac2WaterDescRecord, Ac2BlockMap::decode_packed, cited); region::descs_real_tests water_desc_lookups_answer_per_type_on_the_dataset and a_blocks_water_index_is_its_type_map_value decode the dataset's records (Legions vtable slots 0x0050c0f0 and 0x00658d70)
 - [-] `CWaterDesc::ToFileNode` · 005215f0 — text source format (admin tools)
 - [-] `CWaterDesc::CheckDupAdd` · 00521780 — text source format (admin tools)
 - [-] `CWaterDesc::LoadID` · 005217f0 — text source loader, admin build only

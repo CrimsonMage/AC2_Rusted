@@ -2,7 +2,8 @@
 //! `SliderTracker`. Where retail calls back into its `AnimationObj` (`PHYSICSOBJREP`), the
 //! queries go through [`Ac2AnimationSource`] and the notifications are queued as
 //! [`Ac2AnimEvent`]s in call order; the effect, hook and impulse triggers the tracks reach go
-//! through the [`Ac2TriggerUpdate`]. FX scripts and camera behaviours are not modelled.
+//! through the [`Ac2TriggerUpdate`]. The camera and child-fade parameters of a behaviour are
+//! events too; FX scripts are the [`Ac2FxScriptTracker`](crate::Ac2FxScriptTracker)'s.
 
 // Negated float comparisons keep retail's unordered (NaN) branches.
 #![allow(clippy::neg_cmp_op_on_partial_ord)]
@@ -15,7 +16,7 @@ mod tracker;
 mod triggers;
 
 pub use mode_tracker::Ac2ModeTracker;
-pub use slider::{Ac2SliderTracker, AC2_SLIDER_INIT};
+pub use slider::{Ac2SliderInterpolator, Ac2SliderTracker, AC2_SLIDER_INIT};
 pub use track::{Ac2BehaviorParams, Ac2BehaviorTrack};
 pub use tracker::{
     Ac2BehaviorTracker, AC2_BEHAVIOR_IDLE, AC2_BEHAVIOR_IDLE_LAYER, AC2_BEHAVIOR_MOVE,
@@ -77,6 +78,30 @@ pub enum Ac2AnimEvent {
     },
     LockActions,
     UnlockActions,
+    /// `SetChildrenOpacity(opacity, rampTime)` (`mFadeChildren`).
+    ChildrenOpacity {
+        opacity: f32,
+        ramp_time: f32,
+    },
+    /// `SetCameraAnimParent(period, rampTime)`: a period of -1 holds the camera.
+    CameraAnimParent {
+        period: f32,
+        ramp_time: f32,
+    },
+    /// `SetCameraAnimTarget(period, rampTime)`.
+    CameraAnimTarget {
+        period: f32,
+        ramp_time: f32,
+    },
+    /// `RestoreCamera`.
+    RestoreCamera,
+    /// `DoBehaviorOnObject(target, behavior)` and, when it takes, `SetTargetedCamera(target,
+    /// parent, target part, period, rampTime)` (`mCameraTargetID`).
+    TargetedCamera {
+        target: u64,
+        behavior: u32,
+        period: f32,
+    },
     /// A `WeenieHook` the animation reached (`CWeenieObject`'s anim hook and
     /// `StoryManager::HandleAnimHook`).
     WeenieHook {

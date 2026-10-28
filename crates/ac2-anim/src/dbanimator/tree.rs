@@ -9,12 +9,16 @@ use ac2_dat::ArchiveCursor;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId};
 
 use super::asset::Ac2AnimAsset;
+use super::interpolator::{read_interpolator_ids, Ac2Interpolator, Ac2Random};
+use super::look::{animate_look, LOOK_PERIOD};
 use super::{Ac2AnimatorContext, Ac2BoneTransform, Ac2TrackerState};
 use crate::animation::{load_portal, Ac2AnimMap};
 
 const ANIM_ASSET: u32 = 0x4000_0001;
 const ANIM_CUBE: u32 = 0x4000_0002;
 const AM_HUMAN: u32 = 0x4000_0003;
+const AM_LOOK: u32 = 0x4000_0005;
+const AM_RANDOM: u32 = 0x4000_0007;
 const AM_SWITCH: u32 = 0x4000_0008;
 const MAX_DEPTH: usize = 12;
 const MAX_SLIDERS: usize = 8;
@@ -53,7 +57,12 @@ pub enum Ac2DbAnimator {
         default: Option<Arc<Ac2DbAnimator>>,
         overrides: Arc<[(u32, Option<Arc<Ac2DbAnimator>>)]>,
     },
-    /// An animator this port does not evaluate (`AMLook`, `AMAngle`, ...): no pose, period 0.
+    /// `AMLook`: turns the neck and head bones by the look sliders.
+    Look,
+    /// `AMRandom`: an `AnimInterpolator` that ramps to a random animator at random intervals.
+    Random(Ac2Random),
+    /// An animator this port does not evaluate (`AMAngle`, `AxisCube`): no pose,
+    /// period 0.
     Other,
 }
 
@@ -82,6 +91,8 @@ impl Ac2DbAnimator {
             Self::Switch { .. } => self
                 .switch_target(ctx, tracker)
                 .map_or(0.0, |child| child.period(ctx, tracker)),
+            Self::Random(random) => random.interp.period(ctx, tracker),
+            Self::Look => LOOK_PERIOD,
             Self::Other => 0.0,
         }
     }
@@ -135,6 +146,10 @@ impl Ac2DbAnimator {
                     child.animate(ctx, tracker, weight, ctime, out, out_weights, roots);
                 }
             }
+            Self::Random(random) => {
+                random.animate(ctx, tracker, weight, ctime, out, out_weights, roots)
+            }
+            Self::Look => animate_look(&*ctx, weight, out),
             Self::Other => {}
         }
     }
@@ -327,6 +342,19 @@ pub fn load_ac2_db_animator(
     loader.node(root, 0)
 }
 
+/// The animator tree rooted at the `DBAnimator` record `did` (tests walk every record).
+#[cfg(test)]
+pub(super) fn load_animator_did(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<Arc<Ac2DbAnimator>>> {
+    Loader {
+        store,
+        cache: HashMap::new(),
+    }
+    .node(did, 0)
+}
+
 struct Loader<'a> {
     store: &'a ResourceStore,
     cache: HashMap<DataId, Option<Arc<Ac2DbAnimator>>>,
@@ -373,6 +401,31 @@ impl Loader<'_> {
                     overrides,
                 }
             }
+            AnimatorRecord::Random {
+                interp_slider,
+                ids,
+                variation,
+                frequency,
+                ramp_time,
+                slider,
+            } => {
+                let children = ids
+                    .iter()
+                    .map(|&child| self.node(DataId::new(child), depth + 1))
+                    .collect::<ResourceResult<Arc<[_]>>>()?;
+                Ac2DbAnimator::Random(Ac2Random {
+                    interp: Ac2Interpolator {
+                        slider: *interp_slider,
+                        ids: Arc::from(ids.as_slice()),
+                        children,
+                    },
+                    variation: *variation,
+                    frequency: *frequency,
+                    ramp_time: *ramp_time,
+                    slider: *slider,
+                })
+            }
+            AnimatorRecord::Look => Ac2DbAnimator::Look,
             AnimatorRecord::Other => Ac2DbAnimator::Other,
         };
         let node = Some(Arc::new(node));
@@ -381,7 +434,12 @@ impl Loader<'_> {
     }
 }
 
-/// One `DBAnimator` record (`Animator::Create` type word, then the type's `StreamPack`).
+/// One `DBAnimator` record (`DBAnimator::StreamPack`: the `DBObj` identity and the animator's
+/// type word, `Animator::Create`, then the type's `StreamPack`): `AnimAsset::StreamPackInternal`,
+/// `AnimCube::StreamPack` (its `AnimCube::SliderAndTickList::StreamPack` slider id and tick
+/// list per axis, then the child ids), `AMHuman::StreamPack` (the animator id),
+/// `AMSwitchME::StreamPack`, `AMRandom::StreamPack` (the `AnimInterpolator::StreamPack` slider
+/// and animator ids, then frequency, ramp time, slider and variation).
 #[derive(Debug)]
 enum AnimatorRecord {
     Asset(Arc<Ac2AnimAsset>),
@@ -394,6 +452,16 @@ enum AnimatorRecord {
         kind: u32,
         default: DataId,
         overrides: Vec<(u32, DataId)>,
+    },
+    Look,
+    /// `AMRandom::StreamPack`: the interpolator (slider, animator ids), then the rest.
+    Random {
+        interp_slider: u32,
+        ids: Vec<u32>,
+        variation: f32,
+        frequency: f32,
+        ramp_time: f32,
+        slider: u32,
     },
     Other,
 }
@@ -435,6 +503,23 @@ impl ResourcePackedDecode for AnimatorRecord {
                     kind,
                     default,
                     overrides,
+                }
+            }
+            AM_LOOK => Self::Look,
+            AM_RANDOM => {
+                let (interp_slider, ids) = read_interpolator_ids(&mut cursor).map_err(malformed)?;
+                // `mFrequency`, `mRampTime`, `mSlider`, `mVariation` in stream order.
+                let frequency = cursor.read_f32()?;
+                let ramp_time = cursor.read_f32()?;
+                let slider = cursor.read_u32()?;
+                let variation = cursor.read_f32()?;
+                Self::Random {
+                    interp_slider,
+                    ids,
+                    variation,
+                    frequency,
+                    ramp_time,
+                    slider,
                 }
             }
             ANIM_CUBE => {

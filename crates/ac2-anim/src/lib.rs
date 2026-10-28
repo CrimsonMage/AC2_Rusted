@@ -22,9 +22,9 @@ pub use animator::{
 };
 pub use behavior::{
     Ac2AnimEvent, Ac2AnimationSource, Ac2BehaviorParams, Ac2BehaviorTrack, Ac2BehaviorTracker,
-    Ac2ModeTracker, Ac2SliderTracker, Ac2TriggerAction, Ac2TriggerUpdate, AC2_BEHAVIOR_IDLE,
-    AC2_BEHAVIOR_IDLE_LAYER, AC2_BEHAVIOR_MOVE, AC2_SLIDER_INIT, AC2_STOP_LAYER_BUSY,
-    AC2_STOP_NOT_ACTIVE, AC2_STOP_NOT_PLAYING,
+    Ac2ModeTracker, Ac2SliderInterpolator, Ac2SliderTracker, Ac2TriggerAction, Ac2TriggerUpdate,
+    AC2_BEHAVIOR_IDLE, AC2_BEHAVIOR_IDLE_LAYER, AC2_BEHAVIOR_MOVE, AC2_SLIDER_INIT,
+    AC2_STOP_LAYER_BUSY, AC2_STOP_NOT_ACTIVE, AC2_STOP_NOT_PLAYING,
 };
 pub use behavior_table::{
     Ac2BehaviorInfo, Ac2BehaviorTable, Ac2CharTemplate, Ac2ComboInfo, Ac2ModeState,
@@ -35,7 +35,7 @@ pub use blend::blend_transform;
 pub use dbanimator::{
     load_ac2_db_animator, Ac2AnimAsset, Ac2AnimInfo, Ac2AnimTrigger, Ac2AnimatorContext,
     Ac2AssetBone, Ac2BoneTransform, Ac2Compositor, Ac2CubeSlider, Ac2DbAnimator, Ac2ImpulseTrigger,
-    Ac2PoseInput, Ac2TrackTriggers, Ac2TrackerState, Ac2WeenieHook,
+    Ac2Interpolator, Ac2PoseInput, Ac2Random, Ac2TrackTriggers, Ac2TrackerState, Ac2WeenieHook,
 };
 pub use fx_scripts::{load_fx_scripts, FxScripts};
 pub use fxscript::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};

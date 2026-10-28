@@ -117,8 +117,10 @@ fn template() -> Arc<Ac2CharTemplate> {
             (WAVE, AC2_BEHAVIOR_ACTION),
         ]),
         sliders: HashMap::new(),
+        modes: HashMap::new(),
         default_element: GROUND,
         default_mode: PEACE,
+        user_controlled_sliders: Vec::new(),
     })
 }
 
@@ -272,4 +274,137 @@ fn sliders_move_at_their_rate_and_stop_on_target() {
     assert_eq!(sliders.velocity(0x4000_0004), 0.0);
     sliders.do_slider(0, 0x4000_0004, -1.0, 0.0);
     assert_eq!(sliders.value(0x4000_0004), -1.0);
+}
+
+#[test]
+fn a_slider_interpolator_ramps_for_its_length_then_rests_at_its_end() {
+    let mut sliders = Ac2SliderTracker::new();
+    let slider = 0x4000_0030;
+    assert_eq!(
+        sliders.interpolator(slider),
+        Ac2SliderInterpolator::default()
+    );
+    sliders.activate_interpolator(slider, 0.0, 2.0, 1.0);
+    // The tracker must be active (a moving slider) for the interpolators to advance.
+    sliders.do_slider(0, 0x4000_0004, 1.0, 10.0);
+    sliders.update(0.25);
+    let ramp = sliders.interpolator(slider);
+    assert!(ramp.active && ramp.time == 0.25 && ramp.current == 0.25);
+    sliders.update(1.0);
+    let done = sliders.interpolator(slider);
+    assert!(!done.active);
+    assert_eq!(
+        (done.time, done.start, done.end, done.current),
+        (0.0, 2.0, 0.0, 0.0)
+    );
+}
+
+#[test]
+fn an_inactive_interpolator_keeps_counting_time_while_the_tracker_runs() {
+    let mut sliders = Ac2SliderTracker::new();
+    sliders.activate_interpolator(0x4000_0031, 1.0, 1.0, 1.0);
+    sliders.do_slider(0, 0x4000_0004, 1.0, 10.0);
+    sliders.update(0.5);
+    sliders.update(0.5);
+    // Active: 1.0 is not past its length yet.
+    assert!(sliders.interpolator(0x4000_0031).active);
+    sliders.update(0.5);
+    assert!(!sliders.interpolator(0x4000_0031).active);
+    sliders.update(0.5);
+    assert_eq!(sliders.interpolator(0x4000_0031).time, 0.5);
+}
+
+/// `ModeTracker::CheckForDynamicFPCamera`: a flagged active behaviour, until it is released.
+#[test]
+fn a_dynamic_first_person_camera_behaviour_is_found_while_it_plays() {
+    let template = Ac2CharTemplate {
+        behaviors: HashMap::from([
+            (IDLE, 0),
+            (AC2_BEHAVIOR_IDLE_LAYER, 0),
+            (
+                WAVE,
+                AC2_BEHAVIOR_ACTION | crate::behavior_table::AC2_BEHAVIOR_DYNAMIC_FP_CAMERA,
+            ),
+        ]),
+        sliders: HashMap::new(),
+        modes: HashMap::new(),
+        default_element: GROUND,
+        default_mode: PEACE,
+        user_controlled_sliders: Vec::new(),
+    };
+    let mut tracker = Ac2ModeTracker::new(Arc::new(template));
+    assert!(tracker.init(Some(table()), &SOURCE));
+    assert!(!tracker.check_for_dynamic_fp_camera());
+    assert!(tracker.do_behavior(&Ac2BehaviorParams::new(WAVE), &SOURCE));
+    assert!(tracker.check_for_dynamic_fp_camera());
+}
+
+/// `Source` that is the player's object (the camera and action lock apply to it only).
+struct PlayerSource;
+
+impl Ac2AnimationSource for PlayerSource {
+    fn combo_cvel(&self, tracker: crate::Ac2TrackerState, combo: Ac2ComboInfo) -> f32 {
+        SOURCE.combo_cvel(tracker, combo)
+    }
+    fn hold_loop(
+        &self,
+        tracker: crate::Ac2TrackerState,
+        combo: Ac2ComboInfo,
+    ) -> Option<(f32, f32)> {
+        SOURCE.hold_loop(tracker, combo)
+    }
+    fn is_the_player(&self) -> bool {
+        true
+    }
+}
+
+/// `BehaviorTracker::ProcessParamFlags` and `ProcessRampingDownParamFlags`: the children fade
+/// out and back, and the player's camera follows the behaviour and is restored.
+#[test]
+fn a_behaviour_fades_the_children_and_drives_the_players_camera() {
+    let mut params = Ac2BehaviorParams::new(WAVE);
+    params.fade_children = true;
+    params.camera_parent = true;
+    params.camera_hold = true;
+    params.camera_restore = true;
+    params.camera_target_id = 0x77;
+    params.camera_behavior = 0x4000_0099;
+    let mut player = tracker();
+    assert!(player.do_behavior(&params, &PlayerSource));
+    assert_eq!(
+        player.take_events(),
+        vec![
+            Ac2AnimEvent::ChildrenOpacity {
+                opacity: 0.0,
+                ramp_time: 0.25
+            },
+            Ac2AnimEvent::CameraAnimParent {
+                period: -1.0,
+                ramp_time: 0.25
+            },
+            Ac2AnimEvent::RestoreCamera,
+            Ac2AnimEvent::TargetedCamera {
+                target: 0x77,
+                behavior: 0x4000_0099,
+                period: 1.0
+            },
+        ]
+    );
+    assert_eq!(player.stop_behavior(WAVE, &PlayerSource), 0);
+    let events = player.take_events();
+    assert!(events.contains(&Ac2AnimEvent::ChildrenOpacity {
+        opacity: 1.0,
+        ramp_time: 0.25
+    }));
+    assert!(events.contains(&Ac2AnimEvent::RestoreCamera));
+    // Another object's behaviour fades its children but never touches the camera.
+    let mut other = tracker();
+    assert!(other.do_behavior(&params, &SOURCE));
+    assert_eq!(
+        other.take_events(),
+        vec![Ac2AnimEvent::ChildrenOpacity {
+            opacity: 0.0,
+            ramp_time: 0.25
+        }]
+    );
 }

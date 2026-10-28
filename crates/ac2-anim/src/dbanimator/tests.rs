@@ -223,8 +223,10 @@ fn a_higher_layer_overrides_a_lower_one_and_unanimated_bones_rest() {
     let template = Ac2CharTemplate {
         behaviors: HashMap::from([(idle, 0), (wave, 0)]),
         sliders: HashMap::new(),
+        modes: HashMap::new(),
         default_element: g,
         default_mode: p,
+        user_controlled_sliders: Vec::new(),
     };
     let mut modes = Ac2ModeTracker::new(Arc::new(template));
     modes.init(Some(Arc::new(table)), &Source);

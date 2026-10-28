@@ -34,6 +34,15 @@ pub(crate) fn behavior(params: &BehaviorParams) -> Ac2BehaviorParams {
     out.lock_actions = flag(0x800, params.lock_actions, out.lock_actions);
     out.send_event = flag(0x200, params.send_event, out.send_event);
     out.leave_idle_alone = flag(0x2_0000, params.leave_idle_alone, out.leave_idle_alone);
+    out.fade_children = flag(0x100, params.fade_children, out.fade_children);
+    out.camera_parent = flag(0x80, params.camera_parent, out.camera_parent);
+    out.camera_target = flag(0x40, params.camera_target_flag, out.camera_target);
+    out.camera_hold = flag(0x4_0000, params.camera_hold, out.camera_hold);
+    out.camera_restore = flag(0x8_0000, params.camera_restore, out.camera_restore);
+    if has(0x20_0000) {
+        out.camera_target_id = params.camera_target;
+        out.camera_behavior = params.camera_behavior;
+    }
     // `RecvEvt_DoBehavior` runs a copy whose context is 1.
     out.context = 1;
     out

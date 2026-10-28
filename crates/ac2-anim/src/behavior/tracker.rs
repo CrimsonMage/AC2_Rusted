@@ -119,23 +119,76 @@ impl Ac2BehaviorTracker {
         track.params.context = 0;
     }
 
-    /// `BehaviorTracker::ProcessParamFlags` (camera and child-fade parameters not modelled).
+    /// The camera period of a behaviour: `-1` while held, else `1 / ctime velocity`.
+    fn camera_period(track: &Ac2BehaviorTrack) -> f32 {
+        if track.params.camera_hold {
+            -1.0
+        } else {
+            (1.0 / f64::from(track.ctime_vel)) as f32
+        }
+    }
+
+    /// `BehaviorTracker::ProcessParamFlags` (the clone parameters are not modelled): the
+    /// children fade out, the FX starts, and for the player the actions lock and the camera
+    /// follows the behaviour.
     fn process_param_flags(env: &mut Env, track: &Ac2BehaviorTrack) {
+        if track.params.fade_children {
+            env.events.push(Ac2AnimEvent::ChildrenOpacity {
+                opacity: 0.0,
+                ramp_time: track.ramp_time,
+            });
+        }
         if track.params.fx != 0 {
             env.events.push(Ac2AnimEvent::StartFx {
                 fx: track.params.fx,
                 intensity: 1.0,
             });
         }
-        if env.source.is_the_player() && track.params.lock_actions {
+        if !env.source.is_the_player() {
+            return;
+        }
+        if track.params.lock_actions {
             env.events.push(Ac2AnimEvent::LockActions);
+        }
+        if track.params.camera_parent {
+            env.events.push(Ac2AnimEvent::CameraAnimParent {
+                period: Self::camera_period(track),
+                ramp_time: track.ramp_time,
+            });
+        }
+        if track.params.camera_target {
+            env.events.push(Ac2AnimEvent::CameraAnimTarget {
+                period: Self::camera_period(track),
+                ramp_time: track.ramp_time,
+            });
+        }
+        if track.params.camera_restore {
+            env.events.push(Ac2AnimEvent::RestoreCamera);
+        }
+        if track.params.camera_target_id != 0 {
+            env.events.push(Ac2AnimEvent::TargetedCamera {
+                target: track.params.camera_target_id,
+                behavior: track.params.camera_behavior,
+                period: (1.0 / f64::from(track.ctime_vel)) as f32,
+            });
         }
     }
 
-    /// `BehaviorTracker::ProcessRampingDownParamFlags` (camera, clone and destroy parameters not
-    /// modelled): stops the behaviour's FX and counts weenie behaviours down, restarting idle
-    /// once none play. The count is unsigned and wraps as retail's does.
+    /// `BehaviorTracker::ProcessRampingDownParamFlags` (the clone and destroy parameters are not
+    /// modelled): the children fade back in, the player's camera is restored, the behaviour's FX
+    /// stops and weenie behaviours count down, restarting idle once none play. The count is
+    /// unsigned and wraps as retail's does.
     fn process_ramping_down_param_flags(&mut self, env: &mut Env, track: &Ac2BehaviorTrack) {
+        if track.params.fade_children {
+            env.events.push(Ac2AnimEvent::ChildrenOpacity {
+                opacity: 1.0,
+                ramp_time: track.ramp_time,
+            });
+        }
+        if env.source.is_the_player() && (track.params.camera_parent || track.params.camera_target)
+        {
+            env.events.push(Ac2AnimEvent::RestoreCamera);
+        }
         if track.params.fx != 0 {
             env.events.push(Ac2AnimEvent::StopFx {
                 fx: track.params.fx,
@@ -337,6 +390,14 @@ impl Ac2BehaviorTracker {
         true
     }
 
+    /// `BehaviorTracker::CheckActiveBehaviorsForDynamicFPCamera`: some track is flagged
+    /// `DYNAMIC_FP_CAMERA` (`ReleaseBehavior` clears the flag).
+    pub fn check_active_behaviors_for_dynamic_fp_camera(&self) -> bool {
+        self.tracks
+            .iter()
+            .any(|(_, track)| track.is_dynamic_fp_camera)
+    }
+
     /// `BehaviorTracker::AddTriggers`: every track's reached triggers into the update.
     pub(crate) fn add_triggers(&mut self, triggers: &mut super::Ac2TriggerUpdate) {
         for behavior in self.tracks.keys() {
@@ -347,12 +408,23 @@ impl Ac2BehaviorTracker {
     }
 
     /// `BehaviorTracker::Destroy` (the tracker is being deleted): every track's weight drops to
-    /// -1 and its triggers go to the update one last time (camera behaviours not modelled).
-    pub(crate) fn destroy(&mut self, triggers: &mut super::Ac2TriggerUpdate) {
+    /// -1 and its triggers go to the update one last time; a track that faded the children
+    /// brings them back (full opacity over a quarter second).
+    pub(crate) fn destroy(
+        &mut self,
+        triggers: &mut super::Ac2TriggerUpdate,
+        events: &mut Vec<Ac2AnimEvent>,
+    ) {
         for behavior in self.tracks.keys() {
             if let Some(track) = self.tracks.get_mut(behavior) {
                 track.weight = -1.0;
                 triggers.add_track_triggers(track);
+                if track.params.fade_children {
+                    events.push(Ac2AnimEvent::ChildrenOpacity {
+                        opacity: 1.0,
+                        ramp_time: 0.25,
+                    });
+                }
             }
         }
     }

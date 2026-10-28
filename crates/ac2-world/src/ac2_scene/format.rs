@@ -54,8 +54,8 @@ pub(super) struct Ac2SceneType {
     pub(super) freq_count: f64,
 }
 
-/// `CSceneDesc`: version, DID, then counted scene types of (index, sound, counted
-/// (scene DID, frequency, flags)).
+/// `CSceneDesc` (`CSceneDesc::UnPack`, the same stream as its `StreamPack`): version, DID, then
+/// counted scene types of (index, sound, counted (scene DID, frequency, flags)).
 #[derive(Debug)]
 pub(super) struct Ac2SceneDesc {
     pub(super) types: Vec<Ac2SceneType>,
@@ -513,6 +513,24 @@ impl ResourcePackedDecode for Ac2SceneLandDefs {
 #[cfg(test)]
 mod degrade_tests {
     use super::*;
+
+    /// The dataset's `CSceneDesc` decodes to its last byte, each scene type naming scenes with
+    /// frequencies (only with `AC2_DAT_DIR`).
+    #[test]
+    fn the_dataset_scene_desc_decodes_to_its_last_byte() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let store = ac2_db::ResourceStore::new(dataset);
+        let desc = super::super::portal::<Ac2SceneDesc>(&store, super::super::SCENE_DESC_DID)
+            .expect("scene desc decodes")
+            .expect("scene desc present");
+        assert!(!desc.types.is_empty());
+        assert!(desc
+            .types
+            .iter()
+            .all(|t| t.freq_count.is_finite() && t.freq_count >= 0.0));
+    }
 
     #[test]
     fn degrade_distance_spans_min_ideal_max_by_quality() {
