@@ -84,6 +84,7 @@ dependencies = [
  "png",
  "puffin",
  "puffin_http",
+ "tempfile",
  "wgpu",
  "winit",
 ]

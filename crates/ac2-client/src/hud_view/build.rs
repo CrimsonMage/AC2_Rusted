@@ -9,12 +9,22 @@ use ac2_ui::{ChatSettings, GameplayHud};
 
 use super::{Built, HudView};
 
-/// The help pages from the content directory `AC2_CONTENT_DIR` names (the DVD's
-/// `ProgramFiles/Content`). `None` without the variable.
+/// The help pages from the content directory (`ac2_client::content_dir`, the DVD's
+/// `ProgramFiles/Content`). `None` without one: the help window then has no pages, and that is
+/// logged once.
 fn help_pages(store: &ac2_db::ResourceStore) -> ac2_db::ResourceResult<Option<ac2_ui::HelpPages>> {
-    match std::env::var_os("AC2_CONTENT_DIR") {
-        Some(dir) => ac2_ui::load_help_pages(store, std::path::Path::new(&dir)),
-        None => Ok(None),
+    static NO_CONTENT: std::sync::Once = std::sync::Once::new();
+    match crate::help_content::content_dir() {
+        Some(dir) => ac2_ui::load_help_pages(store, &dir),
+        None => {
+            NO_CONTENT.call_once(|| {
+                eprintln!(
+                    "help: no content directory (--content-dir, a Content folder beside the DATs, \
+                     or AC2_CONTENT_DIR); the help window has no pages"
+                );
+            });
+            Ok(None)
+        }
     }
 }
 

@@ -56,6 +56,7 @@ puffin_http = { version = "0.17", optional = true }
 
 [dev-dependencies]
 ac2-client = { path = ".", features = ["test-support"] }
+tempfile = "3.27.0"
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 legions-server-double = { path = "../../tools/legions-server-double" }
 png = "0.18"

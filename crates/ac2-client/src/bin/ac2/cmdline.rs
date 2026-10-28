@@ -36,6 +36,9 @@ pub(crate) struct Args {
     /// `language <string>` (`Turbine::Client::SetLanguage`, Legions 0x006A0640): the language
     /// the client runs in; its `local_<name>.dat` is mounted (`ac2_dat::local_dat_for_language`).
     pub language: Option<String>,
+    /// `content-dir <path>`: the folder of the help pages (`KeyStone`'s `content/`). Without it the
+    /// `Content` folder beside the DATs, then `AC2_CONTENT_DIR` (`ac2_client::resolve_content_dir`).
+    pub content_dir: Option<std::path::PathBuf>,
 }
 
 impl Args {
@@ -95,7 +98,7 @@ pub(crate) fn parse_args() -> Result<Args, String> {
 }
 
 /// The options with a value. `rodat` and `glsticket` take an optional one.
-const WITH_VALUE: [&str; 14] = [
+const WITH_VALUE: [&str; 15] = [
     "dat-dir",
     "server",
     "account",
@@ -110,6 +113,7 @@ const WITH_VALUE: [&str; 14] = [
     "width",
     "height",
     "language",
+    "content-dir",
 ];
 
 /// Whether `name` is an option this program knows.
@@ -145,6 +149,7 @@ fn parse_from(
         width: None,
         height: None,
         language: None,
+        content_dir: None,
     };
     let mut it = tokens.into_iter().peekable();
     while let Some(token) = it.next() {
@@ -190,6 +195,7 @@ fn parse_from(
             "width" => args.width = Some(window_size("width", &value)?),
             "height" => args.height = Some(window_size("height", &value)?),
             "language" => args.language = Some(value),
+            "content-dir" => args.content_dir = Some(value.into()),
             "host" => args.host = Some(value),
             "port" => args.port = Some(value),
             _ => args.ticket = value,
@@ -267,6 +273,17 @@ mod tests {
         let args = parse("--language french --account A").unwrap();
         assert_eq!(args.language.as_deref(), Some("french"));
         assert_eq!(parse("--account A").unwrap().language, None);
+    }
+
+    #[test]
+    fn the_content_directory_argument_is_kept() {
+        let args = parse("--content-dir /dvd/Content --account A").unwrap();
+        assert_eq!(
+            args.content_dir.as_deref(),
+            Some(std::path::Path::new("/dvd/Content"))
+        );
+        assert_eq!(parse("--account A").unwrap().content_dir, None);
+        assert!(parse("--content-dir").is_err());
     }
 
     #[test]

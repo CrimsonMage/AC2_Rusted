@@ -770,6 +770,14 @@ fn run(args: Args) -> Result<(), String> {
     };
     // `Turbine::Client::SetLanguage` -> `CLCache::SetLanguageInternal`: the language's local DAT
     // (its string tables) replaces the English one the mount opens by default.
+    // `KeyStone::OpenHelp`'s pages: the Content folder the help window reads (the HUD's worker).
+    let env_content = std::env::var_os(ac2_client::CONTENT_DIR_ENV);
+    let content = ac2_client::resolve_content_dir(
+        args.content_dir.as_deref(),
+        args.dat_dir.as_ref(),
+        env_content.as_deref(),
+    );
+    ac2_client::set_content_dir(content);
     let mut dat_options = ac2_dat::DatOpenOptions::new(&args.dat_dir);
     if let Some(language) = &args.language {
         dat_options.local_dat_file_name =

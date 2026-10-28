@@ -34,6 +34,8 @@ pub use client_locations::{saved_windows, ui_save_locations};
 mod client_options;
 mod client_prefs;
 mod clipboard;
+pub use help_content::{content_dir, resolve_content_dir, set_content_dir, CONTENT_DIR_ENV};
+mod help_content;
 use ac2_smartbox::{camera, cells, scene};
 mod client_frame;
 mod client_objects;
