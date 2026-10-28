@@ -30,7 +30,7 @@ key	status	note
 00401bd0	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
 00401be0	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
 00401bf0	x	Legions returns E_NOINTERFACE: the port has no COM interface query
-00401c30	x	base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player_notice)
+00401c30	x	base virtual is empty; the allegiance page overrides it: ui_social.rs N::PatronSwearDone -> patron_swear_done (hud_player (frame_passes notices))
 00401c40	x	base virtual is empty; the navigation UI overrides it: client_radar.rs radar_notice -> add_map_note / marker
 00401c50	x	ac2-weenie OnlineSession::send_to_room; the Legions vtable stub is empty (room sends go through gmChatInterfaceProvider::OnSendToRoom)
 00401c60	x	Legions body is empty / returns 0: the DVD client has no room-by-name result or per-frame chat work; rooms are set by server calls (shell/state.rs)
@@ -78,7 +78,7 @@ key	status	note
 00402d90	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402e40	-	COM refcount and object lifetime: Rust ownership (CCliChatEvent is a GUN event class; GUN is gone)
 00402ef0	-	operator==/=/+/!= of plain data (string, id, error); Rust derives or uses String
-00403030	x	
+00403030	x	Rust std replaces it
 00403280	_	needs port (check): NetError string and log text; implemented as NetError Display in crates/ac2-net but uncited
 004032f0	_	needs port (check): command-line evaluation; implemented as crates/ac2-client/src/bin/ac2/cmdline.rs but these overloads uncited
 004033a0	_	needs port: GUN (MSN Gaming Zone) startup, authentication and notices; the live path uses glsticket (crates/ac2-prefs/src/gls_ticket.rs); decide whether GUN is kept
@@ -104,12 +104,12 @@ key	status	note
 00405210	~	base virtual flushes the played list; the port sends no finish notice, the story slot ends its own sequence (client_story.rs)
 00405230	x	base virtual flushes its list; the story slot takes the scenes: client_story.rs GameplayNotice::PlaySequence
 00405250	-	ctor/dtor of plain data
-00405330	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
+00405330	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player (frame_passes notices)
 00405340	-	ctor/dtor of plain data
-004054b0	x	base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player_notice)
+004054b0	x	base virtual releases its arguments; hud_shop.rs shop_notice -> recv_update_store (hud_player (frame_passes notices))
 00405500	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
 004058e0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-00405b40	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player_notice
+00405b40	x	base virtual releases its arguments; the panel is the override: hud_shop.rs consignment_notice / catalog_notice via hud_player (frame_passes notices)
 00405c30	-	ctor/dtor of plain data
 00405d80	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00405df0	_	needs port (check): UIFlow::GetSmartBox behaviour; implemented area ac2-ui hud.rs but uncited
@@ -2063,24 +2063,24 @@ key	status	note
 00469bc0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469c10	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 00469c60	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-00469cb0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00469d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469cb0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469d40	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469d90	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-00469de0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00469e30	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469de0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469e30	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-00469ed0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469ed0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469f10	x	PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
-00469f60	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00469fd0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469f60	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00469fd0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a020	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
 0046a070	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-0046a0d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-0046a110	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-0046a160	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-0046a1b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-0046a200	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a0d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a110	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a160	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a1b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+0046a200	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a260	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 0046a2d0	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 0046a340	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
@@ -4010,7 +4010,7 @@ key	status	note
 004ca3a0	x	
 004ca3b0	_	needs port (check): net hook dispatch to the client's handlers; net.rs, uncited
 004ca400	x	pqueue.rs PQueueArray grows as needed
-004ca450	x	
+004ca450	x	Rust std replaces it
 004ca530	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 004ca5e0	x	
 004ca620	x	
@@ -4067,7 +4067,7 @@ key	status	note
 004cbec0	x	
 004cbee0	-	static table setup/teardown or destructor of the flow queue (Rust owns it; flow.rs)
 004cbf50	x	pqueue.rs PQueueArray grows as needed
-004cbfa0	x	
+004cbfa0	x	Rust std replaces it
 004cc010	x	
 004cc030	x	
 004cc040	-	static table setup/teardown or destructor of the flow queue (Rust owns it; flow.rs)
@@ -14780,27 +14780,27 @@ key	status	note
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724be0	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 00724c70	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-00724d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00724d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724d90	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
-00724e20	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00724e20	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724eb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724f50	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-00724fe0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00724fe0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725070	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
-00725100	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725100	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725190	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs)
 00725220	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
-007252b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007252b0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725340	x	PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
-007253d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00725490	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007253d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725490	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725520	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
 007255c0	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
-00725660	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-007256f0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00725780	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-00725810	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
-007258a0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player_notice, hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725660	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007256f0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725780	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+00725810	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
+007258a0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725950	x	PlayerVitals.vitae; reached through CPlayer 0x127 on the VM, tested with the double's vitae qualities
 007259f0	x	implemented: cited at crates/ac2-ui/src/vitals.rs:23
 00725ab0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:125
