@@ -11,6 +11,8 @@
 mod block;
 mod clearance;
 mod format;
+#[cfg(test)]
+mod frill_tests;
 mod generate;
 mod geometry;
 mod hash;

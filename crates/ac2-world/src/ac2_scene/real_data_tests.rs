@@ -146,3 +146,39 @@ fn a_blocks_async_load_dids_are_its_vertices_scene_files() {
     // The generator places scenery from exactly these scene files, so a block with scenery has some.
     assert!(!ac2_scene_placements(&store, id).unwrap().is_empty());
 }
+
+/// The retail grass reference (12.1N 49.2W, block 0x408E) stands in a meadow whose vertex scenes
+/// nest the grid grass scene (`0x020000B6`: freq-1 clumps 2 to 2.5 m apart); the town block
+/// 0xCB4D only has scattered tufts (`0x020000F8`, about two per vertex). Both are what
+/// `ProcScene`'s frill groups author, so the meadow must carry far denser 10 m patches.
+#[test]
+fn the_reference_meadow_carries_dense_grid_grass_and_the_town_scattered_tufts() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let densest = |block: u32| {
+        let frills: Vec<_> = ac2_scene_placements(&store, CellId::new(block << 16 | 1))
+            .expect("scenery generates")
+            .into_iter()
+            .filter(|p| p.frill)
+            .map(|p| p.origin)
+            .collect();
+        (0..16)
+            .flat_map(|ix| (0..16).map(move |iy| (ix as f32 * 10.0, iy as f32 * 10.0)))
+            .map(|(x0, y0)| {
+                frills
+                    .iter()
+                    .filter(|o| (x0..x0 + 10.0).contains(&o.x) && (y0..y0 + 10.0).contains(&o.y))
+                    .count()
+            })
+            .max()
+            .unwrap_or(0)
+    };
+    let (meadow, town) = (densest(0x408E), densest(0xCB4D));
+    eprintln!("densest 10 m frill patch: meadow {meadow}, town {town}");
+    assert!(meadow >= 20, "densest meadow patch {meadow}");
+    assert!(
+        town < meadow / 2,
+        "densest town patch {town} vs meadow {meadow}"
+    );
+}
