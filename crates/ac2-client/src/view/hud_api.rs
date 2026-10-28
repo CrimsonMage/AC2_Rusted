@@ -238,6 +238,11 @@ impl ClientView {
         self.hud.tree()
     }
 
+    /// The HUD panels the build made (`mini_fellow`, `pets`, `strings`), by name.
+    pub fn built_panels(&self) -> Vec<&'static str> {
+        self.hud.built_panels()
+    }
+
     /// The shortcut bar's slots.
     pub fn shortcut_slots(&self) -> usize {
         self.hud.shortcut_slots()

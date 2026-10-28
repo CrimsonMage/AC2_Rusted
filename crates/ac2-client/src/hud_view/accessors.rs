@@ -157,6 +157,21 @@ impl HudView {
         self.hud.as_ref().map(|(tree, _)| tree)
     }
 
+    /// The HUD panels the build made and the reset kept, by name.
+    pub(crate) fn built_panels(&self) -> Vec<&'static str> {
+        let mut made = Vec::new();
+        if self.panels.mini_fellow.is_some() {
+            made.push("mini_fellow");
+        }
+        if self.panels.pets.is_some() {
+            made.push("pets");
+        }
+        if self.panels.strings.is_some() {
+            made.push("strings");
+        }
+        made
+    }
+
     /// The shortcut bar's slots.
     pub(crate) fn shortcut_slots(&self) -> usize {
         let (Some((tree, _)), Some(bar)) = (&self.hud, &self.panels.shortcuts) else {
