@@ -411,14 +411,9 @@ impl HudView {
         }
         {
             // `gmSelectionUI`: the selection keys, its notices and `RecvNotice_BeingDeleted`.
-            let mut client = player.client.borrow_mut();
             let typing = tree.text_mode();
             commands.extend(crate::target_select::frame_notices(
-                &mut client,
-                frame,
-                tree,
-                events,
-                typing,
+                player, tree, events, typing,
             ));
         }
         // `gmFriendsUI`: the GUN list and status the client took since the last frame, then the

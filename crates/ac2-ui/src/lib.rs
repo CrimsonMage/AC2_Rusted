@@ -198,6 +198,10 @@ mod scroll_coverage_tests;
 #[cfg(test)]
 mod scroll_wheel_tests;
 mod target_cycle;
+mod target_select;
+pub use target_select::{
+    frame_selection_calls, select_key_calls, SelectionCall, SelectionObject, SelectionSource,
+};
 #[cfg(test)]
 mod tests;
 mod text;

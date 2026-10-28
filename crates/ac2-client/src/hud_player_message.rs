@@ -101,14 +101,8 @@ impl HudView {
                 commands.push(Command::DisplaySaleReminders);
             }
             if let Some(key) = ac2_ui::select_key_of(message) {
-                let mut client = player.client.borrow_mut();
                 let typing = tree.text_mode();
-                commands.extend(crate::target_select::select_commands(
-                    &mut client,
-                    frame,
-                    key,
-                    typing,
-                ));
+                commands.extend(crate::target_select::select_commands(player, key, typing));
             }
             if let (Some(page), Some(dialogs)) = (character.as_mut(), dialogs.as_mut()) {
                 page.message(tree, dialogs, message);

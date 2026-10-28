@@ -64,6 +64,50 @@ impl ac2_ui::StatusSource for ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::SelectionSource for ClientPlayer<'_> {
+    fn snapshot(&self) -> Option<ac2_ui::SelectionSnapshot> {
+        let player = self.frame.player.as_ref()?.id;
+        let client = self.client.borrow();
+        Some(ac2_ui::SelectionSnapshot {
+            player,
+            selection: self.frame.selection.as_ref().map(|s| s.id),
+            last_selection: client.session().player_script().last_selection(),
+            last_attacker: client.session().progress().selection.last_attacker,
+        })
+    }
+
+    fn auto_target(&self) -> bool {
+        self.client.borrow_mut().auto_target()
+    }
+
+    fn radar_range(&self) -> f32 {
+        self.frame.radar.range
+    }
+
+    fn radar_blips(&self) -> &[ac2_ui::RadarBlip] {
+        &self.frame.radar.blips
+    }
+
+    fn object(&self, id: u64) -> Option<ac2_ui::SelectionObject> {
+        let client = self.client.borrow_mut();
+        let objects = client.session().objects();
+        let qualities = &objects.get(id)?.qualities;
+        Some(ac2_ui::SelectionObject {
+            kind: qualities.inq_int(0x14).unwrap_or(0) as u32,
+            selectable: qualities.inq_bool(0x270).unwrap_or(0) != 0,
+            owner: qualities.inq_instance_id(0x1F9),
+        })
+    }
+
+    fn is_fellow(&self, id: u64) -> bool {
+        self.frame
+            .progress
+            .fellowship
+            .as_ref()
+            .is_some_and(|f| f.fellows.iter().any(|(m, _)| *m == id))
+    }
+}
+
 impl SkillSource for ClientPlayer<'_> {
     fn panel(&self, panel: u32) -> Option<SkillPanel> {
         let data = self.client.borrow_mut().skill_panel(panel).ok()??;
