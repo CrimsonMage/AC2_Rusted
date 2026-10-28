@@ -199,6 +199,13 @@ impl UiTree {
         self.set_state(copy, state);
         let attributes = self.el(item).attributes.clone();
         self.el_mut(copy).attributes.extend(attributes);
+        // `UIElement_Text::MatchAttributes` (admin 0x005F1810): a text's copy takes its text when
+        // the two differ.
+        if let (Some(text), Some(copied)) = (self.el(item).text(), self.el(copy).text()) {
+            if text != copied {
+                self.set_text(copy, &text);
+            }
+        }
         self.match_graphics(copy, item);
         Some(copy)
     }

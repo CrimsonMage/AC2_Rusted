@@ -13,8 +13,10 @@
 //! `MouseDown`), which broadcasts a line message the text takes as one line up or down
 //! (`DetermineAndSetNewLine`): the line at the view's top.
 //!
-//! Not modelled yet: the horizontal bar, page messages from the bar's hot buttons, and the
-//! widget size (the thumb keeps its own size).
+//! The bar's widget is sized to the element's share of the paper, and a page message moves the
+//! view by the element's height (`DetermineAndSetNewPage`).
+//!
+//! Not modelled yet: the horizontal bar.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -75,23 +77,55 @@ impl UiTree {
         self.text_update_scrollbar(text);
     }
 
-    /// `UIElement_Text::UpdateScrollbar` for the vertical bar: the bar's position is the view's
-    /// share of the scrollable range, and it is disabled when nothing scrolls.
+    /// `UIElement_Text::UpdateScrollbar` (admin 0x005EE550) for the vertical bar: with the bar's
+    /// layout held (`allow_updating`) and the bar enabled, its widget size is the element's share
+    /// of the paper (at most one) and its position the view's share of the scrollable range; the
+    /// layout then runs, and the bar is disabled when the paper fits the element (so a
+    /// `hide_when_disabled` bar hides).
     pub(crate) fn text_update_scrollbar(&mut self, text: usize) {
         let Some(bar) = self.text_scrollbar(text) else {
             return;
         };
         let range = self.text_scroll_range(text);
+        let height = self.el(text).rect.height();
+        let paper = self.text_paper_height(text).unwrap_or(0);
         let view = self.el(text).text.as_ref().map_or(0, |t| t.view.1);
         let share = if range <= 0 {
             0.0
         } else {
             (f64::from(view) / f64::from(range)).clamp(0.0, 1.0)
         };
+        let size = if paper > 0 {
+            (height as f32 / paper as f32).min(1.0)
+        } else {
+            1.0
+        };
+        let attrs = &mut self.el_mut(bar).attributes;
+        attrs.insert(tokenize("allow_updating"), AttributeValue::Bool(false));
+        attrs.insert(tokenize("disabled"), AttributeValue::Bool(false));
+        attrs.insert(tokenize("y_widget_size"), AttributeValue::Float(size));
         self.scrollbar_set_position(bar, share as f32);
         self.el_mut(bar)
             .attributes
-            .insert(tokenize("disabled"), AttributeValue::Bool(range <= 0));
+            .insert(tokenize("allow_updating"), AttributeValue::Bool(true));
+        self.scrollbar_update_layout(bar);
+        if paper <= height {
+            self.el_mut(bar)
+                .attributes
+                .insert(tokenize("disabled"), AttributeValue::Bool(true));
+            self.scrollbar_update_layout(bar);
+        }
+    }
+
+    /// `UIElement_Text::DetermineAndSetNewPage` (vertical, admin 0x005F04F0): the view moves the
+    /// element's own height, down (`forward`) or up.
+    pub(crate) fn text_page_step(&mut self, text: usize, forward: bool) {
+        let height = self.el(text).rect.height();
+        let Some(view) = self.el(text).text.as_ref().map(|t| t.view.1) else {
+            return;
+        };
+        let step = if forward { height } else { -height };
+        self.text_set_view_y(text, view + step);
     }
 
     /// `UIElement_Text::DetermineAndSetNewLine` (vertical): the view moves one line, the height

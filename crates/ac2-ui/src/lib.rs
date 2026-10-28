@@ -506,6 +506,8 @@ mod statusbar_tests;
 #[cfg(test)]
 mod target_cycle_tests;
 #[cfg(test)]
+mod text_bar_tests;
+#[cfg(test)]
 mod text_clip_tests;
 #[cfg(test)]
 mod text_tests;

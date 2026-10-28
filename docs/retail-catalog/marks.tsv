@@ -9900,7 +9900,7 @@ key	status	note
 005eda80	_	needs port (check): UIElement_Text::CleanupStringDownloads behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005edaf0	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 005edb30	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-005edbf0	_	needs port (check): UIElement_Text::SetAtrb_OneLine behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005edbf0	x	ac2-ui text_attr.rs text_attribute: one_line sets the flag and marks the text dirty (relaid out and redrawn)
 005edc40	~	vertical share of the scrollable range paper - (y1 - y0 + 1) (text_scroll.rs / tree_scroll.rs); horizontal share not modelled
 005edcc0	_	needs port (check): UIElement_Text::GetPercentageH behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005edd40	x	ac2-ui text_edit.rs: UiTree::set_cursor clamps the position to 0..=len
@@ -9918,7 +9918,7 @@ key	status	note
 005ee400	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005ee420	x	UIElement_Text::GetText done: element.rs text
 005ee490	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
-005ee550	~	vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
+005ee550	x	ac2-ui text_scroll.rs text_update_scrollbar (vertical): layout held while the bar is enabled, its y_widget_size set to min(1, height / paper) and its position to GetPercentageV, then laid out, and disabled when the paper fits (so hide_when_disabled hides it); text_bar_tests
 005ee6a0	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005ee6f0	_	needs port (check): UIElement_Text::DetermineFont behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005ee850	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
@@ -9934,7 +9934,7 @@ key	status	note
 005ef170	x	ac2-ui text_clip.rs copy_selection: copies the selection to the OS clipboard via text_clipboard.rs; refused for password fields (no retail attribute, modern flag)
 005ef1c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005ef2f0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
-005ef8d0	_	needs port (check): UIElement_Text::SetAtrb_CenterVertically behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005ef8d0	~	ac2-ui text_attr.rs text_attribute: the flag, the text marked dirty; KeepInBounds and the scroll bar update on the change are not run
 005ef940	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005efc10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005eff20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
@@ -9946,7 +9946,7 @@ key	status	note
 005f02e0	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
 005f0370	x	ac2-ui text_clip.rs: retail moves the cursor; drag auto-scroll past the top or bottom of multi-line text is modern (text_drag_auto_scroll on the global loop)
 005f03e0	x	UIElement_Text::DetermineAndSetNewLine done: text_scroll.rs text_line_step
-005f04f0	x	ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
+005f04f0	x	ac2-ui text_scroll.rs text_page_step (vertical): the view moves the element's height, kept in bounds, the bar updated; scrollbar.rs scrollbar_page sends a bar's vertical page to the texts it drives; text_bar_tests
 005f0590	_	needs port (check): UIElement_Text::ScrollToPosition behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005f05f0	x	UIElement_Text::ScrollHorizontalView done: text_edit.rs scroll_to_cursor
 005f06a0	x	ac2-ui text.rs: TextState::delete_range (both ends clamped, nothing removed unless a glyph lies between, a cursor after the start moves back by the removed count)
@@ -9954,7 +9954,7 @@ key	status	note
 005f0740	x	ac2-ui text_attr.rs: UiTree::text_new_page (view moves an element extent, kept in bounds by the layout, bars updated) and page_text; MoveCursor PAGEUP/PAGEDOWN in text_edit.rs
 005f0750	x	UIElement_Text::ScrollToHome done: chat_window.rs scroll_log
 005f0770	x	ac2-ui chat.rs / chat_window.rs
-005f0790	~	vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
+005f0790	~	ac2-ui text_scroll.rs: new_position (texts_follow_scrollbar), the vertical line (text_line_step) and page (text_page_step) messages; not the horizontal bar's
 005f0940	x	ac2-ui text_edit.rs: UiTree::move_cursor now covers page up/down (virtual keys 0x21/0x22) beside home/end, line, word, left/right, up/down; not modelled: IME
 005f0ad0	_	needs port (check): UIElement_Text::MoveCursorToEnd behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
 005f0b10	x	ac2-ui text_edit.rs, text_clip.rs: selection, drag, Ctrl+A/C/X/V through the tree's clipboard (text_clipboard.rs; ac2-client clipboard.rs over arboard); password fields refuse copy and cut; tests text_clip_tests.rs, real_data_tests.rs chat entry
@@ -9977,7 +9977,7 @@ key	status	note
 005f16e0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f1750	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
 005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
-005f1810	_	needs port (check): UIElement_Text::MatchAttributes behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
+005f1810	x	ac2-ui drag.rs copy_element: a text's drag copy takes its text when the two differ
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1a10	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005f1a50	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing

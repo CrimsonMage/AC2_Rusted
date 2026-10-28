@@ -436,6 +436,9 @@ impl UiTree {
             for tree in self.trees_bound_to(index) {
                 self.tree_goal_step(tree, true, forward, true);
             }
+            for text in self.texts_bound_to(index) {
+                self.text_page_step(text, forward);
+            }
         }
     }
 
