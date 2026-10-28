@@ -53,7 +53,7 @@ mod fellowship;
 mod game_dialogs;
 mod hud;
 mod hud_notices;
-pub use hud_notices::{notice_pass, NoticePanels};
+pub use hud_notices::notice_pass;
 mod hud_message;
 pub use hud_message::{consignment_requests, message_pass, MessagePanels, ShortcutCalls};
 mod options_pages;

@@ -1,71 +1,30 @@
 //! The HUD frameworks' notice pass (`RecvNotice_*`): each frame's notices reach the panels in
 //! the order the frameworks get them, and the shortcut bar takes its checks at the end. The
-//! client owns the panels and the player; it passes them in as [`NoticePanels`] and turns the
+//! panels are the HUD's ([`Hud`]); the client passes its tree and the player, and turns the
 //! friends requests this returns into its commands.
 
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::examination_effects::expand_examination_effects;
 use crate::{
-    apply_shortcut_checks, shortcut_checks_of, AllegianceUi, BackpackUi, CatalogUi, ConsignmentUi,
-    DamageTexts, DialogFactory, EffectsUi, ExaminationUi, ExternalContainerUi, FellowshipUi,
-    FriendsPanel, FriendsRequest, HudSource, MiniFellowUi, MoneyBagUi, NetStatusUi, PaperDollUi,
-    PetUi, PkStatusUi, QuestsUi, SecureTradeUi, ShopUi, ShortcutCheck, ShortcutUi, SkillTreeUi,
-    StackUi, StatusBar, ToolbarUi, UiTree, VitaeStatusUi, VitalsUi,
+    apply_shortcut_checks, shortcut_checks_of, FriendsRequest, Hud, HudSource, ShortcutCheck,
+    StatusBar, UiTree,
 };
-
-/// The panels the notice pass feeds, borrowed from the client's HUD for one frame. A panel that
-/// is not made yet is `None` and gets nothing.
-pub struct NoticePanels<'a> {
-    pub tree: &'a mut UiTree,
-    /// The HUD's clock at this frame (a damage text starts at it).
-    pub now: f64,
-    /// Set when the status bar is composed again (the link heartbeat moved its graph).
-    pub dirty: &'a mut bool,
-    /// The selection the item slots last saw.
-    pub item_selection: &'a mut u64,
-    pub vitals: &'a mut Option<VitalsUi>,
-    pub effects: &'a mut Option<EffectsUi>,
-    pub vitae: &'a mut Option<VitaeStatusUi>,
-    pub net: &'a mut Option<NetStatusUi>,
-    pub pk: &'a mut Option<PkStatusUi>,
-    pub stack: &'a mut Option<StackUi>,
-    pub external_container: &'a mut Option<ExternalContainerUi>,
-    pub secure_trade: &'a mut Option<SecureTradeUi>,
-    pub dialogs: &'a mut Option<DialogFactory>,
-    pub shop: &'a mut Option<ShopUi>,
-    pub catalog: &'a mut Option<CatalogUi>,
-    pub consignment: &'a mut Option<ConsignmentUi>,
-    pub fellowship: &'a mut Option<FellowshipUi>,
-    pub mini_fellow: &'a mut Option<MiniFellowUi>,
-    pub pets: &'a mut Option<PetUi>,
-    pub friends: &'a mut Option<FriendsPanel>,
-    pub quests: &'a mut Option<QuestsUi>,
-    pub allegiance: &'a mut Option<AllegianceUi>,
-    pub paper_doll: &'a mut Option<PaperDollUi>,
-    pub backpack: &'a mut Option<BackpackUi>,
-    pub examination: &'a mut Option<ExaminationUi>,
-    pub skills: &'a mut Option<SkillTreeUi>,
-    pub shortcuts: &'a mut Option<ShortcutUi>,
-    pub money: &'a mut Option<MoneyBagUi>,
-    pub toolbar: &'a mut Option<ToolbarUi>,
-    pub damage: &'a mut Option<DamageTexts>,
-}
 
 /// Each of the frame's notices, in the order the frameworks get them (`RecvNotice_*`), then the
 /// shortcut bar's checks (`gmShortcutUI`); `reload_shortcuts` reloads the bar instead of
 /// checking it. Returns the friends requests the page raised, in order.
 pub fn notice_pass<P: HudSource>(
-    panels: NoticePanels<'_>,
+    hud: &mut Hud,
+    tree: &mut UiTree,
+    dirty: &mut bool,
     player: &P,
     events: &[SessionEvent],
     server_time: f64,
     mut reload_shortcuts: bool,
 ) -> Vec<FriendsRequest> {
-    let NoticePanels {
-        tree,
+    let Hud {
         now,
-        dirty,
         item_selection,
         vitals,
         effects,
@@ -93,7 +52,8 @@ pub fn notice_pass<P: HudSource>(
         money,
         toolbar,
         damage,
-    } = panels;
+        ..
+    } = hud;
     let mut requests = Vec::new();
     let mut shortcut_checks: Vec<ShortcutCheck> = Vec::new();
     for event in events {
@@ -258,7 +218,7 @@ pub fn notice_pass<P: HudSource>(
             // `gm3DTextUI::RecvNotice_Do3DDamage`.
             GameplayNotice::Do3DDamage { object, text } => {
                 if let Some(damage) = damage.as_mut() {
-                    damage.add(tree, *object, text, now);
+                    damage.add(tree, *object, text, *now);
                 }
             }
             _ => {}
