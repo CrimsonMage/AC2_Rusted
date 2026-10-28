@@ -33,6 +33,7 @@ pub use particles::{ParticleAnchor, ParticleBatch};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
+use crate::interior_cull::{check_visibility, BlockCull, InteriorCull};
 use crate::object::{DegradeOptions, DrawDetail, ObjectPose, PointLight, RenderSettings};
 use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
@@ -94,6 +95,9 @@ pub struct SceneFrame {
     pub water: Vec<BlockKey>,
     /// Blocks whose visible interiors draw, each under its inside environment.
     pub interiors: Vec<BlockKey>,
+    /// The env cells of each of those blocks that draw (`CEnvCell::CullCells`); a block missing
+    /// here draws all of its cells.
+    pub interior_cells: HashMap<BlockKey, Vec<u32>>,
     /// Far mesh chunks past the near ring whose box the frustum does not exclude
     /// (`LScapeTerrainMesh::DrawTerrain`).
     pub far_chunks: Vec<usize>,
@@ -128,6 +132,7 @@ struct BlockInfo {
     terrain: bool,
     water: bool,
     interiors: bool,
+    cull: Option<Arc<BlockCull>>,
 }
 
 /// The resident world around a centre block.
@@ -379,6 +384,7 @@ impl WorldScene {
                         terrain: block.terrain.is_some(),
                         water: block.water.is_some(),
                         interiors: block.interiors.is_some(),
+                        cull: block.interiors.as_ref().map(|i| Arc::clone(&i.cull)),
                     },
                 );
             }
@@ -753,6 +759,7 @@ impl WorldScene {
             .filter(|k| self.blocks[k].interiors)
             .collect();
         interiors.truncate(MAX_INTERIOR_BLOCKS);
+        let interior_cells = self.visible_interior_cells(camera, &frustum, &interiors);
         let mut particles = self.particles.frame(camera);
         particles.extend(self.rain_frame(camera, &lighting));
         self.object_streaks.think(self.particles.now());
@@ -772,9 +779,67 @@ impl WorldScene {
             terrain,
             water,
             interiors,
+            interior_cells,
             far_chunks,
             particles,
         }
+    }
+
+    /// Which env cells of `blocks` draw (`WorldRender::Render`'s gather): from the camera's own
+    /// cell when it stands in one (`CEnvCell::CullCells`), whose outside portals open the
+    /// viewports the other blocks' cells are looked at through; from the outside, each outside-
+    /// stab cell that touches the outside and passes `CEnvCell::CheckVisibility`.
+    fn visible_interior_cells(
+        &self,
+        camera: &Camera,
+        frustum: &Frustum,
+        blocks: &[BlockKey],
+    ) -> HashMap<BlockKey, Vec<u32>> {
+        let mut visible: HashMap<BlockKey, Vec<u32>> = HashMap::new();
+        let mut viewports = vec![*frustum];
+        let mut viewer_inside = false;
+        for key in blocks {
+            let Some(cull) = self.blocks.get(key).and_then(|b| b.cull.as_deref()) else {
+                continue;
+            };
+            let Some(start) = cull.cell_at(camera.eye) else {
+                continue;
+            };
+            viewer_inside = true;
+            let mut walk = InteriorCull::new(&cull.cells, &cull.groups, camera.eye);
+            walk.cull_cells(start, frustum, cull.culling_plane);
+            let result = walk.finish();
+            viewports = result.outside_viewports;
+            visible.entry(*key).or_default().extend(result.visible);
+            break;
+        }
+        for key in blocks {
+            let Some(cull) = self.blocks.get(key).and_then(|b| b.cull.as_deref()) else {
+                continue;
+            };
+            let seen = visible.entry(*key).or_default();
+            for view in &viewports {
+                for id in &cull.outside_stab {
+                    let Some(cell) = cull.cells.get(id) else {
+                        continue;
+                    };
+                    if seen.contains(id) || !cell.touches_outside() {
+                        continue;
+                    }
+                    if !check_visibility(cell, viewer_inside, view) {
+                        continue;
+                    }
+                    let mut walk = InteriorCull::new(&cull.cells, &cull.groups, camera.eye);
+                    walk.cull_cells(*id, view, cull.culling_plane);
+                    for cell in walk.finish().visible {
+                        if !seen.contains(&cell) {
+                            seen.push(cell);
+                        }
+                    }
+                }
+            }
+        }
+        visible
     }
 
     /// `WorldRender::Update`'s `UpdateRain` and `WorldRender::Render`'s `DrawRain`: the frame's

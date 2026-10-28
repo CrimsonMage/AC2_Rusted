@@ -140,3 +140,50 @@ fn a_frill_takes_the_self_shadow_of_the_terrain_cell_under_it() {
         .filter(|p| p.frill_normal.is_none())
         .all(|p| p.frill_shade == 1.0));
 }
+
+/// A dungeon block (`0x02BB`) loads every cell, and a camera inside one sees the cells its portals
+/// open on, not the whole block.
+#[test]
+fn a_dungeon_camera_sees_the_cells_its_portals_open_on() {
+    use crate::frustum::Frustum;
+    use crate::interior_cull::InteriorCull;
+    use crate::object::RenderSettings;
+
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let world = Ac2WorldSource::open(Arc::clone(&store)).unwrap().unwrap();
+    let block = ac2_core::CellId::new(0x02BB_0100);
+    let interiors = super::load_block_interiors(&world, &store, block, &RenderSettings::default())
+        .expect("the dungeon has cells");
+    let cull = &interiors.cull;
+    assert!(cull.cells.len() > 10, "{} cells", cull.cells.len());
+    assert_eq!(interiors.cells.len(), interiors.cell_ids.len());
+    assert_eq!(interiors.objects.len(), interiors.object_cells.len());
+    let mut most = 0;
+    for id in [0x02BB_0100_u32, 0x02BB_0101, 0x02BB_0102] {
+        let Some(cell) = cull.cells.get(&id) else {
+            continue;
+        };
+        let centre = (cell.bbox.min + cell.bbox.max) * 0.5;
+        assert!(cull.cell_at(centre).is_some(), "{id:08X}");
+        for target in [Vec3::X, Vec3::NEG_X, Vec3::Y, Vec3::NEG_Y] {
+            let camera = Camera {
+                eye: centre,
+                target: centre + target,
+                fov_y: 70_f32.to_radians(),
+                near: 0.1,
+                far: 1000.0,
+            };
+            let frustum = Frustum::from_camera(&camera, 1.5);
+            let mut walk = InteriorCull::new(&cull.cells, &cull.groups, centre);
+            walk.cull_cells(id, &frustum, cull.culling_plane);
+            let seen = walk.finish().visible;
+            assert!(seen.contains(&id), "the start cell draws");
+            assert!(seen.len() < cull.cells.len(), "not the whole block");
+            most = most.max(seen.len());
+        }
+    }
+    assert!(most > 1, "a portal in view opens another cell");
+}

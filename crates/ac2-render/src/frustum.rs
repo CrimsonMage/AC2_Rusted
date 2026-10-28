@@ -4,6 +4,7 @@
 
 use ac2_math::Vec3;
 
+use crate::worker_polygon::{cross, normalize, Sidedness, WorkerPolygon};
 use crate::Camera;
 
 /// `Frustum::CheckRelationship` treats a plane distance under this as outside.
@@ -32,10 +33,19 @@ impl Plane {
     }
 }
 
-/// The camera's view volume.
+/// `Frustum::m_aPlanes` holds 32 planes; a portal frustum is one per polygon edge plus the near
+/// plane, so a polygon of 32 or more edges does not generate one.
+pub const MAX_PLANES: usize = 33;
+
+/// The camera's view volume: the side planes then the near plane (`m_nPlanes` of them), and the
+/// camera they were made from (`m_matCamera`: its origin and forward row).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Frustum {
-    planes: [Plane; 5],
+    planes: [Plane; MAX_PLANES],
+    count: usize,
+    origin: [f32; 3],
+    forward: [f32; 3],
+    near: f32,
 }
 
 impl Frustum {
@@ -70,7 +80,7 @@ impl Frustum {
         let mut planes = [Plane {
             normal: [0.0; 3],
             d: 0.0,
-        }; 5];
+        }; MAX_PLANES];
         for (index, n) in local.iter().enumerate() {
             let n = n.map(f64::from);
             // The camera matrix's last column is (0, 0, 0, 1), so the homogeneous divide is 1.
@@ -88,7 +98,13 @@ impl Frustum {
                 d: st(-((w[0] * at[0] + w[1] * at[1]) + w[2] * at[2])),
             };
         }
-        Self { planes }
+        Self {
+            planes,
+            count: 5,
+            origin: origin.to_array(),
+            forward: forward.to_array(),
+            near,
+        }
     }
 
     /// The frustum of a look-at camera at `aspect` (`SceneTool::SetupPerspective`).
@@ -106,13 +122,96 @@ impl Frustum {
         )
     }
 
+    /// The camera position the frustum was made at (`m_matCamera`'s translation row).
+    pub fn origin(&self) -> Vec3 {
+        Vec3::from_array(self.origin)
+    }
+
+    /// `Frustum::Generate(camera matrix, polygon, near)`: the planes through the camera and each
+    /// edge of the portal polygon, then the near plane. `None` for a polygon of 32 or more
+    /// vertices, where retail generates nothing and the caller keeps its own frustum.
+    pub fn from_portal(&self, polygon: &WorkerPolygon) -> Option<Self> {
+        let count = polygon.verts.len();
+        if count >= MAX_PLANES - 1 {
+            return None;
+        }
+        let o = self.origin.map(f64::from);
+        let mut planes = [Plane {
+            normal: [0.0; 3],
+            d: 0.0,
+        }; MAX_PLANES];
+        for (i, plane) in planes.iter_mut().enumerate().take(count) {
+            let (a, b) = (polygon.verts[i], polygon.verts[(i + 1) % count]);
+            let ra = [
+                f64::from(a.x) - o[0],
+                f64::from(a.y) - o[1],
+                f64::from(a.z) - o[2],
+            ];
+            let rb = [
+                f64::from(b.x) - o[0],
+                f64::from(b.y) - o[1],
+                f64::from(b.z) - o[2],
+            ];
+            let n = normalize(cross(ra, rb));
+            let n64 = n.map(f64::from);
+            *plane = Plane {
+                normal: n,
+                d: (-((n64[0] * o[0] + n64[1] * o[1]) + n64[2] * o[2])) as f32,
+            };
+        }
+        let f = self.forward.map(f64::from);
+        let near = f64::from(self.near);
+        planes[count] = Plane {
+            normal: self.forward,
+            d: (-((near * f[1] + o[1]) * f[1]
+                + (near * f[0] + o[0]) * f[0]
+                + f[2] * (near * f[2] + o[2]))) as f32,
+        };
+        Some(Self {
+            planes,
+            count: count + 1,
+            origin: self.origin,
+            forward: self.forward,
+            near: self.near,
+        })
+    }
+
+    /// `Frustum::CheckPolygon`: the polygon clipped to the frustum's side planes (and the near
+    /// plane when `near_check`), or `None` when a plane leaves nothing of it. A camera within
+    /// 0.01 of the polygon's plane sees it whole.
+    pub fn check_polygon(
+        &self,
+        polygon: &WorkerPolygon,
+        near_check: bool,
+    ) -> Option<WorkerPolygon> {
+        let mut clipped = polygon.clone();
+        let n = polygon.plane.normal.map(f64::from);
+        let o = self.origin.map(f64::from);
+        let distance =
+            (((o[0] * n[0] + o[1] * n[1]) + o[2] * n[2]) + f64::from(polygon.plane.d)) as f32;
+        if distance <= 0.01 && distance >= -0.01 {
+            return Some(clipped);
+        }
+        let planes = if near_check {
+            self.count
+        } else {
+            self.count - 1
+        };
+        for plane in &self.planes[..planes] {
+            if clipped.clip(plane.normal, plane.d, 0.01) == Sidedness::Negative {
+                return None;
+            }
+        }
+        Some(clipped)
+    }
+
     /// `Frustum::CheckRelationship` of the box `min..max`: outside when its corner furthest
     /// along any plane's normal is behind it, inside when its nearest corner is in front of
     /// every plane.
     pub fn check(&self, min: Vec3, max: Vec3) -> Relation {
         let (min, max) = (min.to_array(), max.to_array());
         let mut inside = true;
-        for plane in &self.planes {
+        for plane in &self.planes[..self.count] {
             let (mut near, mut far) = ([0.0_f64; 3], [0.0_f64; 3]);
             for axis in 0..3 {
                 let (lo, hi) = (f64::from(min[axis]), f64::from(max[axis]));

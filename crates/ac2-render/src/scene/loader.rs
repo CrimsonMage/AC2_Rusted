@@ -59,7 +59,7 @@ pub struct LoadedBlock {
     /// The models of visuals this load saw first (`None` for a visual that draws nothing).
     pub models: Vec<(DataId, Option<ObjectModel>)>,
     /// Interior cells visible from outside.
-    pub interiors: Option<BlockInteriors>,
+    pub interiors: Option<Box<BlockInteriors>>,
     /// The entities' startup particle systems. Their materials arrive in `models`, keyed by the
     /// material's DID, as a model of one empty triangle the renderer fills each frame.
     pub particles: Vec<ParticleSource>,
@@ -352,6 +352,13 @@ impl Worker {
                 }
             }
             let drawable = &self.drawable;
+            let mut keep = interiors
+                .objects
+                .iter()
+                .map(|(visual, _, _)| drawable.contains(visual));
+            interiors
+                .object_cells
+                .retain(|_| keep.next().unwrap_or(false));
             interiors
                 .objects
                 .retain(|(visual, _, _)| drawable.contains(visual));
@@ -380,7 +387,7 @@ impl Worker {
             water,
             placements,
             models,
-            interiors,
+            interiors: interiors.map(Box::new),
             particles,
             images,
         }

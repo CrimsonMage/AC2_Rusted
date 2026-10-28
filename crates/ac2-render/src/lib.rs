@@ -11,6 +11,7 @@ pub mod fx_decals;
 pub mod fx_particles;
 pub mod fx_streaks;
 mod image;
+pub mod interior_cull;
 pub mod object;
 pub mod object_fx;
 pub mod particles;
@@ -29,6 +30,7 @@ mod streak_objects;
 pub mod terrain;
 pub mod ui_scene;
 mod view;
+pub mod worker_polygon;
 
 pub use image::{
     block_bytes, gpu_block_compression, load_image, load_material_image, load_texture_image,

@@ -32,6 +32,9 @@ struct GpuInteriors {
     environment: ObjectEnvironment,
     cells: Vec<(GpuObjectModel, Vec<PointLight>)>,
     objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
+    /// The env cell each of `cells` and `objects` is in or stands in.
+    cell_ids: Vec<u32>,
+    object_cells: Vec<u32>,
 }
 
 /// The scene's GPU resources.
@@ -139,6 +142,8 @@ impl SceneRenderer {
                             environment: interiors.environment,
                             cells,
                             objects: interiors.objects,
+                            cell_ids: interiors.cell_ids,
+                            object_cells: interiors.object_cells,
                         }
                     });
                     self.blocks.insert(
@@ -490,19 +495,30 @@ fn interior_instances<'a>(
     frame
         .interiors
         .iter()
-        .filter_map(|key| blocks.get(key)?.interiors.as_ref())
-        .map(|interiors| {
+        .filter_map(|key| {
+            Some((
+                blocks.get(key)?.interiors.as_ref()?,
+                frame.interior_cells.get(key),
+            ))
+        })
+        .map(|(interiors, visible)| {
+            // A block without a visibility decision draws all of its cells.
+            let drawn = |id: &u32| visible.is_none_or(|ids| ids.contains(id));
             let cells = interiors
                 .cells
                 .iter()
-                .map(|(model, lights)| ObjectInstance {
+                .zip(&interiors.cell_ids)
+                .filter(|(_, id)| drawn(id))
+                .map(|((model, lights), _)| ObjectInstance {
                     point_lights: lights,
                     ..ObjectInstance::new(model, Mat4::IDENTITY)
                 });
             let objects = interiors
                 .objects
                 .iter()
-                .filter_map(|(visual, world, lights)| {
+                .zip(&interiors.object_cells)
+                .filter(|(_, id)| drawn(id))
+                .filter_map(|((visual, world, lights), _)| {
                     Some(ObjectInstance {
                         point_lights: lights,
                         ..ObjectInstance::new(models.get(visual)?, *world)
