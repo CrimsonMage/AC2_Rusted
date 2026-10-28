@@ -30,7 +30,7 @@ pub use particles::{ParticleAnchor, ParticleBatch};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
-use crate::object::{PointLight, RenderSettings};
+use crate::object::{ObjectPose, PointLight, RenderSettings};
 use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
@@ -99,6 +99,18 @@ pub struct SceneFrame {
 pub struct SceneUpdate {
     pub loaded: Vec<Loaded>,
     pub evicted: Vec<BlockKey>,
+}
+
+/// A world object to draw this frame (a character or item placed by the client): its loaded
+/// model's key (`WorldScene::request_object`), world matrix, pose, tint and the point lights it
+/// is lit by (`SceneTool::ApplyLights`; none outdoors in the world).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SceneObject {
+    pub key: u64,
+    pub world: Mat4,
+    pub pose: Option<ObjectPose>,
+    pub tint: [f32; 4],
+    pub point_lights: Vec<PointLight>,
 }
 
 /// A resident block as the frame thread lays it out.

@@ -9,8 +9,8 @@ use std::collections::HashMap;
 use ac2_core::DataId;
 use ac2_math::Mat4;
 use ac2_render::frustum::{Frustum, Relation};
-use ac2_render::object::{ObjectEnvironment, ObjectPose, PointLight};
-use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneUpdate};
+use ac2_render::object::{ObjectEnvironment, PointLight};
+use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneObject, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
@@ -32,18 +32,6 @@ struct GpuInteriors {
     environment: ObjectEnvironment,
     cells: Vec<(GpuObjectModel, Vec<PointLight>)>,
     objects: Vec<(DataId, Mat4, Vec<PointLight>)>,
-}
-
-/// A world object to draw this frame (a character or item placed by the client): its loaded
-/// model's key (`WorldScene::request_object`), world matrix, pose, tint and the point lights it
-/// is lit by (`SceneTool::ApplyLights`; none outdoors in the world).
-#[derive(Debug, Clone, PartialEq)]
-pub struct SceneObject {
-    pub key: u64,
-    pub world: Mat4,
-    pub pose: Option<ObjectPose>,
-    pub tint: [f32; 4],
-    pub point_lights: Vec<PointLight>,
 }
 
 /// The scene's GPU resources.

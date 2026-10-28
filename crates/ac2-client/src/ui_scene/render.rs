@@ -12,6 +12,7 @@ use ac2_gpu::{Gpu, ScenePresenter, UiOverlay};
 
 use super::UiScenes;
 use crate::ui_scale::UiScale;
+use ac2_ui::SceneViewport;
 
 /// Draws into `color` (cleared to `clear`, an sRGB colour) on the window `scale` fits the UI
 /// to: `world` (when there is one) through the tone map, then `first` (drawn to the window
@@ -31,18 +32,18 @@ pub fn render_with_scenes(
     world: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
     first: impl FnOnce(&mut wgpu::RenderPass<'_>),
 ) {
-    let mut views: Vec<(usize, usize, usize, ac2_ui::SceneViewport)> = scenes
+    let mut views: Vec<(usize, usize, SceneViewport)> = scenes
         .iter()
         .enumerate()
         .flat_map(|(owner, scenes)| {
             scenes
                 .drawn()
                 .into_iter()
-                .map(move |(view, viewport)| (owner, view, viewport))
+                .map(move |viewport| (owner, viewport))
         })
-        .filter_map(|(owner, view, viewport)| {
+        .filter_map(|(owner, viewport)| {
             let layer = layer_roots.iter().position(|&r| r == viewport.root)?;
-            Some((layer, owner, view, viewport))
+            Some((layer, owner, viewport))
         })
         .collect();
     views.sort_by_key(|(layer, ..)| *layer);
@@ -58,7 +59,7 @@ pub fn render_with_scenes(
     let mut first = Some(first);
     let mut next = 0;
     let mut pending: Option<[u32; 4]> = None;
-    for (layer, owner, view, viewport) in views.iter() {
+    for (layer, owner, viewport) in views.iter() {
         {
             let mut pass = begin_pass(&mut encoder, color, depth, pass_clear.take());
             output_head(
@@ -91,7 +92,7 @@ pub fn render_with_scenes(
         let rect = [x0, y0, x1 - x0, y1 - y0];
         // `UIScene::Render`: the scene alone, over nothing (coverage 0) and a cleared depth.
         hdr.render(&mut encoder, [0.0; 4], Some(rect), |pass| {
-            scenes[*owner].draw(*view, pass);
+            scenes[*owner].draw(viewport.root, pass);
         });
         pending = Some(rect);
     }

@@ -9,6 +9,7 @@ use std::sync::Arc;
 use ac2_db::ResourceStore;
 
 use ac2_render::ui_scene::data::{load_object_shape, load_scene, ObjectData, SceneData};
+use ac2_render::ui_scene::SceneLoads;
 
 use crate::world_data::load_body_data;
 
@@ -29,8 +30,8 @@ pub(crate) enum Loaded {
 pub(crate) struct SceneLoader {
     requests: Sender<Request>,
     finished: Receiver<Loaded>,
-    pub scenes: HashMap<u32, Option<Arc<SceneData>>>,
-    pub objects: HashMap<u32, Option<Arc<ObjectData>>>,
+    scenes: HashMap<u32, Option<Arc<SceneData>>>,
+    objects: HashMap<u32, Option<Arc<ObjectData>>>,
     pending: std::collections::HashSet<Request>,
 }
 
@@ -66,7 +67,7 @@ impl SceneLoader {
     }
 
     /// Asks for `request` unless it is loaded or under way.
-    pub fn request(&mut self, request: Request) {
+    fn ask(&mut self, request: Request) {
         let known = match request {
             Request::Scene(did) => self.scenes.contains_key(&did),
             Request::Object(did) => self.objects.contains_key(&did),
@@ -75,9 +76,18 @@ impl SceneLoader {
             let _ = self.requests.send(request);
         }
     }
+}
 
-    /// Takes what finished; waits for everything asked when `wait` (headless snapshots).
-    pub fn poll(&mut self, wait: bool) {
+impl SceneLoads for SceneLoader {
+    fn request_scene(&mut self, did: u32) {
+        self.ask(Request::Scene(did));
+    }
+
+    fn request_object(&mut self, did: u32) {
+        self.ask(Request::Object(did));
+    }
+
+    fn poll(&mut self, wait: bool) {
         loop {
             let loaded = if wait && !self.pending.is_empty() {
                 match self.finished.recv() {
@@ -103,17 +113,20 @@ impl SceneLoader {
         }
     }
 
-    /// Whether loads are under way.
-    pub fn busy(&self) -> bool {
+    fn busy(&self) -> bool {
         !self.pending.is_empty()
     }
 
-    pub fn scene(&self, did: u32) -> Option<&Arc<SceneData>> {
-        self.scenes.get(&did)?.as_ref()
+    fn scene(&self, did: u32) -> Option<&SceneData> {
+        self.scenes.get(&did)?.as_deref()
     }
 
-    pub fn object(&self, did: u32) -> Option<&Arc<ObjectData>> {
-        self.objects.get(&did)?.as_ref()
+    fn object(&self, did: u32) -> Option<&ObjectData> {
+        self.objects.get(&did)?.as_deref()
+    }
+
+    fn object_known(&self, did: u32) -> bool {
+        self.objects.contains_key(&did)
     }
 }
 

@@ -23,11 +23,13 @@ mod terrain;
 mod texture;
 mod tonemap;
 mod ui;
+mod ui_scenes;
 
+pub use ac2_render::scene::SceneObject;
 pub use frame::{acquire_frame, render_to, FrameTarget, COLOR_FORMAT, DEPTH_FORMAT};
 pub use object::{sky_backdrop, DrawGroup, GpuObjectModel, ObjectInstance, ObjectRenderer};
 pub use portal_fader::PortalFader;
-pub use scene::{SceneObject, SceneRenderer};
+pub use scene::SceneRenderer;
 pub use screen_quad::ScreenQuad;
 pub use shading::srgb_to_linear;
 pub use shadow_map::{StaticShadowMap, SHADOW_MAP_FORMAT, SHADOW_MAP_SIZE};
@@ -36,6 +38,7 @@ pub use terrain::{GpuFarTerrain, TerrainBlock, TerrainRenderer};
 pub use texture::{uploaded_texture_bytes, TextureCache, TextureKey};
 pub use tonemap::{HdrTarget, ScenePresenter, ToneMap, HDR_FORMAT};
 pub use ui::{UiLayer, UiOverlay};
+pub use ui_scenes::UiSceneRenderers;
 
 /// The device and queue every other object is created on.
 pub struct Gpu {

@@ -9,23 +9,7 @@ use crate::element::UiTree;
 use crate::layout::AttributeValue;
 use crate::token::tokenize;
 
-/// One shown viewport root.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SceneViewport {
-    /// The root element (its place in the composed surfaces, [`crate::UiSurface::root`]).
-    pub root: usize,
-    /// The element id (`Viewport`, `AvatarSelectionViewport`, `<race>Viewport`).
-    pub element: u32,
-    /// Screen rectangle in pixels.
-    pub x: i32,
-    pub y: i32,
-    pub width: u32,
-    pub height: u32,
-    /// `uiscene`: the `UIScene` DID.
-    pub scene: u32,
-    /// `camera`: the camera entity's workbench name (`Camera_1`).
-    pub camera: Option<String>,
-}
+pub use ac2_render::ui_scene::SceneViewport;
 
 /// Every composed root that shows a scene, in the order [`UiTree::compose`] draws the roots.
 pub fn scene_viewports(tree: &UiTree) -> Vec<SceneViewport> {
