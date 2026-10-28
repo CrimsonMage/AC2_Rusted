@@ -3,12 +3,11 @@
 //! whole (`Terrain::absorb`). [`CellManager`](crate::CellManager) asks through [`BlockLoader`];
 //! [`BlockPool`] is the plain thread pool over a [`BlockSource`] that answers it.
 
-use std::sync::mpsc::{channel, Receiver, Sender};
-use std::sync::{Arc, Mutex};
-use std::thread::JoinHandle;
+use std::sync::Arc;
 use std::time::Duration;
 
 use ac2_core::CellId;
+use ac2_db::LoaderPool;
 use ac2_physics::{load_block_interiors, load_block_objects, load_terrain_block, Terrain};
 use ac2_world::Ac2WorldSource;
 
@@ -91,73 +90,37 @@ fn load(source: &dyn BlockSource, request: Request) -> BlockLoaded {
     }
 }
 
-/// A pool of loader threads over one [`BlockSource`].
+/// A pool of loader threads over one [`BlockSource`] (`ac2_db::LoaderPool`).
 pub struct BlockPool {
-    requests: Option<Sender<Request>>,
-    finished: Receiver<BlockLoaded>,
-    workers: Vec<JoinHandle<()>>,
-    /// Work handed out and not yet drained.
-    outstanding: usize,
+    pool: LoaderPool<Request, BlockLoaded>,
 }
 
 impl BlockPool {
     /// `threads` loader threads (at least one) reading `source`.
     pub fn new(source: Arc<dyn BlockSource>, threads: usize) -> Self {
-        let (requests, queue) = channel::<Request>();
-        let (done, finished) = channel();
-        let queue = Arc::new(Mutex::new(queue));
-        let workers = (0..threads.max(1))
-            .map(|index| {
-                let queue = Arc::clone(&queue);
-                let done = done.clone();
-                let source = Arc::clone(&source);
-                std::thread::Builder::new()
-                    .name(format!("ac2-blocks-{index}"))
-                    .spawn(move || loop {
-                        let next = queue.lock().map(|queue| queue.recv());
-                        let Ok(Ok(request)) = next else {
-                            return;
-                        };
-                        if done.send(load(&*source, request)).is_err() {
-                            return;
-                        }
-                    })
-                    .expect("spawn a loader thread")
-            })
-            .collect();
+        let work = Arc::new(move |request: Request| load(&*source, request));
         Self {
-            requests: Some(requests),
-            finished,
-            workers,
-            outstanding: 0,
+            pool: LoaderPool::new("ac2-blocks", threads, work),
         }
     }
 
     fn send(&mut self, request: Request) {
-        if let Some(requests) = &self.requests {
-            if requests.send(request).is_ok() {
-                self.outstanding += 1;
-            }
-        }
+        self.pool.request(request);
     }
 
     /// Whether any request is still out.
     pub fn busy(&self) -> bool {
-        self.outstanding > 0
+        self.pool.busy()
     }
 
     /// The next finished work, if any.
     pub fn try_next(&mut self) -> Option<BlockLoaded> {
-        let loaded = self.finished.try_recv().ok()?;
-        self.outstanding -= 1;
-        Some(loaded)
+        self.pool.try_next()
     }
 
     /// Blocks until a result is ready (tests and probes that wait for the world).
     pub fn wait(&mut self, timeout: Duration) -> Option<BlockLoaded> {
-        let loaded = self.finished.recv_timeout(timeout).ok()?;
-        self.outstanding -= 1;
-        Some(loaded)
+        self.pool.wait(timeout)
     }
 }
 
@@ -168,14 +131,5 @@ impl BlockLoader for BlockPool {
 
     fn request_far_block(&mut self, block: u32) {
         self.send(Request::FarBlock(block));
-    }
-}
-
-impl Drop for BlockPool {
-    fn drop(&mut self) {
-        self.requests = None;
-        for worker in self.workers.drain(..) {
-            let _ = worker.join();
-        }
     }
 }

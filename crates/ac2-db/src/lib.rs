@@ -19,6 +19,7 @@ mod decode_flight;
 mod deferred_work;
 mod error;
 mod key;
+mod loader_pool;
 mod ownership_stats;
 mod packed_decode;
 mod prefetch_sequence;
@@ -56,6 +57,7 @@ pub use deferred_work::spawn_deferred_on;
 pub use deferred_work::{spawn_deferred, DeferredResult};
 pub use error::{ResourceError, ResourceResult};
 pub use key::ResourceKey;
+pub use loader_pool::LoaderPool;
 pub use ownership_stats::ResourceOwnershipStats;
 pub use ownership_stats::{
     ResourceOwnershipLane, ResourceOwnershipTypeStats, ResourceScopeOverlapStats,
