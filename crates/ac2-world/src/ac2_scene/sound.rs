@@ -2,11 +2,9 @@
 //! vertex whose terrain and scene name a sound type (`CTerrainDesc::GetSoundType` ->
 //! `TerrainType::GetSceneType` -> `CSceneDesc::GetSoundType`) becomes a point at the vertex.
 
-use ac2_core::{CellId, DataId};
-use ac2_dat::DatFileKind;
-use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
+use ac2_core::CellId;
+use ac2_db::{ResourceResult, ResourceStore};
 
-use super::block::Ac2SceneLandBlock;
 use super::format::{Ac2SceneDesc, Ac2SceneLandDefs, Ac2TerrainSceneDesc};
 use super::geometry::{BLOCK_LENGTH, SIDE};
 use super::{portal, LAND_DEFS_DID, SCENE_DESC_DID, TERRAIN_DESC_DID};
@@ -33,13 +31,9 @@ pub fn ac2_ambient_sound_points(
     ) else {
         return Ok(Vec::new());
     };
-    let landblock_did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0xFFFF);
-    let Some(record) = store.load_cached_packed::<Ac2SceneLandBlock>(TypedResourceRef::new(
-        DatFileKind::Cell,
-        landblock_did,
-        0,
-    ))?
-    else {
+    // The block's one `CLandBlockData` (`CLandBlock` derives from it), shared with its terrain
+    // and scenery.
+    let Some(record) = crate::land_block_data::load_land_block_data(store, block_cell_id)? else {
         return Ok(Vec::new());
     };
     // `LandDefs::block_length / side_vertex_count`.

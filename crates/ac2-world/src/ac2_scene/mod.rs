@@ -111,11 +111,7 @@ pub fn ac2_scene_placements(
     ) else {
         return Ok(Vec::new());
     };
-    let landblock_did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0xFFFF);
-    let Some(record) = store.load_cached_packed::<block::Ac2SceneLandBlock>(
-        TypedResourceRef::new(DatFileKind::Cell, landblock_did, 0),
-    )?
-    else {
+    let Some(record) = crate::land_block_data::load_land_block_data(store, block_cell_id)? else {
         return Ok(Vec::new());
     };
     let terrain = Ac2SceneTerrain {

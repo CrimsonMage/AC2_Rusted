@@ -1,5 +1,5 @@
-//! Per-landblock inputs of the AC2 scenery generator: the `CLandBlockData` record, the
-//! `CLandBlockInfo` entities that seed the clearance list, and the block's water surface.
+//! Per-landblock inputs of the AC2 scenery generator (beside the shared `CLandBlockData`,
+//! `crate::land_block_data`): the `CLandBlockInfo` entities that seed the clearance list, and the block's water surface.
 
 use ac2_assets::read_ac2_entity_desc;
 use ac2_core::{CellId, DataId, QualifiedDataId};
@@ -16,61 +16,11 @@ use std::sync::Arc;
 use ac2_assets::Ac2EntityDesc;
 
 use super::clearance::{clearance_shapes, total_properties, Clearance};
-use super::geometry::{Q, SIDE};
+use super::geometry::Q;
 
-const SAMPLES: usize = SIDE * SIDE;
 const MAX_ENTITIES: usize = 1 << 14;
 /// `CLandBlockInfo` entity types that `CLandBlock::AddEntityToClearList` registers.
 const CLEARANCE_ENTITY_TYPES: [u32; 2] = [0x4000_0001, 0x4000_0007];
-
-/// `CLandBlockData::StreamPack`: DID, landblock-info DID, path-map DID, counted height bytes,
-/// counted cell-info words.
-#[derive(Debug)]
-pub(super) struct Ac2SceneLandBlock {
-    pub(super) landblock_info: u32,
-    pub(super) heights: Vec<u8>,
-    pub(super) cell_info: Vec<u32>,
-}
-
-impl ResourcePackedDecode for Ac2SceneLandBlock {
-    const TYPE_NAME: &'static str = "AC2 LandBlockData scenery";
-    const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;
-
-    fn decode_packed(
-        qdid: QualifiedDataId,
-        _pack_version: u16,
-        bytes: &[u8],
-    ) -> ResourceResult<Self> {
-        let malformed = |context| ResourceError::MalformedTypedObject {
-            qdid,
-            type_name: Self::TYPE_NAME,
-            context,
-        };
-        let mut cursor = ArchiveCursor::new(bytes);
-        if cursor.read_u32()? != qdid.data_id().raw() {
-            return Err(malformed("embedded DID did not match DAT identity"));
-        }
-        let landblock_info = cursor.read_u32()?;
-        let _path_map = cursor.read_u32()?;
-        if cursor.read_u32()? as usize != SAMPLES {
-            return Err(malformed("height count was not 17 x 17"));
-        }
-        let heights = cursor.read_bytes(SAMPLES)?.to_vec();
-        if cursor.read_u32()? as usize != SAMPLES {
-            return Err(malformed("cell-info count was not 17 x 17"));
-        }
-        let cell_info = cursor.read_u32_items(SAMPLES)?;
-        Ok(Self {
-            landblock_info,
-            heights,
-            cell_info,
-        })
-    }
-
-    fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.heights.len() + self.cell_info.len() * 4
-    }
-}
 
 /// One `CLandBlockInfo` entity of a clearance type: its block-local frame, template and packed
 /// properties.

@@ -31,6 +31,7 @@ mod cell_info;
 mod cell_query;
 mod color;
 mod coordinates;
+mod land_block_data;
 mod land_blocks;
 mod land_lattice;
 mod landblock;

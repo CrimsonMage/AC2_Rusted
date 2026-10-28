@@ -1,23 +1,22 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId, QualifiedDataId};
-use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
-use ac2_db::{
-    CachedResource, ResourceError, ResourcePackedDecode, ResourceResult, ResourceStore,
-    ResourceTypeId, TypedResourceRef,
-};
+use ac2_db::{CachedResource, ResourceResult, ResourceStore};
 
 use crate::ac2_land_defs::load_ac2_land_defs;
 use crate::ac2_terrain_desc::{load_ac2_terrain_desc, Ac2TerrainDesc};
 use crate::cell_info::CellInfoField;
+use crate::land_block_data::{
+    land_block_did, load_land_block_data, Ac2LandBlockData, LAND_BLOCK_SAMPLES,
+};
 use crate::surface_desc::{load_ac2_surface_desc, Ac2SurfaceDesc};
 use crate::surface_info::{vertex_info, Ac2SurfaceInfo};
 use crate::LandBlockDesc;
 
 /// AC2 `LandDefs::side_vertex_count`: 8 cells per block x 2 pixels per cell + 1.
 const AC2_SIDE_VERTICES: usize = 17;
-const AC2_SAMPLES: usize = AC2_SIDE_VERTICES * AC2_SIDE_VERTICES;
+const AC2_SAMPLES: usize = LAND_BLOCK_SAMPLES;
 /// `CLandBlockMesh::ConstructPolygons` and `LScapeTerrainMesh::UpdateNearTerrain` drop every
 /// terrain quad touching a vertex of this terrain type, opening the landscape over cave mouths.
 const AC2_HOLE_TERRAIN: u32 = 0x1E;
@@ -209,15 +208,7 @@ impl Ac2WorldSource {
         &self,
         block_cell_id: CellId,
     ) -> ResourceResult<Option<crate::Ac2BlockWater>> {
-        let did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0x0000_FFFF);
-        let Some(record) =
-            self.store
-                .load_cached_packed::<Ac2LandBlockRecord>(TypedResourceRef::new(
-                    DatFileKind::Cell,
-                    did,
-                    0,
-                ))?
-        else {
+        let Some(record) = load_land_block_data(&self.store, block_cell_id)? else {
             return Ok(None);
         };
         let min_height = record
@@ -260,31 +251,23 @@ impl Ac2WorldSource {
         &self,
         block_cell_id: CellId,
     ) -> ResourceResult<Option<Arc<LandBlockDesc>>> {
-        let did = DataId::new((block_cell_id.raw() & 0xFFFF_0000) | 0x0000_FFFF);
-        let Some(record) =
-            self.store
-                .load_cached_packed::<Ac2LandBlockRecord>(TypedResourceRef::new(
-                    DatFileKind::Cell,
-                    did,
-                    0,
-                ))?
-        else {
+        let Some(record) = load_land_block_data(&self.store, block_cell_id)? else {
             return Ok(None);
         };
         let samples = self.samples(&record, block_cell_id);
         Ok(Some(Arc::new(LandBlockDesc::new(
-            QualifiedDataId::new(did, 0),
+            QualifiedDataId::new(land_block_did(block_cell_id), 0),
             Arc::new(samples),
         ))))
     }
 
-    fn samples(&self, record: &Ac2LandBlockRecord, block_cell_id: CellId) -> Ac2TerrainSamples {
+    fn samples(&self, record: &Ac2LandBlockData, block_cell_id: CellId) -> Ac2TerrainSamples {
         let side = AC2_SIDE_VERTICES as i32;
         let polygons = side - 1;
         let block_x = ((block_cell_id.raw() >> 24) & 0xFF) as i32;
         let block_y = ((block_cell_id.raw() >> 16) & 0xFF) as i32;
         // The block and its eight neighbours, for edge normals.
-        let mut grid: [Option<CachedResource<Ac2LandBlockRecord>>; 9] = Default::default();
+        let mut grid: [Option<CachedResource<Ac2LandBlockData>>; 9] = Default::default();
         for (slot, (dx, dy)) in (-1..=1)
             .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
             .enumerate()
@@ -293,13 +276,13 @@ impl Ac2WorldSource {
                 grid[slot] = self.neighbour_record(block_x + dx, block_y + dy);
             }
         }
-        let record_at = |dx: i32, dy: i32| -> Option<&Ac2LandBlockRecord> {
+        let record_at = |dx: i32, dy: i32| -> Option<&Ac2LandBlockData> {
             if (dx, dy) == (0, 0) {
                 return Some(record);
             }
             grid[((dx + 1) * 3 + dy + 1) as usize].as_deref()
         };
-        let metres = |record: &Ac2LandBlockRecord, x: i32, y: i32| {
+        let metres = |record: &Ac2LandBlockData, x: i32, y: i32| {
             self.height_table
                 .get(usize::from(record.heights[(x * side + y) as usize]))
                 .copied()
@@ -403,67 +386,12 @@ impl Ac2WorldSource {
     }
 
     /// The `CLandBlockData` of block (`x`, `y`), `None` off the map or where none exists.
-    fn neighbour_record(&self, x: i32, y: i32) -> Option<CachedResource<Ac2LandBlockRecord>> {
+    fn neighbour_record(&self, x: i32, y: i32) -> Option<CachedResource<Ac2LandBlockData>> {
         if !(0..=0xFF).contains(&x) || !(0..=0xFF).contains(&y) {
             return None;
         }
-        let did = DataId::new(((x as u32) << 24) | ((y as u32) << 16) | 0xFFFF);
-        self.store
-            .load_cached_packed::<Ac2LandBlockRecord>(TypedResourceRef::new(
-                DatFileKind::Cell,
-                did,
-                0,
-            ))
-            .ok()
-            .flatten()
-    }
-}
-
-/// AC2 `CLandBlockData::StreamPack`: lbi id, path-map id, then counted height bytes and counted
-/// cell-info words (terrain/scene/encounter/color/road/replace bit fields), 4-byte aligned.
-#[derive(Debug)]
-struct Ac2LandBlockRecord {
-    heights: Vec<u8>,
-    cell_info: Vec<u32>,
-}
-
-impl ResourcePackedDecode for Ac2LandBlockRecord {
-    const TYPE_NAME: &'static str = "AC2 LandBlockData";
-    const RESOURCE_TYPE: ResourceTypeId = ResourceTypeId::Unknown;
-
-    fn decode_packed(
-        qdid: QualifiedDataId,
-        _pack_version: u16,
-        bytes: &[u8],
-    ) -> ResourceResult<Self> {
-        let malformed = |context| ResourceError::MalformedTypedObject {
-            qdid,
-            type_name: Self::TYPE_NAME,
-            context,
-        };
-        let mut cursor = ArchiveCursor::new(bytes);
-        if cursor.read_u32()? != qdid.data_id().raw() {
-            return Err(malformed("embedded DID did not match DAT identity"));
-        }
-        let _landblock_info_id = cursor.read_u32()?;
-        let _path_map_id = cursor.read_u32()?;
-        if cursor.read_u32()? as usize != AC2_SAMPLES {
-            return Err(malformed("AC2 landblock height count was not 17 x 17"));
-        }
-        let heights = (0..AC2_SAMPLES)
-            .map(|_| cursor.read_u8())
-            .collect::<Result<Vec<_>, _>>()?;
-        if cursor.read_u32()? as usize != AC2_SAMPLES {
-            return Err(malformed("AC2 landblock cell-info count was not 17 x 17"));
-        }
-        let cell_info = (0..AC2_SAMPLES)
-            .map(|_| cursor.read_u32())
-            .collect::<Result<Vec<_>, _>>()?;
-        Ok(Self { heights, cell_info })
-    }
-
-    fn cache_retained_bytes(&self) -> usize {
-        std::mem::size_of::<Self>() + self.heights.len() + self.cell_info.len() * 4
+        let cell = CellId::new(((x as u32) << 24) | ((y as u32) << 16) | 0xFFFF);
+        load_land_block_data(&self.store, cell).ok().flatten()
     }
 }
 

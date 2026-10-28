@@ -224,3 +224,45 @@ fn water_blocks_name_their_physics_material() {
     }
     eprintln!("water blocks in the sampled area: {water_blocks}");
 }
+
+/// Retail keeps one `CLandBlockData` per landblock (`CLandBlock` derives from it): once the
+/// terrain has loaded a block, its scenery and ambient sound points read no more cell records for
+/// it. A fresh mount keeps the read counters to this test.
+#[test]
+fn a_landblock_record_is_read_once_for_terrain_scenery_and_sound() {
+    let Some(root) = std::env::var_os("AC2_DAT_DIR") else {
+        return;
+    };
+    let dataset = ac2_dat::DatDataset::open(ac2_dat::DatOpenOptions::new(root)).expect("mount");
+    let cell_reads = || {
+        dataset
+            .read_telemetry(ac2_dat::DatFileKind::Cell)
+            .expect("cell DAT")
+            .total_read_requests
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    let world = crate::Ac2WorldSource::open(Arc::clone(&store))
+        .expect("AC2 vocabulary decodes")
+        .expect("AC2 dataset");
+    let block = ac2_core::CellId::new(0xCB4D_0001);
+    let terrain = world
+        .load_landblock(block)
+        .expect("decodes")
+        .expect("exists");
+    let before = cell_reads();
+    let points = crate::ac2_ambient_sound_points(&store, block).expect("points decode");
+    assert!(!points.is_empty(), "the land sounds");
+    assert_eq!(
+        cell_reads(),
+        before,
+        "ambient points reuse the terrain's record"
+    );
+    let _scenery = crate::ac2_scene_placements(&store, block).expect("scenery generates");
+    let landblock_reads = cell_reads() - before;
+    // The scenery reads the block's `CLandBlockInfo` (`xxxxFFFE`) but not `xxxxFFFF` again.
+    assert!(
+        landblock_reads <= 1,
+        "{landblock_reads} cell reads for the scenery"
+    );
+    drop(terrain);
+}
