@@ -98,7 +98,7 @@ pub struct CellManager {
     window: BTreeSet<u32>,
     resident: BTreeSet<u32>,
     /// Near blocks loaded and not resident (`DBCache`); `None` where the map has no block.
-    prepared: HashMap<u32, Option<Terrain>>,
+    prepared: HashMap<u32, Option<Box<Terrain>>>,
     pending: BTreeSet<u32>,
     far_pending: BTreeSet<u32>,
     far_cached: BTreeSet<u32>,
@@ -276,7 +276,7 @@ impl CellManager {
                 let world = result?;
                 if self.window.contains(&block) && !self.resident.contains(&block) {
                     if let Some(world) = world {
-                        terrain.absorb(world);
+                        terrain.absorb(*world);
                         self.resident.insert(block);
                         self.changes.push(BlockChange::Resident(block));
                     }
@@ -339,7 +339,7 @@ impl CellManager {
             }
             match self.prepared.remove(&block) {
                 Some(Some(world)) => {
-                    terrain.absorb(world);
+                    terrain.absorb(*world);
                     self.resident.insert(block);
                     self.changes.push(BlockChange::Resident(block));
                 }

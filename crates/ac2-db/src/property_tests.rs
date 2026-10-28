@@ -1,8 +1,8 @@
 //! The ethereal blocking mask a `PropertyCollection` sets (`CPhysicsObj::ApplyEtherealProperty`),
 //! over synthetic `MasterProperty` descs.
 
-use crate::property::ETHEREAL_PROPERTY_GROUP;
 use crate::property::{ethereal_mask_with, Ac2PropertyDesc, Ac2PropertyGroup, Ac2PropertyValue};
+use crate::property::{ETHEREAL_PROPERTY_GROUP, REPORT_INQUIRABLE};
 
 const BOOL: u32 = 0x4000_0001;
 const INTEGER: u32 = 0x4000_0002;
@@ -19,26 +19,31 @@ fn desc_of(name: u32) -> Option<Ac2PropertyDesc> {
             value_type: BOOL,
             group: ETHEREAL_PROPERTY_GROUP,
             data: 3,
+            report_to_weenie: REPORT_INQUIRABLE,
         }),
         NAME_BIT_9 => Some(Ac2PropertyDesc {
             value_type: BOOL,
             group: ETHEREAL_PROPERTY_GROUP,
             data: 9,
+            report_to_weenie: REPORT_INQUIRABLE,
         }),
         NAME_INTEGER => Some(Ac2PropertyDesc {
             value_type: INTEGER,
             group: ETHEREAL_PROPERTY_GROUP,
             data: 5,
+            report_to_weenie: REPORT_INQUIRABLE,
         }),
         NAME_OTHER_GROUP => Some(Ac2PropertyDesc {
             value_type: BOOL,
             group: OTHER_GROUP,
             data: 7,
+            report_to_weenie: REPORT_INQUIRABLE,
         }),
         NAME_BIG_BIT => Some(Ac2PropertyDesc {
             value_type: BOOL,
             group: ETHEREAL_PROPERTY_GROUP,
             data: 70,
+            report_to_weenie: REPORT_INQUIRABLE,
         }),
         _ => None,
     }

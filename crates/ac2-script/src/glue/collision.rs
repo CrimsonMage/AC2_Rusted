@@ -28,6 +28,10 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gCollisionProfile::CallEFun_HasContact" => has_contact,
             "gCollisionProfile::CallEFun_IsEndContact" => is_end_contact,
             "gCollisionProfile::CallEFun_FindObject" => find_object,
+            "gCollideProperty::CallEFun_GetID" => collide_property_id,
+            "gCollideProperty::CallEFun_IsBegin" => collide_property_is_begin,
+            "gCollideProperty::CallEFun_IsEnd" => collide_property_is_end,
+            "gCollideProperty::CallEFun_IsChanged" => collide_property_is_changed,
             _ => continue,
         };
         efuns.register(id, function);
@@ -286,4 +290,43 @@ fn find_object(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     }
     Call::new(ctx).ret(5, u32::from(hit), tag::BOOL);
     InterpStatus::Success
+}
+
+/// `gCollideProperty::CallEFun_GetID()`: the property's master id (`CollideProperty::m_id`, a
+/// 32-bit word in retail).
+fn collide_property_id(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let id = match vm.native(this) {
+        Some(NativeObject::CollideProperty(c)) => c.id,
+        _ => return vm.bad_this(this),
+    };
+    Call::new(ctx).ret(2, id as u32, tag::INT);
+    InterpStatus::Success
+}
+
+/// The collide-type test every `gCollideProperty` flag efun makes on `m_collide_type`.
+fn collide_type_is(vm: &mut Vm, ctx: &mut Context, collide_type: u64) -> InterpStatus {
+    let this = Call::new(ctx).this();
+    let is = match vm.native(this) {
+        Some(NativeObject::CollideProperty(c)) => c.collide_type == collide_type,
+        _ => return vm.bad_this(this),
+    };
+    Call::new(ctx).ret(2, u32::from(is), tag::BOOL);
+    InterpStatus::Success
+}
+
+/// `gCollideProperty::CallEFun_IsBegin()`: the property began in the report (type 0).
+fn collide_property_is_begin(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    collide_type_is(vm, ctx, 0)
+}
+
+/// `gCollideProperty::CallEFun_IsEnd()`: the property ended (type 1, `CollideProperty::IsEnd`).
+fn collide_property_is_end(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    collide_type_is(vm, ctx, 1)
+}
+
+/// `gCollideProperty::CallEFun_IsChanged()`: the property's value changed (type 2,
+/// `CollideProperty::IsChanged`).
+fn collide_property_is_changed(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    collide_type_is(vm, ctx, 2)
 }

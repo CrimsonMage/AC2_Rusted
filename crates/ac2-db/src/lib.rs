@@ -76,10 +76,11 @@ pub use preparation_queue::{
     PreparationTransport, SequencedPreparation, RETAIL_PREPARATION_FAST_QUEUE_CAPACITY,
 };
 pub use property::{
-    ac2_ethereal_mask, ac2_property_desc, ac2_property_type, ethereal_mask_with,
-    install_ac2_property_types, read_ac2_property_collection, read_ac2_property_groups,
-    skip_ac2_property_collection, skip_property_collection, update_ac2_property_collection,
-    Ac2PropertyGroup, Ac2PropertyTypes, Ac2PropertyValue,
+    ac2_ethereal_mask, ac2_property_desc, ac2_property_inquirable, ac2_property_reported_to_weenie,
+    ac2_property_type, ethereal_mask_with, install_ac2_property_types,
+    read_ac2_property_collection, read_ac2_property_groups, skip_ac2_property_collection,
+    skip_property_collection, update_ac2_property_collection, Ac2PropertyDesc, Ac2PropertyGroup,
+    Ac2PropertyTypes, Ac2PropertyValue, REPORT_IGNORED, REPORT_INQUIRABLE, REPORT_REPORTABLE,
 };
 pub use resource_runtime::ResourceRuntime;
 pub use resource_runtime::{

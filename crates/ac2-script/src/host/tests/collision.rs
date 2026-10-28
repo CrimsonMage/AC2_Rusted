@@ -402,8 +402,8 @@ fn a_mask_efun_answers_the_master_property_table() {
 #[test]
 fn a_physics_report_fills_the_profile_the_efuns_read() {
     use ac2_physics::{
-        CollisionReport, ContactRecord, ImpactReport, ObjectRecord, Plane, PropertyRecord,
-        RecordState, Vector,
+        CollideProperty as PhysicsProperty, CollideType, CollisionReport, ContactRecord,
+        ImpactReport, ObjectRecord, Plane, RecordState, Vector,
     };
     let report = CollisionReport {
         impact: Some(ImpactReport {
@@ -422,9 +422,14 @@ fn a_physics_report_fills_the_profile_the_efuns_read() {
             state: RecordState::Begin,
             ethereal: true,
         }],
-        surface: vec![PropertyRecord {
+        surface: vec![PhysicsProperty {
             id: 9,
-            state: RecordState::Begin,
+            collide_type: CollideType::Begin,
+            property: ac2_db::Ac2PropertyValue {
+                name: 0x4000_0036,
+                value_type: 0x4000_0007,
+                bytes: 5u32.to_le_bytes().into(),
+            },
         }],
         ..CollisionReport::default()
     };
@@ -507,4 +512,70 @@ fn a_physics_report_fills_the_profile_the_efuns_read() {
         efun_result(&mut ended.vm, 0x001B_000C, &[normal, 0], end_handle, 4),
         0
     );
+}
+
+/// The `gCollideProperty` efuns read the record a report listed: the master id (`GetID`) and the
+/// begin, end and changed flags of its collide type. A surface record that changed reads as
+/// changed; the id is the one the list gave it.
+#[test]
+fn the_collide_property_efuns_read_the_record_the_report_listed() {
+    use ac2_physics::{CollideProperty as PhysicsProperty, CollideType, CollisionReport};
+    let property = |id, collide_type| PhysicsProperty {
+        id,
+        collide_type,
+        property: ac2_db::Ac2PropertyValue {
+            name: 0x4000_0036,
+            value_type: 0x4000_0007,
+            bytes: 5u32.to_le_bytes().into(),
+        },
+    };
+    let report = CollisionReport {
+        surface: vec![
+            property(7, CollideType::Begin),
+            property(8, CollideType::Change),
+            property(9, CollideType::End),
+        ],
+        ..CollisionReport::default()
+    };
+    let (mut host, handle) = host_with_profile(CollisionProfile::from_report(&report));
+    let out = host.vm.refs.create_native(
+        ntype::COLLIDE_PROPERTY,
+        NativeObject::CollideProperty(CollideProperty::default()),
+    );
+    // (id, collide type) per surface index, with the flags' answers (begin, end, changed).
+    let expected = [
+        (7u64, 0u64, [1, 0, 0]),
+        (8, 2, [0, 0, 1]),
+        (9, 1, [0, 1, 0]),
+    ];
+    for (index, (id, collide_type, flags)) in expected.into_iter().enumerate() {
+        assert_eq!(
+            efun_result(&mut host.vm, 0x001B_0009, &[index as u32, out], handle, 4),
+            1
+        );
+        let Some(NativeObject::CollideProperty(c)) = host.vm.native(out) else {
+            panic!("the surface out native");
+        };
+        assert_eq!((c.id, c.collide_type), (id, collide_type));
+        assert_eq!(
+            efun_result(&mut host.vm, 0x0019_0001, &[], out, 2),
+            id as u32,
+            "GetID"
+        );
+        assert_eq!(
+            efun_result(&mut host.vm, 0x0019_0004, &[], out, 2),
+            flags[0],
+            "IsBegin"
+        );
+        assert_eq!(
+            efun_result(&mut host.vm, 0x0019_0005, &[], out, 2),
+            flags[1],
+            "IsEnd"
+        );
+        assert_eq!(
+            efun_result(&mut host.vm, 0x0019_0006, &[], out, 2),
+            flags[2],
+            "IsChanged"
+        );
+    }
 }

@@ -67,7 +67,7 @@ pub trait BlockLoader {
 /// Finished block work.
 pub enum BlockLoaded {
     /// The block's world, or `None` where the map has no such block.
-    Block(u32, Result<Option<Terrain>, String>),
+    Block(u32, Result<Option<Box<Terrain>>, String>),
     FarBlock(u32, Result<(), String>),
 }
 
@@ -83,7 +83,7 @@ fn load(source: &dyn BlockSource, request: Request) -> BlockLoaded {
             let mut terrain = Terrain::new();
             let result = source
                 .load_block(&mut terrain, block)
-                .map(|exists| exists.then_some(terrain));
+                .map(|exists| exists.then(|| Box::new(terrain)));
             BlockLoaded::Block(block, result)
         }
         Request::FarBlock(block) => BlockLoaded::FarBlock(block, source.prefetch_far_block(block)),

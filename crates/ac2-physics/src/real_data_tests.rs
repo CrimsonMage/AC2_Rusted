@@ -4,17 +4,18 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId};
-use ac2_db::ResourceStore;
+use ac2_db::{ac2_property_reported_to_weenie, ResourceStore};
 use ac2_world::{load_ac2_motion_interp_desc, Ac2WorldSource};
 
 use crate::body::{MovementInput, PhysicsBody, PHYSICS_QUANTUM};
 use crate::cells::CellSource;
-use crate::collision_report::RecordState;
+use crate::collide_property::{CollideType, TERRAIN_TYPE_PROPERTY};
 use crate::fpu::floor_z;
 use crate::frame::Frame;
 use crate::landdefs::lcoord_to_gid;
 use crate::loader::{load_body_shape, load_terrain_block};
 use crate::motion_interp::{ELEMENT_GROUND, MODE_DEFAULT};
+use crate::physics_material::load_physics_material;
 use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::vector::{Quaternion, Vector};
@@ -38,6 +39,7 @@ fn scene(x: f32, y: f32) -> Option<Scene> {
 fn scene_at(block_x: u32, block_y: u32, x: f32, y: f32) -> Option<Scene> {
     let dataset = ac2_dat::test_support::env_dataset()?;
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("world source opens")
         .expect("AC2 landscape");
@@ -175,30 +177,57 @@ fn a_human_walks_at_the_motion_interp_forward_speed() {
     }
 }
 
-/// Block 0xCB4D: a body standing on a vertex that names a landscape material reports that
-/// material as a landscape record (`CCollisionManager::SetOnLandscape` and `ReportSurfaceProperties`).
+/// The names of a material's properties the property table reports to the weenie.
+fn reported_names(material: &crate::PhysicsMaterial) -> Vec<u32> {
+    let mut names: Vec<u32> = material
+        .groups
+        .iter()
+        .flat_map(|group| &group.properties)
+        .map(|property| property.name)
+        .filter(|&name| ac2_property_reported_to_weenie(name))
+        .collect();
+    names.sort_unstable();
+    names.dedup();
+    names
+}
+
+/// A landscape vertex of block `block` whose material `wanted` accepts, with that material.
+fn material_vertex(
+    store: &ResourceStore,
+    world: &Ac2WorldSource,
+    block: u32,
+    wanted: impl Fn(&crate::PhysicsMaterial) -> bool,
+) -> Option<(usize, usize, Arc<crate::PhysicsMaterial>)> {
+    let desc = world
+        .load_landblock(CellId::new(block | 0xFFFF))
+        .expect("landblock decodes")?;
+    (1..16)
+        .flat_map(|x| (1..16).map(move |y| (x, y)))
+        .find_map(|(x, y)| {
+            let did = desc.physics_material(x, y)?;
+            let material = load_physics_material(store, did).expect("material decodes")?;
+            wanted(&material).then_some((x, y, material))
+        })
+}
+
+/// Block 0xCB4D: a body standing on a landscape vertex lists the material's properties the
+/// table reports to the weenie, each once, and no others (`CCollisionManager::SetOnLandscape` and
+/// `ReportSurfaceProperties`). The data's landscape properties are inquirable, not reported, so
+/// the list holds what the table reports and nothing else.
 #[test]
-fn a_body_on_the_landscape_reports_its_vertex_material() {
-    const BLOCK_CELL: u32 = 0xCB4D_FFFF;
+fn a_body_on_the_landscape_lists_the_material_properties_the_table_reports() {
+    const BLOCK_CELL: u32 = 0xCB4D_0000;
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
     let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
     let world = Ac2WorldSource::open(Arc::clone(&store))
         .expect("world source opens")
         .expect("AC2 landscape");
-    let desc = world
-        .load_landblock(CellId::new(BLOCK_CELL))
-        .expect("landblock decodes")
-        .expect("block 0xCB4D");
-    let (vx, vy) = (1..16)
-        .flat_map(|x| (1..16).map(move |y| (x, y)))
-        .find(|&(x, y)| desc.physics_material(x, y).is_some())
-        .expect("block 0xCB4D names a landscape material");
-    let expected = desc
-        .physics_material(vx, vy)
-        .map(|did| u64::from(did.raw()))
-        .expect("material");
+    let (vx, vy, material) = material_vertex(&store, &world, BLOCK_CELL, |m| !m.groups.is_empty())
+        .expect("block 0xCB4D names a landscape material with properties");
+    let reported = reported_names(&material);
     // A quarter metre off the vertex, so the nearest vertex is (vx, vy).
     let Some(mut scene) = scene_at(0xCB, 0x4D, vx as f32 * 10.0 + 0.5, vy as f32 * 10.0 + 0.5)
     else {
@@ -212,11 +241,65 @@ fn a_body_on_the_landscape_reports_its_vertex_material() {
             surface.extend(report.surface);
         }
     }
-    assert!(
-        surface
+    let begun: Vec<u32> = surface
+        .iter()
+        .filter(|record| record.collide_type == CollideType::Begin)
+        .map(|record| record.name())
+        .collect();
+    let listed: std::collections::BTreeSet<u32> = begun.iter().copied().collect();
+    assert_eq!(
+        listed.len(),
+        begun.len(),
+        "each property begins once: {surface:?}"
+    );
+    assert_eq!(
+        listed,
+        reported.iter().copied().collect(),
+        "the reported properties of the material are the ones listed: {surface:?}"
+    );
+}
+
+/// A landscape material that gives the terrain-type property sets the body's motion terrain to
+/// its value (`CCollisionManager::UpdateLandTerrain`, then `CPhysicsObj::SetTerrainType`). The
+/// property is inquirable, so the script never sees it, but the walk looks up its terrain.
+#[test]
+fn a_landscape_terrain_type_property_sets_the_motion_terrain() {
+    const BLOCK_CELL: u32 = 0xCB4D_0000;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let (vx, vy, material) = material_vertex(&store, &world, BLOCK_CELL, |m| {
+        m.groups
             .iter()
-            .any(|record| record.id == expected && record.state == RecordState::Begin),
-        "landscape records {surface:?}, expected material {expected}"
+            .flat_map(|group| &group.properties)
+            .any(|property| property.name == TERRAIN_TYPE_PROPERTY)
+    })
+    .expect("block 0xCB4D names a landscape material with a terrain type");
+    let value = material
+        .groups
+        .iter()
+        .flat_map(|group| &group.properties)
+        .find(|property| property.name == TERRAIN_TYPE_PROPERTY)
+        .and_then(|property| property.integer())
+        .expect("the terrain-type value is a word");
+    let Some(mut scene) = scene_at(0xCB, 0x4D, vx as f32 * 10.0 + 0.5, vy as f32 * 10.0 + 0.5)
+    else {
+        return;
+    };
+    for _ in 0..(1.0 / PHYSICS_QUANTUM).round() as usize {
+        scene.body.step_quantum(&scene.terrain);
+        let materials = scene.body.contact_materials(&scene.terrain);
+        let _ = scene.body.report_collisions(&materials, false);
+    }
+    assert_eq!(
+        u64::from(scene.body.motion_terrain_type()),
+        value,
+        "the body's motion terrain is the material's terrain type"
     );
 }
 
@@ -249,4 +332,38 @@ fn resident_water_carries_its_water_type_material() {
         }
     }
     assert!(water_blocks > 0, "the sampled blocks hold water");
+}
+
+/// A landscape material decodes its `PhysicsMaterial` record: its DID, and property groups whose
+/// names the `MasterProperty` table knows (`PhysicsMaterial::StreamPack`'s `PropertyCollection`).
+#[test]
+fn a_landscape_material_decodes_its_property_groups() {
+    const BLOCK_CELL: u32 = 0xCB4D_0000;
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(Arc::clone(&dataset)));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
+    let world = Ac2WorldSource::open(Arc::clone(&store))
+        .expect("world source opens")
+        .expect("AC2 landscape");
+    let (_, _, material) = material_vertex(&store, &world, BLOCK_CELL, |m| !m.groups.is_empty())
+        .expect("block 0xCB4D names a landscape material with properties");
+    assert_ne!(material.id, 0);
+    assert_eq!(material.id >> 24, 0x37, "a physics material DID");
+    for property in material.groups.iter().flat_map(|group| &group.properties) {
+        assert!(
+            ac2_db::ac2_property_desc(property.name).is_some(),
+            "{:#x} is a MasterProperty name",
+            property.name
+        );
+    }
+    assert!(
+        material
+            .groups
+            .iter()
+            .flat_map(|group| &group.properties)
+            .any(|property| property.name == TERRAIN_TYPE_PROPERTY),
+        "the landscape material names its terrain type"
+    );
 }

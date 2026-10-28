@@ -530,7 +530,8 @@ impl Client {
             Loaded::ScriptData(answered) => self.script_data_loaded(answered),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
             Loaded::Block(block, result) => {
-                let loaded = ac2_smartbox::BlockLoaded::Block(block, result);
+                let loaded =
+                    ac2_smartbox::BlockLoaded::Block(block, result.map(|t| t.map(Box::new)));
                 self.cells
                     .loaded(loaded, &mut self.terrain, &mut self.loader)?;
                 self.object_cells();

@@ -38,12 +38,20 @@ pub const ETHEREAL_PROPERTY_GROUP: u32 = 0x4000_0003;
 
 static PROPERTY_TYPES: OnceLock<Arc<Ac2PropertyTypes>> = OnceLock::new();
 
-/// One `BasePropertyDesc` of `MasterProperty`: its value type, its group and its data word.
+/// `BasePropertyDesc::m_report_to_weenie` (`PropertyWeenieReportType::Type`): reported to the
+/// weenie, inquirable only, or ignored.
+pub const REPORT_REPORTABLE: u32 = 0;
+pub const REPORT_INQUIRABLE: u32 = 1;
+pub const REPORT_IGNORED: u32 = 2;
+
+/// One `BasePropertyDesc` of `MasterProperty`: its value type, its group, its data word and its
+/// report-to-weenie type.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Ac2PropertyDesc {
     pub value_type: u32,
     pub group: u32,
     pub data: u32,
+    pub report_to_weenie: u32,
 }
 
 /// Property name -> `BasePropertyDesc`, from `MasterProperty::m_properties`.
@@ -87,13 +95,16 @@ impl ResourcePackedDecode for Ac2PropertyTypes {
             let value_type = cursor.read_u32()?;
             let group = cursor.read_u32()?;
             let data = cursor.read_u32()?;
-            cursor.read_bytes(8)?;
+            let report_to_weenie = cursor.read_u32()?;
+            // `m_bRequired` follows; the port does not read it.
+            cursor.read_bytes(4)?;
             descs.insert(
                 name,
                 Ac2PropertyDesc {
                     value_type,
                     group,
                     data,
+                    report_to_weenie,
                 },
             );
         }
@@ -137,6 +148,18 @@ pub fn ac2_property_type(name: u32) -> Option<u32> {
 /// The `BasePropertyDesc` of property `name` from the installed table.
 pub fn ac2_property_desc(name: u32) -> Option<Ac2PropertyDesc> {
     PROPERTY_TYPES.get()?.descs.get(&name).copied()
+}
+
+/// `BaseProperty::IsInquirable` (`MasterProperty::IsInquirable`): the property has a desc that
+/// is not ignored. Without a desc the answer is no.
+pub fn ac2_property_inquirable(name: u32) -> bool {
+    ac2_property_desc(name).is_some_and(|desc| desc.report_to_weenie != REPORT_IGNORED)
+}
+
+/// `BaseProperty::IsReportedToWeenie` (`MasterProperty::IsReportedToWeenie`): the desc is
+/// `Reportable`.
+pub fn ac2_property_reported_to_weenie(name: u32) -> bool {
+    ac2_property_desc(name).is_some_and(|desc| desc.report_to_weenie == REPORT_REPORTABLE)
 }
 
 /// The blocking-mask bits a `PropertyCollection`'s groups set on a physics body
@@ -281,6 +304,22 @@ impl Ac2PropertyValue {
         (self.value_type == TYPE_FLOAT)
             .then(|| self.float_at(0))
             .flatten()
+    }
+
+    /// A word-sized integer property's value as `BasePropertyValue::GetValue(ulong&)` widens it
+    /// (`Integer`, `Enum`, `DataFile` and `PackageID` words, `LongInteger` in full); `None` for
+    /// other types.
+    pub fn integer(&self) -> Option<u64> {
+        match self.value_type {
+            TYPE_INTEGER | TYPE_ENUM | TYPE_DATA_FILE | TYPE_PACKAGE_ID => {
+                self.word().map(u64::from)
+            }
+            TYPE_LONG_INTEGER => self
+                .bytes
+                .get(..8)
+                .map(|b| u64::from_le_bytes([b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7]])),
+            _ => None,
+        }
     }
 
     /// A vector property's value (`BasePropertyValue::GetValue(Vector&)`); `None` for other types.

@@ -3,6 +3,7 @@
 //! shadowing them (`CLandBlock::CreateStaticObjects`, `CPhysicsObj::add_shadows_to_cells`).
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
@@ -17,6 +18,7 @@ use crate::landdefs::{
     POLYS_PER_LANDCELL, SIDE_VERTEX_COUNT, VERTEX_PER_CELL,
 };
 use crate::objects::StaticObject;
+use crate::physics_material::PhysicsMaterial;
 use crate::position::Position;
 use crate::vector::Vector;
 
@@ -47,6 +49,8 @@ pub struct Terrain {
     objects: Vec<Option<(StaticObject, Vec<u32>)>>,
     /// Ids a removed object left free, reused by the next insert.
     free: Vec<u32>,
+    /// The loaded physics materials, by id (`CollideProperty` lists read their property groups).
+    materials: HashMap<u64, Arc<PhysicsMaterial>>,
 }
 
 /// How far (metres) a moving object may go from the position its cell list was built for before
@@ -338,6 +342,7 @@ impl Terrain {
             surfaces,
             objects,
             free: _,
+            materials,
         } = other;
         let mut cells: Vec<_> = cells.into_iter().collect();
         cells.sort_by_key(|(id, _)| *id);
@@ -352,6 +357,7 @@ impl Terrain {
             self.env_cells.insert(id, cell);
         }
         self.surfaces.extend(surfaces);
+        self.materials.extend(materials);
         for (object, _) in objects.into_iter().flatten() {
             self.insert_object(object);
         }
@@ -401,6 +407,39 @@ impl Terrain {
                 }
             }
         }
+    }
+
+    /// Keeps a loaded physics material for the reports that name its id.
+    pub fn insert_material(&mut self, material: Arc<PhysicsMaterial>) {
+        self.materials.insert(material.id, material);
+    }
+
+    /// The physics material `id` names: the loaded record, or the id alone (no property groups)
+    /// where the DATs did not load one.
+    pub fn physics_material(&self, id: u64) -> Arc<PhysicsMaterial> {
+        self.materials
+            .get(&id)
+            .cloned()
+            .unwrap_or_else(|| Arc::new(PhysicsMaterial::with_id(id)))
+    }
+
+    /// The landscape material under `position` as a loaded material ([`Terrain::land_material`]
+    /// names its id).
+    pub fn land_physics_material(&self, position: &Position) -> Option<Arc<PhysicsMaterial>> {
+        self.land_material(position)
+            .map(|id| self.physics_material(id))
+    }
+
+    /// The water material of the block holding `cell_id` as a loaded material.
+    pub fn water_physics_material(&self, cell_id: u32) -> Option<Arc<PhysicsMaterial>> {
+        self.water_material(cell_id)
+            .map(|id| self.physics_material(id))
+    }
+
+    /// The interior cell's material as a loaded material.
+    pub fn env_physics_material(&self, cell_id: u32) -> Option<Arc<PhysicsMaterial>> {
+        self.env_material(cell_id)
+            .map(|id| self.physics_material(id))
     }
 
     /// Sets a block's water physics material (`CWaterDesc::GetPhysicsMaterial` of its water type);

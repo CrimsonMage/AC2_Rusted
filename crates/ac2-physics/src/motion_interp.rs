@@ -114,6 +114,12 @@ impl MotionInterp {
         self.terrain_type
     }
 
+    /// `CMotionInterp::SetTerrainType` (`PHYSICSOBJREP::SetTerrainType` from the collision
+    /// report's terrain): the terrain the motion values and animations look up.
+    pub fn set_terrain_type(&mut self, terrain: u32) {
+        self.terrain_type = terrain;
+    }
+
     /// The desired mode the motion values are looked up in.
     pub(crate) fn set_mode(&mut self, mode: u32) {
         self.mode = mode;

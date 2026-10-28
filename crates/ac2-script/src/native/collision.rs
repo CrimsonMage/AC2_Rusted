@@ -85,8 +85,7 @@ impl Default for CollisionProfile {
 impl CollisionProfile {
     /// `CollisionProfile` as a physics report fills it (`CCollisionManager::ReportCollision`):
     /// the impact in state 0, the contact plane with its begin or end, and the object and
-    /// property lists. A property record's begin or end is not kept (the script's
-    /// `CollideProperty` has no begin flag yet), only its id.
+    /// property lists, each property with its master id and collide type.
     pub fn from_report(report: &ac2_physics::CollisionReport) -> Self {
         use ac2_physics::RecordState;
         let mut profile = Self::default();
@@ -112,12 +111,12 @@ impl CollisionProfile {
                 is_ethereal: o.ethereal,
             })
             .collect();
-        let properties = |records: &[ac2_physics::PropertyRecord]| {
+        let properties = |records: &[ac2_physics::CollideProperty]| {
             records
                 .iter()
                 .map(|r| CollideProperty {
                     id: r.id,
-                    collide_type: 0,
+                    collide_type: r.collide_type.raw(),
                 })
                 .collect::<Vec<_>>()
         };

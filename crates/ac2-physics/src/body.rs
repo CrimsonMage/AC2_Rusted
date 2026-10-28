@@ -534,15 +534,21 @@ impl PhysicsBody {
         let on = |flag: u32| state & flag != 0;
         ContactMaterials {
             landscape: on(crate::physics_obj::LANDSCAPE_CONTACT_TS)
-                .then(|| terrain.land_material(&position))
+                .then(|| terrain.land_physics_material(&position))
                 .flatten(),
             water: on(crate::physics_obj_contact::WATER_CONTACT_TS)
-                .then(|| terrain.water_material(position.cell_id))
+                .then(|| terrain.water_physics_material(position.cell_id))
                 .flatten(),
             environment: on(crate::physics_obj_contact::ENVIRONMENT_CONTACT_TS)
-                .then(|| terrain.env_material(position.cell_id))
+                .then(|| terrain.env_physics_material(position.cell_id))
                 .flatten(),
         }
+    }
+
+    /// The motion terrain the body's motion interpreter looks its values up under
+    /// (`CMotionInterp::GetTerrainType`): the sentinel until a landscape or water property sets it.
+    pub fn motion_terrain_type(&self) -> u32 {
+        self.object.motion.terrain_type()
     }
 
     /// `CPhysicsObj::EndAllCollisions`: ends every record the body has reported and drops its
@@ -579,7 +585,12 @@ impl PhysicsBody {
         let report = self
             .object
             .collision_manager
-            .report(now, contact, *materials, flags);
+            .report(now, contact, materials, flags);
+        // `CCollisionManager::SetTerrainType` hands the motion terrain to the body
+        // (`CPhysicsObj::SetTerrainType`), whether or not the report lists anything.
+        if let Some(terrain) = self.object.collision_manager.take_terrain() {
+            self.object.motion.set_terrain_type(terrain as u32);
+        }
         (!report.is_empty()).then_some(report)
     }
 

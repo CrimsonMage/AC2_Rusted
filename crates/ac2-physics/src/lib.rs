@@ -18,6 +18,7 @@ mod body;
 mod body_anim_tests;
 mod bsp;
 mod cells;
+mod collide_property;
 mod collision_impact;
 #[cfg(test)]
 mod collision_impact_tests;
@@ -59,6 +60,7 @@ mod objects_real_data_tests;
 #[cfg(test)]
 mod objects_tests;
 mod part_pose;
+mod physics_material;
 mod physics_obj;
 mod physics_obj_contact;
 mod physics_obj_look;
@@ -86,9 +88,10 @@ pub use body::{
 };
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
+pub use collide_property::{CollideProperty, CollideType, PropertyDescs, TERRAIN_TYPE_PROPERTY};
 pub use collision_impact::ImpactReport;
 pub use collision_report::{
-    CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, PropertyRecord, RecordState,
+    CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, RecordState,
 };
 pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
@@ -111,6 +114,7 @@ pub use moveto::{
 };
 pub use objects::{BBox, ObjectShape, StaticObject};
 pub use part_pose::{drawn_place, part_poses, PartPose};
+pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;

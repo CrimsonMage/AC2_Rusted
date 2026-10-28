@@ -17,8 +17,9 @@ use crate::bsp::{BspTree, Polygon};
 use crate::envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 use crate::fpu::{ld, st};
 use crate::frame::Frame;
-use crate::landdefs::{adjust_to_outside, BLOCK_LENGTH};
+use crate::landdefs::{adjust_to_outside, BLOCK_LENGTH, SIDE_VERTEX_COUNT};
 use crate::objects::{ObjectShape, StaticObject};
+use crate::physics_material::load_physics_material;
 use crate::physics_obj::BodyShape;
 use crate::position::Position;
 use crate::shapes::cylsphere::CylSphere;
@@ -90,6 +91,20 @@ pub fn load_terrain_block(
     terrain.set_block_water(block_cell_id.raw(), water);
     let water_material = world.water_physics_material(block_cell_id)?;
     terrain.set_block_water_material(block_cell_id.raw(), water_material.map(material_id));
+    // The block's materials, loaded here so the frame thread reads their property groups.
+    let mut dids: Vec<DataId> = (0..SIDE_VERTEX_COUNT)
+        .flat_map(|x| (0..SIDE_VERTEX_COUNT).map(move |y| (x, y)))
+        .filter_map(|(x, y)| block.physics_material(x, y))
+        .chain(water_material)
+        .collect();
+    dids.sort_unstable_by_key(|did| did.raw());
+    dids.dedup();
+    let store = world.resource_store();
+    for did in dids {
+        if let Some(material) = load_physics_material(store, did)? {
+            terrain.insert_material(material);
+        }
+    }
     Ok(true)
 }
 
@@ -317,6 +332,11 @@ pub fn load_block_interiors(
             objects: Vec::new(),
             physics_material: cell.physics_material.map(material_id),
         });
+        if let Some(did) = cell.physics_material {
+            if let Some(material) = load_physics_material(store, did)? {
+                terrain.insert_material(material);
+            }
+        }
         cells.push(cell);
     }
     let origin = world.ac2_block_origin(block_cell_id);

@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1450 done, 110 partial, 578 to do, 330 skipped.
+2468 retail functions: 1454 done, 111 partial, 573 to do, 330 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1547,14 +1547,14 @@ Legend and workflow: [README](README.md).
 - [ ] `gCDBForm::CallEFun_AddStringProperty` · 0054a730 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
 - [ ] `gCDBForm::CallEFun_AddTimetypeProperty` · 0054a7a0 — needs port: DB form builder efuns (SetNameW, AddProperty*, AddTable)
 
-## `portal/shared/src/interp/glue/gcollideproperty.cpp.c` (0/6)
+## `portal/shared/src/interp/glue/gcollideproperty.cpp.c` (4/6)
 
 ### gCollideProperty
-- [ ] `gCollideProperty::CallEFun_GetID` · 00549f00 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
-- [ ] `gCollideProperty::CallEFun_IsBegin` · 00549f70 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
-- [ ] `gCollideProperty::CallEFun_IsChanged` · 00549fe0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
-- [ ] `gCollideProperty::CallEFun_IsEnd` · 0054a050 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
-- [ ] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
+- [x] `gCollideProperty::CallEFun_GetID` · 00549f00 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
+- [x] `gCollideProperty::CallEFun_IsBegin` · 00549f70 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
+- [x] `gCollideProperty::CallEFun_IsChanged` · 00549fe0 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
+- [x] `gCollideProperty::CallEFun_IsEnd` · 0054a050 — ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
+- [~] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 - [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — needs port: collide property efuns (GetID, IsBegin/IsEnd, GetProperty)
 
 ## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (9/25)
