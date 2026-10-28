@@ -154,7 +154,6 @@ pub use hud_shop::{
     shop_commands, shop_notice, shop_stack_calls,
 };
 pub use item_queries::ItemDisplay;
-pub use motion::PartPose;
 pub use pregame::{
     pregame_event, pregame_notice, pregame_requests, pregame_requests_capturing, PregameOutcome,
 };

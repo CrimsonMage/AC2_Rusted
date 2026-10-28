@@ -7,13 +7,13 @@ use std::sync::mpsc::{channel, Receiver, TryRecvError};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use ac2_client::{PartPose, PlayerFrame};
+use ac2_client::PlayerFrame;
 use ac2_core::{DataId, Random};
 use ac2_db::ResourceStore;
 use ac2_physics::landdefs::lcoord_to_gid;
 use ac2_physics::{
-    AnimationClock, Frame, MovementInput, PhysicsClock, Position, Quaternion, Terrain, Vector,
-    PHYSICS_QUANTUM,
+    AnimationClock, Frame, MovementInput, PartPose, PhysicsClock, Position, Quaternion, Terrain,
+    Vector, PHYSICS_QUANTUM,
 };
 use ac2_smartbox::{
     camera_action, load_body_data, BlockPool, BodyData, CameraFrame, CameraManager, CellManager,

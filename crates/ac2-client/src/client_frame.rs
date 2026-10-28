@@ -16,7 +16,7 @@ impl Client {
             let body = p.body.as_ref()?;
             let state = body.physics.movement_state();
             let (cell, origin, rotation) =
-                crate::motion::drawn_place(&body.physics, self.render_interpolation);
+                ac2_physics::drawn_place(&body.physics, self.render_interpolation);
             Some(PlayerFrame {
                 id: p.id,
                 cell,
@@ -26,7 +26,7 @@ impl Client {
                 visual: p.visual,
                 velocity: state.velocity,
                 contact: state.contact,
-                pose: crate::motion::pose(&body.physics, self.pose_blend_time()),
+                pose: ac2_physics::part_poses(&body.physics, self.pose_blend_time()),
                 appearance: self
                     .session
                     .objects()

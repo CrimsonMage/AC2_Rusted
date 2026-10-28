@@ -14,6 +14,7 @@ use std::time::Duration;
 use ac2_core::DataId;
 use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
 use ac2_math::{Frame, Mat4, Quat, Vec3};
+use ac2_physics::PartPose;
 use ac2_render::object::ObjectPose;
 use ac2_render::object_fx::{follow_emitters, object_placements, world_matrix, FxSlot};
 use ac2_render::scene::WorldScene;
@@ -23,7 +24,6 @@ use ac2_world::Ac2WorldSource;
 
 use crate::frame::{ClientFrame, FxFollow, HoldPoint};
 use crate::hud_view::HudView;
-use crate::motion::PartPose;
 
 use self::overlays::radar_view;
 

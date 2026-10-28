@@ -52,6 +52,7 @@ mod objects_dynamic_tests;
 mod objects_real_data_tests;
 #[cfg(test)]
 mod objects_tests;
+mod part_pose;
 mod physics_obj;
 mod physics_obj_contact;
 mod physics_obj_look;
@@ -97,6 +98,7 @@ pub use moveto::{
     MOVE_TO_OBJECT, MOVE_TO_PERSISTENT, MOVE_TO_TURN, MOVE_TO_USE_CYLINDERS,
 };
 pub use objects::{BBox, ObjectShape, StaticObject};
+pub use part_pose::{drawn_place, part_poses, PartPose};
 pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;

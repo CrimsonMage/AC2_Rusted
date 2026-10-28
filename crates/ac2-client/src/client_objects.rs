@@ -332,7 +332,7 @@ impl Client {
                     (Some(body), _) => {
                         let state = body.movement_state();
                         let (cell, origin, rotation) =
-                            crate::motion::drawn_place(body, self.render_interpolation);
+                            ac2_physics::drawn_place(body, self.render_interpolation);
                         (cell, origin, rotation, state.velocity, state.contact)
                     }
                     (None, Some(p)) => (p.cell, p.origin, p.rotation, [0.0; 3], false),
@@ -362,7 +362,7 @@ impl Client {
                     wielder: weenie.and_then(|w| w.wielder),
                     appearance: o.appearance.clone(),
                     pose: body
-                        .map(|b| crate::motion::pose(b, self.pose_blend_time()))
+                        .map(|b| ac2_physics::part_poses(b, self.pose_blend_time()))
                         .unwrap_or_default(),
                     anim_scale: body.map_or([1.0; 4], |b| b.draw_scale()),
                 })
@@ -397,7 +397,7 @@ impl Client {
                 let remote = self.remotes.get(id)?;
                 let body = remote.body()?;
                 let (cell, origin, rotation) =
-                    crate::motion::drawn_place(body, self.render_interpolation);
+                    ac2_physics::drawn_place(body, self.render_interpolation);
                 let state = body.movement_state();
                 Some(ObjectFrame {
                     id,
@@ -421,7 +421,7 @@ impl Client {
                     container: None,
                     wielder: None,
                     appearance: Default::default(),
-                    pose: crate::motion::pose(body, self.pose_blend_time()),
+                    pose: ac2_physics::part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
                 })
             })

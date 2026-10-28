@@ -20,7 +20,7 @@ pub struct PlayerFrame {
     pub contact: bool,
     /// The root Setup's bones relative to their parents as the animation left them (empty
     /// without a Setup).
-    pub pose: Vec<crate::motion::PartPose>,
+    pub pose: Vec<ac2_physics::PartPose>,
     /// The player's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`), as for other objects.
     pub appearance: Arc<ac2_weenie::Appearance>,
 }
@@ -72,7 +72,7 @@ pub struct ObjectFrame {
     pub appearance: Arc<ac2_weenie::Appearance>,
     /// The root Setup's bones relative to their parents as the animation left them, when its
     /// physics object exists.
-    pub pose: Vec<crate::motion::PartPose>,
+    pub pose: Vec<ac2_physics::PartPose>,
     /// `PHYSICSOBJREP::Draw`'s colour scale ([`ac2_physics::PhysicsBody::draw_scale`]): the
     /// animation colour and opacity sliders, white until moved. The drawn tint multiplies it.
     pub anim_scale: [f32; 4],
