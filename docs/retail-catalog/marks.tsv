@@ -5019,8 +5019,8 @@ key	status	note
 004eeb10	x	ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 004eec30	_	needs port: cite-only physics-object method
 004eec50	~	ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
-004eed30	_	needs port: cite-only physics-object method
-004eed80	_	needs port: cite-only physics-object method
+004eed30	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+004eed80	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004eedd0	x	CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 004eee60	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 004eef20	_	needs port: cite-only physics-object method
@@ -5035,7 +5035,7 @@ key	status	note
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 004f0300	_	needs port: cite-only physics-object method
-004f0380	_	needs port: cite-only physics-object method
+004f0380	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f0410	~	ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 004f0500	-	render plumbing
 004f05b0	-	render plumbing
@@ -5149,14 +5149,14 @@ key	status	note
 004f1f60	_	needs port: cite-only physics-object method
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1fb0	_	needs port: cite-only physics-object method
-004f1fe0	-	render plumbing
+004f1fe0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f20f0	_	needs port: cite-only physics-object method
 004f2100	_	needs port: cite-only physics-object method
-004f2110	_	needs port: cite-only physics-object method
+004f2110	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f2140	_	needs port: cite-only physics-object method
 004f2170	_	needs port: cite-only physics-object method
 004f2180	_	needs port: cite-only physics-object method
-004f2190	_	needs port: cite-only physics-object method
+004f2190	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f21a0	_	needs port: cite-only physics-object method
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f22c0	~	bone overload: FindBoneType over the part groups; a missing bone starts no system (ac2-assets attaches)
@@ -5436,7 +5436,7 @@ key	status	note
 00505210	x	ac2-client fx_objects.rs set_colour: the emitter's colour ramps over the node's ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 005052d0	_	needs port: FX manager effect
 00505310	_	needs port: FX manager effect
-00505340	_	needs port: FX manager effect
+00505340	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 00505380	_	needs port: FX manager effect
 005053b0	_	needs port: FX manager effect
 005053f0	-	admin/debug or text-file tooling
@@ -9157,20 +9157,20 @@ key	status	note
 005c0f80	~	ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 005c1040	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005c10d0	_	needs port: streak effect (streak segments, fade, geometry)
-005c1150	_	needs port: streak effect (streak segments, fade, geometry)
-005c11a0	_	needs port: streak effect (streak segments, fade, geometry)
-005c1240	_	needs port: streak effect (streak segments, fade, geometry)
+005c1150	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+005c11a0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+005c1240	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c12d0	_	needs port: streak effect manager init
-005c13d0	_	needs port: streak effect (streak segments, fade, geometry)
-005c13f0	_	needs port: streak effect (streak segments, fade, geometry)
-005c1410	_	needs port: streak effect (streak segments, fade, geometry)
+005c13d0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+005c13f0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+005c1410	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 005c1560	-	SmartArray/STL container internals; Vec replaces
-005c15e0	_	needs port: streak effect (streak segments, fade, geometry)
+005c15e0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c1850	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005c1900	_	needs port: streak effect (streak segments, fade, geometry)
-005c1ed0	_	needs port: streak effect (streak segments, fade, geometry)
+005c1900	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+005c1ed0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c1f60	-	SmartArray/STL container internals; Vec replaces
-005c1f90	_	needs port: streak effect (streak segments, fade, geometry)
+005c1f90	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c22a0	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 005c22b0	_	needs port: particle system (lifecycle, lighting origin, shared/queue behaviour)
 005c22c0	x	ac2-render particles
@@ -13168,7 +13168,7 @@ key	status	note
 006a9930	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006a9f00	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a9f20	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006a9f80	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9f80	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 006aa5b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006aa5d0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 006aaa30	-	C++ constructor/destructor; Rust constructor and Drop replace it

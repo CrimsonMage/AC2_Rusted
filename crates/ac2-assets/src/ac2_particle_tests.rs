@@ -359,3 +359,61 @@ fn fx_created_objects_attach_to_their_emitters_points_in_the_dataset() {
         "the dataset has FX objects"
     );
 }
+
+/// The streak FX nodes of the real FX tables decode to plausible `StreakFX` values: a colour in
+/// `[0, 1]`, finite points, a material instance and a texture scale. A misaligned stream reads
+/// garbage here, and the nodes after a streak would decode wrong too.
+#[test]
+fn streak_fx_nodes_decode_from_real_fx_tables() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    // Streak nodes sit in the FX tables (`0x1E`) and in each visual's own FX overrides (`0x1F`).
+    let mut streaks = Vec::new();
+    for did in portal_ids(&dataset, 0x1E00_0000) {
+        let table = load::<Ac2FxTable>(&store, did);
+        for (fx, nodes) in table.entries.iter() {
+            for node in nodes.iter() {
+                if let Some(streak) = node.object.streak {
+                    streaks.push((did, *fx, streak, node.object.start_streak));
+                }
+            }
+        }
+    }
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let visual = load::<crate::ac2_visual_desc::Ac2VisualDesc>(&store, did);
+        for (fx, nodes) in visual.fx.overrides.iter() {
+            for node in nodes.iter() {
+                if let Some(streak) = node.object.streak {
+                    streaks.push((did, *fx, streak, node.object.start_streak));
+                }
+            }
+        }
+    }
+    println!("streak nodes: {}", streaks.len());
+    assert!(
+        !streaks.is_empty(),
+        "the FX tables or visuals carry streak nodes"
+    );
+    for (did, fx, streak, _) in &streaks {
+        assert!(
+            streak
+                .color
+                .iter()
+                .all(|c| c.is_finite() && (0.0..=1.0).contains(c)),
+            "{did:08X} fx {fx:08X} colour {:?}",
+            streak.color
+        );
+        for point in [streak.start, streak.end] {
+            assert!(point.x.is_finite() && point.y.is_finite() && point.z.is_finite());
+        }
+        assert_ne!(streak.material, 0, "{did:08X} fx {fx:08X} has a material");
+        assert!(
+            streak.texture_scale.is_finite() && streak.texture_scale >= 0.0,
+            "{did:08X} fx {fx:08X} texture scale {}",
+            streak.texture_scale
+        );
+        assert!(streak.trail_duration.is_finite() && streak.trail_duration >= 0.0);
+        assert!(streak.lifespan.is_finite() && streak.lifespan >= 0.0);
+    }
+}

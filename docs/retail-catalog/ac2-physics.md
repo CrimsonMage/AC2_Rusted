@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 488 done, 109 partial, 749 to do, 778 skipped.
+2124 retail functions: 489 done, 115 partial, 743 to do, 777 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1251,7 +1251,7 @@ Legend and workflow: [README](README.md).
 - [x] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — ac2-client fx_objects.rs set_colour: the emitter's colour ramps over the node's ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 - [ ] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — needs port: FX manager effect
 - [ ] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — needs port: FX manager effect
-- [ ] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — needs port: FX manager effect
+- [~] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [ ] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — needs port: FX manager effect
 - [ ] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — needs port: FX manager effect
 
@@ -1458,12 +1458,12 @@ Legend and workflow: [README](README.md).
 - [-] `RepulsorFX::FromFileNode` · 006aa660 — text source format (admin tools)
 - [-] `RepulsorFX::ToFileNode` · 006aa8c0 — text source format (admin tools)
 
-## `portal/shared/src/physobj/fx/streakfx.cpp.c` (0/5)
+## `portal/shared/src/physobj/fx/streakfx.cpp.c` (1/5)
 
 ### StreakFX
 - [-] `StreakFX::GetSubDataIDs` · 006a9f00 · legions 00643a80 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `StreakFX::StreakFX` · 006a9f20 · legions 00643aa0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [~] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+- [x] `StreakFX::StreamPack` · 006a9f80 · legions 00643b00 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [-] `StreakFX::FromFileNode` · 006aa040 — text source format (admin tools)
 - [-] `StreakFX::ToFileNode` · 006aa3a0 — text source format (admin tools)
 
@@ -2034,8 +2034,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::CalculateBoneIndexAndOffset` · 004eeb10 · legions 004e1470 — ac2-render object/skeleton.rs ObjectSkeleton::root_bones (model-space root bones, no scale; tested against the posed bone matrices); ObjectPose.bones feeds the FX attachments.
 - [ ] `CPartArray::InitInternal` · 004eec30 · legions 004e1590 — needs port: cite-only physics-object method
 - [~] `CPartArray::DestroyAllTransientFX` · 004eec50 · legions 004e15b0 — ac2-render WorldScene::remove_object_lights on object gone (client_audio object_lights_gone); FX systems are stopped by handle; the streak, decal and repulsor lists are not part of this port
-- [ ] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690 — needs port: cite-only physics-object method
-- [ ] `CPartArray::DeactivateStreakEffects` · 004eed80 · legions 004e16e0 — needs port: cite-only physics-object method
+- [~] `CPartArray::ActivateStreakEffects` · 004eed30 · legions 004e1690 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+- [~] `CPartArray::DeactivateStreakEffects` · 004eed80 · legions 004e16e0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [x] `CPartArray::DestroyParticleSystem` · 004eedd0 · legions 004e1730 — CPartArray::DestroyParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [ ] `CPartArray::SetSetupID` · 004eee60 · legions 004e17c0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
 - [ ] `CPartArray::GetBoundingSphere` · 004eef20 · legions 004e1860 — needs port: cite-only physics-object method
@@ -2060,7 +2060,7 @@ Legend and workflow: [README](README.md).
 ### CPartArray
 - [x] `CPartArray::CreateParticleSystem` · 004f0260 · legions 004e2ba0 — CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [ ] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40 — needs port: cite-only physics-object method
-- [ ] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0 — needs port: cite-only physics-object method
+- [~] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 - [-] `CPartArray::GetAnimator` · 004f0500 · legions 004e2e40 — render plumbing
 - [-] `CPartArray::ClearUnusedAnimations` · 004f05b0 · legions 004e2ee0 — render plumbing
@@ -2848,14 +2848,14 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::GetEffectsScale` · 004f1f60 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetVdescScale` · 004f1f90 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [ ] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0 — needs port: cite-only physics-object method
-- [-] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — render plumbing
+- [~] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [ ] `PHYSICSOBJREP::StartStreakInternal` · 004f20f0 · legions 004e49f0 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::StopStreakInternal` · 004f2100 · legions 004e4a00 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — needs port: cite-only physics-object method
+- [~] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [ ] `PHYSICSOBJREP::StopStreak` · 004f2140 · legions 004e4a40 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::DoAppearanceFX` · 004f2170 · legions 004e4a70 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::RemoveAppearanceFX` · 004f2180 · legions 004e4a80 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — needs port: cite-only physics-object method
+- [~] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [ ] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f21b0 · legions 004e4ab0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [~] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — bone overload: FindBoneType over the part groups; a missing bone starts no system (ac2-assets attaches)

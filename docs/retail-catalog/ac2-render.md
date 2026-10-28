@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 113 done, 56 partial, 255 to do, 357 skipped.
+781 retail functions: 121 done, 58 partial, 245 to do, 357 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -697,36 +697,36 @@ Legend and workflow: [README](README.md).
 - [x] `PSManager::RegisterAutonomousSystem` · 005c0ec0 · legions 00588150 — PSManager::RegisterAutonomousSystem cited in ac2-render scene/particles.rs:6 (keep last place until ready to die)
 - [~] `PSManager::CreateAutonomousParticleSystem` · 005c0f80 · legions 00588210 — ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 
-## `portal/client/src/render/streak/streakeffect.cpp.c` (0/10)
+## `portal/client/src/render/streak/streakeffect.cpp.c` (6/10)
 
 ### StreakEffect
-- [ ] `StreakEffect::Activate` · 005c13d0 · legions 00588640 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffect::Deactivate` · 005c13f0 · legions 00588660 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffect::Render` · 005c1410 · legions 00588680 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffect::Activate` · 005c13d0 · legions 00588640 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+- [x] `StreakEffect::Deactivate` · 005c13f0 · legions 00588660 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+- [~] `StreakEffect::Render` · 005c1410 · legions 00588680 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 
 ### SmartArray<StreakSegment>
 - [-] `SmartArray<StreakSegment>::RemoveOrderedByIndex` · 005c1560 · legions 005887c0 — SmartArray/STL container internals; Vec replaces
 
 ### StreakEffect
-- [ ] `StreakEffect::StreakEffect` · 005c15e0 · legions 00588840 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffect::StreakEffect` · 005c15e0 · legions 00588840 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [-] `StreakEffect::~StreakEffect` · 005c1850 · legions 00588a90 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `StreakEffect::CreateGeometry` · 005c1900 · legions 00588b40 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffect::SetPosition` · 005c1ed0 · legions 00589110 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffect::CreateGeometry` · 005c1900 · legions 00588b40 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+- [x] `StreakEffect::SetPosition` · 005c1ed0 · legions 00589110 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 
 ### SmartArray<StreakSegment>
 - [-] `SmartArray<StreakSegment>::AddToEnd` · 005c1f60 · legions 005891a0 — SmartArray/STL container internals; Vec replaces
 
 ### StreakEffect
-- [ ] `StreakEffect::Think` · 005c1f90 · legions 005891d0 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffect::Think` · 005c1f90 · legions 005891d0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 
-## `portal/client/src/render/streak/streakeffectmanager.cpp.c` (0/6)
+## `portal/client/src/render/streak/streakeffectmanager.cpp.c` (2/6)
 
 ### StreakEffectManager
 - [-] `StreakEffectManager::~StreakEffectManager` · 005c1040 · legions 005882b0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [ ] `StreakEffectManager::DestroyStreakEffect` · 005c10d0 · legions 00588340 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffectManager::UpdateStreakEffects` · 005c1150 · legions 005883c0 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffectManager::RenderStreakEffects` · 005c11a0 · legions 00588410 — needs port: streak effect (streak segments, fade, geometry)
-- [ ] `StreakEffectManager::CreateStreakEffect` · 005c1240 · legions 005884b0 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffectManager::UpdateStreakEffects` · 005c1150 · legions 005883c0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
+- [~] `StreakEffectManager::RenderStreakEffects` · 005c11a0 · legions 00588410 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+- [x] `StreakEffectManager::CreateStreakEffect` · 005c1240 · legions 005884b0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [ ] `StreakEffectManager::StreakEffectManager` · 005c12d0 · legions 00588540 — needs port: streak effect manager init
 
 ## `portal/client/src/scenerender/frustum.cpp.c` (3/7)

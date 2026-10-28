@@ -17,6 +17,7 @@ pub mod selection;
 #[cfg(test)]
 mod selection_tests;
 pub mod sky;
+pub mod streak;
 pub mod terrain;
 mod view;
 

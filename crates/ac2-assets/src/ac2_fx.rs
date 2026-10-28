@@ -94,6 +94,15 @@ pub struct Ac2FxObject {
     pub color_lifetime: f32,
     /// `m_restore`: `StopFX` ramps the colour back to white (over 0.1 s).
     pub restore: bool,
+    /// `m_has_streak`'s `StreakFX`: the streak an FX node starts on its emitter
+    /// (`FXManager::DoStreakFX`). Each stream word is read in `FXNode::StreamPack` order.
+    pub streak: Option<Ac2StreakFx>,
+    /// `m_start_streak`: `DoTargettedFX` starts the emitter's streak effects
+    /// (`PHYSICSOBJREP::StartStreak`).
+    pub start_streak: bool,
+    /// `m_stop_streak`: `DoTargettedFX` stops the emitter's streak effects
+    /// (`PHYSICSOBJREP::StopStreak`).
+    pub stop_streak: bool,
     /// Where the created object is placed on its emitter (see [`Ac2FxObjectAttach`]; its rest
     /// place is in [`Ac2FxAttach::rest`]).
     pub attach: Ac2FxObjectAttach,
@@ -109,6 +118,52 @@ impl Ac2FxObject {
             || self.color.is_some()
             || self.restore
     }
+}
+
+/// `StreakFX`: the streak an FX node draws on its emitter (`StreakFX::StreamPack`). Its
+/// colour, the two points it trails from (in the emitter's space), the material instance, and
+/// the lifespan, trail duration, minimum segment time and distance and texture scale.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2StreakFx {
+    /// `m_cColor` (r, g, b, a), unpacked from the stream's colour word.
+    pub color: [f32; 4],
+    /// `m_vStartPoint` and `m_vEndPoint`: the streak's two ends, in the emitter's space.
+    pub start: Vec3,
+    pub end: Vec3,
+    /// `m_MaterialInstanceID`: the material the ribbon is drawn with.
+    pub material: u32,
+    /// `m_fLifespan`: seconds the streak lasts (zero keeps it until stopped).
+    pub lifespan: f32,
+    /// `m_fTrailDuration`: seconds a segment takes to fade out.
+    pub trail_duration: f32,
+    /// `m_fMinSegmentTime` and `m_fMinSegmentDistance`: a new segment is cut only when the
+    /// last one is at least this old (zero: at any age) and this far from the previous one.
+    pub min_segment_time: f32,
+    pub min_segment_distance: f32,
+    /// `m_fTextureScale`: the ribbon's texture repeats per metre of its length.
+    pub texture_scale: f32,
+}
+
+/// `StreakFX::StreamPack` (the 13 words after `m_has_streak`): `RGBAColor::StreamPack` writes the
+/// colour as one packed word (`RGBAColor::SetColor32`: a in the top byte, then r, g, b), then the
+/// two points, the material instance and the five scalars.
+fn read_streak_fx(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2StreakFx, Malformed> {
+    let packed = word(cursor)?;
+    let channel = |shift: u32| ((packed >> shift) & 0xFF) as f32 / 255.0;
+    let color = [channel(16), channel(8), channel(0), channel(24)];
+    let start = Vec3::new(float(cursor)?, float(cursor)?, float(cursor)?);
+    let end = Vec3::new(float(cursor)?, float(cursor)?, float(cursor)?);
+    Ok(Ac2StreakFx {
+        color,
+        start,
+        end,
+        material: word(cursor)?,
+        lifespan: float(cursor)?,
+        trail_duration: float(cursor)?,
+        min_segment_time: float(cursor)?,
+        min_segment_distance: float(cursor)?,
+        texture_scale: float(cursor)?,
+    })
 }
 
 /// The particle and light part of one `FXNode`: the `PSDesc` list (`GetParticleID` picks one at
@@ -325,11 +380,16 @@ fn read_fx_node(
     } else {
         Vec3::ZERO
     };
-    if has(0x400) {
-        // `m_has_streak`, then `StreakFX` (colour, two points, material, five scalars).
-        skip(cursor, 4 + 13 * 4)?;
-    }
-    skip_words(cursor, &[0x800, 0x1000, 0x2000])?;
+    let streak = if has(0x400) {
+        // `m_has_streak`, then `StreakFX`.
+        word(cursor)?;
+        Some(read_streak_fx(cursor)?)
+    } else {
+        None
+    };
+    let start_streak = field(cursor, 0x800)? != 0;
+    let stop_streak = field(cursor, 0x1000)? != 0;
+    skip_words(cursor, &[0x2000])?;
     let restore = field(cursor, 0x4000)? != 0;
     // `m_has_color`, then `m_color` (r, g, b, a).
     let color = if has(0x8000) {
@@ -372,6 +432,9 @@ fn read_fx_node(
         ramp_time,
         color_lifetime,
         restore,
+        streak,
+        start_streak,
+        stop_streak,
         attach: Ac2FxObjectAttach::Emitter,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
@@ -420,19 +483,22 @@ fn read_fx_node(
     let player_only = flag(cursor, 0x4_0000_0000, false)?;
     skip_words(cursor, &[0x10_0000_0000])?;
     let remove_rotation = field(cursor, 0x40_0000_0000)? != 0;
-    let particle =
-        (!particle_descs.is_empty() || light.is_some() || object.is_active()).then(|| {
-            Ac2FxParticleNode {
-                particle_descs: Arc::from(particle_descs),
-                fire_and_forget,
-                light,
-                holding_location,
-                bone_name,
-                bone_offset,
-                remove_rotation,
-                water_plane,
-                object,
-            }
+    let particle = (!particle_descs.is_empty()
+        || light.is_some()
+        || object.is_active()
+        || object.streak.is_some()
+        || object.start_streak
+        || object.stop_streak)
+        .then(|| Ac2FxParticleNode {
+            particle_descs: Arc::from(particle_descs),
+            fire_and_forget,
+            light,
+            holding_location,
+            bone_name,
+            bone_offset,
+            remove_rotation,
+            water_plane,
+            object,
         });
     let sound = Ac2FxSoundNode {
         sounds: Arc::from(sounds),
