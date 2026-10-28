@@ -57,6 +57,23 @@ fn phys(p: &Position) -> PhysPosition {
     )
 }
 
+/// `Position::ToWPString`: the cell as `0x%08X`, the origin in brackets and the rotation
+/// (w x y z), each `%f`.
+pub(crate) fn to_wp_string(p: &Position) -> String {
+    let f = |v: f32| msvc_fixed(ld(v), 6);
+    format!(
+        "0x{:08X} [{} {} {}] {} {} {} {}",
+        p.cell,
+        f(p.origin[0]),
+        f(p.origin[1]),
+        f(p.origin[2]),
+        f(p.rotation[0]),
+        f(p.rotation[1]),
+        f(p.rotation[2]),
+        f(p.rotation[3])
+    )
+}
+
 fn arr(v: Vector) -> [f32; 3] {
     [v.x, v.y, v.z]
 }
@@ -650,18 +667,7 @@ fn position_method(m: &str) -> Option<EFunFn> {
             let Some(p) = pos(vm, this) else {
                 return vm.bad_this(this);
             };
-            let f = |v: f32| msvc_fixed(ld(v), 6);
-            let text = format!(
-                "0x{:08X} [{} {} {}] {} {} {} {}",
-                p.cell,
-                f(p.origin[0]),
-                f(p.origin[1]),
-                f(p.origin[2]),
-                f(p.rotation[0]),
-                f(p.rotation[1]),
-                f(p.rotation[2]),
-                f(p.rotation[3])
-            );
+            let text = to_wp_string(&p);
             let r = vm.new_wstring(wide(&text));
             Call::new(c).ret(2, r, tag::REF);
             InterpStatus::Success

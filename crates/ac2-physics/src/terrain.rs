@@ -487,15 +487,13 @@ impl Terrain {
         }
         self.land_cell(cell_id)?;
         let grid = &self.surfaces.get(&(cell_id & 0xFFFF_0000))?.land_materials;
-        let spacing = st(ld(BLOCK_LENGTH) / SIDE_POLYGON_COUNT as f64);
-        let nearest = |v: f32| {
-            (v / spacing)
-                .round()
-                .clamp(0.0, (SIDE_VERTEX_COUNT - 1) as f32) as usize
-        };
-        grid.get(nearest(point.x) * SIDE_VERTEX_COUNT + nearest(point.y))
-            .copied()
-            .flatten()
+        // `CLandBlock::GetNearestPixel`: the block-local vertex nearest the point.
+        let pixel = crate::landdefs::get_nearest_pixel(cell_id, point)?;
+        let (x, y) = (pixel.local_x as usize, pixel.local_y as usize);
+        if x >= SIDE_VERTEX_COUNT || y >= SIDE_VERTEX_COUNT {
+            return None;
+        }
+        grid.get(x * SIDE_VERTEX_COUNT + y).copied().flatten()
     }
 
     /// `CLandBlock::GetWaterPhysicsMaterial`: the water material of the block holding `cell_id`,

@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 317 done, 25 partial, 82 to do, 565 skipped.
+989 retail functions: 324 done, 22 partial, 62 to do, 581 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (28/140)
+## `portal/shared/src/cell/envcell.cpp.c` (29/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -55,7 +55,7 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::point_in_cell` · 0047fa10 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `CEnvCell::find_env_collisions` · 0047fa80 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [ ] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
 - [-] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
 - [-] `CEnvCell::BuildOptionalProperties` · 00480180 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
@@ -88,7 +88,7 @@ Legend and workflow: [README](README.md).
 - [-] `PGDReplacementAtom::~PGDReplacementAtom` · 004805e0 — destructor (Rust Drop)
 
 ### CEnvCell
-- [-] `CEnvCell::Destroy` · 00480650 · legions 0047a520 — DBO release (Drop frees on last drop, AGENTS.md)
+- [x] `CEnvCell::Destroy` · 00480650 · legions 0047a520 — Retail: static physics objects leave the world and the lists clear. ac2-physics Terrain::remove_block drops the block's cells and static objects (remove_object); flares, lights and portals are Rust ownership (Drop). Frills, object clearance and encounter lists are rebuilt on load
 - [-] `CEnvCell::RecoverFromFreelist` · 004807b0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CEnvCell::ClearForFreelist` · 00480800 · legions 0047a6d0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
@@ -136,7 +136,7 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::SetGatherTimestamp` · 004822d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CEnvCell::GetGatherTimestamp` · 004822e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CEnvCell::GetDBOType` · 004822f0 — DBO type tag (Rust typed decoders)
-- [-] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CEnvCell::Destroy (own row)
 - [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [-] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490 — needs port: indoor env cell: visibility, lights, portals, rendering
@@ -249,7 +249,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (28/72)
+## `portal/shared/src/cell/landblock.cpp.c` (30/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
@@ -288,9 +288,9 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [-] `CLandBlock::RecoverFromFreelist` · 00488c60 · legions 004824e0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [-] `CLandBlock::ClearForFreelist` · 00488d00 · legions 00482580 — retail free-object pool (DBOCache exception, AGENTS.md)
+- [~] `CLandBlock::ClearForFreelist` · 00488d00 · legions 00482580 — Retail leaves-world each cell and static object (vtable slots) before pooling. ac2-physics Terrain::remove_block does the object and cell part; the LandBlockInfo vtable +0x5c call is not identified
 - [ ] `CLandBlock::GenerateMesh` · 00488d90 · legions 00482610 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [~] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690 — ac2-physics terrain.rs land_material picks the nearest vertex (LandDefs::GetNearestPixel) inline; no standalone local x / y accessor
+- [x] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690 — ac2-physics landdefs::get_nearest_pixel (LandDefs::GetNearestPixel, ties round down, f64 math) now backs Terrain::land_material; unit tested
 - [-] `CLandBlock::InitDynamicObjects` · 00488e70 · legions 004826f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CLandBlock::ReleaseDynamicObjects` · 00488ec0 · legions 00482740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::InqClearanceInfo` · 00488f10 · legions 00482790
@@ -320,7 +320,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [-] `CLandBlock::CLandBlock` · 00489e40 · legions 00483750 — constructor (struct init; Rust builds it directly)
-- [-] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [x] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — Retail: static physics objects leave the world and the lists clear. ac2-physics Terrain::remove_block drops the block's cells and static objects (remove_object); flares, lights and portals are Rust ownership (Drop). Frills, object clearance and encounter lists are rebuilt on load
 - [-] `CLandBlock::GetPhysicsMaterial` · 0048a060 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [x] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
@@ -342,7 +342,7 @@ Legend and workflow: [README](README.md).
 - [x] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
 
 ### CLandBlock
-- [-] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is ClearForFreelist and DestroyStaticObjects (own rows)
 - [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
 - [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
@@ -398,7 +398,7 @@ Legend and workflow: [README](README.md).
 - [-] `DBObjGrabber<CSurfaceDesc>::DBObjGrabber<CSurfaceDesc>` · 0048f3d0 · legions 004881f0 — DBO cache grabber (DBOCache exception, AGENTS.md)
 
 ### CLandBlockData
-- [-] `CLandBlockData::~CLandBlockData` · 0048f560 · legions 00488380 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlockData::~CLandBlockData` · 0048f560 · legions 00488380 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is plain array frees only
 - [-] `CLandBlockData::GetDBOType` · 0048f600 — DBO type tag (Rust typed decoders)
 - [x] `CLandBlockData::GetNeighborIsSWtoNECut` · 0048f610 · legions 00488430
 - [x] `CLandBlockData::GetNeighborHeightValue` · 0048f720 · legions 00488540
@@ -425,7 +425,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/cell/landblockinfo.cpp.c` (2/13)
 
 ### CLandBlockInfo
-- [ ] `CLandBlockInfo::GetSubDataIDs` · 004913b0 · legions 0048a0b0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CLandBlockInfo::GetSubDataIDs` · 004913b0 · legions 0048a0b0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `CLandBlockInfo::ApplyProperty` · 00491430 · legions 0048a130 — crates/ac2-world/src/ac2_landblock_interior.rs interior properties (CLandBlockInfo::ApplyProperty)
 - [-] `CLandBlockInfo::CLandBlockInfo` · 00491530 — constructor (struct init; Rust builds it directly)
 - [-] `CLandBlockInfo::GetDBOType` · 00491610 — DBO type tag (Rust typed decoders)
@@ -443,17 +443,17 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlockInfo::InitLoad` · 00491a50 · legions 0048a750 — needs port: landblock interior info: cells, lights, properties (post-load init)
 - [-] `CLandBlockInfo::FromFileNode` · 00491b10 — text source format (admin tools)
 
-## `portal/shared/src/cell/landblockmesh.cpp.c` (6/15)
+## `portal/shared/src/cell/landblockmesh.cpp.c` (7/15)
 
 ### CLandBlockMesh
 - [-] `CLandBlockMesh::CLandBlockMesh` · 0048c390 · legions 00485bb0 — constructor (struct init; Rust builds it directly)
 - [-] `CLandBlockMesh::Clear` · 0048c440 · legions 00485c60 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlockMesh::HasWater` · 0048c490 · legions 00485cb0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
-- [~] `CLandBlockMesh::GetWaterIndex` · 0048c4a0 · legions 00485cc0 — Ac2BlockWater carries the water type's resolved materials, tiling and colour, not the type map index CLandBlockMesh::GetWaterIndex answers
+- [x] `CLandBlockMesh::GetWaterIndex` · 0048c4a0 · legions 00485cc0 — ac2-world Ac2BlockWater::water_index (type_index = CLandBlockData::m_waterIndex, the BlockMap value) and Ac2WaterSource::block_water_index; real-data test
 - [x] `CLandBlockMesh::GetWaterPlane` · 0048c4b0 · legions 00485cd0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
 - [x] `CLandBlockMesh::InqWaterPlane` · 0048c4d0 · legions 00485cf0
 - [ ] `CLandBlockMesh::SetVertexValueInternal` · 0048c510 · legions 00485d30 — needs port: landblock terrain mesh build and water
-- [-] `CLandBlockMesh::~CLandBlockMesh` · 0048c690 · legions 00485eb0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlockMesh::~CLandBlockMesh` · 0048c690 · legions 00485eb0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CLandBlockMesh::Clear (own row)
 - [-] `CLandBlockMesh::Init` · 0048c6b0 · legions 00485ed0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlockMesh::SetMinMax` · 0048c7d0 · legions 00485ff0 — needs port: landblock terrain mesh build and water
 - [x] `CLandBlockMesh::ConstructVertices` · 0048ca50 · legions 00486270
@@ -543,7 +543,7 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [-] `CLandCell::CLandCell` · 0047dc60 · legions 00477c20 — constructor (struct init; Rust builds it directly)
-- [-] `CLandCell::~CLandCell` · 0047dca0 · legions 00477c60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandCell::~CLandCell` · 0047dca0 · legions 00477c60 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is a plain array free
 - [ ] `CLandCell::SetPolygon` · 0047dcc0 · legions 00477c80 — needs port: landscape cell (terrain polygon) queries and visibility
 - [x] `CLandCell::InqWaterPlane` · 0047dce0
 - [x] `CLandCell::find_terrain_poly` · 0047dd00 · legions 00477cc0
@@ -622,7 +622,7 @@ Legend and workflow: [README](README.md).
 - [x] `CLightInfo::GetNumLights` · 0048db70 · legions 00487370 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 - [x] `CLightInfo::GetLight` · 0048dbc0 · legions 004873c0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 - [x] `CLightInfo::StreamPack` · 0048dc30 · legions 00487430 — crates/ac2-world/src/ac2_light_info.rs CLightInfo::StreamPack order
-- [-] `CLightInfo::~CLightInfo` · 0048e110 · legions 00487910 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLightInfo::~CLightInfo` · 0048e110 · legions 00487910 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CLightInfo::Destroy and hash/array frees
 - [-] `CLightInfo::GetDBOType` · 0048e1c0 — DBO type tag (Rust typed decoders)
 - [-] `CLightInfo::CellInfoFromFileNode` · 0048e290 — write or admin-only FileNode import
 
@@ -692,7 +692,7 @@ Legend and workflow: [README](README.md).
 ### CObjCell
 - [-] `CObjCell::CObjCell` · 0047c8f0 · legions 004769d0 — constructor (struct init; Rust builds it directly)
 - [-] `CObjCell::GetCellID` · 0047c9d0 · legions 00476ac0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [-] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is array frees and the voyeur table delete
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
 - [~] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
@@ -776,7 +776,7 @@ Legend and workflow: [README](README.md).
 - [-] `GameTime::LoadHour` · 006199f0 — text source loader, admin build only
 - [-] `GameTime::FromFileNode` · 00619a40 — text source format (admin tools)
 
-## `portal/shared/src/places/placestable.cpp.c` (4/11)
+## `portal/shared/src/places/placestable.cpp.c` (5/11)
 
 ### PlacesTable
 - [x] `PlacesTable::StreamPack` · 00638ee0 · legions 005eec60 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [-] `PlacesTable::WslDump` · 00639690 · legions 005eede0 — admin-only dump, save or error report
 - [x] `PlacesTable::GetPlace` · 00639850 · legions 005eee60 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [x] `PlacesTable::InqPlace` · 006398d0 · legions 005eeee0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
-- [ ] `PlacesTable::InqPlaceStr` · 00639960 · legions 005eef40 — needs port: named places table
+- [x] `PlacesTable::InqPlaceStr` · 00639960 · legions 005eef40 — ac2-script glue/places.rs inq_place_str (efun 0x00580002): Position::ToWPString of the place (glue/position.rs to_wp_string), out string written only when non-empty; unit tested
 - [-] `PlacesTable::AddPlace` · 00639bb0 — admin-only dump, save or error report
 - [x] `PlacesTable::InqPlacesHash` · 00639c40 · legions 005ef000 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 - [-] `PlacesTable::FromFileNode` · 00639cb0 — text source format (admin tools)
@@ -1021,9 +1021,9 @@ Legend and workflow: [README](README.md).
 ### CRegionDesc
 - [-] `CRegionDesc::CRegionDesc` · 0051e010 · legions 0050a950 — constructor (struct init; Rust builds it directly)
 - [-] `CRegionDesc::GetDBOType` · 0051e150 — DBO type tag (Rust typed decoders)
-- [-] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is CRegionDesc::Destroy and array frees
 - [-] `CRegionDesc::GetPackSize` · 0051e290 · legions 0050abd0 — write path (client reads DATs only)
-- [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — ac2-world ac2_region: the first sky's game_time DID (sky_info[current_sky_info] 0), loaded with the region; the script's game-time glue is not wired
+- [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — wired: the region's current sky GameTime DID loads with the region (ac2-world ac2_region) and ac2-client scripts.rs sync_script_clock feeds GameTime::current_game_time to the VM each frame. Not reproduced: the default-constructed GameTime fallback when no sky game time loads (every dataset region has one)
 - [-] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CRegionDesc::Allocate` · 0051e580 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0 — ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
@@ -1069,8 +1069,8 @@ Legend and workflow: [README](README.md).
 - [-] `FileNodeName_Int64::GetType` · 006c33b0 · legions 00654a30 — FileNode name wrapper (Rust strings)
 
 ### LScapeScene
-- [ ] `LScapeScene::GetSubDataIDs` · 006c33c0 · legions 00654a40 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [-] `LScapeScene::~LScapeScene` · 006c33e0 · legions 00654a60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `LScapeScene::GetSubDataIDs` · 006c33c0 · legions 00654a40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+- [-] `LScapeScene::~LScapeScene` · 006c33e0 · legions 00654a60 — Re-read the Legions body: Drop covers it; the behaviour it forwards to is a reset of three fields to defaults, no observable effect
 - [-] `LScapeScene::LoadSceneFile` · 006c3400 — text source loader, admin build only
 - [-] `LScapeScene::Load` · 006c34d0 — admin-only text/file loader (no Legions match)
 
@@ -1101,7 +1101,7 @@ Legend and workflow: [README](README.md).
 - [x] `SceneDegrade::GetDegradeDist` · 006c2ba0 · legions 00654630 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneDegrade::SceneDegrade` · 006c2be0 · legions 00654670 — constructor (struct init; Rust builds it directly)
 - [-] `SceneDegrade::Destroy` · 006c2c00 · legions 00654690 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `SceneDegrade::GetSubDataIDs` · 006c2c70 · legions 00654700 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SceneDegrade::GetSubDataIDs` · 006c2c70 · legions 00654700 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `SceneDegrade::~SceneDegrade` · 006c2cb0 · legions 00654740 — destructor (Rust Drop)
 - [-] `SceneDegrade::CopyInto` · 006c2cd0 · legions 00654760 — Rust Clone (derive) copies the plain data
 - [x] `SceneDegrade::StreamPack` · 006c2d80 · legions 00654810 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
@@ -1117,7 +1117,7 @@ Legend and workflow: [README](README.md).
 - [-] `CSceneDesc::Destroy` · 00523b60 · legions 0050d8e0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `CSceneDesc::GetPackSize` · 00523bb0 · legions 0050d930 — write path (client reads DATs only)
 - [-] `CSceneDesc::Pack` · 00523bf0 — write path (client reads DATs only)
-- [ ] `CSceneDesc::GetSubDataIDs` · 00523cb0 · legions 0050da30 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CSceneDesc::GetSubDataIDs` · 00523cb0 · legions 0050da30 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `CSceneDesc::FindSceneType` · 00523cf0 · legions 0050da70 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [x] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [x] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0 — ac2-audio/ac2-client: ambient environments, groove
@@ -1131,7 +1131,7 @@ Legend and workflow: [README](README.md).
 
 ### SceneEntity
 - [-] `SceneEntity::CopyInto` · 006c17d0 · legions 00653ce0 — Rust Clone (derive) copies the plain data
-- [ ] `SceneEntity::GetSubDataIDs` · 006c1850 · legions 00653d50 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SceneEntity::GetSubDataIDs` · 006c1850 · legions 00653d50 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneEntity::GetDataID` · 006c1890 · legions 00653d80 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [x] `SceneEntity::GetSubGroupPtr` · 006c18b0 · legions 00653da0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [x] `SceneEntity::StreamPack` · 006c18c0 · legions 00653db0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
@@ -1151,7 +1151,7 @@ Legend and workflow: [README](README.md).
 
 ### SceneFile
 - [-] `SceneFile::Destroy` · 006c1d50 · legions 00653ed0 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `SceneFile::GetSubDataIDs` · 006c1dc0 · legions 00653f40 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SceneFile::GetSubDataIDs` · 006c1dc0 · legions 00653f40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneFile::GetCorrectDegrade` · 006c1e10 · legions 00653f90 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneFile::Allocate` · 006c1e60 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `SceneFile::CopyInto` · 006c1eb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
@@ -1161,7 +1161,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneFile::LoadClientFrills` · 006c22d0 — text source loader, admin build only
 - [-] `SceneFile::FromFileNode` · 006c2350 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenegroup.cpp.c` (14/45)
+## `portal/shared/src/region/scene/scenegroup.cpp.c` (15/45)
 
 ### SceneGroup
 - [-] `SceneGroup::SetMinRot` · 006bd400 — scene editor setter (client reads the DAT values)
@@ -1194,9 +1194,9 @@ Legend and workflow: [README](README.md).
 - [x] `SceneGroup::GetAlignedLimits` · 006bde50 · legions 006527e0
 - [-] `SceneGroup::SceneGroup` · 006bded0 · legions 00652860 — constructor (struct init; Rust builds it directly)
 - [-] `SceneGroup::Destroy` · 006be020 · legions 006529b0 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `SceneGroup::GetSubDataIDs` · 006be1b0 · legions 00652b40 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SceneGroup::GetSubDataIDs` · 006be1b0 · legions 00652b40 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneGroup::UpdateXYLoc` · 006be200 · legions 00652b90
-- [~] `SceneGroup::UpdateFrame` · 006be3c0 · legions 00652d50 — heading, orient and rot-sub paths; align (Plane::OrientFrameToPlane) not re-verified
+- [x] `SceneGroup::UpdateFrame` · 006be3c0 · legions 00652d50 — ac2-world ac2_scene generate.rs place: heading, orient (downhill heading with the float-stored x ratio) and align via geometry::orient_to_plane (Plane::OrientFrameToPlane: three axis choices, previously one); unit tested
 - [x] `SceneGroup::ScaleByWaterDepth` · 006be680 · legions 00653000
 - [x] `SceneGroup::CheckFinalHeight` · 006be780 · legions 00653100
 - [-] `SceneGroup::~SceneGroup` · 006be9f0 · legions 00653380 — destructor (Rust Drop)
@@ -1216,7 +1216,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneType::Destroy` · 006c24b0 · legions 006542d0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `SceneType::pack` · 006c2500 · legions 00654320 — write path (client reads DATs only)
 - [-] `SceneType::pack_size` · 006c2590 · legions 006543b0 — write path (client reads DATs only)
-- [ ] `SceneType::GetSubDataIDs` · 006c25d0 · legions 006543f0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SceneType::GetSubDataIDs` · 006c25d0 · legions 006543f0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SceneType::GetScene` · 006c2610 · legions 00654430 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [-] `SceneType::SceneType` · 006c2690 · legions 006544b0 — constructor (struct init; Rust builds it directly)
 - [-] `SceneType::~SceneType` · 006c26c0 · legions 006544e0 — destructor (Rust Drop)
@@ -1299,7 +1299,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/sky/skyday.cpp.c` (0/5)
 
 ### DecalFX
-- [ ] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 
 ### SkyDay
 - [-] `SkyDay::SkyDay` · 006c8980 — constructor (struct init; Rust builds it directly)
@@ -1313,7 +1313,7 @@ Legend and workflow: [README](README.md).
 - [x] `CSkyDesc::GetTickSize` · 00524140 · legions 0050dc30 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 - [x] `CSkyDesc::GetLightTickSize` · 00524180 · legions 0050dc70 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 - [-] `CSkyDesc::Destroy` · 005241c0 · legions 0050dcb0 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `CSkyDesc::GetSubDataIDs` · 00524220 · legions 0050dd10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CSkyDesc::GetSubDataIDs` · 00524220 · legions 0050dd10 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `CSkyDesc::GetDayByIndex` · 00524270 · legions 0050dd60 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 - [x] `CSkyDesc::GetCurrentDay` · 00524290 · legions 0050dd80
 - [x] `CSkyDesc::RecalcFreq` · 00524350 · legions 0050de40 — ac2-world region/ac2_region.rs ac2_day_index sums the day frequencies on each pick, which is RecalcFreq's total
@@ -1336,7 +1336,7 @@ Legend and workflow: [README](README.md).
 
 ### SkyObject
 - [-] `SkyObject::Destroy` · 0052b0b0 · legions 00510790 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `SkyObject::GetSubDataIDs` · 0052b0f0 · legions 005107d0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `SkyObject::GetSubDataIDs` · 0052b0f0 · legions 005107d0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `SkyObject::SkyObject` · 0052b120 — constructor (struct init; Rust builds it directly)
 - [-] `SkyObject::~SkyObject` · 0052b170 · legions 00510850 — destructor (Rust Drop)
 - [x] `SkyObject::StreamPack` · 0052b1d0 · legions 005108b0 — ac2-world region::sky_objects, ac2-render sky
@@ -1347,7 +1347,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/sky/skyobjectreplace.cpp.c` (1/9)
 
 ### CMapNoteRow
-- [ ] `CMapNoteRow::GetSubDataIDs` · 006c81f0 · legions 00509bd0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CMapNoteRow::GetSubDataIDs` · 006c81f0 · legions 00509bd0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::GetDiffuseColor` · 006c8210 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
@@ -1367,12 +1367,12 @@ Legend and workflow: [README](README.md).
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::FromFileNode` · 006c86e0 — text source format (admin tools)
 
-## `portal/shared/src/region/sky/skytimeofday.cpp.c` (2/17)
+## `portal/shared/src/region/sky/skytimeofday.cpp.c` (3/17)
 
 ### SkyTimeOfDay
 - [-] `SkyTimeOfDay::Destroy` · 006c8c90 · legions 00656a40 — DBO release (Drop frees on last drop, AGENTS.md)
-- [~] `SkyTimeOfDay::StreamPack` · 006c8d90 · legions 00656b40 — decoded; field order after m_nDirectHeading not re-verified
-- [ ] `SkyTimeOfDay::GetSubDataIDs` · 006c8f10 · legions 00656cc0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [x] `SkyTimeOfDay::StreamPack` · 006c8d90 · legions 00656b40 — ac2-world region/ac2_region.rs read_time_of_day: field order re-verified against the Legions body end to end (begin, fog min/max/sky/colour, direct bright/heading/pitch/colour, ambient bright/colour, shadow colour, replacements, rain amount/wind x/y); real-data sanity test over every key
+- [-] `SkyTimeOfDay::GetSubDataIDs` · 006c8f10 · legions 00656cc0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `SkyTimeOfDay::FindReplacement` · 006c8f50 · legions 00656d00 — ac2-world region/sky_objects.rs find_replacement: the first replacement with the object name
 - [-] `SkyTimeOfDay::SkyTimeOfDay` · 006c8f90 — constructor (struct init; Rust builds it directly)
 - [-] `SkyTimeOfDay::~SkyTimeOfDay` · 006c9070 · legions 00656e20 — destructor (Rust Drop)
@@ -1421,7 +1421,7 @@ Legend and workflow: [README](README.md).
 
 ### LScapeSurfaceType
 - [x] `LScapeSurfaceType::StreamPack` · 006c5910 · legions 00655c10
-- [ ] `LScapeSurfaceType::GetSubDataIDs` · 006c5990 · legions 00655c90 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `LScapeSurfaceType::GetSubDataIDs` · 006c5990 · legions 00655c90 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `LScapeSurfaceType::GetVertexInfo` · 006c59d0 · legions 00655cd0
 - [x] `LScapeSurfaceType::GetPhysicsMaterial` · 006c5a50 · legions 00655d50 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `LScapeSurfaceType::LScapeSurfaceType` · 006c5ab0 — constructor (struct init; Rust builds it directly)
@@ -1452,7 +1452,7 @@ Legend and workflow: [README](README.md).
 - [x] `MaterialGroup::GetRandom` · 006c44d0 · legions 00654fa0
 - [-] `MaterialGroup::Destroy` · 006c4530 · legions 00655000 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `MaterialGroup::StreamPack` · 006c45a0 · legions 00655070
-- [ ] `MaterialGroup::GetSubDataIDs` · 006c47d0 · legions 006552a0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `MaterialGroup::GetSubDataIDs` · 006c47d0 · legions 006552a0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `MaterialGroup::GetColor` · 006c4970 · legions 00655440
 - [x] `MaterialGroup::GetAlpha` · 006c4b30 · legions 00655570
 - [x] `MaterialGroup::GetTexture` · 006c4bd0 · legions 00655610
@@ -1543,7 +1543,7 @@ Legend and workflow: [README](README.md).
 - [-] `CTerrainDesc::GetDBOType` · 00521b00 — DBO type tag (Rust typed decoders)
 - [-] `CTerrainDesc::Destroy` · 00521b10 · legions 0050c2a0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `CTerrainDesc::pack_size` · 00521b80 · legions 0050c310 — write path (client reads DATs only)
-- [ ] `CTerrainDesc::GetSubDataIDs` · 00521bf0 · legions 0050c380 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CTerrainDesc::GetSubDataIDs` · 00521bf0 · legions 0050c380 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `CTerrainDesc::FindTerrainType` · 00521c40 · legions 0050c3d0 — crates/ac2-world/src/ac2_scene/format.rs CTerrainDesc::FindTerrainType
 - [x] `CTerrainDesc::GetSurfaceType` · 00521c90 · legions 0050c420 — crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::GetSurfaceType
 - [-] `CTerrainDesc::Allocate` · 00521cc0 — retail free-object pool (DBOCache exception, AGENTS.md)
@@ -1586,7 +1586,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWaterDesc::Destroy` · 005210a0 · legions 0050bd10 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `CWaterDesc::Pack` · 00521110 — write path (client reads DATs only)
 - [-] `CWaterDesc::GetPackSize` · 00521240 · legions 0050beb0 — write path (client reads DATs only)
-- [ ] `CWaterDesc::GetSubDataIDs` · 005212a0 · legions 0050bf10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `CWaterDesc::GetSubDataIDs` · 005212a0 · legions 0050bf10 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [x] `CWaterDesc::FindWaterType` · 005212f0 · legions 0050bf60 — crates/ac2-world/src/ac2_water.rs CWaterDesc::FindWaterType
 - [x] `CWaterDesc::HasWater` · 00521340 · legions 0050bfb0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [x] `CWaterDesc::GetTileWidth` · 00521360 · legions 0050bfd0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
@@ -1624,7 +1624,7 @@ Legend and workflow: [README](README.md).
 - [-] `WaterLightInfo::WaterLightInfo` · 006cc080 · legions 00657a10 — constructor (struct init; Rust builds it directly)
 
 ### WaterType
-- [ ] `WaterType::GetSubDataIDs` · 006cc0a0 · legions 00657a30 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [-] `WaterType::GetSubDataIDs` · 006cc0a0 · legions 00657a30 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `WaterType::WaterType` · 006cc140 · legions 00657ad0 — constructor (struct init; Rust builds it directly)
 - [-] `WaterType::Destroy` · 006cc1a0 · legions 00657b30 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `WaterType::pack` · 006cc240 · legions 00657bd0 — write path (client reads DATs only)

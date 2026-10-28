@@ -107,9 +107,27 @@ pub(super) fn downhill_heading(n: V3) -> f64 {
     if len < EPSILON {
         return 0.0;
     }
-    (7.853_981_633_974_483 - (n[1] / len).atan2(n[0] / len))
+    // `SceneGroup::UpdateFrame` stores the x ratio in a `float` before the arctangent.
+    let inv = 1.0 / len;
+    let x = (inv * n[0]) as f32 as f64;
+    (7.853_981_633_974_483 - (inv * n[1]).atan2(x))
         .to_degrees()
         .rem_euclid(360.0)
+}
+
+/// `Plane::OrientFrameToPlane`: the (normal, forward) axes `Frame::OrientFrame` is given for a
+/// land plane. A steep plane (|N.z| within the epsilon) orients to its horizontal direction, and
+/// a plane flat to within the epsilon in x and y to the world axes.
+pub(super) fn orient_to_plane(normal: V3) -> (V3, V3) {
+    if normal[0].abs() >= EPSILON || normal[1].abs() >= EPSILON {
+        if normal[2].abs() > EPSILON {
+            (normal, normalize([0.0, normal[2], -normal[1]]))
+        } else {
+            (normalize([normal[0], normal[1], 0.0]), [0.0, 0.0, 1.0])
+        }
+    } else {
+        ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0])
+    }
 }
 
 /// The landblock surface the generator samples: 17 x 17 x-major heights and cell-info words.
@@ -236,7 +254,9 @@ pub(super) fn circle_in_triangle(t: &[V3; 3], x: f64, y: f64, r: f64) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{downhill_heading, heading_of, q_from_axes, q_heading, qmul, qrot};
+    use super::{
+        downhill_heading, heading_of, orient_to_plane, q_from_axes, q_heading, qmul, qrot,
+    };
 
     #[test]
     fn heading_round_trips_through_frames() {
@@ -248,6 +268,21 @@ mod tests {
         assert!((east[0] - 1.0).abs() < 1e-12 && east[1].abs() < 1e-12);
         let composed = qmul(q_heading(30.0), q_heading(40.0));
         assert!((heading_of(composed) - 70.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn orienting_to_a_plane_picks_the_axes_retail_does() {
+        // A tilted plane keeps its normal; forward runs up the slope.
+        let (up, forward) = orient_to_plane([0.0, -0.6, 0.8]);
+        assert_eq!(up, [0.0, -0.6, 0.8]);
+        assert!((forward[1] - 0.8).abs() < 1e-12 && (forward[2] - 0.6).abs() < 1e-12);
+        // A wall orients to its horizontal direction, with forward straight up.
+        let (up, forward) = orient_to_plane([3.0, 4.0, 0.0]);
+        assert!((up[0] - 0.6).abs() < 1e-12 && (up[1] - 0.8).abs() < 1e-12 && up[2] == 0.0);
+        assert_eq!(forward, [0.0, 0.0, 1.0]);
+        // A plane flat to within the epsilon uses the world axes, not its own tiny tilt.
+        let (up, forward) = orient_to_plane([0.0001, 0.0, 1.0]);
+        assert_eq!((up, forward), ([0.0, 0.0, 1.0], [0.0, 1.0, 0.0]));
     }
 
     #[test]

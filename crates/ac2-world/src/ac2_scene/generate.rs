@@ -5,7 +5,7 @@
 use super::clearance::Clearance;
 use super::format::{Ac2SceneEntity, Ac2SceneGroup};
 use super::geometry::{
-    circle_in_triangle, cross, downhill_heading, heading_of, normalize, plane_z, q_from_axes,
+    circle_in_triangle, cross, downhill_heading, heading_of, orient_to_plane, plane_z, q_from_axes,
     q_heading, qmul, qrot, Ac2SceneTerrain, BLOCK_LENGTH, EPSILON, IDENTITY, POLYGON, Q, SIDE, V3,
 };
 use super::hash::{check_freq, prand2};
@@ -299,13 +299,9 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
                 rotation = downhill_heading(normal) + rotation + 180.0;
             }
             pose.rotation = if g.align {
-                let forward = if normal[2].abs() > EPSILON {
-                    normalize([0.0, normal[2], -normal[1]])
-                } else {
-                    [0.0, 0.0, 1.0]
-                };
+                let (up, forward) = orient_to_plane(normal);
                 qmul(
-                    q_from_axes(cross(forward, normal), forward, normal),
+                    q_from_axes(cross(forward, up), forward, up),
                     q_heading(rotation),
                 )
             } else {

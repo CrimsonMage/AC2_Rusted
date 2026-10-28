@@ -34,6 +34,16 @@ pub struct Ac2BlockWater {
     pub tiling: f32,
     /// Packed ARGB water colour.
     pub color: u32,
+    /// `CLandBlockData::m_waterIndex`: the block's water type map value, which
+    /// `CLandBlockMesh::GetWaterIndex` answers.
+    pub type_index: u32,
+}
+
+impl Ac2BlockWater {
+    /// `CLandBlockMesh::GetWaterIndex`: the water type map index of the block's data.
+    pub fn water_index(&self) -> u32 {
+        self.type_index
+    }
 }
 
 /// `WaterLightInfo`: the light and fog under water from `depth` down.
@@ -134,6 +144,14 @@ impl Ac2WaterSource {
         self.water(index).map(|water| water.color)
     }
 
+    /// `CLandBlockData::m_waterIndex`: the water type map value (`BlockMap::GetValue`) of the
+    /// block at the start of `block_cell_id`, set whether or not the block ends up with water.
+    pub fn block_water_index(&self, block_cell_id: CellId) -> u32 {
+        let x = (block_cell_id.raw() >> 24) & 0xFF;
+        let y = (block_cell_id.raw() >> 16) & 0xFF;
+        u32::from(self.type_map.value(x, y))
+    }
+
     fn water(&self, index: u32) -> Option<&WaterType> {
         self.find_water_type(index)?.as_ref()
     }
@@ -166,6 +184,7 @@ impl Ac2WaterSource {
             physics_material: water.physics_material,
             tiling: water.tiling,
             color: water.color,
+            type_index: index,
         })
     }
 }

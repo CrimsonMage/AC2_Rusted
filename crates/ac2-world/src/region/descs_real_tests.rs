@@ -148,3 +148,58 @@ fn the_dataset_cell_info_layout_packs_the_six_fields_in_order() {
     assert!(offset <= 32);
     assert!(layout.bit_length(Terrain) > 0 && layout.bit_length(Road) > 0);
 }
+
+#[test]
+fn a_blocks_water_index_is_its_type_map_value() {
+    let Some(store) = store() else { return };
+    let region = region(&store);
+    let did = region.current(InfoList::Water).expect("region water desc");
+    let water = crate::Ac2WaterSource::load(&store, did)
+        .unwrap()
+        .expect("water desc and maps exist");
+    let table = vec![1000.0_f32; 256];
+    let mut wet = 0;
+    for x in (0..255u32).step_by(5) {
+        for y in (0..255u32).step_by(5) {
+            let block = ac2_core::CellId::new((x << 24) | (y << 16));
+            let index = water.block_water_index(block);
+            // A block that holds water (forced by a high surface and a low floor) reports the
+            // same index through `CLandBlockMesh::GetWaterIndex`.
+            if let Some(block_water) = water.block_water(block, &table, -1.0) {
+                assert_eq!(block_water.water_index(), index);
+                assert!(water.has_water(index));
+                wet += 1;
+            }
+        }
+    }
+    assert!(wet > 0, "some blocks hold water");
+}
+
+#[test]
+fn sky_time_of_day_keys_decode_every_field_to_sane_values() {
+    let Some(store) = store() else { return };
+    let region = super::load_ac2_region(&store)
+        .unwrap()
+        .expect("region and sky exist");
+    let sky = region.sky.as_ref().expect("sky");
+    let mut keys = 0;
+    for day in sky.day_groups.iter() {
+        assert!(!day.lightings.is_empty());
+        for key in day.lightings.iter() {
+            keys += 1;
+            // `SkyTimeOfDay::StreamPack` field order: time, fog, direct and ambient light, the
+            // replacements, then the rain (all read to the record's end by the day decoder).
+            assert!((0.0..=1.0).contains(&key.begin), "begin {}", key.begin);
+            assert!(key.world_fog.min_distance <= key.world_fog.max_distance);
+            assert!(
+                (0.0..=1.0).contains(&key.rain.amount),
+                "rain {:?}",
+                key.rain
+            );
+            assert!(key.lighting.dir_brightness.is_finite());
+            assert!((0.0..=360.0).contains(&key.lighting.dir_heading));
+            assert!(key.lighting.ambient_brightness >= 0.0);
+        }
+    }
+    assert!(keys > 0);
+}

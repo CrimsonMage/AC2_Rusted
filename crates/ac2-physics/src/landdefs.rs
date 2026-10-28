@@ -78,6 +78,72 @@ pub fn lcoord_to_gid(x: i32, y: i32) -> u32 {
     ((y & LBLOCK_MASK) + FIRST_LCELL_ID + ((x & LBLOCK_MASK) << LBLOCK_SHIFT)) | (block << 16)
 }
 
+/// `LandDefs::pixel_length`: metres between terrain vertices.
+const PIXEL_LENGTH: f32 = SQUARE_LENGTH / VERTEX_PER_CELL as f32;
+
+/// Which way the nearest vertex lies from the point (`DirectionEnum` `*_OF_VIEWER`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PixelDirection {
+    SouthWest,
+    SouthEast,
+    NorthWest,
+    NorthEast,
+}
+
+/// `PixelInfo`: the terrain vertex nearest a point.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PixelInfo {
+    /// Vertex coordinates within the block (`m_lx`, `m_ly`).
+    pub local_x: u32,
+    pub local_y: u32,
+    /// Vertex coordinates on the whole map (`m_gx`, `m_gy`).
+    pub global_x: u32,
+    pub global_y: u32,
+    pub direction: PixelDirection,
+    /// The vertex in the block frame (`m_loc`, z 0).
+    pub location: Vector,
+    /// The land cell holding the vertex (`m_cid`; 0 off the map).
+    pub cell_id: u32,
+}
+
+/// `LandDefs::GetNearestPixel`: the vertex nearest `loc` (in block `block_id`'s frame). A
+/// coordinate at or under half a pixel past a vertex rounds down to it, else up.
+pub fn get_nearest_pixel(block_id: u32, loc: Vector) -> Option<PixelInfo> {
+    let (cell_x, cell_y) = blockid_to_lcoord(block_id)?;
+    let per_cell = VERTEX_PER_CELL as u32;
+    let base_x = per_cell.wrapping_mul(cell_x as u32);
+    let base_y = per_cell.wrapping_mul(cell_y as u32);
+    let half = st(ld(PIXEL_LENGTH) * 0.5);
+    let floor = |v: f32| (ld(v) / ld(PIXEL_LENGTH)).floor() as i32 as u32;
+    let (lx, ly) = (floor(loc.x), floor(loc.y));
+    let past = |v: f32, n: u32| ld(v) - ld(n as i32 as f32) * ld(PIXEL_LENGTH) > ld(half);
+    let east = past(loc.x, lx);
+    let north = past(loc.y, ly);
+    let (lx, ly) = (
+        lx.wrapping_add(u32::from(east)),
+        ly.wrapping_add(u32::from(north)),
+    );
+    let direction = match (east, north) {
+        (false, false) => PixelDirection::SouthWest,
+        (false, true) => PixelDirection::NorthWest,
+        (true, false) => PixelDirection::SouthEast,
+        (true, true) => PixelDirection::NorthEast,
+    };
+    let global_x = base_x.wrapping_add(lx);
+    let global_y = base_y.wrapping_add(ly);
+    let coord = |v: u32| st(ld(v as i32 as f32) * ld(PIXEL_LENGTH));
+    let to_cell = |v: u32| (f64::from(v as i32) / f64::from(per_cell)) as i32;
+    Some(PixelInfo {
+        local_x: lx,
+        local_y: ly,
+        global_x,
+        global_y,
+        direction,
+        location: Vector::new(coord(lx), coord(ly), 0.0),
+        cell_id: lcoord_to_gid(to_cell(global_x), to_cell(global_y)),
+    })
+}
+
 /// `LandDefs::get_block_offset`: the offset from block `from`'s origin to block `to`'s, zero
 /// for the same block.
 pub fn get_block_offset(from: u32, to: u32) -> Vector {
@@ -138,6 +204,27 @@ pub fn adjust_to_outside(cell_id: &mut u32, point: &mut Vector) -> bool {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn nearest_pixel_rounds_to_the_closest_vertex_with_ties_down() {
+        let block = 0x7F7F_FFFF;
+        let at = |x: f32, y: f32| get_nearest_pixel(block, Vector::new(x, y, 5.0)).unwrap();
+        let p = at(12.0, 3.0);
+        assert_eq!((p.local_x, p.local_y), (1, 0));
+        assert_eq!(p.direction, PixelDirection::SouthWest);
+        assert_eq!(p.location, Vector::new(10.0, 0.0, 0.0));
+        // Exactly half a pixel past a vertex still rounds down.
+        let p = at(15.0, 15.0);
+        assert_eq!((p.local_x, p.local_y), (1, 1));
+        let p = at(15.1, 15.1);
+        assert_eq!((p.local_x, p.local_y), (2, 2));
+        assert_eq!(p.direction, PixelDirection::NorthEast);
+        assert_eq!(p.location, Vector::new(20.0, 20.0, 0.0));
+        // The map coordinates add the block's corner: block 0x7F7F is land cell 1016 x 1016.
+        assert_eq!((p.global_x, p.global_y), (2 * 1016 + 2, 2 * 1016 + 2));
+        assert_eq!(p.cell_id, lcoord_to_gid(1017, 1017));
+        assert!(get_nearest_pixel(0, Vector::ZERO).is_none());
+    }
+
     use super::*;
 
     #[test]
