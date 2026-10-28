@@ -72,6 +72,23 @@ const AWAY_MESSAGE: &str = "ID_FriendStatus_AwayFromKeyboardMessage";
 const DO_NOT_DISTURB_MESSAGE: &str = "ID_FriendStatus_DoNotDisturbMessage";
 
 /// The friends page's state: the model, and the page's elements.
+/// A GUN event for the friends list: the list (`FriendStart`) or one friend's status
+/// (`FriendStatus`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FriendEvent {
+    Start(Vec<FriendInfo>),
+    Status(FriendInfo),
+}
+
+/// A GUN event the client took for the page: the `FriendStart` list (`BuildUIList`) or one
+/// status.
+pub fn friend_event(panel: &mut FriendsPanel, tree: &mut UiTree, event: FriendEvent) {
+    match event {
+        FriendEvent::Start(list) => panel.recv_list(tree, &list),
+        FriendEvent::Status(friend) => panel.recv_status(tree, &friend),
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct FriendsPanel {
     layout: Arc<LayoutDesc>,

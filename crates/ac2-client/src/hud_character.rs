@@ -3,7 +3,6 @@
 //! messages go through the tree's dialogs, and its requests wait for the next frameworks call.
 
 use crate::client::Client;
-use crate::gameplay::Command;
 use crate::hud_view::HudView;
 
 /// The options profile as the options page reads it (`gmCWInterface::Get*`).
@@ -15,16 +14,6 @@ pub(crate) fn options_settings(client: &mut Client) -> Option<ac2_ui::OptionsSet
         shortcut_height: p.shortcut_height,
         damage_text_range_other: p.damage_text_range_other,
     })
-}
-
-/// The options page's requests, as the gameplay commands they are.
-pub(crate) fn character_commands(page: &mut ac2_ui::CharacterUi, commands: &mut Vec<Command>) {
-    for request in page.take_requests() {
-        commands.push(match request {
-            ac2_ui::CharacterRequest::Set(setting) => Command::SetGameplayOption(setting),
-            ac2_ui::CharacterRequest::Upload => Command::UploadGameOptions,
-        });
-    }
 }
 
 impl HudView {

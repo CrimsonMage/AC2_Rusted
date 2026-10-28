@@ -1,0 +1,338 @@
+//! The HUD frame's passes that read the player: the options reload (`RecvNotice_ReloadOptions`),
+//! the map (`gm3DTextUI`, `gmRadarUI::Update`, `gmNavigationUI::UpdateMacroMap`), the first frame
+//! in the world (`!player_loaded`) and the pick (`gmPaperDollUI`, `gmSelectionUI`, `gmFriendsUI`).
+//! The panels read the player through [`HudSource`]; what only the client knows (the saved
+//! options, the window places, the object table's race, the GUN events) comes through
+//! [`HudHost`]; the frame's own values come as plain [`FrameInputs`]. The requests the passes
+//! raise return as [`HudRequest`]s, in order, for the client to map to its commands.
+
+use ac2_net::protocol::StringInfo;
+use ac2_script::host::ScriptNotice;
+use ac2_weenie::{GameplayNotice, PlayerVitals, SessionEvent};
+use ac2_world::GameDateTime;
+
+use crate::element::UiTree;
+use crate::friends_panel::{friend_event, FriendEvent};
+use crate::target_select::frame_selection_calls;
+use crate::{
+    BackpackUi, ChatSettings, FellowshipSource, Hud, HudRequest, HudSource, InventorySource,
+    Items3dUi, MapMarker, MoneyBagUi, NameLook, OptionsSettings, PaperDollUi, SavedWindow,
+    StatusBar, UiStrings, WindowPosition, PROFILE_LATENCY_INDICATOR_GRAPH,
+};
+
+/// What the client answers the frame's passes with: its options and saved places, the player's
+/// race, the GUN friend events and the worn items. Reads take `&self` (the client's session is
+/// behind its own cell); the saves and the friend events are the client's to keep.
+pub trait HudHost {
+    /// `gmRadarUI`'s coordinates option (`CM_Character`'s `ShowRadarCoords`).
+    fn show_radar_coords(&self) -> bool;
+    /// `gm3DTextUI`'s names option (`ShowObjectNames`).
+    fn show_object_names(&self) -> bool;
+    /// The player's chat settings, as the chat windows and the chat options page take them.
+    fn chat_settings(&self) -> Option<ChatSettings>;
+    /// The options profile as the options page reads it (`gmCWInterface::Get*`).
+    fn options_settings(&self) -> Option<OptionsSettings>;
+    /// The server's saved window locations (`gmGamePlayUI::RecvNotice_ReloadOptions`).
+    fn saved_window_locations(&self) -> Result<Vec<SavedWindow>, String>;
+    /// The player's own window places, kept on this machine for the character.
+    fn local_window_positions(&self, player: u64) -> Result<Vec<WindowPosition>, String>;
+    /// Saves the player's window places on this machine.
+    fn save_local_window_positions(&self, player: u64, positions: &[WindowPosition]);
+    /// The player's race (int 290) from the object table.
+    fn player_race(&self, player: u64) -> Option<i32>;
+    /// The GUN friend events taken since the last call (`FriendStart`, `FriendStatus`).
+    fn take_friend_events(&self) -> Vec<FriendEvent>;
+    /// The worn items as `(location, item)`.
+    fn worn_items(&self) -> Vec<(u32, u64)>;
+    /// A tooltip for a map note (`gmNavigationUI::AddMarker`), rendered from the string tables.
+    fn marker_tooltip(&self, message: &StringInfo, cell: u32) -> String;
+}
+
+/// The frame's plain inputs to the passes: what the frame says about the player, the selection,
+/// the map and the events, with no client type in it.
+pub struct FrameInputs<'a> {
+    /// `Timer::cur_time` (server time).
+    pub server_time: f64,
+    /// The player's id, when its body exists.
+    pub player: Option<u64>,
+    /// The player's cell, when its body exists.
+    pub player_cell: Option<u32>,
+    pub player_vitals: &'a PlayerVitals,
+    /// The player's money, as the money bag shows it.
+    pub money: u32,
+    /// The map notes, in arrival order.
+    pub markers: &'a [MapMarker],
+    /// The game's calendar at this frame.
+    pub date_time: Option<GameDateTime>,
+    /// `gm3DTextUI::AddName`'s looks: taken only when the names are shown or toggled.
+    pub name_looks: &'a dyn Fn() -> Vec<NameLook>,
+    /// The friends page's target (another player's name, when it is selected).
+    pub friend_target: Option<&'a str>,
+    /// The session's events this frame.
+    pub events: &'a [SessionEvent],
+    /// The script's notices this frame (the `CM_*` notice names).
+    pub script_notices: &'a [ScriptNotice],
+    /// The paper doll's pick from the scene as last drawn: `Some(mesh type)` once the pick is
+    /// answered (`None` for no part).
+    pub doll_pick: Option<Option<u32>>,
+}
+
+/// The reload pass's outputs for the passes after it.
+#[derive(Clone, Copy, Default)]
+pub struct Reloads {
+    /// The radar's options reloaded this frame (the shortcut bar takes it too).
+    pub radar: bool,
+    pub show_radar_coords: Option<bool>,
+    pub show_names: Option<bool>,
+}
+
+impl Hud {
+    /// The options and saved layout that reload this frame (`gmChatOptionsUI`, `gmGamePlayUI`,
+    /// `gmCharacterUI`, `gmNetStatusUI`, `gm3DTextUI`, `gmRadarUI` `RecvNotice_ReloadOptions`).
+    /// Returns the requests the panels raised and the reload's flags for the passes after it.
+    pub fn reload_pass<P: HudHost>(
+        &mut self,
+        tree: &mut UiTree,
+        dirty: &mut bool,
+        host: &P,
+        input: &FrameInputs<'_>,
+    ) -> (Vec<HudRequest>, Reloads) {
+        let mut requests = Vec::new();
+        // `gmGamePlayUI::RecvNotice_SaveLocationsChanged`: a window moved since the last frame.
+        if tree.take_locations_changed() {
+            requests.push(HudRequest::SaveWindowLocations(tree.inq_locations()));
+        }
+        // The window exception (`AGENTS.md`): a window moved and its drag ended, so every
+        // window's place is kept on this machine for the character.
+        if tree.take_positions_changed() {
+            if let Some(player) = input.player {
+                host.save_local_window_positions(player, &tree.window_positions());
+            }
+        }
+        // `gmChatOptionsUI`'s Apply sent the reload notice; its values refresh on the options'
+        // reload (`RecvNotice_ReloadOptions`), as the page's Refresh does.
+        let applied = self
+            .chat_options
+            .as_mut()
+            .is_some_and(|page| page.take_reload());
+        let reload_chat = applied || !self.player_loaded || notice(input, CHAT_RELOAD_NOTICES);
+        if reload_chat {
+            if let Some(settings) = host.chat_settings() {
+                if let Some(chat) = self.chat.as_mut() {
+                    chat.reload_chat_settings(tree, &settings);
+                }
+                let reload_page = !self.player_loaded
+                    || input
+                        .script_notices
+                        .iter()
+                        .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
+                if let (true, Some(page)) = (reload_page, self.chat_options.as_mut()) {
+                    page.refresh(tree, &settings);
+                }
+            }
+        }
+        // The chat windows' opacity sliders released since the last frame.
+        if let Some(chat) = self.chat.as_mut() {
+            for (window, opacity) in chat.take_opacity_requests() {
+                requests.push(HudRequest::SetWindowOpacity { window, opacity });
+            }
+        }
+        // `gmRadarUI::ReloadOptions` (at login, `Init`, and on `RecvNotice_ReloadOptions`).
+        let reload_radar = !self.player_loaded
+            || input
+                .script_notices
+                .iter()
+                .any(|n| n.name == "CM_Character::SendNotice_ReloadOptions");
+        let show_radar_coords = reload_radar.then(|| host.show_radar_coords());
+        // `gmGamePlayUI::RecvNotice_ReloadOptions` (and the refresh at login, `ListenToMessage`
+        // 0xffff0007): the player's saved window locations apply to the windows.
+        if reload_radar {
+            if let Ok(saved) = host.saved_window_locations() {
+                tree.apply_locations(&saved);
+                if let Some(radar) = self.radar.as_ref() {
+                    radar.location_applied(tree);
+                }
+            }
+            // The player's own places, per character, override the server's (`AGENTS.md`).
+            if let Some(player) = input.player {
+                match host.local_window_positions(player) {
+                    Ok(local) => tree.set_window_positions(&local),
+                    Err(error) => eprintln!("ac2: window positions: {error}"),
+                }
+            }
+        }
+        // `gmCharacterUI::RecvNotice_ReloadOptions`: the page's values as the profile has them.
+        let reload_page = reload_radar
+            || input
+                .events
+                .iter()
+                .any(|e| matches!(e, SessionEvent::Notice(GameplayNotice::ReloadOptions)));
+        if let (true, Some(page)) = (reload_page, self.character.as_mut()) {
+            if let Some(settings) = host.options_settings() {
+                page.refresh(tree, &settings);
+            }
+        }
+        if let Some(page) = self.character.as_mut() {
+            for request in page.take_requests() {
+                requests.push(HudRequest::Character(request));
+            }
+        }
+        // `gmNetStatusUI::RecvNotice_ReloadOptions`: the latency graph's option.
+        if let (true, Some(net)) = (reload_radar, self.net.as_mut()) {
+            if let Some(settings) = host.options_settings() {
+                net.set_graph_enabled(settings.bits & PROFILE_LATENCY_INDICATOR_GRAPH != 0);
+                *dirty = true;
+            }
+        }
+        // `gm3DTextUI::RecvNotice_ReloadOptions`: the names as the options say.
+        let show_names = reload_radar.then(|| host.show_object_names());
+        self.player_race = input.player.and_then(|id| host.player_race(id));
+        let reloads = Reloads {
+            radar: reload_radar,
+            show_radar_coords,
+            show_names,
+        };
+        (requests, reloads)
+    }
+
+    /// The name plates, the radar's options and position, and the macro map's date and time
+    /// (`gm3DTextUI`, `gmRadarUI::Update`, `gmNavigationUI::UpdateMacroMap`).
+    pub fn map_pass<P: HudSource + HudHost>(
+        &mut self,
+        tree: &mut UiTree,
+        player: &P,
+        input: &FrameInputs<'_>,
+        reloads: Reloads,
+    ) {
+        let Reloads {
+            show_names,
+            show_radar_coords,
+            ..
+        } = reloads;
+        if let Some(plates) = self.names_mut() {
+            let looks = (input.name_looks)();
+            match show_names {
+                Some(show) => plates.set_showing(tree, show, &looks),
+                None => plates.sync(tree, &looks),
+            }
+        }
+        if let (Some(show), Some(radar)) = (show_radar_coords, self.radar.as_mut()) {
+            radar.reload_options(tree, player, show);
+        }
+        // `gmRadarUI::Update`'s `Position::ToRealMapCoords_Info`, again when the cell changes.
+        let cell = input.player_cell;
+        if cell.is_some() && cell != self.radar_cell {
+            self.radar_cell = cell;
+            let string = crate::map_coords_string(cell.unwrap_or(0));
+            self.radar_coordinates = Some(UiStrings::render_string(player, &string));
+        }
+        // `gmNavigationUI::AddMarker`'s tooltips, rendered with the frame's markers.
+        self.navigation_tooltips = input
+            .markers
+            .iter()
+            .map(|m| player.marker_tooltip(&m.message, m.cell))
+            .collect();
+        // `gmNavigationUI::UpdateMacroMap`'s date and time: rendered again when the calendar moves.
+        if let Some(date_time) = input.date_time {
+            if self.navigation_time.as_ref().map(|(known, _, _)| *known) != Some(date_time) {
+                let (date, time) = crate::game_date_time(date_time);
+                self.navigation_time = Some((
+                    date_time,
+                    UiStrings::render_string(player, &date),
+                    UiStrings::render_string(player, &time),
+                ));
+            }
+        }
+    }
+
+    /// The first frame in the world (`!player_loaded`): the panels read the player once.
+    pub fn init_pass<P: HudSource + HudHost>(
+        &mut self,
+        tree: &mut UiTree,
+        player: &P,
+        input: &FrameInputs<'_>,
+    ) {
+        if self.player_loaded {
+            return;
+        }
+        self.player_loaded = true;
+        // `gmSecureTradeUI::gmSecureTradeUI` reads the player.
+        if let (Some(panel), Some(id)) = (self.secure_trade.as_mut(), input.player) {
+            panel.set_player(id);
+        }
+        if let Some(skills) = self.skills.as_mut() {
+            skills.update_skill_panel(tree, player);
+        }
+        if let Some(page) = self.allegiance.as_mut() {
+            page.set_player(tree, FellowshipSource::player(player));
+        }
+        // `gmVitalsUI`, `gmEffectsUI` (`Init`) and `gmVitaeStatusUI` read the player.
+        StatusBar {
+            vitals: &mut self.vitals,
+            effects: &mut self.effects,
+            vitae: &mut self.vitae,
+            net: &mut self.net,
+            pk: &mut self.pk,
+        }
+        .player_loaded(tree, player, input.player_vitals, input.server_time);
+        // `gmInventoryUI::SetupChildren`'s backpack over the player.
+        if let (Some(layout), Some(id)) = (self.toolbar_layout.as_ref(), input.player) {
+            self.item_selection = InventorySource::selection(player);
+            self.backpack = Some(BackpackUi::create(tree, layout, player, id));
+            self.items_3d = Some(Items3dUi::create(tree, id));
+            // `gmMoneyBagUI::gmMoneyBagUI` and its amount (`RecvNotice_UpdateMoney`).
+            let mut bag = MoneyBagUi::create(tree);
+            bag.set_money(tree, player, input.money);
+            self.money = Some(bag);
+            let equipped = player.worn_items();
+            let doll = PaperDollUi::create(tree, layout, player, id, &equipped);
+            doll.follow_panel(tree);
+            self.paper_doll = Some(doll);
+        }
+    }
+
+    /// The paper doll's pick, the target selection's notices and the GUN friend events, ahead of
+    /// the notices. Returns the requests in the order the panels raised them.
+    pub fn pick_pass<P: HudSource + HudHost>(
+        &mut self,
+        tree: &mut UiTree,
+        player: &P,
+        input: &FrameInputs<'_>,
+    ) -> Vec<HudRequest> {
+        let mut requests = Vec::new();
+        // `gmPaperDollUI::FinishPaperDollClick` with the scene's answer.
+        if let (Some(doll), Some(mesh_type)) = (self.paper_doll.as_mut(), input.doll_pick) {
+            if let Some(request) = doll.finish_pick(tree, mesh_type) {
+                requests.push(HudRequest::Item(request));
+            }
+        }
+        // `gmSelectionUI`: the selection keys, its notices and `RecvNotice_BeingDeleted`.
+        let typing = tree.text_mode();
+        requests.extend(
+            frame_selection_calls(player, tree, input.events, typing)
+                .into_iter()
+                .map(HudRequest::Selection),
+        );
+        // `gmFriendsUI`: the GUN list and status the client took since the last frame, then the
+        // add and remove buttons for the game selection (`UpdateButtonStates`, every frame).
+        let friend_events = player.take_friend_events();
+        if let Some(panel) = self.friends.as_mut() {
+            for event in friend_events {
+                friend_event(panel, tree, event);
+            }
+            panel.set_target(tree, input.friend_target);
+        }
+        requests
+    }
+}
+
+/// The notices that reload the chat settings (`CM_Communication`, `CM_Character`).
+const CHAT_RELOAD_NOTICES: &[&str] = &[
+    "CM_Communication::SendNotice_ReloadChatSettings",
+    "CM_Character::SendNotice_ReloadOptions",
+];
+
+/// Whether the frame's script notices include one of `names`.
+fn notice(input: &FrameInputs<'_>, names: &[&str]) -> bool {
+    input.script_notices.iter().any(|n| names.contains(&n.name))
+}

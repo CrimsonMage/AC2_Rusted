@@ -67,13 +67,7 @@ pub enum FriendResult {
     Removed { gun: u32, name: String },
 }
 
-/// A GUN event for the friends list: the list (`FriendStart`) or one friend's status
-/// (`FriendStatus`).
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum FriendEvent {
-    Start(Vec<FriendInfo>),
-    Status(FriendInfo),
-}
+pub use ac2_ui::FriendEvent;
 
 impl Client {
     /// `gmCWInterface::RequestGUN_FriendAdd` (the UI's add): queued for the GUN service. Without

@@ -5,12 +5,16 @@
 use crate::{
     CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest, DialogRequest,
     ExaminationCall, ExternalContainerRequest, FriendsRequest, ItemRequest, NewSaleRequest,
-    PetAction, RadarRequest, SecureTradeRequest, SelectionCall, ShopRequest, SkillRequest,
-    SocialCall,
+    PetAction, RadarRequest, SavedWindow, SecureTradeRequest, SelectionCall, ShopRequest,
+    SkillRequest, SocialCall,
 };
 
 /// One request a HUD panel raised in a pass.
 pub enum HudRequest {
+    /// `gmGamePlayUI::SaveWindowLocations`: the windows' places, after a window moved.
+    SaveWindowLocations(Vec<SavedWindow>),
+    /// `gmChatWindow`'s opacity slider released: the window's opacity is saved.
+    SetWindowOpacity { window: u32, opacity: f32 },
     /// `gmCWInterface::Dismount`: the toolbar's dismount button.
     Dismount,
     /// `gmCWInterface::DisplaySaleReminders`: the consignments button.

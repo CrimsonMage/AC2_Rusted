@@ -19,6 +19,13 @@ use crate::ui_inventory::item_commands;
 pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut) {
     for request in requests {
         match request {
+            HudRequest::SaveWindowLocations(saved) => {
+                out.commands.push(Command::SaveWindowLocations(saved));
+            }
+            HudRequest::SetWindowOpacity { window, opacity } => {
+                out.commands
+                    .push(Command::SetWindowOpacity { window, opacity });
+            }
             HudRequest::Dismount => out.commands.push(Command::Dismount),
             HudRequest::DisplaySaleReminders => out.commands.push(Command::DisplaySaleReminders),
             HudRequest::Selection(call) => out.commands.push(match call {

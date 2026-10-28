@@ -14,6 +14,9 @@ use ac2_ui::{
 use crate::client::Client;
 use crate::frame::ClientFrame;
 
+/// The player's race (int 290, `UpdatePaperDollPosition`).
+const RACE: u32 = 0x122;
+
 /// The player as the UI frameworks see it for one frame.
 pub(crate) struct ClientPlayer<'a> {
     pub client: RefCell<&'a mut Client>,
@@ -346,5 +349,60 @@ impl ClientPlayer<'_> {
     /// `ID_Inventory_TT_Durability` (see `UiText::durability_tooltip`).
     pub(crate) fn durability_tooltip(&self, current: i32, max: i32) -> Option<String> {
         self.ui().durability_tooltip(current, max)
+    }
+}
+
+impl ac2_ui::HudHost for ClientPlayer<'_> {
+    fn show_radar_coords(&self) -> bool {
+        self.client.borrow_mut().show_radar_coords()
+    }
+
+    fn show_object_names(&self) -> bool {
+        self.client.borrow_mut().show_object_names()
+    }
+
+    fn chat_settings(&self) -> Option<ac2_ui::ChatSettings> {
+        crate::hud_chat_options::chat_settings(&mut self.client.borrow_mut())
+    }
+
+    fn options_settings(&self) -> Option<ac2_ui::OptionsSettings> {
+        crate::hud_character::options_settings(&mut self.client.borrow_mut())
+    }
+
+    fn saved_window_locations(&self) -> Result<Vec<ac2_ui::SavedWindow>, String> {
+        self.client.borrow_mut().saved_window_locations()
+    }
+
+    fn local_window_positions(&self, player: u64) -> Result<Vec<ac2_ui::WindowPosition>, String> {
+        self.client.borrow().local_window_positions(player)
+    }
+
+    fn save_local_window_positions(&self, player: u64, positions: &[ac2_ui::WindowPosition]) {
+        self.client
+            .borrow()
+            .save_local_window_positions(player, positions);
+    }
+
+    /// `gmCWInterface::InqInt(290)` on the player's qualities.
+    fn player_race(&self, player: u64) -> Option<i32> {
+        let client = self.client.borrow_mut();
+        client
+            .session()
+            .objects()
+            .get(player)?
+            .qualities
+            .inq_int(RACE)
+    }
+
+    fn take_friend_events(&self) -> Vec<ac2_ui::FriendEvent> {
+        self.client.borrow_mut().take_friend_events()
+    }
+
+    fn worn_items(&self) -> Vec<(u32, u64)> {
+        self.equipped()
+    }
+
+    fn marker_tooltip(&self, message: &ac2_net::protocol::StringInfo, cell: u32) -> String {
+        ClientPlayer::marker_tooltip(self, message, cell)
     }
 }

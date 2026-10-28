@@ -2,9 +2,6 @@
 //! the page, and its buttons and status choice become the client's friend requests
 //! ([`crate::gameplay::Command::Friends`]).
 
-use ac2_ui::{FriendsPanel, UiTree};
-
-use crate::friends::FriendEvent;
 use crate::gameplay::SelectionFrame;
 
 /// `gmCWInterface::GetSelection` as the friends page takes it: the name of the selected player
@@ -13,15 +10,6 @@ pub(crate) fn friend_target(selection: Option<&SelectionFrame>) -> Option<&str> 
     selection
         .filter(|s| s.other_player)
         .and_then(|s| s.name.as_deref())
-}
-
-/// A GUN event the client took for the page: the `FriendStart` list (`BuildUIList`) or one
-/// status.
-pub(crate) fn friend_event(panel: &mut FriendsPanel, tree: &mut UiTree, event: FriendEvent) {
-    match event {
-        FriendEvent::Start(list) => panel.recv_list(tree, &list),
-        FriendEvent::Status(friend) => panel.recv_status(tree, &friend),
-    }
 }
 
 #[cfg(test)]
