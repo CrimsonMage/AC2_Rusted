@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 956 done, 163 partial, 128 to do, 657 skipped.
+1904 retail functions: 957 done, 163 partial, 127 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (17/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (18/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2886,7 +2886,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWPhysicsObject::StopLayer` · 00530550 · legions 005144f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::StopMoveToCancelsBehaviors` · 00530570 · legions 00514510 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::StopAllWeenieBehaviors` · 00530590 · legions 00514530 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-- [ ] `CWPhysicsObject::LookAtSelection` · 005305b0 · legions 00514550 — needs port: selection look-at not modelled: CWPhysicsObject::LookAtSelection (ac2-ui selection_notices.rs says so)
+- [x] `CWPhysicsObject::LookAtSelection` · 005305b0 · legions 00514550 — ac2-client gameplay.rs look_at_selection: the player's body (CPhysicsObj::LookAtSelection), reached from the selection UI's SetSelection paths
 - [x] `CWPhysicsObject::LookAt` · 005305e0 · legions 00514580 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [-] `CWPhysicsObject::AddTargetedImpulse` · 00530610 · legions 005145b0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::GetElement` · 00530650 · legions 005145f0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method

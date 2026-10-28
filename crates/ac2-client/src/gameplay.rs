@@ -59,6 +59,9 @@ pub enum Command {
     },
     /// `gmCWInterface::UseSelection`: use the selected object.
     UseSelection,
+    /// `CWPhysicsObject::LookAtSelection`: after the selection UI's `SetSelection`, the player
+    /// looks at the new selection (`None` clears) when the camera's switch is on.
+    LookAtSelection(Option<u64>),
     /// `Proto_UI::LogOffCharacter` (`gmGamePlayUI::EndSession`): the character leaves the world.
     LogOffCharacter,
     /// `gmCWInterface::MoveItem`: move `quantity` of `item` from slot `from_slot` of `from` to
@@ -431,6 +434,27 @@ impl Client {
         out
     }
 
+    /// `CWPhysicsObject::LookAtSelection` -> `CPhysicsObj::LookAtSelection` on the player: the
+    /// camera's switch (`SetLookAtSelection`, the `0x4000006A` preference as the bank holds it)
+    /// decides whether the head turns, and the id the body settles on goes out as
+    /// `ECM_Physics::SendEvt_CLookAt`.
+    fn look_at_selection(&mut self, target: u64) {
+        let on = self
+            .prefs
+            .as_ref()
+            .is_none_or(|p| ac2_smartbox::prefs::values(p.bank()).look_at_selection);
+        let Some(own) = self.session.player() else {
+            return;
+        };
+        let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) else {
+            return;
+        };
+        body.physics.set_look_at_selection(on);
+        if let Some(sent) = body.physics.look_at_selection(target, own) {
+            self.session.send_look_at(sent);
+        }
+    }
+
     /// Runs the frame's commands; their notices join the frame's events.
     pub(crate) fn commands(&mut self, commands: &[Command]) -> Vec<SessionEvent> {
         let mut events = Vec::new();
@@ -579,6 +603,10 @@ impl Client {
                 }
                 Command::UseWithTarget { item, target } => {
                     self.session.use_with_target(*item, *target);
+                    Vec::new()
+                }
+                Command::LookAtSelection(target) => {
+                    self.look_at_selection(target.unwrap_or(0));
                     Vec::new()
                 }
                 Command::UseSelection => {

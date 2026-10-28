@@ -30,6 +30,10 @@ const STEER_PLAYER: u32 = 0x4000_006B;
 const ALIGN_TO_SLOPE: u32 = 0x4000_005A;
 /// `Camera_Zoom_Speed` (`CameraManager::SetupPrefs`'s `m_zoomScale`).
 const ZOOM_SPEED: u32 = 0x4000_002C;
+/// The look-at-selection switch: `CameraManager::HandleChange` passes it to the player's
+/// `CPhysicsObj::SetLookAtSelection` (ICPhysicsObj slot 0x4DC, read from the admin exe at
+/// 0x00577003).
+const LOOK_AT_SELECTION: u32 = 0x4000_006A;
 
 /// The camera's preference values, as the bank holds them.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -42,6 +46,8 @@ pub struct CameraValues {
     pub invert_y: bool,
     pub steer_player: bool,
     pub align_to_slope: bool,
+    /// The player looks at what it selects (`SetLookAtSelection`).
+    pub look_at_selection: bool,
 }
 
 /// The camera's values in `bank` (a missing key keeps the camera's constructor default).
@@ -63,6 +69,7 @@ pub fn values(bank: &PreferenceBank) -> CameraValues {
         invert_y: flag(INVERT_Y, false),
         steer_player: flag(STEER_PLAYER, true),
         align_to_slope: flag(ALIGN_TO_SLOPE, true),
+        look_at_selection: flag(LOOK_AT_SELECTION, true),
     }
 }
 

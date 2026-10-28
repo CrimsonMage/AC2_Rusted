@@ -50,6 +50,17 @@ impl PhysicsBody {
         self.object.look_at(target, own);
     }
 
+    /// `CPhysicsObj::SetLookAtSelection(state)`: whether the player looks at what it selects.
+    pub fn set_look_at_selection(&mut self, on: bool) {
+        self.object.look_at_selection = on;
+    }
+
+    /// `CPhysicsObj::LookAtSelection(target)` for the player `own` (see
+    /// `PhysicsObj::look_at_selection`): the id to send in `CLookAt`, if one is sent.
+    pub fn look_at_selection(&mut self, target: u64, own: u64) -> Option<u64> {
+        self.object.look_at_selection(target, own)
+    }
+
     /// `CPhysicsObj::LookAtDir(x, z)`: a non-player's head direction.
     pub fn look_at_dir(&mut self, x: f32, z: f32) {
         self.object.look_at_dir(x, z);

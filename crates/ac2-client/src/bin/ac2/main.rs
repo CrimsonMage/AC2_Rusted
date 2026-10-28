@@ -500,6 +500,9 @@ impl App {
             let (targets, player_type) = pick_targets(&self.client, &frame, &potential);
             if let Some(outcome) = state.selection.finish(&targets, player_type) {
                 state.commands.push(Command::Select(outcome.select));
+                state
+                    .commands
+                    .push(Command::LookAtSelection(outcome.select));
                 if outcome.use_selection {
                     state.commands.push(Command::UseSelection);
                 }

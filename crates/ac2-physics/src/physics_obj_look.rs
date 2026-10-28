@@ -31,6 +31,23 @@ impl PhysicsObj {
         self.look.look_at_dir();
     }
 
+    /// `CPhysicsObj::LookAtSelection(target)` (admin 0x004E25B0) for the player `own`: with the
+    /// switch on the body looks at the target (`LookAt`); with it off a look in progress is
+    /// cleared, and nothing happens when there is none. Returns the id
+    /// `ECM_Physics::SendEvt_CLookAt` then sends (`m_iidLookAt`, 0 for none), or `None` when
+    /// nothing is sent.
+    pub(crate) fn look_at_selection(&mut self, target: u64, own: u64) -> Option<u64> {
+        if !self.look_at_selection {
+            if self.look.target == 0 {
+                return None;
+            }
+            self.look_at(0, own);
+            return Some(0);
+        }
+        self.look_at(target, own);
+        Some(self.look.target)
+    }
+
     /// The id of the object the body is looking at, if any.
     pub(crate) fn look_target(&self) -> Option<u64> {
         (self.look.target != 0).then_some(self.look.target)

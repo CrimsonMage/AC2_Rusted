@@ -811,6 +811,11 @@ impl OnlineSession {
         self.send(ClientEvent::Position(report));
     }
 
+    /// `ECM_Physics::SendEvt_CLookAt`: the object the player now looks at (0 for none).
+    pub fn send_look_at(&mut self, target: u64) {
+        self.send(ClientEvent::LookAt { target });
+    }
+
     /// `PlayerMovementModule::SendLookAtEvent`.
     pub fn report_head(&mut self, looking_at_object: bool, head: (f32, f32)) {
         let cur_time = self.cur_time();

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 827 done, 170 partial, 177 to do, 950 skipped.
+2124 retail functions: 829 done, 170 partial, 175 to do, 950 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (255/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (257/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2437,8 +2437,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetFirstPersonState` · 004e2520 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [ ] `CPhysicsObj::SetCameraLookAround` · 004e2530 · legions 004d4f80 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::SetCameraLookAtCamera` · 004e2570 · legions 004d4fc0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::LookAtSelection` · 004e25b0 · legions 004d5000 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetLookAtSelection` · 004e2630 · legions 004d5080 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::LookAtSelection` · 004e25b0 · legions 004d5000 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
+- [x] `CPhysicsObj::SetLookAtSelection` · 004e2630 · legions 004d5080 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 - [ ] `CPhysicsObj::StopAllCameraFX` · 004e2650 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::LookAtDir` · 004e2670 · legions 004d50c0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [-] `CPhysicsObj::SetParentObject` · 004e26c0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body

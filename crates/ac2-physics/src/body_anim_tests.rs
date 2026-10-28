@@ -483,3 +483,28 @@ fn an_fx_created_object_fades_in_from_clear_through_the_draw_scale() {
     );
     assert_eq!(*alphas.last().unwrap(), 1.0, "opaque by the ramp's end");
 }
+
+/// `CPhysicsObj::LookAtSelection`: with the switch on the player looks at its selection and the
+/// target goes out in `CLookAt`; with it off a look in progress is cleared once (0 sent) and an
+/// idle player sends nothing.
+#[test]
+fn look_at_selection_follows_the_switch() {
+    let mut body = remote_body();
+    assert_eq!(body.look_at_selection(0x77, 1), Some(0x77));
+    assert_eq!(body.look_target(), Some(0x77));
+    // Selecting the player itself ends the look (`LookAt` of the body is no look).
+    assert_eq!(body.look_at_selection(1, 1), Some(0));
+    assert_eq!(body.look_at_selection(0x78, 1), Some(0x78));
+    body.set_look_at_selection(false);
+    assert_eq!(
+        body.look_at_selection(0x79, 1),
+        Some(0),
+        "the look in progress clears"
+    );
+    assert_eq!(body.look_target(), None);
+    assert_eq!(
+        body.look_at_selection(0x79, 1),
+        None,
+        "nothing to clear: nothing sent"
+    );
+}

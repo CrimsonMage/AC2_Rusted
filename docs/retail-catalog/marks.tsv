@@ -4687,8 +4687,8 @@ key	status	note
 004e2520	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2530	_	needs port: cite-only physics-object method
 004e2570	_	needs port: cite-only physics-object method
-004e25b0	_	needs port: cite-only physics-object method
-004e2630	_	needs port: cite-only physics-object method
+004e25b0	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
+004e2630	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 004e2650	_	needs port: cite-only physics-object method
 004e2670	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004e26c0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
@@ -6224,7 +6224,7 @@ key	status	note
 00530550	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530570	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530590	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-005305b0	_	needs port: selection look-at not modelled: CWPhysicsObject::LookAtSelection (ac2-ui selection_notices.rs says so)
+005305b0	x	ac2-client gameplay.rs look_at_selection: the player's body (CPhysicsObj::LookAtSelection), reached from the selection UI's SetSelection paths
 005305e0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 00530610	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530650	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method

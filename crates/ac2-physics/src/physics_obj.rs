@@ -124,6 +124,9 @@ pub(crate) struct PhysicsObj {
     pub(crate) anim: AnimRep,
     /// `CPhysicsObj::m_pLookAtManager`.
     pub(crate) look: LookAtManager,
+    /// `m_bIsLookAtEnabled` (on from the constructor): the player looks at what it selects
+    /// (`SetLookAtSelection`, the camera's `0x4000006A` preference).
+    pub(crate) look_at_selection: bool,
     /// The look target's position and size, refreshed by the client before each animation step.
     pub(crate) look_snapshot: Option<LookTarget>,
     /// `CPhysicsObj::m_fHeadX` and `m_fHeadZ`: the head direction a server `LookAtDir` sent.
@@ -242,6 +245,7 @@ impl PhysicsObj {
             desired_collision_mask: crate::collision_types::PhysicsTypeMask::default(),
             instance_id: 0,
             look: LookAtManager::default(),
+            look_at_selection: true,
             look_snapshot: None,
             head_x: 0.0,
             head_z: 0.0,

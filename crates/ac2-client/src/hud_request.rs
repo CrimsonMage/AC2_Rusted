@@ -30,10 +30,16 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
             }
             HudRequest::Dismount => out.commands.push(Command::Dismount),
             HudRequest::DisplaySaleReminders => out.commands.push(Command::DisplaySaleReminders),
-            HudRequest::Selection(call) => out.commands.push(match call {
-                SelectionCall::Select(id) => Command::Select(id),
-                SelectionCall::StopAttacking(target) => Command::StopAttacking(target),
-            }),
+            HudRequest::Selection(call) => match call {
+                // `gmSelectionUI`: `SetSelection`, then `CWPhysicsObject::LookAtSelection`.
+                SelectionCall::Select(id) => {
+                    out.commands.push(Command::Select(id));
+                    out.commands.push(Command::LookAtSelection(id));
+                }
+                SelectionCall::StopAttacking(target) => {
+                    out.commands.push(Command::StopAttacking(target));
+                }
+            },
             HudRequest::Select(id) => out.commands.push(Command::Select(Some(id))),
             HudRequest::SetShowObjectNames(show) => {
                 out.commands.push(Command::SetShowObjectNames(show));
