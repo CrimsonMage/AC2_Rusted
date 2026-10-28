@@ -65,6 +65,63 @@ fn act(
     notices
 }
 
+/// A client with the player's script attached, in the trade world: the player holds SWORD and
+/// ROBE, FELLOW holds SHIELD and HELM. `None` without `AC2_DAT_DIR`.
+fn trade_client() -> Option<(
+    ac2_client::Client,
+    std::rc::Rc<std::cell::RefCell<legions_server_double::State>>,
+)> {
+    let dataset = ac2_dat::test_support::env_dataset()?;
+    let store = ac2_db::ResourceStore::new(dataset.clone());
+    let wlib = load_wlib(&store, DataId::new(LEGIONS_WLIB_DID))
+        .unwrap()
+        .unwrap();
+    let program = Arc::new(Program::from_stream(&wlib.stream));
+    let data = DatScriptData::new(dataset, store);
+    data.preload_tables();
+    let (mut client, server) = entered(spawn());
+    {
+        let mut s = server.borrow_mut();
+        s.script_world
+            .contents
+            .insert(PLAYER, (Vec::new(), vec![SWORD, ROBE]));
+        s.script_world
+            .contents
+            .insert(FELLOW, (Vec::new(), vec![SHIELD, HELM]));
+    }
+    client.attach_scripts(
+        ScriptHost::new(program, Box::new(data)),
+        ac2_client::SCRIPT_VM_FUNCTIONS,
+    );
+    let idle = FrameInput::default();
+    for _ in 0..10 {
+        step(&mut client, &server, &idle);
+    }
+    Some((client, server))
+}
+
+/// `CPlayer` 0x10F (the `WM_Trade` 0x48 forwarder) raises `CM_Trade::SendNotice_Trade_BeRevoked`
+/// on the VM when the partner takes an offered item back.
+#[test]
+fn the_partner_taking_an_offer_back_raises_be_revoked() {
+    let Some((mut client, server)) = trade_client() else {
+        return;
+    };
+    act(&mut client, &server, vec![Command::OpenTrade(FELLOW)]);
+    server.borrow_mut().partner_offer(SHIELD, 1);
+    act(&mut client, &server, Vec::new());
+    server.borrow_mut().partner_revoke(SHIELD);
+    let revoked = act(&mut client, &server, Vec::new());
+    assert_eq!(
+        revoked,
+        [GameplayNotice::TradeRevoked {
+            source: FELLOW,
+            item: SHIELD
+        }]
+    );
+    assert!(client.take_script_problems().is_empty());
+}
+
 #[test]
 fn the_trade_window_runs_through_the_player_script() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {

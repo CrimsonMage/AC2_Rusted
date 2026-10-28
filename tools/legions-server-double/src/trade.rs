@@ -72,6 +72,25 @@ impl State {
         self.offer(FELLOW, item, amount);
     }
 
+    /// FELLOW takes `item` back out of the open trade (`WM_Trade` 0x7 for the partner, which the
+    /// server answers with `BeRevoked`).
+    pub fn partner_revoke(&mut self, item: u64) {
+        let Some(at) = self
+            .trade
+            .partner_offers
+            .iter()
+            .position(|(i, _)| *i == item)
+        else {
+            return;
+        };
+        self.clear_acceptance();
+        self.trade.partner_offers.remove(at);
+        self.send_trade(TradeMessage::Revoked {
+            source: FELLOW,
+            item,
+        });
+    }
+
     /// FELLOW accepts the open trade (`WM_Trade` 0xF for the partner).
     pub fn partner_accept(&mut self) {
         self.accept_trade(FELLOW);
