@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 582 done, 118 partial, 637 to do, 787 skipped.
+2124 retail functions: 584 done, 117 partial, 633 to do, 790 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1509,7 +1509,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/minterp/interpolationmanager.cpp.c` (25/33)
 
 ### InterpolationManager
-- [ ] `InterpolationManager::SetPhysicsObject` · 0050cb20 — needs port: interpolation manager
+- [-] `InterpolationManager::SetPhysicsObject` · 0050cb20 — back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 - [x] `InterpolationManager::StopInterpolating` · 0050cb30 — ac2-physics interp (slice 3)
 - [-] `InterpolationManager::GetDebugDisplayValues` · 0050cb60 — admin/debug or text-file tooling
 - [-] `InterpolationManager::StreamPack` · 0050cbb0 · legions 004fac20 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -1830,10 +1830,10 @@ Legend and workflow: [README](README.md).
 
 ### MoveToManager
 - [-] `MoveToManager::Destroy` · 0050ba00 · legions 004f9a40 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [ ] `MoveToManager::GetID` · 0050ba30 · legions 004f9a70 — needs port: move-to manager
+- [-] `MoveToManager::GetID` · 0050ba30 · legions 004f9a70 — back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 - [~] `MoveToManager::GetTargetObj` · 0050ba70 · legions 004f9ab0 — object targets come from update_move_to_target / lose_move_to_target, not a CPhysics lookup
 - [x] `MoveToManager::UpdateTargetInfo` · 0050bae0 — ac2-physics moveto (slice 3)
-- [ ] `MoveToManager::SetMotionInterp` · 0050bb30 · legions 004f9ba0 — needs port: move-to manager
+- [-] `MoveToManager::SetMotionInterp` · 0050bb30 · legions 004f9ba0 — back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 - [x] `MoveToManager::StartMoveTo` · 0050bbb0 · legions 004f9c20 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::StartTurnTo` · 0050bd60 · legions 004f9dd0 — ac2-physics moveto (slice 3)
 - [x] `MoveToManager::Stop` · 0050bde0 · legions 004f9e50 — ac2-physics moveto (slice 3)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (158/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (160/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2244,7 +2244,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::GetDesiredElement` · 004de990 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::GetMode` · 004de9a0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::GetDesiredMode` · 004de9b0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::IsDoingBehavior` · 004de9c0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::IsDoingBehavior` · 004de9c0 — ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 - [x] `CPhysicsObj::GetSliderCurrentValue` · 004de9d0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [x] `CPhysicsObj::GetSliderDesiredValue` · 004de9e0 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 - [ ] `CPhysicsObj::GetDesiredMotionValues` · 004de9f0 — needs port: cite-only physics-object method
@@ -2296,7 +2296,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ReceiveTargetUpdate` · 004df4f0 · legions 004d1f50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AddVoyeur` · 004df510 · legions 004d1f70 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::RemoveVoyeur` · 004df570 · legions 004d1fd0 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000 — no IsDoingBehavior(jump) check (behaviours not ported)
+- [x] `CPhysicsObj::can_jump` · 004df5a0 · legions 004d2000 — ac2-physics physics_obj_contact.rs can_jump: contact 0.5 s, not IsDoingBehavior(jump), desired and reached element on ground or sea floor
 - [x] `CPhysicsObj::IsSlidingDown` · 004df670 · legions 004d20d0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [x] `CPhysicsObj::ClampHeading` · 004df6a0 · legions 004d2100
 - [x] `CPhysicsObj::UnclampHeading` · 004df6d0 · legions 004d2130

@@ -28,11 +28,22 @@ const BEHAVIOR_JUMP: u32 = 0x4000_000a;
 const ELASTICITY: f32 = 0.005;
 
 impl PhysicsObj {
-    /// `CPhysicsObj::can_jump`: in contact for at least half a second, on ground or sea floor
-    /// (the desired element).
+    /// `CPhysicsObj::can_jump`: in contact for at least half a second and not already in the
+    /// jump behaviour (`IsDoingBehavior(0x4000000a)`), with both the desired element and the one
+    /// the animation has reached on the ground or the sea floor (any pairing of the two).
     pub(crate) fn can_jump(&self) -> bool {
         let grounded = |element| element == ELEMENT_GROUND || element == ELEMENT_SEA_FLOOR;
-        self.has_contact() && 0.5 <= self.time_on_ground && grounded(self.desired_element())
+        self.has_contact()
+            && 0.5 <= self.time_on_ground
+            && !self.is_doing_behavior(BEHAVIOR_JUMP)
+            && grounded(self.desired_element())
+            && grounded(self.current_element())
+    }
+
+    /// `CPhysicsObj::IsDoingBehavior`: `ModeTracker::IsDoingBehavior`, false for a body that
+    /// cannot animate.
+    pub(crate) fn is_doing_behavior(&self, behavior: u32) -> bool {
+        self.anim.can_animate() && self.anim.modes.is_doing_behavior(behavior)
     }
 
     /// `CPhysicsObj::JumpLogic`: when `can_jump`, stop the near-landing behaviour, then a

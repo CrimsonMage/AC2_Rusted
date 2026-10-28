@@ -4498,7 +4498,7 @@ key	status	note
 004de990	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004de9a0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9b0	_	needs port: cite-only physics-object method
-004de9c0	_	needs port: cite-only physics-object method
+004de9c0	x	ac2-physics physics_obj_contact.rs is_doing_behavior (ModeTracker::IsDoingBehavior, false when the body cannot animate)
 004de9d0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9e0	x	ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
 004de9f0	_	needs port: cite-only physics-object method
@@ -4546,7 +4546,7 @@ key	status	note
 004df4f0	_	needs port: cite-only physics-object method
 004df510	_	needs port: cite-only physics-object method
 004df570	_	needs port: cite-only physics-object method
-004df5a0	~	no IsDoingBehavior(jump) check (behaviours not ported)
+004df5a0	x	ac2-physics physics_obj_contact.rs can_jump: contact 0.5 s, not IsDoingBehavior(jump), desired and reached element on ground or sea floor
 004df670	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004df6a0	x	
 004df6d0	x	
@@ -5551,10 +5551,10 @@ key	status	note
 0050b820	x	
 0050b990	x	ac2-physics interp (slice 3)
 0050ba00	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-0050ba30	_	needs port: move-to manager
+0050ba30	-	back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 0050ba70	~	object targets come from update_move_to_target / lose_move_to_target, not a CPhysics lookup
 0050bae0	x	ac2-physics moveto (slice 3)
-0050bb30	_	needs port: move-to manager
+0050bb30	-	back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 0050bbb0	x	ac2-physics moveto (slice 3)
 0050bd60	x	ac2-physics moveto (slice 3)
 0050bde0	x	ac2-physics moveto (slice 3)
@@ -5574,7 +5574,7 @@ key	status	note
 0050ca60	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 0050cad0	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
 0050cb00	x	ac2-physics constraint.rs (slice 4): ConstraintManager, PhysicsBody::constrain_to/unconstrain, the factor in ConvertDoMotionToLocalDesired, DoConstraint's enable
-0050cb20	_	needs port: interpolation manager
+0050cb20	-	back-pointer plumbing: the Rust MoveToManager and InterpolationManager are owned by the body they serve (moveto/manager.rs, interp/manager.rs)
 0050cb30	x	ac2-physics interp (slice 3)
 0050cb60	-	admin/debug or text-file tooling
 0050cbb0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
