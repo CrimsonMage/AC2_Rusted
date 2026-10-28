@@ -17,6 +17,8 @@ use ac2_physics::{
 };
 use ac2_world::Ac2MotionInterpDesc;
 
+use crate::membership::CellMembership;
+use crate::remote_membership::sync_membership;
 use crate::BodyData;
 
 /// `FXManager::DoCreateObjectFX`'s `CollisionParameters` bit for an FX object.
@@ -105,6 +107,8 @@ pub struct Remote {
     /// The body's entry in the world's object lists (`CObjCell::AddObject`), while it is in the
     /// world with a shape.
     pub shadow: Option<u32>,
+    /// The cell whose object list holds the object (`CObjCell::m_objectList`), while listed.
+    pub listed_cell: Option<u32>,
     /// An FX object: ethereal to every mover (`FXManager::DoCreateObjectFX`).
     pub ethereal: bool,
     /// The alpha moves an FX object makes once its body exists (`DoCreateObjectFX`'s sliders).
@@ -116,7 +120,13 @@ pub struct Remote {
 /// `CPhysicsObj::add_to_cells` / `remove_from_cells` and `CObjCell::AddObject` /
 /// `RemoveObject` for one remote: while the object is in the world with a body and a shape, its
 /// entry in the world's object lists is at its body's position; otherwise it is not listed.
-fn sync_shadow(guid: u64, remote: &mut Remote, terrain: &mut Terrain) {
+fn sync_shadow(
+    guid: u64,
+    remote: &mut Remote,
+    terrain: &mut Terrain,
+    membership: &mut CellMembership,
+) {
+    sync_membership(guid, remote, membership);
     // The entry's blocking mask is the body's (`CPhysicsObj::IsBlocking` reads m_blocking_mask),
     // so it is re-read on every sync: a body's bits can change between syncs.
     let wanted = match (&remote.body, &remote.object, remote.in_world) {
@@ -234,6 +244,8 @@ pub struct Remotes<B> {
     entity_requested: BTreeSet<u64>,
     /// The ethereal bits each object's `EntityDesc` set, applied when its body is made.
     masks: HashMap<u64, u64>,
+    /// The cells' object lists and watchers (`CObjCell::AddObject`, `AddVoyeur`).
+    membership: CellMembership,
 }
 
 impl<B> Default for Remotes<B> {
@@ -247,6 +259,7 @@ impl<B> Default for Remotes<B> {
             entities: BTreeMap::new(),
             entity_requested: BTreeSet::new(),
             masks: HashMap::new(),
+            membership: CellMembership::new(),
         }
     }
 }
@@ -403,12 +416,23 @@ impl<B> Remotes<B> {
         self.lost_cells.remove(&cell)
     }
 
+    /// The cells' object lists and watchers.
+    pub fn membership(&mut self) -> &mut CellMembership {
+        &mut self.membership
+    }
+
     /// `CObjectMaint::DestroyObjectInternal` removed the object: its entry leaves the world's
     /// object lists.
     pub fn removed(&mut self, id: u64, terrain: &mut Terrain) {
         self.remove_from_lost_cell(id);
-        if let Some(shadow) = self.objects.remove(&id).and_then(|r| r.shadow) {
-            terrain.remove_object(shadow);
+        if let Some(remote) = self.objects.remove(&id) {
+            if let Some(cell) = remote.listed_cell {
+                self.membership.remove_object(cell, id);
+            }
+            self.membership.forget_object(id);
+            if let Some(shadow) = remote.shadow {
+                terrain.remove_object(shadow);
+            }
         }
         self.local.remove(&id);
     }
@@ -417,7 +441,7 @@ impl<B> Remotes<B> {
     /// session's events and the FX objects' changes).
     pub fn sync_shadows(&mut self, terrain: &mut Terrain) {
         for (&guid, remote) in self.objects.iter_mut() {
-            sync_shadow(guid, remote, terrain);
+            sync_shadow(guid, remote, terrain, &mut self.membership);
         }
     }
 
@@ -428,6 +452,7 @@ impl<B> Remotes<B> {
                 terrain.remove_object(shadow);
             }
         }
+        self.membership = CellMembership::new();
         self.objects.clear();
         self.lost_cells.clear();
     }
@@ -517,7 +542,7 @@ impl<B> Remotes<B> {
                     events.extend(body.take_missile_events().into_iter().map(|e| (guid, e)));
                 }
             }
-            sync_shadow(guid, remote, terrain);
+            sync_shadow(guid, remote, terrain, &mut self.membership);
         }
         events
     }
@@ -609,6 +634,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 player_distance: 0.0,
                 object: None,
                 shadow: None,
+                listed_cell: None,
                 ethereal: false,
                 alpha_moves: None,
                 fx_follow: None,
@@ -641,6 +667,7 @@ impl<B: AsRef<BodyData>> Remotes<B> {
                 player_distance: 0.0,
                 object: None,
                 shadow: None,
+                listed_cell: None,
                 ethereal: true,
                 alpha_moves: Some(local.alpha_moves),
                 fx_follow: local.fx_follow,

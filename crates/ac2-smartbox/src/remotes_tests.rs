@@ -53,6 +53,7 @@ fn in_world_remote(bits: Option<u64>) -> Remote {
         player_distance: 0.0,
         object: Some((shape, ac2_physics::Vector::new(1.0, 1.0, 1.0))),
         shadow: None,
+        listed_cell: None,
         ethereal: false,
         alpha_moves: None,
         fx_follow: None,
@@ -82,4 +83,19 @@ fn a_body_made_with_bits_lists_them_from_its_first_entry() {
     remotes.sync_shadows(&mut terrain);
     let id = remotes.get(7).and_then(|r| r.shadow).expect("listed");
     assert_eq!(terrain.object_blocking(id), Some(1 << 9));
+}
+
+#[test]
+fn an_object_in_the_world_is_listed_in_its_cell_and_leaves_with_it() {
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    let mut terrain = ac2_physics::Terrain::new();
+    remotes.sync_shadows(&mut terrain);
+    let cell = remotes.get(7).and_then(|r| r.listed_cell).expect("listed");
+    assert_eq!(remotes.membership().inq_objects(cell, false), vec![7]);
+    assert_eq!(remotes.membership().dynamic_objects(cell).len(), 1);
+    // Leaving the world takes it out of the list.
+    remotes.removed(7, &mut terrain);
+    assert!(remotes.membership().inq_objects(cell, false).is_empty());
+    assert!(remotes.membership().dynamic_objects(cell).is_empty());
 }
