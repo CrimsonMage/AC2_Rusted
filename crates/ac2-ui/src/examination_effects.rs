@@ -17,6 +17,25 @@ pub trait ExaminationSource {
     fn examination_items(&self, profile: &ExaminationProfile) -> Vec<ExaminationItem>;
 }
 
+/// `gmExaminationUI::ProcessEffectIDNode` for each effect node of a profile: the source's
+/// expansion (`ExaminationSource::effect_nodes`) takes each effect node's place. A profile without
+/// effects is returned as it is; a call that fails expands to nothing.
+pub fn expand_examination_effects<S: ExaminationSource + ?Sized>(
+    source: &S,
+    profile: &ExaminationProfile,
+) -> ExaminationProfile {
+    if !profile
+        .nodes
+        .iter()
+        .any(|n| matches!(n.value, ExaminationValue::Effect(_)))
+    {
+        return profile.clone();
+    }
+    splice_effects(profile, |context, order, eid| {
+        source.effect_nodes(context, order, eid)
+    })
+}
+
 /// Replaces each effect node in `profile` by what `expand` gives for it (its appearance as the
 /// context, its order and its effect id). Nodes other than effects stay where they are; effect
 /// nodes in an expansion are dropped (`ProcessEffectIDNode` skips type `0x4000000C` there).

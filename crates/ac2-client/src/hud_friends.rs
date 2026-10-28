@@ -3,7 +3,6 @@
 //! ([`crate::gameplay::Command::Friends`]).
 
 use ac2_ui::{FriendsPanel, UiMessage, UiTree};
-use ac2_weenie::GameplayNotice;
 
 use crate::friends::FriendEvent;
 use crate::gameplay::{Command, SelectionFrame};
@@ -14,19 +13,6 @@ pub(crate) fn friend_target(selection: Option<&SelectionFrame>) -> Option<&str> 
     selection
         .filter(|s| s.other_player)
         .and_then(|s| s.name.as_deref())
-}
-
-/// The page's notice ([`FriendsPanel::notice`]): an added friend's request for the list again
-/// becomes a friends command.
-pub(crate) fn friends_notice(
-    panel: &mut FriendsPanel,
-    tree: &mut UiTree,
-    notice: &GameplayNotice,
-    commands: &mut Vec<Command>,
-) {
-    if let Some(request) = panel.notice(tree, notice) {
-        commands.push(Command::Friends(request));
-    }
 }
 
 /// A GUN event the client took for the page: the `FriendStart` list (`BuildUIList`) or one

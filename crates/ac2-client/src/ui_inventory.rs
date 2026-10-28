@@ -4,11 +4,9 @@
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{
-    BackpackUi, DialogFactory, ExternalContainerRequest, ExternalContainerUi,
-    InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, PaperDollUi, SecureTradeSplit,
-    SecureTradeUi, StackUi, UiTree,
+    ExternalContainerRequest, InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot,
+    SecureTradeSplit, StackUi, UiTree,
 };
-use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
@@ -142,28 +140,6 @@ impl InventoryNoticeSource for ClientPlayer<'_> {
     }
 }
 
-/// `gmPaperDollUI::RecvNotice_UpdateInventory`, `RecvNotice_ItemUpdate`, the slots' selection.
-pub(crate) fn paper_doll_notice(
-    doll: &mut PaperDollUi,
-    tree: &mut UiTree,
-    player: &ClientPlayer<'_>,
-    old_selection: u64,
-    notice: &GameplayNotice,
-) {
-    ac2_ui::paper_doll_notice(doll, tree, player, old_selection, notice);
-}
-
-/// The backpack's notices; `selection` is the selection before them.
-pub(crate) fn backpack_notice(
-    backpack: &mut BackpackUi,
-    tree: &mut UiTree,
-    player: &ClientPlayer<'_>,
-    selection: &mut u64,
-    notice: &GameplayNotice,
-) {
-    ac2_ui::backpack_notice(backpack, tree, player, selection, notice);
-}
-
 /// A slot's request: the stack dialogs it opens (`ac2_ui::item_dialog`), then the rest as
 /// commands. Whether the examination panel opens.
 pub(crate) fn item_request(
@@ -177,23 +153,6 @@ pub(crate) fn item_request(
         Some(request) => item_commands(request, commands),
         None => false,
     }
-}
-
-/// `StackUI` event hearing; see `ac2_ui::stack_event`.
-pub(crate) fn stack_event(stack: &mut StackUi, tree: &mut UiTree, event: &SessionEvent) {
-    ac2_ui::stack_event(stack, tree, event);
-}
-
-/// One event for the external container; see `ac2_ui::external_container_event`.
-pub(crate) fn external_container_event(
-    panel: &mut ExternalContainerUi,
-    tree: &mut UiTree,
-    player: &ClientPlayer<'_>,
-    stack: Option<&mut StackUi>,
-    selection: u64,
-    event: &SessionEvent,
-) {
-    ac2_ui::external_container_event(panel, tree, player, stack, selection, event);
 }
 
 /// The external container's request as commands; whether the examination panel opens.
@@ -285,18 +244,6 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
         }
     }
     false
-}
-
-/// `gmSecureTradeUI`'s notices; see `ac2_ui::secure_trade_notice`.
-pub(crate) fn secure_trade_notice(
-    panel: &mut SecureTradeUi,
-    tree: &mut UiTree,
-    dialogs: &mut DialogFactory,
-    player: &ClientPlayer<'_>,
-    now: f64,
-    notice: &GameplayNotice,
-) {
-    ac2_ui::secure_trade_notice(panel, tree, dialogs, player, now, notice);
 }
 
 /// A stack dropped on the trade's list asks how many; see `ac2_ui::secure_trade_split`.
