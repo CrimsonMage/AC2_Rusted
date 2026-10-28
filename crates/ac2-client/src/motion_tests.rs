@@ -1,27 +1,24 @@
-//! The server's motion events on a human body from the real DATs (`AC2_DAT_DIR`; skipped
-//! without): what each `CPhysicsObj::RecvEvt_*` does to the body, and the `MoveTo` unpacking.
+//! The client's conversion of the server's motion events (`ObjectAction` into `MotionEvent`,
+//! the behaviour bitfield, the `MoveTo` unpacking, the `PhysicsDesc` animation) and the route
+//! a `MoveTo` takes to the player alone. The body's own response is tested in `ac2-physics`.
 
 use std::sync::Arc;
 
 use ac2_net::protocol::{BehaviorParams, MoveTarget, MovementParameters, ObjectAction};
-use ac2_physics::{Frame, PhysicsBody, Position, Quaternion, Vector};
+use ac2_physics::{Frame, MotionEvent, PhysicsBody, Position, Quaternion, Vector};
 
-use super::{apply, describe, movement_parameters};
+use super::{apply, behavior, describe, event, movement_parameters};
 use crate::world_data::{DatWorld, WorldData};
 
 /// The human visual (the double's player).
 const HUMAN: u32 = 0x1F00_0023;
-/// `MODE_DEFAULT` (peace) and a ground mode its behaviour table can switch to.
-const PEACE: u32 = 0x4000_0001;
 const OTHER_MODE: u32 = 0x4100_0009;
 /// The `dead` mode and the `death` behaviour.
 const DEAD: u32 = 0x4100_0005;
 const DEATH: u32 = 0x4100_001F;
 /// Behaviours of the peace mode on the ground.
 const WAVE: u32 = 0x4000_000A;
-const OTHER_BEHAVIOR: u32 = 0x4000_000B;
-/// A slider the human's `CharTemplate` leaves to the client, and a network one.
-const CLIENT_SLIDER: u32 = 0x4000_0001;
+/// A network slider.
 const NETWORK_SLIDER: u32 = 0x4000_000A;
 
 fn at(cell: u32, origin: [f32; 3]) -> Position {
@@ -66,73 +63,65 @@ fn params(bitfield: u32, behavior: u32, mode: u32) -> Box<BehaviorParams> {
     })
 }
 
+/// `BehaviorParams::StreamPack`: the bitfield names the fields it sends, the rest keep their
+/// defaults, and the copy runs in context 1.
 #[test]
-fn modes_behaviours_and_layers_reach_the_body() {
-    let Some(mut body) = human(false) else {
-        return;
+fn the_behaviour_bitfield_names_the_fields_it_sends() {
+    let named = behavior(&BehaviorParams {
+        bitfield: 0x1 | 0x2 | 0x800,
+        behavior: DEATH,
+        mode: DEAD,
+        lock_actions: 1,
+        ..BehaviorParams::default()
+    });
+    assert_eq!(named.behavior, DEATH);
+    assert_eq!(named.mode, DEAD);
+    assert!(named.lock_actions);
+    assert_eq!(named.context, 1);
+    let bare = behavior(&BehaviorParams {
+        bitfield: 0,
+        behavior: DEATH,
+        ..BehaviorParams::default()
+    });
+    assert_ne!(bare.behavior, DEATH, "no bit 1, no behaviour");
+    assert_eq!(bare.mode, behavior(&BehaviorParams::default()).mode);
+}
+
+/// The conversion keeps the motion actions and drops the rest; a targeted FX plays its
+/// untargeted sound branch.
+#[test]
+fn the_server_actions_convert_to_their_motion_events() {
+    let Some(MotionEvent::DoBehavior(converted)) =
+        event(&ObjectAction::DoBehavior(params(3, DEATH, DEAD)))
+    else {
+        panic!("DoBehavior converts to a behaviour event");
     };
-    assert_eq!(body.mode(), PEACE);
-    // `RecvEvt_SetMode`: at once.
-    apply(&mut body, &ObjectAction::SetMode(OTHER_MODE));
-    assert_eq!(body.mode(), OTHER_MODE);
-    // `RecvEvt_DoMode` -> `DoMode(0, mode)`: back to peace through the table's transitions.
-    apply(&mut body, &ObjectAction::DoMode(PEACE));
-    animate(&mut body, 5.0);
-    assert_eq!(body.mode(), PEACE);
-    // `RecvEvt_DoBehavior` (bit 1: the behaviour), then `RecvEvt_StopBehavior`.
-    apply(&mut body, &ObjectAction::DoBehavior(params(1, WAVE, 0)));
-    assert!(body.is_doing_behavior(WAVE));
-    apply(&mut body, &ObjectAction::StopBehavior(WAVE));
-    animate(&mut body, 1.0);
-    assert!(!body.is_doing_behavior(WAVE));
-    // Bit 2 names the mode the behaviour enters first (`BehaviorParams::mModeID`).
-    apply(
-        &mut body,
-        &ObjectAction::DoBehavior(params(3, OTHER_BEHAVIOR, PEACE)),
+    assert_eq!((converted.behavior, converted.mode), (DEATH, DEAD));
+    assert_eq!(
+        event(&ObjectAction::DoTargettedFx {
+            fx: 0x4000_0010,
+            scalar: 0.5,
+            target: 9,
+        }),
+        Some(MotionEvent::DoFx {
+            fx: 0x4000_0010,
+            scalar: 0.5,
+        })
     );
-    assert!(body.is_doing_behavior(OTHER_BEHAVIOR));
-    apply(&mut body, &ObjectAction::StopAllWeenieBehaviors);
-    apply(&mut body, &ObjectAction::StopMoveToCancelsBehaviors);
-    apply(&mut body, &ObjectAction::StopLayer(0));
-    animate(&mut body, 1.0);
-    assert_eq!(body.mode(), PEACE);
-}
-
-/// The death presentation the server's `DoBehavior` starts (`gmbehaviors.emp` `death`, entering
-/// `gmmodes.emp` `dead` first): the body rests in the `dead` mode once the behaviour has played,
-/// and a `SetMode` of the default mode (the respawn) stands it up again.
-#[test]
-fn a_death_behavior_lays_the_body_in_the_dead_mode() {
-    let Some(mut body) = human(false) else {
-        return;
-    };
-    assert_eq!(body.mode(), PEACE);
-    apply(&mut body, &ObjectAction::DoBehavior(params(3, DEATH, DEAD)));
-    assert!(body.is_doing_behavior(DEATH));
-    animate(&mut body, 6.0);
-    assert_eq!(body.mode(), DEAD);
-    apply(&mut body, &ObjectAction::SetMode(PEACE));
-    assert_eq!(body.mode(), PEACE);
-}
-
-#[test]
-fn the_player_keeps_its_client_sliders_and_others_take_every_slider() {
-    let (Some(mut remote), Some(mut player)) = (human(false), human(true)) else {
-        return;
-    };
-    let slide = |slider| ObjectAction::DoSlider {
-        slider,
-        value: 0.75,
-        time: 0.0,
-    };
-    for body in [&mut remote, &mut player] {
-        apply(body, &slide(CLIENT_SLIDER));
-        apply(body, &slide(NETWORK_SLIDER));
-    }
-    assert_eq!(remote.slider_desired_value(CLIENT_SLIDER), 0.75);
-    assert_eq!(remote.slider_desired_value(NETWORK_SLIDER), 0.75);
-    assert_ne!(player.slider_desired_value(CLIENT_SLIDER), 0.75);
-    assert_eq!(player.slider_desired_value(NETWORK_SLIDER), 0.75);
+    assert_eq!(
+        event(&ObjectAction::AddTargetedImpulse {
+            target: 9,
+            magnitude: 2.0,
+            falloff: 1,
+            vertical: 0.0,
+        }),
+        Some(MotionEvent::AddTargetedImpulse {
+            magnitude: 2.0,
+            falloff: true,
+            vertical: 0.0,
+        })
+    );
+    assert_eq!(event(&ObjectAction::LeaveWorld(0)), None);
 }
 
 #[test]
@@ -207,74 +196,4 @@ fn a_server_move_to_unpacks_into_the_physics_parameters() {
         "the minimum is not sent: its default stays"
     );
     assert_eq!(unpacked.context, 7);
-}
-
-/// `ECM_Physics::RecvEvt_SetVelocityScale`, `SetAccelerationScale`, `SetJumpScale` and
-/// `SetHoverHeight` reach the body's tuning; a negative jump scale is refused.
-#[test]
-fn the_server_tunes_the_body_scales_and_hover_height() {
-    let Some(mut body) = human(false) else {
-        return;
-    };
-    apply(&mut body, &ObjectAction::SetVelocityScale(0.5));
-    apply(&mut body, &ObjectAction::SetAccelerationScale(0.25));
-    apply(&mut body, &ObjectAction::SetJumpScale(2.0));
-    apply(&mut body, &ObjectAction::SetHoverHeight(1.5));
-    let tuning = body.tuning();
-    assert_eq!(tuning.velocity_scale, 0.5);
-    assert_eq!(tuning.acceleration_scale, 0.25);
-    assert_eq!(tuning.jump_scale, 2.0);
-    assert_eq!(tuning.hover_height, 1.5);
-    apply(&mut body, &ObjectAction::SetJumpScale(-1.0));
-    assert_eq!(body.tuning().jump_scale, 2.0);
-}
-
-/// `ECM_Physics::RecvEvt_DoFX` and `StopFX` start and stop the effect's sounds: the body's
-/// animation events carry them to the client's FX manager.
-#[test]
-fn a_server_fx_reaches_the_body_as_fx_events() {
-    let Some(mut body) = human(false) else {
-        return;
-    };
-    apply(
-        &mut body,
-        &ObjectAction::DoFx {
-            fx: 0x4000_0010,
-            scalar: 1.0,
-        },
-    );
-    apply(&mut body, &ObjectAction::StopFx(0x4000_0010));
-    let events = body.take_animation_events();
-    assert!(events.iter().any(|e| matches!(
-        e,
-        ac2_anim::Ac2AnimEvent::StartFx { fx: 0x4000_0010, intensity } if *intensity == 1.0
-    )));
-    assert!(events
-        .iter()
-        .any(|e| matches!(e, ac2_anim::Ac2AnimEvent::StopFx { fx: 0x4000_0010 })));
-}
-
-/// A behaviour that locks actions (`BehaviorParams::lock_actions`) emits the player's
-/// `LockActions` when it starts; the client's movement module follows that event
-/// (`client_audio::animation_sounds`), and `UnlockActions` ends it.
-#[test]
-fn a_locking_behaviour_on_the_player_emits_lock_events() {
-    let Some(mut player) = human(true) else {
-        return;
-    };
-    let locking = Box::new(BehaviorParams {
-        bitfield: 0x1 | 0x800,
-        behavior: WAVE,
-        lock_actions: 1,
-        ..BehaviorParams::default()
-    });
-    apply(&mut player, &ObjectAction::DoBehavior(locking));
-    animate(&mut player, 1.0);
-    let events = player.take_animation_events();
-    assert!(
-        events
-            .iter()
-            .any(|e| matches!(e, ac2_anim::Ac2AnimEvent::LockActions)),
-        "{events:?}"
-    );
 }

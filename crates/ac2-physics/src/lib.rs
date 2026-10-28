@@ -42,8 +42,11 @@ mod loader;
 mod loader_anim;
 mod look_at;
 mod los;
+mod motion;
 mod motion_interp;
 mod motion_interp_behaviors;
+#[cfg(test)]
+mod motion_tests;
 mod moveto;
 mod objects;
 #[cfg(test)]
@@ -92,6 +95,7 @@ pub use loader::{
 pub use loader_anim::load_body_animation;
 pub use look_at::LookTarget;
 pub use los::{LosParameters, Ray, RayIntersection};
+pub use motion::{apply_motion, apply_motion_from, apply_motion_owned, MotionEvent};
 pub use motion_interp::MotionInterp;
 pub use moveto::{
     MoveToResult, MovementParameters, PackedMovementParameters, MOVE_TO_AWAY, MOVE_TO_MOVE,

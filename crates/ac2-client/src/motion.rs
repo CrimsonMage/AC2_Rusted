@@ -1,11 +1,14 @@
-//! The server's motion events for a body (`CPhysicsObj::RecvEvt_DoMode`, `RecvEvt_SetMode`,
-//! the behaviour, layer and slider events, `RecvEvt_MoveTo`) and the animated part pose as
-//! plain data.
+//! The server's motion events as the client reads them: the `ObjectAction` conversion into the
+//! physics `MotionEvent`s (`ac2_physics::apply_motion`), the behaviour, move-to and position
+//! unpacking, and the `PhysicsDesc` animation.
 
 use ac2_anim::Ac2BehaviorParams;
 use ac2_net::protocol::{BehaviorParams, MoveTarget, MovementParameters, ObjectAction};
+#[cfg(test)]
+use ac2_physics::apply_motion;
 use ac2_physics::{
-    DescSlider, Frame, PackedMovementParameters, PhysicsBody, Position, Quaternion, Vector,
+    apply_motion_owned, DescSlider, Frame, MotionEvent, PackedMovementParameters, PhysicsBody,
+    Position, Quaternion, Vector,
 };
 
 /// `BehaviorParams::StreamPack` over `BehaviorParams::SetDefaults`: the fields the pack bitfield
@@ -91,107 +94,84 @@ pub(crate) fn describe(
     body.set_description_animation(mode, &behaviors, &sliders);
 }
 
-/// The motion events a body plays (`CPhysicsObj::RecvEvt_*`): `DoMode` is `DoMode(0, mode)`;
-/// `DoBehavior` and `ReleaseBehavior` run copies whose context is 1 (a weenie emote is not run
-/// first); `DoSlider` leaves the player's client-controlled sliders alone; `MoveTo` moves the
-/// player only; the velocity, acceleration and jump scales and the hover height set the body's
-/// tuning; the FX events start and stop the effect's sounds. Returns whether a move-to started.
-pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
-    match action {
-        ObjectAction::DoMode(mode) => {
-            body.do_mode(0, *mode);
-        }
-        ObjectAction::SetMode(mode) => {
-            body.set_mode(*mode);
-        }
-        ObjectAction::StopLayer(layer) => body.stop_layer(*layer),
-        ObjectAction::DoBehavior(params) => {
-            body.do_behavior(&behavior(params));
-        }
-        ObjectAction::StopBehavior(id) => body.stop_behavior(*id),
+/// The physics event an `ObjectAction` carries (`CPhysicsObj::RecvEvt_*`); `None` for the
+/// actions a body does not play. `DoTargettedFx` plays its untargeted sound branch
+/// (`FXManager::DoTargettedFX`): the target only steers the visual part.
+pub(crate) fn event(action: &ObjectAction) -> Option<MotionEvent> {
+    Some(match action {
+        ObjectAction::DoMode(mode) => MotionEvent::DoMode(*mode),
+        ObjectAction::SetMode(mode) => MotionEvent::SetMode(*mode),
+        ObjectAction::StopLayer(layer) => MotionEvent::StopLayer(*layer),
+        ObjectAction::DoBehavior(params) => MotionEvent::DoBehavior(behavior(params)),
+        ObjectAction::StopBehavior(id) => MotionEvent::StopBehavior(*id),
         ObjectAction::ReleaseBehavior {
             behavior: id,
             params,
-        } => {
-            body.release_behavior(*id, &behavior(params));
-        }
-        ObjectAction::StopAllWeenieBehaviors => {
-            body.stop_all_weenie_behaviors();
-        }
-        ObjectAction::StopMoveToCancelsBehaviors => body.stop_move_to_cancels_behaviors(),
+        } => MotionEvent::ReleaseBehavior {
+            behavior: *id,
+            params: behavior(params),
+        },
+        ObjectAction::StopAllWeenieBehaviors => MotionEvent::StopAllWeenieBehaviors,
+        ObjectAction::StopMoveToCancelsBehaviors => MotionEvent::StopMoveToCancelsBehaviors,
         ObjectAction::DoSlider {
             slider,
             value,
             time,
-        } => {
-            body.recv_do_slider(*slider, *value, *time);
-        }
+        } => MotionEvent::DoSlider {
+            slider: *slider,
+            value: *value,
+            time: *time,
+        },
         ObjectAction::MoveTo { params, .. } => {
-            return body.recv_move_to(movement_parameters(params));
+            MotionEvent::MoveTo(Box::new(movement_parameters(params)))
         }
-        // `CPhysicsObj::RecvEvt_AddImpulse`: knockback in world axes.
-        ObjectAction::AddImpulse { direction, .. } => body.add_impulse(*direction),
-        ObjectAction::SetVelocityScale(scale) => body.set_velocity_scale(*scale),
-        ObjectAction::SetAccelerationScale(scale) => body.set_acceleration_scale(*scale),
-        ObjectAction::SetJumpScale(scale) => body.set_jump_scale(*scale),
-        ObjectAction::SetHoverHeight(height) => body.set_hover_height(*height),
-        // `CPhysicsObj::RecvEvt_LookAtDir`: a non-player's head direction.
-        ObjectAction::LookAtDir { x, y } => body.look_at_dir(*x, *y),
-        ObjectAction::SetGlobalModifier(id) => body.set_global_modifier(*id),
-        ObjectAction::DoFxScript(id) => body.do_fx_script(*id),
-        ObjectAction::DoFx { fx, scalar } => {
-            body.do_fx(*fx, *scalar);
+        ObjectAction::AddImpulse { direction, .. } => MotionEvent::AddImpulse {
+            direction: *direction,
+        },
+        ObjectAction::AddTargetedImpulse {
+            magnitude,
+            falloff,
+            vertical,
+            ..
+        } => MotionEvent::AddTargetedImpulse {
+            magnitude: *magnitude,
+            falloff: *falloff != 0,
+            vertical: *vertical,
+        },
+        ObjectAction::SetVelocityScale(scale) => MotionEvent::SetVelocityScale(*scale),
+        ObjectAction::SetAccelerationScale(scale) => MotionEvent::SetAccelerationScale(*scale),
+        ObjectAction::SetJumpScale(scale) => MotionEvent::SetJumpScale(*scale),
+        ObjectAction::SetHoverHeight(height) => MotionEvent::SetHoverHeight(*height),
+        ObjectAction::LookAt(target) => MotionEvent::LookAt(*target),
+        ObjectAction::LookAtDir { x, y } => MotionEvent::LookAtDir { x: *x, y: *y },
+        ObjectAction::SetGlobalModifier(id) => MotionEvent::SetGlobalModifier(*id),
+        ObjectAction::DoFxScript(id) => MotionEvent::DoFxScript(*id),
+        ObjectAction::DoFx { fx, scalar } | ObjectAction::DoTargettedFx { fx, scalar, .. } => {
+            MotionEvent::DoFx {
+                fx: *fx,
+                scalar: *scalar,
+            }
         }
-        // `CPhysicsObj::RecvEvt_DoTargettedFX`: the FX manager's sound branch is the untargeted
-        // one (`FXManager::DoTargettedFX`); the target only steers the visual part.
-        ObjectAction::DoTargettedFx { fx, scalar, .. } => {
-            body.do_fx(*fx, *scalar);
-        }
-        ObjectAction::StopFx(fx) => {
-            body.stop_fx(*fx);
-        }
-        _ => {}
-    }
-    false
+        ObjectAction::StopFx(fx) => MotionEvent::StopFx(*fx),
+        _ => return None,
+    })
 }
 
-/// [`apply_from`] for the object `own`: a look at the object itself ends the look
-/// (`CPhysicsObj::LookAt`'s own-id check), which needs the body's id.
+/// [`ac2_physics::apply_motion`] for the server's action; a non-motion action leaves the body
+/// alone.
+#[cfg(test)]
+pub(crate) fn apply(body: &mut PhysicsBody, action: &ObjectAction) -> bool {
+    event(action).is_some_and(|event| apply_motion(body, &event))
+}
+
+/// [`ac2_physics::apply_motion_owned`] for the server's action.
 pub(crate) fn apply_owned(
     body: &mut PhysicsBody,
     own: u64,
     action: &ObjectAction,
     source: Option<Position>,
 ) -> bool {
-    if let ObjectAction::LookAt(target) = action {
-        body.look_at(*target, own);
-        return false;
-    }
-    apply_from(body, action, source)
-}
-
-/// [`apply`] with the position a targeted impulse pushes from: the target's position
-/// (`CPhysicsObj::AddTargetedImpulse` takes `CPhysics::GetObjectA(target)`). `None` (the target
-/// is not in the world, or it is the body itself) leaves the body alone.
-pub(crate) fn apply_from(
-    body: &mut PhysicsBody,
-    action: &ObjectAction,
-    source: Option<Position>,
-) -> bool {
-    if let (
-        ObjectAction::AddTargetedImpulse {
-            magnitude,
-            falloff,
-            vertical,
-            ..
-        },
-        Some(source),
-    ) = (action, source)
-    {
-        body.add_targeted_impulse(&source, *magnitude, *falloff != 0, *vertical);
-        return false;
-    }
-    apply(body, action)
+    event(action).is_some_and(|event| apply_motion_owned(body, own, &event, source))
 }
 
 #[cfg(test)]
