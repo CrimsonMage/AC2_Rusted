@@ -9,8 +9,8 @@
 //! destruction is cancelled.
 
 use ac2_net::protocol::ServerPosition;
-use ac2_physics::{Frame, Heading, Position, Quaternion, Vector};
-use ac2_smartbox::remotes::{ObjectRecord, Remote, ResidencyEffect, FX_OBJECT_COLLISION_BIT};
+use ac2_physics::{Frame, Heading, PhysicsBody, Position, Quaternion, Vector};
+use ac2_smartbox::remotes::{LocalObject, ObjectRecord, ResidencyEffect};
 use ac2_weenie::{OnlineSession, RemoteObject};
 
 pub(crate) use ac2_smartbox::remotes::{is_entity_desc, look_snapshot, visible};
@@ -52,7 +52,24 @@ fn record(session: &OnlineSession, id: u64) -> Option<ObjectRecord> {
     Some(ObjectRecord {
         position: table_position(object),
         held: object.parent.is_some(),
+        visual: object.visual,
+        entity: object.entity,
     })
+}
+
+/// The `PhysicsDesc` of object `id` (`CPhysicsObj::set_description`): its mode, behaviours and
+/// sliders from the session, applied to its new body.
+fn describer(session: &OnlineSession) -> impl Fn(&mut PhysicsBody, u64) + '_ {
+    move |body, id| {
+        if let Some(object) = session.objects().get(id) {
+            crate::motion::describe(
+                body,
+                object.mode.unwrap_or(0),
+                &object.behaviors,
+                &object.sliders,
+            );
+        }
+    }
 }
 
 /// Applies the destroy queue changes a residency call made, in order.
@@ -118,48 +135,11 @@ pub(crate) trait RemoteCalls {
 
 impl RemoteCalls for Remotes {
     fn added(&mut self, id: u64, cx: &mut Context<'_>) {
-        let Some(object) = cx.session.objects().get(id) else {
-            return;
+        let effects = {
+            let describe = describer(cx.session);
+            self.create_object(id, &|id| record(cx.session, id), cx.terrain, &describe)
         };
-        let position = table_position(object);
-        let held = object.parent.is_some();
-        let visual = object.visual;
-        if let Some(did) = object.entity.filter(|&did| is_entity_desc(did)) {
-            self.record_entity(id, did);
-        }
-        if self.tracks(id) {
-            if let (Some(position), false) = (position, held) {
-                if position.cell_id != 0 {
-                    let effects = self.sync_position_simple(
-                        id,
-                        position,
-                        &|id| record(cx.session, id),
-                        cx.terrain,
-                    );
-                    apply_effects(cx.session, effects);
-                }
-            }
-            return;
-        }
-        self.insert(
-            id,
-            Remote {
-                visual,
-                body: None,
-                failed: false,
-                stored: position,
-                in_world: false,
-                lost_cell: None,
-                active: true,
-                player_distance: 0.0,
-                object: None,
-                shadow: None,
-                ethereal: false,
-                alpha_moves: None,
-                fx_follow: None,
-            },
-        );
-        try_create(self, id, cx);
+        apply_effects(cx.session, effects);
     }
 
     fn body_loaded(
@@ -169,7 +149,11 @@ impl RemoteCalls for Remotes {
         cx: &mut Context<'_>,
     ) {
         for id in self.store_body(visual, body) {
-            try_create(self, id, cx);
+            let effects = {
+                let describe = describer(cx.session);
+                self.try_create(id, &|id| record(cx.session, id), cx.terrain, &describe)
+            };
+            apply_effects(cx.session, effects);
         }
     }
 
@@ -236,25 +220,23 @@ impl RemoteCalls for Remotes {
         alpha_moves: [(f32, f32); 2],
         cx: &mut Context<'_>,
     ) {
-        self.insert_local(
-            id,
-            Remote {
-                visual: Some(visual),
-                body: None,
-                failed: false,
-                stored: Some(position),
-                in_world: false,
-                lost_cell: None,
-                active: true,
-                player_distance: 0.0,
-                object: None,
-                shadow: None,
-                ethereal: true,
-                alpha_moves: Some(alpha_moves),
-                fx_follow,
-            },
-        );
-        try_create(self, id, cx);
+        let local = LocalObject {
+            visual,
+            position,
+            fx_follow,
+            alpha_moves,
+        };
+        let effects = {
+            let describe = describer(cx.session);
+            self.create_local(
+                id,
+                local,
+                &|id| record(cx.session, id),
+                cx.terrain,
+                &describe,
+            )
+        };
+        apply_effects(cx.session, effects);
     }
 
     fn block_released(&mut self, block: u32, cx: &mut Context<'_>) {
@@ -265,76 +247,6 @@ impl RemoteCalls for Remotes {
     fn block_resident(&mut self, block: u32, cx: &mut Context<'_>) {
         let effects = self.resident_block(block, &|id| record(cx.session, id), cx.terrain);
         apply_effects(cx.session, effects);
-    }
-}
-
-/// `CObjectMaint::FinishEntityCreation` once the Setup is in: the physics object, placed at
-/// the create's position when it has a cell and no parent (`SyncPositionSimple(pos, 1)`).
-fn try_create(remotes: &mut Remotes, id: u64, cx: &mut Context<'_>) {
-    let Some(visual) = remotes.get(id).map(|r| r.visual()) else {
-        return;
-    };
-    let data = match remotes.body_result(visual) {
-        None => return,
-        Some(Ok(data)) => Some(data.clone()),
-        Some(Err(_)) => None,
-    };
-    let Some(data) = data else {
-        if let Some(remote) = remotes.get_mut(id) {
-            remote.failed = true;
-        }
-        return;
-    };
-    let Some(remote) = remotes.get_mut(id) else {
-        return;
-    };
-    let start = remote.stored.unwrap_or_default();
-    let ethereal = remote.ethereal;
-    let stored = remote.stored;
-    let alpha_moves = remote.alpha_moves.take();
-    remote.object = data.body.object.clone();
-    let mut body = ac2_physics::PhysicsBody::new(start, data.body.shape, data.body.motion);
-    body.set_radius(data.body.radius);
-    if ethereal {
-        // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
-        // physics type, which the object's list entry carries (`sync_shadow`).
-        body.collision_mut().set_bit(FX_OBJECT_COLLISION_BIT);
-    }
-    if let Some(bits) = remotes.entity_mask(id) {
-        body.apply_blocking_bits(bits);
-    }
-    if let Some(animation) = data.body.animation {
-        body.set_animation(animation);
-    }
-    // The `PhysicsDesc`'s mode, behaviours and sliders (`CPhysicsObj::set_description`);
-    // the mode is the latest `SetMode` when one came before the body.
-    if let Some(object) = cx.session.objects().get(id) {
-        let mode = object.mode.unwrap_or(0);
-        crate::motion::describe(&mut body, mode, &object.behaviors, &object.sliders);
-    }
-    if let Some(moves) = alpha_moves {
-        for (pos, time) in moves {
-            body.do_slider(0, ac2_smartbox::fx_objects::ALPHA_SLIDER, pos, time);
-        }
-    }
-    if let Some(remote) = remotes.get_mut(id) {
-        remote.body = Some(body);
-    }
-    let held = cx
-        .session
-        .objects()
-        .get(id)
-        .is_some_and(|o| o.parent.is_some());
-    if let (Some(position), false) = (stored, held) {
-        if position.cell_id != 0 {
-            let effects = remotes.sync_position_simple(
-                id,
-                position,
-                &|id| record(cx.session, id),
-                cx.terrain,
-            );
-            apply_effects(cx.session, effects);
-        }
     }
 }
 

@@ -35,6 +35,21 @@ pub struct ObjectRecord {
     pub position: Option<Position>,
     /// The object has a parent: it is held or contained.
     pub held: bool,
+    /// The visual its appearance comes from (`RemoteObject::visual`).
+    pub visual: Option<u32>,
+    /// The `EntityDesc` DID from its create (`RemoteObject::entity`).
+    pub entity: Option<u32>,
+}
+
+/// A client-made object (`CObjectMaint::CreateTemporaryObject`), such as an FX's, with no
+/// session entry.
+#[derive(Clone, Copy, Debug)]
+pub struct LocalObject {
+    pub visual: u32,
+    pub position: Position,
+    pub fx_follow: Option<FxFollow>,
+    /// The alpha moves an FX object makes once its body exists (`DoCreateObjectFX`'s sliders).
+    pub alpha_moves: [(f32, f32); 2],
 }
 
 /// The session's view of the objects, by id: `None` for an object the session does not have.
@@ -457,6 +472,162 @@ impl<B> Remotes<B> {
 }
 
 impl<B: AsRef<BodyData>> Remotes<B> {
+    /// `CObjectMaint::RecvEvt_CreateObject` for an object other than the player: its entry is
+    /// made (or, when it is already tracked, placed at its position), and its body is created
+    /// once its Setup is in. `describe` applies the session's `PhysicsDesc` to the new body.
+    pub fn create_object(
+        &mut self,
+        id: u64,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+        describe: &dyn Fn(&mut PhysicsBody, u64),
+    ) -> Vec<ResidencyEffect> {
+        let mut effects = Vec::new();
+        let Some(object) = records(id) else {
+            return effects;
+        };
+        if let Some(did) = object.entity.filter(|&did| is_entity_desc(did)) {
+            self.record_entity(id, did);
+        }
+        if self.tracks(id) {
+            if let (Some(position), false) = (object.position, object.held) {
+                if position.cell_id != 0 {
+                    effects.extend(self.sync_position_simple(id, position, records, terrain));
+                }
+            }
+            return effects;
+        }
+        self.insert(
+            id,
+            Remote {
+                visual: object.visual,
+                body: None,
+                failed: false,
+                stored: object.position,
+                in_world: false,
+                lost_cell: None,
+                active: true,
+                player_distance: 0.0,
+                object: None,
+                shadow: None,
+                ethereal: false,
+                alpha_moves: None,
+                fx_follow: None,
+            },
+        );
+        self.try_create_into(id, records, terrain, describe, &mut effects);
+        effects
+    }
+
+    /// `CObjectMaint::CreateTemporaryObject`: an object the client makes (an FX's), created like
+    /// any other once its Setup is in.
+    pub fn create_local(
+        &mut self,
+        id: u64,
+        local: LocalObject,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+        describe: &dyn Fn(&mut PhysicsBody, u64),
+    ) -> Vec<ResidencyEffect> {
+        self.insert_local(
+            id,
+            Remote {
+                visual: Some(local.visual),
+                body: None,
+                failed: false,
+                stored: Some(local.position),
+                in_world: false,
+                lost_cell: None,
+                active: true,
+                player_distance: 0.0,
+                object: None,
+                shadow: None,
+                ethereal: true,
+                alpha_moves: Some(local.alpha_moves),
+                fx_follow: local.fx_follow,
+            },
+        );
+        let mut effects = Vec::new();
+        self.try_create_into(id, records, terrain, describe, &mut effects);
+        effects
+    }
+
+    /// `CObjectMaint::FinishEntityCreation` once the Setup is in: the physics object, placed at
+    /// the create's position when it has a cell and no parent (`SyncPositionSimple(pos, 1)`).
+    pub fn try_create(
+        &mut self,
+        id: u64,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+        describe: &dyn Fn(&mut PhysicsBody, u64),
+    ) -> Vec<ResidencyEffect> {
+        let mut effects = Vec::new();
+        self.try_create_into(id, records, terrain, describe, &mut effects);
+        effects
+    }
+
+    fn try_create_into(
+        &mut self,
+        id: u64,
+        records: Records<'_>,
+        terrain: &mut Terrain,
+        describe: &dyn Fn(&mut PhysicsBody, u64),
+        effects: &mut Vec<ResidencyEffect>,
+    ) {
+        let Some(visual) = self.get(id).map(|r| r.visual()) else {
+            return;
+        };
+        let data = match self.body_result(visual) {
+            None => return,
+            Some(Ok(data)) => Some(data.as_ref().clone()),
+            Some(Err(_)) => None,
+        };
+        let Some(data) = data else {
+            if let Some(remote) = self.get_mut(id) {
+                remote.failed = true;
+            }
+            return;
+        };
+        let Some(remote) = self.get_mut(id) else {
+            return;
+        };
+        let start = remote.stored.unwrap_or_default();
+        let ethereal = remote.ethereal;
+        let stored = remote.stored;
+        let alpha_moves = remote.alpha_moves.take();
+        remote.object = data.object;
+        let mut body = PhysicsBody::new(start, data.shape, data.motion);
+        body.set_radius(data.radius);
+        if ethereal {
+            // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
+            // physics type, which the object's list entry carries (`sync_shadow`).
+            body.collision_mut().set_bit(FX_OBJECT_COLLISION_BIT);
+        }
+        if let Some(bits) = self.entity_mask(id) {
+            body.apply_blocking_bits(bits);
+        }
+        if let Some(animation) = data.animation {
+            body.set_animation(animation);
+        }
+        // The `PhysicsDesc`'s mode, behaviours and sliders (`CPhysicsObj::set_description`),
+        // applied by the client.
+        describe(&mut body, id);
+        if let Some(moves) = alpha_moves {
+            for (pos, time) in moves {
+                body.do_slider(0, crate::fx_objects::ALPHA_SLIDER, pos, time);
+            }
+        }
+        if let Some(remote) = self.get_mut(id) {
+            remote.body = Some(body);
+        }
+        let held = records(id).is_some_and(|r| r.held);
+        if let (Some(position), false) = (stored, held) {
+            if position.cell_id != 0 {
+                effects.extend(self.sync_position_simple(id, position, records, terrain));
+            }
+        }
+    }
+
     /// A move-to target as `TargetManager` reports it: an object in the world with a body, its
     /// position, `GetRadius` and `GetHeight` (the Setup's, scaled).
     pub fn target_info(&self, id: u64) -> Option<(Position, f32, f32)> {
