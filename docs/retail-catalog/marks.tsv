@@ -4192,7 +4192,7 @@ key	status	note
 004cff60	-	D3D vertex buffer plumbing; ac2-gpu owns buffers
 004cfff0	_	needs port: mesh record: CBaseMesh::SetMaterial (runtime setter)
 004d0050	_	needs port: mesh record: CBaseMesh::SetMaterialID (runtime setter)
-004d0080	_	needs port: CBaseMesh::DrawMeshDegrade fragment draw by degrade level (ac2-render; no citation)
+004d0080	~	ac2-gpu object_prepare: the chosen degrade's batch run (PartDegrades::drawn) over one vertex/index buffer per part
 004d0320	_	needs port: mesh record: CBaseMesh::GenerateLocalIndices (derived index/triangle/connectivity data)
 004d0530	_	needs port: mesh record: CBaseMesh::GenerateTriangleData (derived index/triangle/connectivity data)
 004d0820	_	needs port: mesh record: CBaseMesh::GenerateConnectivityData (derived index/triangle/connectivity data)
@@ -4204,11 +4204,11 @@ key	status	note
 004d10c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d1260	x	ac2-assets/src/ac2_physics_mesh.rs cites PSmartArray<CPolygon>::StreamPack (CPolygon::UnPack records)
 004d1450	-	ctor/dtor of plain data; Rust constructs and drops values
-004d1460	_	needs port: CBaseMesh::DrawMesh fragment draw by degrade level (ac2-render; no citation)
+004d1460	~	ac2-render DegradeLists::select, degrade_level, mesh_degrade_factor (x1.5 player, _ftol2 truncation, empty list falls back to all degrades); ac2-gpu draws the chosen degrade's batches. Not ported: m_ForcedDetailLevel/m_nForcedDegradeLevel (tool overrides), first-person head/beard/crest/totem hide, shadow volume path
 004d17c0	-	text source format (admin tools)
 004d1830	_	needs port: mesh record: PSmartArray::StreamPack (stream decode)
 004d18d0	_	needs port: mesh record: CMeshDegradeList::Create (initialisation from the DB record)
-004d1930	_	needs port: mesh record: CMeshDegradeList::UpdateDetailLevelIndices
+004d1930	x	ac2-render object::DegradeLists::new (m_DLIndices by m_DetailLevels bits 1/2/4)
 004d19c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d1a30	_	needs port: MeshMaterials::DynamicCopy (per-instance copy of material instances)
 004d1ba0	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -4811,9 +4811,9 @@ key	status	note
 004e79a0	~	impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 004e79e0	_	needs port: cite-only physics-object method
 004e7a60	_	needs port: cite-only physics-object method
-004e7af0	~	PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
+004e7af0	~	PhysicsBody::set_view_distance; ac2-client view::viewer_distances (|eye - origin|, held objects take the holder's) drives the degrade; no scene stamp
 004e7c80	~	ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
-004e7db0	_	needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
+004e7db0	~	_bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); lights, selection, shadow colour elsewhere or not ported
 004e86c0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e8750	-	admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
 004e8850	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
@@ -4873,7 +4873,7 @@ key	status	note
 004eae50	_	needs port: cite-only physics-object method
 004eae60	-	state-bit flag accessor
 004eae70	-	state-bit flag accessor
-004eae80	-	state-bit flag accessor
+004eae80	x	ac2-physics PhysicsBody::is_static
 004eae90	-	state-bit flag accessor
 004eaea0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
 004eaed0	x	ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
@@ -5029,7 +5029,7 @@ key	status	note
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004ef9c0	-	render plumbing
-004efb00	x	CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
+004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
 004f0140	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -10786,7 +10786,7 @@ key	status	note
 0060d630	-	trivial setter / list append on plain struct during decode
 0060d690	-	trivial setter / list append on plain struct during decode
 0060d700	_	needs port (check): DegradeInfo::Pack has no cited Rust decode
-0060d800	_	needs port (check): DegradeInfo::UnPack has no cited Rust decode
+0060d800	x	ac2-anim Ac2Setup::degrade (read_degrade_info): 18 distances, low/medium/high
 0060d8f0	-	ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 0060d940	_	needs port (check): sub-object DID enumeration; Rust recurses by DID in dbanimator/tree.rs (uncited); AGENTS sub-object resolution
 0060d980	-	trivial setter / list append on plain struct during decode

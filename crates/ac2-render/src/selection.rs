@@ -38,8 +38,9 @@ impl PickMesh {
                     min = min.min(p);
                     max = max.max(p);
                 }
+                // The full-detail degrade's triangles.
                 let triangles = part
-                    .batches
+                    .drawn_batches(&crate::object::DrawDetail::FULL)
                     .iter()
                     .flat_map(|batch| batch.indices.chunks_exact(3))
                     .filter_map(|tri| {

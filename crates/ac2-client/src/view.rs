@@ -62,6 +62,9 @@ struct Drawn<'a> {
     /// The placement frame a held object's parts take (`PHYSICSOBJREP::SetPlacementFrame` from the
     /// holder's `orientation_id`); `None` for an object that is not held.
     placement: Option<u32>,
+    /// `CPhysicsObj::Draw`'s `_bUseAdaptiveDegrade` (`ObjectFrame::adaptive_degrade`; the player
+    /// is a mobile server object).
+    adaptive: bool,
 }
 
 /// The view's state.
@@ -110,6 +113,21 @@ fn fx_slots(drawn: &[Drawn<'_>]) -> Vec<FxSlot> {
         .collect()
 }
 
+/// `CPhysicsObj::UpdateViewerDistance`: each drawn object's distance from `eye`; a held object
+/// takes its holder's (the parent passes its distance to its children).
+fn viewer_distances(drawn: &[Drawn<'_>], frames: &[Frame], eye: ac2_math::Vec3) -> Vec<f32> {
+    let own: Vec<f32> = frames.iter().map(|at| at.origin.distance(eye)).collect();
+    drawn
+        .iter()
+        .enumerate()
+        .map(|(index, d)| {
+            d.held
+                .and_then(|(holder, _)| drawn.iter().position(|h| h.id == holder))
+                .map_or(own[index], |holder| own[holder])
+        })
+        .collect()
+}
+
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
     let player = frame.player.iter().filter_map(|p| {
         let visual = p.visual?;
@@ -127,6 +145,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             follow: None,
             held: None,
             placement: None,
+            adaptive: true,
         })
     });
     let others = frame
@@ -158,6 +177,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 follow: o.fx_follow,
                 held: o.holder.and_then(|holder| Some((holder.id, holder.point?))),
                 placement: o.holder.and_then(|holder| holder.orientation),
+                adaptive: o.adaptive_degrade,
             })
         });
     player.chain(others).collect()
@@ -323,18 +343,27 @@ impl ClientView {
         let placements = object_placements(&self.scene, &slots, &frames, &placed);
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
+        let distances = viewer_distances(&drawn, &frames, camera.eye);
         let objects = drawn
             .iter()
             .zip(frames)
             .zip(placed)
-            .filter_map(|((drawn, at), placed)| {
+            .zip(distances)
+            .filter_map(|(((drawn, at), placed), distance)| {
                 let (key, world, pose) = placed?;
+                // `CPartArray::Draw`: culled past its visible distance, else faded and degraded.
+                let lod = self
+                    .scene
+                    .object_detail(key, distance, drawn.adaptive, drawn.player)?;
+                let mut tint = drawn.tint;
+                tint[3] = (f64::from(tint[3]) * f64::from(lod.alpha)) as f32;
                 Some(SceneObject {
                     key,
                     world,
                     pose,
-                    tint: drawn.tint,
+                    tint,
                     point_lights: self.scene.object_point_lights(at.origin, 0.0),
+                    detail: lod.detail,
                 })
             })
             .collect();

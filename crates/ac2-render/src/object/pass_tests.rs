@@ -3,7 +3,7 @@ use ac2_assets::{
 };
 use ac2_core::DataId;
 
-use super::{blend, layer_drawn, layer_pass, RenderSettings, VertexProgram};
+use super::{blend, layer_drawn, layer_pass, layer_pass_forced, RenderSettings, VertexProgram};
 
 /// The common Legions object layer: lit, material diffuse, depth fog, stage 0
 /// MODULATE2X(texture, diffuse) with alpha SELECTARG2(diffuse), SRCALPHA/INVSRCALPHA.
@@ -179,4 +179,24 @@ fn stage_texture_matrix_rows_come_from_its_modifiers() {
         pass.stages[0].texture_matrix,
         Some([[1.0, 0.0, 0.0, 1.0], [0.0, 1.0, 0.0, 0.0]])
     );
+}
+
+/// `SceneTool::m_bForceDisableAlphaTest`: a faded alpha-tested layer of an object past 40 units
+/// loses its depth write and its alpha reference even above 0.8; an unfaded one keeps both.
+#[test]
+fn forced_alpha_test_off_drops_a_faded_layers_test_and_depth_write() {
+    let tested = Ac2MaterialLayer {
+        alpha_test_mode: 1,
+        alpha_test_ref: Ac2Waveform::constant(0.5),
+        ..lit_layer()
+    };
+    let kept = layer_pass_forced(&tested, [1.0, 1.0, 1.0, 0.9], 0.0, false);
+    assert!(kept.depth_write);
+    assert_eq!(kept.alpha_test, Some(127));
+    let forced = layer_pass_forced(&tested, [1.0, 1.0, 1.0, 0.9], 0.0, true);
+    assert!(!forced.depth_write);
+    assert_eq!(forced.alpha_test, Some(0));
+    let opaque = layer_pass_forced(&tested, [1.0; 4], 0.0, true);
+    assert!(opaque.depth_write);
+    assert_eq!(opaque.alpha_test, Some(127));
 }

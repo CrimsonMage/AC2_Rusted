@@ -68,6 +68,37 @@ pub struct Ac2Location {
     pub transform: Ac2Transform,
 }
 
+/// One detail setting's distances in `DegradeInfo::m_DLDegradeInfo` (`CPartArray::Draw` scales
+/// each by the object's degrade scale before using it).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Ac2DegradeDistances {
+    /// `m_fVisibleDistance`: past it the object is not drawn; it fades over the last 7.5%.
+    pub visible: f32,
+    /// `m_fNearDegradeDistance`: the meshes start to degrade.
+    pub near: f32,
+    /// `m_fIdealDegradeDistance`: the degrade factor reaches one half.
+    pub ideal: f32,
+    /// `m_fFarDegradeDistance`: the degrade factor reaches zero (the lowest degrade).
+    pub far: f32,
+    /// `m_fHighDetailDistance`: three times it, high material detail drops to medium.
+    pub high_detail: f32,
+    /// `m_fMediumDetailDistance`: three times it, material detail drops to low.
+    pub medium_detail: f32,
+}
+
+/// `DegradeInfo`: the distances of each `ModelDetail` setting (low, medium, high).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Ac2DegradeInfo {
+    pub levels: [Ac2DegradeDistances; 3],
+}
+
+impl Ac2DegradeInfo {
+    /// The distances for `ModelDetail` setting `detail` (clamped to high).
+    pub fn level(&self, detail: u32) -> &Ac2DegradeDistances {
+        &self.levels[(detail as usize).min(2)]
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2Setup {
     pub meshes: Arc<[DataId]>,
@@ -77,6 +108,8 @@ pub struct Ac2Setup {
     pub holding_points: Arc<[Ac2Location]>,
     /// Connection points where child part groups (heads, hair, attachments) attach.
     pub connection_points: Arc<[Ac2Location]>,
+    /// `CSetup::degrade_info` (`DegradeInfo::UnPack`).
+    pub degrade: Ac2DegradeInfo,
     pub bounds_min: Vec3,
     pub bounds_max: Vec3,
 }
@@ -191,8 +224,11 @@ impl ResourcePackedDecode for Ac2Setup {
         cursor.read_bytes(n * 20)?;
         let n = count(&mut cursor, 16).ok_or_else(|| malformed("spheres"))?;
         cursor.read_bytes(n * 16)?;
-        // Four physics words, two planes, 18 `DegradeInfo` distances, a scalar and a word.
-        cursor.read_bytes(4 * 4 + 16 + 16 + 18 * 4 + 4 + 4)?;
+        // Four physics words and two planes, then `DegradeInfo::UnPack`'s 18 distances.
+        cursor.read_bytes(4 * 4 + 16 + 16)?;
+        let degrade = read_degrade_info(&mut cursor)?;
+        // A scalar and a word.
+        cursor.read_bytes(4 + 4)?;
         let [x0, y0, z0, x1, y1, z1] = [(); 6].map(|_| cursor.read_f32());
         if cursor.remaining() != 0 {
             return Err(malformed("trailing bytes after Setup"));
@@ -203,6 +239,7 @@ impl ResourcePackedDecode for Ac2Setup {
             placements: Arc::from(placements),
             holding_points,
             connection_points,
+            degrade,
             bounds_min: Vec3::new(x0?, y0?, z0?),
             bounds_max: Vec3::new(x1?, y1?, z1?),
         })
@@ -218,6 +255,25 @@ impl ResourcePackedDecode for Ac2Setup {
                 .map(|frame| frame.bones.len() * 40)
                 .sum::<usize>()
     }
+}
+
+/// `DegradeInfo::UnPack`: per detail setting, visible, near, ideal, far, high and medium detail
+/// distances.
+fn read_degrade_info(cursor: &mut ArchiveCursor<'_>) -> ResourceResult<Ac2DegradeInfo> {
+    let mut info = Ac2DegradeInfo::default();
+    for level in &mut info.levels {
+        let [visible, near, ideal, far, high_detail, medium_detail] =
+            [(); 6].map(|_| cursor.read_f32());
+        *level = Ac2DegradeDistances {
+            visible: visible?,
+            near: near?,
+            ideal: ideal?,
+            far: far?,
+            high_detail: high_detail?,
+            medium_detail: medium_detail?,
+        };
+    }
+    Ok(info)
 }
 
 /// `TransformBase::UnPack`: offset, scale, then a `Quaternion` stored w, x, y, z.
@@ -270,10 +326,53 @@ mod tests {
             }]),
             holding_points: Arc::from([]),
             connection_points: Arc::from([]),
+            degrade: Ac2DegradeInfo::default(),
             bounds_min: Vec3::ZERO,
             bounds_max: Vec3::ZERO,
         };
         let pose = setup.rest_pose();
         assert_eq!(pose[1].apply(Vec3::ZERO), Vec3::new(0.0, 0.0, 2.0));
+    }
+}
+
+/// Every retail Setup's `DegradeInfo` decodes to finite distances with near <= ideal <= far,
+/// and the visible distance does not shrink from low to high detail (only with `AC2_DAT_DIR`).
+#[cfg(test)]
+#[test]
+fn retail_setups_decode_ordered_degrade_distances() {
+    use ac2_dat::DatFileKind;
+    use ac2_db::{ResourceStore, TypedResourceRef};
+
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(Arc::clone(&dataset));
+    let ids: Vec<u32> = dataset
+        .ids_in_range(DatFileKind::Portal, 0x0400_0000, 0x04FF_FFFF)
+        .collect();
+    assert!(!ids.is_empty());
+    for did in ids {
+        let setup = store
+            .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                DataId::new(did),
+                0,
+            ))
+            .expect("Setup decodes")
+            .expect("listed Setup exists");
+        let levels = &setup.degrade.levels;
+        for level in levels {
+            let d = [level.visible, level.near, level.ideal, level.far];
+            assert!(d.iter().all(|v| v.is_finite() && *v >= 0.0), "{did:08X}");
+            assert!(level.visible > 0.0, "{did:08X}: {level:?}");
+            assert!(
+                level.near <= level.ideal && level.ideal <= level.far,
+                "{did:08X}: {level:?}"
+            );
+        }
+        assert!(
+            levels[0].visible <= levels[1].visible && levels[1].visible <= levels[2].visible,
+            "{did:08X}: {levels:?}"
+        );
     }
 }

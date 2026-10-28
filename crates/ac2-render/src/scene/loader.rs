@@ -612,10 +612,12 @@ fn particle_model(
                 indices: Arc::from(vec![0, 1, 2]),
                 material: Arc::new(ObjectMaterial::new(layers)),
             }],
+            degrades: None,
             slot: (0, 0),
             skin: None,
             mesh_type: 0,
         }],
+        degrade: None,
         skeleton: None,
     })
 }

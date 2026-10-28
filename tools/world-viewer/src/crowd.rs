@@ -70,6 +70,7 @@ pub fn objects(
                 }),
                 pose: Vec::new(),
                 anim_scale: [1.0; 4],
+                adaptive_degrade: true,
             }
         })
         .collect()

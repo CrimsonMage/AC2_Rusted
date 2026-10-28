@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 759 done, 156 partial, 400 to do, 809 skipped.
+2124 retail functions: 760 done, 157 partial, 399 to do, 808 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2048,7 +2048,7 @@ Legend and workflow: [README](README.md).
 
 ### CPartArray
 - [-] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — render plumbing
-- [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — CPartArray::Draw - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
+- [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
 - [x] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 
 ### SmartArray<PSystemInstance>
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (228/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (229/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2585,9 +2585,9 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
 - [ ] `CPhysicsObj::CollisionRemoveObject` · 004e79e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance takes the camera distance from the caller; no scene stamp or children
+- [~] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance; ac2-client view::viewer_distances (|eye - origin|, held objects take the holder's) drives the degrade; no scene stamp
 - [~] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
-- [ ] `CPhysicsObj::Draw` · 004e7db0 — needs port (check): cited only loosely (a comment, not the function's body); verify and cite, or port
+- [~] `CPhysicsObj::Draw` · 004e7db0 — _bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); lights, selection, shadow colour elsewhere or not ported
 - [x] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [-] `CPhysicsObj::StickySetParent` · 004e8750 — admin-only (no Legions match); needs CPartArray::CalculateBoneIndexAndOffset sticky-bone parenting, an admin tool path
 - [x] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
@@ -2647,7 +2647,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetFrame` · 004eae50 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::get_state` · 004eae60 — state-bit flag accessor
 - [-] `CPhysicsObj::is_dynamic` · 004eae70 — state-bit flag accessor
-- [-] `CPhysicsObj::is_static` · 004eae80 — state-bit flag accessor
+- [x] `CPhysicsObj::is_static` · 004eae80 — ac2-physics PhysicsBody::is_static
 - [-] `CPhysicsObj::is_env_obj` · 004eae90 — state-bit flag accessor
 - [x] `CPhysicsObj::on_ground` · 004eaea0 · legions 004dd7d0 — ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)
 - [x] `CPhysicsObj::off_ground` · 004eaed0 — ac2-physics body_access.rs PhysicsBody::on_ground / off_ground / has_contact (CONTACT_TS and ON_WALKABLE_TS)

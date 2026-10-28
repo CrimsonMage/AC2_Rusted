@@ -238,6 +238,11 @@ impl PhysicsBody {
         self.object.is_mobile()
     }
 
+    /// `CPhysicsObj::is_static` (`STATIC_PS`).
+    pub fn is_static(&self) -> bool {
+        self.object.state & crate::objects::STATIC_PS != 0
+    }
+
     /// Places the body (a server position update): velocity and contact are kept.
     pub fn set_position(&mut self, position: Position) {
         self.object.position = position;

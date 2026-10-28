@@ -248,6 +248,7 @@ fn the_posed_bone_follows_the_playing_behaviours() {
         }]),
         holding_points: Arc::from(Vec::new()),
         connection_points: Arc::from(Vec::new()),
+        degrade: Default::default(),
         bounds_min: ac2_math::Vec3::ZERO,
         bounds_max: ac2_math::Vec3::ZERO,
     }));

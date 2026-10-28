@@ -152,6 +152,18 @@ pub struct LayerPass {
 
 /// `RenderDeviceD3D::SetupState` for `layer` at client time `time`, tinted by `tint`.
 pub fn layer_pass(layer: &Ac2MaterialLayer, tint: [f32; 4], time: f64) -> LayerPass {
+    layer_pass_forced(layer, tint, time, false)
+}
+
+/// [`layer_pass`] under `SceneTool::m_bForceDisableAlphaTest` (`CPartArray::Draw` sets it for
+/// objects farther than 40 units): a faded alpha-tested or `SRCALPHA` layer drops its alpha test
+/// and depth write whatever its alpha.
+pub fn layer_pass_forced(
+    layer: &Ac2MaterialLayer,
+    tint: [f32; 4],
+    time: f64,
+    force_disable_alpha_test: bool,
+) -> LayerPass {
     let lighting = &layer.lighting;
     let power = layer.specular_power.value(time);
     let specular_on = (power != 0.0 && lighting.specular_highlights) || lighting.pixel_specular;
@@ -173,7 +185,10 @@ pub fn layer_pass(layer: &Ac2MaterialLayer, tint: [f32; 4], time: f64) -> LayerP
     let mut depth_write = layer.depth_write != 0;
     let mut alpha_mode = layer.alpha_test_mode;
     let alpha_test_on = alpha_mode != 0 || layer.source_blend == blend::SRCALPHA;
-    if alpha_test_on && diffuse[3] < 1.0 && alpha_mode == 0 && diffuse[3] < 0.8 {
+    if alpha_test_on
+        && diffuse[3] < 1.0
+        && (force_disable_alpha_test || (alpha_mode == 0 && diffuse[3] < 0.8))
+    {
         depth_write = false;
         alpha_mode = 0;
     }

@@ -5,6 +5,7 @@
 //! with depth off, so each caster multiplies the white map by one minus its coverage.
 
 use ac2_math::Mat4;
+use ac2_render::object::{DrawDetail, PartDegrades};
 use bytemuck::{Pod, Zeroable};
 
 use super::{GpuVertex, ObjectInstance, ObjectRenderer};
@@ -201,7 +202,22 @@ impl ObjectRenderer {
                     continue;
                 }
                 let matrix = clip * instance.world * part.transform;
-                for (batch_index, batch) in part.batches.iter().enumerate() {
+                // Rendering to the shadow map turns degrades off (`CPartArray::Draw`): factor 1
+                // at the object's model detail.
+                let detail = DrawDetail {
+                    degrade: 1.0,
+                    force_disable_alpha_test: false,
+                    ..instance.detail
+                };
+                let drawn =
+                    PartDegrades::drawn(part.degrades.as_deref(), &detail, part.batches.len());
+                for (batch_index, batch) in part
+                    .batches
+                    .iter()
+                    .enumerate()
+                    .take(drawn.end)
+                    .skip(drawn.start)
+                {
                     let Some(first) = batch.passes.first() else {
                         continue;
                     };

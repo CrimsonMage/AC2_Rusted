@@ -250,6 +250,7 @@ fn idle_effect_triggers_restart_each_cycle_and_hooks_fire_once() {
         }]),
         holding_points: Arc::from(Vec::new()),
         connection_points: Arc::from(Vec::new()),
+        degrade: Default::default(),
         bounds_min: ac2_math::Vec3::ZERO,
         bounds_max: ac2_math::Vec3::ZERO,
     }));
@@ -363,6 +364,7 @@ fn the_drawn_pose_blends_from_the_previous_refresh_to_the_current() {
         }]),
         holding_points: Arc::from(Vec::new()),
         connection_points: Arc::from(Vec::new()),
+        degrade: Default::default(),
         bounds_min: ac2_math::Vec3::ZERO,
         bounds_max: ac2_math::Vec3::ZERO,
     }));

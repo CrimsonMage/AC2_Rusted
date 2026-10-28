@@ -11,7 +11,8 @@ use std::sync::Arc;
 
 use ac2_math::{Mat4, Vec3};
 use ac2_render::object::{
-    LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose, ObjectVertex, PointLight,
+    DrawDetail, LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose,
+    ObjectVertex, PartDegrades, PointLight,
 };
 use ac2_render::{Camera, Image};
 use bytemuck::{Pod, Zeroable};
@@ -112,7 +113,11 @@ struct GpuPart {
     vertices: wgpu::Buffer,
     indices: wgpu::Buffer,
     transform: Mat4,
+    /// Every degrade's batches, degrade by degrade, over the one vertex and index buffer.
     batches: Vec<GpuBatch>,
+    /// The batch run of each degrade and the degrades each detail admits; `None` draws every
+    /// batch.
+    degrades: Option<Arc<PartDegrades>>,
     /// The mesh carries matrix weights.
     weighted: bool,
     /// The buffers were made by `set_geometry` (`COPY_DST`, power-of-two capacity) and are
@@ -220,6 +225,8 @@ pub struct ObjectInstance<'a> {
     pub point_lights: &'a [PointLight],
     /// The model posed for this draw (`ObjectModel::pose`); `None` draws its default placement.
     pub pose: Option<&'a ObjectPose>,
+    /// The degrade each part draws (`CBaseMesh::DrawMesh`) and the forced alpha test.
+    pub detail: DrawDetail,
 }
 
 impl<'a> ObjectInstance<'a> {
@@ -233,6 +240,7 @@ impl<'a> ObjectInstance<'a> {
             frill_shade: 1.0,
             point_lights: &[],
             pose: None,
+            detail: DrawDetail::FULL,
         }
     }
 }

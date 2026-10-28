@@ -1,9 +1,9 @@
 # ac2-anim: Animation system
 
-532 retail functions: 127 done, 17 partial, 95 to do, 293 skipped.
+532 retail functions: 128 done, 17 partial, 94 to do, 293 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/anim/charactersetup.cpp.c` (6/67)
+## `portal/shared/src/anim/charactersetup.cpp.c` (7/67)
 
 ### PlacementFrame
 - [ ] `PlacementFrame::Pack` · 0060d540 · legions 005ce310 — needs port (check): PlacementFrame::Pack has no cited Rust decode
@@ -13,7 +13,7 @@ Legend and workflow: [README](README.md).
 
 ### DegradeInfo
 - [ ] `DegradeInfo::Pack` · 0060d700 · legions 005ce400 — needs port (check): DegradeInfo::Pack has no cited Rust decode
-- [ ] `DegradeInfo::UnPack` · 0060d800 · legions 005ce500 — needs port (check): DegradeInfo::UnPack has no cited Rust decode
+- [x] `DegradeInfo::UnPack` · 0060d800 · legions 005ce500 — ac2-anim Ac2Setup::degrade (read_degrade_info): 18 distances, low/medium/high
 - [-] `DegradeInfo::DegradeInfo` · 0060d8f0 · legions 005ce5f0 — ctor/dtor of plain data (Rust owned values, no retail object lifetime)
 
 ### CharacterSetup

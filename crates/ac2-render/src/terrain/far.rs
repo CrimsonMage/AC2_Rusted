@@ -442,10 +442,12 @@ impl FarTerrain {
                     indices: Arc::from(indices),
                     material: Arc::new(ObjectMaterial::new(layers)),
                 }],
+                degrades: None,
                 slot: (0, 0),
                 skin: None,
                 mesh_type: 0,
             }],
+            degrade: None,
             skeleton: None,
         }))
     }

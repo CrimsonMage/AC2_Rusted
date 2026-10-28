@@ -3,6 +3,7 @@
 //! for it, and the outdoor sun and ambient it is lit by.
 
 mod cell;
+mod degrade;
 #[cfg(test)]
 mod fx_bone_tests;
 mod lights;
@@ -20,14 +21,18 @@ mod water;
 
 pub use ac2_assets::{drawn_groups, resolve_drawn_groups, total_visual_desc, DrawnGroup};
 pub use cell::{bake_cell_colors, load_cell_model, CellLighting};
+pub use degrade::{
+    degrade_level, degrade_scale, mesh_degrade_factor, object_lod, part_array_lod, DegradeLists,
+    DegradeOptions, DrawDetail, ObjectLod, PartDegrades, HIGH_DETAIL,
+};
 pub use lights::{ObjectEnvironment, ObjectLights, SunLight};
 pub use model::{
     load_object_model, load_object_model_with, ObjectBatch, ObjectMaterial, ObjectModel,
     ObjectPart, ObjectPose, ObjectVertex, PoseRig,
 };
 pub use pass::{
-    blend, layer_drawn, layer_pass, texture_matrices, LayerPass, ProgramFlags, RenderSettings,
-    StagePass, VertexProgram,
+    blend, layer_drawn, layer_pass, layer_pass_forced, texture_matrices, LayerPass, ProgramFlags,
+    RenderSettings, StagePass, VertexProgram,
 };
 pub use pixel_shader::{
     parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,

@@ -90,9 +90,28 @@ impl ObjectRenderer {
                 if let Some(first) = skin {
                     data.skin = [base + first, 1, 0, 0];
                 }
-                for (batch_index, batch) in part.batches.iter().enumerate() {
-                    let recomputed = (batch.material.animated() || instance.tint != [1.0; 4])
-                        .then(|| batch.material.passes(instance.tint, time));
+                // `CBaseMesh::DrawMesh`: the degrade's batches only. Batch indices are the part's,
+                // so instances on different degrades never merge into one draw.
+                let drawn = PartDegrades::drawn(
+                    part.degrades.as_deref(),
+                    &instance.detail,
+                    part.batches.len(),
+                );
+                for (batch_index, batch) in part
+                    .batches
+                    .iter()
+                    .enumerate()
+                    .take(drawn.end)
+                    .skip(drawn.start)
+                {
+                    let recomputed =
+                        (batch.material.animated() || instance.tint != [1.0; 4]).then(|| {
+                            batch.material.passes_forced(
+                                instance.tint,
+                                time,
+                                instance.detail.force_disable_alpha_test,
+                            )
+                        });
                     for (pass_index, gpu_pass) in batch.passes.iter().enumerate() {
                         let pass = recomputed
                             .as_ref()

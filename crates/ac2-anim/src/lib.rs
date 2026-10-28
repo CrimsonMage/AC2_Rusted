@@ -40,4 +40,7 @@ pub use dbanimator::{
 pub use fx_scripts::{load_fx_scripts, FxScripts};
 pub use fxscript::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};
 pub use fxscript_tracker::Ac2FxScriptTracker;
-pub use setup::{Ac2Bone, Ac2Location, Ac2PlacementFrame, Ac2Setup, Ac2Transform};
+pub use setup::{
+    Ac2Bone, Ac2DegradeDistances, Ac2DegradeInfo, Ac2Location, Ac2PlacementFrame, Ac2Setup,
+    Ac2Transform,
+};

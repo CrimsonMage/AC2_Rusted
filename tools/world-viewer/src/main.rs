@@ -6,7 +6,11 @@
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
+//! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2]
 //! ```
+//! `--model-detail` and `--scenery-distance` set the headless scene's `ModelDetail` and
+//! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
+//! medium.
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -72,6 +76,8 @@ struct Args {
     time: Option<f64>,
     /// Idle models placed around the player in the headless scene (0: none).
     crowd: u32,
+    /// The headless scene's degrade settings (`ModelDetail`, `SceneryDrawDistance`).
+    degrade: ac2_render::object::DegradeOptions,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -93,6 +99,7 @@ fn parse_args() -> Result<Args, String> {
         at: None,
         time: None,
         crowd: 0,
+        degrade: ac2_render::object::DegradeOptions::default(),
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -125,6 +132,16 @@ fn parse_args() -> Result<Args, String> {
             }
             "--time" => args.time = Some(value()?.parse().map_err(|e| format!("--time: {e}"))?),
             "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
+            "--model-detail" => {
+                args.degrade.model_detail = value()?
+                    .parse()
+                    .map_err(|e| format!("--model-detail: {e}"))?;
+            }
+            "--scenery-distance" => {
+                args.degrade.scenery_draw_distance = value()?
+                    .parse()
+                    .map_err(|e| format!("--scenery-distance: {e}"))?;
+            }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
             }
@@ -254,6 +271,10 @@ fn snapshot(
         args.radius,
         (width, height),
     );
+    view.set_scene_options(ac2_render::prefs::SceneOptions {
+        degrade: args.degrade,
+        ..Default::default()
+    });
     let model = models.get(args.model).filter(|_| !args.fly);
     let fly = start_camera(&world, args.block);
     let time_of_day = args.time.unwrap_or_else(|| daytime(&world));

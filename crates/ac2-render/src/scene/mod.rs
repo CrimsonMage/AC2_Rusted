@@ -7,6 +7,7 @@
 mod decals;
 mod interiors;
 mod loader;
+mod lod;
 mod object_lights;
 mod particles;
 #[cfg(test)]
@@ -27,11 +28,12 @@ pub use loader::{
     BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
     LoadedObjectParticle, ParticleSource, Placement,
 };
+pub use lod::PlacedDetail;
 pub use particles::{ParticleAnchor, ParticleBatch};
 
 use crate::frill::{frill_normal, select_frills, FrillCandidate, FrillSettings};
 use crate::frustum::{Frustum, Relation};
-use crate::object::{ObjectPose, PointLight, RenderSettings};
+use crate::object::{DegradeOptions, DrawDetail, ObjectPose, PointLight, RenderSettings};
 use crate::particles::{CameraBasis, ParticleSystem};
 use crate::prefs::SceneOptions;
 use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
@@ -58,6 +60,10 @@ pub struct FramePlacement {
     /// A merged frill's landscape self shadow under its origin (`GetShadowColor`'s self term);
     /// 1 where nothing shadows it.
     pub frill_shade: f32,
+    /// The degrade its parts draw at (`CPartArray::Draw`); full for frills.
+    pub detail: DrawDetail,
+    /// The distance fade, multiplied into its colour's alpha; 1 for frills.
+    pub alpha: f32,
 }
 
 /// Where an object stands this frame, for the particle systems it runs: its emitter (the object's
@@ -112,6 +118,8 @@ pub struct SceneObject {
     pub pose: Option<ObjectPose>,
     pub tint: [f32; 4],
     pub point_lights: Vec<PointLight>,
+    /// The degrade its parts draw at (`WorldScene::object_detail`).
+    pub detail: DrawDetail,
 }
 
 /// A resident block as the frame thread lays it out.
@@ -147,6 +155,8 @@ pub struct WorldScene {
     /// World objects' models requested by key, and the rig and scale of those that loaded.
     requested_objects: HashSet<u64>,
     object_rigs: HashMap<u64, (crate::object::PoseRig, Vec3)>,
+    /// The loaded models' `DegradeInfo`, the degrade settings and the frame rate.
+    degrades: lod::SceneDegrades,
     object_picks: HashMap<u64, Arc<crate::selection::PickMesh>>,
     particles: SceneParticles,
     /// The point lights of object FX (`CPartArray::CreateLightSource`).
@@ -205,6 +215,7 @@ impl WorldScene {
             frill: defaults.frill,
             requested_objects: HashSet::new(),
             object_rigs: HashMap::new(),
+            degrades: lod::SceneDegrades::default(),
             object_picks: HashMap::new(),
             particles: SceneParticles::new(),
             object_lights: ObjectLights::default(),
@@ -228,6 +239,7 @@ impl WorldScene {
     /// old ones, and until then no far chunk is drawn. The near ring and the objects stay.
     pub fn set_options(&mut self, options: SceneOptions) {
         self.frill = options.frill;
+        self.degrades.options = options.degrade;
         if options.far_radius == self.far_radius {
             return;
         }
@@ -328,6 +340,7 @@ impl WorldScene {
         self.pending_models.remove(&visual);
         if let Some(model) = model {
             self.models.insert(visual, model.first_list());
+            self.degrades.note_visual(visual, model);
         }
     }
 
@@ -373,6 +386,9 @@ impl WorldScene {
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
             Loaded::Layout | Loaded::Rain(..) => {}
             Loaded::Object(object) => {
+                if let Some(model) = &object.model {
+                    self.degrades.note_object(object.key, model);
+                }
                 if let Some(rig) = object.model.as_ref().and_then(|model| model.rig()) {
                     self.object_rigs.insert(object.key, (rig, object.scale));
                 }
@@ -450,6 +466,26 @@ impl WorldScene {
     /// The posing rig and total scale of a loaded world object's model.
     pub fn object_rig(&self, key: u64) -> Option<&(crate::object::PoseRig, Vec3)> {
         self.object_rigs.get(&key)
+    }
+
+    /// The degrade settings the scene draws with (`SceneOptions::degrade`).
+    pub fn degrade_options(&self) -> DegradeOptions {
+        self.degrades.options
+    }
+
+    /// `CPartArray::Draw` for world object `key` `distance` from the eye
+    /// (`CPhysicsObj::UpdateViewerDistance`; a held object takes its holder's): `None` when it is
+    /// culled, else its degrade and fade. `adaptive` is `CPhysicsObj::Draw`'s
+    /// `_bUseAdaptiveDegrade` (not temporary, mobile and not static); `player` is
+    /// `HACK_bDrawingPlayer`. A model without a Setup draws in full.
+    pub fn object_detail(
+        &self,
+        key: u64,
+        distance: f32,
+        adaptive: bool,
+        player: bool,
+    ) -> Option<PlacedDetail> {
+        self.degrades.object(key, distance, adaptive, player)
     }
 
     /// The object model `key`'s pick mesh, once loaded.
@@ -646,13 +682,21 @@ impl WorldScene {
         let chosen = select_frills(&candidates, eye, &self.frill);
         // The self shadow's light bit this frame (`LScapeRender::UpdateLighting`).
         let shadow_bit = shadow_light_bit(lighting.light_dir);
+        self.degrades.tick();
+        let degrades = &self.degrades;
+        // Scenery is client-made (temporary ids): `CPartArray::Draw` without adaptive degrade.
         let placements: Vec<FramePlacement> = all()
             .filter(|p| !p.frill)
-            .map(|p| FramePlacement {
-                visual: p.visual,
-                world: p.world,
-                frill_normal: None,
-                frill_shade: 1.0,
+            .filter_map(|p| {
+                let placed = degrades.placed(p.visual, p.world.w_axis.truncate(), eye)?;
+                Some(FramePlacement {
+                    visual: p.visual,
+                    world: p.world,
+                    frill_normal: None,
+                    frill_shade: 1.0,
+                    detail: placed.detail,
+                    alpha: placed.alpha,
+                })
             })
             .chain(chosen.iter().map(|&index| {
                 let (key, p) = frills[index];
@@ -664,6 +708,8 @@ impl WorldScene {
                     world: p.world,
                     frill_normal: Some(frill_normal(&p.world)),
                     frill_shade,
+                    detail: DrawDetail::FULL,
+                    alpha: 1.0,
                 }
             }))
             .collect();

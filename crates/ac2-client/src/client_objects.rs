@@ -371,6 +371,7 @@ impl Client {
                         .map(|b| ac2_physics::part_poses(b, self.pose_blend_time()))
                         .unwrap_or_default(),
                     anim_scale: body.map_or([1.0; 4], |b| b.draw_scale()),
+                    adaptive_degrade: body.is_some_and(|b| b.is_mobile() && !b.is_static()),
                 })
             })
             .chain(self.local_object_frames())
@@ -420,6 +421,8 @@ impl Client {
                     appearance: Default::default(),
                     pose: ac2_physics::part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
+                    // Client-made objects have temporary ids (`IIDUtils::VerifyTemporary`).
+                    adaptive_degrade: false,
                 })
             })
             .collect()

@@ -573,6 +573,7 @@ mod tests {
             placements: Arc::from(Vec::new()),
             holding_points: Arc::from(Vec::new()),
             connection_points: Arc::from(Vec::new()),
+            degrade: Default::default(),
             bounds_min: Vec3::ZERO,
             bounds_max: Vec3::ZERO,
         };
@@ -628,6 +629,7 @@ mod tests {
             placements: Arc::from(vec![frame(0, 1.0), frame(5, 7.0)]),
             holding_points: Arc::from(Vec::new()),
             connection_points: Arc::from(Vec::new()),
+            degrade: Default::default(),
             bounds_min: Vec3::ZERO,
             bounds_max: Vec3::ZERO,
         };

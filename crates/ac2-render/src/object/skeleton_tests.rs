@@ -48,6 +48,7 @@ fn setup(default: [Ac2Transform; 2], rest: [Ac2Transform; 2]) -> Ac2Setup {
             bone: 1,
             transform: transform([0.0, 0.0, 0.5], 1.0, Quat::IDENTITY),
         }]),
+        degrade: Default::default(),
         bounds_min: Vec3::ZERO,
         bounds_max: Vec3::ONE,
     }

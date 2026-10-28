@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 119 done, 15 partial, 231 to do, 420 skipped.
+785 retail functions: 120 done, 17 partial, 228 to do, 420 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (14/62)
@@ -617,7 +617,7 @@ Legend and workflow: [README](README.md).
 - [-] `LinkRequirements::LinkRequirements` · 006185f0 · legions 005d4fd0 — ctor/dtor of plain data; Rust constructs and drops values
 - [ ] `LinkRequirements::StreamPack` · 00618610 · legions 005d4ff0 — needs port: entity description: LinkRequirements::StreamPack (stream decode)
 
-## `portal/shared/src/mesh/basemesh.cpp.c` (2/50)
+## `portal/shared/src/mesh/basemesh.cpp.c` (3/50)
 
 ### CMeshTriList
 - [-] `CMeshTriList::GetMeshFragment` · 004cfbe0 · legions 004c3db0 — accessor of a Rust typed field
@@ -654,7 +654,7 @@ Legend and workflow: [README](README.md).
 - [-] `CBaseMesh::InitVertexArray` · 004cff60 · legions 004c4140 — D3D vertex buffer plumbing; ac2-gpu owns buffers
 - [ ] `CBaseMesh::SetMaterial` · 004cfff0 · legions 004c41d0 — needs port: mesh record: CBaseMesh::SetMaterial (runtime setter)
 - [ ] `CBaseMesh::SetMaterialID` · 004d0050 · legions 004c4230 — needs port: mesh record: CBaseMesh::SetMaterialID (runtime setter)
-- [ ] `CBaseMesh::DrawMeshDegrade` · 004d0080 · legions 004c4260 — needs port: CBaseMesh::DrawMeshDegrade fragment draw by degrade level (ac2-render; no citation)
+- [~] `CBaseMesh::DrawMeshDegrade` · 004d0080 · legions 004c4260 — ac2-gpu object_prepare: the chosen degrade's batch run (PartDegrades::drawn) over one vertex/index buffer per part
 - [ ] `CBaseMesh::GenerateLocalIndices` · 004d0320 · legions 004c44d0 — needs port: mesh record: CBaseMesh::GenerateLocalIndices (derived index/triangle/connectivity data)
 - [ ] `CBaseMesh::GenerateTriangleData` · 004d0530 · legions 004c46e0 — needs port: mesh record: CBaseMesh::GenerateTriangleData (derived index/triangle/connectivity data)
 - [ ] `CBaseMesh::GenerateConnectivityData` · 004d0820 · legions 004c49d0 — needs port: mesh record: CBaseMesh::GenerateConnectivityData (derived index/triangle/connectivity data)
@@ -670,7 +670,7 @@ Legend and workflow: [README](README.md).
 
 ### CBaseMesh
 - [-] `CBaseMesh::~CBaseMesh` · 004d1450 · legions 004c5600 — ctor/dtor of plain data; Rust constructs and drops values
-- [ ] `CBaseMesh::DrawMesh` · 004d1460 · legions 004c5610 — needs port: CBaseMesh::DrawMesh fragment draw by degrade level (ac2-render; no citation)
+- [~] `CBaseMesh::DrawMesh` · 004d1460 · legions 004c5610 — ac2-render DegradeLists::select, degrade_level, mesh_degrade_factor (x1.5 player, _ftol2 truncation, empty list falls back to all degrades); ac2-gpu draws the chosen degrade's batches. Not ported: m_ForcedDetailLevel/m_nForcedDegradeLevel (tool overrides), first-person head/beard/crest/totem hide, shadow volume path
 - [-] `CBaseMesh::ParseVertexArrayFileNode` · 004d17c0 — text source format (admin tools)
 
 ### PSmartArray<MeshMaterials::MaterialAndDataID>
@@ -678,7 +678,7 @@ Legend and workflow: [README](README.md).
 
 ### CMeshDegradeList
 - [ ] `CMeshDegradeList::Create` · 004d18d0 · legions 004c5a10 — needs port: mesh record: CMeshDegradeList::Create (initialisation from the DB record)
-- [ ] `CMeshDegradeList::UpdateDetailLevelIndices` · 004d1930 · legions 004c5a70 — needs port: mesh record: CMeshDegradeList::UpdateDetailLevelIndices
+- [x] `CMeshDegradeList::UpdateDetailLevelIndices` · 004d1930 · legions 004c5a70 — ac2-render object::DegradeLists::new (m_DLIndices by m_DetailLevels bits 1/2/4)
 - [-] `CMeshDegradeList::Destroy` · 004d19c0 · legions 004c5b00 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 
 ### MeshMaterials

@@ -342,6 +342,7 @@ mod tests {
             placements: Arc::from([]),
             holding_points: Arc::from([]),
             connection_points: Arc::from([]),
+            degrade: Default::default(),
             bounds_min: Vec3::ZERO,
             bounds_max: Vec3::ZERO,
         };

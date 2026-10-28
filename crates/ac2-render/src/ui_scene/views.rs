@@ -270,6 +270,8 @@ impl UiViews {
                     pose: drawn.pose.clone(),
                     tint: [1.0; 4],
                     point_lights: camera::object_lights(&lights, p.frame.origin, radius),
+                    // UI viewport scenes draw with degrades off.
+                    detail: crate::object::DrawDetail::FULL,
                 })
             })
             .collect();

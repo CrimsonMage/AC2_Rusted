@@ -1,10 +1,11 @@
-//! A `VisualDesc` as drawable parts: each Setup mesh in its model-space placement, its top degrade's
-//! triangle lists, and per list the material layers retail draws on this device.
+//! A `VisualDesc` as drawable parts: each Setup mesh in its model-space placement, every degrade's
+//! triangle lists (`CMeshDegradeList`), and per list the material layers retail draws on this
+//! device.
 
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_anim::{Ac2Setup, Ac2Transform};
+use ac2_anim::{Ac2DegradeInfo, Ac2Setup, Ac2Transform};
 use ac2_assets::{
     load_ac2_material_with_atoms, resolve_drawn_groups, Ac2Atoms, Ac2MaterialLayer, Ac2Mesh,
     Ac2VisualDesc,
@@ -16,7 +17,8 @@ use ac2_db::{
 };
 use ac2_math::Mat4;
 
-use super::pass::{layer_drawn, layer_pass, LayerPass, RenderSettings};
+use super::degrade::{DegradeLists, DrawDetail, PartDegrades};
+use super::pass::{layer_drawn, layer_pass_forced, LayerPass, RenderSettings};
 use super::pixel_shader::{parse_pixel_shader, PixelProgram};
 use super::skeleton::{ObjectSkeleton, SkeletonGroup};
 
@@ -64,12 +66,23 @@ impl ObjectMaterial {
 
     /// `SetupState` of every drawn layer, in draw order.
     pub fn passes(&self, tint: [f32; 4], time: f64) -> Vec<LayerPass> {
+        self.passes_forced(tint, time, false)
+    }
+
+    /// [`Self::passes`] under `SceneTool::m_bForceDisableAlphaTest` when
+    /// `force_disable_alpha_test` (`layer_pass_forced`).
+    pub fn passes_forced(
+        &self,
+        tint: [f32; 4],
+        time: f64,
+        force_disable_alpha_test: bool,
+    ) -> Vec<LayerPass> {
         self.layers
             .iter()
             .zip(&self.programs)
             .map(|(layer, program)| LayerPass {
                 pixel_program: program.clone(),
-                ..layer_pass(layer, tint, time)
+                ..layer_pass_forced(layer, tint, time, force_disable_alpha_test)
             })
             .collect()
     }
@@ -99,7 +112,11 @@ pub struct ObjectPart {
     /// Mesh to model space.
     pub transform: Mat4,
     pub vertices: Arc<[ObjectVertex]>,
+    /// The triangle lists of every degrade, degrade by degrade (see `degrades`).
     pub batches: Vec<ObjectBatch>,
+    /// Which batches each degrade draws and the degrades each detail setting admits; `None`
+    /// draws every batch (cells, water, particles, the far mesh).
+    pub degrades: Option<Arc<PartDegrades>>,
     /// The part's group in the model's skeleton and its index in that group's Setup.
     pub slot: (usize, usize),
     /// Per-vertex (bone, weight) influences when the mesh carries matrix weights.
@@ -108,10 +125,20 @@ pub struct ObjectPart {
     pub mesh_type: u32,
 }
 
+impl ObjectPart {
+    /// The batches drawn at `detail` (`CBaseMesh::DrawMesh`'s degrade).
+    pub fn drawn_batches(&self, detail: &DrawDetail) -> &[ObjectBatch] {
+        &self.batches[PartDegrades::drawn(self.degrades.as_deref(), detail, self.batches.len())]
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct ObjectModel {
     pub visual: DataId,
     pub parts: Vec<ObjectPart>,
+    /// The root Setup's `DegradeInfo` (`CPartArray::m_pSetup`); `None` for cells, water and the
+    /// far mesh, which never degrade.
+    pub degrade: Option<Ac2DegradeInfo>,
     /// The visual's part-group tree, for posing; `None` for cells, water and the far mesh.
     pub skeleton: Option<Arc<ObjectSkeleton>>,
 }
@@ -137,10 +164,14 @@ pub struct ObjectPose {
 }
 
 impl ObjectModel {
-    /// Index and vertex counts of the first part's first triangle list (`FrillRender` budgets).
+    /// Index and vertex counts of the first part's first triangle list at full detail
+    /// (`FrillRender` budgets).
     pub fn first_list(&self) -> (u32, u32) {
         self.parts.first().map_or((0, 0), |part| {
-            let indices = part.batches.first().map_or(0, |b| b.indices.len());
+            let indices = part
+                .drawn_batches(&DrawDetail::FULL)
+                .first()
+                .map_or(0, |b| b.indices.len());
             (indices as u32, part.vertices.len() as u32)
         })
     }
@@ -264,11 +295,15 @@ pub fn load_object_model_with(
     let mut skeleton = ObjectSkeleton::default();
     let mut setups: Vec<CachedResource<Ac2Setup>> = Vec::new();
     let mut meshes = Vec::new();
+    let mut degrade = None;
     for (group_index, group) in groups.iter().enumerate() {
         // `CPartArray::SetSetupID` fails the build without its Setup.
         let Some(setup) = load::<Ac2Setup>(store, group.setup)? else {
             return Ok(None);
         };
+        if degrade.is_none() {
+            degrade = Some(setup.degrade);
+        }
         let mut group_meshes = Vec::with_capacity(setup.meshes.len());
         for (index, mesh_did) in setup.meshes.iter().enumerate() {
             if let Some((did, mesh)) = replaced_mesh(store, *mesh_did, &group.atoms)? {
@@ -303,9 +338,19 @@ pub fn load_object_model_with(
     for (group, group_meshes) in meshes {
         let atoms = &groups[group].atoms.materials;
         for (index, mesh_did, mesh) in group_meshes {
-            let degrade = mesh.highest_detail_degrade();
             let mut batches = Vec::new();
-            for fragment in mesh.fragments.iter().filter(|f| f.degrade == degrade) {
+            let mut ranges = Vec::new();
+            let mut levels = Vec::new();
+            for fragment in mesh.fragments.iter() {
+                // A new degrade (`CMeshTriList`) starts a new run of batches.
+                if levels.len() <= fragment.degrade {
+                    levels.resize(fragment.degrade + 1, 0);
+                    ranges.resize(
+                        fragment.degrade + 1,
+                        batches.len() as u32..batches.len() as u32,
+                    );
+                }
+                levels[fragment.degrade] = fragment.detail_levels;
                 let Some(material_did) = mesh.materials.get(fragment.material_index).copied()
                 else {
                     continue;
@@ -342,6 +387,7 @@ pub fn load_object_model_with(
                         indices: Arc::clone(&fragment.indices),
                         material,
                     });
+                    ranges[fragment.degrade].end = batches.len() as u32;
                 }
             }
             if batches.is_empty() {
@@ -352,6 +398,10 @@ pub fn load_object_model_with(
                 transform: rest[group].part_matrix(index),
                 vertices: object_vertices(&mesh),
                 batches,
+                degrades: Some(Arc::new(PartDegrades {
+                    lists: DegradeLists::new(&levels),
+                    batches: ranges,
+                })),
                 slot: (group, index),
                 skin: mesh.skin.clone(),
                 mesh_type: mesh.mesh_type,
@@ -361,6 +411,7 @@ pub fn load_object_model_with(
     Ok((!parts.is_empty()).then_some(ObjectModel {
         visual,
         parts,
+        degrade,
         skeleton: Some(Arc::new(skeleton)),
     }))
 }

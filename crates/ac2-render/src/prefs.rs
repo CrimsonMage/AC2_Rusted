@@ -22,6 +22,7 @@ use std::thread::JoinHandle;
 use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, PrefsFile, Value};
 
 use crate::frill::FrillSettings;
+use crate::object::DegradeOptions;
 use crate::terrain::far_radius_for_draw_distance;
 
 /// The graphics section (`Preferences` section `0x40000004`, named `Graphics`).
@@ -351,12 +352,15 @@ pub fn apply_quality(bank: &mut PreferenceBank, level: u32) -> bool {
 pub const LANDSCAPE_FRILL_DISTANCE: u32 = 0x4000_0044;
 
 /// The graphics preferences the scene reads (`WorldScene::set_options`): the far ring's radius
-/// from `LandscapeDrawDistance`, and the frill settings from `LandscapeFrillDistance`.
+/// from `LandscapeDrawDistance`, the frill settings from `LandscapeFrillDistance`, and the object
+/// degrade settings (`ModelDetail`, `MaterialDetail`, `SceneryDrawDistance`, `AdaptiveDegrade`,
+/// `AdaptiveDegradeBias`).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SceneOptions {
     /// The far radius in blocks (`far_radius_for_draw_distance`).
     pub far_radius: i32,
     pub frill: FrillSettings,
+    pub degrade: DegradeOptions,
 }
 
 impl Default for SceneOptions {
@@ -365,6 +369,7 @@ impl Default for SceneOptions {
         Self {
             far_radius: far_radius_for_draw_distance(2),
             frill: FrillSettings::default(),
+            degrade: DegradeOptions::default(),
         }
     }
 }
@@ -384,6 +389,41 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         frill: FrillSettings {
             short_distance: short,
             ..defaults.frill
+        },
+        degrade: degrade_options(bank),
+    }
+}
+
+/// `ModelDetail` (`Render::m_Prefs.ModelDetail`).
+pub const MODEL_DETAIL: u32 = 0x4000_004E;
+/// `MaterialDetail`.
+pub const MATERIAL_DETAIL: u32 = 0x4000_004D;
+/// `SceneryDrawDistance`.
+pub const SCENERY_DRAW_DISTANCE: u32 = 0x4000_0076;
+/// `AdaptiveDegrade`.
+pub const ADAPTIVE_DEGRADE: u32 = 0x4000_0064;
+/// `AdaptiveDegradeBias`.
+pub const ADAPTIVE_DEGRADE_BIAS: u32 = 0x4000_0065;
+
+/// The degrade settings `CPartArray::Draw` reads, as the bank holds them; a preference that is not
+/// registered keeps its default.
+pub fn degrade_options(bank: &PreferenceBank) -> DegradeOptions {
+    let defaults = DegradeOptions::default();
+    let level = |key, default| match bank.find(key).map(|pref| &pref.value) {
+        Some(Value::Int(v)) => u32::try_from(*v).unwrap_or(default),
+        _ => default,
+    };
+    DegradeOptions {
+        model_detail: level(MODEL_DETAIL, defaults.model_detail),
+        material_detail: level(MATERIAL_DETAIL, defaults.material_detail),
+        scenery_draw_distance: level(SCENERY_DRAW_DISTANCE, defaults.scenery_draw_distance),
+        adaptive_degrade: match bank.find(ADAPTIVE_DEGRADE).map(|pref| &pref.value) {
+            Some(Value::Bool(on)) => *on,
+            _ => defaults.adaptive_degrade,
+        },
+        adaptive_degrade_bias: match bank.find(ADAPTIVE_DEGRADE_BIAS).map(|pref| &pref.value) {
+            Some(Value::Float(bias)) => *bias,
+            _ => defaults.adaptive_degrade_bias,
         },
     }
 }

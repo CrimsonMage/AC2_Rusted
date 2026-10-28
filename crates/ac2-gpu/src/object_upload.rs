@@ -79,14 +79,12 @@ impl ObjectRenderer {
                 }),
                 transform: part.transform,
                 batches,
+                degrades: part.degrades.clone(),
                 weighted: part.skin.is_some(),
                 streamed: false,
             });
         }
-        let first_list = model.parts.first().map_or((0, 0), |part| {
-            let indices = part.batches.first().map_or(0, |b| b.indices.len());
-            (indices as u32, part.vertices.len() as u32)
-        });
+        let first_list = model.first_list();
         GpuObjectModel {
             parts,
             center: if count > 0.0 { sum / count } else { Vec3::ZERO },
