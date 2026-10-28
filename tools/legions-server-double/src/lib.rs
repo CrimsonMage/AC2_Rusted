@@ -16,7 +16,8 @@ mod chest;
 mod combat;
 mod corpse;
 pub use combat::{
-    lifestone, Fight, CREATURE_HEALTH, HEALTH, HEALTH_MAX, PLAYER_HEALTH, PLAYER_HEALTH_MAX,
+    lifestone, Fight, BEHAVIOR_MELEE_AUTO, BEHAVIOR_MELEE_NORMAL, CREATURE_HEALTH, DEATH_SECONDS,
+    HEALTH, HEALTH_MAX, MODE_COMBAT, MODE_COMBAT_MONSTER, PLAYER_HEALTH, PLAYER_HEALTH_MAX,
 };
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
@@ -69,7 +70,9 @@ pub use objects::{
     create_object_bytes, object_event_bytes, position_bytes, weenie_object_bytes,
     weenie_object_with, ObjectPosition, ObjectSpawn,
 };
-pub use radar::{radar_objects, CREATURE_ONE, CREATURE_TWO, MONSTER_PACKAGE, NPC, NPC_PACKAGE};
+pub use radar::{
+    radar_objects, CREATURE_ONE, CREATURE_TWO, DRUDGE_VISUAL, MONSTER_PACKAGE, NPC, NPC_PACKAGE,
+};
 pub use reliable::{newer, ClientTracker, SentStore, Stored, Verdict, MAX_IDS};
 pub use script::ScriptWorld;
 pub use social::{fellow_graph, Fellow, Fellowship, FELLOW, FELLOWSHIP_ROOM};
@@ -294,6 +297,9 @@ pub struct State {
     pub script_world: ScriptWorld,
     /// The fight against the double's creatures (`combat.rs`).
     pub fight: Fight,
+    /// The `VisualDesc` the radar creatures are created with (0: none, as the logic tests use;
+    /// a drawn test sets a monster's, e.g. [`DRUDGE_VISUAL`]).
+    pub creature_visual: u32,
     /// Every unordered queue-1 event the double sent, byte for byte, in order (`send_event`).
     pub events_sent: Vec<Vec<u8>>,
     /// The player's vigor, its costs and regeneration (`vitals.rs`).

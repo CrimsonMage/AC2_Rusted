@@ -464,6 +464,7 @@ impl Client {
         if let Some(taken) = player_taken {
             events.push(taken);
         }
+        self.story_animation_events(&events);
         // The player's `LockActions` / `UnlockActions` events (`PlayerMovementModule::LockActions`)
         // count whatever the visual's sounds are.
         let lock = events

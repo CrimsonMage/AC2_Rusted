@@ -5,7 +5,8 @@
 // which equals fogging the blend. With landscape shadows on, the blend is modulated by the static
 // shadow map (texcoord 7, `SceneTool::StartShadowMap`) and the region's cloud-shadow texture
 // (texcoord 6, scrolled by an `LM_UVTranslate`): stages 1 and 2 of a single layer, or a
-// DESTCOLOR/ZERO pass after several, both before the fog.
+// DESTCOLOR/ZERO pass after several, both before the fog. Near the eye the sun shadow cascades
+// (`sun_shadow.wgsl`) darken it as well.
 
 struct Frame {
     view_proj: mat4x4<f32>,
@@ -35,6 +36,10 @@ struct Batch {
 @group(0) @binding(2) var shadow_map: texture_2d<f32>;
 @group(0) @binding(3) var frame_wrap: sampler;
 @group(0) @binding(4) var frame_clamp: sampler;
+// The sun shadow cascades of bodies and objects (`sun_shadow.wgsl`).
+@group(0) @binding(5) var<uniform> sun_shadow: SunShadow;
+@group(0) @binding(6) var sun_shadow_map: texture_depth_2d_array;
+@group(0) @binding(7) var sun_shadow_sampler: sampler_comparison;
 @group(1) @binding(0) var<uniform> batch: Batch;
 @group(1) @binding(1) var base0: texture_2d<f32>;
 @group(1) @binding(2) var base1: texture_2d<f32>;
@@ -107,16 +112,23 @@ fn vs(input: VsIn) -> VsOut {
 // above, the warm ground bounce from below.
 const TERRAIN_GROUND_TINT: vec3<f32> = vec3<f32>(0.55, 0.5, 0.42);
 
-fn terrain_light(normal: vec3<f32>, c: vec4<f32>) -> vec3<f32> {
+// `sun` is how much of the direct light reaches the point (`sun_lit`).
+fn terrain_light(normal: vec3<f32>, c: vec4<f32>, sun: f32) -> vec3<f32> {
     let n = normalize(normal);
-    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0);
+    let direct = max(-dot(n, frame.light_dir.xyz) * c.a, 0.0) * sun;
     let ambient = mix(frame.ambient.rgb * TERRAIN_GROUND_TINT, frame.ambient.rgb, n.z * 0.5 + 0.5);
     return saturate((direct * frame.dir_color.rgb + ambient) * c.rgb);
 }
 
 @fragment
 fn fs(input: VsOut) -> @location(0) vec4<f32> {
-    let diffuse = terrain_light(input.normal, input.surface);
+    // In a body's or object's sun shadow the direct light is gone, and the light keeps at most
+    // retail's one minus the shadow strength (`sun_shadow_keep`): the darker of the two.
+    let lit = sun_lit(input.world, input.normal);
+    let diffuse = min(
+        terrain_light(input.normal, input.surface, lit),
+        terrain_light(input.normal, input.surface, 1.0) * sun_shadow_keep(lit),
+    );
     let layer0 = saturate(2.0 * textureSample(base0, wrap_sampler, input.grid * batch.scale.x).rgb * diffuse);
     let layer1 = saturate(2.0 * textureSample(base1, wrap_sampler, input.grid * batch.scale.y).rgb * diffuse);
     let layer2 = saturate(2.0 * textureSample(base2, wrap_sampler, input.grid * batch.scale.z).rgb * diffuse);
@@ -124,9 +136,12 @@ fn fs(input: VsOut) -> @location(0) vec4<f32> {
     let alpha2 = textureSample(mask2, clamp_sampler, input.mask2_uv).a;
     var color = mix(layer0, layer1, select(0.0, alpha1, batch.rot.z > 1u));
     color = mix(color, layer2, select(0.0, alpha2, batch.rot.z > 2u));
-    // D3DTOP_MODULATE by the shadow map (clamped) and the cloud shadows (wrapped).
+    // D3DTOP_MODULATE by the shadow map (clamped) and the cloud shadows (wrapped). Where the sun
+    // shadow cascades cover the landscape they hold the same casters, sharper, so the map fades
+    // out there instead of darkening them twice.
     let shadow_uv = (frame.shadow * vec4(input.world, 1.0)).xy;
-    color *= textureSample(shadow_map, frame_clamp, shadow_uv).rgb;
+    let landscape = textureSample(shadow_map, frame_clamp, shadow_uv).rgb;
+    color *= mix(landscape, vec3(1.0), sun_cover(input.world));
     let cloud_uv = input.world.xy * frame.clouds.z + frame.clouds.xy;
     color *= textureSample(cloud_texture, frame_wrap, cloud_uv).rgb;
     let fogged = mix(color, saturate(frame.fog_color.rgb), input.haze);

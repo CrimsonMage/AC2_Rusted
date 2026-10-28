@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 829 done, 170 partial, 175 to do, 950 skipped.
+2124 retail functions: 836 done, 166 partial, 173 to do, 949 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1486,10 +1486,10 @@ Legend and workflow: [README](README.md).
 ### LookAtManager
 - [x] `LookAtManager::Release` · 004fd6f0 · legions 004efee0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [x] `LookAtManager::LookAtDir` · 004fd750 · legions 004eff40 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-- [x] `LookAtManager::LookAt` · 004fd780 · legions 004eff70 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+- [x] `LookAtManager::LookAt` · 004fd780 · legions 004eff70 — ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
 - [x] `LookAtManager::LookAtManager` · 004fd870 · legions 004f0060 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-- [x] `LookAtManager::LookAtLogic` · 004fd930 · legions 004f0120 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-- [x] `LookAtManager::Update` · 004fdb70 · legions 004f0360 — LookAtManager::Update - LookAtManager::Update, ac2-physics physics_obj_look.rs
+- [x] `LookAtManager::LookAtLogic` · 004fd930 · legions 004f0120 — ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
+- [x] `LookAtManager::Update` · 004fdb70 · legions 004f0360 — ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
 
 ## `portal/shared/src/physobj/minterp/constraintmanager.cpp.c` (6/6)
 
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (257/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (260/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2435,8 +2435,8 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetMouseLookState` · 004e2500 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::GetFirstPersonState` · 004e2510 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetFirstPersonState` · 004e2520 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-- [ ] `CPhysicsObj::SetCameraLookAround` · 004e2530 · legions 004d4f80 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetCameraLookAtCamera` · 004e2570 · legions 004d4fc0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::SetCameraLookAround` · 004e2530 · legions 004d4f80 — ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
+- [x] `CPhysicsObj::SetCameraLookAtCamera` · 004e2570 · legions 004d4fc0 — ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
 - [x] `CPhysicsObj::LookAtSelection` · 004e25b0 · legions 004d5000 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 - [x] `CPhysicsObj::SetLookAtSelection` · 004e2630 · legions 004d5080 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 - [ ] `CPhysicsObj::StopAllCameraFX` · 004e2650 — needs port: cite-only physics-object method
@@ -2446,7 +2446,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetFreeCamera` · 004e2720 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::RestorePlayerCamera` · 004e2750 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::IsPlacingMarkerObjects` · 004e2760 — admin/debug or text-file tooling
-- [~] `CPhysicsObj::RecvEvt_DoStory` · 004e2770 — forwarder to StoryManager (AC2_Rusted-combat worker)
+- [x] `CPhysicsObj::RecvEvt_DoStory` · 004e2770 — ac2-client client_story.rs apply_story: each DoStory, in arrival order with the other physics events, to the object's StoryManager
 - [ ] `CPhysicsObj::LockActions` · 004e2790 · legions 004d51e0 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::UnLockActions` · 004e27e0 · legions 004d5230 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::CacheAnimations` · 004e2800 — render plumbing
@@ -3022,7 +3022,7 @@ Legend and workflow: [README](README.md).
 - [-] `MissileInfo::operator=` · 006ad5d0 · legions 00646840 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `MissileInfo::MissileInfo` · 006ad640 · legions 006468b0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/story/physicsstory.cpp.c` (2/35)
+## `portal/shared/src/physobj/story/physicsstory.cpp.c` (3/35)
 
 ### StoryHookData
 - [-] `StoryHookData::StoryHookData` · 006ad680 · legions 006468f0 — C++ constructor/destructor; Rust constructor and Drop replace it
@@ -3066,7 +3066,7 @@ Legend and workflow: [README](README.md).
 - [~] `StoryHookData::StreamPack` · 006ad9f0 · legions 00646c70 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
 ### PhysicsStory
-- [-] `PhysicsStory::IsNull` · 006adb60 · legions 00646de0 — plain field accessor on a runtime record; Rust struct field replaces it
+- [x] `PhysicsStory::IsNull` · 006adb60 · legions 00646de0 — ac2-physics story.rs is_null: no hooks and no valid attacker behaviour
 - [-] `PhysicsStory::GetOverallAttackResult` · 006adb80 · legions 00646e00 — plain field accessor on a runtime record; Rust struct field replaces it
 
 ### _STL::_Rb_tree<StoryHookData,StoryHookData,_STL::_Identity<StoryHookData>,_STL::less<StoryHookData>,_STL::allocator<StoryHookData>_>
@@ -3085,7 +3085,7 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsStory::PhysicsStory` · 006ae4d0 · legions 00647760 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
-## `portal/shared/src/physobj/story/storymanager.cpp.c` (2/15)
+## `portal/shared/src/physobj/story/storymanager.cpp.c` (5/15)
 
 ### StoryManager
 - [~] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
@@ -3098,17 +3098,17 @@ Legend and workflow: [README](README.md).
 
 ### StoryManager
 - [~] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — ac2-physics story.rs cleanup lets the story go; not ported: the pending missiles' destruction, the faded objects' restore, the player's client attack context end (weenie +0xbc)
 - [-] `StoryManager::StoryManager` · 00514ca0 · legions 00502cb0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::~StoryManager` · 00514cd0 · legions 00502ce0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::StreamPack` · 00514d20 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 - [~] `StoryManager::CreateAndParentMissiles` · 00514dd0 · legions 00502de0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [x] `StoryManager::DoStoryHook` · 00514ff0 · legions 00503000 — StoryManager::DoStoryHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-- [~] `StoryManager::DoCurrentStoryHooks` · 005152e0 · legions 005032f0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::FinishStory` · 00515370 · legions 00503380 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::DoStory` · 005153b0 · legions 005033c0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [x] `StoryManager::HandleAnimHook` · 005154b0 · legions 005034c0 — StoryManager::HandleAnimHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-- [~] `StoryManager::HandleBehaviorDone` · 005154f0 · legions 00503500 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::DoStoryHook` · 00514ff0 · legions 00503000 — ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (gmCWInterface::GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0). Not yet: missile hooks (types 2, 3), SendNotice_E_LastAttacker; combat_view_7160 sees Damage_Hit1 on the target
+- [x] `StoryManager::DoCurrentStoryHooks` · 005152e0 · legions 005032f0 — ac2-physics story.rs current_hooks: the hooks whose m_animHookNumber the animation has reached
+- [x] `StoryManager::FinishStory` · 00515370 · legions 00503380 — ac2-physics story.rs finish: one animation hook at a time until every hook fired, then cleanup
+- [x] `StoryManager::DoStory` · 005153b0 · legions 005033c0 — ac2-physics story.rs StoryManager::do_story: finishes a running story, sorts the hooks by m_animHookNumber (multiset order), runs the attacker behaviour with the next context (ac2-client client_story.rs: body.do_behavior, true unless the body is frozen, as CPhysicsObj::DoBehavior returns 1), else finishes; story_tests.rs, combat_view_7160
+- [x] `StoryManager::HandleAnimHook` · 005154b0 · legions 005034c0 — ac2-physics story.rs handle_anim_hook (WeenieHook type 0x40000002 moves the story on); ac2-client client_story.rs story_animation_events
+- [x] `StoryManager::HandleBehaviorDone` · 005154f0 · legions 00503500 — ac2-physics story.rs handle_behavior_done (the story's context: done finishes, an error cleans up); ac2-client client_story.rs story_animation_events from Ac2AnimEvent::BehaviorDone
 
 ## `portal/shared/src/physobj/target/targetmanager.cpp.c` (15/25)
 

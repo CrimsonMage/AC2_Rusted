@@ -27,6 +27,9 @@ const VEIL_GAIN: f32 = 1.5;
 struct ModernLight {
     diffuse: vec3<f32>,
     specular: vec3<f32>,
+    // The sun's share of each, kept apart so its shadow can take it away.
+    sun_diffuse: vec3<f32>,
+    sun_specular: vec3<f32>,
 };
 
 // Program 1 takes its albedo (the material diffuse) in colour 0 and no vertex light or specular.
@@ -47,6 +50,8 @@ fn modern_direct(n: vec3<f32>, v: vec3<f32>, l: vec3<f32>, alpha: f32) -> Modern
     var term: ModernLight;
     term.diffuse = vec3(0.0);
     term.specular = vec3(0.0);
+    term.sun_diffuse = vec3(0.0);
+    term.sun_specular = vec3(0.0);
     if n_dot_l <= 0.0 {
         return term;
     }
@@ -76,13 +81,15 @@ fn modern_light(world: vec3<f32>, n: vec3<f32>) -> ModernLight {
     var light: ModernLight;
     light.diffuse = mix(sky * MODERN_GROUND_TINT, sky, n.z * 0.5 + 0.5) * MODERN_AMBIENT_SCALE;
     light.specular = vec3(0.0);
+    light.sun_diffuse = vec3(0.0);
+    light.sun_specular = vec3(0.0);
     if sun_on() {
         let l = normalize(frame.sun_inv_dir.xyz);
         let term = modern_direct(n, v, l, alpha);
         let e = light_linear(frame.sun_diffuse.rgb) * MODERN_SUN_SCALE;
         let es = light_linear(frame.sun_specular.rgb) * MODERN_SUN_SCALE;
-        light.diffuse = light.diffuse + e * term.diffuse;
-        light.specular = light.specular + es * tint * term.specular;
+        light.sun_diffuse = e * term.diffuse;
+        light.sun_specular = es * tint * term.specular;
     }
     for (var i = 0u; i < point_count(); i = i + 1u) {
         let to_light = draw.points[i * 4u].xyz - world;
@@ -127,8 +134,19 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     if !pixel_program && program == 1u {
         let light = modern_light(input.world, normalize(input.normal));
         // Retail clamps the specular colour to [0, 1] (`out.color1`); the modern highlights keep
-        // the tone curve's roll-off above that.
-        radiance = radiance * light.diffuse + clamp(light.specular, vec3(0.0), vec3(1.0));
+        // the tone curve's roll-off above that. In the sun's shadow the sun's share is gone, and
+        // the light keeps at most retail's one minus the shadow strength: the darker of the two.
+        let lit = select(1.0, sun_lit(input.world, input.normal), sun_on());
+        let shaded = radiance * (light.diffuse + light.sun_diffuse * lit)
+            + clamp(light.specular + light.sun_specular * lit, vec3(0.0), vec3(1.0));
+        let full = radiance * (light.diffuse + light.sun_diffuse)
+            + clamp(light.specular + light.sun_specular, vec3(0.0), vec3(1.0));
+        radiance = min(shaded, full * sun_shadow_keep(lit));
+    } else if sun_on() && !has(FLAG_SKY) {
+        // Other programs light in their own maths: retail's darkening (`sun_shadow_keep`); a
+        // frill already darkened by the landscape map keeps the darker of the two.
+        let keep = sun_shadow_keep(sun_lit(input.world, input.normal));
+        radiance = radiance * min(keep / max(input.landscape_shade, vec3(1e-3)), vec3(1.0));
     }
     var color = radiance;
     if has(FLAG_SKY_EMISSIVE) {

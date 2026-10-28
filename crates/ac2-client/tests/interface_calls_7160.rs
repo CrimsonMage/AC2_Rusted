@@ -159,7 +159,14 @@ fn the_other_wrappers_end_cleanly_on_the_player_script() {
     assert!(client
         .gun_hear_from_room(StringInfo::default(), "hi", 1, 0)
         .is_ok());
-    assert!(client.fx_and_behavior_info(0, 0, 0).is_ok());
+    // A melee hit (skill 6, `AttackResult` 0x40000008): the script fills the info it is handed,
+    // the target's reaction among it (`Damage_Hit1`).
+    match client.fx_and_behavior_info(6, 0, 0x4000_0008) {
+        Ok(Some(ac2_script::native::NativeObject::FxAndBehavior(info))) => {
+            assert_eq!(info.target_behavior.map(|b| b.behavior), Some(0x4100_007C))
+        }
+        other => panic!("the script fills the FXAndBehaviorInfo: {other:?}"),
+    }
     let player = client.player_id().expect("a player");
     // Without a missile weapon the script reads an undefined reference and the call faults (the
     // answer is an `Err`, not a panic); a real launch passes a wielded launcher's context.

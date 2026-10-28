@@ -15,6 +15,7 @@ impl ObjectRenderer {
             },
             count: None,
         };
+        let sun = crate::sun_shadow::SunShadowBinding::layout_entries(3);
         let frame_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 object frame"),
             entries: &[
@@ -35,6 +36,9 @@ impl ObjectRenderer {
                     ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
                     count: None,
                 },
+                sun[0],
+                sun[1],
+                sun[2],
             ],
         });
         let draw_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -104,12 +108,14 @@ impl ObjectRenderer {
             min_filter: wgpu::FilterMode::Nearest,
             ..Default::default()
         });
+        let sun_shadow = crate::sun_shadow::SunShadowBinding::placeholder(gpu);
         let frame_group = frame_group(
             device,
             &frame_layout,
             &frame_buffer,
             textures.white(),
             &shadow_sampler,
+            &sun_shadow,
         );
         let module = object_module(device, include_str!("object_stages.wgsl"));
         let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -150,6 +156,9 @@ impl ObjectRenderer {
             groups: Vec::new(),
             casters: None,
             shadow_format: crate::SHADOW_MAP_FORMAT,
+            sun_casters: None,
+            sun_shadow,
+            shadow_view: None,
             scratch_entries: Vec::new(),
             scratch_opaque: Vec::new(),
             scratch_translucent: Vec::new(),
@@ -167,12 +176,25 @@ impl ObjectRenderer {
     /// Uploads a model; `load` supplies images for stage textures not yet on the GPU.
     /// Binds the landscape's static shadow map, which merged frills read their colour from.
     pub fn set_shadow_map(&mut self, gpu: &Gpu, view: &wgpu::TextureView) {
+        self.shadow_view = Some(view.clone());
+        self.rebind_frame(gpu);
+    }
+
+    /// Binds the sun shadow cascades the objects receive.
+    pub fn set_sun_shadow(&mut self, gpu: &Gpu, sun: &crate::sun_shadow::SunShadowBinding) {
+        self.sun_shadow = sun.clone();
+        self.rebind_frame(gpu);
+    }
+
+    fn rebind_frame(&mut self, gpu: &Gpu) {
+        let white = self.textures.white().clone();
         self.frame_group = frame_group(
             &gpu.device,
             &self.frame_layout,
             &self.frame_buffer,
-            view,
+            self.shadow_view.as_ref().unwrap_or(&white),
             &self.shadow_sampler,
+            &self.sun_shadow,
         );
     }
 

@@ -402,8 +402,13 @@ fn the_creature_dies_at_zero_health() {
         ]
     );
     assert!(server.borrow().fight.dead.contains(&CREATURE_ONE));
-    // The creature is out of the world now; the object goes once its lifetime runs out.
-    let later = advance(&mut client, &server, 26.0);
+    // The creature's death plays out, it leaves the world, and the object goes once its
+    // lifetime runs out.
+    let later = advance(
+        &mut client,
+        &server,
+        26.0 + legions_server_double::DEATH_SECONDS,
+    );
     assert!(later
         .iter()
         .any(|e| matches!(e, SessionEvent::ObjectRemoved(id) if *id == CREATURE_ONE)));
@@ -466,7 +471,12 @@ fn the_creature_dies_and_its_corpse_is_looted() {
     };
     select_creature(&mut client, &server);
     events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
-    let fight = advance(&mut client, &server, 3.0 * HIT_INTERVAL + 0.5);
+    // Three exchanges, then the death plays out before the creature leaves for its corpse.
+    let fight = advance(
+        &mut client,
+        &server,
+        3.0 * HIT_INTERVAL + 0.5 + legions_server_double::DEATH_SECONDS,
+    );
     assert!(server.borrow().fight.dead.contains(&CREATURE_ONE));
     assert!(fight.iter().any(|e| matches!(
         e,

@@ -34,6 +34,11 @@ const ZOOM_SPEED: u32 = 0x4000_002C;
 /// `CPhysicsObj::SetLookAtSelection` (ICPhysicsObj slot 0x4DC, read from the admin exe at
 /// 0x00577003).
 const LOOK_AT_SELECTION: u32 = 0x4000_006A;
+/// The player's head follows the camera (`SetCameraLookAround`, `m_bCameraFK`; slot 0x4D4).
+const LOOK_AROUND: u32 = 0x4000_0068;
+/// The player's head turns toward the camera (`SetCameraLookAtCamera`, `m_bLookAtCamera`; slot
+/// 0x4D8).
+const LOOK_AT_CAMERA: u32 = 0x4000_0069;
 
 /// The camera's preference values, as the bank holds them.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -48,6 +53,10 @@ pub struct CameraValues {
     pub align_to_slope: bool,
     /// The player looks at what it selects (`SetLookAtSelection`).
     pub look_at_selection: bool,
+    /// The player's head follows the camera (`SetCameraLookAround`).
+    pub look_around: bool,
+    /// The player's head turns toward the camera (`SetCameraLookAtCamera`).
+    pub look_at_camera: bool,
 }
 
 /// The camera's values in `bank` (a missing key keeps the camera's constructor default).
@@ -70,6 +79,8 @@ pub fn values(bank: &PreferenceBank) -> CameraValues {
         steer_player: flag(STEER_PLAYER, true),
         align_to_slope: flag(ALIGN_TO_SLOPE, true),
         look_at_selection: flag(LOOK_AT_SELECTION, true),
+        look_around: flag(LOOK_AROUND, true),
+        look_at_camera: flag(LOOK_AT_CAMERA, true),
     }
 }
 

@@ -40,6 +40,17 @@ impl Heading {
         ld(DEGREES_TO_RADIANS) * ld(self.degrees)
     }
 
+    /// `Heading::get_radians_0_centered` (admin 0x0061A920): the radians, less 2 pi above pi
+    /// (an x87 result).
+    pub fn radians_0_centered(self) -> f64 {
+        let radians = ld(DEGREES_TO_RADIANS) * ld(self.degrees);
+        if f64::from(std::f32::consts::PI) < radians {
+            radians - f64::from(std::f32::consts::TAU)
+        } else {
+            radians
+        }
+    }
+
     /// `Heading::get_degrees_0_centered`: `(-180, 180]`.
     pub fn degrees_0_centered(self) -> f64 {
         let degrees = ld(self.degrees);

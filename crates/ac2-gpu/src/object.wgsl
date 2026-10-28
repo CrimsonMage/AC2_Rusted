@@ -86,6 +86,10 @@ const FLAG_SKY_VEIL: u32 = 131072u;
 @group(0) @binding(0) var<uniform> frame: Frame;
 @group(0) @binding(1) var shadow_map: texture_2d<f32>;
 @group(0) @binding(2) var shadow_sampler: sampler;
+// The sun shadow cascades (`sun_shadow.wgsl`).
+@group(0) @binding(3) var<uniform> sun_shadow: SunShadow;
+@group(0) @binding(4) var sun_shadow_map: texture_depth_2d_array;
+@group(0) @binding(5) var sun_shadow_sampler: sampler_comparison;
 
 // `LScapeTerrainMesh::GetShadowColor`'s map term: the mean of the texels two apart within four of
 // the one under world point `p` (25 samples), as `FrillRenderType::AddPos` colours a frill.
@@ -142,6 +146,9 @@ struct VsOut {
     @location(8) world: vec3<f32>,
     // The modern fogged fraction (`modern_fog`); 0 when the environment has no fog.
     @location(9) haze: f32,
+    // The landscape map's shadow a merged frill's colour already carries (1 elsewhere), which
+    // the sun shadow does not darken twice.
+    @location(10) landscape_shade: vec3<f32>,
 };
 
 /// Per-vertex vectors the fragments share, in world space.
@@ -305,11 +312,13 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
     // `f_TransformModel*ToView*`: the model matrix itself, then normalise.
     basis.normal = normalize((inst.model * vec4(normal, 0.0)).xyz);
     var vertex_color = input.color;
+    out.landscape_shade = vec3(1.0);
     if inst.frill.w > 0.5 {
         // Merged frill vertices: the frill's up axis, and the landscape shadow colour at the
         // frill's origin (`FrillRenderType::AddPos`).
         basis.normal = normalize(inst.frill.xyz);
-        vertex_color = vec4(landscape_shadow(inst.model[3].xyz) * inst.frill_shade.x, 1.0);
+        out.landscape_shade = landscape_shadow(inst.model[3].xyz);
+        vertex_color = vec4(out.landscape_shade * inst.frill_shade.x, 1.0);
     }
     basis.tangent_s = normalize((inst.model * vec4(input.tangent_s, 0.0)).xyz);
     basis.tangent_t = normalize((inst.model * vec4(input.tangent_t, 0.0)).xyz);

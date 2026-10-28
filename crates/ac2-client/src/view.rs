@@ -232,6 +232,7 @@ impl ClientView {
     /// The scene's graphics options (`WorldScene::set_options`): the landscape draw distance and
     /// the frill distance, as the graphics preferences set them.
     pub fn set_scene_options(&mut self, options: ac2_render::prefs::SceneOptions) {
+        self.renderer.set_object_shadows(options.object_shadows);
         self.scene.set_options(options);
     }
 

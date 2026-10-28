@@ -285,7 +285,11 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
     let mut prefs = ClientPrefs::load(dir.join("Preferences.ini"), store).expect("load");
     assert_eq!(
         prefs.scene_options(),
-        ac2_render::prefs::SceneOptions::default(),
+        ac2_render::prefs::SceneOptions {
+            // `DynamicObjectShadows` registers as 0 (retail's default), over the scene's own.
+            object_shadows: ac2_render::prefs::ObjectShadows::Off,
+            ..ac2_render::prefs::SceneOptions::default()
+        },
         "the scene's defaults until the page changes them"
     );
     prefs

@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 153 done, 13 partial, 107 to do, 153 skipped.
+426 retail functions: 154 done, 13 partial, 106 to do, 153 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -182,12 +182,12 @@ Legend and workflow: [README](README.md).
 - [-] `Sphere::FromFileNode` · 00628f40 — text source format (admin tools)
 - [-] `Sphere::ToFileNode` · 00629040 — text source format (admin tools)
 
-## `portal/shared/src/geometry/heading.cpp.c` (11/21)
+## `portal/shared/src/geometry/heading.cpp.c` (12/21)
 
 ### Heading
 - [x] `Heading::get_degrees_0_centered` · 0061a8f0 · legions 005d6550
 - [x] `Heading::get_radians` · 0061a910 · legions 005d6570
-- [ ] `Heading::get_radians_0_centered` · 0061a920 · legions 005d6580 — needs port: heading in radians, centred on zero, as f64
+- [x] `Heading::get_radians_0_centered` · 0061a920 · legions 005d6580 — ac2-physics heading.rs radians_0_centered
 - [x] `Heading::ToUInt8` · 0061a940 · legions 005d65a0
 - [-] `Heading::Heading` · 0061a960 · legions 005d65c0 — ctor/dtor: Rust struct construction and Drop
 - [-] `Heading::operator=` · 0061a980 · legions 005d65e0 — operator=: Rust value semantics (glam/ac2-math provides it)

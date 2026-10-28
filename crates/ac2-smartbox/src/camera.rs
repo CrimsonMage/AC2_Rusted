@@ -696,6 +696,11 @@ impl CameraManager {
         self.fov
     }
 
+    /// `CameraManager::GetInterpViewerOffset`: the targeting module's (it is always made here).
+    pub fn interp_viewer_offset(&self) -> Vector {
+        self.targeting.interp_viewer_offset()
+    }
+
     /// `CameraManager::NoRayTrace`: first person, or a target other than the player.
     pub fn no_ray_trace(&self) -> bool {
         self.first_person || !self.targeting.target_is_player

@@ -247,7 +247,7 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         enumeration(0x4000_004E, LEVELS_3, 1),
         enumeration(0x4000_0021, WATER, 0),
         enumeration(0x4000_005D, SHORE, 1),
-        enumeration(0x4000_004C, OBJECT_SHADOWS, 0),
+        enumeration(DYNAMIC_OBJECT_SHADOWS, OBJECT_SHADOWS, 0),
         enumeration(0x4000_0076, LEVELS_3, 1),
         enumeration(LANDSCAPE_DRAW_DISTANCE, LANDSCAPE_DRAW, 2),
         enumeration(0x4000_0044, FRILL, 0),
@@ -361,15 +361,47 @@ pub struct SceneOptions {
     pub far_radius: i32,
     pub frill: FrillSettings,
     pub degrade: DegradeOptions,
+    /// The sun shadows of bodies and objects (`DynamicObjectShadows`).
+    pub object_shadows: ObjectShadows,
 }
 
 impl Default for SceneOptions {
-    /// The scene's own defaults: draw distance 2 (radius 4) and the long frill distance.
+    /// The scene's own defaults: draw distance 2 (radius 4), the long frill distance and medium
+    /// object shadows.
     fn default() -> Self {
         Self {
             far_radius: far_radius_for_draw_distance(2),
             frill: FrillSettings::default(),
             degrade: DegradeOptions::default(),
+            object_shadows: ObjectShadows::Medium,
+        }
+    }
+}
+
+/// `ID_Graphics_DynamicObjectShadows` (`Render::m_Prefs.DynamicObjectShadows`).
+pub const DYNAMIC_OBJECT_SHADOWS: u32 = 0x4000_004C;
+
+/// The `DynamicObjectShadows` choices. Retail drew 1 as a dark disc decal under each moving
+/// object (`WorldRender::CreateDiscShadows`), 2 as stencil shadow volumes of the moving objects
+/// (`SceneTool::GenerateGlobalShadowVolume`, `RenderGlobalVolumetricShadows`) and 3 as the same
+/// volumes self-shadowing. The client draws every level above 0 as sun shadow maps of bodies and
+/// objects (`ac2_gpu::SunShadows`), sized by the level.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ObjectShadows {
+    Off,
+    Low,
+    Medium,
+    High,
+}
+
+impl ObjectShadows {
+    /// The preference's value (0 to 3; larger values are high).
+    pub fn from_preference(value: i32) -> Self {
+        match value {
+            i32::MIN..=0 => Self::Off,
+            1 => Self::Low,
+            2 => Self::Medium,
+            _ => Self::High,
         }
     }
 }
@@ -391,6 +423,10 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             ..defaults.frill
         },
         degrade: degrade_options(bank),
+        object_shadows: match bank.find(DYNAMIC_OBJECT_SHADOWS).map(|pref| &pref.value) {
+            Some(Value::Int(value)) => ObjectShadows::from_preference(*value),
+            _ => defaults.object_shadows,
+        },
     }
 }
 

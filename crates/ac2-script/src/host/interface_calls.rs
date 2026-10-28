@@ -257,7 +257,8 @@ pub trait InterfaceCalls: ScriptQueries {
             &args,
             IFunReturn::Word,
         )?;
-        Ok(match r.outs.get(3) {
+        // The outs are the out parameters in order: the filled native is the only one.
+        Ok(match r.outs.first() {
             Some(Some(OutValue::Vm(n))) => Some(n.clone()),
             _ => None,
         })
@@ -284,7 +285,8 @@ pub trait InterfaceCalls: ScriptQueries {
             &args,
             IFunReturn::Word,
         )?;
-        Ok(match r.outs.get(4) {
+        // The outs are the out parameters in order: the filled native is the only one.
+        Ok(match r.outs.first() {
             Some(Some(OutValue::Vm(n))) => Some(n.clone()),
             _ => None,
         })

@@ -10,11 +10,13 @@ use ac2_core::DataId;
 use ac2_math::Mat4;
 use ac2_render::frustum::{Frustum, Relation};
 use ac2_render::object::{ObjectEnvironment, PointLight};
+use ac2_render::prefs::ObjectShadows;
 use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneObject, SceneUpdate};
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
 use crate::sky::{SkyLook, SkyRenderer};
+use crate::sun_shadow::{fit_cascades, SunShadows};
 use crate::{
     DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
     StaticShadowMap, TerrainBlock, TerrainRenderer, HDR_FORMAT,
@@ -46,6 +48,9 @@ pub struct SceneRenderer {
     sky: SkyRenderer,
     /// The near landscape's static shadow map.
     shadow_map: StaticShadowMap,
+    /// The sun shadow cascades of bodies and objects, and the level they are sized for next.
+    sun_shadows: SunShadows,
+    object_shadows: ObjectShadows,
     models: HashMap<DataId, GpuObjectModel>,
     /// World objects' models by request key.
     world_objects: HashMap<u64, GpuObjectModel>,
@@ -77,6 +82,12 @@ impl SceneRenderer {
         self.world_visible.iter().filter(|shown| !**shown).count()
     }
 
+    /// Sizes the sun shadows of bodies and objects for the `DynamicObjectShadows` level, from
+    /// the next `prepare`.
+    pub fn set_object_shadows(&mut self, level: ObjectShadows) {
+        self.object_shadows = level;
+    }
+
     /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
     pub fn new(gpu: &Gpu) -> Self {
         let mut terrain = TerrainRenderer::new(gpu, HDR_FORMAT);
@@ -84,9 +95,12 @@ impl SceneRenderer {
         terrain.set_shadows(gpu, None, shadow_map.view(), &mut |_| None);
         let mut objects = ObjectRenderer::new(gpu, HDR_FORMAT);
         objects.set_shadow_map(gpu, shadow_map.view());
+        let sun_shadows = SunShadows::new(gpu);
         Self {
+            object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
             terrain,
             shadow_map,
+            sun_shadows,
             objects,
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
@@ -231,6 +245,7 @@ impl SceneRenderer {
         }
         let lighting = self.frame.lighting;
         self.refresh_shadow_map(gpu);
+        self.draw_sun_shadows(gpu, camera, aspect);
         if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
             // The authored fog colour, decoded for the linear scene; its alpha is `fog_sky`.
             let linear = [r, g, b].map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
@@ -327,6 +342,63 @@ impl SceneRenderer {
         );
         self.terrain.set_shadow_matrix(matrix);
         self.objects.set_shadow_matrix(matrix);
+    }
+
+    /// The sun shadow cascades around `camera`: the near blocks' static objects (no frills) and the
+    /// frame's bodies and world objects cast into them, and the receivers read them at the static
+    /// shadow strength. Nothing casts in a scene without a sun (dungeons, UI viewports).
+    fn draw_sun_shadows(&mut self, gpu: &Gpu, camera: &Camera, aspect: f32) {
+        let lighting = &self.frame.lighting;
+        let lit = lighting.light_dir.length() > 1e-4
+            && lighting.shadow_strength.iter().any(|s| *s > 0.0)
+            && !self.frame.terrain.is_empty();
+        // The maps are made the first time a sunlit landscape needs them (a UI viewport's scene
+        // never does), and dropped when the level turns them off.
+        let level = self.object_shadows;
+        if (lit || level == ObjectShadows::Off) && self.sun_shadows.set_level(gpu, level) {
+            self.terrain.set_sun_shadow(gpu, self.sun_shadows.binding());
+            self.objects.set_sun_shadow(gpu, self.sun_shadows.binding());
+        }
+        let frame = &self.frame;
+        let lighting = &frame.lighting;
+        let tier = self.sun_shadows.tier();
+        let cascades = tier
+            .filter(|_| lit)
+            .and_then(|tier| fit_cascades(camera, aspect, lighting.light_dir, &tier))
+            .unwrap_or_default();
+        if !cascades.is_empty() {
+            let casters: Vec<ObjectInstance<'_>> = frame
+                .placements
+                .iter()
+                .filter(|p| p.frill_normal.is_none())
+                .filter_map(|p| {
+                    Some(ObjectInstance {
+                        tint: [1.0, 1.0, 1.0, p.alpha],
+                        detail: p.detail,
+                        ..ObjectInstance::new(self.models.get(&p.visual)?, p.world)
+                    })
+                })
+                .chain(self.frame_objects.iter().filter_map(|o| {
+                    Some(ObjectInstance {
+                        tint: o.tint,
+                        pose: o.pose.as_ref(),
+                        detail: o.detail,
+                        ..ObjectInstance::new(self.world_objects.get(&o.key)?, o.world)
+                    })
+                }))
+                .collect();
+            let mut encoder = gpu.device.create_command_encoder(&Default::default());
+            self.objects.draw_sun_casters(
+                gpu,
+                &mut encoder,
+                self.sun_shadows.layer_views(),
+                &cascades,
+                &casters,
+            );
+            gpu.queue.submit([encoder.finish()]);
+        }
+        self.sun_shadows
+            .write(gpu, camera.eye, &cascades, lighting.shadow_strength);
     }
 
     /// Records the frame laid out by the last `prepare` into a pass cleared to

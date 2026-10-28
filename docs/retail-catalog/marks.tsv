@@ -1208,9 +1208,9 @@ key	status	note
 004469d0	x	ac2-ui client_page.rs ClientPage::dismantle (expanders gone, questions closed); no monitors to detach in the port
 00446a70	x	ac2-ui client_options_page.rs update_buttons (Apply and Recall ghost while the bank holds no change, over ClientPage::buttons); ac2-client client_options.rs options_changed
 00446b40	~	ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
-00446bf0	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, shadows, water) are stored, not applied
+00446bf0	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
 00446ce0	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
-00446d10	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, shadows, water) are stored, not applied
+00446d10	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
 00446d50	_	Legions has it: gmClientUI IPreferenceMonitor vtable slot 0 at 0x00447890 (vtable audit)
 00446e80	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 00446f40	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
@@ -1593,7 +1593,7 @@ key	status	note
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e60	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
-00451eb0	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+00451eb0	x	ac2-client client_story.rs story_fx_info -> ac2-script interface_calls fx_and_behavior_info on the player's process
 00451ef0	x	ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 00451f50	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 00451f70	~	no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native
@@ -1781,7 +1781,7 @@ key	status	note
 00459d30	x	ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 0045a000	x	ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 0045a0a0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
-0045a140	~	ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+0045a140	x	ac2-script host interface_calls.rs fx_and_behavior_info: (skill, hook, result, filled FXAndBehaviorInfo 0x2b); the filled native is the first out (the outs are the out parameters in order); interface_calls_7160
 0045a310	x	ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 0045a4b0	_	needs port: script IFun get gameplay options on the client interface; no citation in crates/
 0045a620	x	ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -4685,8 +4685,8 @@ key	status	note
 004e2500	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2510	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2520	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-004e2530	_	needs port: cite-only physics-object method
-004e2570	_	needs port: cite-only physics-object method
+004e2530	x	ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
+004e2570	x	ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
 004e25b0	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 004e2630	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 004e2650	_	needs port: cite-only physics-object method
@@ -4696,7 +4696,7 @@ key	status	note
 004e2720	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2750	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2760	-	admin/debug or text-file tooling
-004e2770	~	forwarder to StoryManager (AC2_Rusted-combat worker)
+004e2770	x	ac2-client client_story.rs apply_story: each DoStory, in arrival order with the other physics events, to the object's StoryManager
 004e2790	_	needs port: cite-only physics-object method
 004e27e0	_	needs port: cite-only physics-object method
 004e2800	-	render plumbing
@@ -5391,10 +5391,10 @@ key	status	note
 004fd690	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004fd6f0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004fd750	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004fd780	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
+004fd780	x	ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
 004fd870	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004fd930	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004fdb70	x	LookAtManager::Update - LookAtManager::Update, ac2-physics physics_obj_look.rs
+004fd930	x	ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
+004fdb70	x	ac2-physics look_at.rs, read from the admin disassembly (0x004FDB70, 0x004FD930): LookAtLogic drives yaw 0x40000009 ((1-w)*prev.z + w*yaw) and pitch 0x40000007 ((1-w)*prev.x + rise/(d*w)) and keeps mLookAtValues; with no target a non-player holds GetLookAtX/Z on both sliders over 0.5 s and the player's head follows CameraManager::GetInterpViewerOffset folded by m_bLookAtCamera / m_bCameraFK (M_PI_2_LOWER/UPPER 1.4707963/1.6707964), scaled by GetTotalScale and blended toward mLookAtValues by the weight, 0.1 s (0.2 s past a 0.2 step); LookAt keeps all three sliders; look_at_tests
 004fe120	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004fe150	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004fe230	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
@@ -5669,17 +5669,17 @@ key	status	note
 005149b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a30	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a90	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00514b90	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+00514b90	~	ac2-physics story.rs cleanup lets the story go; not ported: the pending missiles' destruction, the faded objects' restore, the player's client attack context end (weenie +0xbc)
 00514ca0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00514cd0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00514d20	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 00514dd0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00514ff0	x	StoryManager::DoStoryHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-005152e0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00515370	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-005153b0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-005154b0	x	StoryManager::HandleAnimHook - StoryManager hook cited in ac2-client client_story.rs and ac2-anim behavior/mod.rs
-005154f0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+00514ff0	~	ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (gmCWInterface::GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0). Not yet: missile hooks (types 2, 3), SendNotice_E_LastAttacker; combat_view_7160 sees Damage_Hit1 on the target
+005152e0	x	ac2-physics story.rs current_hooks: the hooks whose m_animHookNumber the animation has reached
+00515370	x	ac2-physics story.rs finish: one animation hook at a time until every hook fired, then cleanup
+005153b0	x	ac2-physics story.rs StoryManager::do_story: finishes a running story, sorts the hooks by m_animHookNumber (multiset order), runs the attacker behaviour with the next context (ac2-client client_story.rs: body.do_behavior, true unless the body is frozen, as CPhysicsObj::DoBehavior returns 1), else finishes; story_tests.rs, combat_view_7160
+005154b0	x	ac2-physics story.rs handle_anim_hook (WeenieHook type 0x40000002 moves the story on); ac2-client client_story.rs story_animation_events
+005154f0	x	ac2-physics story.rs handle_behavior_done (the story's context: done finishes, an error cleans up); ac2-client client_story.rs story_animation_events from Ac2AnimEvent::BehaviorDone
 00515520	x	ac2-physics target.rs TargetManager: the manager's state and rules; what retail did to other objects comes back as TargetEffect (world wiring through the object table not connected yet)
 00515580	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 005155a0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
@@ -8055,7 +8055,7 @@ key	status	note
 0056b250	-	D3D device/resource plumbing; wgpu replaces
 0056b2c0	-	D3D device/resource plumbing; wgpu replaces
 0056b330	-	D3D device/resource plumbing; wgpu replaces
-0056b390	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
+0056b390	~	ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 0056b6b0	-	tiled re-render capture not ported; the presented frame is copied instead
 0056b7a0	-	tiled re-render capture not ported; the presented frame is copied instead
 0056b7c0	-	tiled re-render capture not ported; the presented frame is copied instead
@@ -8098,7 +8098,7 @@ key	status	note
 0056ea20	x	SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 0056ed50	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
 0056eef0	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
-0056ef40	x	object::ObjectLights; static shadow strength SceneLighting::shadow_strength (volumetric shadows not drawn)
+0056ef40	x	object::ObjectLights; static shadow strength SceneLighting::shadow_strength drives the landscape map and the sun shadow cascades (ac2_gpu sun_shadow.rs); m_cVolumetricShadowStrength's undimmed colour is not used (cascades take the static strength)
 0056f230	_	needs port: scene DrawLine primitive (verify client use before porting)
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
 0056f2e0	-	D3D device/resource plumbing; wgpu replaces
@@ -8111,7 +8111,7 @@ key	status	note
 0056fe60	x	SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 0056fea0	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 00570300	x	ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
-005703e0	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
+005703e0	~	ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 005706d0	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 00570730	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 005708c0	-	SmartArray/STL container internals; Vec replaces
@@ -8201,7 +8201,7 @@ key	status	note
 00575ab0	x	no camera effects run, so their distance sum is 0
 00575ad0	x	camera action 0x4000002A
 00575b40	~	the player target only
-00575bc0	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00575bc0	x	ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 00575c00	x	
 00575ee0	~	ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 00575f20	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
@@ -8243,7 +8243,7 @@ key	status	note
 00579180	x	
 005791a0	x	
 00579210	x	
-00579420	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00579420	x	ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 005794b0	x	
 00579500	~	the physics position stands in for the render-slerped drawing position
 00579670	~	bone 0, the player or no target
@@ -8314,7 +8314,7 @@ key	status	note
 0057cf80	x	ac2-audio: rain.rs (RainSounds, the loop and thunder), ambient_driver.rs (AmbientDriver over the SoundSpace trait); ac2-client sound_ids.rs (DIDs), client_ambient.rs and sound_space.rs (physics adapter); tests sound_ids_tests.rs and ac2-audio unit tests
 0057d190	_	needs port: world camera defaults (only UI scene defaults are cited)
 0057d290	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
-0057d3d0	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
+0057d3d0	~	ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 0057d680	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0057d6d0	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 0057d870	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
@@ -10995,7 +10995,7 @@ key	status	note
 0061a8a0	~	ac2-ui pregame/arms.rs (D3DXQuaternionSlerp in f64)
 0061a8f0	x	
 0061a910	x	
-0061a920	_	needs port: heading in radians, centred on zero, as f64
+0061a920	x	ac2-physics heading.rs radians_0_centered
 0061a940	x	
 0061a960	-	ctor/dtor: Rust struct construction and Drop
 0061a980	-	operator=: Rust value semantics (glam/ac2-math provides it)
@@ -13292,7 +13292,7 @@ key	status	note
 006ad970	-	plain field accessor on a runtime record; Rust struct field replaces it
 006ad990	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006ad9f0	~	unpack only, in ac2-net protocol::movement (Legions instruction-identical)
-006adb60	-	plain field accessor on a runtime record; Rust struct field replaces it
+006adb60	x	ac2-physics story.rs is_null: no hooks and no valid attacker behaviour
 006adb80	-	plain field accessor on a runtime record; Rust struct field replaces it
 006ade30	-	STL/MSVC or archive template helper; Rust collections replace it
 006ae140	-	C++ constructor/destructor; Rust constructor and Drop replace it

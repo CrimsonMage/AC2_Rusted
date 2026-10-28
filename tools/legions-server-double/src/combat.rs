@@ -66,10 +66,26 @@ fn instance_of(id: u64) -> u16 {
 pub const MODE_DEAD: u32 = 0x4100_0005;
 pub const BEHAVIOR_DEATH: u32 = 0x4100_001F;
 pub const MODE_PEACE: u32 = 0x4000_0001;
+/// The fighting modes (`gmmodes.emp`): `combat` (the unarmed player's) and `combat_monster` (a
+/// creature's). `Melee_Auto1` has combos only in the combat modes, never in `peace`.
+pub const MODE_COMBAT: u32 = 0x4100_0009;
+pub const MODE_COMBAT_MONSTER: u32 = 0x4100_0012;
 /// `BehaviorParams` bits: the behaviour (0x1) and the mode it enters first (0x2).
 const BEHAVIOR_AND_MODE: u32 = 0x3;
 /// A position stamp past the creatures' starting one (1): a leave-world the object takes.
 const LEAVE_STAMP: u32 = 2;
+/// The swings a blow's attacker plays (`gmbehaviors.emp`): the player's `Melee_Auto1` (the
+/// human table's combat combo) and a creature's `Melee_Normal1` (the monster table's: a drudge's
+/// animation map has no `Melee_Auto` animation, so its tracker refuses that one).
+pub const BEHAVIOR_MELEE_AUTO: u32 = 0x4100_0089;
+pub const BEHAVIOR_MELEE_NORMAL: u32 = 0x4100_0077;
+/// The attacker's swing story, as servers send one (a retained capture): the attacker, its
+/// behaviour and the basic-attack bit (`0x2 | 0x4 | 0x20`), the behaviour with propagate and
+/// send-event (`0x1 | 0x400 | 0x200`), no hooks.
+const SWING_STORY_BITS: u32 = 0x26;
+const SWING_BEHAVIOR_BITS: u32 = 0x601;
+/// Seconds a dead creature lies in its death before it leaves the world for its corpse.
+pub const DEATH_SECONDS: f64 = 4.0;
 
 /// The fight's state: each creature's (current, max) health while it lives, the player's, and
 /// the player's attack (its target and the time of the next exchange).
@@ -84,6 +100,8 @@ pub struct Fight {
     pub player_dead: bool,
     /// The player's respawns so far (each teleport's stamps are newer than the last).
     pub respawns: u16,
+    /// Dead creatures still lying in their death, with the time they leave the world.
+    pub dying: Vec<(u64, f64)>,
 }
 
 /// The lifestone's position: the player's entry plus [`LIFESTONE_OFFSET`].
@@ -136,6 +154,7 @@ impl State {
             }
             if self.is_live_creature(request.target) && self.charge_vigor(request.maneuver) {
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
+                self.enter_combat(request.target);
                 self.hit(PLAYER, request.target, request.maneuver, HIT, PLAYER_DAMAGE);
                 self.send_combat(&CombatMessage::EndSpecialAttack(request.attack));
             }
@@ -147,6 +166,7 @@ impl State {
             {
                 self.fight.attack = Some((*target, self.elapsed + HIT_INTERVAL));
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
+                self.enter_combat(*target);
             }
             (STOP_ATTACKING, []) => self.stop_attack(),
             (STOP_ATTACKING_TARGET, [ac2_net::protocol::PackValue::LongInt(target)])
@@ -166,6 +186,7 @@ impl State {
     pub fn combat_tick(&mut self) {
         self.regenerate();
         self.effects_tick();
+        self.dying_tick();
         let Some((target, due)) = self.fight.attack else {
             return;
         };
@@ -193,9 +214,26 @@ impl State {
     }
 
     fn stop_attack(&mut self) {
-        if self.fight.attack.take().is_some() {
+        if let Some((target, _)) = self.fight.attack.take() {
             self.send_combat(&CombatMessage::UpdateAttackState(false));
+            self.send_combat_mode(PLAYER, MODE_PEACE);
+            if self.is_live_creature(target) {
+                self.send_combat_mode(target, MODE_PEACE);
+            }
         }
+    }
+
+    /// The fight's stances: the player and its target go into their combat modes (`DoMode`), the
+    /// ones their swings play in.
+    fn enter_combat(&mut self, target: u64) {
+        self.send_combat_mode(PLAYER, MODE_COMBAT);
+        self.send_combat_mode(target, MODE_COMBAT_MONSTER);
+    }
+
+    /// `ECM_Physics::RecvEvt_DoMode` on `object`.
+    fn send_combat_mode(&mut self, object: u64, mode: u32) {
+        let bytes = object_event_bytes(Opcode::DO_MODE, object, instance_of(object), &[mode]);
+        self.send_event(&bytes);
     }
 
     fn is_live_creature(&self, id: u64) -> bool {
@@ -204,6 +242,7 @@ impl State {
 
     /// One blow from `attacker` on `target`: the physics story, then the target's health.
     fn hit(&mut self, attacker: u64, target: u64, skill: u32, result: u32, damage: u32) {
+        self.send_swing(attacker);
         self.send_story(attacker, target, skill, result, damage);
         if target == PLAYER {
             let (health, max) = self.fight.player;
@@ -219,6 +258,39 @@ impl State {
             } else {
                 self.send_creature_health(target);
             }
+        }
+    }
+
+    /// The attacker's swing: a story with its melee behaviour and no hooks, which the
+    /// client's `StoryManager::DoStory` plays on the attacker.
+    fn send_swing(&mut self, attacker: u64) {
+        let args = [
+            SWING_STORY_BITS,
+            attacker as u32,
+            (attacker >> 32) as u32,
+            SWING_BEHAVIOR_BITS,
+            if attacker == PLAYER {
+                BEHAVIOR_MELEE_AUTO
+            } else {
+                BEHAVIOR_MELEE_NORMAL
+            },
+            1,
+            0,
+            0,
+        ];
+        let bytes = object_event_bytes(Opcode::DO_STORY, attacker, instance_of(attacker), &args);
+        self.send_event(&bytes);
+    }
+
+    /// The creatures whose death has played out leave the world, and the corpse takes the first
+    /// one's place.
+    fn dying_tick(&mut self) {
+        let elapsed = self.elapsed;
+        let (due, still): (Vec<_>, Vec<_>) =
+            self.fight.dying.iter().partition(|(_, at)| *at <= elapsed);
+        self.fight.dying = still;
+        for (creature, _) in due {
+            self.leave_world(creature);
         }
     }
 
@@ -269,19 +341,13 @@ impl State {
         self.send_private(HEALTH_MAX, QualityValue::Int(max as i32));
     }
 
-    /// A creature at zero health leaves the world (`LEAVE_WORLD`), and its corpse lies where it
-    /// died (`corpse.rs`: the skin and the item in it). Retail's death motion and death message are
-    /// not traced, so neither is sent. The corpse's id is one id: a creature killed after the first
-    /// corpse leaves none.
+    /// A creature at zero health: its Dead bool and its death behaviour (into the dead mode), then,
+    /// [`DEATH_SECONDS`] later, it leaves the world (`LEAVE_WORLD`) and its corpse lies where it
+    /// died (`corpse.rs`: the skin and the item in it). The corpse's id is one id: a creature
+    /// killed after the first corpse leaves none.
     fn kill(&mut self, creature: u64) {
         self.fight.creatures.remove(&creature);
         self.fight.dead.push(creature);
-        let bytes = object_event_bytes(
-            Opcode::LEAVE_WORLD,
-            creature,
-            instance_of(creature),
-            &[LEAVE_STAMP],
-        );
         self.send_quality(&QualityUpdate {
             object: Some(InstanceIdWithStamp {
                 id: creature,
@@ -292,6 +358,19 @@ impl State {
             value: QualityValue::Bool(1),
         });
         self.send_death_behavior(creature);
+        self.fight
+            .dying
+            .push((creature, self.elapsed + DEATH_SECONDS));
+    }
+
+    /// A dead creature's leave-world, and its corpse in its place (the first death's).
+    fn leave_world(&mut self, creature: u64) {
+        let bytes = object_event_bytes(
+            Opcode::LEAVE_WORLD,
+            creature,
+            instance_of(creature),
+            &[LEAVE_STAMP],
+        );
         self.send_event(&bytes);
         let place = radar_objects(&self.spawn)
             .into_iter()

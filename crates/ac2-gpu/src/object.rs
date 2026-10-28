@@ -33,6 +33,8 @@ use crate::Gpu;
 
 #[path = "object_shadow.rs"]
 mod shadow;
+#[path = "object_sun_casters.rs"]
+mod sun_casters;
 
 #[path = "object_prepare.rs"]
 mod prepare;
@@ -293,6 +295,12 @@ pub struct ObjectRenderer {
     /// The static shadow map's caster pipeline, made on first use.
     casters: Option<shadow::CasterPass>,
     shadow_format: wgpu::TextureFormat,
+    /// The sun shadow cascades' caster pipelines, made on first use.
+    sun_casters: Option<sun_casters::SunCasterPass>,
+    /// The sun shadow cascades the objects receive.
+    sun_shadow: crate::sun_shadow::SunShadowBinding,
+    /// The landscape's static shadow map, once bound.
+    shadow_view: Option<wgpu::TextureView>,
     /// `prepare`'s working storage, cleared and refilled each frame so steady frames allocate
     /// nothing. Never shrunk.
     scratch_entries: Vec<DrawEntry>,
@@ -319,7 +327,9 @@ fn frame_group(
     buffer: &wgpu::Buffer,
     shadow_map: &wgpu::TextureView,
     sampler: &wgpu::Sampler,
+    sun: &crate::sun_shadow::SunShadowBinding,
 ) -> wgpu::BindGroup {
+    let [sun_uniform, sun_map, sun_sampler] = sun.entries(3);
     device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("ac2 object frame"),
         layout,
@@ -340,14 +350,18 @@ fn frame_group(
                 binding: 2,
                 resource: wgpu::BindingResource::Sampler(sampler),
             },
+            sun_uniform,
+            sun_map,
+            sun_sampler,
         ],
     })
 }
 
 pub(crate) fn object_module(device: &wgpu::Device, shade: &str) -> wgpu::ShaderModule {
     let source = format!(
-        "{}\n{}\n{}\n{}",
+        "{}\n{}\n{}\n{}\n{}",
         include_str!("shading.wgsl"),
+        crate::sun_shadow::receiver_source(),
         include_str!("object.wgsl"),
         include_str!("object_modern.wgsl"),
         shade

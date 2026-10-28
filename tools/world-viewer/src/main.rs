@@ -6,14 +6,15 @@
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
-//! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2]
+//! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS]
 //! ```
+//! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
 //! degrees above the horizon (the sky: `--look 0,60`).
 //! `--model-detail` and `--scenery-distance` set the headless scene's `ModelDetail` and
 //! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
-//! medium.
+//! medium. `--object-shadows` sets its `DynamicObjectShadows` level (default 2, medium; 0 none).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -83,6 +84,8 @@ struct Args {
     look: Option<(f32, f32)>,
     /// The headless scene's degrade settings (`ModelDetail`, `SceneryDrawDistance`).
     degrade: ac2_render::object::DegradeOptions,
+    /// The headless scene's `DynamicObjectShadows` level (sun shadows of bodies and objects).
+    object_shadows: ac2_render::prefs::ObjectShadows,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -106,6 +109,7 @@ fn parse_args() -> Result<Args, String> {
         crowd: 0,
         look: None,
         degrade: ac2_render::object::DegradeOptions::default(),
+        object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -155,6 +159,12 @@ fn parse_args() -> Result<Args, String> {
                 args.degrade.scenery_draw_distance = value()?
                     .parse()
                     .map_err(|e| format!("--scenery-distance: {e}"))?;
+            }
+            "--object-shadows" => {
+                let level: i32 = value()?
+                    .parse()
+                    .map_err(|e| format!("--object-shadows: {e}"))?;
+                args.object_shadows = ac2_render::prefs::ObjectShadows::from_preference(level);
             }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
@@ -238,6 +248,29 @@ fn start_camera(world: &Ac2WorldSource, block: (u8, u8)) -> FlyCamera {
     FlyCamera::looking_at(centre + Vec3::new(-260.0, -260.0, 160.0), centre)
 }
 
+/// The fly camera of `--fly --at X,Y`: over that point of the block, `FLY_AT_HEIGHT` metres above
+/// its land cell, looking north (turned by `--look`).
+fn ground_camera(world: &Ac2WorldSource, block: (u8, u8), (x, y): (f32, f32)) -> FlyCamera {
+    const FLY_AT_HEIGHT: f32 = 12.0;
+    let size = world.block_size();
+    let id = CellId::new((u32::from(block.0) << 24) | (u32::from(block.1) << 16) | 1);
+    let cell = size / ac2_world::LAND_BLOCK_CELLS_PER_SIDE as f32;
+    let ground = world
+        .load_landblock(id)
+        .ok()
+        .flatten()
+        .and_then(|landblock| {
+            landblock.average_cell_height((x / cell) as usize, (y / cell) as usize)
+        })
+        .unwrap_or(0.0);
+    let position = Vec3::new(
+        f32::from(block.0) * size + x,
+        f32::from(block.1) * size + y,
+        ground + FLY_AT_HEIGHT,
+    );
+    FlyCamera::looking_at(position, position + Vec3::Y)
+}
+
 /// The brightest daylight of the region's day (`WorldScene::set_daytime`).
 fn daytime(world: &Ac2WorldSource) -> f64 {
     let Some(region) = world.region() else {
@@ -287,10 +320,14 @@ fn snapshot(
     );
     view.set_scene_options(ac2_render::prefs::SceneOptions {
         degrade: args.degrade,
+        object_shadows: args.object_shadows,
         ..Default::default()
     });
     let model = models.get(args.model).filter(|_| !args.fly);
-    let mut fly = start_camera(&world, args.block);
+    let mut fly = match (args.fly, args.at) {
+        (true, Some(at)) => ground_camera(&world, args.block, at),
+        _ => start_camera(&world, args.block),
+    };
     if let Some((yaw, pitch)) = args.look {
         fly.yaw = yaw.to_radians();
         fly.pitch = pitch.to_radians();

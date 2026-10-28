@@ -56,6 +56,20 @@ game rules and server-visible behaviour exactly retail.
   (`sky.wgsl`) stand in for the backdrop dome, so they fade with the dome's authored opacity
   (`LScapeSky::UpdateTimeOfDay`): by night retail drew the night layers and stars over an empty
   background. Do not add a retail/modern switch.
+- Exception: bodies and objects cast sun shadows from depth maps. Retail's `DynamicObjectShadows`
+  drew a dark disc decal under each moving object (1, `WorldRender::CreateDiscShadows`) or stencil
+  shadow volumes of the moving objects along `SceneTool::m_vShadowDirection` (2, and 3
+  self-shadowing; `SceneTool::GenerateGlobalShadowVolume`, at most 100), darkened by a screen quad
+  of `m_cVolumetricShadowStrength` (`RenderGlobalVolumetricShadows`); static objects shadowed only
+  the terrain, through `LScapeRender::RefreshShadowMap`'s 512 x 512 map. Here every level above 0
+  draws cascaded sun depth maps (`ac2_gpu` `sun_shadow.rs`, `object_sun_casters.rs`; level 1:
+  2 x 1024 within 60 m, 2: 2 x 2048 within 80 m, 3: 3 x 2048 within 150 m) that the near static
+  objects (no frills) and every body and world object cast into, posed and skinned. Terrain,
+  objects and bodies receive them with 3 x 3 PCF and keep `mix(1 - strength, 1, lit)` of their
+  colour at the static strength (`m_cStaticShadowStrength`), so the cascades meet the landscape
+  map seamlessly; the terrain takes the darker of the two, and a frill already darkened by the
+  landscape map is not darkened twice. The landscape map stays as retail draws it past the
+  cascades. Level 0 draws none, as retail.
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

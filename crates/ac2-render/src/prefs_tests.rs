@@ -178,8 +178,15 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
 
     let mut bank = bank();
     register_graphics(&mut bank, &Names);
-    // The defaults are the scene's own: draw distance 2 (radius 4), the long frill distance.
-    assert_eq!(scene_options(&bank), SceneOptions::default());
+    // The defaults are the scene's own: draw distance 2 (radius 4), the long frill distance;
+    // `DynamicObjectShadows` registers at 0, no object shadows.
+    assert_eq!(
+        scene_options(&bank),
+        SceneOptions {
+            object_shadows: crate::prefs::ObjectShadows::Off,
+            ..SceneOptions::default()
+        }
+    );
     assert_eq!(SceneOptions::default().far_radius, 4);
     assert!(!SceneOptions::default().frill.short_distance);
 
@@ -223,4 +230,26 @@ fn light_source_effects_follow_the_registered_flag() {
         !super::light_source_effects(&bank),
         "off when the bank says so"
     );
+}
+
+#[test]
+fn the_dynamic_object_shadows_level_sizes_the_sun_shadows() {
+    use crate::prefs::{scene_options, ObjectShadows, DYNAMIC_OBJECT_SHADOWS};
+
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    for (choice, level) in [
+        (0, ObjectShadows::Off),
+        (1, ObjectShadows::Low),
+        (2, ObjectShadows::Medium),
+        (3, ObjectShadows::High),
+    ] {
+        bank.find_mut(DYNAMIC_OBJECT_SHADOWS)
+            .expect("DynamicObjectShadows")
+            .set_choice(choice);
+        assert_eq!(scene_options(&bank).object_shadows, level);
+    }
+    // Quality 5 sets level 2 (`Render::SetOverallGraphicsQuality`).
+    assert!(apply_quality(&mut bank, 5));
+    assert_eq!(scene_options(&bank).object_shadows, ObjectShadows::Medium);
 }

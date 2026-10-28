@@ -24,6 +24,9 @@ const LEVEL: u32 = 0x12E;
 /// The level the double gives its radar objects.
 pub const RADAR_OBJECT_LEVEL: i32 = 5;
 
+/// `mn_drudge.vd`: a plain drudge's `VisualDesc`, for tests that draw the radar creatures.
+pub const DRUDGE_VISUAL: u32 = 0x1F00_0036;
+
 /// The radar objects and their script packages, placed from the player's spawn.
 pub fn radar_objects(spawn: &Spawn) -> Vec<(ObjectSpawn, u32)> {
     let at = |dx: f32, dy: f32| [spawn.origin[0] + dx, spawn.origin[1] + dy, spawn.origin[2]];
@@ -55,7 +58,10 @@ impl State {
     /// its selectability and level.
     pub fn spawn_radar_objects(&mut self) {
         let spawn = self.spawn;
-        for (object, package) in radar_objects(&spawn) {
+        for (mut object, package) in radar_objects(&spawn) {
+            if package == MONSTER_PACKAGE {
+                object.visual = self.creature_visual;
+            }
             self.send_event(&weenie_object_bytes(&object, package));
             let stamped = Some(InstanceIdWithStamp {
                 id: object.id,

@@ -189,6 +189,8 @@ pub struct Client {
     pub(crate) story_queue: Vec<ac2_ui::StoryEvent>,
     /// Streaks a missile's body started or stopped, applied with the next FX events.
     pub(crate) pending_streaks: Vec<(u64, bool)>,
+    /// Each physics object's `StoryManager` (retail keeps one on the `CPhysicsObj`), by object.
+    pub(crate) stories: std::collections::HashMap<u64, ac2_physics::StoryManager>,
     /// Session events the story slot made outside a frame (the skip key, the session's end);
     /// they join the next frame's events.
     pub(crate) story_outbox: Vec<SessionEvent>,
@@ -282,6 +284,7 @@ impl Client {
             story_scenes: Vec::new(),
             story_queue: Vec::new(),
             pending_streaks: Vec::new(),
+            stories: Default::default(),
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
             story_fades_on_hud: false,
@@ -384,11 +387,13 @@ impl Client {
         };
         {
             profile_scope!("apply");
+            // `CPhysicsObj::RecvEvt_DoStory` in arrival order with the other physics events (a
+            // swing's story before the mode change that ends the fight).
             for event in &dispatched {
                 self.apply(event)?;
+                self.apply_story(event);
             }
         }
-        self.apply_stories(&dispatched);
         {
             profile_scope!("run_scripts");
             self.run_scripts(&mut dispatched);
@@ -773,9 +778,21 @@ impl Client {
             {
                 looks.insert(player.0, crate::remote::look_snapshot(&player.1.physics));
             }
+            // `LookAtManager::Update`'s player branch reads the camera, and the camera's
+            // look-around and look-at-camera switches (`CameraManager::HandleChange`).
+            let look_camera = ac2_physics::LookCamera {
+                viewer_offset: self.camera.interp_viewer_offset(),
+                mouse_look: self.camera.mouse_look,
+            };
+            let camera_look = self.prefs.as_ref().map_or((true, true), |p| {
+                let values = ac2_smartbox::prefs::values(p.bank());
+                (values.look_around, values.look_at_camera)
+            });
             if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
                 body.physics.resolve_fx_scripts(|id| scripts.get(id));
                 body.physics.set_wind(wind);
+                body.physics.set_look_camera(Some(look_camera));
+                body.physics.set_camera_look(camera_look.0, camera_look.1);
                 body.physics.set_look_snapshot(
                     body.physics
                         .look_target()

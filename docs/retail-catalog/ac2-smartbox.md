@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 92 done, 36 partial, 88 to do, 46 skipped.
+262 retail functions: 94 done, 36 partial, 86 to do, 46 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
 - [ ] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (18/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (19/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -231,7 +231,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::GetCameraDistance` · 00575ab0 · legions 00545980 — no camera effects run, so their distance sum is 0
 - [x] `CameraManager::ShoulderView` · 00575ad0 · legions 005459a0 — camera action 0x4000002A
 - [~] `CameraManager::SetTargetObject` · 00575b40 · legions 00545a10 — the player target only
-- [ ] `CameraManager::GetInterpViewerOffset` · 00575bc0 · legions 00545a90 — needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+- [x] `CameraManager::GetInterpViewerOffset` · 00575bc0 · legions 00545a90 — ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 - [x] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
 - [~] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [ ] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
@@ -257,13 +257,13 @@ Legend and workflow: [README](README.md).
 - [-] `CameraManager::~CameraManager` · 00577840 · legions 005477e0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 - [x] `CameraManager::MouseMove` · 005778a0 · legions 00547840 — ac2-client camera_mouse.rs / input_handlers
 
-## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (6/11)
+## `portal/client/src/smartbox/camera/targetingmodule.cpp.c` (7/11)
 
 ### TargetingModule
 - [x] `TargetingModule::SetPlayer` · 00579180 · legions 00548ae0
 - [x] `TargetingModule::TurnOn` · 005791a0 · legions 00548b00
 - [x] `TargetingModule::CalcCameraDistance` · 00579210 · legions 00548b70
-- [ ] `TargetingModule::GetInterpViewerOffset` · 00579420 · legions 00548d80 — needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+- [x] `TargetingModule::GetInterpViewerOffset` · 00579420 · legions 00548d80 — ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 - [x] `TargetingModule::FakeTransition` · 005794b0 · legions 00548e10
 - [~] `TargetingModule::GetPosition` · 00579500 · legions 00548e60 — the physics position stands in for the render-slerped drawing position
 - [~] `TargetingModule::StoreTargetPos` · 00579670 · legions 00548fd0 — bone 0, the player or no target

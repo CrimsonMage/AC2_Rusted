@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 146 done, 51 partial, 226 to do, 358 skipped.
+781 retail functions: 146 done, 54 partial, 223 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -805,7 +805,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneTool::PrepareGenericRenderTarget1` · 0056b250 · legions 0053b670 — D3D device/resource plumbing; wgpu replaces
 - [-] `SceneTool::PrepareGenericRenderTarget2` · 0056b2c0 · legions 0053b6e0 — D3D device/resource plumbing; wgpu replaces
 - [-] `SceneTool::PrepareGenericDepthTarget` · 0056b330 · legions 0053b750 — D3D device/resource plumbing; wgpu replaces
-- [ ] `SceneTool::GenerateGlobalShadowVolume` · 0056b390 · legions 0053b7b0 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
+- [~] `SceneTool::GenerateGlobalShadowVolume` · 0056b390 · legions 0053b7b0 — ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 - [-] `SceneTool::StartScreenshotCapture` · 0056b6b0 · legions 0053ba90 — tiled re-render capture not ported; the presented frame is copied instead
 - [-] `SceneTool::FinishScreenshotCapture` · 0056b7a0 · legions 0053bb80 — tiled re-render capture not ported; the presented frame is copied instead
 - [-] `SceneTool::GetNumSubScreenshots` · 0056b7c0 · legions 0053bba0 — tiled re-render capture not ported; the presented frame is copied instead
@@ -852,7 +852,7 @@ Legend and workflow: [README](README.md).
 - [x] `SceneTool::SetupCamera` · 0056ea20 · legions 0053ee00 — SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 - [ ] `SceneTool::GetPointLightShadowVector` · 0056ed50 · legions 0053f130 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
-- [x] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static shadow strength SceneLighting::shadow_strength (volumetric shadows not drawn)
+- [x] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static shadow strength SceneLighting::shadow_strength drives the landscape map and the sun shadow cascades (ac2_gpu sun_shadow.rs); m_cVolumetricShadowStrength's undimmed colour is not used (cascades take the static strength)
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610 — needs port: scene DrawLine primitive (verify client use before porting)
 - [~] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640 — untextured colour quad (ac2-gpu ScreenQuad) only
 - [-] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0 — D3D device/resource plumbing; wgpu replaces
@@ -869,7 +869,7 @@ Legend and workflow: [README](README.md).
 - [x] `SceneTool::SetupCamera` · 0056fe60 · legions 005402a0 — SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 - [x] `SceneTool::StartShadowMap` · 0056fea0 · legions 005402e0 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
 - [x] `SceneTool::FinishShadowMap` · 00570300 · legions 00540740 — ac2_gpu::StaticShadowMap (shadow_map.rs, object_shadow.rs); redraws on block/caster/sun>1deg/strength change
-- [ ] `SceneTool::RenderGlobalVolumetricShadows` · 005703e0 · legions 00540820 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
+- [~] `SceneTool::RenderGlobalVolumetricShadows` · 005703e0 · legions 00540820 — ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 - [~] `SceneTool::FinishSelection` · 005706d0 · legions 00540b10 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [~] `SceneTool::SelectObject` · 00570730 · legions 00540b70 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 
@@ -1217,7 +1217,7 @@ Legend and workflow: [README](README.md).
 
 ### WorldRender
 - [ ] `WorldRender::DrawBrushes` · 0057d290 · legions 0054cb60 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
-- [ ] `WorldRender::CreateDiscShadows` · 0057d3d0 · legions 0054cca0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
+- [~] `WorldRender::CreateDiscShadows` · 0057d3d0 · legions 0054cca0 — ac2_gpu sun_shadow.rs + object_sun_casters.rs: DynamicObjectShadows levels 1-3 draw cascaded sun depth maps (bodies and near static objects cast, posed and skinned; terrain/objects/bodies receive with PCF at the static strength) in place of disc decals and stencil volumes (AGENTS.md exception)
 - [~] `WorldRender::StartSelection` · 0057d680 · legions 0054cf50 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 
 ### DBObjGrabber<CDayDesc>

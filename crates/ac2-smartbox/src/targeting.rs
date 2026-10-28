@@ -292,6 +292,17 @@ impl TargetingModule {
         Position::new(target_pos.cell_id, frame)
     }
 
+    /// `TargetingModule::GetInterpViewerOffset` (admin 0x00579420): the viewer offset, during a
+    /// blend (`mIsOn`) the old and the new ones lerped by the blend's time.
+    pub fn interp_viewer_offset(&self) -> Vector {
+        if !self.is_on {
+            return self.viewer_offset;
+        }
+        let (t, u) = (self.time, 1.0 - self.time);
+        let (a, b) = (self.viewer_offset, self.old_viewer_offset);
+        Vector::new(t * a.x + u * b.x, t * a.y + u * b.y, t * a.z + u * b.z)
+    }
+
     /// `TargetingModule::CalcViewerPos`: the viewer position for `viewer_offset`; during a blend
     /// (`mIsOn`) the old target's and the new one's, origin lerped and rotation slerped by the
     /// blend weight.

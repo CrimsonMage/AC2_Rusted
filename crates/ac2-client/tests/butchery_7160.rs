@@ -139,6 +139,13 @@ fn with_corpse() -> Option<(ac2_client::Client, Shared)> {
         (3.0 * HIT_INTERVAL * 64.0) as usize + 64,
     );
     assert!(server.borrow().fight.dead.contains(&CREATURE_ONE));
+    // The death plays out before the corpse takes the creature's place.
+    events_for(
+        &mut client,
+        &server,
+        Vec::new(),
+        ((legions_server_double::DEATH_SECONDS + 0.5) * 64.0) as usize,
+    );
     Some((client, server))
 }
 

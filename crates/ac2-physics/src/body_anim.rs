@@ -50,6 +50,20 @@ impl PhysicsBody {
         self.object.look_at(target, own);
     }
 
+    /// The camera the player's head follows (`CameraManager::GetInterpViewerOffset` and
+    /// `m_mouseLook`), for the next `LookAtManager::Update`.
+    pub fn set_look_camera(&mut self, camera: Option<crate::look_at::LookCamera>) {
+        self.object.look_camera = camera;
+    }
+
+    /// `CPhysicsObj::SetCameraLookAround(state)` / `SetCameraLookAtCamera(state)`: the look-at
+    /// manager's `m_bCameraFK` and `m_bLookAtCamera` (the camera's `0x40000068` / `0x40000069`
+    /// preferences).
+    pub fn set_camera_look(&mut self, look_around: bool, look_at_camera: bool) {
+        self.object.look.camera_fk = look_around;
+        self.object.look.look_at_camera = look_at_camera;
+    }
+
     /// `CPhysicsObj::SetLookAtSelection(state)`: whether the player looks at what it selects.
     pub fn set_look_at_selection(&mut self, on: bool) {
         self.object.look_at_selection = on;
@@ -134,6 +148,11 @@ impl PhysicsBody {
     /// tracker started it.
     pub fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
         self.object.do_behavior(params)
+    }
+
+    /// `CPhysicsObj::is_animation_frozen`: the body plays no behaviour.
+    pub fn is_animation_frozen(&self) -> bool {
+        self.object.is_animation_frozen()
     }
 
     /// `CPhysicsObj::StopBehavior` (`RecvEvt_StopBehavior`).

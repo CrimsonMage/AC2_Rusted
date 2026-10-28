@@ -188,6 +188,8 @@ fn the_zoom_keys_scale_the_distance_by_powers_of_the_retail_bases() {
         steer_player: true,
         align_to_slope: true,
         look_at_selection: true,
+        look_around: true,
+        look_at_camera: true,
     };
     camera.apply_prefs(&values);
     camera.start_action(action::ZOOM_SCALE_OUT, 0.5, Some(&p));

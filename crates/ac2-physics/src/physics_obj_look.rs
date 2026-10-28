@@ -13,8 +13,14 @@ impl PhysicsObj {
         let target = if target == own { 0 } else { target };
         self.look.parent = own;
         if target != 0 {
-            let yaw = self.anim.sliders.value(crate::look_at::LOOK_YAW_SLIDER);
-            self.look.look_at(target, LOOK_RAMP, yaw);
+            // `LookAtManager::LookAt` keeps the three look sliders as they stand.
+            let sliders = &self.anim.sliders;
+            let previous = [
+                sliders.value(crate::look_at::LOOK_PITCH_SLIDER),
+                sliders.value(crate::look_at::LOOK_ROLL_SLIDER),
+                sliders.value(crate::look_at::LOOK_YAW_SLIDER),
+            ];
+            self.look.look_at(target, LOOK_RAMP, previous);
         } else {
             self.look.release(LOOK_RAMP);
         }
@@ -55,11 +61,18 @@ impl PhysicsObj {
 
     /// `LookAtManager::Update` for this quantum, with the target's snapshot the client gave.
     pub(crate) fn update_look_at(&mut self, quantum: f32) {
+        let scale = self.own_total_scale();
         let me = LookSelf {
             position: self.position,
             height: self.height(),
             is_player: self.anim.is_player(),
             head_x: self.head_x,
+            head_z: self.head_z,
+            scale_x: scale.x,
+            scale_z: scale.z,
+            pitch: self.anim.sliders.value(crate::look_at::LOOK_PITCH_SLIDER),
+            yaw: self.anim.sliders.value(crate::look_at::LOOK_YAW_SLIDER),
+            camera: self.look_camera,
         };
         let target = if self.look.target != 0 {
             self.look_snapshot

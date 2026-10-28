@@ -3,8 +3,11 @@
 //! story's attacker and skill and the hook's target, attack result and health changes. The
 //! script raises the chat line and the floating damage text (`Do3DDamage`).
 
-use ac2_net::protocol::{ObjectAction, PhysicsStory};
+use ac2_anim::Ac2AnimEvent;
+use ac2_net::protocol::{ObjectAction, PhysicsStory, StoryHook};
+use ac2_script::host::interface_calls::InterfaceCalls;
 use ac2_script::host::IFunArg;
+use ac2_script::native::{FxAndBehavior, NativeObject};
 use ac2_ui::{story_scenes, StoryEvent};
 use ac2_weenie::{GameplayNotice, SceneInfo, SessionEvent};
 
@@ -167,44 +170,189 @@ impl Client {
         std::mem::take(&mut self.story_queue)
     }
 
-    /// Runs the damage hooks of the physics stories among `events`, in order.
-    pub(crate) fn apply_stories(&mut self, events: &[SessionEvent]) {
-        for event in events {
-            if let SessionEvent::ObjectAction {
+    /// `CPhysicsObj::RecvEvt_DoStory`: a physics story goes to its object's story manager
+    /// ([`Client::do_story`]); a removed object's manager is dropped.
+    pub(crate) fn apply_story(&mut self, event: &SessionEvent) {
+        match event {
+            SessionEvent::ObjectAction {
                 object,
                 action: ObjectAction::DoStory(story),
-            } = event
-            {
-                self.run_story(*object, story);
+            } => self.do_story(*object, story),
+            // The object's story manager goes with it.
+            SessionEvent::ObjectRemoved(object) => {
+                self.stories.remove(object);
+            }
+            _ => {}
+        }
+    }
+
+    /// `StoryManager::DoStory` on `object`: the attacker's behaviour plays on its body with the
+    /// story's context, and the hooks already reached run. An object with no body here plays no
+    /// behaviour, so its story finishes at once (the hooks still reach the script).
+    fn do_story(&mut self, object: u64, story: &PhysicsStory) {
+        let mut manager = self.stories.remove(&object).unwrap_or_default();
+        let due = match self.story_body(object) {
+            Some(body) => manager.do_story(story.clone(), |params, context| {
+                let mut params = crate::motion::behavior(params);
+                params.context = context;
+                // `CPhysicsObj::DoBehavior` returns 1 whether or not the tracker took it (a
+                // refusal reaches the story as `HandleBehaviorDone`'s error); only a frozen
+                // body cancels the story (`HandleBehaviorDone(context, 0x5d)`).
+                let frozen = body.is_animation_frozen();
+                body.do_behavior(&params);
+                !frozen
+            }),
+            // No body to play the behaviour on: the story runs as one without a behaviour.
+            None => {
+                let mut bare = story.clone();
+                bare.attacker_behavior = None;
+                manager.do_story(bare, |_, _| false)
+            }
+        };
+        if manager.current().is_some() {
+            self.stories.insert(object, manager);
+        }
+        for (story, hook) in due {
+            self.do_story_hook(object, &story, &hook);
+        }
+    }
+
+    /// The body a story plays on: the player's, or a remote object's.
+    fn story_body(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
+        if self.player.as_ref().is_some_and(|p| p.id == object) {
+            return self
+                .player
+                .as_mut()
+                .and_then(|p| p.body.as_mut())
+                .map(|body| &mut body.physics);
+        }
+        self.remotes.body_mut(object)
+    }
+
+    /// The step's animation events of each object (`HandleAnimHook` on a story hook,
+    /// `HandleBehaviorDone`) move its story on; the hooks they reach run.
+    pub(crate) fn story_animation_events(
+        &mut self,
+        events: &[(u64, Option<u32>, Vec<Ac2AnimEvent>)],
+    ) {
+        for (object, _, events) in events {
+            let Some(mut manager) = self.stories.remove(object) else {
+                continue;
+            };
+            let mut due = Vec::new();
+            for event in events {
+                match *event {
+                    Ac2AnimEvent::WeenieHook { hook_type, .. } => {
+                        due.extend(manager.handle_anim_hook(hook_type));
+                    }
+                    Ac2AnimEvent::BehaviorDone { context, error } => {
+                        due.extend(manager.handle_behavior_done(context, error));
+                    }
+                    _ => {}
+                }
+            }
+            if manager.current().is_some() {
+                self.stories.insert(*object, manager);
+            }
+            for (story, hook) in due {
+                self.do_story_hook(*object, &story, &hook);
             }
         }
     }
 
-    /// `StoryManager::DoStoryHook` for each damage hook: `gmCWInterface::DoUIDamage` with the
-    /// story's `object` as the context (the story's physics object).
-    fn run_story(&mut self, object: u64, story: &PhysicsStory) {
-        for hook in story.hooks.iter().filter(|h| h.kind() == DAMAGE_HOOK) {
-            let Some(target) = hook.target else {
-                continue;
-            };
-            let args = [
-                IFunArg::Long(object),
-                IFunArg::Long(target),
-                IFunArg::Int(story.skill.unwrap_or(0)),
-                IFunArg::Int(hook.attack_result.unwrap_or(0)),
-                IFunArg::Int(hook.target_health_change.unwrap_or(0) as u32),
-                IFunArg::Int(hook.attacker_health_change.unwrap_or(0) as u32),
-                IFunArg::Int(hook.target_pk_damage_change.unwrap_or(0) as u32),
-                IFunArg::Int(hook.attacker_pk_damage_change.unwrap_or(0) as u32),
-            ];
-            // A call that fails leaves the hook's text out; the problem is in the scripts' list.
-            let _ = self.call_ifun(ifun::DO_UI_DAMAGE, &args);
+    /// `StoryManager::DoStoryHook`: the skill's effects and behaviours for the hook, as the
+    /// script gives them (`gmCWInterface::GetFXAndBehaviorInformationFromWsl` with the story's
+    /// skill and the hook's attack hook number and attack result): the attacker's FX on the
+    /// story's `object`, the target's reaction and FX on the hook's target, and the weapon's on
+    /// its weapon. Then a damage hook reaches the script as `gmCWInterface::DoUIDamage` with
+    /// `object` as the context. Missile hooks (types 2 and 3) are not played.
+    fn do_story_hook(&mut self, object: u64, story: &PhysicsStory, hook: &StoryHook) {
+        if let Some(info) = self.story_fx_info(story, hook) {
+            if info.attacker_fx != 0 {
+                self.story_fx(object, info.attacker_fx);
+            }
+            for (other, behavior, fx) in [
+                (hook.target, info.target_behavior, info.target_fx),
+                (hook.weapon, info.weapon_behavior, info.weapon_fx),
+            ] {
+                let Some(other) = other else {
+                    continue;
+                };
+                if let Some(behavior) = behavior {
+                    self.story_behavior(other, &behavior);
+                }
+                if fx != 0 {
+                    self.story_fx(other, fx);
+                }
+            }
+        }
+        if hook.kind() != DAMAGE_HOOK {
+            return;
+        }
+        let Some(target) = hook.target else {
+            return;
+        };
+        let args = [
+            IFunArg::Long(object),
+            IFunArg::Long(target),
+            IFunArg::Int(story.skill.unwrap_or(0)),
+            IFunArg::Int(hook.attack_result.unwrap_or(0)),
+            IFunArg::Int(hook.target_health_change.unwrap_or(0) as u32),
+            IFunArg::Int(hook.attacker_health_change.unwrap_or(0) as u32),
+            IFunArg::Int(hook.target_pk_damage_change.unwrap_or(0) as u32),
+            IFunArg::Int(hook.attacker_pk_damage_change.unwrap_or(0) as u32),
+        ];
+        // A call that fails leaves the hook's text out; the problem is in the scripts' list.
+        let _ = self.call_ifun(ifun::DO_UI_DAMAGE, &args);
+    }
+
+    /// The `FXAndBehaviorInfo` the script fills for the hook; `None` without a script, or when
+    /// the call fails.
+    fn story_fx_info(&mut self, story: &PhysicsStory, hook: &StoryHook) -> Option<FxAndBehavior> {
+        self.scripts.as_ref()?;
+        let info = self
+            .fx_and_behavior_info(
+                story.skill.unwrap_or(0),
+                hook.attack_hook.unwrap_or(0),
+                hook.attack_result.unwrap_or(0),
+            )
+            .ok()??;
+        match info {
+            NativeObject::FxAndBehavior(info) => Some(*info),
+            _ => None,
+        }
+    }
+
+    /// `CPhysicsObj::DoFX(fx, 1.0)` on `object`'s body.
+    fn story_fx(&mut self, object: u64, fx: u32) {
+        if let Some(body) = self.story_body(object) {
+            body.do_fx(fx, 1.0);
+        }
+    }
+
+    /// `CPhysicsObj::DoBehavior` on `object`'s body, when the script set a behaviour
+    /// (`BehaviorParams::IsValid`).
+    fn story_behavior(&mut self, object: u64, params: &ac2_net::protocol::BehaviorParams) {
+        let mut packed = params.clone();
+        packed.bitfield = ac2_script::native::behavior_pack_bitfield(&packed);
+        if packed.bitfield & 1 == 0 || packed.behavior == 0 {
+            return;
+        }
+        if let Some(body) = self.story_body(object) {
+            body.do_behavior(&crate::motion::behavior(&packed));
         }
     }
 }
 
 #[cfg(feature = "test-support")]
 impl Client {
+    /// Whether `object`'s body (the player's or a remote's) is playing `behavior`
+    /// (`ModeTracker::IsDoingBehavior`).
+    pub fn is_doing_behavior(&mut self, object: u64, behavior: u32) -> bool {
+        self.story_body(object)
+            .is_some_and(|body| body.is_doing_behavior(behavior))
+    }
+
     /// Feeds session events to the story slot as a frame does (the notices, then the frame's
     /// step), returning the IFuns' output. The test harness raises the scene notices this way.
     pub fn feed_story_notices(&mut self, events: &[SessionEvent]) -> Vec<SessionEvent> {

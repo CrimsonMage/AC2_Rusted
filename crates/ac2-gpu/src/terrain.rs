@@ -69,6 +69,10 @@ pub struct TerrainRenderer {
     frame_group: wgpu::BindGroup,
     /// The region's cloud shadows once the far load brings them.
     clouds: Option<CloudShadow>,
+    /// The bound cloud texture, static shadow map and sun shadow cascades.
+    cloud_view: wgpu::TextureView,
+    shadow_view: wgpu::TextureView,
+    sun_shadow: crate::sun_shadow::SunShadowBinding,
     /// The frame's world-to-shadow-map transform (`crate::StaticShadowMap::texture_matrix`).
     shadow: Mat4,
     wrap: wgpu::Sampler,
@@ -106,9 +110,19 @@ impl TerrainRenderer {
             ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
             count: None,
         };
+        let sun = crate::sun_shadow::SunShadowBinding::layout_entries(5);
         let frame_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 terrain frame"),
-            entries: &[uniform(0), texture(1), texture(2), sampler(3), sampler(4)],
+            entries: &[
+                uniform(0),
+                texture(1),
+                texture(2),
+                sampler(3),
+                sampler(4),
+                sun[0],
+                sun[1],
+                sun[2],
+            ],
         });
         let batch_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             label: Some("ac2 terrain batch"),
@@ -133,8 +147,9 @@ impl TerrainRenderer {
             label: Some("ac2 terrain"),
             source: wgpu::ShaderSource::Wgsl(
                 format!(
-                    "{}\n{}",
+                    "{}\n{}\n{}",
                     include_str!("shading.wgsl"),
+                    crate::sun_shadow::receiver_source(),
                     include_str!("terrain.wgsl")
                 )
                 .into(),
@@ -191,12 +206,14 @@ impl TerrainRenderer {
         let wrap = filtered(wgpu::AddressMode::Repeat);
         let clamp = filtered(wgpu::AddressMode::ClampToEdge);
         let textures = TextureCache::new(device, &gpu.queue);
+        let sun_shadow = crate::sun_shadow::SunShadowBinding::placeholder(gpu);
         let frame_group = frame_group(
             device,
             &frame_layout,
             &frame_buffer,
             [textures.white(), textures.white()],
             [&wrap, &clamp],
+            &sun_shadow,
         );
         Self {
             far: far::FarPipeline::new(device, &frame_layout, color_format),
@@ -206,6 +223,9 @@ impl TerrainRenderer {
             frame_buffer,
             frame_group,
             clouds: None,
+            cloud_view: textures.white().clone(),
+            shadow_view: textures.white().clone(),
+            sun_shadow,
             shadow: Mat4::ZERO,
             wrap,
             clamp,
@@ -227,13 +247,25 @@ impl TerrainRenderer {
                 .get(&gpu.device, &gpu.queue, TextureKey::Texture(did), load)
         });
         self.clouds = clouds.filter(|_| cloud.is_some());
-        let cloud = cloud.unwrap_or_else(|| self.textures.white().clone());
+        self.cloud_view = cloud.unwrap_or_else(|| self.textures.white().clone());
+        self.shadow_view = shadow_map.clone();
+        self.rebind_frame(gpu);
+    }
+
+    /// Binds the sun shadow cascades the near landscape receives.
+    pub fn set_sun_shadow(&mut self, gpu: &Gpu, sun: &crate::sun_shadow::SunShadowBinding) {
+        self.sun_shadow = sun.clone();
+        self.rebind_frame(gpu);
+    }
+
+    fn rebind_frame(&mut self, gpu: &Gpu) {
         self.frame_group = frame_group(
             &gpu.device,
             &self.frame_layout,
             &self.frame_buffer,
-            [&cloud, shadow_map],
+            [&self.cloud_view, &self.shadow_view],
             [&self.wrap, &self.clamp],
+            &self.sun_shadow,
         );
     }
 
@@ -418,7 +450,9 @@ fn frame_group(
     buffer: &wgpu::Buffer,
     [cloud, shadow]: [&wgpu::TextureView; 2],
     [wrap, clamp]: [&wgpu::Sampler; 2],
+    sun: &crate::sun_shadow::SunShadowBinding,
 ) -> wgpu::BindGroup {
+    let [sun_uniform, sun_map, sun_sampler] = sun.entries(5);
     device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("ac2 terrain frame"),
         layout,
@@ -443,6 +477,9 @@ fn frame_group(
                 binding: 4,
                 resource: wgpu::BindingResource::Sampler(clamp),
             },
+            sun_uniform,
+            sun_map,
+            sun_sampler,
         ],
     })
 }

@@ -32,6 +32,14 @@ impl ClientView {
         self.presenter.hold_adaptation(held);
     }
 
+    /// The object particle systems the scene holds and the particles its last frame drew alive.
+    pub fn object_particles(&self) -> (usize, usize) {
+        (
+            self.scene.object_particle_systems(),
+            self.scene.particles_alive(),
+        )
+    }
+
     /// [`ClientView::render`] with no UI viewport scenes (the paper doll left out).
     pub fn render_without_scenes(
         &self,

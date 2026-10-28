@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 957 done, 163 partial, 127 to do, 657 skipped.
+1904 retail functions: 959 done, 161 partial, 127 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (184/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (185/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -690,7 +690,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_GetContentsInfo` · 00459d30 · legions 0045a980 — ac2-client Client::contents_info / container_segment_info (Container 0x3D / 0x3F on the VM); the double sends ContainerSegmentDescriptor segments
 - [x] `ggmCWInterface::CallIFun_GetDamageTextRangeOther` · 0045a000 · legions 0045ac50 — ac2-script host/interface_calls.rs InterfaceCalls (typed wrapper over ScriptQueries::query on the player's process); frame run to the end on the real player script in ac2-client interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_GetDurabilityLevel` · 0045a0a0 · legions 0045acf0 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
-- [~] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90 — ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+- [x] `ggmCWInterface::CallIFun_GetFXAndBehaviorInformationFromWsl` · 0045a140 · legions 0045ad90 — ac2-script host interface_calls.rs fx_and_behavior_info: (skill, hook, result, filled FXAndBehaviorInfo 0x2b); the filled native is the first out (the outs are the out parameters in order); interface_calls_7160
 - [x] `ggmCWInterface::CallIFun_GetFellowXPHash` · 0045a310 · legions 0045af60 — ac2-client Client::fellow_xp_hash: an empty LAHash out parameter to IFun 0xB400A8 (CPlayer 0x2C -> FellowshipSystem 0x41), read back as (id, share)
 - [ ] `ggmCWInterface::CallIFun_GetGameplayOptions` · 0045a4b0 · legions 0045b100 — needs port: script IFun get gameplay options on the client interface; no citation in crates/
 - [x] `ggmCWInterface::CallIFun_GetHeroSkillCredits` · 0045a620 · legions 0045b270 — ac2-client scripts_queries: the IFun's query on the player's script; asserted in skill_script_7160
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [-] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (173/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (174/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -1119,7 +1119,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [~] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
-- [~] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+- [x] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — ac2-client client_story.rs story_fx_info -> ac2-script interface_calls fx_and_behavior_info on the player's process
 - [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
 - [~] `gmCWInterface::SpecialAttackEnded` · 00451f70 · legions 004530f0 — no native caller in the call graph (the VM glue raises it); ac2-client hud_player.rs shows EndSpecialAttack notices; IFun 0xB400C2 not called from native

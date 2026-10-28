@@ -89,6 +89,7 @@ mod pushers;
 #[cfg(test)]
 mod real_data_tests;
 mod shapes;
+mod story;
 mod target;
 mod terrain;
 #[cfg(test)]
@@ -134,7 +135,7 @@ pub use loader::{
     load_object_shape, load_terrain_block,
 };
 pub use loader_anim::load_body_animation;
-pub use look_at::LookTarget;
+pub use look_at::{LookCamera, LookTarget};
 pub use los::{LosParameters, Ray, RayIntersection};
 pub use missile::{
     calc_min_max_time, chase_velocity, get_gravitational_velocity, get_max_time, get_min_time,
@@ -163,6 +164,7 @@ pub use physics_obj_place::{SetPositionError, FORCE_SPF, SLIDE_SPF};
 pub use position::Position;
 pub use pushers::{PusherSum, PusherValues, Pushers};
 pub use shapes::cylsphere::CylSphere;
+pub use story::{StoryManager, STORY_ANIM_HOOK};
 pub use target::{
     TargetEffect, TargetInfo, TargetManager, TargetOwner, TargetStatus, TargetVoyeur,
 };
