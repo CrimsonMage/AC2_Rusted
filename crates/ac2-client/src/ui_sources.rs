@@ -311,6 +311,28 @@ impl ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::ExaminationSource for ClientPlayer<'_> {
+    /// `gmCWInterface::AddEffectDataToProfileByEID` (the player's script; see `Client`).
+    fn effect_nodes(
+        &self,
+        context: u32,
+        order: u32,
+        eid: u32,
+    ) -> Vec<ac2_net::protocol::ExaminationDataNode> {
+        self.client
+            .borrow_mut()
+            .add_effect_data(context, order, eid)
+    }
+
+    /// `gmExaminationUI::MakeString` and `ProcessNode` (see `UiText::examination_items`).
+    fn examination_items(
+        &self,
+        profile: &ac2_net::protocol::ExaminationProfile,
+    ) -> Vec<ac2_ui::ExaminationItem> {
+        self.ui().examination_items(profile)
+    }
+}
+
 impl ClientPlayer<'_> {
     /// `gmNavigationUI::AddMarker`'s tooltip (see `UiText::marker_tooltip`).
     pub(crate) fn marker_tooltip(
@@ -324,13 +346,5 @@ impl ClientPlayer<'_> {
     /// `ID_Inventory_TT_Durability` (see `UiText::durability_tooltip`).
     pub(crate) fn durability_tooltip(&self, current: i32, max: i32) -> Option<String> {
         self.ui().durability_tooltip(current, max)
-    }
-
-    /// `gmExaminationUI::MakeString` and `ProcessNode` (see `UiText::examination_items`).
-    pub(crate) fn examination_items(
-        &self,
-        profile: &ac2_net::protocol::ExaminationProfile,
-    ) -> Vec<ac2_ui::ExaminationItem> {
-        self.ui().examination_items(profile)
     }
 }

@@ -43,7 +43,7 @@ mod effects;
 mod element;
 mod examination;
 mod examination_effects;
-pub use examination_effects::splice_effects;
+pub use examination_effects::{splice_effects, ExaminationSource};
 #[cfg(test)]
 mod examination_tests;
 mod external_container;
@@ -52,6 +52,8 @@ mod fellow_rows;
 mod fellowship;
 mod game_dialogs;
 mod hud;
+mod hud_source;
+pub use hud_source::HudSource;
 mod indicators;
 mod ingredient;
 mod ingredient_slots;

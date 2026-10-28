@@ -5,6 +5,18 @@
 
 use ac2_net::protocol::{ExaminationDataNode, ExaminationProfile, ExaminationValue};
 
+use crate::examination::ExaminationItem;
+
+/// The player's answers to the examination panel: an effect's expansion (the player's script,
+/// `gmCWInterface::AddEffectDataToProfileByEID`) and the profile's text items
+/// (`gmExaminationUI::MakeString` and `ProcessNode`).
+pub trait ExaminationSource {
+    /// The nodes an effect adds at its place, for the effect node's `context`, `order` and `eid`.
+    fn effect_nodes(&self, context: u32, order: u32, eid: u32) -> Vec<ExaminationDataNode>;
+    /// The panel's items for a profile whose effects are already expanded.
+    fn examination_items(&self, profile: &ExaminationProfile) -> Vec<ExaminationItem>;
+}
+
 /// Replaces each effect node in `profile` by what `expand` gives for it (its appearance as the
 /// context, its order and its effect id). Nodes other than effects stay where they are; effect
 /// nodes in an expansion are dropped (`ProcessEffectIDNode` skips type `0x4000000C` there).

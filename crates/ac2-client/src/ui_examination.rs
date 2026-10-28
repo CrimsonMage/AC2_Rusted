@@ -37,7 +37,12 @@ impl Client {
 
     /// `gmCWInterface::AddEffectDataToProfileByEID`: the script fills an empty profile (the
     /// fourth parameter) with the effect's nodes.
-    fn add_effect_data(&mut self, context: u32, order: u32, eid: u32) -> Vec<ExaminationDataNode> {
+    pub(crate) fn add_effect_data(
+        &mut self,
+        context: u32,
+        order: u32,
+        eid: u32,
+    ) -> Vec<ExaminationDataNode> {
         let args = [
             IFunArg::Int(context),
             IFunArg::Int(order),
