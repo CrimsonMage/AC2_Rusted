@@ -152,4 +152,4 @@ pub use scene::CameraFrame;
 pub use scripts::SCRIPT_VM_FUNCTIONS;
 pub use scripts_queries::{ifun, ShortcutDisplay, ShortcutSettings, SkillLevel, SkillTime};
 pub use tables::string_table_ids;
-pub use world_data::{BodyData, DatWorld, WorldData, HUMAN_MOTION_INTERP_DESC};
+pub use world_data::{BodyData, DatWorld, WorldData, WorldServices, HUMAN_MOTION_INTERP_DESC};

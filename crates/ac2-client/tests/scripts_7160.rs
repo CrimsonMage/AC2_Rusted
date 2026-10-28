@@ -165,16 +165,25 @@ fn a_call_handed_to_the_vm_comes_back_as_its_notice() {
 /// The synthetic world, with the loader threads serving the script VM's missed reads.
 struct ScriptWorld(DatScriptData);
 
-impl ac2_client::WorldData for ScriptWorld {
+impl ac2_smartbox::BlockSource for ScriptWorld {
     fn load_block(&self, terrain: &mut ac2_physics::Terrain, block: u32) -> Result<bool, String> {
         Synthetic.load_block(terrain, block)
     }
+}
+
+impl ac2_smartbox::ResidentWorld for ScriptWorld {
+    fn body_shape(&self, visual: Option<u32>) -> Result<ac2_smartbox::BodyData, String> {
+        ac2_client::WorldData::body(self, visual).map(|body| body.body)
+    }
+}
+
+impl ac2_client::WorldData for ScriptWorld {
     fn body(&self, visual: Option<u32>) -> Result<ac2_client::BodyData, String> {
         Synthetic.body(visual)
     }
-    fn game_clock(&self) -> Option<ac2_world::GameClock> {
-        None
-    }
+}
+
+impl ac2_client::WorldServices for ScriptWorld {
     fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
         self.0.load(read);
         true

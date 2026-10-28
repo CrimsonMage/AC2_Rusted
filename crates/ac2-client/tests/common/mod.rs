@@ -115,7 +115,7 @@ pub fn motion_desc() -> Arc<Ac2MotionInterpDesc> {
 /// Flat ground on every block, and the pillar in block 0x7F7F.
 pub struct Synthetic;
 
-impl WorldData for Synthetic {
+impl ac2_smartbox::BlockSource for Synthetic {
     fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
         terrain.insert_heights(block, &[GROUND; 17 * 17], |_, _| false);
         if block == BLOCK {
@@ -143,7 +143,9 @@ impl WorldData for Synthetic {
         }
         Ok(true)
     }
+}
 
+impl WorldData for Synthetic {
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
         // The blocking creature's visual has a cylinder for its collision shape; the other
         // visuals have none (they do not stop the player).
@@ -182,11 +184,15 @@ impl WorldData for Synthetic {
             },
         })
     }
+}
 
-    fn game_clock(&self) -> Option<ac2_world::GameClock> {
-        None
+impl ac2_smartbox::ResidentWorld for Synthetic {
+    fn body_shape(&self, visual: Option<u32>) -> Result<ac2_smartbox::BodyData, String> {
+        self.body(visual).map(|body| body.body)
     }
 }
+
+impl ac2_client::WorldServices for Synthetic {}
 
 pub fn config() -> OnlineConfig {
     OnlineConfig {

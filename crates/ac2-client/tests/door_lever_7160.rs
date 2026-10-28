@@ -31,22 +31,28 @@ struct DoorWorld {
     scripts: DatScriptData,
 }
 
-impl WorldData for DoorWorld {
+impl ac2_smartbox::BlockSource for DoorWorld {
     fn load_block(&self, terrain: &mut ac2_physics::Terrain, block: u32) -> Result<bool, String> {
         Synthetic.load_block(terrain, block)
     }
+}
 
+impl ac2_smartbox::ResidentWorld for DoorWorld {
+    fn body_shape(&self, visual: Option<u32>) -> Result<ac2_smartbox::BodyData, String> {
+        WorldData::body(self, visual).map(|body| body.body)
+    }
+}
+
+impl WorldData for DoorWorld {
     fn body(&self, visual: Option<u32>) -> Result<ac2_client::BodyData, String> {
         match visual {
             Some(v) if v == DOOR_VISUAL || v == LEVER_VISUAL => self.dat.body(visual),
             _ => Synthetic.body(visual),
         }
     }
+}
 
-    fn game_clock(&self) -> Option<ac2_world::GameClock> {
-        None
-    }
-
+impl ac2_client::WorldServices for DoorWorld {
     fn load_script_data(&self, read: ac2_script::vm::DataRequest) -> bool {
         self.scripts.load(read);
         true

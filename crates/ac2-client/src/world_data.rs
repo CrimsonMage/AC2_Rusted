@@ -38,37 +38,18 @@ pub struct GroupHolding {
     pub location: Ac2Location,
 }
 
-/// The world data the client reads, shared with its loader threads.
-pub trait WorldData: Send + Sync {
-    /// Loads landblock `block` (`xxyy0000`) into `terrain`: its terrain, static objects and
-    /// interior cells (`CLandBlock` with `CreateStaticObjects` and `InitCellConnections`).
-    /// Returns whether the block exists.
-    fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String>;
-    /// A far landblock's `CLandBlockData` without its sub-data (`QualifiedDataIDArray` of
-    /// `RequestAsyncLoadBlockRadius` past the near radius): read so the cache holds it. The
-    /// physics world never uses far blocks.
-    fn prefetch_far_block(&self, _block: u32) -> Result<(), String> {
-        Ok(())
-    }
-    /// The player's collision shape and motion description for its visual DID.
+/// The world data the client reads, shared with its loader threads: the residency reads
+/// (`ac2_smartbox::ResidentWorld`), the script and audio reads ([`WorldServices`]) and the
+/// client's own body (its FX and holding data).
+pub trait WorldData: ac2_smartbox::ResidentWorld + WorldServices {
+    /// The player's collision shape and motion description for its visual DID, with its FX
+    /// sounds, particles and holding locations.
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String>;
-    /// The region's `GameTime`, if the world has one.
-    fn game_clock(&self) -> Option<GameClock>;
+}
 
-    /// The `MotionInterpDesc` `did` (`CMotionInterp::SetMIDESC`'s `DBObj::Get`), read on a
-    /// loader thread. `None` when the DATs have none.
-    fn motion_desc(&self, _did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
-        Ok(None)
-    }
-    /// The ethereal blocking bits of the `EntityDesc` `did`'s own properties, read on a loader
-    /// thread (`CPhysicsObj::InitVisualDesc` applies them to the body it makes).
-    fn entity_ethereal_mask(&self, _did: u32) -> Result<u64, String> {
-        Ok(0)
-    }
-    /// The region (its weather and sky), held in memory by the frame thread.
-    fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
-        None
-    }
+/// The client's script and ambient-sound reads, which need `ac2-script` and `ac2-audio`. A world
+/// that answers none of them keeps the defaults.
+pub trait WorldServices: Send + Sync {
     /// Reads the WStates a weenie's script process may start from (package `pid`, entity
     /// `did`) into the shared cache, so `ScriptHost::create_weenie` on the frame thread finds
     /// them there.
@@ -125,7 +106,46 @@ impl DatWorld {
     }
 }
 
-impl WorldData for DatWorld {
+impl ac2_smartbox::BlockSource for DatWorld {
+    fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
+        ac2_smartbox::load_dat_block(&self.world, terrain, block)
+    }
+
+    fn prefetch_far_block(&self, block: u32) -> Result<(), String> {
+        ac2_smartbox::prefetch_dat_far_block(&self.world, block)
+    }
+}
+
+impl ac2_smartbox::ResidentWorld for DatWorld {
+    fn body_shape(&self, visual: Option<u32>) -> Result<ac2_smartbox::BodyData, String> {
+        let visual = DataId::new(visual.ok_or("the player has no visual")?);
+        // `ICPhysicsObj::makeObject`: an `EntityDesc` (an FX node's object) draws its template's visual.
+        let visual = ac2_assets::resolve_ac2_entity_visual(&self.store, visual)
+            .map_err(|e| e.to_string())?;
+        ac2_smartbox::load_body_data(&self.store, visual)
+    }
+
+    fn game_clock(&self) -> Option<GameClock> {
+        Some(self.world.region()?.game_clock())
+    }
+
+    fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
+        self.world.region()
+    }
+
+    fn motion_desc(&self, did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
+        let desc = ac2_world::load_ac2_motion_interp_desc(&self.store, DataId::new(did))
+            .map_err(|e| e.to_string())?;
+        Ok(desc.map(|desc| Arc::new((*desc).clone())))
+    }
+
+    fn entity_ethereal_mask(&self, did: u32) -> Result<u64, String> {
+        ac2_world::load_entity_ethereal_mask(&self.store, DataId::new(did))
+            .map_err(|e| e.to_string())
+    }
+}
+
+impl WorldServices for DatWorld {
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
         let did = ac2_world::ac2_region_sound_desc(&self.store).ok()??;
         ac2_audio::AmbientData::load(&self.store, did.raw()).ok()?
@@ -155,37 +175,12 @@ impl WorldData for DatWorld {
             let _ = ac2_script::load_wstate(&self.store, ac2_core::DataId::new(did));
         }
     }
+}
 
-    fn load_block(&self, terrain: &mut Terrain, block: u32) -> Result<bool, String> {
-        ac2_smartbox::load_dat_block(&self.world, terrain, block)
-    }
-
-    fn prefetch_far_block(&self, block: u32) -> Result<(), String> {
-        ac2_smartbox::prefetch_dat_far_block(&self.world, block)
-    }
-
+impl WorldData for DatWorld {
     fn body(&self, visual: Option<u32>) -> Result<BodyData, String> {
         let visual = DataId::new(visual.ok_or("the player has no visual")?);
         load_body_data(&self.store, visual)
-    }
-
-    fn game_clock(&self) -> Option<GameClock> {
-        Some(self.world.region()?.game_clock())
-    }
-
-    fn motion_desc(&self, did: u32) -> Result<Option<Arc<Ac2MotionInterpDesc>>, String> {
-        let desc = ac2_world::load_ac2_motion_interp_desc(&self.store, DataId::new(did))
-            .map_err(|e| e.to_string())?;
-        Ok(desc.map(|desc| Arc::new((*desc).clone())))
-    }
-
-    fn entity_ethereal_mask(&self, did: u32) -> Result<u64, String> {
-        ac2_world::load_entity_ethereal_mask(&self.store, DataId::new(did))
-            .map_err(|e| e.to_string())
-    }
-
-    fn region(&self) -> Option<Arc<ac2_world::RegionDesc>> {
-        self.world.region()
     }
 }
 

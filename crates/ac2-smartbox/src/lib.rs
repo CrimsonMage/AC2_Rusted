@@ -15,6 +15,7 @@ mod player;
 pub mod prefs;
 pub mod scene;
 pub mod targeting;
+mod world;
 
 pub use blocks::{
     load_dat_block, prefetch_dat_far_block, BlockLoaded, BlockLoader, BlockPool, BlockSource,
@@ -23,3 +24,4 @@ pub use camera::{action as camera_action, CameraManager, CameraSubject};
 pub use cells::{block_radius, BlockChange, CellManager, FAR_RADIUS, NEAR_RADIUS};
 pub use player::{load_body_data, BodyData, PlayerBody, HUMAN_MOTION_INTERP_DESC};
 pub use scene::{frame_is_valid, CameraFrame, SceneCamera};
+pub use world::ResidentWorld;
