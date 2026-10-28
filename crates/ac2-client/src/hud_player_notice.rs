@@ -26,7 +26,7 @@ impl HudView {
             backpack,
             catalog,
             consignment,
-            damage,
+            panels: state,
             dialogs,
             dirty,
             effects,
@@ -38,7 +38,6 @@ impl HudView {
             mini_fellow,
             money,
             net,
-            now,
             paper_doll,
             pets,
             pk,
@@ -58,7 +57,7 @@ impl HudView {
         };
         let panels = ac2_ui::NoticePanels {
             tree,
-            now: *now,
+            now: state.now(),
             dirty,
             item_selection,
             vitals,
@@ -86,7 +85,7 @@ impl HudView {
             shortcuts,
             money,
             toolbar,
-            damage,
+            damage: state.damage_slot(),
         };
         let requests =
             ac2_ui::notice_pass(panels, player, events, frame.server_time, reload_shortcuts);

@@ -202,12 +202,12 @@ impl HudView {
 
     /// The objects with a name plate.
     pub(crate) fn named(&self) -> Vec<u64> {
-        self.names.as_ref().map_or(Vec::new(), |n| n.named())
+        self.panels.named()
     }
 
     /// The objects with a floating damage text in the air.
     pub(crate) fn damage_objects(&self) -> Vec<u64> {
-        self.damage.as_ref().map_or(Vec::new(), |d| d.objects())
+        self.panels.damage_objects()
     }
 
     /// The container `gmExternalContainerUI` waits to be placed over.

@@ -84,8 +84,7 @@ impl HudView {
             items_3d,
             mini_fellow,
             money,
-            names,
-            now,
+            panels: state,
             new_sale,
             options,
             overview,
@@ -127,7 +126,7 @@ impl HudView {
         let mut host = ClientOptions { player };
         let panels = MessagePanels {
             tree,
-            now: *now,
+            now: state.now(),
             server_time: frame.server_time,
             shift_held: *shift_held,
             selection: frame.selection.as_ref().map(|s| s.id),
@@ -154,7 +153,7 @@ impl HudView {
             vitals,
             vitae,
             radar,
-            names,
+            names: state.names_slot(),
             effects,
             backpack,
             money,

@@ -265,7 +265,7 @@ impl HudView {
     fn map_pass(&mut self, player: &ClientPlayer<'_>, frame: &ClientFrame, reloads: Reloads) {
         let HudView {
             hud,
-            names,
+            panels,
             navigation_time,
             navigation_tooltips,
             radar,
@@ -281,7 +281,7 @@ impl HudView {
             show_radar_coords,
             ..
         } = reloads;
-        if let Some(plates) = names.as_mut() {
+        if let Some(plates) = panels.names_mut() {
             let looks = name_looks(frame);
             match show_names {
                 Some(show) => plates.set_showing(tree, show, &looks),

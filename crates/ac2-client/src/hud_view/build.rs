@@ -85,10 +85,7 @@ impl HudView {
         Self {
             pending: Some(receive),
             hud: None,
-            reticle: None,
-            names: None,
-            damage: None,
-            now: 0.0,
+            panels: ac2_ui::Hud::default(),
             chat: None,
             toolbar: None,
             shortcuts: None,
@@ -114,7 +111,6 @@ impl HudView {
             player_race: None,
             toolbar_layout: None,
             item_selection: 0,
-            reticle_info: None,
             dialogs: None,
             death: ac2_ui::DeathPanel::default(),
             game_dialogs: ac2_ui::GameplayDialogs::default(),
@@ -239,9 +235,7 @@ impl HudView {
                 self.mini_fellow = mini_fellow;
                 self.pets = pets;
                 self.hud = Some((tree, images));
-                self.reticle = reticle;
-                self.names = names;
-                self.damage = damage;
+                self.panels = ac2_ui::Hud::new(reticle, names, damage);
                 self.chat = chat;
                 self.toolbar = Some(toolbar);
                 self.show_toolbar(true);

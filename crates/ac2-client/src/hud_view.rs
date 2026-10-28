@@ -14,8 +14,8 @@ use ac2_db::ResourceResult;
 use ac2_gpu::{Gpu, UiOverlay};
 use ac2_ui::{
     ChatRequest, ChatSettings, ChatUi, CraftUi, GameplayChild, GameplayHud, IngredientUi,
-    Modifiers, Reticle, ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild,
-    ToolbarUi, UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
+    Modifiers, ReticleOutcome, ReticleTarget, ShortcutUi, SkillTreeUi, ToolbarChild, ToolbarUi,
+    UiMessage, UiPixels, UiTree, GAMEPLAY_SHOW_KEY,
 };
 
 type Built = ResourceResult<(GameplayHud, HashMap<u32, UiPixels>)>;
@@ -27,13 +27,8 @@ mod compose;
 pub(crate) struct HudView {
     pending: Option<Receiver<Built>>,
     pub(crate) hud: Option<(UiTree, HashMap<u32, UiPixels>)>,
-    reticle: Option<Reticle>,
-    /// `gm3DTextUI`'s name plates.
-    pub(crate) names: Option<ac2_ui::NamePlates>,
-    /// `gm3DTextUI`'s floating damage numbers.
-    pub(crate) damage: Option<ac2_ui::DamageTexts>,
-    /// The HUD's clock (`Timer::cur_time`) at the last frame: a damage text starts at it.
-    pub(crate) now: f64,
+    /// The HUD's panel state: `gm3DTextUI`'s reticle, name plates and damage texts, and the clock.
+    pub(crate) panels: ac2_ui::Hud,
     pub(crate) chat: Option<ChatUi>,
     pub(crate) toolbar: Option<ToolbarUi>,
     pub(crate) shortcuts: Option<ShortcutUi>,
@@ -75,8 +70,6 @@ pub(crate) struct HudView {
     pub(crate) item_selection: u64,
     /// `gm3DItemsUI`, made with the backpack.
     pub(crate) items_3d: Option<ac2_ui::Items3dUi>,
-    /// The selection info the reticle's meters last took.
-    reticle_info: Option<ac2_net::protocol::SelectionInfo>,
     pub(crate) dialogs: Option<ac2_ui::DialogFactory>,
     /// `gmGamePlayUI::m_shown`: the HUD is shown (`gmGamePlayUI::Show`, the `0x4100000C` key).
     pub(crate) gameplay_shown: bool,
@@ -384,7 +377,7 @@ impl HudView {
     /// which the next frame's update applies).
     pub(crate) fn show_toolbar(&mut self, shown: bool) {
         if let (Some((tree, _)), Some(toolbar), Some(reticle)) =
-            (&mut self.hud, &self.toolbar, &mut self.reticle)
+            (&mut self.hud, &self.toolbar, self.panels.reticle_mut())
         {
             reticle.precluded_bottom = toolbar.show_bar(tree, shown);
             self.dirty = true;
@@ -426,7 +419,7 @@ impl HudView {
 
     /// One frame of the HUD at `Timer::cur_time` `now` (seconds).
     pub(crate) fn update(&mut self, gpu: &Gpu, now: f64) {
-        self.now = now;
+        self.panels.set_now(now);
         if let Some(pending) = &self.pending_strings {
             if let Ok(tables) = pending.try_recv() {
                 self.strings = Some(Arc::new(tables));
@@ -498,58 +491,28 @@ impl HudView {
         }
     }
 
-    /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock, rising
-    /// above the selection's reticle and name when `selection` is the object they are over.
+    /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock.
     pub(crate) fn update_damage(&mut self, places: &[ac2_ui::DamagePlace<'_>], selection: u64) {
-        let (Some((tree, _)), Some(damage)) = (&mut self.hud, &mut self.damage) else {
+        let Some((tree, _)) = &mut self.hud else {
             return;
         };
-        let offset = self
-            .reticle
-            .as_ref()
-            .map_or(0, |r| r.selection_offset(tree));
-        let precluded = self
-            .reticle
-            .as_ref()
-            .map_or((0, 0), |r| (r.precluded_top, r.precluded_bottom));
-        damage.update(
-            tree,
-            places,
-            (selection, offset),
-            precluded,
-            self.now,
-            false,
-        );
+        self.panels.update_damage(tree, places, selection);
         if tree.take_changed() {
             self.dirty = true;
         }
     }
 
-    /// `gm3DTextUI::UpdateNames` after the reticle: the plates over `places`, clear of the
-    /// selection's reticle, within `range` (the radar's, squared as a float).
+    /// `gm3DTextUI::UpdateNames` after the reticle: the plates over `places`.
     pub(crate) fn update_names(
         &mut self,
         places: &[ac2_ui::NamePlace<'_>],
         selection: u64,
         range: f32,
     ) {
-        let (Some((tree, _)), Some(names)) = (&mut self.hud, &mut self.names) else {
+        let Some((tree, _)) = &mut self.hud else {
             return;
         };
-        let rect = self.reticle.as_ref().and_then(|r| r.selection_rect());
-        let precluded = self
-            .reticle
-            .as_ref()
-            .map_or((0, 0), |r| (r.precluded_top, r.precluded_bottom));
-        names.update(
-            tree,
-            places,
-            selection,
-            rect,
-            range * range,
-            precluded,
-            false,
-        );
+        self.panels.update_names(tree, places, selection, range);
     }
 
     /// `gmExternalContainerUI::PositionWindow` with the container's projected centre.
@@ -568,20 +531,10 @@ impl HudView {
         info: Option<&ac2_net::protocol::SelectionInfo>,
         target: Option<ReticleTarget<'_>>,
     ) -> ReticleOutcome {
-        let (Some((tree, _)), Some(reticle)) = (&mut self.hud, &mut self.reticle) else {
+        let Some((tree, _)) = &mut self.hud else {
             return ReticleOutcome::default();
         };
-        let id = selection.map(|(id, _)| id);
-        if reticle.current() != id {
-            reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name));
-            self.reticle_info = None;
-        }
-        // `RecvNotice_UpdateSelectionInfo`, once per new info.
-        if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {
-            reticle.selection_info(tree, info);
-            self.reticle_info = Some(*info);
-        }
-        reticle.update(tree, target, false)
+        self.panels.update_reticle(tree, selection, info, target)
     }
 
     /// `gmRadarUI::Update` for this frame; the next compose paints it.
