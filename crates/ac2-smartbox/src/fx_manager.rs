@@ -90,6 +90,7 @@ mod tests {
             ethereal: false,
             alpha_moves: None,
             fx_follow: None,
+            listed_cell: None,
         }
     }
 
