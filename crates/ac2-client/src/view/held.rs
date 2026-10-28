@@ -11,6 +11,30 @@ use ac2_render::object::ObjectPose;
 use super::{world_matrix, ClientView, Drawn};
 use crate::frame::HoldPoint;
 
+/// The order `follow_holders` places held objects in: each object after the object that holds it
+/// (`holder_of[i]`, an index into the same list), so a held object that holds another is placed
+/// before the object it holds (`CPhysicsObj::UpdateChild` runs on the holder first). A cycle is
+/// cut where it closes.
+pub(crate) fn placement_order(holder_of: &[Option<usize>]) -> Vec<usize> {
+    fn visit(i: usize, holder_of: &[Option<usize>], state: &mut [u8], order: &mut Vec<usize>) {
+        if state[i] != 0 {
+            return;
+        }
+        state[i] = 1;
+        if let Some(holder) = holder_of[i] {
+            visit(holder, holder_of, state, order);
+        }
+        state[i] = 2;
+        order.push(i);
+    }
+    let mut state = vec![0u8; holder_of.len()];
+    let mut order = Vec::with_capacity(holder_of.len());
+    for i in 0..holder_of.len() {
+        visit(i, holder_of, &mut state, &mut order);
+    }
+    order
+}
+
 /// Where a held object stands: the holder's frame, then its holding location (the holder's posed
 /// root bone, then the location's transform in that bone's space), the offset scaled by the
 /// holder's total scale (`CPhysicsObj::UpdateChild`'s `Frame::combine` with the holding matrix).
@@ -41,7 +65,12 @@ impl ClientView {
             .enumerate()
             .map(|(i, drawn)| (drawn.id, i))
             .collect();
-        for (i, child) in drawn.iter().enumerate() {
+        let holder_of: Vec<Option<usize>> = drawn
+            .iter()
+            .map(|child| child.held.and_then(|(id, _)| index.get(&id).copied()))
+            .collect();
+        for i in placement_order(&holder_of) {
+            let child = &drawn[i];
             let Some((holder_id, point)) = child.held else {
                 continue;
             };
@@ -111,6 +140,19 @@ mod tests {
             (at.origin - Vec3::new(10.5, 0.0, 1.0)).length() < 1e-5,
             "{at:?}"
         );
+    }
+
+    #[test]
+    fn a_holder_that_is_itself_held_is_placed_before_the_object_it_holds() {
+        // 0 is held by 2, 2 by 1, 1 is not held: the chain 1, 2, 0 is the placement order.
+        assert_eq!(
+            super::placement_order(&[Some(2), None, Some(1)]),
+            vec![1, 2, 0]
+        );
+        // A cycle terminates and still places every object once.
+        let cycle = super::placement_order(&[Some(1), Some(0)]);
+        assert_eq!(cycle.len(), 2);
+        assert!(cycle.contains(&0) && cycle.contains(&1));
     }
 
     #[test]
