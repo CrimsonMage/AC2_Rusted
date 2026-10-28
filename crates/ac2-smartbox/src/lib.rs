@@ -13,6 +13,7 @@ pub mod cells;
 pub mod fx_objects;
 mod player;
 pub mod prefs;
+pub mod remotes;
 pub mod scene;
 pub mod targeting;
 mod world;

@@ -30,6 +30,12 @@ pub struct BodyData {
     pub holding: Arc<[GroupHolding]>,
 }
 
+impl AsRef<ac2_smartbox::BodyData> for BodyData {
+    fn as_ref(&self) -> &ac2_smartbox::BodyData {
+        &self.body
+    }
+}
+
 /// A Setup holding location (`CSetup`'s `LocationType` list) and the part group whose Setup lists
 /// it: the group's index in the visual's drawn groups.
 #[derive(Debug, Clone, Copy, PartialEq)]

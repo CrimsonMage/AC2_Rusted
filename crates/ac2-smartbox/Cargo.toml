@@ -12,6 +12,7 @@ workspace = true
 # resident around the player and their loader threads. Plain data in and out; no session, no
 # network, so the offline world viewer shares it with the client.
 [dependencies]
+ac2-anim = { path = "../ac2-anim" }
 ac2-assets = { path = "../ac2-assets" }
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }

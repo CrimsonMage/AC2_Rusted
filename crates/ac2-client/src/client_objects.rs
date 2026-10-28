@@ -10,7 +10,7 @@ use crate::cells::BlockChange;
 use crate::client::Client;
 use crate::frame::{HoldPoint, Holder, ObjectFrame};
 use crate::loader::Request;
-use crate::remote::Context;
+use crate::remote::{Context, RemoteCalls};
 use crate::world_data::BodyData;
 
 impl Client {
