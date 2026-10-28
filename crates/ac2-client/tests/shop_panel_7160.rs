@@ -8,7 +8,7 @@ mod common;
 
 use std::sync::Arc;
 
-use ac2_client::{shop_commands, shop_notice, Command, FrameInput};
+use ac2_client::{shop_commands, Command, FrameInput};
 use ac2_core::DataId;
 use ac2_net::protocol::{GameSale, StoreView, StringInfo};
 use ac2_script::data::DatScriptData;
@@ -17,6 +17,7 @@ use ac2_script::native::NativeObject;
 use ac2_script::reference::{HeapObject, PackedEntry, PackedReference};
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, load_wstate, LEGIONS_WLIB_DID};
+use ac2_ui::shop_notice;
 use ac2_ui::{
     build_gameplay_hud, tokenize, ShopRequest, ShopSource, ShopUi, UiMessage, UiString, UiStrings,
     UiTree, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS,

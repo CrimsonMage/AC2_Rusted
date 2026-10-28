@@ -100,27 +100,13 @@ impl HudView {
                 );
             }
             if let (Some(panel), Some(dialogs)) = (shop.as_mut(), dialogs.as_mut()) {
-                crate::hud_shop::shop_notice(
-                    panel,
-                    tree,
-                    dialogs,
-                    player,
-                    frame.server_time,
-                    notice,
-                );
+                ac2_ui::shop_notice(panel, tree, dialogs, player, frame.server_time, notice);
             }
             if let Some(panel) = catalog.as_mut() {
-                crate::hud_shop::catalog_notice(panel, tree, player, frame.server_time, notice);
+                ac2_ui::catalog_notice(panel, tree, player, frame.server_time, notice);
             }
             if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
-                crate::hud_shop::consignment_notice(
-                    panel,
-                    tree,
-                    dialogs,
-                    player,
-                    frame.server_time,
-                    notice,
-                );
+                ac2_ui::consignment_notice(panel, tree, dialogs, player, frame.server_time, notice);
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 ac2_ui::fellowship_notice(

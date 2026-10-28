@@ -186,14 +186,14 @@ impl HudView {
         if let Some(panel) = new_sale.as_mut() {
             panel.tick(tree, frame.server_time);
             commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
-            crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+            ac2_ui::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
         }
         if let Some(panel) = shop.as_mut() {
             panel.tick(tree, frame.server_time);
             let requests = panel.take_requests();
             open_examination |= requests.contains(&ac2_ui::ShopRequest::OpenExamination);
             commands.extend(crate::hud_shop::shop_commands(requests));
-            crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+            ac2_ui::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
             if let Some(chat) = chat.as_mut() {
                 for text in panel.take_messages() {
                     chat.display(SHOP_MESSAGE_TEXT_TYPE, &text);

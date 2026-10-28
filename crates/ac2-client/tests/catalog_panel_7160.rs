@@ -8,13 +8,14 @@ mod common;
 
 use std::sync::Arc;
 
-use ac2_client::{catalog_commands, catalog_notice, Command, FrameInput};
+use ac2_client::{catalog_commands, Command, FrameInput};
 use ac2_core::DataId;
 use ac2_net::protocol::{ScriptRequest, StoreCatalog, StringInfo};
 use ac2_script::data::DatScriptData;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
+use ac2_ui::catalog_notice;
 use ac2_ui::{
     build_gameplay_hud, tokenize, CatalogUi, ShopSource, UiMessage, UiString, UiStrings, UiTree,
     MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS,

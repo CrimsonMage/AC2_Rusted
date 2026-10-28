@@ -144,6 +144,7 @@ mod selection_ui;
 #[cfg(test)]
 mod selection_ui_tests;
 mod shop;
+mod shop_notices;
 mod shop_rows;
 #[cfg(test)]
 mod shop_tests;
@@ -356,6 +357,7 @@ pub use selection_notices::{
 };
 pub use selection_ui::{PotentialTarget, SelectionClick, SelectionOutcome, SelectionUi};
 pub use shop::{ShopRequest, ShopSource, ShopStackCall, ShopUi};
+pub use shop_notices::{catalog_notice, consignment_notice, shop_notice, shop_stack_calls};
 pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
     SHORTCUT_EMPTY, SHORTCUT_ITEM, SHORTCUT_RECIPE, SHORTCUT_SKILL,

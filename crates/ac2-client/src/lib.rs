@@ -144,10 +144,7 @@ pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };
 pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
-pub use hud_shop::{
-    catalog_commands, catalog_notice, consignment_notice, consignment_requests, new_sale_commands,
-    shop_commands, shop_notice, shop_stack_calls,
-};
+pub use hud_shop::{catalog_commands, consignment_requests, new_sale_commands, shop_commands};
 pub use pregame::{
     pregame_event, pregame_notice, pregame_requests, pregame_requests_capturing, PregameOutcome,
 };

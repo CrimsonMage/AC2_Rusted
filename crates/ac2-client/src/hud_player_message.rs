@@ -279,11 +279,7 @@ impl HudView {
                         frame.server_time,
                         &mut commands,
                     );
-                    crate::hud_shop::shop_stack_calls(
-                        panel.take_stack_calls(),
-                        tree,
-                        stack.as_mut(),
-                    );
+                    ac2_ui::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
                 }
             }
             if let Some(request) = paper_doll
@@ -327,7 +323,7 @@ impl HudView {
                     frame.server_time,
                     &mut commands,
                 );
-                crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+                ac2_ui::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
             }
             // `gmShopNewSaleUI::ListenToMessage`: the sale's buttons and the drop on its slot.
             if let (Some(panel), Some(dialogs)) = (new_sale.as_mut(), dialogs.as_mut()) {
@@ -347,7 +343,7 @@ impl HudView {
                     &mut charge,
                 );
                 commands.extend(crate::hud_shop::new_sale_commands(panel.take_requests()));
-                crate::hud_shop::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+                ac2_ui::shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
             }
             if let Some(dialogs) = dialogs.as_mut() {
                 dialogs.message(tree, message);
