@@ -73,14 +73,23 @@ fn the_call_type_menu_holds_the_nine_types_and_reset_ghosts_send() {
     assert_eq!(hud.tree.menu_items(menu).len(), 9);
     assert_eq!(hud.tree.menu_selected_index(menu), None);
     assert!(hud.tree.bool_attribute(send, BUTTON_GHOSTED));
-    // The first item shown is the last inserted (`InsertTextItem` at index 0).
-    let first = hud.tree.menu_item(menu, 0).unwrap();
-    assert_eq!(
+    // `InsertTextItem` at index 0 each time: the list shows the types in reverse of
+    // `InitCallTypeMenu`'s order (Legions 0x00444130), so Abuse is first and Other last.
+    let call_type = |index: usize| {
+        let item = hud.tree.menu_item(menu, index).unwrap();
         hud.tree
-            .get(first)
+            .get(item)
             .unwrap()
-            .attribute(tokenize("GUNCallType")),
-        Some(&crate::layout::AttributeValue::Int(0xE007))
+            .attribute(tokenize("GUNCallType"))
+            .cloned()
+    };
+    assert_eq!(
+        call_type(0),
+        Some(crate::layout::AttributeValue::Int(0xE000))
+    );
+    assert_eq!(
+        call_type(8),
+        Some(crate::layout::AttributeValue::Int(0x8008))
     );
     // A choice unghosts the send button.
     hud.tree.menu_set_selected_index(menu, Some(0));

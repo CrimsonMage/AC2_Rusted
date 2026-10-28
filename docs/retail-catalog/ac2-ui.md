@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1097 done, 355 partial, 455 to do, 340 skipped.
+2247 retail functions: 1098 done, 354 partial, 455 to do, 340 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -1299,12 +1299,12 @@ Legend and workflow: [README](README.md).
 - [~] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 - [x] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670 — step 1: request begun or failed marks the worn item pending
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (4/6)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (5/6)
 
 ### gmAssistanceUI
 - [x] `gmAssistanceUI::Reset` · 00443720 · legions 00444070 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 - [x] `gmAssistanceUI::RecvNotice_CloseMessageDialog` · 004437c0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
-- [~] `gmAssistanceUI::InitCallTypeMenu` · 004437e0 · legions 00444130 — ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+- [x] `gmAssistanceUI::InitCallTypeMenu` · 004437e0 · legions 00444130 — ac2-ui assistance.rs CALL_TYPES: InitCallTypeMenu's nine InsertTextItem calls in Legions 0x00444130's order, each with its GUNCallType (traced from the disassembly; each string global named through its static initializer)
 - [x] `gmAssistanceUI::gmAssistanceUI` · 00443990 · legions 004442e0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 - [~] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450 — ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
 - [x] `gmAssistanceUI::ListenToMessage` · 00443cc0 · legions 00444610 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs

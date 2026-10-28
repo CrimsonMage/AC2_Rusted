@@ -12,8 +12,7 @@
 //! [`AssistancePanel::send_answered`] shows the "can't connect" box, or resets the page.
 //!
 //! The toolbar's `AssistanceButton` closes an open message box (`ListenToMessage`). The call carries
-//! the world name the caller passes (`Turbine::Client`'s). Not modelled yet: the order of the eight
-//! call types the decompile does not trace (see [`CALL_TYPES`]).
+//! the world name the caller passes (`Turbine::Client`'s).
 
 use crate::dialog::{DialogFactory, DIALOG_MESSAGE};
 use crate::element::UiTree;
@@ -27,21 +26,20 @@ fn id(name: &str) -> u32 {
     tokenize(name)
 }
 
-/// `CALLTYPE_*`: the call types the drop-down holds, in the order `InitCallTypeMenu` inserts them.
-/// Each item is inserted at index 0 (retail's `InsertTextItem(menu, …, 0)`), so the list shows
-/// them in reverse. The first is `ID_Assistance_CallType_Other`, as the admin decompile names it;
-/// the rest follow the GUN enum's declaration order (the decompile drops the setup of those
-/// strings, so their order is not traced).
+/// The call types `gmAssistanceUI::InitCallTypeMenu` inserts, in its order (Legions 0x00444130: the
+/// string global and the `GUNCallType` value of each `InsertTextItem`, traced from the disassembly
+/// and each global's name from its static initializer). Each item goes in at index 0, so the
+/// list shows them in reverse.
 pub const CALL_TYPES: [(&str, u32); 9] = [
     ("ID_Assistance_CallType_Other", 0x8008),
-    ("ID_Assistance_CallType_Lag", 0x0004),
-    ("ID_Assistance_CallType_Macro", 0x4006),
-    ("ID_Assistance_CallType_Spam", 0x6002),
+    ("ID_Assistance_CallType_OtherCOC", 0xE007),
     ("ID_Assistance_CallType_Stuck", 0x8003),
+    ("ID_Assistance_CallType_Spam", 0x6002),
+    ("ID_Assistance_CallType_Macro", 0x4006),
+    ("ID_Assistance_CallType_Lag", 0x0004),
+    ("ID_Assistance_CallType_Harassment", 0xE001),
     ("ID_Assistance_CallType_Bug", 0x8005),
     ("ID_Assistance_CallType_Abuse", 0xE000),
-    ("ID_Assistance_CallType_Harassment", 0xE001),
-    ("ID_Assistance_CallType_OtherCOC", 0xE007),
 ];
 
 /// The call type needs an abuser name (`gmAssistanceUI::HandleSendButton`'s 0x4000 test).

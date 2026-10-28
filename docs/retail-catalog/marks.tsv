@@ -1153,7 +1153,7 @@ key	status	note
 00443670	x	step 1: request begun or failed marks the worn item pending
 00443720	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 004437c0	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
-004437e0	~	ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+004437e0	x	ac2-ui assistance.rs CALL_TYPES: InitCallTypeMenu's nine InsertTextItem calls in Legions 0x00444130's order, each with its GUNCallType (traced from the disassembly; each string global named through its static initializer)
 00443990	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 00443b00	~	ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
 00443cc0	x	ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
