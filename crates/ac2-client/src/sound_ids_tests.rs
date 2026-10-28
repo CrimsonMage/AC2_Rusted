@@ -1,13 +1,13 @@
-//! The rain and thunder sounds on the real DATs (`AC2_DAT_DIR`): which DIDs each amount queues,
-//! and the loop's start, volume and stop.
+//! The rain and portal sounds on the real DATs (`AC2_DAT_DIR`): the resolved DIDs, which DIDs
+//! each rain amount and portal cue queues, and the loops' start and stop.
 
 use std::sync::Arc;
 use std::time::Duration;
 
-use ac2_audio::{RecordingSink, SinkCommand};
+use ac2_audio::{PortalCue, PortalSounds, RainSounds, RecordingSink, SinkCommand};
 use ac2_core::Random;
 
-use super::{rain_sound_ids, RainSounds};
+use super::{portal_sound_ids, rain_sound_ids};
 
 #[test]
 fn the_rain_loop_follows_the_amount_and_thunder_joins_above_point_four() {
@@ -85,7 +85,7 @@ fn the_rain_loop_follows_the_amount_and_thunder_joins_above_point_four() {
 }
 
 #[test]
-fn no_sound_ids_queue_nothing() {
+fn no_rain_sound_ids_queue_nothing() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;
     };
@@ -96,5 +96,77 @@ fn no_sound_ids_queue_nothing() {
     let mut random = Random::default();
     assert!(silent
         .update(0.9, true, 10.0, &mut random, &mut manager)
+        .is_empty());
+}
+
+#[test]
+fn the_portal_effect_plays_its_enter_loops_and_exit_from_the_dat() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let ids = portal_sound_ids(&store);
+    assert!(
+        ids.enter != 0 && ids.loop0 != 0 && ids.loop1 != 0 && ids.exit != 0,
+        "the DAT names the portal sounds: {ids:?}"
+    );
+
+    let sink = RecordingSink::new();
+    let mut manager = crate::sound_manager(Arc::clone(&store), Box::new(sink.clone()));
+    let mut sounds = PortalSounds::default();
+    sounds.set_ids(ids);
+
+    // `StartNow`: the enter sound, then the loops, in that order.
+    let queued = sounds.play(&mut manager, &[PortalCue::Start]);
+    assert_eq!(queued, vec![ids.enter, ids.loop0, ids.loop1]);
+    assert!(manager.wait_for_loads(Duration::from_secs(30)));
+    manager.use_time(0.1);
+    let voices: Vec<u32> = sink
+        .commands()
+        .into_iter()
+        .filter_map(|command| match command {
+            SinkCommand::Start { voice, .. } => Some(voice),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(voices.len(), 3, "the enter sound and both loops start");
+    let loop_voices = &voices[1..];
+
+    // `StopNow`: the exit sound, and the loops stop (fade 0).
+    let queued = sounds.play(&mut manager, &[PortalCue::Stop]);
+    assert_eq!(queued, vec![ids.exit]);
+    manager.use_time(0.1);
+    let stopped: Vec<u32> = sink
+        .commands()
+        .into_iter()
+        .filter_map(|command| match command {
+            SinkCommand::Stop { voice } => Some(voice),
+            _ => None,
+        })
+        .collect();
+    for voice in loop_voices {
+        assert!(stopped.contains(voice), "loop voice {voice} stops");
+    }
+}
+
+#[test]
+fn a_stop_without_a_start_plays_only_the_exit() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let ids = portal_sound_ids(&store);
+    let sink = RecordingSink::new();
+    let mut manager = crate::sound_manager(Arc::clone(&store), Box::new(sink.clone()));
+    let mut sounds = PortalSounds::default();
+    sounds.set_ids(ids);
+    assert_eq!(
+        sounds.play(&mut manager, &[PortalCue::Stop]),
+        vec![ids.exit]
+    );
+    // With no sound ids, nothing is queued.
+    let mut silent = PortalSounds::default();
+    assert!(silent
+        .play(&mut manager, &[PortalCue::Start, PortalCue::Stop])
         .is_empty());
 }

@@ -2,19 +2,26 @@
 //! the effects the objects' animations started and stopped run through each object's
 //! `FXManager` sound part, and `SoundManager::UseTime` hears them from the render camera
 //! (`SmartBox::mRenderCamera.mCurrentPosition`, zero velocity). Every DAT read happened on the
-//! loader thread with the object's body ([`FxSoundData`]).
+//! loader thread with the object's body ([`FxSoundData`]). The sound behaviour (the manager's
+//! emitters, ambient, rain, portal and the screens' sounds) is `ac2-audio`'s; this file starts
+//! the FX's sounds and places the emitters through [`PhysicsSpace`].
 
 use std::collections::hash_map::Entry;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxSoundNode, Ac2VisualFxSounds};
-use ac2_audio::{Channel, Emitter, LoopingMode, PlaySoundData, SoundManager, SoundType};
+use ac2_audio::{
+    AmbientDriver, Emitter, PlaySoundData, PortalCue, PortalSounds, RainSounds, ScreenSounds,
+    SoundManager,
+};
 use ac2_core::Random;
-use ac2_physics::{CellSource, PhysicsBody, Position, Vector};
+use ac2_physics::{CellSource, PhysicsBody, Position};
+use ac2_render::portal::PortalSound;
 
 use crate::client::Client;
 use crate::fx_particles::{light_starts, particle_starts, ObjectLightStart, ObjectParticleStart};
+use crate::sound_space::PhysicsSpace;
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).
@@ -203,60 +210,27 @@ pub(crate) struct ClientAudio {
     /// The last handle handed out (`ObjectParticleStart::handle`).
     particle_handles: u64,
     /// `WorldRender`'s rain loop and thunder.
-    pub(crate) rain: crate::rain_sounds::RainSounds,
-    pub(crate) ambient: crate::client_ambient::ClientAmbient,
-    /// The screen music's playing sound (`PlayingSoundContext` of the pregame screens).
-    pregame_music: Option<u32>,
-    /// `gmStoryUI::_lastMusicCtx` and `_lastVoiceCtx`: the story's music and voice playing.
-    story_music: Option<u32>,
-    story_voice: Option<u32>,
-    /// The credits' sound (`gmCreditsUI::UpdateSound`'s `PlayingSoundContext`).
-    credit_sound: Option<u32>,
+    pub(crate) rain: RainSounds,
+    /// The ambient sound and its driver (`WorldRender::UpdateAmbientSounds`).
+    pub(crate) ambient: AmbientDriver<Position>,
+    /// The screens' music (pregame, story) and the credits' sound.
+    pub(crate) screen: ScreenSounds,
     /// The portal space's sounds and its tunnel loops (`PortalSpace::Effect`).
-    pub(crate) portal: crate::portal_sounds::PortalSounds,
+    pub(crate) portal: PortalSounds,
 }
 
-/// One of the story's sounds (`gmStoryUI::Play`): the last one it played stops over two seconds
-/// (`PlayingSoundContext::Stop(ctx, 2.0)`), then `did` plays as `Type_ForceAllExclusive` on
-/// `Channel_Main`, looping when it is the music (`Looping_ForceOn`).
-fn replace_story_sound(manager: &mut SoundManager, last: &mut Option<u32>, did: u32, music: bool) {
-    if let Some(handle) = last.take() {
-        manager.stop_context(handle, 2.0);
-    }
-    let mut data = PlaySoundData::new(did);
-    data.kind = SoundType::ForceAllExclusive;
-    data.channel = Channel::Main;
-    if music {
-        data.looping = LoopingMode::ForceOn;
-    }
-    *last = manager.play(&data).filter(|handle| *handle != 0);
-}
-
-/// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener:
-/// `globaltolocalvec(listener, PositionOffset::GetOffset(listener, object))`, the velocity the
-/// same way, muted when it is not in the world (`CPhysicsObj::ShouldMuteSound`'s last case).
-fn emitter(
+/// `DirectXPlayingSound::UpdatePosition`'s view of an object from the listener, through the
+/// physics space: the body's place and velocity.
+fn body_emitter(
+    space: &PhysicsSpace<'_>,
     listener: &Position,
-    position: &Position,
-    velocity: [f32; 3],
+    body: &PhysicsBody,
     in_world: bool,
 ) -> Emitter {
-    let offset = listener
-        .frame
-        .global_to_local_vec(listener.offset_to(position));
-    let [vx, vy, vz] = velocity;
-    let velocity = listener.frame.global_to_local_vec(Vector::new(vx, vy, vz));
-    Emitter {
-        offset: [offset.x, offset.y, offset.z],
-        velocity: [velocity.x, velocity.y, velocity.z],
-        muted: !in_world,
-    }
-}
-
-fn body_emitter(listener: &Position, body: &PhysicsBody, in_world: bool) -> Emitter {
-    emitter(
-        listener,
-        &body.position(),
+    ac2_audio::emitter(
+        space,
+        *listener,
+        body.position(),
         body.movement_state().velocity,
         in_world,
     )
@@ -290,24 +264,21 @@ impl Client {
             light_effects: true,
             particle_handles: 0,
             ambient: Default::default(),
-            pregame_music: None,
-            story_music: None,
-            story_voice: None,
-            credit_sound: None,
+            screen: Default::default(),
             portal: Default::default(),
             rain: Default::default(),
         });
     }
 
     /// The portal space's sound DIDs (see [`crate::portal_sound_ids`]); set once the DAT is open.
-    pub fn set_portal_sound_ids(&mut self, ids: crate::PortalSoundIds) {
+    pub fn set_portal_sound_ids(&mut self, ids: ac2_audio::PortalSoundIds) {
         if let Some(audio) = self.audio.as_mut() {
             audio.portal.set_ids(ids);
         }
     }
 
     /// The rain sound DIDs (see [`crate::rain_sound_ids`]); set once the DAT is open.
-    pub fn set_rain_sound_ids(&mut self, ids: crate::RainSoundIds) {
+    pub fn set_rain_sound_ids(&mut self, ids: ac2_audio::RainSoundIds) {
         if let Some(audio) = self.audio.as_mut() {
             audio.rain.set_ids(ids);
         }
@@ -367,7 +338,7 @@ impl Client {
             .filter(|p| p.in_world)
             .is_some_and(|p| {
                 let cell = p.position().cell_id;
-                crate::client_ambient::is_outside(cell)
+                ac2_audio::is_outside(cell)
                     || self
                         .terrain
                         .env_cell(cell)
@@ -392,8 +363,15 @@ impl Client {
         if events.is_empty() {
             return;
         }
+        let cues: Vec<PortalCue> = events
+            .iter()
+            .map(|event| match event {
+                PortalSound::Start => PortalCue::Start,
+                PortalSound::Stop => PortalCue::Stop,
+            })
+            .collect();
         if let Some(audio) = self.audio.as_mut() {
-            audio.portal.play(&mut audio.manager, &events);
+            audio.portal.play(&mut audio.manager, &cues);
         }
     }
 
@@ -403,20 +381,14 @@ impl Client {
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
-        audio.credit_sound = audio
-            .manager
-            .play(&PlaySoundData::new(did))
-            .filter(|handle| *handle != 0);
+        audio.screen.play_credit(&mut audio.manager, did);
     }
 
     /// Whether the credits' sound still plays (its handle, and the sound has not finished).
     pub fn credit_sound_busy(&self) -> bool {
-        let Some(audio) = self.audio.as_ref() else {
-            return false;
-        };
-        audio
-            .credit_sound
-            .is_some_and(|handle| !audio.manager.has_sound_finished(handle))
+        self.audio
+            .as_ref()
+            .is_some_and(|audio| audio.screen.credit_busy(&audio.manager))
     }
 
     /// `gmStoryUI::Play`'s sounds for a keyframe: its music and its voice, each replacing the
@@ -425,12 +397,7 @@ impl Client {
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
-        if let Some(did) = music {
-            replace_story_sound(&mut audio.manager, &mut audio.story_music, did, true);
-        }
-        if let Some(did) = voice {
-            replace_story_sound(&mut audio.manager, &mut audio.story_voice, did, false);
-        }
+        audio.screen.play_story(&mut audio.manager, music, voice);
     }
 
     /// `gmStoryUI::Finish`: the story's music and voice fade out over two seconds and forget
@@ -439,31 +406,23 @@ impl Client {
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
-        for handle in [audio.story_music.take(), audio.story_voice.take()]
-            .into_iter()
-            .flatten()
-        {
-            audio.manager.stop_context(handle, 2.0);
-        }
+        audio.screen.stop_story(&mut audio.manager);
     }
 
     /// A pregame screen's music (`gmIntroUI`, `gmCharacterSelectionUI` and
     /// `gmAvatarModificationUI` constructors): the previous screen's music fades out over two
-    /// seconds (`PlayingSoundContext::Stop(ctx, 2.0)`), then the screen's plays on `Channel_Main`
-    /// at full volume, its handle kept for the next screen.
+    /// seconds, then the screen's plays on `Channel_Main` at full volume, its handle kept for
+    /// the next screen.
     pub fn play_pregame_music(&mut self, did: u32) {
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
-        if let Some(handle) = audio.pregame_music.take() {
-            audio.manager.stop_context(handle, 2.0);
-        }
-        audio.pregame_music = audio.manager.play(&PlaySoundData::new(did));
+        audio.screen.play_pregame(&mut audio.manager, did);
     }
 
     /// The screen music's playing sound, if one plays (its handle).
     pub fn pregame_music_handle(&self) -> Option<u32> {
-        self.audio.as_ref()?.pregame_music
+        self.audio.as_ref()?.screen.pregame_handle()
     }
 
     /// The attached sound manager (the UI plays its sounds through it).
@@ -623,6 +582,9 @@ impl Client {
         self.ambient_use_time(now);
         self.groove_use_time(now);
         let ambient = self.ambient_emitters(&self.scene.current);
+        let space = PhysicsSpace {
+            terrain: &self.terrain,
+        };
         let Some(audio) = self.audio.as_mut() else {
             return;
         };
@@ -653,14 +615,15 @@ impl Client {
             }
             if Some(id) == player_id {
                 let body = player?.body.as_ref()?;
-                return Some(body_emitter(&listener, &body.physics, true));
+                return Some(body_emitter(&space, &listener, &body.physics, true));
             }
             let remote = remotes.get(id)?;
             match remote.body() {
-                Some(body) => Some(body_emitter(&listener, body, remote.in_world())),
-                None => Some(emitter(
-                    &listener,
-                    &remote.position()?,
+                Some(body) => Some(body_emitter(&space, &listener, body, remote.in_world())),
+                None => Some(ac2_audio::emitter(
+                    &space,
+                    listener,
+                    remote.position()?,
                     [0.0; 3],
                     remote.in_world(),
                 )),

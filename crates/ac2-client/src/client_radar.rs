@@ -13,13 +13,13 @@
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
+use ac2_audio::is_outside;
 use ac2_physics::Position;
 use ac2_script::host::radar::{self, RadarLook, NO_BLIP};
 use ac2_script::vm::InterpStatus;
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::client::Client;
-use crate::client_ambient::is_outside;
 use crate::frame::{MapMarker, RadarBlip};
 
 /// `GrooveLevel`, the int quality an object's danger sets the music's intensity with.
