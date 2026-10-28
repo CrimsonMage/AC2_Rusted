@@ -151,3 +151,45 @@ fn the_physics_type_bit_replaces_the_body_s_physics_type() {
     body.merge_set_state(&info);
     assert_eq!(body.physics_type().bits(), 1 << 8);
 }
+
+#[test]
+fn the_temp_ethereal_list_adds_each_id_once() {
+    // `CollisionParameters::AddToTempEtherealList`: a held id is found, not appended again.
+    let mut body = CollisionParameters::default();
+    assert!(!body.in_temp_ethereal_list(7));
+    assert!(body.add_to_temp_ethereal_list(7));
+    assert!(body.add_to_temp_ethereal_list(7));
+    assert!(body.in_temp_ethereal_list(7));
+    assert_eq!(body.find_in_temp_ethereal_list(7), Some(0));
+}
+
+#[test]
+fn removing_from_the_temp_ethereal_list_moves_the_last_id_into_the_slot() {
+    // `CollisionParameters::RemoveFromTempEtherealList`: the last entry takes the removed slot.
+    let mut body = CollisionParameters::default();
+    for id in [1, 2, 3] {
+        body.add_to_temp_ethereal_list(id);
+    }
+    assert!(body.remove_from_temp_ethereal_list(1));
+    assert_eq!(body.find_in_temp_ethereal_list(3), Some(0));
+    assert_eq!(body.find_in_temp_ethereal_list(2), Some(1));
+    assert!(!body.in_temp_ethereal_list(1));
+}
+
+#[test]
+fn removing_an_absent_id_reports_success_and_changes_nothing() {
+    // Retail returns 1 from `RemoveFromTempEtherealList` even when the id was not held.
+    let mut body = CollisionParameters::default();
+    body.add_to_temp_ethereal_list(4);
+    let before = body.clone();
+    assert!(body.remove_from_temp_ethereal_list(9));
+    assert_eq!(body, before);
+}
+
+#[test]
+fn the_temp_ethereal_list_is_separate_from_the_weenie_sets() {
+    // The weenie ethereal lists (`AddToEtherealList`) do not feed the temp list.
+    let mut body = CollisionParameters::default();
+    assert!(body.add_to_ethereal_list(5));
+    assert!(!body.in_temp_ethereal_list(5));
+}

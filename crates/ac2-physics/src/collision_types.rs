@@ -143,9 +143,40 @@ pub struct CollisionParameters {
     movement_physics: PhysicsTypeMask,
     placement_weenie: WeenieTypes,
     movement_weenie: WeenieTypes,
+    /// `CollisionParameters::m_temp_ethereal_list`: a plain id list, separate from the weenie
+    /// sets, that the collision manager fills per frame.
+    temp_ethereal: Vec<InstanceId>,
 }
 
 impl CollisionParameters {
+    /// `CollisionParameters::FindInTempEtherealList`: the index of the first matching id.
+    pub fn find_in_temp_ethereal_list(&self, id: InstanceId) -> Option<usize> {
+        self.temp_ethereal.iter().position(|&held| held == id)
+    }
+
+    /// `CollisionParameters::InTempEtherealList`.
+    pub fn in_temp_ethereal_list(&self, id: InstanceId) -> bool {
+        self.find_in_temp_ethereal_list(id).is_some()
+    }
+
+    /// `CollisionParameters::AddToTempEtherealList`: an id already in the list is not added
+    /// again; otherwise it is appended.
+    pub fn add_to_temp_ethereal_list(&mut self, id: InstanceId) -> bool {
+        if !self.in_temp_ethereal_list(id) {
+            self.temp_ethereal.push(id);
+        }
+        true
+    }
+
+    /// `CollisionParameters::RemoveFromTempEtherealList`: a found id is removed by moving the
+    /// last entry into its slot. Retail returns 1 whether or not the id was held.
+    pub fn remove_from_temp_ethereal_list(&mut self, id: InstanceId) -> bool {
+        if let Some(index) = self.find_in_temp_ethereal_list(id) {
+            self.temp_ethereal.swap_remove(index);
+        }
+        true
+    }
+
     /// `CollisionParameters::UpdateMovementEthereal` / `UpdateMovementSolid`: the first update
     /// clears the movement mask, then the property's bit is set (ethereal) or cleared (solid).
     pub fn update_movement(

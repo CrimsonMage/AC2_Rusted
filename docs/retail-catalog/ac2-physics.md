@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 541 done, 121 partial, 687 to do, 775 skipped.
+2124 retail functions: 545 done, 121 partial, 683 to do, 775 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -839,7 +839,7 @@ Legend and workflow: [README](README.md).
 - [-] `CCollisionManager::CCollisionManager` · 004fa110 · legions 004ec960 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `CCollisionManager::AddObjectCollision` · 004fa2f0 · legions 004ecb40 — Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
 
-## `portal/shared/src/physobj/collision/collisionparameters.cpp.c` (7/15)
+## `portal/shared/src/physobj/collision/collisionparameters.cpp.c` (11/15)
 
 ### CollisionParameters
 - [~] `CollisionParameters::SetBit` · 0069f9b0 · legions 0063c820 — no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
@@ -850,13 +850,13 @@ Legend and workflow: [README](README.md).
 - [x] `CollisionParameters::UpdatePhysicsType` · 0069fa80 · legions 0063c8f0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [x] `CollisionParameters::RemovePhysicsType` · 0069fab0 · legions 0063c920 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [x] `CollisionParameters::AddToEtherealList` · 0069fae0 · legions 0063c950 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-- [ ] `CollisionParameters::FindInTempEtherealList` · 0069fb90 · legions 0063ca00 — needs port: ethereal/collision parameter state
+- [x] `CollisionParameters::FindInTempEtherealList` · 0069fb90 · legions 0063ca00 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 - [-] `CollisionParameters::CollisionParameters` · 0069fbe0 · legions 0063ca50 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CollisionParameters::~CollisionParameters` · 0069fc70 · legions 0063cae0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `CollisionParameters::StreamPack` · 0069fcd0 · legions 0063cb40 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [ ] `CollisionParameters::RemoveFromTempEtherealList` · 0069fdc0 · legions 0063cc30 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::InTempEtherealList` · 0069fe20 · legions 0063cc90 — needs port: ethereal/collision parameter state
-- [ ] `CollisionParameters::AddToTempEtherealList` · 0069fe40 · legions 0063ccb0 — needs port: ethereal/collision parameter state
+- [x] `CollisionParameters::RemoveFromTempEtherealList` · 0069fdc0 · legions 0063cc30 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
+- [x] `CollisionParameters::InTempEtherealList` · 0069fe20 · legions 0063cc90 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
+- [x] `CollisionParameters::AddToTempEtherealList` · 0069fe40 · legions 0063ccb0 — ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 
 ## `portal/shared/src/physobj/collision/collisionprofile.cpp.c` (0/20)
 

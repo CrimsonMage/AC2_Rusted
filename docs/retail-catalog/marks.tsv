@@ -12965,13 +12965,13 @@ key	status	note
 0069fa80	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 0069fab0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 0069fae0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-0069fb90	_	needs port: ethereal/collision parameter state
+0069fb90	x	ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 0069fbe0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 0069fc70	-	C++ constructor/destructor; Rust constructor and Drop replace it
 0069fcd0	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-0069fdc0	_	needs port: ethereal/collision parameter state
-0069fe20	_	needs port: ethereal/collision parameter state
-0069fe40	_	needs port: ethereal/collision parameter state
+0069fdc0	x	ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
+0069fe20	x	ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
+0069fe40	x	ac2-physics collision_types.rs: CollisionParameters temp ethereal list (find, in, add, remove as swap-remove); Legions identical (0063CA00, 0063CC30, 0063CC90, 0063CCB0)
 0069fe80	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
 0069fe90	-	admin/debug or text-file tooling
 0069fea0	x	ac2-physics collision_report.rs, collide_property.rs and physics_material.rs: the landscape, water and environment layers keep their material's property list (UpdatePropertyArray, mark-and-sweep by ChangePhysicsMaterial, RemoveEndElements), the reports list what the MasterProperty table reports, and the terrain-type property (0x40000036) sets the motion terrain (motion_interp.rs). The DAT record is read by PhysicsMaterial's DBObj identity then its PropertyCollection
