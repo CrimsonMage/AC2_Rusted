@@ -175,7 +175,7 @@ pub struct Client {
     /// `SmartBox`'s portal space (`WorldRender::m_PortalSpaceEffect`): the teleport's fade and tunnel.
     pub(crate) portal: PortalSpace,
     /// The DAT's FX scripts a body's `DoFXScript` plays (read when the client attaches its DAT).
-    pub(crate) fx_scripts: crate::FxScripts,
+    pub(crate) fx_scripts: ac2_anim::FxScripts,
     /// Between a teleport's start and its end (`SmartBox::HandleTeleport` to the placement).
     pub(crate) teleporting: bool,
     /// `gmGamePlayUI`'s story slot (`_storyUI`) and its portal-scene flag.
@@ -269,7 +269,7 @@ impl Client {
             radar: Default::default(),
             friend_events: Vec::new(),
             portal: PortalSpace::new(),
-            fx_scripts: crate::FxScripts::default(),
+            fx_scripts: ac2_anim::FxScripts::default(),
             teleporting: false,
             story: Default::default(),
             story_scenes: Vec::new(),

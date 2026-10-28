@@ -887,7 +887,7 @@ fn run(args: Args) -> Result<(), String> {
     client.attach_audio(ac2_client::sound_manager(Arc::clone(&store), speakers()));
     client.set_portal_sound_ids(ac2_client::portal_sound_ids(&store));
     client.set_rain_sound_ids(ac2_client::rain_sound_ids(&store));
-    client.set_fx_scripts(ac2_client::load_fx_scripts(&store));
+    client.set_fx_scripts(ac2_anim::load_fx_scripts(&store));
     let scene_options = prefs.scene_options();
     client.apply_sound_preferences(prefs.bank());
     client.apply_light_preferences(prefs.bank());

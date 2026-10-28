@@ -5,7 +5,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use ac2_anim::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};
+use crate::{load_ac2_fx_script, Ac2FxScript, FX_SCRIPT_PREFIX};
 use ac2_dat::DatFileKind;
 use ac2_db::ResourceStore;
 

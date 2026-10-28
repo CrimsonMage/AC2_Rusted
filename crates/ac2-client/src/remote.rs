@@ -726,7 +726,7 @@ impl Remotes {
         local_time: f64,
         wind: [f32; 3],
         random: &mut ac2_core::Random,
-        scripts: &crate::FxScripts,
+        scripts: &ac2_anim::FxScripts,
         looks: &HashMap<u64, LookTarget>,
     ) {
         for remote in self.objects.values_mut() {

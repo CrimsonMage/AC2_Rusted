@@ -284,8 +284,8 @@ impl Client {
         }
     }
 
-    /// The FX scripts the bodies' `DoFXScript` plays (see [`crate::load_fx_scripts`]).
-    pub fn set_fx_scripts(&mut self, scripts: crate::FxScripts) {
+    /// The FX scripts the bodies' `DoFXScript` plays (see [`ac2_anim::load_fx_scripts`]).
+    pub fn set_fx_scripts(&mut self, scripts: ac2_anim::FxScripts) {
         self.fx_scripts = scripts;
     }
 
