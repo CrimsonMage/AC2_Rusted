@@ -9,28 +9,21 @@ use ac2_anim::{Ac2Location, Ac2Setup};
 use ac2_core::{CellId, DataId};
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
-use ac2_physics::{load_object_scale, load_object_shape, BodyShape, ObjectShape, Terrain, Vector};
+use ac2_physics::Terrain;
 use ac2_world::{Ac2MotionInterpDesc, Ac2WorldSource, GameClock};
 
 pub use ac2_smartbox::HUMAN_MOTION_INTERP_DESC;
 
-/// A body physics simulates (the player's, or another object's).
+/// A body physics simulates (the player's, or another object's): the residency body
+/// (`ac2_smartbox::BodyData`) with the client's FX and holding data.
 #[derive(Clone)]
 pub struct BodyData {
-    pub shape: BodyShape,
-    pub motion: Option<Arc<Ac2MotionInterpDesc>>,
-    /// `CSetup::radius`, unscaled (`CPhysicsObj::GetRadius` scales it).
-    pub radius: f32,
-    /// What its Setup animates with (`PHYSICSOBJREP::SetupModeTracker`), when the visual has a
-    /// behaviour table and an `AnimMap`.
-    pub animation: Option<ac2_physics::BodyAnimation>,
+    /// Shape, motion description, radius, animation and collision object.
+    pub body: ac2_smartbox::BodyData,
     /// Its FX sounds (`FXTable` from the total `VisualDesc`), when it has any.
     pub fx_sounds: Option<Arc<crate::FxSoundData>>,
     /// Its FX particle systems per FX id (the same table), when it has any.
     pub fx_particles: Option<Arc<ac2_assets::Ac2VisualFxParticles>>,
-    /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
-    /// and its root scale, when it has any: the object other movers collide with.
-    pub object: Option<(Arc<ObjectShape>, Vector)>,
     /// The holding locations of every part group's Setup, in `CPartGroup::GetHoldingLocation`'s
     /// search order (the first entry for an id is the one retail finds); the objects held by this
     /// one hang from them. Empty without a Setup.
@@ -205,19 +198,8 @@ pub(crate) fn load_body_data(
     // `ICPhysicsObj::makeObject`: an `EntityDesc` (an FX node's object) draws its template's visual.
     let visual = ac2_assets::resolve_ac2_entity_visual(store, visual).map_err(|e| e.to_string())?;
     let body = ac2_smartbox::load_body_data(store, visual)?;
-    let object = match load_object_shape(store, visual).map_err(|e| e.to_string())? {
-        Some(shape) => Some((
-            Arc::new(shape),
-            load_object_scale(store, visual).map_err(|e| e.to_string())?,
-        )),
-        None => None,
-    };
     Ok(BodyData {
-        shape: body.shape,
-        motion: body.motion,
-        radius: body.radius,
-        animation: body.animation,
-        object,
+        body,
         fx_sounds: load_fx_sounds(store, visual)?,
         fx_particles: ac2_assets::resolve_ac2_visual_fx_particles(store, visual)
             .map_err(|e| e.to_string())?

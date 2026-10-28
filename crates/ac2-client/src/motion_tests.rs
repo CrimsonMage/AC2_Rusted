@@ -38,12 +38,12 @@ fn human(player: bool) -> Option<PhysicsBody> {
     let data = world.body(Some(HUMAN)).unwrap();
     let mut body = PhysicsBody::new(
         at(0x0299_0109, [59.0, 240.0, -44.5]),
-        data.shape,
-        data.motion,
+        data.body.shape,
+        data.body.motion,
     );
     body.set_player(player);
-    body.set_radius(data.radius);
-    body.set_animation(data.animation.expect("the human animates"));
+    body.set_radius(data.body.radius);
+    body.set_animation(data.body.animation.expect("the human animates"));
     Some(body)
 }
 

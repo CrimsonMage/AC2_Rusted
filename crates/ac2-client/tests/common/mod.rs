@@ -162,22 +162,24 @@ impl WorldData for Synthetic {
         Ok(BodyData {
             fx_sounds: None,
             fx_particles: None,
-            object,
-            shape: BodyShape {
-                spheres: vec![
-                    Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
-                    Sphere::new(Vector::new(0.0, 0.0, 1.2), 0.4),
-                ],
-                height: 1.8,
-                step_up_height: 0.5,
-                step_down_height: 0.5,
-                scale: 1.0,
-                allow_free_heading: false,
-            },
-            motion: Some(motion_desc()),
-            radius: 0.4,
-            animation: None,
             holding: Arc::from([]),
+            body: ac2_smartbox::BodyData {
+                object,
+                shape: BodyShape {
+                    spheres: vec![
+                        Sphere::new(Vector::new(0.0, 0.0, 0.4), 0.4),
+                        Sphere::new(Vector::new(0.0, 0.0, 1.2), 0.4),
+                    ],
+                    height: 1.8,
+                    step_up_height: 0.5,
+                    step_down_height: 0.5,
+                    scale: 1.0,
+                    allow_free_heading: false,
+                },
+                motion: Some(motion_desc()),
+                radius: 0.4,
+                animation: None,
+            },
         })
     }
 

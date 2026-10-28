@@ -193,9 +193,10 @@ impl UiScenes {
             else {
                 continue;
             };
-            let mut physics = PhysicsBody::new(Position::default(), body.shape, body.motion);
-            physics.set_radius(body.radius);
-            if let Some(animation) = body.animation {
+            let mut physics =
+                PhysicsBody::new(Position::default(), body.body.shape, body.body.motion);
+            physics.set_radius(body.body.radius);
+            if let Some(animation) = body.body.animation {
                 physics.set_animation(animation);
             }
             if let Some(mode) = figure.mode {

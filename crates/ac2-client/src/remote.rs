@@ -328,9 +328,9 @@ impl Remotes {
             }
         };
         let start = remote.stored.unwrap_or_default();
-        let mut body = PhysicsBody::new(start, data.shape, data.motion);
-        body.set_radius(data.radius);
-        remote.object = data.object.clone();
+        let mut body = PhysicsBody::new(start, data.body.shape, data.body.motion);
+        body.set_radius(data.body.radius);
+        remote.object = data.body.object.clone();
         if remote.ethereal {
             // `FXManager::DoCreateObjectFX`: `CollisionParameters::SetBit(0x10)` and the ETHEREAL
             // physics type, which the object's list entry carries (`sync_shadow`).
@@ -339,7 +339,7 @@ impl Remotes {
         if let Some(&bits) = self.masks.get(&id) {
             body.apply_blocking_bits(bits);
         }
-        if let Some(animation) = data.animation {
+        if let Some(animation) = data.body.animation {
             body.set_animation(animation);
         }
         // The `PhysicsDesc`'s mode, behaviours and sliders (`CPhysicsObj::set_description`);
@@ -570,9 +570,9 @@ impl Remotes {
         let remote = self.objects.get(&id).filter(|r| r.in_world)?;
         let body = remote.body.as_ref()?;
         let data = self.bodies.get(&remote.visual)?.as_ref().ok()?;
-        let scale = f64::from(data.shape.scale);
-        let radius = (f64::from(data.radius) * scale) as f32;
-        let height = (f64::from(data.shape.height) * scale) as f32;
+        let scale = f64::from(data.body.shape.scale);
+        let radius = (f64::from(data.body.radius) * scale) as f32;
+        let height = (f64::from(data.body.shape.height) * scale) as f32;
         Some((body.position(), radius, height))
     }
 

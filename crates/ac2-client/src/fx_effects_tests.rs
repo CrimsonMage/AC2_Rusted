@@ -67,9 +67,9 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
             Quaternion::new(1.0, 0.0, 0.0, 0.0),
         ),
     );
-    let mut body = PhysicsBody::new(place, data.shape.clone(), data.motion.clone());
-    body.set_radius(data.radius);
-    body.set_animation(data.animation.clone().expect("the human animates"));
+    let mut body = PhysicsBody::new(place, data.body.shape.clone(), data.body.motion.clone());
+    body.set_radius(data.body.radius);
+    body.set_animation(data.body.animation.clone().expect("the human animates"));
 
     // The server's `DoFXScript`, the script's record, then one animation step.
     apply(&mut body, &ObjectAction::DoFxScript(SCRIPT));
@@ -196,11 +196,11 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
                 Quaternion::new(1.0, 0.0, 0.0, 0.0),
             ),
         ),
-        data.shape.clone(),
-        data.motion.clone(),
+        data.body.shape.clone(),
+        data.body.motion.clone(),
     );
-    body.set_radius(data.radius);
-    body.set_animation(data.animation.clone().expect("the human animates"));
+    body.set_radius(data.body.radius);
+    body.set_animation(data.body.animation.clone().expect("the human animates"));
     let mut random = Random::default();
     apply(&mut body, &ObjectAction::DoFxScript(SCRIPT));
     body.resolve_fx_scripts(|id| (id == SCRIPT).then(|| Arc::clone(&script)));
@@ -336,5 +336,5 @@ fn an_fx_created_entity_object_loads_a_drawable_body() {
     let data = world
         .body(Some(entity))
         .unwrap_or_else(|e| panic!("EntityDesc {entity:08X} body: {e}"));
-    assert!(data.shape.height > 0.0 || !data.shape.spheres.is_empty());
+    assert!(data.body.shape.height > 0.0 || !data.body.shape.spheres.is_empty());
 }

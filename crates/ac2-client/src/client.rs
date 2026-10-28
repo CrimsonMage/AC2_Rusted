@@ -557,14 +557,14 @@ impl Client {
         if player.body.is_some() {
             return;
         }
-        let scale = data.shape.scale;
-        let height = f64::from(data.shape.height) * f64::from(scale);
-        let radius = f64::from(data.radius) * f64::from(scale);
-        let mut physics = PhysicsBody::new(player.position, data.shape, data.motion);
+        let scale = data.body.shape.scale;
+        let height = f64::from(data.body.shape.height) * f64::from(scale);
+        let radius = f64::from(data.body.radius) * f64::from(scale);
+        let mut physics = PhysicsBody::new(player.position, data.body.shape, data.body.motion);
         // `CPhysicsObj::IsThePlayer`: the player's id is `ICPhysicsObj::player_id`.
         physics.set_player(true);
-        physics.set_radius(data.radius);
-        if let Some(animation) = data.animation {
+        physics.set_radius(data.body.radius);
+        if let Some(animation) = data.body.animation {
             physics.set_animation(animation);
         }
         player.body = Some(Body {

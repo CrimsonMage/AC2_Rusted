@@ -8,7 +8,8 @@ use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
 use ac2_physics::{
-    load_body_animation, load_body_shape, BodyAnimation, BodyShape, PhysicsBody, Position, Vector,
+    load_body_animation, load_body_shape, load_object_scale, load_object_shape, BodyAnimation,
+    BodyShape, ObjectShape, PhysicsBody, Position, Vector,
 };
 use ac2_world::{load_ac2_motion_interp_desc, Ac2MotionInterpDesc};
 
@@ -27,6 +28,9 @@ pub struct BodyData {
     /// What its Setup animates with (`PHYSICSOBJREP::SetupModeTracker`), when the visual has a
     /// behaviour table and an `AnimMap`.
     pub animation: Option<BodyAnimation>,
+    /// Its collision shape as a world object (`CPartArray`'s physics BSPs, cylinders and spheres)
+    /// and its root scale, when it has any: the object other movers collide with.
+    pub object: Option<(Arc<ObjectShape>, Vector)>,
 }
 
 /// A body's collision shape, motion description, radius and animation for `visual` (its
@@ -56,11 +60,19 @@ pub fn load_body_data(store: &Arc<ResourceStore>, visual: DataId) -> Result<Body
         .map_err(|e| e.to_string())?
         .map(|desc| Arc::new((*desc).clone()));
     let animation = load_body_animation(store, visual).map_err(|e| e.to_string())?;
+    let object = match load_object_shape(store, visual).map_err(|e| e.to_string())? {
+        Some(shape) => Some((
+            Arc::new(shape),
+            load_object_scale(store, visual).map_err(|e| e.to_string())?,
+        )),
+        None => None,
+    };
     Ok(BodyData {
         shape,
         motion,
         radius,
         animation,
+        object,
     })
 }
 
