@@ -29,7 +29,6 @@ mod client_fx_objects;
 mod client_latent;
 mod client_locations;
 mod client_positions;
-pub use client_locations::{saved_windows, ui_save_locations};
 mod client_prefs;
 mod clipboard;
 pub use help_content::{content_dir, resolve_content_dir, set_content_dir, CONTENT_DIR_ENV};

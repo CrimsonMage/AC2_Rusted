@@ -774,9 +774,9 @@ Legend and workflow: [README](README.md).
 - [-] `HashTable<unsigned_long,UILocationData>::operator=` · 006daa70 · legions 00663ee0 — assignment or comparison of plain data (operator=, ==, <)
 
 ### UISaveLocations
-- [x] `UISaveLocations::InqUILocationData` · 006dab60 · legions 00663fd0 — ac2-client/src/client_locations.rs saved_windows (UISaveLocations::InqUILocationData)
+- [x] `UISaveLocations::InqUILocationData` · 006dab60 · legions 00663fd0 — ac2-ui window_locations::saved_windows and ui_save_locations (ac2-client client_locations.rs keeps the IFun calls)
 - [x] `UISaveLocations::Clear` · 006dad20 · legions 00664190 — ac2-script glue::options / examination (Legions layout and efun switch)
-- [x] `UISaveLocations::AddLocation` · 006dad30 · legions 006641a0 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
+- [x] `UISaveLocations::AddLocation` · 006dad30 · legions 006641a0 — ac2-ui window_locations::saved_windows and ui_save_locations (ac2-client client_locations.rs keeps the IFun calls)
 
 ### HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>
 - [-] `HashTable<unsigned_long,PHashTable<unsigned_long,UILocationData>_>::operator=` · 006dae20 · legions 00664290 — assignment or comparison of plain data (operator=, ==, <)

@@ -112,7 +112,7 @@ fn moved_windows_are_saved_uploaded_and_applied_on_reload() {
     assert_eq!(uploads(&server) - before, 1, "one upload per save");
     // The upload carries the save as the stream holds it: the windows in the bucket order
     // `UISaveLocations::AddLocation` builds.
-    let expected = ac2_client::ui_save_locations(&saved).unwrap();
+    let expected = ac2_ui::ui_save_locations(&saved).unwrap();
     let sent = server
         .borrow()
         .script_calls

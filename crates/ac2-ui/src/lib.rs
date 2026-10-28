@@ -211,10 +211,13 @@ mod wheel;
 mod wheel_tests;
 mod window_locations;
 pub use wheel::{wheel_event_delta, WheelAccumulator, PIXELS_PER_NOTCH, WHEEL_DELTA};
-pub use window_locations::{clip_to_pixel, pixel_to_clip, SavedWindow, WindowLocation};
+pub use window_locations::{
+    clip_to_pixel, pixel_to_clip, saved_windows, ui_save_locations, SavedWindow, WindowLocation,
+};
 mod window_positions;
 pub use window_positions::{
-    parse as parse_window_positions, to_text as window_positions_text, WindowPosition,
+    parse as parse_window_positions, read_window_positions, to_text as window_positions_text,
+    window_positions_file, write_window_positions, WindowPosition,
 };
 mod radar_state;
 pub use radar_state::{

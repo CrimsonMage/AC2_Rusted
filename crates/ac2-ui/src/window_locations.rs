@@ -10,6 +10,9 @@
 //! its location changes) raises `location_changed`, which the client takes with
 //! [`UiTree::take_locations_changed`] and answers by saving every window's location.
 
+use ac2_net::protocol::{UiLocation, UiSaveLocations};
+use ac2_script::native::{add_ui_location, GameplayOptions};
+
 use crate::element::UiTree;
 use crate::token::{ALLOW_RESIZE, BROADCAST_LOC_CHANGE, DRAGBAR, DRAGBAR_DISABLED, SAVE_LOC};
 
@@ -32,6 +35,51 @@ pub struct SavedWindow {
     pub layout: u32,
     pub element: u32,
     pub location: WindowLocation,
+}
+
+/// The windows of a `UISaveLocations`, in its order (`UISaveLocations::InqUILocationData`'s
+/// entries as the stream holds them).
+pub fn saved_windows(ui: &UiSaveLocations) -> Vec<SavedWindow> {
+    ui.layouts
+        .iter()
+        .flat_map(|(layout, _, windows)| {
+            windows.iter().map(move |(element, l)| SavedWindow {
+                layout: *layout,
+                element: *element,
+                location: WindowLocation {
+                    x0: l.x0,
+                    y0: l.y0,
+                    x1: l.x1,
+                    y1: l.y1,
+                    shown: l.shown != 0,
+                },
+            })
+        })
+        .collect()
+}
+
+/// The `UISaveLocations` the UI's windows make (`UIMainFramework::InqLocations`'s `AddLocation`
+/// calls in order). `Err` when two windows claim one place: retail's `AddLocation` fails and the
+/// save is not made.
+pub fn ui_save_locations(saved: &[SavedWindow]) -> Result<UiSaveLocations, String> {
+    let mut ui = GameplayOptions::default().ui_locations;
+    for window in saved {
+        let l = window.location;
+        let location = UiLocation {
+            x0: l.x0,
+            y0: l.y0,
+            x1: l.x1,
+            y1: l.y1,
+            shown: u32::from(l.shown),
+        };
+        if !add_ui_location(&mut ui, window.layout, window.element, location) {
+            return Err(format!(
+                "window {:#x} of layout {:#x} is listed twice",
+                window.element, window.layout
+            ));
+        }
+    }
+    Ok(ui)
 }
 
 /// `SceneTool::TransformPixelToClipPoint`: a pixel of a `width` x `height` display in clip space.

@@ -11,6 +11,11 @@
 //! The file is a line per window, `window <layout> <element> <x0> <y0> <x1> <y1>`, the ids in hex
 //! and the corners as clip-space floats (round-trip exact). A `#` line is a comment.
 
+use std::io;
+use std::path::{Path, PathBuf};
+
+use ac2_prefs::paths;
+
 use crate::element::UiTree;
 use crate::token::ALLOW_RESIZE;
 use crate::window_locations::{clip_to_pixel, pixel_to_clip};
@@ -70,6 +75,34 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
         });
     }
     Ok(out)
+}
+
+/// The file of `character`'s window positions in `dir`.
+pub fn window_positions_file(dir: &Path, character: u64) -> PathBuf {
+    dir.join(format!("WindowPositions-{character:016x}.txt"))
+}
+
+/// `character`'s saved window positions in `dir`; none when the file is missing or empty (the
+/// player has not moved a window yet). A file that does not parse is an error naming the file.
+pub fn read_window_positions(dir: &Path, character: u64) -> Result<Vec<WindowPosition>, String> {
+    let path = window_positions_file(dir, character);
+    let bytes = paths::read_or_empty(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    if bytes.is_empty() {
+        return Ok(Vec::new());
+    }
+    let text = String::from_utf8(bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+    parse(&text)
+}
+
+/// Writes `character`'s window positions into `dir` (atomically; the windows' places when a drag
+/// ended).
+pub fn write_window_positions(
+    dir: &Path,
+    character: u64,
+    positions: &[WindowPosition],
+) -> io::Result<()> {
+    let text = to_text(positions);
+    paths::write_atomic(&window_positions_file(dir, character), text.as_bytes())
 }
 
 impl UiTree {
