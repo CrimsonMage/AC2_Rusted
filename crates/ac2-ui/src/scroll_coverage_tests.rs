@@ -280,16 +280,25 @@ fn shown(tree: &UiTree, mut index: usize) -> bool {
     }
 }
 
+/// Runs the global loop well past any smooth movement a turn started (a `smooth_movement` list
+/// only sets its goal; `UIElement_ListBox::Global_Loop` moves it there).
+fn settle(tree: &mut UiTree) {
+    let now = tree.time + 10.0;
+    tree.global_loop(now);
+}
+
 /// Turns the wheel over `index`. A turn out scrolls down; one already at the bottom of its range
 /// cannot go further, so the turn must then move it back up. Either way the position moves.
 fn wheel_moves(tree: &mut UiTree, index: usize, kind: Scroller, what: &str) {
     let before = measure(tree, index, kind);
     tree.start_input(UI_WHEEL_OUT, 1.0);
+    settle(tree);
     let down = measure(tree, index, kind);
     if down != before {
         return;
     }
     tree.start_input(UI_WHEEL_IN, 1.0);
+    settle(tree);
     let up = measure(tree, index, kind);
     let top = tree.mouse_top().map(|t| (t, tree.get(t).map(|e| e.id())));
     assert!(
