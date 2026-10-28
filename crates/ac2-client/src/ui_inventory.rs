@@ -142,23 +142,6 @@ impl InventoryNoticeSource for ClientPlayer<'_> {
     }
 }
 
-/// The player's effects for the status bar's strip (`gmCWInterface::InqEffectList`); none when
-/// the script does not answer.
-pub(crate) fn effect_entries(player: &ClientPlayer<'_>) -> Vec<ac2_ui::EffectEntry> {
-    let nodes = player.client.borrow_mut().effect_list().unwrap_or_default();
-    nodes
-        .into_iter()
-        .map(|n| ac2_ui::EffectEntry {
-            eid: n.eid,
-            pulsed: n.is_pulsed(),
-            name: n.name,
-            icon: n.icon,
-            time_cast: n.time_cast,
-            duration: n.duration,
-        })
-        .collect()
-}
-
 /// `gmPaperDollUI::RecvNotice_UpdateInventory`, `RecvNotice_ItemUpdate`, the slots' selection.
 pub(crate) fn paper_doll_notice(
     doll: &mut PaperDollUi,

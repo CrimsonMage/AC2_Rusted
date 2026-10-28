@@ -46,6 +46,24 @@ impl ac2_ui::UiStrings for ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::StatusSource for ClientPlayer<'_> {
+    /// `gmEffectsUI`'s list: `InqEffectList`, as the effect strip's entries.
+    fn effects(&self) -> Vec<ac2_ui::EffectEntry> {
+        let nodes = self.client.borrow_mut().effect_list().unwrap_or_default();
+        nodes
+            .into_iter()
+            .map(|n| ac2_ui::EffectEntry {
+                eid: n.eid,
+                pulsed: n.is_pulsed(),
+                name: n.name,
+                icon: n.icon,
+                time_cast: n.time_cast,
+                duration: n.duration,
+            })
+            .collect()
+    }
+}
+
 impl SkillSource for ClientPlayer<'_> {
     fn panel(&self, panel: u32) -> Option<SkillPanel> {
         let data = self.client.borrow_mut().skill_panel(panel).ok()??;

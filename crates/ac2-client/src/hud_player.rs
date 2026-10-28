@@ -22,9 +22,9 @@ use crate::frame::ClientFrame;
 use crate::gameplay::Command;
 use crate::hud_character::{character_commands, options_settings};
 use crate::hud_chat_options::chat_settings;
-use crate::hud_status::StatusBar;
 use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
+use ac2_ui::StatusBar;
 
 /// The player's race (int 290, `UpdatePaperDollPosition`).
 const RACE: u32 = 0x122;

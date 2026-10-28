@@ -151,6 +151,10 @@ mod shortcut;
 mod shortcut_states;
 mod skill_tree;
 mod stack;
+mod status_notices;
+#[cfg(test)]
+mod status_notices_tests;
+pub use status_notices::{pk_notice, StatusBar, StatusSource};
 mod statusbar;
 pub use gameplay_keys::{
     child_for_key, GameplayChild, GAMEPLAY_SHOW_KEY, RADAR_CHILD_KEY, STATUSBAR_CHILD_KEY,
