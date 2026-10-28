@@ -2508,8 +2508,8 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::SetParent` · 004e4580 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [ ] `CPhysicsObj::TopParent` · 004e4590 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [~] `CPhysicsObj::ApplyVisualDesc` · 004e45b0 — ac2-weenie: the delta becomes the local description; the part rebuild (CompareAndModify) is the renderer's
-- [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics: vdesc scale x placement scale; the body uses the root z scale
-- [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180 — needs port: cite-only physics-object method
+- [~] `CPhysicsObj::GetTotalScale` · 004e4640 — ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
+- [ ] `CPhysicsObj::SetScaleInternal` · 004e4730 · legions 004d7180 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 - [ ] `CPhysicsObj::clear_transient_states` · 004e47d0 · legions 004d7220 — ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
 - [ ] `CPhysicsObj::misc_can_be_inactive` · 004e4880 · legions 004d72d0 — ac2-physics PhysicsBody::misc_can_be_inactive; the collision-manager IsEmpty and detection IsActive answers are passed in by the caller
 - [x] `CPhysicsObj::ShouldMuteSound` · 004e48e0 · legions 004d7330 — CPhysicsObj::ShouldMuteSound - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2554,7 +2554,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::SetScale` · 004e6690 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::SetScale` · 004e6690 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 - [ ] `CPhysicsObj::ApplyPropertyCollection` · 004e66a0 — ac2-physics PhysicsBody::apply_property_collection (resets property_info, applies every group)
 - [~] `CPhysicsObj::HasMissileManager` · 004e6710 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [x] `CPhysicsObj::is_newer_then_update` · 004e6720 · legions 004d9170 — CPhysicsObj::is_newer_then_update - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
@@ -2578,8 +2578,8 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::MissileInquireDirection` · 004e6de0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [~] `CPhysicsObj::MissileInquireCurrentVelocity` · 004e6e60 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
 - [~] `CPhysicsObj::MissileRetarget` · 004e6eb0 — forwarder to CMissileManager; the body has no missile manager yet, it lands with the CMissileManager port (AC2_Rusted-combat worker); the MISSILE_PS bit is PhysicsBody::set_missile
-- [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::UpdateAnimationRecursive` · 004e6f30 · legions 004d9980 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
+- [ ] `CPhysicsObj::UpdateFXRecursive` · 004e6f80 · legions 004d99d0 — ac2-physics ChildGraph::animation_update_order / fx_update_order (this, then the children; FX recursion goes down the whole tree); the client drives each object's update in that order
 - [x] `CPhysicsObj::UpdateMovementInternal` · 004e6ff0 · legions 004d9a40
 - [~] `CPhysicsObj::FindObjCollisions` · 004e7580 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
 - [~] `CPhysicsObj::HandleCollision` · 004e79a0 · legions 004da3f0 — impact reports only: a landing impact (normal and speed, taken once by ac2-physics take_impact_report) is handed to the player's HandleCollision IFun (ac2-client collision_reported); object, environment, surface and water properties, begin/end reports and missiles are not ported
@@ -2684,7 +2684,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::is_inelastic` · 004eb100
 - [-] `CPhysicsObj::is_movement_frozen` · 004eb110 — state-bit flag accessor
 - [x] `CPhysicsObj::is_animation_frozen` · 004eb120 — ac2-physics physics_obj_anim / body_anim (slice 4): PhysicsBody animation entry points
-- [ ] `CPhysicsObj::SetScale` · 004eb130 — needs port: cite-only physics-object method
+- [ ] `CPhysicsObj::SetScale` · 004eb130 — ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 - [-] `CPhysicsObj::get_omega_velocity` · 004eb160 — state-bit flag accessor
 - [-] `CPhysicsObj::get_omega_accleration` · 004eb170 — state-bit flag accessor
 - [-] `CPhysicsObj::IsDummyObject` · 004eb180 — admin/debug or text-file tooling

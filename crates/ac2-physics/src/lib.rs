@@ -94,8 +94,8 @@ pub use body::{
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
 pub use children::{
-    holding_matrix, update_child_frame, ChildGraph, ChildInfo, ChildList, ChildType,
-    HOLDING_LOCATION_ORIGIN,
+    holding_matrix, scaled_by_parent, update_child_frame, ChildGraph, ChildInfo, ChildList,
+    ChildType, HOLDING_LOCATION_ORIGIN,
 };
 pub use collide_property::{CollideProperty, CollideType, PropertyDescs, TERRAIN_TYPE_PROPERTY};
 pub use collision_impact::ImpactReport;

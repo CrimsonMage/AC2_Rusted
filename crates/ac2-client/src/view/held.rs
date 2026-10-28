@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 use ac2_anim::Ac2Transform;
 use ac2_math::{Frame, Mat4};
-use ac2_physics::{held_place, placement_order};
+use ac2_physics::{held_place, placement_order, scaled_by_parent};
 use ac2_render::object::ObjectPose;
 
 use super::{world_matrix, ClientView, Drawn};
@@ -29,6 +29,12 @@ impl ClientView {
             .iter()
             .map(|child| child.held.and_then(|(id, _)| index.get(&id).copied()))
             .collect();
+        // `CPhysicsObj::GetTotalScale`: a held object's scale carries its holder's total scale
+        // (and the holder representation's `m_fChildScale`, 1.0 as `PHYSICSOBJREP` makes it).
+        let mut totals: Vec<Option<ac2_math::Vec3>> = drawn
+            .iter()
+            .map(|d| self.scene.object_rig(d.key).map(|(_, scale)| *scale))
+            .collect();
         for i in placement_order(&holder_of) {
             let child = &drawn[i];
             let Some((holder_id, point)) = child.held else {
@@ -38,7 +44,7 @@ impl ClientView {
                 placed[i] = None;
                 continue;
             };
-            let Some((_, holder_scale)) = self.scene.object_rig(drawn[holder].key) else {
+            let Some(holder_scale) = totals[holder] else {
                 placed[i] = None;
                 continue;
             };
@@ -52,9 +58,10 @@ impl ClientView {
                 .and_then(|pose| pose.group_bones.get(point.group)?.get(point.bone))
                 .copied()
                 .unwrap_or(Ac2Transform::IDENTITY);
-            let at = held_place(frames[holder], *holder_scale, bone, &point);
+            let at = held_place(frames[holder], holder_scale, bone, &point);
             frames[i] = at;
-            let child_scale = self.scene.object_rig(child.key).map(|(_, scale)| *scale);
+            let child_scale = totals[i].map(|own| scaled_by_parent(own, holder_scale, 1.0));
+            totals[i] = child_scale;
             placed[i] = match (placed[i].take(), child_scale) {
                 (Some((key, _, pose)), Some(scale)) => Some((key, world_matrix(scale, at), pose)),
                 _ => None,

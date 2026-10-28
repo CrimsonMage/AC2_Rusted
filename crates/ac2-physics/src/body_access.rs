@@ -23,6 +23,25 @@ const IN_WORKSPACE_PS: u32 = 0x1000_0000;
 const MOVING_SPEED_SQUARED: f32 = 0.0002;
 
 impl PhysicsBody {
+    /// The body's own total scale without any parent (`CPhysicsObj::GetTotalScale`'s first
+    /// product): the representation's scale (the Setup's visual scale) times `GetScale`, each
+    /// component stored as `float`. [`crate::ChildGraph::total_scale`] adds the parent chain.
+    pub fn own_total_scale(&self) -> Vector {
+        self.object.own_total_scale()
+    }
+
+    /// `CPhysicsObj::SetScale(Vector)` / `SetScaleInternal`: the object's scale. The containment
+    /// radius follows it (`SetPhysicsContainmentRadius`), and a body with a physics BSP marks
+    /// its state (`m_state` bit 29) while its total scale is not one in x or y.
+    pub fn set_scale(&mut self, scale: Vector) {
+        self.object.set_scale(scale);
+    }
+
+    /// `CPhysicsObj::SetScale(float)`: the same scale on every axis.
+    pub fn set_uniform_scale(&mut self, scale: f32) {
+        self.object.set_scale(Vector::new(scale, scale, scale));
+    }
+
     /// `CPhysicsObj::ApplyPropertyCollection`: the description's property groups applied to the
     /// body (the blocking mask, the physics material, the graphics state, the game-draw bit),
     /// the properties kept for `InqCurrentProperties`. True when every property applied.
@@ -98,7 +117,28 @@ impl PhysicsBody {
     }
 }
 
+/// `CPhysicsObj::m_state` bit 29: the object has a physics BSP and a total scale other than one.
+const SCALED_PS: u32 = 0x2000_0000;
+
 impl PhysicsObj {
+    pub(crate) fn own_total_scale(&self) -> Vector {
+        let s = ld(self.shape.scale);
+        let one = |c: f32| crate::fpu::st(s * ld(c));
+        Vector::new(one(self.scale.x), one(self.scale.y), one(self.scale.z))
+    }
+
+    pub(crate) fn set_scale(&mut self, scale: Vector) {
+        self.scale = scale;
+        if self.state & HAS_PHYSICS_BSP_PS != 0 {
+            let total = self.own_total_scale();
+            if (1.0 - ld(total.x)).abs() < 0.0002 && (1.0 - ld(total.y)).abs() < 0.0002 {
+                self.state &= !SCALED_PS;
+            } else {
+                self.state |= SCALED_PS;
+            }
+        }
+    }
+
     fn set_state_bit(&mut self, bit: u32, on: bool) {
         if on {
             self.state |= bit;
@@ -383,6 +423,26 @@ impl PhysicsBody {
 mod tests {
     use crate::test_support::body_at;
     use crate::vector::Vector;
+
+    #[test]
+    fn scale_sets_the_total_scale_and_marks_a_scaled_bsp_body() {
+        let mut body = body_at(70.0, 30.0, 50.0);
+        body.set_uniform_scale(2.0);
+        assert_eq!(body.own_total_scale(), Vector::new(2.0, 2.0, 2.0));
+        assert_eq!(body.effects_scale(), Vector::new(2.0, 2.0, 2.0));
+        assert_eq!(body.physics_state() & super::SCALED_PS, 0, "no physics BSP");
+        body.object_mut().state |= super::HAS_PHYSICS_BSP_PS;
+        body.set_uniform_scale(1.0001);
+        assert_eq!(body.physics_state() & super::SCALED_PS, 0);
+        body.set_scale(Vector::new(1.0, 1.0, 3.0));
+        assert_eq!(
+            body.physics_state() & super::SCALED_PS,
+            0,
+            "only x and y are compared"
+        );
+        body.set_scale(Vector::new(1.0, 3.0, 1.0));
+        assert_ne!(body.physics_state() & super::SCALED_PS, 0);
+    }
 
     #[test]
     fn state_bits_and_motion_getters_follow_the_object() {

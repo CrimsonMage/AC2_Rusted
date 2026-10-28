@@ -283,6 +283,64 @@ impl ChildGraph {
         None
     }
 
+    /// `CPhysicsObj::GetTotalScale`: the object's own total scale (`own`, the representation's
+    /// scale times `GetScale`) times, for a child that is not a missile (`has_missile_manager`),
+    /// its parent's total scale and the parent representation's `m_fChildScale`
+    /// (`child_scale`), recursively up the chain. Each product is stored as `float`.
+    pub fn total_scale(
+        &self,
+        id: u64,
+        own: &dyn Fn(u64) -> Vec3,
+        child_scale: &dyn Fn(u64) -> f32,
+        has_missile_manager: &dyn Fn(u64) -> bool,
+    ) -> Vec3 {
+        self.total_scale_at(id, own, child_scale, has_missile_manager, 0)
+    }
+
+    fn total_scale_at(
+        &self,
+        id: u64,
+        own: &dyn Fn(u64) -> Vec3,
+        child_scale: &dyn Fn(u64) -> f32,
+        has_missile_manager: &dyn Fn(u64) -> bool,
+        depth: usize,
+    ) -> Vec3 {
+        let total = own(id);
+        let Some(parent) = self.parent_of(id) else {
+            return total;
+        };
+        if has_missile_manager(id) || depth > self.parents.len() {
+            return total;
+        }
+        let up = self.total_scale_at(parent, own, child_scale, has_missile_manager, depth + 1);
+        scaled_by_parent(total, up, child_scale(parent))
+    }
+
+    /// `CPhysicsObj::UpdateAnimationRecursive`: `this` updates, then each direct child (a
+    /// child's own children are not reached).
+    pub fn animation_update_order(&self, this: u64) -> Vec<u64> {
+        std::iter::once(this)
+            .chain(self.children_of(this).map(|c| c.id))
+            .collect()
+    }
+
+    /// `CPhysicsObj::UpdateFXRecursive`: `this`, then each child's own recursion, depth first.
+    pub fn fx_update_order(&self, this: u64) -> Vec<u64> {
+        let mut order = Vec::new();
+        self.collect_fx(this, &mut order);
+        order
+    }
+
+    fn collect_fx(&self, this: u64, order: &mut Vec<u64>) {
+        if order.len() > self.parents.len() + 1 {
+            return;
+        }
+        order.push(this);
+        for child in self.children_of(this) {
+            self.collect_fx(child.id, order);
+        }
+    }
+
     /// The order to place `ids` in: each child after its parent when both are listed, so a held
     /// object that holds another is placed first (`UpdateChild` runs holder first).
     pub fn placement_order(&self, ids: &[u64]) -> Vec<usize> {
@@ -293,6 +351,19 @@ impl ChildGraph {
             .collect();
         crate::held::placement_order(&holder_of)
     }
+}
+
+/// `CPhysicsObj::GetTotalScale`'s parent term: the child's own total scale times its parent's
+/// total scale and the parent representation's `m_fChildScale` (1.0 unless set), each product
+/// stored as `float`.
+pub fn scaled_by_parent(own: Vec3, parent_total: Vec3, child_scale: f32) -> Vec3 {
+    let k = f64::from(child_scale);
+    let one = |t: f32, u: f32| ((f64::from(t) * f64::from(u)) * k) as f32;
+    Vec3::new(
+        one(own.x, parent_total.x),
+        one(own.y, parent_total.y),
+        one(own.z, parent_total.z),
+    )
 }
 
 /// The matrix `CPhysicsObj::UpdateChild` builds for a holding location child: the holder's
@@ -418,6 +489,44 @@ mod tests {
         let matrix = holding_matrix(info.location, Ac2Transform::IDENTITY, &point(Vec3::X));
         let at = update_child_frame(holder, Vec3::splat(2.0), &info, matrix);
         assert!((at.origin - Vec3::new(12.0, 0.0, 0.0)).length() < 1e-5);
+    }
+
+    #[test]
+    fn a_childs_total_scale_carries_its_parents_and_the_child_scale() {
+        let mut g = ChildGraph::default();
+        g.set_parent(2, 1, 5, true);
+        g.set_parent(3, 2, 5, true);
+        let own = |id: u64| Vec3::splat(id as f32);
+        let child_scale = |_: u64| 0.5_f32;
+        let missile = |id: u64| id == 3;
+        // 2's scale 2 x parent 1's scale 1 x 0.5.
+        assert_eq!(
+            g.total_scale(2, &own, &child_scale, &missile),
+            Vec3::splat(1.0)
+        );
+        assert_eq!(
+            g.total_scale(1, &own, &child_scale, &missile),
+            Vec3::splat(1.0)
+        );
+        // A missile child ignores its parent chain.
+        assert_eq!(
+            g.total_scale(3, &own, &child_scale, &missile),
+            Vec3::splat(3.0)
+        );
+        assert_eq!(
+            g.total_scale(3, &own, &child_scale, &|_| false),
+            Vec3::splat(1.5)
+        );
+    }
+
+    #[test]
+    fn recursive_updates_walk_the_children() {
+        let mut g = ChildGraph::default();
+        g.set_parent(2, 1, 5, true);
+        g.set_parent(3, 1, 5, true);
+        g.set_parent(4, 2, 5, true);
+        assert_eq!(g.animation_update_order(1), vec![1, 2, 3]);
+        assert_eq!(g.fx_update_order(1), vec![1, 2, 4, 3]);
     }
 
     #[test]
