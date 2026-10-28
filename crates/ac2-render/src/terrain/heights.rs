@@ -5,6 +5,8 @@
 use ac2_core::CellId;
 use ac2_world::{terrain_polygon_cut, LandBlockDesc};
 
+use crate::decal::{GroundTriangle, GroundVertex};
+
 use super::shadow::{self_shadow_factor, vertex_shadow_alpha};
 
 /// One landblock's terrain heights and polygon diagonals, and its water surface.
@@ -16,6 +18,8 @@ pub struct TerrainHeights {
     heights: Vec<f32>,
     /// `CLandBlockData::GetColor` per vertex: the shadow-light bits each vertex is lit by.
     colours: Vec<u32>,
+    /// `CLandBlockData::m_vNormals` per vertex, as `build_terrain_mesh` reads them.
+    normals: Vec<[f32; 3]>,
     /// Per polygon (`px * polygons + py`): split along SW-NE.
     cuts: Vec<bool>,
     /// The block's water surface height, when it has water.
@@ -40,6 +44,10 @@ impl TerrainHeights {
             .flat_map(|x| (0..side).map(move |y| (x, y)))
             .map(|(x, y)| landblock.vertex_colour(x, y).unwrap_or(0))
             .collect();
+        let normals = (0..side)
+            .flat_map(|x| (0..side).map(move |y| (x, y)))
+            .map(|(x, y)| landblock.normal(x, y).unwrap_or([0.0, 0.0, 1.0]))
+            .collect();
         Self {
             origin: [
                 ((block_cell_id.raw() >> 24) & 0xFF) as f32 * block_size,
@@ -49,6 +57,7 @@ impl TerrainHeights {
             side,
             heights: landblock.height_grid(),
             colours,
+            normals,
             cuts,
             water,
         }
@@ -66,6 +75,11 @@ impl TerrainHeights {
         Some((gx, gy))
     }
 
+    /// The side of one polygon in metres (`LandDefs::pixel_length`).
+    pub fn polygon_size(&self) -> f32 {
+        self.spacing
+    }
+
     /// The landscape self-shadow factor under world `(x, y)` (`LScapeTerrainMesh::GetShadowColor`
     /// self term): the polygon's four corner vertices, alpha 255 where lit by `shadow_bit`
     /// (`UpdateNearTerrain`). Off the block, or with no shadow bit, nothing is shadowed (1.0).
@@ -80,6 +94,33 @@ impl TerrainHeights {
             vertex_shadow_alpha(self.colours[(px + dx) * self.side + py + dy], bit)
         };
         self_shadow_factor([alpha(0, 0), alpha(1, 0), alpha(0, 1), alpha(1, 1)])
+    }
+
+    /// The ground triangles of the polygon under world `(x, y)`, split as the near mesh splits it
+    /// (`build_terrain_mesh`'s `m_SWtoNEcut`), with each corner's world position and normal. This
+    /// is the quad `LScapeTerrainMesh::GetPixelGeometry` gives a decal. `None` off the block.
+    pub fn polygon_triangles(&self, x: f32, y: f32) -> Option<[GroundTriangle; 2]> {
+        let polygons = self.side - 1;
+        let (gx, gy) = self.grid_at(x, y)?;
+        let px = (gx.floor() as usize).min(polygons - 1);
+        let py = (gy.floor() as usize).min(polygons - 1);
+        let corner = |dx: usize, dy: usize| {
+            let (vx, vy) = (px + dx, py + dy);
+            GroundVertex {
+                position: [
+                    self.origin[0] + vx as f32 * self.spacing,
+                    self.origin[1] + vy as f32 * self.spacing,
+                    self.heights[vx * self.side + vy],
+                ],
+                normal: self.normals[vx * self.side + vy],
+            }
+        };
+        let (sw, se, nw, ne) = (corner(0, 0), corner(1, 0), corner(0, 1), corner(1, 1));
+        Some(if self.cuts[px * polygons + py] {
+            [[nw, sw, ne], [sw, se, ne]]
+        } else {
+            [[sw, se, nw], [se, ne, nw]]
+        })
     }
 
     /// The terrain height at world `(x, y)`, on the triangle of its polygon; `None` off the
@@ -120,6 +161,7 @@ mod tests {
             side: 2,
             heights: vec![0.0, 20.0, 10.0, 40.0],
             colours: vec![0; 4],
+            normals: vec![[0.0, 0.0, 1.0]; 4],
             cuts: vec![cut],
             water: None,
         }

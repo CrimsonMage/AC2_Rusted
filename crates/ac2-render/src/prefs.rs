@@ -397,6 +397,19 @@ pub fn light_source_effects(bank: &PreferenceBank) -> bool {
     }
 }
 
+/// `DecalEffects` (`Render::m_Prefs.DecalEffects`): `FXManager::DoDecalFX` makes no decal while it
+/// is off.
+pub const DECAL_EFFECTS: u32 = 0x4000_0062;
+
+/// Whether FX decals are made (`DecalEffects`). A preference that is not registered keeps its
+/// default, on.
+pub fn decal_effects(bank: &PreferenceBank) -> bool {
+    match bank.find(DECAL_EFFECTS).map(|pref| &pref.value) {
+        Some(Value::Bool(on)) => *on,
+        _ => true,
+    }
+}
+
 /// Whether FX streaks are made and drawn (`StreakEffects`). A preference that is not registered
 /// keeps its default, on.
 pub fn streak_effects(bank: &PreferenceBank) -> bool {

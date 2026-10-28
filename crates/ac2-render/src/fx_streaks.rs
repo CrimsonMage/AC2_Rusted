@@ -80,7 +80,7 @@ fn channel_missmatch(_gate: &ac2_assets::Ac2FxNodeGate) -> bool {
 
 /// `DoTargettedFX`'s node gate: no channel mismatch, `m_player_only` for the player, and the
 /// node's day or night flag for the time of day (`(day_time || night) && (night_time || day)`).
-fn node_plays(gate: &ac2_assets::Ac2FxNodeGate, is_player: bool, night: bool) -> bool {
+pub(crate) fn node_plays(gate: &ac2_assets::Ac2FxNodeGate, is_player: bool, night: bool) -> bool {
     !channel_missmatch(gate)
         && (!gate.player_only || is_player)
         && if night {

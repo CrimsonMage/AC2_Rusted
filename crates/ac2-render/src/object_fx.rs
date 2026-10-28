@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use ac2_math::{Frame, Mat4, Vec3};
 use ac2_physics::{follow_frame, FxFollow};
 
+use crate::decal::DecalSpec;
 use crate::fx_particles::{ObjectLightStart, ObjectParticleStart};
 use crate::fx_streaks::ObjectStreakCall;
 use crate::object::ObjectPose;
@@ -75,6 +76,14 @@ pub fn apply_streaks(scene: &mut WorldScene, calls: &[ObjectStreakCall], visible
         }
     }
     scene.set_streaks_visible(visible);
+}
+
+/// The decals the objects' FX projected (`FXManager::DoDecalFX`), in order: each one takes the
+/// ground under it as the scene has it when the decal starts.
+pub fn apply_decals(scene: &mut WorldScene, calls: &[DecalSpec]) {
+    for spec in calls {
+        scene.start_object_decal(*spec);
+    }
 }
 
 /// `CPhysicsObj::UpdateChild`: each FX object that hangs from an emitter stands where that

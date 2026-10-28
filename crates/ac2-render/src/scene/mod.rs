@@ -4,6 +4,7 @@
 //! landscape, the objects and frills, the visible interiors, the sky after). All loading runs on
 //! the scene's loader thread; the frame thread only drains finished loads and lays out frames.
 
+mod decals;
 mod interiors;
 mod loader;
 mod object_lights;
@@ -154,6 +155,8 @@ pub struct WorldScene {
     /// (`Render::m_Prefs.StreakEffects`: `StreakEffectManager::RenderStreakEffects` skips them).
     object_streaks: ObjectStreaks,
     streaks_visible: bool,
+    /// The decals the FX project (`DecalEffectManager`).
+    decals: crate::decal::DecalEffects,
     /// The resident blocks' ground, for the rain.
     heights: HashMap<BlockKey, Arc<TerrainHeights>>,
     rain: RainField,
@@ -207,6 +210,7 @@ impl WorldScene {
             object_lights: ObjectLights::default(),
             object_streaks: ObjectStreaks::default(),
             streaks_visible: true,
+            decals: crate::decal::DecalEffects::default(),
             heights: HashMap::new(),
             rain: RainField::default(),
             rain_material: None,
@@ -490,7 +494,7 @@ impl WorldScene {
     pub fn start_object_streak(&mut self, emitter: u64, spec: crate::streak::StreakSpec) {
         self.object_streaks
             .start(emitter, spec, self.particles.now());
-        self.request_streak_material(spec.material);
+        self.request_material(spec.material);
     }
 
     /// `PHYSICSOBJREP::StartStreakInternal` (`on`) and `StopStreakInternal`: the emitter's streaks
@@ -514,8 +518,9 @@ impl WorldScene {
         self.streaks_visible = visible;
     }
 
-    /// A streak's material, loaded once like a particle material (`ParticleEmitter`'s material).
-    fn request_streak_material(&mut self, material: DataId) {
+    /// A streak's or decal's material, loaded once like a particle material (`ParticleEmitter`'s
+    /// material).
+    fn request_material(&mut self, material: DataId) {
         if self.known_models.contains(&material) || self.pending_models.contains(&material) {
             return;
         }
@@ -713,6 +718,7 @@ impl WorldScene {
                     .map(|(material, geometry)| ParticleBatch { material, geometry }),
             );
         }
+        particles.extend(self.decal_batches());
         SceneFrame {
             lighting,
             sky,
