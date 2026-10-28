@@ -7,6 +7,7 @@
 //! [`ScriptHost::take_server_calls`] returns. Arguments use ac2-net's [`PackValue`].
 
 pub mod chargen;
+pub mod consignment;
 pub mod craft_queries;
 mod glue;
 mod gun;

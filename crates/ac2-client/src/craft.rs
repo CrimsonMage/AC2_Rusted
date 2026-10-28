@@ -5,24 +5,13 @@
 
 use ac2_net::protocol::StringInfo;
 use ac2_script::host::craft_queries::CraftQueries;
-use ac2_script::host::{IFunArg, IFunResult, IFunReturn};
+use ac2_script::host::IFunArg;
 use ac2_weenie::{CraftSkill, Ingredient, Recipe, SessionEvent};
 
 use crate::client::Client;
 use crate::gameplay::Command;
 
 impl Client {
-    /// One craft query: its IFun on the player's script, the notices it raised kept for the next
-    /// frame. `None` without the VM, or when the call fails.
-    pub(crate) fn script_query(
-        &mut self,
-        function: u32,
-        args: &[IFunArg],
-        ret: IFunReturn,
-    ) -> Option<IFunResult> {
-        ac2_script::host::ui_calls::script_query(self, function, args, ret)
-    }
-
     /// A request's IFun on the player's script (a craft or skill request): its stub sends the
     /// request; the events it raised come back (`ui_calls::script_request`).
     pub(crate) fn script_request(&mut self, function: u32, args: &[IFunArg]) -> Vec<SessionEvent> {
