@@ -2,6 +2,7 @@
 
 use std::sync::Arc;
 
+pub use ac2_physics::HoldPoint;
 pub use ac2_ui::{MapMarker, RadarBlip, RadarFrame};
 
 /// The player's body as physics left it this frame.
@@ -91,17 +92,6 @@ pub struct Holder {
     /// rides and its transform. `None` while the holder's body is not loaded, so the object has
     /// no place to be drawn at.
     pub point: Option<HoldPoint>,
-}
-
-/// A Setup holding location (`LocationType`): the root bone it rides and its transform in that
-/// bone's space.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct HoldPoint {
-    /// The part group whose Setup lists the location (`CPartGroup::GetHoldingLocation`): an index
-    /// into the holder's drawn groups.
-    pub group: usize,
-    pub bone: usize,
-    pub transform: ac2_anim::Ac2Transform,
 }
 
 /// The portal space (`PortalSpace::Effect`): the phase and the draw flags for the frame.

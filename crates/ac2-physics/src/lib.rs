@@ -35,6 +35,7 @@ mod fpu;
 mod frame;
 mod fx_follow;
 mod heading;
+mod held;
 mod interp;
 pub mod landdefs;
 mod loader;
@@ -82,6 +83,7 @@ pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use fx_follow::{follow_frame, placed_at, FxFollow};
 pub use heading::Heading;
+pub use held::{held_place, placement_order, HoldPoint};
 pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,
     load_object_shape, load_terrain_block,
