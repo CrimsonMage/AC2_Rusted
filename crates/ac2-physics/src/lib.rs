@@ -11,6 +11,8 @@ mod anim_pose;
 #[cfg(test)]
 mod anim_real_data_tests;
 mod anim_rep;
+mod appearance;
+mod appearance_delta;
 mod body;
 #[cfg(test)]
 mod body_anim_tests;
@@ -66,6 +68,8 @@ mod transition;
 mod vector;
 
 pub use anim_rep::BodyAnimation;
+pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
+pub use appearance_delta::local_visual_desc;
 pub use body::{
     AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, Tuning, ANIM_QUANTUM,
     PHYSICS_QUANTUM,

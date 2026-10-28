@@ -11570,42 +11570,42 @@ key	status	note
 0063cd60	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0063d1c0	_	needs port: dependent DIDs of VisualDesc for sub-object resolution (AGENTS.md exception)
 0063d2f0	x	ac2-weenie appearance.rs
-0063d310	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063d3e0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063d450	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063d310	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063d3e0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063d450	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063d680	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063d740	_	needs port: appearance/visual record: VisualDesc::GatherAppearanceKeys
 0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
 0063db70	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063dcc0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063dd00	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063dd40	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dcc0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dd00	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dd40	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063ddb0	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063dea0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063e0d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063dea0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e0d0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063e170	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-0063e1d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063e370	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063e3e0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063e460	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e1d0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e370	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e3e0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063e460	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063eaf0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 0063eb00	_	needs port: appearance/visual record: PHashTable::StreamPack (stream decode)
 0063ecd0	-	ctor/dtor of plain data; Rust constructs and drops values
 0063ed70	-	DBO type tag; Rust uses typed resource ids
 0063ed80	-	ctor/dtor of plain data; Rust constructs and drops values
-0063ee10	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063ee10	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063ee40	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-0063eee0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063ef40	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063f070	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0063f250	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063eee0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063ef40	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f070	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f250	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f340	-	copy of plain data; Rust clones values
 0063f380	_	needs port: appearance/visual record: VisualDesc::AddAppearanceMod (atom insert rule)
 0063f390	_	needs port: appearance/visual record: VisualDesc::RemoveAppearanceMod (atom removal rule)
-0063f3a0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f3a0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f410	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 0063f440	-	ctor/dtor of plain data; Rust constructs and drops values
-0063f4d0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0063f4d0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f520	-	ctor/dtor of plain data; Rust constructs and drops values
 0063f650	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -11692,11 +11692,11 @@ key	status	note
 00644090	_	needs port: UI region (ac2-ui): UIRegion::SetZLevel_Internal (runtime setter)
 006440a0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 006440f0	_	needs port: motion interpreter (ac2-anim): CMotionInterp::GetLocalDesiredVelocity
-00644100	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644100	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644160	x	ac2-weenie appearance.rs
 006441a0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 00644210	-	container compaction (RemoveNullsOrdered); Rust collections
-00644260	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644260	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 006442b0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 006442f0	_	needs port: appearance/visual record: PartGroupDataDesc::AddChildPointer (atom insert rule)
 00644330	x	ac2-weenie/src/appearance_ops.rs has_fx cites PartGroupDataDesc::HasFX
@@ -11706,11 +11706,11 @@ key	status	note
 00644590	-	writer for DAT/pack output; the client only reads (tool-only)
 00644950	_	needs port: dependent DIDs of PartGroupDataDesc for sub-object resolution (AGENTS.md exception)
 00644a30	-	Clear of PartGroupDataDesc (reset)
-00644a80	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-00644ad0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-00644bb0	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644a80	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644ad0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00644bb0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644c40	_	needs port: appearance/visual record: PartGroupDataDesc::ReadFX
-00645580	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+00645580	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 006455e0	_	needs port: appearance/visual record: PartGroupDataDesc::ReadAppearanceKeys
 00645940	-	ctor/dtor of plain data; Rust constructs and drops values
 00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -11773,13 +11773,13 @@ key	status	note
 0064a5e0	-	container iterator begin (AppliedAppKey); Rust iterators
 0064a610	-	container iterator end (AppliedAppKey); Rust iterators
 0064a630	x	ac2-assets ac2_drawn_groups.rs augment_atoms (moved from ac2-render)
-0064a730	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0064a760	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a730	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a760	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064a7c0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0064a7e0	-	ctor/dtor of plain data; Rust constructs and drops values
-0064a840	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0064a870	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-0064a970	x	ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a840	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a870	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+0064a970	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064aa60	-	ctor/dtor of plain data; Rust constructs and drops values
 0064aaa0	-	ctor/dtor of plain data; Rust constructs and drops values
 0064aaf0	_	needs port: appearance/visual record: AppearanceTableAdaptor::HasAppearanceKey

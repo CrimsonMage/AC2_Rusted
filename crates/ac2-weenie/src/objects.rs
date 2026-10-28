@@ -7,8 +7,8 @@ use ac2_net::protocol::{
     CreateObject, ObjectAction, Position, Qualities, QualityUpdate, ServerPosition,
 };
 
-use crate::appearance::Appearance;
 use crate::qualities::WeenieQualities;
+use ac2_physics::Appearance;
 
 /// One object the server has created and not destroyed.
 #[derive(Debug, Clone, PartialEq)]

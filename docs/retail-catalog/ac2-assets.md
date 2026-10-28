@@ -862,13 +862,13 @@ Legend and workflow: [README](README.md).
 - [-] `AppearanceInfo::GetAppliedAppKeyIter` · 0064a5e0 · legions 005f9c90 — container iterator begin (AppliedAppKey); Rust iterators
 - [-] `AppearanceInfo::GetAppliedAppKeyEnd` · 0064a610 · legions 005f9cc0 — container iterator end (AppliedAppKey); Rust iterators
 - [x] `AppearanceInfo::AugmentAtomCollection` · 0064a630 · legions 005f9ce0 — ac2-assets ac2_drawn_groups.rs augment_atoms (moved from ac2-render)
-- [x] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::RemoveAppearanceKey` · 0064a730 · legions 005f9dd0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::HasAppliedAppKey` · 0064a760 · legions 005f9e00 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `AppearanceInfo::operator=` · 0064a7c0 · legions 005f9e60 — operator of plain data or container; Rust value semantics / derived PartialEq
 - [-] `AppearanceInfo::~AppearanceInfo` · 0064a7e0 · legions 005f9e80 — ctor/dtor of plain data; Rust constructs and drops values
-- [x] `AppearanceInfo::AddAppliedAppKey` · 0064a840 · legions 005f9ee0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `AppearanceInfo::RemoveAppearanceKeys` · 0064a870 · legions 005f9f10 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::AddAppliedAppKey` · 0064a840 · legions 005f9ee0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::RemoveAppearanceKeys` · 0064a870 · legions 005f9f10 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `AppearanceInfo::AugmentExistingKeys` · 0064a970 · legions 005fa010 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `AppearanceInfo::AppearanceInfo` · 0064aa60 · legions 005fa100 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `AppearanceInfo::AppearanceInfo` · 0064aaa0 · legions 005fa140 — ctor/dtor of plain data; Rust constructs and drops values
 
@@ -1097,7 +1097,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CMotionInterp::GetLocalDesiredVelocity` · 006440f0 · legions 005f6210 — needs port: motion interpreter (ac2-anim): CMotionInterp::GetLocalDesiredVelocity
 
 ### PartGroupDataDesc
-- [x] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::RemoveChild` · 00644100 · legions 005f6220 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `PartGroupDataDesc::IsConnPtEmpty` · 00644160 · legions 005f6280 — ac2-weenie appearance.rs
 - [x] `PartGroupDataDesc::FindPGDDWithPartGroupKey` · 006441a0 · legions 005f62c0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 
@@ -1105,7 +1105,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<PartGroupDataDesc_*>::RemoveNullsOrdered` · 00644210 · legions 005f6330 — container compaction (RemoveNullsOrdered); Rust collections
 
 ### PartGroupDataDesc
-- [x] `PartGroupDataDesc::PrepareForRemoval` · 00644260 · legions 005f6380 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::PrepareForRemoval` · 00644260 · legions 005f6380 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `PartGroupDataDesc::Empty` · 006442b0 · legions 005f63d0 — reset to defaults before decode / reset of plain fields; Rust builds fresh values
 - [ ] `PartGroupDataDesc::AddChildPointer` · 006442f0 · legions 005f6410 — needs port: appearance/visual record: PartGroupDataDesc::AddChildPointer (atom insert rule)
 - [x] `PartGroupDataDesc::HasFX` · 00644330 · legions 005f6450 — ac2-weenie/src/appearance_ops.rs has_fx cites PartGroupDataDesc::HasFX
@@ -1115,12 +1115,12 @@ Legend and workflow: [README](README.md).
 - [-] `PartGroupDataDesc::WriteAppearanceKeys` · 00644590 — writer for DAT/pack output; the client only reads (tool-only)
 - [ ] `PartGroupDataDesc::GetSubDataIDs` · 00644950 · legions 005f6710 — needs port: dependent DIDs of PartGroupDataDesc for sub-object resolution (AGENTS.md exception)
 - [-] `PartGroupDataDesc::Clear` · 00644a30 · legions 005f67c0 — Clear of PartGroupDataDesc (reset)
-- [x] `PartGroupDataDesc::HasAppliedAppKey` · 00644a80 · legions 005f6810 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `PartGroupDataDesc::RemoveAppearanceKeys` · 00644ad0 · legions 005f6860 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `PartGroupDataDesc::RemoveAppearanceKey` · 00644bb0 · legions 005f6940 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::HasAppliedAppKey` · 00644a80 · legions 005f6810 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::RemoveAppearanceKeys` · 00644ad0 · legions 005f6860 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::RemoveAppearanceKey` · 00644bb0 · legions 005f6940 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `PartGroupDataDesc::ReadFX` · 00644c40 — needs port: appearance/visual record: PartGroupDataDesc::ReadFX
 - [-] `PartGroupDataDesc::ToFileNode` · 00644fe0 — text source format (admin tools)
-- [x] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `PartGroupDataDesc::AugmentAppearanceInfo` · 00645580 · legions 005f6b20 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [ ] `PartGroupDataDesc::ReadAppearanceKeys` · 006455e0 — needs port: appearance/visual record: PartGroupDataDesc::ReadAppearanceKeys
 - [-] `PartGroupDataDesc::~PartGroupDataDesc` · 00645940 · legions 005f6bf0 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `PartGroupDataDesc::FromFileNode` · 00645a20 — text source format (admin tools)
@@ -1242,24 +1242,24 @@ Legend and workflow: [README](README.md).
 - [-] `VisualDesc::ToFileNode` · 0063ce40 — text source format (admin tools)
 - [ ] `VisualDesc::GetSubDataIDs` · 0063d1c0 — needs port: dependent DIDs of VisualDesc for sub-object resolution (AGENTS.md exception)
 - [x] `VisualDesc::GetPGDDesc` · 0063d2f0 · legions 005f18e0 — ac2-weenie appearance.rs
-- [x] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ResetRootPointer` · 0063d310 · legions 005f1900 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemovePGDD` · 0063d3e0 · legions 005f19d0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ModVDesc_DeleteStragglers` · 0063d450 · legions 005f1a40 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::BuildAtomCollection` · 0063d680 · legions 005f1c70 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 - [ ] `VisualDesc::GatherAppearanceKeys` · 0063d740 · legions 005f1d10 — needs port: appearance/visual record: VisualDesc::GatherAppearanceKeys
 - [~] `VisualDesc::StreamPack` · 0063d7f0 — part-group FX overrides (FXData/FXNode) refused as unsupported
 - [x] `VisualDesc::AddPGDDesc` · 0063db70 · legions 005f2140 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [x] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::HasAppliedAppKey` · 0063dcc0 · legions 005f2290 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::InqAppInfoHashForPartGroup` · 0063dd00 · legions 005f22d0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemovePGDDRecursively` · 0063dd40 · legions 005f2310 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::RecursiveAdditivePGDDMerge` · 0063ddb0 · legions 005f2380 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063dea0 · legions 005f2470 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::Clear` · 0063e0d0 · legions 005f26a0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::AddPGDDesc` · 0063e170 · legions 005f2740 — ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
-- [x] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::MakeLocalPGDDFromParent` · 0063e1d0 · legions 005f27ba — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AddAppearanceKey` · 0063e370 · legions 005f2920 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AddAppInfoHashToPartGroup` · 0063e3e0 · legions 005f2990 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ApplyAdditiveVDesc` · 0063e460 · legions 005f2a10 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::FromFileNode` · 0063e4c0 — text source format (admin tools)
 - [-] `VisualDesc::Destroy` · 0063eaf0 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 
@@ -1270,19 +1270,19 @@ Legend and workflow: [README](README.md).
 - [-] `VisualDesc::VisualDesc` · 0063ecd0 · legions 005f2c50 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `VisualDesc::GetDBOType` · 0063ed70 — DBO type tag; Rust uses typed resource ids
 - [-] `VisualDesc::~VisualDesc` · 0063ed80 · legions 005f2d00 — ctor/dtor of plain data; Rust constructs and drops values
-- [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::operator=` · 0063ee10 · legions 005f2d90 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::GetTotalVisualDescInternal` · 0063ee40 · legions 005f2dc0 — ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-- [x] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-- [x] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AddAppearanceKey` · 0063eee0 · legions 005f2e30 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::RemoveAppearanceKey` · 0063ef40 · legions 005f2e90 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::CopyInto` · 0063f340 · legions 005f3270 — copy of plain data; Rust clones values
 - [ ] `VisualDesc::AddAppearanceMod` · 0063f380 · legions 005f32b0 — needs port: appearance/visual record: VisualDesc::AddAppearanceMod (atom insert rule)
 - [ ] `VisualDesc::RemoveAppearanceMod` · 0063f390 · legions 005f32c0 — needs port: appearance/visual record: VisualDesc::RemoveAppearanceMod (atom removal rule)
-- [x] `VisualDesc::GetVisualDescFromDB` · 0063f3a0 · legions 005f32d0 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::GetVisualDescFromDB` · 0063f3a0 · legions 005f32d0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::Allocate` · 0063f410 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `VisualDesc::VisualDesc` · 0063f440 · legions 005f3370 — ctor/dtor of plain data; Rust constructs and drops values
-- [x] `VisualDesc::ApplySubtractiveVDesc` · 0063f4d0 · legions 005f3400 — ac2-weenie appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
+- [x] `VisualDesc::ApplySubtractiveVDesc` · 0063f4d0 · legions 005f3400 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 
 ### FXData
 - [-] `FXData::FXData` · 0063f520 · legions 005f3450 — ctor/dtor of plain data; Rust constructs and drops values

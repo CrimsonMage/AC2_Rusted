@@ -2,11 +2,12 @@
 //! of its hand against its root bone, posed and at bind, from the renderer's own Setup.
 
 use ac2_anim::{Ac2Setup, Ac2Transform};
-use ac2_client::{local_visual_desc, PlayerFrame};
+use ac2_client::PlayerFrame;
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceStore, TypedResourceRef};
 use ac2_math::Vec3;
+use ac2_physics::local_visual_desc;
 use ac2_render::object::{load_object_model_with, RenderSettings};
 use ac2_render::Camera;
 

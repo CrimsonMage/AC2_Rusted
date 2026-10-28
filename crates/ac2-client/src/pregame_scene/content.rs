@@ -18,8 +18,8 @@ use ac2_ui::pregame::PregameUi;
 use ac2_ui::SceneViewport;
 use ac2_weenie::Appearance;
 
-use crate::appearance::local_visual_desc;
 use crate::ui_scene::{figure_key as key, scene_figures, At, Figure, SceneData};
+use ac2_physics::local_visual_desc;
 
 /// `AddPhysObjToArm`: figures hang from the arm's holding location 1.
 const ARM_LOCATION: u32 = 1;
@@ -120,7 +120,7 @@ fn character_selection(
                     continue;
                 };
                 let appearance = Appearance::from_delta(&identity.visual);
-                let local = crate::appearance::local_visual_desc(&appearance);
+                let local = ac2_physics::local_visual_desc(&appearance);
                 (appearance.parent, Some(local))
             }
         };

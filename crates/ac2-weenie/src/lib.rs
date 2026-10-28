@@ -7,7 +7,6 @@
 //! Positions are cell-local (a cell id and AC-axis coordinates relative to its landblock), as the
 //! server sends them; callers convert to their own frame.
 
-mod appearance;
 mod chat;
 mod craft;
 mod ddd;
@@ -35,7 +34,7 @@ mod world;
 
 pub use ac2_net::protocol::{CellPosition, CharacterIdentity, CharacterSet};
 pub use ac2_net::Credential;
-pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
+pub use ac2_physics::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use chat::{to_iid, DISPLAY_SPEECH, DISPLAY_TELL};
 pub use craft::{Ingredient, Recipe};
 pub use ddd::{dat_file_id, dat_iterations};

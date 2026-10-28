@@ -66,7 +66,7 @@ impl PaperDollScene {
     ) {
         let avatar = player.and_then(|p| {
             let visual = p.visual?;
-            Some((visual, crate::appearance::local_visual_desc(&p.appearance)))
+            Some((visual, ac2_physics::local_visual_desc(&p.appearance)))
         });
         let mut figures = |viewport: &SceneViewport, scene: &SceneData| {
             let mut out = scene_figures(viewport.scene, scene);

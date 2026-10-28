@@ -1,13 +1,13 @@
 //! An object's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`, the session's
-//! [`ac2_weenie::Appearance`]) as the additive delta the renderer merges onto its DAT chain
+//! [`Appearance`]) as the additive delta the renderer merges onto its DAT chain
 //! (`VisualDesc::GetTotalVisualDesc`, `ac2_render::object::load_object_model_with`).
 
 use std::sync::Arc;
 
+use crate::appearance::{Appearance, PartGroupAppearance};
 use ac2_assets::{Ac2PartGroup, Ac2VisualDesc, Ac2VisualFx};
 use ac2_core::DataId;
 use ac2_math::Vec3;
-use ac2_weenie::{Appearance, PartGroupAppearance};
 
 fn did(raw: u32) -> Option<DataId> {
     (raw != 0).then(|| DataId::new(raw))

@@ -236,7 +236,7 @@ impl ClientView {
         self.scene.time_of_day = frame.server_time;
         for drawn in drawn_objects(frame) {
             let key = drawn.key;
-            let local = crate::appearance::local_visual_desc(drawn.appearance);
+            let local = ac2_physics::local_visual_desc(drawn.appearance);
             self.scene
                 .request_object(key, DataId::new(drawn.visual), Some(local));
         }

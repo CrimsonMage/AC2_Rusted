@@ -11,11 +11,10 @@ workspace = true
 [dependencies]
 ac2-dat = { path = "../ac2-dat" }
 ac2-net = { path = "../ac2-net" }
+ac2-physics = { path = "../ac2-physics" }
 
-# The physics adapter test is where ac2-physics and the movement reports meet; the library
-# itself takes plain data and does not depend on ac2-physics.
+# The physics adapter test is where ac2-physics and the movement reports meet.
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }
 ac2-db = { path = "../ac2-db" }
-ac2-physics = { path = "../ac2-physics" }
 legions-server-double = { path = "../../tools/legions-server-double" }
