@@ -117,6 +117,18 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
             assert_eq!(stab.raw() & 0xFFFF_0000, did & 0xFFFF_0000);
         }
     }
+    // `CLandBlockInfo::ApplyPropertyCollection` applies the 0x40000013 group: interiors with
+    // ambient light and fog still come out of it.
+    let ambient = infos
+        .iter()
+        .filter(|did| {
+            world
+                .landblock_interior(CellId::new(**did))
+                .unwrap()
+                .is_some_and(|i| i.ambient.is_some() && i.fog_far.is_some())
+        })
+        .count();
+    assert!(ambient > 0, "no landblock interior kept its properties");
     // Two landblocks carry env cell records without a LandBlockInfo listing them.
     assert_eq!(cells, 57_013);
     let lights = cell_ids(&dataset, |low| low == 0xFFFC);

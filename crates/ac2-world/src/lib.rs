@@ -52,7 +52,8 @@ pub use ac2_motion_interp::{
 };
 pub use ac2_particle_sources::{ac2_block_particle_sources, ac2_blocks_within, Ac2ParticleSource};
 pub use ac2_scene::{
-    ac2_ambient_sound_points, ac2_scene_object_visual, ac2_scene_placements, Ac2AmbientSoundPoint,
+    ac2_ambient_sound_points, ac2_block_async_load_dids, ac2_scene_object_visual,
+    ac2_scene_placements, Ac2AmbientSoundPoint,
 };
 pub use ac2_water::{
     load_ac2_block_map, Ac2BlockMap, Ac2BlockWater, Ac2WaterSource, WaterLightInfo,

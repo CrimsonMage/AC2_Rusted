@@ -9,7 +9,7 @@ use std::sync::Arc;
 use ac2_assets::read_ac2_entity_desc;
 use ac2_core::{CellId, DataId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
-use ac2_db::read_ac2_property_collection;
+use ac2_db::read_ac2_property_groups;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
 
 const MAX_ITEMS: usize = 1 << 14;
@@ -67,6 +67,9 @@ impl ResourcePackedDecode for Ac2LandBlockInterior {
     }
 }
 
+/// The `PropertyGroup` `CLandBlockInfo::ApplyPropertyCollection` applies.
+const PROPERTY_GROUP: u32 = 0x4000_0013;
+
 fn color(argb: u32) -> [f32; 3] {
     let channel = |shift: u32| ((argb >> shift) & 0xFF) as f32 / 255.0;
     [channel(16), channel(8), channel(0)]
@@ -104,7 +107,12 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Result<Ac2LandBlockInteri
         fog_far: None,
         outside_stab_cells: Arc::from([]),
     };
-    for property in read_ac2_property_collection(cursor)? {
+    // `CLandBlockInfo::ApplyPropertyCollection`: only the properties of the 0x40000013 group apply.
+    for property in read_ac2_property_groups(cursor)?
+        .into_iter()
+        .filter(|group| group.name == PROPERTY_GROUP)
+        .flat_map(|group| group.properties)
+    {
         match property.name {
             PROPERTY_AMBIENT => interior.ambient = property.word().map(color),
             PROPERTY_FOG_TYPE => interior.fog_type = property.word(),

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use ac2_core::CellId;
 use ac2_db::ResourceStore;
 
-use super::{ac2_scene_object_visual, ac2_scene_placements};
+use super::{ac2_block_async_load_dids, ac2_scene_object_visual, ac2_scene_placements};
 use ac2_db::install_ac2_property_types;
 
 fn ac2_store() -> Option<ResourceStore> {
@@ -128,4 +128,21 @@ fn landblocks_carry_ambient_sound_points_of_the_region_sound_desc() {
             assert!(p.origin[2].is_finite());
         }
     }
+}
+
+#[test]
+fn a_blocks_async_load_dids_are_its_vertices_scene_files() {
+    let Some(store) = ac2_store() else {
+        return;
+    };
+    let id = CellId::new(0xCB4D_0001);
+    let dids = ac2_block_async_load_dids(&store, id).expect("scene picks");
+    // One per vertex of the 17 x 17 lattice.
+    assert_eq!(dids.len(), 17 * 17);
+    assert!(
+        dids.iter().any(|did| did.raw() != 0),
+        "some vertex has a scene"
+    );
+    // The generator places scenery from exactly these scene files, so a block with scenery has some.
+    assert!(!ac2_scene_placements(&store, id).unwrap().is_empty());
 }

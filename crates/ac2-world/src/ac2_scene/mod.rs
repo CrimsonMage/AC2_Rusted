@@ -138,7 +138,9 @@ pub fn ac2_scene_placements(
         error: RefCell::new(None),
     };
     let mut generator = generate::Generator::new(&terrain, &lookup, water, clearances);
-    generator.generate(|ix, iy| vertex_scene(&terrain, &scene_desc, &terrain_desc, ix, iy));
+    // `CLandBlockData::m_aSceneDID`, picked once per vertex when the near values are cached.
+    let scene_dids = block_scene_dids(&terrain, &scene_desc, &terrain_desc);
+    generator.generate(|ix, iy| scene_dids[ix * SIDE + iy]);
     let placements = std::mem::take(&mut generator.placements);
     if let Some(error) = lookup.error.into_inner() {
         return Err(error);
@@ -157,6 +159,49 @@ pub fn ac2_scene_placements(
             scale: Vec3::new(p.scale[0] as f32, p.scale[1] as f32, p.scale[2] as f32),
             frill: p.frill,
         })
+        .collect())
+}
+
+/// `CLandBlockData::m_aSceneDID`: the scene each of the block's 17 x 17 vertices picks, x-major.
+fn block_scene_dids(
+    terrain: &Ac2SceneTerrain,
+    scenes: &Ac2SceneDesc,
+    terrains: &Ac2TerrainSceneDesc,
+) -> Vec<u32> {
+    (0..SIDE)
+        .flat_map(|ix| (0..SIDE).map(move |iy| (ix, iy)))
+        .map(|(ix, iy)| vertex_scene(terrain, scenes, terrains, ix, iy))
+        .collect()
+}
+
+/// `CLandBlockData::InqAsyncLoadDIDs`: the scene of every vertex of the block (zero where a
+/// vertex has none), in `m_aSceneDID` order, each to be loaded as a `SceneFile`
+/// (`QualifiedDataID` type `0x40000005`). Empty when the store is not an AC2 dataset or the
+/// block has no record.
+pub fn ac2_block_async_load_dids(
+    store: &ResourceStore,
+    block_cell_id: CellId,
+) -> ResourceResult<Vec<DataId>> {
+    let (Some(scene_desc), Some(terrain_desc)) = (
+        portal::<Ac2SceneDesc>(store, SCENE_DESC_DID)?,
+        portal::<Ac2TerrainSceneDesc>(store, TERRAIN_DESC_DID)?,
+    ) else {
+        return Ok(Vec::new());
+    };
+    let Some(record) = crate::land_block_data::load_land_block_data(store, block_cell_id)? else {
+        return Ok(Vec::new());
+    };
+    let terrain = Ac2SceneTerrain {
+        block_x: (block_cell_id.raw() >> 24) & 0xFF,
+        block_y: (block_cell_id.raw() >> 16) & 0xFF,
+        heights: Vec::new(),
+        cell_info: record.cell_info.clone(),
+        road_width: 0.0,
+        road_field: (0, 0),
+    };
+    Ok(block_scene_dids(&terrain, &scene_desc, &terrain_desc)
+        .into_iter()
+        .map(DataId::new)
         .collect())
 }
 
