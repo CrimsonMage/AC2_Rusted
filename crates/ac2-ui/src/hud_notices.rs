@@ -23,61 +23,31 @@ pub fn notice_pass<P: HudSource>(
     server_time: f64,
     mut reload_shortcuts: bool,
 ) -> Vec<FriendsRequest> {
-    let Hud {
-        now,
-        item_selection,
-        vitals,
-        effects,
-        vitae,
-        net,
-        pk,
-        stack,
-        external_container,
-        secure_trade,
-        dialogs,
-        shop,
-        catalog,
-        consignment,
-        fellowship,
-        mini_fellow,
-        pets,
-        friends,
-        quests,
-        allegiance,
-        paper_doll,
-        backpack,
-        examination,
-        skills,
-        shortcuts,
-        money,
-        toolbar,
-        damage,
-        ..
-    } = hud;
+    let now = hud.now();
     let mut requests = Vec::new();
     let mut shortcut_checks: Vec<ShortcutCheck> = Vec::new();
     for event in events {
-        if let Some(dialog) = stack.as_mut() {
+        if let Some(dialog) = hud.stack.as_mut() {
             crate::stack_event(dialog, tree, event);
         }
-        if let Some(panel) = external_container.as_mut() {
+        if let Some(panel) = hud.external_container.as_mut() {
             crate::external_container_event(
                 panel,
                 tree,
                 player,
-                stack.as_mut(),
-                *item_selection,
+                hud.stack.as_mut(),
+                hud.item_selection,
                 event,
             );
         }
         // `gmNetStatusUI::OnHeartbeat`: the link averages the session closed this heartbeat.
         if let SessionEvent::LinkHeartbeat(links) = event {
             StatusBar {
-                vitals: &mut *vitals,
-                effects: &mut *effects,
-                vitae: &mut *vitae,
-                net: &mut *net,
-                pk: &mut *pk,
+                vitals: &mut hud.vitals,
+                effects: &mut hud.effects,
+                vitae: &mut hud.vitae,
+                net: &mut hud.net,
+                pk: &mut hud.pk,
             }
             .link_heartbeat(tree, player, links);
             // The bandwidth graph moved: the status bar is composed again.
@@ -87,62 +57,62 @@ pub fn notice_pass<P: HudSource>(
         let SessionEvent::Notice(notice) = event else {
             continue;
         };
-        if let (Some(panel), Some(dialogs)) = (secure_trade.as_mut(), dialogs.as_mut()) {
+        if let (Some(panel), Some(dialogs)) = (hud.secure_trade.as_mut(), hud.dialogs.as_mut()) {
             crate::secure_trade_notice(panel, tree, dialogs, player, server_time, notice);
         }
-        if let (Some(panel), Some(dialogs)) = (shop.as_mut(), dialogs.as_mut()) {
+        if let (Some(panel), Some(dialogs)) = (hud.shop.as_mut(), hud.dialogs.as_mut()) {
             crate::shop_notice(panel, tree, dialogs, player, server_time, notice);
         }
-        if let Some(panel) = catalog.as_mut() {
+        if let Some(panel) = hud.catalog.as_mut() {
             crate::catalog_notice(panel, tree, player, server_time, notice);
         }
-        if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+        if let (Some(panel), Some(dialogs)) = (hud.consignment.as_mut(), hud.dialogs.as_mut()) {
             crate::consignment_notice(panel, tree, dialogs, player, server_time, notice);
         }
-        if let Some(dialogs) = dialogs.as_mut() {
+        if let Some(dialogs) = hud.dialogs.as_mut() {
             crate::fellowship_notice(
-                fellowship.as_mut(),
-                mini_fellow.as_mut(),
+                hud.fellowship.as_mut(),
+                hud.mini_fellow.as_mut(),
                 tree,
                 dialogs,
                 player,
                 notice,
             );
         }
-        if let Some(panel) = pets.as_mut() {
+        if let Some(panel) = hud.pets.as_mut() {
             crate::pet_notice(panel, tree, player, server_time, notice);
         }
-        if let Some(panel) = friends.as_mut() {
+        if let Some(panel) = hud.friends.as_mut() {
             // `gmFriendsUI`: an added friend's request for the list again.
             if let Some(request) = panel.notice(tree, notice) {
                 requests.push(request);
             }
         }
-        if let Some(panel) = quests.as_mut() {
+        if let Some(panel) = hud.quests.as_mut() {
             panel.recv_gameplay_notice(tree, player, notice);
         }
-        if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+        if let (Some(page), Some(dialogs)) = (hud.allegiance.as_mut(), hud.dialogs.as_mut()) {
             crate::allegiance_notice(page, tree, dialogs, player, notice);
         }
-        if let Some(doll) = paper_doll.as_mut() {
-            let old = *item_selection;
+        if let Some(doll) = hud.paper_doll.as_mut() {
+            let old = hud.item_selection;
             crate::paper_doll_notice(doll, tree, player, old, notice);
         }
-        if let Some(pack) = backpack.as_mut() {
-            crate::backpack_notice(pack, tree, player, item_selection, notice);
+        if let Some(pack) = hud.backpack.as_mut() {
+            crate::backpack_notice(pack, tree, player, &mut hud.item_selection, notice);
         }
         StatusBar {
-            vitals: &mut *vitals,
-            effects: &mut *effects,
-            vitae: &mut *vitae,
-            net: &mut *net,
-            pk: &mut *pk,
+            vitals: &mut hud.vitals,
+            effects: &mut hud.effects,
+            vitae: &mut hud.vitae,
+            net: &mut hud.net,
+            pk: &mut hud.pk,
         }
         .notice(tree, player, server_time, notice);
         shortcut_checks.extend(shortcut_checks_of(notice));
         match notice {
             GameplayNotice::UpdateExaminationProfile(profile) => {
-                if let Some(panel) = examination.as_mut() {
+                if let Some(panel) = hud.examination.as_mut() {
                     // `ProcessEffectIDNode`: the effect nodes ask the player's script first.
                     let expanded = expand_examination_effects(player, profile);
                     let items = player.examination_items(&expanded);
@@ -150,10 +120,10 @@ pub fn notice_pass<P: HudSource>(
                 }
             }
             GameplayNotice::ExaminationRequestChanged(request) => {
-                if let Some(panel) = examination.as_mut() {
+                if let Some(panel) = hud.examination.as_mut() {
                     panel.request_changed(tree, request.kind);
                 }
-                if let Some(skills) = skills.as_mut() {
+                if let Some(skills) = hud.skills.as_mut() {
                     skills.examination_request_changed(
                         tree,
                         player,
@@ -163,12 +133,12 @@ pub fn notice_pass<P: HudSource>(
                 }
             }
             GameplayNotice::UpdateSkillPanel { .. } => {
-                if let Some(skills) = skills.as_mut() {
+                if let Some(skills) = hud.skills.as_mut() {
                     skills.update_skill_panel(tree, player);
                 }
             }
             GameplayNotice::UpdateSkill(skill) => {
-                if let Some(skills) = skills.as_mut() {
+                if let Some(skills) = hud.skills.as_mut() {
                     skills.update_skill(tree, player, *skill);
                 }
             }
@@ -178,38 +148,38 @@ pub fn notice_pass<P: HudSource>(
             // `gmShortcutUI::RecvNotice_ToggleSpecialAttack`, `RequestSpecialAttack`,
             // `StartSpecialAttack` and `EndSpecialAttack`.
             GameplayNotice::ToggleSpecialAttack { maneuver, toggled } => {
-                if let Some(bar) = shortcuts.as_mut() {
+                if let Some(bar) = hud.shortcuts.as_mut() {
                     bar.toggle_special_attack(tree, *maneuver, *toggled);
                 }
             }
             GameplayNotice::RequestSpecialAttack { maneuver, attack } => {
-                if let Some(bar) = shortcuts.as_mut() {
+                if let Some(bar) = hud.shortcuts.as_mut() {
                     bar.request_special_attack(tree, *attack, *maneuver);
                 }
             }
             GameplayNotice::StartSpecialAttack(attack) => {
-                if let Some(bar) = shortcuts.as_mut() {
+                if let Some(bar) = hud.shortcuts.as_mut() {
                     bar.start_special_attack(tree, *attack);
                 }
             }
             GameplayNotice::EndSpecialAttack(attack) => {
-                if let Some(bar) = shortcuts.as_mut() {
+                if let Some(bar) = hud.shortcuts.as_mut() {
                     bar.end_special_attack(tree, *attack);
                 }
             }
             GameplayNotice::UpdateMoney(amount) => {
-                if let Some(bag) = money.as_mut() {
+                if let Some(bag) = hud.money.as_mut() {
                     bag.set_money(tree, player, *amount);
                 }
             }
             // `gmToolbarUI::RecvNotice_ShowSaleReminder` and `RecvNotice_UpdateMountState`.
             GameplayNotice::ShowSaleReminder(show) => {
-                if let Some(bar) = toolbar.as_ref() {
+                if let Some(bar) = hud.toolbar.as_ref() {
                     bar.sale_reminder(tree, *show);
                 }
             }
             GameplayNotice::UpdateMountState(on_mount) => {
-                if let Some(bar) = toolbar.as_ref() {
+                if let Some(bar) = hud.toolbar.as_ref() {
                     bar.mount_state(tree, *on_mount);
                 }
             }
@@ -217,14 +187,14 @@ pub fn notice_pass<P: HudSource>(
             GameplayNotice::Select(_) => {}
             // `gm3DTextUI::RecvNotice_Do3DDamage`.
             GameplayNotice::Do3DDamage { object, text } => {
-                if let Some(damage) = damage.as_mut() {
-                    damage.add(tree, *object, text, *now);
+                if let Some(damage) = hud.damage_mut() {
+                    damage.add(tree, *object, text, now);
                 }
             }
             _ => {}
         }
     }
-    if let Some(bar) = shortcuts.as_mut() {
+    if let Some(bar) = hud.shortcuts.as_mut() {
         if reload_shortcuts {
             bar.reload(tree, player);
         } else {

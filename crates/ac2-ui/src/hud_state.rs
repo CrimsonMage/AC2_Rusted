@@ -30,10 +30,10 @@ use crate::{
 #[derive(Debug, Default)]
 pub struct Hud {
     reticle: Option<Reticle>,
-    pub names: Option<NamePlates>,
-    pub damage: Option<DamageTexts>,
+    names: Option<NamePlates>,
+    damage: Option<DamageTexts>,
     /// The HUD's clock (`Timer::cur_time`) at the last frame: a damage text starts at it.
-    pub now: f64,
+    now: f64,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<SelectionInfo>,
     /// `gmSkillUI`'s `gmSkillTreeUI`.
@@ -185,16 +185,6 @@ impl Hud {
     /// The HUD's clock (`Timer::cur_time`, seconds) as the last frame set it.
     pub fn now(&self) -> f64 {
         self.now
-    }
-
-    /// The name plates' slot, for the passes that take it (`MessagePanels::names`).
-    pub fn names_slot(&mut self) -> &mut Option<NamePlates> {
-        &mut self.names
-    }
-
-    /// The damage texts' slot, for the notice pass (`NoticePanels::damage`).
-    pub fn damage_slot(&mut self) -> &mut Option<DamageTexts> {
-        &mut self.damage
     }
 
     /// The targeting reticle, while the HUD has one.
