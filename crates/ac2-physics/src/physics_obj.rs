@@ -614,6 +614,7 @@ mod forces;
 
 #[path = "physics_obj_anim.rs"]
 mod anim;
+pub(crate) use anim::ANIMATION_FROZEN_PS;
 
 #[path = "physics_obj_impulse.rs"]
 mod impulse;

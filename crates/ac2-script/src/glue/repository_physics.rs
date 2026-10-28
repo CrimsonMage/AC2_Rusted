@@ -3,15 +3,17 @@
 //! `LoadDataIDW`; `portal/shared/src/weenie/repository/wrepository.cpp`). Without qualities
 //! (`m_qualities == NULL`) they answer 0.
 //!
-//! The physics side of `SetScale` (`CWPhysicsObject::_SetScale`) and `SetEdgeSlides`
-//! (`_SetEdgeSlide`) acts on the client's body, which the host does not drive: the quality is
-//! stored, as the next update of the object reads it.
+//! `SetEdgeSlides` also reaches the body (`CWPhysicsObject::_SetEdgeSlide`, queued as a
+//! `BodyState`). The physics side of `SetScale` (`CWPhysicsObject::_SetScale`, the part array's
+//! scale) is not applied: the body's shape scale is fixed by its Setup here (a known gap), so
+//! the quality is stored, as the next update of the object reads it.
 
 use ac2_net::protocol::QualityValue;
 use ac2_physics::PhysicsTypeMask;
 
 use super::repository::owner_qualities;
 use super::{narrow, out_native, Call, INT_RESULT};
+use crate::host::body_state::BodyState;
 use crate::native::NativeObject;
 use crate::vm::{Context, EFuns, InterpStatus, Vm};
 
@@ -76,6 +78,12 @@ fn set_edge_slides(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         q.set(EDGE_SLIDES, &QualityValue::Bool(flag as i32));
         true
     });
+    // `CWPhysicsObject::_SetEdgeSlide` -> `CPhysicsObj::set_edge_slide`, on the weenie's body.
+    if ok {
+        if let Some(&id) = vm.owners.get(&this) {
+            vm.body_states.push((id, BodyState::EdgeSlide(flag != 0)));
+        }
+    }
     Call::new(ctx).ret(3, u32::from(ok), INT_RESULT);
     InterpStatus::Success
 }

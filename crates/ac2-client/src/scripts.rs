@@ -237,6 +237,14 @@ impl Client {
     pub(crate) fn sync_script_clock(&mut self) {
         let cur_time = self.session.cur_time();
         let player = self.player.as_ref().map(crate::client::Player::position);
+        let player_id = self.player.as_ref().map(|p| p.id);
+        let snapshot = self.player.as_ref().and_then(|p| {
+            let body = p.body.as_ref()?;
+            Some(ac2_script::host::body_state::BodySnapshot {
+                cell: p.position().cell_id,
+                collision: body.physics.script_collision_state(),
+            })
+        });
         let Some(scripts) = self.scripts.as_mut() else {
             return;
         };
@@ -249,6 +257,11 @@ impl Client {
                 rotation: [rotation.w, rotation.x, rotation.y, rotation.z],
             }
         }));
+        // What the scripts read of the player's body (`gCWPhysicsObject::IsOutside`,
+        // `GetCollisionState`).
+        if let Some(id) = player_id {
+            scripts.host.set_body_snapshot(id, snapshot);
+        }
         let Some(clock) = self.game_clock.as_mut() else {
             scripts.host.set_game_time(None);
             return;

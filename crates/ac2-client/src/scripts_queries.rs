@@ -54,6 +54,10 @@ impl ScriptPort for Client {
         Client::apply_script_physics(self, object, action);
     }
 
+    fn apply_body_state(&mut self, object: u64, state: ac2_script::host::body_state::BodyState) {
+        Client::apply_body_state(self, object, state);
+    }
+
     fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32) {
         Client::apply_collision_minimums(self, object, xy, z);
     }

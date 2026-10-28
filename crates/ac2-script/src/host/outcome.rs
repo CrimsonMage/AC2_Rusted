@@ -95,6 +95,14 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     for (object, action) in physics {
         port.apply_script_physics(object, &action);
     }
+    // The freezes and the edge-slide flag a script set on a body.
+    let states = port
+        .script_state()
+        .map(|s| s.host.take_body_states())
+        .unwrap_or_default();
+    for (object, state) in states {
+        port.apply_body_state(object, state);
+    }
     // `gCWPhysicsObject::CallEFun_SetCollisionState` (the impact minimums).
     let minimums = port
         .script_state()

@@ -11,6 +11,7 @@ use crate::data::DatScriptData;
 use crate::vm::NoData;
 use crate::{load_wlib, LEGIONS_WLIB_DID};
 
+mod body_state;
 mod collision;
 mod create;
 mod efun_coverage;

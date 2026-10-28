@@ -6,6 +6,7 @@
 //! The session owns the network; it feeds [`ScriptHost::dispatch`] and sends what
 //! [`ScriptHost::take_server_calls`] returns. Arguments use ac2-net's [`PackValue`].
 
+pub mod body_state;
 pub mod chargen;
 pub mod consignment;
 pub mod craft_queries;
@@ -114,6 +115,7 @@ fn host_efuns() -> EFuns {
     notices::register(&mut efuns);
     gun::register(&mut efuns);
     interface::register(&mut efuns);
+    body_state::register(&mut efuns);
     popup::register(&mut efuns);
     efuns
 }

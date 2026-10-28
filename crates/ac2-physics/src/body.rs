@@ -644,6 +644,34 @@ impl PhysicsBody {
         self.object.blocking = crate::collision_types::PhysicsTypeMask::from_bits(merged);
     }
 
+    /// `CPhysicsObj::set_movement_frozen`: sets or clears `MOVEMENT_FROZEN_PS`.
+    pub fn set_movement_frozen(&mut self, frozen: bool) {
+        self.object
+            .set_state_bit(crate::physics_obj::MOVEMENT_FROZEN_PS, frozen);
+    }
+
+    /// `CPhysicsObj::set_animation_frozen`: sets or clears `ANIMATION_FROZEN_PS`.
+    pub fn set_animation_frozen(&mut self, frozen: bool) {
+        self.object
+            .set_state_bit(crate::physics_obj::ANIMATION_FROZEN_PS, frozen);
+    }
+
+    /// `CPhysicsObj::set_edge_slide`: sets or clears `EDGE_SLIDE_PS`.
+    pub fn set_edge_slide(&mut self, slide: bool) {
+        self.object
+            .set_state_bit(crate::physics_obj::EDGE_SLIDE_PS, slide);
+    }
+
+    /// `CPhysicsObj::GetCollisionState`: the state a script reads (`gCWPhysicsObject::
+    /// GetCollisionState`): the blocking mask as the physics type (bit 0x10), then the
+    /// collision manager's placement mask and movement mask.
+    pub fn script_collision_state(&self) -> crate::collision_types::CollisionParameters {
+        let collision = &self.object.collision;
+        let mut state = collision.collision_state(collision.movement_physics());
+        state.set_physics_type(self.object.blocking);
+        state
+    }
+
     /// The body's blocking physics-type bits (`CPhysicsObj::m_blocking_mask`).
     pub fn blocking_bits(&self) -> u64 {
         self.object.blocking.bits()

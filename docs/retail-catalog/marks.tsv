@@ -1663,7 +1663,7 @@ key	status	note
 004548d0	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454900	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 00454960	-	VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
-004549f0	~	GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+004549f0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 00454a90	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00454b10	~	net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 00454b90	x	net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
@@ -1984,8 +1984,8 @@ key	status	note
 00468060	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 004680b0	-	STL/container internals: a Rust collection replaces it
 00468150	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
-00468210	_	needs port: script efun get player id on the object maintenance; no citation in crates/
-00468250	_	needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
+00468210	x	ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
+00468250	x	ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 00468280	-	admin dump-to-string / dump debug output: not in the client
 004682c0	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 00468320	x	ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
@@ -2046,7 +2046,7 @@ key	status	note
 00469620	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696a0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 004696f0	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-00469740	~	net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
+00469740	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 00469790	x	craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 004697d0	x	lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 00469820	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
@@ -3484,9 +3484,9 @@ key	status	note
 004b28f0	-	copy / delete of plain native data: Rust clone and Drop replace it
 004b3980	x	implemented: cited at crates/ac2-script/src/native/mod.rs:257
 004b4720	x	implemented: cited at crates/ac2-script/src/native/mod.rs:5
-004b4ba0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4ba0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b4c50	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
-004b4cf0	~	ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+004b4cf0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b4dd0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 004b4e60	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 004b4ee0	x	ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
@@ -3501,7 +3501,7 @@ key	status	note
 004b5390	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5410	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5490	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b5510	_	needs port: script efun edge slides on the weenie repository; no citation in crates/
+004b5510	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b5580	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5600	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5680	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -3517,7 +3517,7 @@ key	status	note
 004b5bc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5c40	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5cd0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b5d50	_	needs port: script efun get scale on the weenie repository; no citation in crates/
+004b5d50	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b5dc0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b5e60	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b5ee0	x	ac2-weenie qualities::remove_in_weenie_desc; ac2-script glue repository.rs remove_value
@@ -3525,15 +3525,15 @@ key	status	note
 004b5fe0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 004b6060	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 004b60e0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-004b6160	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-004b61e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-004b6260	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-004b62e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b6160	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b61e0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b6260	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b62e0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b6360	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-004b63e0	~	ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+004b63e0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b6460	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b64e0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b6560	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
+004b6560	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 004b65e0	~	glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 004b6670	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b66f0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -3574,90 +3574,90 @@ key	status	note
 004b7e60	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7f00	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 004b7fa0	x	ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-004b8050	_	needs port: script efun do story on the physics object; no citation in crates/
+004b8050	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b80b0	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8110	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8170	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-004b8270	_	needs port: script efun add impulse on the physics object; no citation in crates/
-004b82f0	_	needs port: script efun add impulse local on the physics object; no citation in crates/
-004b8370	_	needs port: script efun add targeted impulse on the physics object; no citation in crates/
-004b8410	_	needs port: script efun apply additive visual desc on the physics object; no citation in crates/
-004b8490	_	needs port: script efun apply subtractive visual desc on the physics object; no citation in crates/
-004b8510	_	needs port: script efun apply visual desc to physics obj on the physics object; no citation in crates/
+004b8270	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b82f0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8370	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8410	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8490	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8510	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b8580	_	needs port: script efun calculate distance on the physics object; no citation in crates/
-004b8600	_	needs port: script efun combine and apply visual desc on the physics object; no citation in crates/
+004b8600	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b8680	x	Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
-004b87a0	_	needs port: script efun do behavior non latent on the physics object; no citation in crates/
+004b87a0	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 004b8820	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-004b88a0	_	needs port: script efun do intersection on the physics object; no citation in crates/
+004b88a0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b89c0	x	Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
-004b8ae0	_	needs port: script efun do mode non latent on the physics object; no citation in crates/
-004b8b60	_	needs port: script efun do slider on the physics object; no citation in crates/
-004b8c90	_	needs port: script efun do slider non latent on the physics object; no citation in crates/
-004b8d20	_	needs port: script efun do targetted fx on the physics object; no citation in crates/
-004b8db0	_	needs port: script efun force visual desc on the physics object; no citation in crates/
-004b8e30	_	needs port: script efun get acceleration scale on the physics object; no citation in crates/
-004b8ea0	_	needs port: script efun get desired mode on the physics object; no citation in crates/
-004b8f10	_	needs port: script efun get element on the physics object; no citation in crates/
-004b8f80	_	needs port: script efun get height on the physics object; no citation in crates/
-004b8ff0	_	needs port: script efun get jump scale on the physics object; no citation in crates/
-004b9060	_	needs port: script efun get mode on the physics object; no citation in crates/
-004b90d0	_	needs port: script efun get radius on the physics object; no citation in crates/
-004b9140	_	needs port: script efun get top level height on the physics object; no citation in crates/
-004b91b0	_	needs port: script efun get top level radius on the physics object; no citation in crates/
-004b9220	_	needs port: script efun get velocity scale on the physics object; no citation in crates/
-004b9290	_	needs port: script efun has motion interpreter on the physics object; no citation in crates/
-004b9300	_	needs port: script efun has remote do motion values on the physics object; no citation in crates/
-004b9370	_	needs port: script efun init visual desc on the physics object; no citation in crates/
-004b93e0	_	needs port: script efun is animation frozen on the physics object; no citation in crates/
-004b9450	_	needs port: script efun is doing behavior on the physics object; no citation in crates/
-004b94d0	_	needs port: script efun is in world on the physics object; no citation in crates/
-004b9540	_	needs port: script efun is movement frozen on the physics object; no citation in crates/
-004b95b0	_	needs port: script efun is outside on the physics object; no citation in crates/
-004b9620	_	needs port: script efun is undetectable on the physics object; no citation in crates/
-004b9690	_	needs port: script efun local to global on the physics object; no citation in crates/
+004b8ae0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8b60	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8c90	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8d20	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8db0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8e30	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8ea0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8f10	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8f80	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b8ff0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9060	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b90d0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9140	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b91b0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9220	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9290	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9300	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9370	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b93e0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9450	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b94d0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9540	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b95b0	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
+004b9620	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9690	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b9720	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-004b97a0	_	needs port: script efun missile fire only on the physics object; no citation in crates/
-004b9810	_	needs port: script efun missile init place and fire on the physics object; no citation in crates/
-004b98a0	_	needs port: script efun missile initialize on the physics object; no citation in crates/
-004b9930	_	needs port: script efun missile inquire direction on the physics object; no citation in crates/
-004b99c0	_	needs port: script efun missile place on the physics object; no citation in crates/
-004b9a30	_	needs port: script efun missile place and fire on the physics object; no citation in crates/
-004b9aa0	_	needs port: script efun missile retarget on the physics object; no citation in crates/
-004b9b30	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
-004b9c60	_	needs port: script efun set animation frozen on the physics object; no citation in crates/
-004b9ce0	_	needs port: script efun set cloaked on the physics object; no citation in crates/
+004b97a0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9810	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b98a0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9930	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b99c0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9a30	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9aa0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004b9b30	x	ac2-script host/interface.rs release_behavior (bound, tested in tests/physics.rs); no Legions wlib function calls it
+004b9c60	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
+004b9ce0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b9d60	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-004b9de0	_	needs port: script efun set local visual desc on the physics object; no citation in crates/
+004b9de0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b9e60	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
-004b9ee0	_	needs port: script efun set movement frozen on the physics object; no citation in crates/
+004b9ee0	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 004b9f60	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
-004b9fe0	_	needs port: script efun set undetectable on the physics object; no citation in crates/
-004ba060	_	needs port: script efun stop all weenie behaviors on the physics object; no citation in crates/
+004b9fe0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba060	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004ba0d0	x	ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 004ba150	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-004ba1d0	_	needs port: script efun stop layer on the physics object; no citation in crates/
-004ba250	_	needs port: script efun stop move to cancels behaviors on the physics object; no citation in crates/
-004ba2c0	_	needs port: script efun toggle place marker objects on the physics object; no citation in crates/
-004ba330	_	needs port: script efun  set ignore collisions on the physics object; no citation in crates/
-004ba3b0	_	needs port: script efun  set report collisions on the physics object; no citation in crates/
-004ba530	_	needs port: script efun get desired motion values on the physics object; no citation in crates/
-004ba5e0	_	needs port: script efun get last do motion values on the physics object; no citation in crates/
+004ba1d0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba250	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba2c0	~	ac2-script host/body_state.rs: m_bPlaceMarkers flips and is answered; the debug marker objects are not drawn
+004ba330	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba3b0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba530	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba5e0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004ba690	x	Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.
-004ba750	_	needs port: script efun get remote do motion values on the physics object; no citation in crates/
-004ba800	_	needs port: script efun get standard motion values on the physics object; no citation in crates/
+004ba750	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004ba800	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004ba8b0	-	STL/container internals: a Rust collection replaces it
 004baa50	x	Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 004baae0	_	needs port: resume continuation of latent do intersection (the script waits and resumes here); no citation in crates/
 004babb0	x	Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 004bac40	_	needs port: resume continuation of latent do slider (the script waits and resumes here); no citation in crates/
-004bacd0	_	needs port: script efun get collision state on the physics object; no citation in crates/
+004bacd0	x	ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 004bad70	_	needs port: script efun inq current properties on the physics object; no citation in crates/
-004bae10	_	needs port: script efun inq current property on the physics object; no citation in crates/
-004baeb0	_	needs port: script efun inq cyl sphere on the physics object; no citation in crates/
-004baf50	_	needs port: script efun missile inquire current velocity on the physics object; no citation in crates/
-004baff0	_	needs port: script efun perform los on the physics object; no citation in crates/
+004bae10	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004baeb0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004baf50	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004baff0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004bb090	_	needs port: resume continuation of latent release behavior (the script waits and resumes here); no citation in crates/
 004bb120	_	needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
 004bb200	_	needs port: script efun display help text on the interface; no citation in crates/
@@ -3667,12 +3667,12 @@ key	status	note
 004bb480	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 004bb500	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 004bb580	_	needs port: script efun get external weenie object on the interface; no citation in crates/
-004bb600	_	needs port: script efun get internal weenie object on the interface; no citation in crates/
-004bb680	_	needs port: script efun inq string info value on the interface; no citation in crates/
-004bb7a0	_	needs port: script efun is the player on the interface; no citation in crates/
+004bb600	x	ac2-script host/interface.rs (efuns 0x7F000A/B, 0x7F0040)
+004bb680	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+004bb7a0	x	ac2-script host/interface.rs (efuns 0x7F000A/B, 0x7F0040)
 004bb810	x	implemented: cited at crates/ac2-script/src/host/interface.rs:226
 004bb890	x	implemented: cited at crates/ac2-script/src/host/glue.rs:139
-004bb910	_	needs port: script efun send server evt encrypt on the interface; no citation in crates/
+004bb910	x	ac2-script host/glue.rs send_server_evt(encrypt) (efun 0x7F0037); the packed call goes out through ScriptPort::send_interp
 004bb990	~	player position set each frame by the client (Client::sync_script_clock); vtable slot assumed to be the player's position
 004bba90	_	needs port: script IFun apply properties on the client interface; no citation in crates/
 004bbb80	_	needs port: script IFun display string info on the client interface; no citation in crates/
@@ -3694,9 +3694,9 @@ key	status	note
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
 004bc700	x	ac2-script glue::engine_misc get_my_package_id
 004bc770	~	ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
-004bc7e0	_	needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
-004bc850	_	needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
-004bc8c0	_	needs port: script efun reset shell on the allocator; no citation in crates/
+004bc7e0	~	ac2-script host/interface.rs book_keeper_answer: answers as CBookKeep does (1 with CObjectMaint); the destroy list itself is object maintenance this client does not keep
+004bc850	~	ac2-script host/interface.rs book_keeper_answer: answers as CBookKeep does (1 with CObjectMaint); the destroy list itself is object maintenance this client does not keep
+004bc8c0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004bc8d0	-	admin VM monitor and logger
 004bc970	-	admin VM monitor and logger
 004bc9b0	-	admin VM monitor and logger
@@ -6192,7 +6192,7 @@ key	status	note
 0052fe90	_	needs port: physics object do intersection; no citation in crates/
 0052ff20	_	needs port: physics object perform los; no citation in crates/
 0052ff40	~	minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
-0052ff60	_	needs port: physics object get collision state; no citation in crates/
+0052ff60	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 0052ff80	_	needs port: physics object missile init place and fire; no citation in crates/
 0052ffa0	_	needs port: physics object missile initialize; no citation in crates/
 0052ffc0	_	needs port: physics object missile place and fire; no citation in crates/
@@ -6213,7 +6213,7 @@ key	status	note
 005301d0	x	ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 005301f0	_	needs port: physics object do targetted fx; no citation in crates/
 00530220	~	Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
-005302c0	_	needs port: physics object do behavior non latent; no citation in crates/
+005302c0	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 005302f0	~	ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 00530390	~	Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
 00530420	_	needs port: physics object do mode non latent; no citation in crates/
@@ -6242,7 +6242,7 @@ key	status	note
 005307d0	_	needs port: physics object get bounding box; no citation in crates/
 005307f0	_	needs port: physics object get world matrix; no citation in crates/
 00530810	_	needs port: physics object is visible; no citation in crates/
-00530820	_	needs port: physics object is outside; no citation in crates/
+00530820	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 00530850	_	needs port: physics object is in world; no citation in crates/
 00530870	_	needs port: physics object local to global; no citation in crates/
 00530890	_	needs port: physics object calculate distance; no citation in crates/
@@ -6256,6 +6256,7 @@ key	status	note
 005309a0	x	ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
 005309c0	_	needs port: physics object set cloaked; no citation in crates/
 005309e0	_	needs port: physics object set undetectable; no citation in crates/
+00530a50	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 00530ae0	_	needs port: physics object inq current properties; no citation in crates/
 00530b00	_	needs port: physics object inq current property; no citation in crates/
 00530b20	_	needs port: physics object get height; no citation in crates/
@@ -6265,10 +6266,10 @@ key	status	note
 00530ba0	_	needs port: physics object is moving; no citation in crates/
 00530bc0	_	needs port: physics object is undetectable; no citation in crates/
 00530be0	_	needs port: physics object is movement frozen; no citation in crates/
-00530c00	_	needs port: physics object set movement frozen; no citation in crates/
+00530c00	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 00530c30	_	needs port: physics object is animation frozen; no citation in crates/
-00530c50	_	needs port: physics object set animation frozen; no citation in crates/
-00530c80	_	needs port: physics object toggle place marker objects; no citation in crates/
+00530c50	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
+00530c80	~	ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
 00530cb0	_	needs port: camera FX stop: the client has no camera effect manager (ac2-script host/interface.rs says a known gap)
 00530cc0	_	needs port: physics object do story; no citation in crates/
 00530ce0	_	needs port: physics object init physics; no citation in crates/
@@ -6356,7 +6357,7 @@ key	status	note
 00531d40	_	needs port: weenie repository edge slides; no citation in crates/
 00531d70	_	needs port: weenie repository inq ethereal type; no citation in crates/
 00531df0	_	needs port: weenie repository set scale; no citation in crates/
-00531e30	_	needs port: weenie repository set edge slides; no citation in crates/
+00531e30	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 00531e60	_	needs port: weenie repository set ethereal type; no citation in crates/
 00531ed0	_	needs port: weenie repository gather physics state; no citation in crates/
 00531fc0	x	ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)

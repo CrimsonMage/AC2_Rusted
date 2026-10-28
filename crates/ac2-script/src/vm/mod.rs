@@ -264,6 +264,13 @@ pub struct Vm {
     /// hover setters of `gCWPhysicsObject`), as the server event each one is: the object and
     /// the action, in order. The client applies them to the object's body.
     pub physics: Vec<(u64, ac2_net::protocol::ObjectAction)>,
+    /// The body state changes the scripts made (`gCWPhysicsObject`'s freezes, the edge-slide
+    /// flag), in order; the client applies them to the object's body.
+    pub body_states: Vec<(u64, crate::host::body_state::BodyState)>,
+    /// What the scripts read of each weenie's body, as the client shares it each frame.
+    pub bodies: std::collections::HashMap<u64, crate::host::body_state::BodySnapshot>,
+    /// The weenies whose `m_bPlaceMarkers` is set (`TogglePlaceMarkerObjects`).
+    pub place_markers: std::collections::BTreeSet<u64>,
     /// The impact minimums the scripts set on weenies' collision managers through
     /// `gCWPhysicsObject::CallEFun_SetCollisionState`: the object, then the XY and Z minimums
     /// of its `CollisionParameters` (a zero keeps the body's), in order.
@@ -398,6 +405,9 @@ impl Vm {
             shell_lines: Vec::new(),
             no_draw: Vec::new(),
             physics: Vec::new(),
+            body_states: Vec::new(),
+            bodies: Default::default(),
+            place_markers: Default::default(),
             collision_minimums: Vec::new(),
             collision_sets: Vec::new(),
             latent_physics: Vec::new(),

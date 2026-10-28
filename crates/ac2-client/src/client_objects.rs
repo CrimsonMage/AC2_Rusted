@@ -101,6 +101,30 @@ impl Client {
         self.remotes.motion(object, action, None);
     }
 
+    /// A body state change a script made (`CPhysicsObj::set_movement_frozen`,
+    /// `set_animation_frozen`, `set_edge_slide`): the player's body takes it. Remote bodies are
+    /// not driven by scripts here (see the catalog).
+    pub(crate) fn apply_body_state(
+        &mut self,
+        object: u64,
+        state: ac2_script::host::body_state::BodyState,
+    ) {
+        use ac2_script::host::body_state::BodyState;
+        let Some(body) = self
+            .player
+            .as_mut()
+            .filter(|p| p.id == object)
+            .and_then(|p| p.body.as_mut())
+        else {
+            return;
+        };
+        match state {
+            BodyState::MovementFrozen(frozen) => body.physics.set_movement_frozen(frozen),
+            BodyState::AnimationFrozen(frozen) => body.physics.set_animation_frozen(frozen),
+            BodyState::EdgeSlide(slide) => body.physics.set_edge_slide(slide),
+        }
+    }
+
     /// `CCollisionManager::SetCollisionState` for a script's `CollisionParameters`: the player's
     /// body takes the non-zero impact minimums. Remote bodies keep theirs (their scripts are not
     /// run here; see the catalog).

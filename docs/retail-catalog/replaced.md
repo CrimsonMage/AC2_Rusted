@@ -1,6 +1,6 @@
 # replaced: Third-party libraries, CRT and container templates replaced by Rust
 
-2058 retail functions: 36 done, 0 partial, 0 to do, 2022 skipped.
+2058 retail functions: 37 done, 0 partial, 0 to do, 2021 skipped.
 Legend and workflow: [README](README.md).
 
 ## `_libraries/ImeUI.lib/ImeUi.obj.c` (0/36)
@@ -5023,10 +5023,10 @@ Legend and workflow: [README](README.md).
 ### IntrusiveHashTable<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,FunctionID>_*>
 - [-] `IntrusiveHashTable<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,FunctionID>_*>::IntrusiveHashTable<PStringBase<unsigned_short>,HashTableData<PStringBase<unsigned_short>,FunctionID>_*>` · 0052edc0 · legions 00512fd0 — Rust std replaces it
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (0/4)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (1/4)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::_SetReportCollisions` · 00530a10 · legions 005149b0 — Rust std replaces it
 - [-] `CWPhysicsObject::_SetIgnoreCollisions` · 00530a30 · legions 005149d0 — Rust std replaces it
-- [-] `CWPhysicsObject::_SetEdgeSlide` · 00530a50 · legions 005149f0 — Rust std replaces it
+- [x] `CWPhysicsObject::_SetEdgeSlide` · 00530a50 · legions 005149f0 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 - [-] `CWPhysicsObject::_SetScale` · 00530a80 · legions 00514a20 — Rust std replaces it

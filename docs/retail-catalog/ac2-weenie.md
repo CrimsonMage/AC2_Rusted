@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 825 done, 181 partial, 390 to do, 508 skipped.
+1904 retail functions: 843 done, 174 partial, 310 to do, 577 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -323,7 +323,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCM_Craft::CallEFun_SendNotice_AddIngredient_Done` · 00469620 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `gCM_Craft::CallEFun_SendNotice_ExecuteCraft_Done` · 004696a0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `gCM_Craft::CallEFun_SendNotice_OpenIngredientPanel` · 004696f0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-- [~] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — net: bound; no wlib function calls efun 0x00880004 (scanned the Legions wlib's CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN sites), so no WM_Craft answer reaches it
+- [-] `gCM_Craft::CallEFun_SendNotice_UpdateCost` · 00469740 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftPanel` · 00469790 — craft_script_7160. Forwarders (wlib): WM_Craft 0x19 (the registry) -> CPlayer 0xC3, 0x1B (recipe learned by DID) -> CPlayer 0x105, 0x1A/0x37 (recipe records) -> CPlayer 0x61/0x1C5 and 0x27/0x34 (skill records) -> CPlayer 0x1AE/0x1C4 each raise it; the double sends 0x1A after a craft. 0x18 -> CPlayer 0xF9 calls efun 0x8F0003 (unbound) and is not driven.
 - [x] `gCM_Craft::CallEFun_SendNotice_UpdateCraftSkill` · 004697d0 — lead: WM_Craft 0x27/0x34 -> CPlayer 0x1AE/0x1C4 set a CraftSkillRecord, then this notice with the skill's adaptor and UpdateCraftPanel; craft_script_7160 updates_change_only_known_records asserts it.
 
@@ -461,11 +461,11 @@ Legend and workflow: [README](README.md).
 - [x] `gFellowshipAdaptor::CallEFun_AddFellow` · 00468430 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 - [x] `gFellowshipAdaptor::CallEFun_SetName` · 004684b0 — ac2-script glue::social / native::social (adaptors as ac2-weenie types, retail hash order)
 
-## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (0/3)
+## `ac2/client/src/weenie/interp/glue/ggmcobjmaint.cpp.c` (2/3)
 
 ### ggmCObjMaint
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — needs port: script efun get player id on the object maintenance; no citation in crates/
-- [ ] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — needs port: script efun get player weenie object reference on the object maintenance; no citation in crates/
+- [x] `ggmCObjMaint::CallEFun_GetPlayerID` · 00468210 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
+- [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
 ## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (124/301)
@@ -510,7 +510,7 @@ Legend and workflow: [README](README.md).
 - [-] `ReferenceTable::DeleteAllUnUsedReferences` · 00454960 · legions 004557c0 — VM garbage collector and timers: Rust ownership replaces the reference-table GC (AGENTS: no GC/reference reuse)
 
 ### ggmCWInterface
-- [~] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — GUN-only (no Turbine GUN in this client): the script's request answers 0 without a GUN service, as RequestGUN_* does when TurbineGun::S_pTurbineGun is NULL (ac2-script host/gun.rs gun(); the page and friend requests gate the same way in ac2-client friends.rs); with a service the request is queued but the GUN answers and wire are not modelled; the Result and HearTell paths need those answers
+- [-] `ggmCWInterface::CallEFun_RequestGUN_CallCreate` · 004549f0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [~] `ggmCWInterface::CallEFun_RequestGUN_FriendAdd` · 00454a90 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [~] `ggmCWInterface::CallEFun_RequestGUN_FriendDelete` · 00454b10 — net: the client's friend add and delete are queued for the GUN service (ChatRequest; friends.rs), with the double's FriendsBook as the GUN answer. The GUN wire is not modelled. The GUN-to-weenie result conversion is only its success case (0); the other codes are not traced
 - [x] `ggmCWInterface::CallEFun_RequestGUN_GetFriendsList` · 00454b90 — net: friends_script_7160 (the login's GUN requests are the VM's exact values; Result_FriendAdd/Delete IFuns (ids 0xB40040/41, match Legions) raise FriendAdded/FriendRemoved with the name)
@@ -2247,13 +2247,13 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/weenie/interp/glue/gcwallocator.cpp.c` (0/1)
 
 ### gCWAllocator
-- [ ] `gCWAllocator::CallEFun_ResetShell` · 004bc8c0 — needs port: script efun reset shell on the allocator; no citation in crates/
+- [-] `gCWAllocator::CallEFun_ResetShell` · 004bc8c0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 
 ## `portal/client/src/weenie/interp/glue/gcwbookkeeper.cpp.c` (0/2)
 
 ### gCWBookKeeper
-- [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
-- [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
+- [~] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — ac2-script host/interface.rs book_keeper_answer: answers as CBookKeep does (1 with CObjectMaint); the destroy list itself is object maintenance this client does not keep
+- [~] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — ac2-script host/interface.rs book_keeper_answer: answers as CBookKeep does (1 with CObjectMaint); the destroy list itself is object maintenance this client does not keep
 
 ## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (2/3)
 
@@ -2262,7 +2262,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — ac2-script glue::engine_misc get_my_package_id
 - [~] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (9/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (12/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
@@ -2273,12 +2273,12 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallEFun_AddShellHelp` · 004bb480 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [x] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — needs port: script efun get external weenie object on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — needs port: script efun get internal weenie object on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680 — needs port: script efun inq string info value on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — needs port: script efun is the player on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — ac2-script host/interface.rs (efuns 0x7F000A/B, 0x7F0040)
+- [-] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [x] `gCWInterface::CallEFun_IsThePlayer` · 004bb7a0 — ac2-script host/interface.rs (efuns 0x7F000A/B, 0x7F0040)
 - [x] `gCWInterface::CallEFun_ProcessText` · 004bb810 — implemented: cited at crates/ac2-script/src/host/interface.rs:226
 - [x] `gCWInterface::CallEFun_SendServerEvt` · 004bb890 — implemented: cited at crates/ac2-script/src/host/glue.rs:139
-- [ ] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — needs port: script efun send server evt encrypt on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_SendServerEvtEncrypt` · 004bb910 — ac2-script host/glue.rs send_server_evt(encrypt) (efun 0x7F0037); the packed call goes out through ScriptPort::send_interp
 - [~] `gCWInterface::CallEFun_GetMyPosition` · 004bb990 — player position set each frame by the client (Client::sync_script_clock); vtable slot assumed to be the player's position
 - [ ] `gCWInterface::CallIFun_ApplyProperties` · 004bba90 · legions 004b09b0 — needs port: script IFun apply properties on the client interface; no citation in crates/
 - [ ] `gCWInterface::CallIFun_DisplayStringInfo` · 004bbb80 · legions 004b0aa0 — needs port: script IFun display string info on the client interface; no citation in crates/
@@ -2298,101 +2298,101 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [~] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (15/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (21/85)
 
 ### gCWPhysicsObject
-- [ ] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — needs port: script efun do story on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_SetAccelerationScale` · 004b80b0 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [x] `gCWPhysicsObject::CallEFun_SetJumpScale` · 004b8110 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [x] `gCWPhysicsObject::CallEFun_SetVelocityScale` · 004b8170 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [~] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
-- [ ] `gCWPhysicsObject::CallEFun_AddImpulse` · 004b8270 — needs port: script efun add impulse on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_AddImpulseLocal` · 004b82f0 — needs port: script efun add impulse local on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_AddTargetedImpulse` · 004b8370 · legions 004ae2a0 — needs port: script efun add targeted impulse on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc` · 004b8410 — needs port: script efun apply additive visual desc on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_ApplySubtractiveVisualDesc` · 004b8490 — needs port: script efun apply subtractive visual desc on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_ApplyVisualDescToPhysicsObj` · 004b8510 — needs port: script efun apply visual desc to physics obj on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_AddImpulse` · 004b8270 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_AddImpulseLocal` · 004b82f0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_AddTargetedImpulse` · 004b8370 · legions 004ae2a0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc` · 004b8410 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_ApplySubtractiveVisualDesc` · 004b8490 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_ApplyVisualDescToPhysicsObj` · 004b8510 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [ ] `gCWPhysicsObject::CallEFun_CalculateDistance` · 004b8580 — needs port: script efun calculate distance on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600 — needs port: script efun combine and apply visual desc on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc` · 004b8600 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_DoBehavior` · 004b8680 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
-- [ ] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0 — needs port: script efun do behavior non latent on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_DoBehaviorNonLatent` · 004b87a0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 - [x] `gCWPhysicsObject::CallEFun_DoFX` · 004b8820 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-- [ ] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0 — needs port: script efun do intersection on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_DoIntersection` · 004b88a0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_DoMode` · 004b89c0 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
-- [ ] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0 — needs port: script efun do mode non latent on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_DoSlider` · 004b8b60 — needs port: script efun do slider on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_DoSliderNonLatent` · 004b8c90 · legions 004ae810 — needs port: script efun do slider non latent on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_DoTargettedFX` · 004b8d20 — needs port: script efun do targetted fx on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_ForceVisualDesc` · 004b8db0 — needs port: script efun force visual desc on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetAccelerationScale` · 004b8e30 — needs port: script efun get acceleration scale on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetDesiredMode` · 004b8ea0 — needs port: script efun get desired mode on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetElement` · 004b8f10 — needs port: script efun get element on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetHeight` · 004b8f80 — needs port: script efun get height on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetJumpScale` · 004b8ff0 — needs port: script efun get jump scale on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetMode` · 004b9060 — needs port: script efun get mode on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetRadius` · 004b90d0 — needs port: script efun get radius on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetTopLevelHeight` · 004b9140 — needs port: script efun get top level height on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetTopLevelRadius` · 004b91b0 — needs port: script efun get top level radius on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetVelocityScale` · 004b9220 — needs port: script efun get velocity scale on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_HasMotionInterpreter` · 004b9290 — needs port: script efun has motion interpreter on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_HasRemoteDoMotionValues` · 004b9300 — needs port: script efun has remote do motion values on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_InitVisualDesc` · 004b9370 — needs port: script efun init visual desc on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsAnimationFrozen` · 004b93e0 — needs port: script efun is animation frozen on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsDoingBehavior` · 004b9450 — needs port: script efun is doing behavior on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsInWorld` · 004b94d0 — needs port: script efun is in world on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsMovementFrozen` · 004b9540 — needs port: script efun is movement frozen on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsOutside` · 004b95b0 — needs port: script efun is outside on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_IsUndetectable` · 004b9620 — needs port: script efun is undetectable on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_LocalToGlobal` · 004b9690 — needs port: script efun local to global on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_DoModeNonLatent` · 004b8ae0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_DoSlider` · 004b8b60 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_DoSliderNonLatent` · 004b8c90 · legions 004ae810 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_DoTargettedFX` · 004b8d20 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_ForceVisualDesc` · 004b8db0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetAccelerationScale` · 004b8e30 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetDesiredMode` · 004b8ea0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetElement` · 004b8f10 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetHeight` · 004b8f80 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetJumpScale` · 004b8ff0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetMode` · 004b9060 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetRadius` · 004b90d0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetTopLevelHeight` · 004b9140 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetTopLevelRadius` · 004b91b0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetVelocityScale` · 004b9220 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_HasMotionInterpreter` · 004b9290 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_HasRemoteDoMotionValues` · 004b9300 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_InitVisualDesc` · 004b9370 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_IsAnimationFrozen` · 004b93e0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_IsDoingBehavior` · 004b9450 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_IsInWorld` · 004b94d0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_IsMovementFrozen` · 004b9540 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [x] `gCWPhysicsObject::CallEFun_IsOutside` · 004b95b0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
+- [-] `gCWPhysicsObject::CallEFun_IsUndetectable` · 004b9620 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_LocalToGlobal` · 004b9690 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_LookAt` · 004b9720 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
-- [ ] `gCWPhysicsObject::CallEFun_MissileFireOnly` · 004b97a0 — needs port: script efun missile fire only on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissileInitPlaceAndFire` · 004b9810 — needs port: script efun missile init place and fire on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissileInitialize` · 004b98a0 — needs port: script efun missile initialize on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissileInquireDirection` · 004b9930 — needs port: script efun missile inquire direction on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissilePlace` · 004b99c0 — needs port: script efun missile place on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissilePlaceAndFire` · 004b9a30 — needs port: script efun missile place and fire on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissileRetarget` · 004b9aa0 — needs port: script efun missile retarget on the physics object; no citation in crates/
-- [~] `gCWPhysicsObject::CallEFun_ReleaseBehavior` · 004b9b30 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
-- [ ] `gCWPhysicsObject::CallEFun_SetAnimationFrozen` · 004b9c60 — needs port: script efun set animation frozen on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_SetCloaked` · 004b9ce0 — needs port: script efun set cloaked on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_MissileFireOnly` · 004b97a0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissileInitPlaceAndFire` · 004b9810 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissileInitialize` · 004b98a0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissileInquireDirection` · 004b9930 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissilePlace` · 004b99c0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissilePlaceAndFire` · 004b9a30 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissileRetarget` · 004b9aa0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [x] `gCWPhysicsObject::CallEFun_ReleaseBehavior` · 004b9b30 — ac2-script host/interface.rs release_behavior (bound, tested in tests/physics.rs); no Legions wlib function calls it
+- [x] `gCWPhysicsObject::CallEFun_SetAnimationFrozen` · 004b9c60 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
+- [-] `gCWPhysicsObject::CallEFun_SetCloaked` · 004b9ce0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_SetCollisionState` · 004b9d60 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-- [ ] `gCWPhysicsObject::CallEFun_SetLocalVisualDesc` · 004b9de0 — needs port: script efun set local visual desc on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_SetLocalVisualDesc` · 004b9de0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_SetMode` · 004b9e60 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
-- [ ] `gCWPhysicsObject::CallEFun_SetMovementFrozen` · 004b9ee0 — needs port: script efun set movement frozen on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_SetMovementFrozen` · 004b9ee0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 - [x] `gCWPhysicsObject::CallEFun_SetNoDrawPhysics` · 004b9f60 — ac2-script host::interface set_no_draw_physics (efun 0x800057 -> CPhysicsObj::set_nodraw): queued for the client, which keeps it per object (Client::is_no_draw) and gives the camera subject its no_draw; combat_7160 (the respawn clears it via CPlayer 0x85). The renderer does not read it for other objects
-- [ ] `gCWPhysicsObject::CallEFun_SetUndetectable` · 004b9fe0 — needs port: script efun set undetectable on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_StopAllWeenieBehaviors` · 004ba060 — needs port: script efun stop all weenie behaviors on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_SetUndetectable` · 004b9fe0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_StopAllWeenieBehaviors` · 004ba060 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_StopBehavior` · 004ba0d0 — ac2-script host/interface.rs set_mode and stop_behavior queue the server event for the weenie's physics object (answer 1 with an owner); tests host/tests.rs physics_mode_and_behavior_efuns_queue_their_server_events
 - [x] `gCWPhysicsObject::CallEFun_StopFX` · 004ba150 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-- [ ] `gCWPhysicsObject::CallEFun_StopLayer` · 004ba1d0 — needs port: script efun stop layer on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_StopMoveToCancelsBehaviors` · 004ba250 — needs port: script efun stop move to cancels behaviors on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_TogglePlaceMarkerObjects` · 004ba2c0 — needs port: script efun toggle place marker objects on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun__SetIgnoreCollisions` · 004ba330 — needs port: script efun  set ignore collisions on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun__SetReportCollisions` · 004ba3b0 — needs port: script efun  set report collisions on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetDesiredMotionValues` · 004ba530 — needs port: script efun get desired motion values on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetLastDoMotionValues` · 004ba5e0 — needs port: script efun get last do motion values on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_StopLayer` · 004ba1d0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_StopMoveToCancelsBehaviors` · 004ba250 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [~] `gCWPhysicsObject::CallEFun_TogglePlaceMarkerObjects` · 004ba2c0 — ac2-script host/body_state.rs: m_bPlaceMarkers flips and is answered; the debug marker objects are not drawn
+- [-] `gCWPhysicsObject::CallEFun__SetIgnoreCollisions` · 004ba330 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun__SetReportCollisions` · 004ba3b0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetDesiredMotionValues` · 004ba530 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetLastDoMotionValues` · 004ba5e0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_GetLocalVisualDesc` · 004ba690 — Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.
-- [ ] `gCWPhysicsObject::CallEFun_GetRemoteDoMotionValues` · 004ba750 — needs port: script efun get remote do motion values on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetStandardMotionValues` · 004ba800 — needs port: script efun get standard motion values on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_GetRemoteDoMotionValues` · 004ba750 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_GetStandardMotionValues` · 004ba800 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::DetectionTableToLRHash` · 004ba8b0 · legions 004afbe0 — STL/container internals: a Rust collection replaces it
 - [x] `gCWPhysicsObject::Resume_DoBehavior` · 004baa50 · legions 004afd80 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::Resume_DoIntersection` · 004baae0 · legions 004afe10 — needs port: resume continuation of latent do intersection (the script waits and resumes here); no citation in crates/
 - [x] `gCWPhysicsObject::Resume_DoMode` · 004babb0 · legions 004afee0 — Latent DoMode/DoBehavior: the efun queues the start with its context (ac2-script latent.rs, interface.rs do_mode/do_behavior: Interrupted until the body reports done); the body's ModeDone/BehaviorDone(context, error) resumes it through Resume_DoMode/Resume_DoBehavior (ScriptHost::resume_latent: out param = error). Client: client_latent.rs, client_audio.rs animation_sounds. Tests: ac2-script host tests/physics.rs a_latent_mode_resumes_the_context_when_the_body_reports_it_done, physics_mode_and_behavior_efuns_queue_their_server_events
 - [ ] `gCWPhysicsObject::Resume_DoSlider` · 004bac40 · legions 004aff70 — needs port: resume continuation of latent do slider (the script waits and resumes here); no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_GetCollisionState` · 004bacd0 — needs port: script efun get collision state on the physics object; no citation in crates/
+- [x] `gCWPhysicsObject::CallEFun_GetCollisionState` · 004bacd0 — ac2-script host/body_state.rs (efuns 0x800054/56/1C/36/0B), queued BodyState / body snapshot applied by ac2-client apply_body_state; tests/body_state.rs
 - [ ] `gCWPhysicsObject::CallEFun_InqCurrentProperties` · 004bad70 — needs port: script efun inq current properties on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_InqCurrentProperty` · 004bae10 — needs port: script efun inq current property on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_InqCylSphere` · 004baeb0 · legions 004b0160 — needs port: script efun inq cyl sphere on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_MissileInquireCurrentVelocity` · 004baf50 — needs port: script efun missile inquire current velocity on the physics object; no citation in crates/
-- [ ] `gCWPhysicsObject::CallEFun_PerformLOS` · 004baff0 — needs port: script efun perform los on the physics object; no citation in crates/
+- [-] `gCWPhysicsObject::CallEFun_InqCurrentProperty` · 004bae10 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_InqCylSphere` · 004baeb0 · legions 004b0160 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_MissileInquireCurrentVelocity` · 004baf50 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWPhysicsObject::CallEFun_PerformLOS` · 004baff0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [ ] `gCWPhysicsObject::Resume_ReleaseBehavior` · 004bb090 · legions 004b02b0 — needs port: resume continuation of latent release behavior (the script waits and resumes here); no citation in crates/
 
-## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (64/90)
+## `portal/client/src/weenie/interp/glue/gcwrepository.cpp.c` (65/90)
 
 ### gCWRepository
-- [~] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [-] `gCWRepository::CallEFun_AdjAndTruncateFloat` · 004b4ba0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWRepository::CallEFun_AdjAndTruncateInt` · 004b4c50 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
-- [~] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — ac2-script glue/repository.rs adjust: delta on the description/table value, no class defaults (m_defaults), so an absent quality starts at 0 where retail returns the default
+- [-] `gCWRepository::CallEFun_AdjAndTruncateLongInt` · 004b4cf0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWRepository::CallEFun_AdjFloat` · 004b4dd0 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [x] `gCWRepository::CallEFun_AdjInt` · 004b4e60 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
 - [x] `gCWRepository::CallEFun_AdjLongInt` · 004b4ee0 — ac2-script glue repository.rs adjust (table only, class default start via ScriptData::class_defaults); ac2-script data DatScriptData::class_defaults (qualities record at the DID, lazy)
@@ -2407,7 +2407,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_DoesStringExist` · 004b5390 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_DoesStringInfoExist` · 004b5410 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_DoesTimestampExist` · 004b5490 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_EdgeSlides` · 004b5510 — needs port: script efun edge slides on the weenie repository; no citation in crates/
+- [-] `gCWRepository::CallEFun_EdgeSlides` · 004b5510 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWRepository::CallEFun_GetBool` · 004b5580 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_GetDataID` · 004b5600 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_GetFloat` · 004b5680 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -2423,7 +2423,7 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_GetRawInt` · 004b5bc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_GetRawLongInt` · 004b5c40 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_GetRawPackageID` · 004b5cd0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [ ] `gCWRepository::CallEFun_GetScale` · 004b5d50 — needs port: script efun get scale on the weenie repository; no citation in crates/
+- [-] `gCWRepository::CallEFun_GetScale` · 004b5d50 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWRepository::CallEFun_GetTimestamp` · 004b5dc0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [~] `gCWRepository::CallEFun_LoadDataIDW` · 004b5e60 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_RemoveBool` · 004b5ee0 — ac2-weenie qualities::remove_in_weenie_desc; ac2-script glue repository.rs remove_value
@@ -2431,15 +2431,15 @@ Legend and workflow: [README](README.md).
 - [x] `gCWRepository::CallEFun_RemoveFloat` · 004b5fe0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [x] `gCWRepository::CallEFun_RemoveInstanceID` · 004b6060 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 - [x] `gCWRepository::CallEFun_RemoveInt` · 004b60e0 — ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-- [~] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [-] `gCWRepository::CallEFun_RemoveLongInt` · 004b6160 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWRepository::CallEFun_RemovePackageID` · 004b61e0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWRepository::CallEFun_RemovePosition` · 004b6260 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
+- [-] `gCWRepository::CallEFun_RemoveString` · 004b62e0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [~] `gCWRepository::CallEFun_RemoveStringInfo` · 004b6360 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
-- [~] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — ac2-script glue/repository.rs removes the table entry only; a description field is not cleared (gmWeenieDesc::Remove* not modelled)
+- [-] `gCWRepository::CallEFun_RemoveTimestamp` · 004b63e0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWRepository::CallEFun_SetBool` · 004b6460 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetDataID` · 004b64e0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
-- [~] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
+- [x] `gCWRepository::CallEFun_SetEdgeSlides` · 004b6560 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 - [~] `gCWRepository::CallEFun_SetEtherealType` · 004b65e0 — glue/repository_physics.rs: qualities done; SetScale/SetEdgeSlides physics side effects not applied; LoadDataIDW needs the data source's file_did
 - [x] `gCWRepository::CallEFun_SetFloat` · 004b6670 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
 - [x] `gCWRepository::CallEFun_SetInstanceID` · 004b66f0 — ac2-script glue/repository.rs: Inq/Get/Set/Does over WeenieQualities; a description field (IsInWeenieDesc) goes to the description (host/tests.rs repository_efuns_write_description_fields_into_the_description)
@@ -2699,7 +2699,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0 — needs port: script VM save state by id (WState); no citation in crates/
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0 — needs port: script VM save state by type (WState); no citation in crates/
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (60/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (61/101)
 
 ### CWRepository
 - [-] `CWRepository::Construct` · 00530e70 · legions 00514e10 — singleton constructor: Rust builds the object directly
@@ -2782,7 +2782,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWRepository::EdgeSlides` · 00531d40 · legions 00515ce0 — needs port: weenie repository edge slides; no citation in crates/
 - [ ] `CWRepository::InqEtherealType` · 00531d70 · legions 00515d10 — needs port: weenie repository inq ethereal type; no citation in crates/
 - [ ] `CWRepository::SetScale` · 00531df0 · legions 00515d90 — needs port: weenie repository set scale; no citation in crates/
-- [ ] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0 — needs port: weenie repository set edge slides; no citation in crates/
+- [x] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 - [ ] `CWRepository::SetEtherealType` · 00531e60 · legions 00515e00 — needs port: weenie repository set ethereal type; no citation in crates/
 - [ ] `CWRepository::GatherPhysicsState` · 00531ed0 · legions 00515e70 — needs port: weenie repository gather physics state; no citation in crates/
 - [x] `CWRepository::GetStringW` · 00531fc0 · legions 00516020 — ac2-script glue/repository.rs over WeenieQualities (description fields first, the gCWRepository efun behind it)
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (11/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (16/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2854,7 +2854,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::DoIntersection` · 0052fe90 — needs port: physics object do intersection; no citation in crates/
 - [ ] `CWPhysicsObject::PerformLOS` · 0052ff20 · legions 00514020 — needs port: physics object perform los; no citation in crates/
 - [~] `CWPhysicsObject::SetCollisionState` · 0052ff40 · legions 00514040 — minimums only: the non-zero XY and Z minimums reach the body (ac2-physics set_collision_minimums); the physics and placement masks and ethereal lists are not ported
-- [ ] `CWPhysicsObject::GetCollisionState` · 0052ff60 · legions 00514060 — needs port: physics object get collision state; no citation in crates/
+- [x] `CWPhysicsObject::GetCollisionState` · 0052ff60 · legions 00514060 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [ ] `CWPhysicsObject::MissileInitPlaceAndFire` · 0052ff80 · legions 00514080 — needs port: physics object missile init place and fire; no citation in crates/
 - [ ] `CWPhysicsObject::MissileInitialize` · 0052ffa0 · legions 005140a0 — needs port: physics object missile initialize; no citation in crates/
 - [ ] `CWPhysicsObject::MissilePlaceAndFire` · 0052ffc0 · legions 005140c0 — needs port: physics object missile place and fire; no citation in crates/
@@ -2875,7 +2875,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWPhysicsObject::StopFX` · 005301d0 · legions 005142d0 — ac2-script host/interface.rs -> ac2-client scripts_io apply_script_physics -> ac2-physics PhysicsBody setters/do_fx/stop_fx; tests physics_obj_tests, host/tests
 - [ ] `CWPhysicsObject::DoTargettedFX` · 005301f0 · legions 005142f0 — needs port: physics object do targetted fx; no citation in crates/
 - [~] `CWPhysicsObject::DoBehavior` · 00530220 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
-- [ ] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360 — needs port: physics object do behavior non latent; no citation in crates/
+- [x] `CWPhysicsObject::DoBehaviorNonLatent` · 005302c0 · legions 00514360 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [~] `CWPhysicsObject::ReleaseBehavior` · 005302f0 — ac2-script host/interface.rs do_mode, do_behavior and release_behavior queue the server event (DoMode, DoBehavior, ReleaseBehavior with the BehaviorParams native). Not modelled: the latent wait (retail returns Interrupted until the mode or behaviour is reached, then resumes the context on ModeDone); the script continues at once
 - [~] `CWPhysicsObject::DoMode` · 00530390 — Player body only: the latent start reaches the player's body with its context; other objects finish at once (error 0, 0x5d for a refused behaviour). The story manager's HandleBehaviorDone path is not modelled. Rig: the door/lever rig's DoMode arrives as a server event, not through this efun, so no rig covers the latent wait; the host test does.
 - [ ] `CWPhysicsObject::DoModeNonLatent` · 00530420 · legions 00514420 — needs port: physics object do mode non latent; no citation in crates/
@@ -2904,7 +2904,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::GetBoundingBox` · 005307d0 · legions 00514770 — needs port: physics object get bounding box; no citation in crates/
 - [ ] `CWPhysicsObject::GetWorldMatrix` · 005307f0 · legions 00514790 — needs port: physics object get world matrix; no citation in crates/
 - [ ] `CWPhysicsObject::IsVisible` · 00530810 · legions 005147b0 — needs port: physics object is visible; no citation in crates/
-- [ ] `CWPhysicsObject::IsOutside` · 00530820 · legions 005147c0 — needs port: physics object is outside; no citation in crates/
+- [x] `CWPhysicsObject::IsOutside` · 00530820 · legions 005147c0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [ ] `CWPhysicsObject::IsInWorld` · 00530850 · legions 005147f0 — needs port: physics object is in world; no citation in crates/
 - [ ] `CWPhysicsObject::LocalToGlobal` · 00530870 · legions 00514810 — needs port: physics object local to global; no citation in crates/
 - [ ] `CWPhysicsObject::CalculateDistance` · 00530890 · legions 00514830 — needs port: physics object calculate distance; no citation in crates/
@@ -2927,10 +2927,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CWPhysicsObject::IsMoving` · 00530ba0 · legions 00514b40 — needs port: physics object is moving; no citation in crates/
 - [ ] `CWPhysicsObject::IsUndetectable` · 00530bc0 · legions 00514b60 — needs port: physics object is undetectable; no citation in crates/
 - [ ] `CWPhysicsObject::IsMovementFrozen` · 00530be0 · legions 00514b80 — needs port: physics object is movement frozen; no citation in crates/
-- [ ] `CWPhysicsObject::SetMovementFrozen` · 00530c00 · legions 00514ba0 — needs port: physics object set movement frozen; no citation in crates/
+- [x] `CWPhysicsObject::SetMovementFrozen` · 00530c00 · legions 00514ba0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [ ] `CWPhysicsObject::IsAnimationFrozen` · 00530c30 · legions 00514bd0 — needs port: physics object is animation frozen; no citation in crates/
-- [ ] `CWPhysicsObject::SetAnimationFrozen` · 00530c50 · legions 00514bf0 — needs port: physics object set animation frozen; no citation in crates/
-- [ ] `CWPhysicsObject::TogglePlaceMarkerObjects` · 00530c80 · legions 00514c20 — needs port: physics object toggle place marker objects; no citation in crates/
+- [x] `CWPhysicsObject::SetAnimationFrozen` · 00530c50 · legions 00514bf0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
+- [~] `CWPhysicsObject::TogglePlaceMarkerObjects` · 00530c80 · legions 00514c20 — ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
 - [ ] `CWPhysicsObject::StopAllCameraFX` · 00530cb0 · legions 00514c50 — needs port: camera FX stop: the client has no camera effect manager (ac2-script host/interface.rs says a known gap)
 - [ ] `CWPhysicsObject::DoStory` · 00530cc0 · legions 00514c60 — needs port: physics object do story; no citation in crates/
 - [ ] `CWPhysicsObject::InitPhysics` · 00530ce0 · legions 00514c80 — needs port: physics object init physics; no citation in crates/

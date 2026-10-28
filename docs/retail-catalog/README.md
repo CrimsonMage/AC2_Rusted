@@ -39,7 +39,7 @@ scripts/retail_catalog.py status
 | [ac2-dat](ac2-dat.md) | 507 | 42 | 7 | 67 | 391 |
 | [ac2-db](ac2-db.md) | 633 | 196 | 15 | 110 | 312 |
 | [ac2-net](ac2-net.md) | 556 | 230 | 20 | 82 | 224 |
-| [ac2-weenie](ac2-weenie.md) | 1904 | 825 | 181 | 390 | 508 |
+| [ac2-weenie](ac2-weenie.md) | 1904 | 843 | 174 | 310 | 577 |
 | [ac2-anim](ac2-anim.md) | 532 | 128 | 17 | 94 | 293 |
 | [ac2-assets](ac2-assets.md) | 785 | 120 | 17 | 228 | 420 |
 | [ac2-world](ac2-world.md) | 989 | 317 | 25 | 82 | 565 |
@@ -52,6 +52,6 @@ scripts/retail_catalog.py status
 | [ac2-script](ac2-script.md) | 2468 | 1689 | 32 | 336 | 411 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 224 | 31 | 29 | 215 |
 | [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |
-| [replaced](replaced.md) | 2058 | 36 | 0 | 0 | 2022 |
+| [replaced](replaced.md) | 2058 | 37 | 0 | 0 | 2021 |
 
 Data formats ([data-formats.md](data-formats.md)): 81 `DBObj` types, 1 done, 0 partial, 80 to do.

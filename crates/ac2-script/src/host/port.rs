@@ -7,6 +7,7 @@ use ac2_net::protocol::ObjectAction;
 use ac2_physics::CollisionParameters;
 use ac2_weenie::{Appearance, SessionEvent, WeenieQualities};
 
+use super::body_state::BodyState;
 use super::item_queries::ItemLook;
 use super::latent::LatentPhysics;
 use super::outcome::ScriptState;
@@ -57,6 +58,10 @@ pub trait ScriptPort {
     /// A physics change a script asked of object `object`'s physics object (`gCWPhysicsObject`'s
     /// scale and FX efuns): applied to the player's body or a remote's.
     fn apply_script_physics(&mut self, object: u64, action: &ObjectAction);
+
+    /// A body state change a script made on object `object`'s physics object (the freezes and
+    /// the edge-slide flag).
+    fn apply_body_state(&mut self, object: u64, state: BodyState);
 
     /// `CCollisionManager::SetCollisionState` minimums for object `object` (the impact minimums).
     fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32);

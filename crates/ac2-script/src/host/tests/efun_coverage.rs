@@ -26,6 +26,20 @@ fn referenced_efuns(program: &Program) -> BTreeMap<u32, usize> {
 }
 
 /// The efuns the library calls that no glue binds. The count only goes down.
+///
+/// What is left (78) and why:
+/// - 8 ids in neither retail dispatcher (no name, no native).
+/// - Authoring and tooling, not the player's client: `gCDBForm` (7), `gPFileNode` (21),
+///   `gFile` (5), `gPSUtils` (4 path helpers for those), `gStringInfo` / `gAppliedAppearanceKey`
+///   `FromFileNode`, `gTypeInfo::new_type`, `gPlacesTable::WslDump`, `gEmailUtils`, `gVM::Query*`
+///   (7), `gdebug`, the `Dump*ToString` family (`gCWRepository` 11, `ggmCObjMaint`,
+///   `ggmQuestInfoList`), `ggmSceneInfo::Verify`, `gGameplayOptionsProfile::Export` / `Import`,
+///   `gCWInterface::GetOutputFilesPath`.
+/// - Real gaps: `gAppearanceTableAdaptor::InqAppearanceKeyModList` (needs the appearance table's
+///   atom data in a script-readable form), `gCWInterface::DisplayHelpText` (needs
+///   `CPlayerShell`'s help lookup, vtable slot 0x1C), `gCWPhysicsObject::InqCurrentProperties`
+///   (the body's composite cell material, `CPhysicsObj::UpdateCellMaterial`, is not modelled as
+///   one collection).
 #[test]
 fn every_efun_the_library_calls_is_bound() {
     let Some(host) = legions_host() else {
@@ -62,5 +76,23 @@ fn every_efun_the_library_calls_is_bound() {
             .collect();
         std::fs::write(path, names.join("\n")).unwrap();
     }
-    assert!(unbound.len() <= 84, "{} unbound", unbound.len());
+    // `AC2_DUMP_REFERENCED=<file>`: every efun the library calls, `id name bound|unbound`.
+    if let Ok(path) = std::env::var("AC2_DUMP_REFERENCED") {
+        let lines: Vec<String> = referenced
+            .keys()
+            .map(|id| {
+                let state = if efuns.is_bound(*id) {
+                    "bound"
+                } else {
+                    "unbound"
+                };
+                format!(
+                    "{id:08x} {} {state}",
+                    crate::glue::efun_name(*id).unwrap_or("?")
+                )
+            })
+            .collect();
+        std::fs::write(path, lines.join("\n")).unwrap();
+    }
+    assert!(unbound.len() <= 78, "{} unbound", unbound.len());
 }

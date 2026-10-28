@@ -171,7 +171,9 @@ impl PhysicsObj {
         }
     }
 
-    fn set_state_bit(&mut self, bit: u32, on: bool) {
+    /// Sets or clears the `m_state` bit `bit` (`CPhysicsObj::set_movement_frozen`,
+    /// `set_animation_frozen`, `set_edge_slide`, `set_missile`).
+    pub(crate) fn set_state_bit(&mut self, bit: u32, on: bool) {
         if on {
             self.state |= bit;
         } else {
