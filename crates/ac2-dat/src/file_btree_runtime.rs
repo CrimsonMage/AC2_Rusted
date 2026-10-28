@@ -9,6 +9,8 @@ use crate::btree_profile::{DatBtreeProfile, DatBtreeProfileSnapshot};
 use crate::entry::DatRawFileEntry;
 use crate::error::{DatError, DatResult};
 
+mod chain;
+
 /// Retail keeps the root separately plus 100 timestamp-replaceable `BTMemNode`s.
 const REPLACEABLE_NODE_CACHE_LIMIT: usize = 100;
 
@@ -349,81 +351,6 @@ impl FileBtreeRuntime {
             }
         }
         Ok(node)
-    }
-
-    fn read_block_chain(
-        &self,
-        start: usize,
-        len: usize,
-        did: Option<u32>,
-        context: &'static str,
-        read_class: ReadClass,
-    ) -> DatResult<Vec<u8>> {
-        if len == 0 {
-            return Ok(Vec::new());
-        }
-        if start == 0 {
-            return Err(self.invalid_chain(start, did, context));
-        }
-        let block_bytes = self.header.block_data_size(&self.path)?;
-        let logical_len = self.file_len.min(self.header.file_size.max(0) as usize);
-        let mut current = start;
-        let mut read = 0usize;
-        // `CLBlockAllocator::Load_Data` uses one caller-owned `size + 4` buffer. Each next
-        // `SyncRead` starts four bytes before the next output data, temporarily overwriting the
-        // previous tail with its link header and then restoring that tail. Match its allocation
-        // and copy shape instead of allocating one temporary buffer for every linked block.
-        let output_len = len
-            .checked_add(4)
-            .ok_or_else(|| self.invalid_chain(start, did, context))?;
-        let mut out = vec![0; output_len];
-        while current != 0 && read < len {
-            let count = block_bytes.min(len - read);
-            let block_len = count
-                .checked_add(4)
-                .ok_or_else(|| DatError::InvalidBlockOffset {
-                    path: self.path.clone(),
-                    block_offset: current,
-                    context,
-                })?;
-            let block_end =
-                current
-                    .checked_add(block_len)
-                    .ok_or_else(|| DatError::InvalidBlockOffset {
-                        path: self.path.clone(),
-                        block_offset: current,
-                        context,
-                    })?;
-            if block_end > logical_len {
-                return Err(self.invalid_chain(current, did, context));
-            }
-            // `CLBlockAllocator::Load_Data` asks `DiskDev::SyncRead` for the link header and
-            // requested data in one positioned operation, then restores the header in its
-            // temporary buffer. Keep that read shape while returning only packed data to Rust.
-            let output_end = read
-                .checked_add(block_len)
-                .ok_or_else(|| self.invalid_chain(current, did, context))?;
-            let output = &mut out[read..output_end];
-            let preserved_tail: [u8; 4] = output[..4].try_into().unwrap();
-            self.read_exact_into(current, output, did, context, read_class)?;
-            let next = i32::from_le_bytes(output[..4].try_into().unwrap());
-            output[..4].copy_from_slice(&preserved_tail);
-            read += count;
-            if read == len {
-                break;
-            }
-            if next < 0 {
-                return Err(self.invalid_chain(current, did, context));
-            }
-            current = next as usize;
-        }
-        if read == len {
-            out.copy_within(4.., 0);
-            out.truncate(len);
-            Ok(out)
-        } else {
-            Err(self.invalid_chain(current, did, context))
-        }
     }
 
     fn read_exact_into(

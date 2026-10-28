@@ -214,9 +214,11 @@ fn file_btree_profile_observes_pinned_root_lookup_and_positioned_payload_reads()
         after.payload_positioned_read_bytes - before.payload_positioned_read_bytes,
         (fixture.payload_one.len() + fixture.payload_two_packed.len() + 12) as u64
     );
+    // Payload two's two blocks are adjacent on disk, so one coalesced read covers both (a
+    // deliberate deviation from `CLBlockAllocator::Load_Data`'s one read per block).
     assert_eq!(
         after.payload_positioned_read_calls - before.payload_positioned_read_calls,
-        3
+        2
     );
 }
 

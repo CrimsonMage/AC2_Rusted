@@ -57,6 +57,41 @@ fn file_btree_profile_counts_multi_block_root_as_one_logical_node_load() {
     );
     assert_eq!(after.payload_read_calls - before.payload_read_calls, 1);
     assert_eq!(after.payload_blocks_total - before.payload_blocks_total, 2);
+    // The payload's two blocks are adjacent on disk: one coalesced read of both link headers and
+    // their data (a deliberate deviation from `CLBlockAllocator::Load_Data`'s read per block).
+    assert_eq!(
+        after.payload_positioned_read_calls - before.payload_positioned_read_calls,
+        1
+    );
+    assert_eq!(
+        after.payload_positioned_read_bytes - before.payload_positioned_read_bytes,
+        (fixture.payload.len() + 8) as u64
+    );
+}
+
+/// A chain whose second block lies before its first (blocks 4 then 3) cannot be coalesced: the run ends at the
+/// link and the next read starts at the linked block, returning the same bytes.
+#[test]
+fn file_btree_reads_a_non_adjacent_chain_run_by_run() {
+    let fixture =
+        SmallBlockNodeFixture::with_payload_blocks(&[4, 3]).expect("fixture should build");
+    let dataset =
+        DatDataset::open(DatOpenOptions::new(fixture.path())).expect("dataset should open");
+    let before = dataset
+        .btree_profile(DatFileKind::Portal)
+        .expect("file-backed storage should publish its profile");
+    let record = dataset
+        .read_record(
+            DatFileKind::Portal,
+            FILE_ID,
+            DatReadAttribution::ActiveWorldScoped,
+        )
+        .expect("record read should succeed")
+        .expect("fixture entry should exist");
+    assert_eq!(record.packed_bytes, fixture.payload);
+    let after = dataset
+        .btree_profile(DatFileKind::Portal)
+        .expect("file-backed storage should publish its profile");
     assert_eq!(
         after.payload_positioned_read_calls - before.payload_positioned_read_calls,
         2
@@ -158,6 +193,14 @@ struct SmallBlockNodeFixture {
 
 impl SmallBlockNodeFixture {
     fn new() -> std::io::Result<Self> {
+        Self::with_payload_blocks(&[
+            PAYLOAD_BLOCK_OFFSET / BLOCK_SIZE,
+            PAYLOAD_BLOCK_OFFSET / BLOCK_SIZE + 1,
+        ])
+    }
+
+    /// The payload's two blocks at these block indices, chained in this order.
+    fn with_payload_blocks(blocks: &[usize]) -> std::io::Result<Self> {
         let temp = TempDir::new()?;
         let payload = (0..BLOCK_DATA_SIZE + 80)
             .map(|index| index as u8)
@@ -171,6 +214,7 @@ impl SmallBlockNodeFixture {
                 &temp.path().join(kind.default_file_name()),
                 dataset_type,
                 &payload,
+                blocks,
             )?;
         }
         Ok(Self { temp, payload })
@@ -185,6 +229,7 @@ fn write_small_block_fixture(
     path: &PathBuf,
     file_type: u32,
     payload: &[u8],
+    payload_blocks: &[usize],
 ) -> std::io::Result<()> {
     let mut bytes = vec![0u8; BLOCK_SIZE * 5];
     write_header(&mut bytes, file_type);
@@ -195,11 +240,11 @@ fn write_small_block_fixture(
         &mut root,
         62 * 4 + 4,
         FILE_ID,
-        PAYLOAD_BLOCK_OFFSET as i32,
+        (payload_blocks[0] * BLOCK_SIZE) as i32,
         payload.len() as u32,
     );
     write_block_chain(&mut bytes, ROOT_BLOCK_OFFSET, &root);
-    write_block_chain(&mut bytes, PAYLOAD_BLOCK_OFFSET, payload);
+    write_chain_at(&mut bytes, payload_blocks, payload);
 
     std::fs::write(path, bytes)
 }
@@ -227,6 +272,20 @@ fn write_block_chain(bytes: &mut [u8], start: usize, payload: &[u8]) {
         } else {
             0
         };
+        write_i32(bytes, offset, next);
+        bytes[offset + 4..offset + 4 + chunk.len()].copy_from_slice(chunk);
+    }
+}
+
+/// `payload` over the blocks at `blocks` (indices), linked in that order.
+fn write_chain_at(bytes: &mut [u8], blocks: &[usize], payload: &[u8]) {
+    let chunks: Vec<&[u8]> = payload.chunks(BLOCK_DATA_SIZE).collect();
+    assert_eq!(chunks.len(), blocks.len());
+    for (index, chunk) in chunks.iter().enumerate() {
+        let offset = blocks[index] * BLOCK_SIZE;
+        let next = blocks
+            .get(index + 1)
+            .map_or(0, |block| (block * BLOCK_SIZE) as i32);
         write_i32(bytes, offset, next);
         bytes[offset + 4..offset + 4 + chunk.len()].copy_from_slice(chunk);
     }

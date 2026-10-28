@@ -21,7 +21,9 @@ game rules and server-visible behaviour exactly retail.
   pool, and the 30 second idle eviction in `DBOCache::UseTime` / `DBCache::UseTime`) existed to hide
   slow disks and 2001-era decode cost. Do not reproduce its eviction, pooling or retention counts.
   Read records from the DAT on demand the way retail does (B-tree lookup, then positioned reads;
-  `ac2-dat`, no mmap, no up-front index), decode on worker threads, share one `Arc` per DID with
+  `ac2-dat`, no mmap, no up-front index; one deliberate deviation: a chain's blocks that lie
+  together in the file are read with one positioned read of up to 128 KiB, where
+  `CLBlockAllocator::Load_Data` read each block on its own), decode on worker threads, share one `Arc` per DID with
   in-flight dedupe, and free on last drop. The typed cache keeps released values only while their
   bytes fit `ResourceCacheConfig::free_byte_budget` (`DEFAULT_FREE_CACHE_BUDGET_BYTES`), reaping
   the oldest released first on the inserting worker (`TypedResourceCache::trim_if_over_budget`),
