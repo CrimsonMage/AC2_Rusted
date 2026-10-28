@@ -5,6 +5,7 @@
 
 use crate::assistance::AssistanceSource;
 use crate::consignment::ConsignmentSource;
+use crate::craft::CraftSource;
 use crate::examination_effects::ExaminationSource;
 use crate::game_dialogs::DialogText;
 use crate::inventory_notices::InventoryNoticeSource;
@@ -36,6 +37,7 @@ pub trait HudSource:
     + SocialSource
     + QuestSource
     + ExaminationSource
+    + CraftSource
 {
 }
 
@@ -55,5 +57,6 @@ impl<T> HudSource for T where
         + SocialSource
         + QuestSource
         + ExaminationSource
+        + CraftSource
 {
 }

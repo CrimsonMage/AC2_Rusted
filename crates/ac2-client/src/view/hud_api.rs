@@ -67,7 +67,6 @@ impl ClientView {
             .into_iter()
             .collect();
         commands.extend(self.hud.items_3d_frame(client, frame, world_pick));
-        commands.extend(self.hud.craft_frameworks(client, frame, events));
         self.hud.story_frameworks(client);
         commands.extend(self.hud.ingredient_frameworks(client, frame, events));
         commands.extend(

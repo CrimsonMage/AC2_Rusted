@@ -10,6 +10,7 @@ use ac2_ui::{
 
 use crate::gameplay::Command;
 use crate::hud_chat_options::chat_option_commands;
+use crate::hud_craft::craft_command;
 use crate::hud_pets::pet_commands;
 use crate::hud_player::{examine, PassOut};
 use crate::hud_shop::{catalog_commands, new_sale_commands, shop_commands};
@@ -56,6 +57,7 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
             HudRequest::NewSale(request) => {
                 out.commands.extend(new_sale_commands(vec![request]));
             }
+            HudRequest::Craft(request) => out.commands.push(craft_command(request)),
             HudRequest::Catalog(request) => {
                 out.commands.extend(catalog_commands(vec![request]));
             }

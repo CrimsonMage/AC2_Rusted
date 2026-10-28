@@ -1,18 +1,13 @@
-//! `gmCraftUI` on the frame: the craft panel's messages (`ListenToMessage`) and the craft notice
-//! (`RecvNotice_UpdateCraftPanel`) run over the player's craft queries, and its requests go out as
-//! gameplay commands. The queries are the player's script's (`craft.rs`); a query that fails reads
-//! as an empty answer.
-
-use std::cell::RefCell;
+//! `gmCraftUI`'s client side: the player's craft queries (`ac2_ui::CraftSource`) over the
+//! client's script and session, which the frame's craft pass (`Hud::frame`) reads. A query that
+//! fails reads as an empty answer. The craft requests map to gameplay commands in
+//! [`craft_command`].
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{CraftCommand, CraftSource};
-use ac2_weenie::{CraftSkill, Recipe, SessionEvent};
+use ac2_weenie::{CraftSkill, Recipe};
 
-use crate::client::Client;
-use crate::frame::ClientFrame;
 use crate::gameplay::Command;
-use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
 
 impl CraftSource for ClientPlayer<'_> {
@@ -79,49 +74,11 @@ impl CraftSource for ClientPlayer<'_> {
 }
 
 /// A craft request as the gameplay command it is.
-fn command(request: CraftCommand) -> Command {
+pub(crate) fn craft_command(request: CraftCommand) -> Command {
     match request {
         CraftCommand::ClearSelection => Command::Select(None),
         CraftCommand::Examine(request) => Command::Examine(request),
         CraftCommand::OpenRecipe(recipe) => Command::OpenRecipe(recipe),
         CraftCommand::RaiseSkill(skill) => Command::RaiseCraftSkill(skill),
-    }
-}
-
-impl HudView {
-    /// The craft panel's notices and messages of the frame, then its requests as commands. Runs
-    /// before the other frameworks, on the same messages.
-    pub(crate) fn craft_frameworks(
-        &mut self,
-        client: &mut Client,
-        frame: &ClientFrame,
-        events: &[SessionEvent],
-    ) -> Vec<Command> {
-        let Some(strings) = self.panels.strings.clone() else {
-            return Vec::new();
-        };
-        if !frame.in_world {
-            return Vec::new();
-        }
-        let messages = self.panels.player_messages.clone();
-        let Some(craft) = self.panels.craft.as_mut() else {
-            return Vec::new();
-        };
-        let tree = match self.hud.as_mut() {
-            Some((tree, _)) => tree,
-            None => return Vec::new(),
-        };
-        let player = ClientPlayer {
-            client: RefCell::new(client),
-            frame,
-            strings: &strings.tables,
-            ui_table: strings.ui_table,
-            enums: &strings.enums,
-        };
-        craft
-            .frame_pass(tree, &player, events, &messages)
-            .into_iter()
-            .map(command)
-            .collect()
     }
 }

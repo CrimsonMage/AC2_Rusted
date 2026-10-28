@@ -138,6 +138,11 @@ impl Hud {
             shortcuts,
         } = hosts;
         let mut requests = Vec::new();
+        // `gmCraftUI`: the craft notices and messages, then its requests (`CraftUi::frame_pass`).
+        if let Some(craft) = self.craft.as_mut() {
+            let commands = craft.frame_pass(tree, player, input.events, &messages);
+            requests.extend(commands.into_iter().map(HudRequest::Craft));
+        }
         // `gmBookUI`: the use notices show the book, then its messages turn the pages. Its help
         // button opens the help topic; the copy button has no clipboard counterpart yet and is
         // dropped.

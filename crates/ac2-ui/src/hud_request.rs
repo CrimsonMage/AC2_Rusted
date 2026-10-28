@@ -3,10 +3,10 @@
 //! each to its gameplay command. Each variant carries the panel's own request type.
 
 use crate::{
-    CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest, DialogRequest,
-    ExaminationCall, ExternalContainerRequest, FriendsRequest, ItemRequest, NewSaleRequest,
-    PetAction, RadarRequest, SavedWindow, SecureTradeRequest, SelectionCall, ShopRequest,
-    SkillRequest, SocialCall,
+    CatalogRequest, CharacterRequest, ChatOptionRequest, ConsignmentRequest, CraftCommand,
+    DialogRequest, ExaminationCall, ExternalContainerRequest, FriendsRequest, ItemRequest,
+    NewSaleRequest, PetAction, RadarRequest, SavedWindow, SecureTradeRequest, SelectionCall,
+    ShopRequest, SkillRequest, SocialCall,
 };
 
 /// One request a HUD panel raised in a pass.
@@ -42,6 +42,8 @@ pub enum HudRequest {
     ExternalContainer(ExternalContainerRequest),
     /// `gmShopNewSaleUI`: the sale's buttons.
     NewSale(NewSaleRequest),
+    /// `gmCraftUI`: the craft panel's examination, recipe, raise and selection requests.
+    Craft(CraftCommand),
     /// `gmShopCatalogUI`: the catalog's buttons and rows.
     Catalog(CatalogRequest),
     /// `gmShopConsignmentUI`: the consignment's requests the panel answers with the player

@@ -1262,7 +1262,7 @@ key	status	note
 0044a8e0	x	ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
 0044a960	~	ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
 0044ab30	x	ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
-0044ab60	x	ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; ac2-client hud_craft.rs delegates
+0044ab60	x	ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; the frame pass runs in ac2-ui frame_passes.rs Hud::frame (HudRequest::Craft); ac2-client hud_craft.rs is the CraftSource adapter over the player's queries
 0044ab70	~	ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened. Not: the recipe's icon drag (drag field, start drag), the raise button is not under the page in the layout tree yet
 0044afd0	x	ac2-ui chat.rs / chat_window.rs
 0044b000	x	ac2-ui chat.rs / chat_window.rs
