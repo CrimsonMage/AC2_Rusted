@@ -336,7 +336,7 @@ pub use newsale::{NewSaleRequest, NewSaleSource, NewSaleUi};
 pub use option_calls::{chat_option_call, option_call};
 pub use overview_map::OverviewMapUi;
 pub use paper_doll::{mesh_type_to_inv_loc, PaperDollUi};
-pub use pets::{next_mode, previous_mode, PetAction, PetUi, PET_MODES};
+pub use pets::{next_mode, pet_notice, previous_mode, PetAction, PetSource, PetUi, PET_MODES};
 pub use pk_status::PkStatusUi;
 pub use radar::{RadarDot, RadarRequest, RadarUi, RadarView};
 pub use reticle::{Reticle, ReticleOutcome, ReticleTarget};

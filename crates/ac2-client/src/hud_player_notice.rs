@@ -133,7 +133,7 @@ impl HudView {
                 );
             }
             if let Some(panel) = pets.as_mut() {
-                crate::hud_pets::pet_notice(panel, tree, player, frame.server_time, notice);
+                ac2_ui::pet_notice(panel, tree, player, frame.server_time, notice);
             }
             if let Some(panel) = friends.as_mut() {
                 crate::hud_friends::friends_notice(panel, tree, notice, &mut commands);

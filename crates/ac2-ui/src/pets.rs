@@ -16,6 +16,9 @@
 
 use std::sync::Arc;
 
+use ac2_net::protocol::StringInfo;
+use ac2_weenie::GameplayNotice;
+
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
@@ -326,5 +329,31 @@ impl PetUi {
         }
         self.last_update = now;
         actions
+    }
+}
+
+/// What the pet panel reads from the player: the server's strings, rendered (a pet's name).
+pub trait PetSource {
+    /// A string the server sent, rendered.
+    fn render_wire(&self, info: &StringInfo) -> String;
+}
+
+/// `gmPetUI`'s notices: `AddPet` lists the pet, `PetIsUnderAttack` marks it unsafe and
+/// `UpdatePetMode` takes the server's mode. `RemovePet` and `UpdatePetName` change nothing in
+/// the panel (see the module notes).
+pub fn pet_notice<S: PetSource>(
+    panel: &mut PetUi,
+    tree: &mut UiTree,
+    source: &S,
+    now: f64,
+    notice: &GameplayNotice,
+) {
+    match notice {
+        GameplayNotice::AddPet {
+            pet, name, mode, ..
+        } => panel.add_pet(tree, *pet, &source.render_wire(name), *mode),
+        GameplayNotice::PetIsUnderAttack(pet) => panel.pet_under_attack(tree, *pet, now),
+        GameplayNotice::UpdatePetMode { pet, mode } => panel.update_pet_mode(tree, *pet, *mode),
+        _ => {}
     }
 }

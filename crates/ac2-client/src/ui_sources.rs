@@ -46,6 +46,12 @@ impl ac2_ui::UiStrings for ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::PetSource for ClientPlayer<'_> {
+    fn render_wire(&self, info: &ac2_net::protocol::StringInfo) -> String {
+        self.render_info(info)
+    }
+}
+
 impl ac2_ui::StatusSource for ClientPlayer<'_> {
     /// `gmEffectsUI`'s list: `InqEffectList`, as the effect strip's entries.
     fn effects(&self) -> Vec<ac2_ui::EffectEntry> {
