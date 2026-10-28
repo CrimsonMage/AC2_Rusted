@@ -2233,28 +2233,28 @@ key	status	note
 00470380	x	ac2-script glue::options / examination (Legions layout and efun switch)
 004703f0	x	ac2-script glue::options / examination (Legions layout and efun switch)
 00470470	x	ac2-script glue::options / examination (Legions layout and efun switch)
-004704f0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+004704f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00470550	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-004705b0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+004705b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00470610	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 00470670	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-004706d0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470730	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470790	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-004707f0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470850	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-004708b0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470910	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470970	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-004709d0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470a30	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470a90	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470af0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470b50	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470bb0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470c10	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470c70	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-00470cd0	~	net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+004706d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470730	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470790	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+004707f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470850	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+004708b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470910	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470970	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+004709d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470a30	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470a90	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470af0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470b50	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470bb0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470c10	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470c70	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00470cd0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00470d30	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 00470da0	_	needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
 00470e10	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
@@ -2265,15 +2265,15 @@ key	status	note
 00471040	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 004710b0	x	ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 00471130	_	needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
-004711b0	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
-00471260	~	net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+004711b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00471260	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471310	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
-00471370	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00471370	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 004713d0	x	net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-00471430	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-00471490	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00471430	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00471490	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00471500	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
-00471570	~	net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+00471570	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 004715e0	_	needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
 00471720	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471790	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -2297,7 +2297,7 @@ key	status	note
 00471f60	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00471fd0	-	WSL debug dump
 00472090	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-00472140	_	needs port: scene info sub-DID list (GetSubDataIDs) and Verify
+00472140	x	ac2-script glue::sub_data_ids
 004721c0	_	needs port: scene info sub-DID list (GetSubDataIDs) and Verify
 00472260	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 004722c0	x	ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
@@ -2327,16 +2327,16 @@ key	status	note
 00472f80	x	ac2-script glue::quests / ac2-net native::quest
 00473030	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473090	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-004730f0	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+004730f0	x	ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 00473150	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 004731b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473210	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 00473270	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 004732d0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473330	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-00473390	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+00473390	x	ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 004733f0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-00473450	_	needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+00473450	x	ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 004734b0	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473520	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 00473590	x	ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -3662,10 +3662,10 @@ key	status	note
 004bb120	_	needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
 004bb200	_	needs port: script efun display help text on the interface; no citation in crates/
 004bb260	_	needs port: script efun sleep on the interface; no citation in crates/
-004bb370	_	needs port: script efun add shell cmd on the interface; no citation in crates/
-004bb3f0	_	needs port: script efun add shell cmd by string id on the interface; no citation in crates/
-004bb480	_	needs port: script efun add shell help on the interface; no citation in crates/
-004bb500	_	needs port: script efun add shell help by string id on the interface; no citation in crates/
+004bb370	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+004bb3f0	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+004bb480	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+004bb500	x	ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 004bb580	_	needs port: script efun get external weenie object on the interface; no citation in crates/
 004bb600	_	needs port: script efun get internal weenie object on the interface; no citation in crates/
 004bb680	_	needs port: script efun inq string info value on the interface; no citation in crates/
@@ -3692,8 +3692,8 @@ key	status	note
 004bc510	x	implemented: cited at crates/ac2-weenie/src/session.rs:82
 004bc600	~	retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 004bc690	x	lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
-004bc700	_	needs port: script efun get my package id on the distributor; no citation in crates/
-004bc770	_	needs port: script efun get process id on the distributor; no citation in crates/
+004bc700	x	ac2-script glue::engine_misc get_my_package_id
+004bc770	~	ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
 004bc7e0	_	needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
 004bc850	_	needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
 004bc8c0	_	needs port: script efun reset shell on the allocator; no citation in crates/
@@ -6442,13 +6442,13 @@ key	status	note
 00537360	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 005373f0	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 00537470	x	ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
-00537520	~	ac2-script glue/visual_desc.rs: the parent-and-own icon layers; atom icon modifiers not modelled
+00537520	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005375c0	x	out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 00537620	x	out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 005376c0	x	ac2-script glue::math / glue::missile
 00537730	x	ac2-script glue::math / glue::missile
 005377a0	x	ac2-script glue::math / glue::missile
-005377e0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+005377e0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00537840	x	ac2-script glue::math / glue::missile
 005378b0	x	ac2-script glue::math / glue::missile
 00537920	x	ac2-script glue::math / glue::missile
@@ -6468,15 +6468,15 @@ key	status	note
 00538010	x	ac2-script glue::string_info (lookups via ScriptData)
 00538080	x	ac2-script glue::string_info (lookups via ScriptData)
 005380f0	x	ac2-script glue::string_info (lookups via ScriptData)
-00538160	_	needs port (check): implemented as glue/string_info.rs but uncited
+00538160	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005381d0	x	ac2-script glue::string_info (lookups via ScriptData)
-00538240	_	needs port (check): implemented as glue/string_info.rs but uncited
+00538240	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005382b0	x	ac2-script glue::string_info (lookups via ScriptData)
-00538310	_	needs port (check): implemented as glue/string_info.rs but uncited
+00538310	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00538370	x	ac2-script glue::string_info (lookups via ScriptData)
 005383d0	x	ac2-script glue::string_info (lookups via ScriptData)
 00538440	x	ac2-script glue::string_info (lookups via ScriptData)
-005384a0	_	needs port (check): implemented as glue/string_info.rs but uncited
+005384a0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00538500	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 00538560	x	ac2-script glue::string_info (lookups via ScriptData)
 005385c0	x	ac2-script glue::string_info (lookups via ScriptData)
@@ -6496,12 +6496,12 @@ key	status	note
 00538bb0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538c20	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538ca0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
-00538d20	~	ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+00538d20	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00538de0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00538ea0	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 00538fa0	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00539060	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
-00539100	_	needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+00539100	x	ac2-script glue::sub_data_ids
 00539180	x	ac2-script glue::string_text (tables via ScriptData::string_table)
 00539220	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
 00539280	_	needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
@@ -6610,8 +6610,8 @@ key	status	note
 0053c110	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053c180	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053c200	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
-0053c280	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
-0053c300	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+0053c280	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0053c300	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 0053c380	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053c400	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053c440	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -6635,7 +6635,7 @@ key	status	note
 0053cd80	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053ce30	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053cef0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
-0053cfb0	~	ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+0053cfb0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 0053d060	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d120	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053d1d0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -6784,18 +6784,18 @@ key	status	note
 00541380	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
 005413f0	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
 00541460	_	needs port: motion value getters (acceleration, velocity, turn, gravity, sinking)
-005414d0	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541530	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541590	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-005415f0	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541650	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-005416b0	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541710	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541770	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-005417d0	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541830	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-005418b0	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-00541910	_	needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+005414d0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541530	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541590	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+005415f0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541650	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+005416b0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541710	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541770	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+005417d0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541830	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+005418b0	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+00541910	x	ac2-script glue::data_bags (MissileTargeting native, retail group bits)
 00541990	x	ac2-script glue::math / glue::missile
 005419f0	x	ac2-script glue::math / glue::missile
 00541a50	x	ac2-script glue::math / glue::missile
@@ -6819,13 +6819,13 @@ key	status	note
 00542170	x	ac2-script glue::math / glue::missile
 005421d0	x	ac2-script glue::math / glue::missile
 00542230	x	ac2-script glue::math / glue::missile
-00542290	_	needs port: missile info setters (clone, collision, targeting, holding location)
-005422f0	_	needs port: missile info setters (clone, collision, targeting, holding location)
-00542350	_	needs port: missile info setters (clone, collision, targeting, holding location)
-005423b0	_	needs port: missile info setters (clone, collision, targeting, holding location)
-00542410	_	needs port: missile info setters (clone, collision, targeting, holding location)
-00542470	_	needs port: missile info setters (clone, collision, targeting, holding location)
-005424d0	_	needs port: missile info setters (clone, collision, targeting, holding location)
+00542290	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+005422f0	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+00542350	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+005423b0	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+00542410	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+00542470	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+005424d0	x	ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
 00542530	x	ac2-physics los (Terrain::los_check)
 005425b0	x	ac2-physics los (Terrain::los_check)
 00542680	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
@@ -6844,16 +6844,16 @@ key	status	note
 00542c10	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
 00542c90	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
 00542d30	_	needs port: line-of-sight parameter setters and results (ray, portals, exact draw check)
-00542e10	_	needs port: link requirement setters and getters
-00542e70	_	needs port: link requirement setters and getters
-00542ed0	_	needs port: link requirement setters and getters
-00542f30	_	needs port: link requirement setters and getters
-00542f90	_	needs port: link requirement setters and getters
-00542ff0	_	needs port: link requirement setters and getters
-00543060	_	needs port: link requirement setters and getters
-005430d0	_	needs port: link requirement setters and getters
-00543140	_	needs port: link requirement setters and getters
-005431b0	_	needs port: link requirement setters and getters
+00542e10	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00542e70	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00542ed0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00542f30	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00542f90	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00542ff0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00543060	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+005430d0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+00543140	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+005431b0	x	ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 00543220	_	needs port: landblock size and static-object lookup efuns
 00543250	_	needs port: landblock size and static-object lookup efuns
 00543280	_	needs port: landblock size and static-object lookup efuns
@@ -6874,11 +6874,11 @@ key	status	note
 005438f0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
 00543960	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
 005439b0	_	needs port: game time efuns (time of day, day/year length, date strings, dilation)
-005439f0	_	needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-00543a50	_	needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-00543ab0	_	needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-00543b10	_	needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-00543b70	_	needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+005439f0	x	ac2-script glue::data_bags (FxAndBehavior native)
+00543a50	x	ac2-script glue::data_bags (FxAndBehavior native)
+00543ab0	x	ac2-script glue::data_bags (FxAndBehavior native)
+00543b10	x	ac2-script glue::data_bags (FxAndBehavior native)
+00543b70	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543bd0	_	needs port: PFile parser efuns (load and save string)
 00543c50	_	needs port: PFile parser efuns (load and save string)
 00543cf0	_	needs port: frame origin setter
@@ -6921,10 +6921,10 @@ key	status	note
 005451e0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
 005452b0	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
 00545380	_	needs port: PFile tree node efuns (name and leaf get/set, sub nodes, keyword test)
-00545420	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+00545420	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00545460	x	ac2-script data/glue::enums
-005454a0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
-005454f0	~	ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+005454a0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005454f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005455b0	-	C++ destructor (Rust drop replaces it)
 00545670	-	container internals (Rust collections replace them)
 005456f0	_	needs port: script file I/O (WSLCloseFile)
@@ -6974,17 +6974,17 @@ key	status	note
 00547210	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 005472f0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 005473b0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00547480	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+00547480	x	ac2-script glue::entity_desc inq_word
 00547530	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 005475d0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 00547670	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 00547720	x	ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 00547780	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-005477f0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+005477f0	x	ac2-script glue::entity_desc inq_word
 005478a0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 00547950	x	out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 00547a00	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-00547ab0	~	ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
+00547ab0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00547b50	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 00547bf0	_	needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 00547c90	-	admin only: admin email tool (no Legions match)
@@ -7126,7 +7126,7 @@ key	status	note
 0054bf50	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c010	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c0d0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-0054c190	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+0054c190	x	ac2-script glue::base_property inq_long_integer
 0054c250	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c310	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 0054c3c0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
@@ -7347,11 +7347,11 @@ key	status	note
 00553680	x	ac2-script glue
 00553720	x	ac2-script glue
 005537b0	x	ac2-script glue
-00553840	~	ac2-script glue: no collector/debugger
-00553850	~	ac2-script glue: no collector/debugger
-00553870	~	ac2-script glue: no collector/debugger
+00553840	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00553850	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00553870	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00553890	x	ac2-script vm::pack (dependent-reference walk, CloneReference)
-005538d0	~	ac2-script glue: no collector/debugger
+005538d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00553900	x	ac2-script glue
 00553930	x	ac2-script glue
 00553990	x	ac2-script glue
@@ -7362,7 +7362,7 @@ key	status	note
 00553ae0	x	ac2-script glue
 00553b20	x	ac2-script glue
 00553b50	x	ac2-script glue
-00553bd0	~	ac2-script glue: no collector/debugger
+00553bd0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00553c50	x	ac2-script glue
 00553c90	-	WSL debugger query (process, reference and perf tables)
 00553cf0	-	WSL debugger query (process, reference and perf tables)
@@ -7376,14 +7376,14 @@ key	status	note
 00553fd0	_	needs port: type info efuns (get_type, new_type, new_validated_type)
 00554020	_	needs port: timer efuns (compute_time, get_time, get_real_time)
 00554050	_	needs port: timer efuns (compute_time, get_time, get_real_time)
-00554080	_	needs port: timer efuns (compute_time, get_time, get_real_time)
-005540c0	~	ac2-script glue::lists: iterators hold an index, not a node
-00554120	~	ac2-script glue::lists: iterators hold an index, not a node
-00554180	~	ac2-script glue::lists: iterators hold an index, not a node
-005541f0	~	ac2-script glue::lists: iterators hold an index, not a node
-00554270	~	ac2-script glue::lists: iterators hold an index, not a node
-005542e0	~	ac2-script glue::lists: iterators hold an index, not a node
-00554390	~	ac2-script glue::lists: iterators hold an index, not a node
+00554080	x	ac2-script glue::engine_misc get_time (Vm::cur_time, ScriptHost::set_time; the client must call set_time each frame)
+005540c0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00554120	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00554180	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005541f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00554270	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005542e0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00554390	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00554420	x	ac2-script glue::lists
 00554490	x	ac2-script glue::lists
 00554500	x	ac2-script glue::lists
@@ -7503,32 +7503,32 @@ key	status	note
 00558400	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00558480	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
 00558580	x	ac2-script glue::hashes over native::ScriptHash (IntrusiveHashTable bucket model, g_bucketSizes)
-00558690	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558690	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00558700	x	ac2-script glue::math / glue::missile
 00558750	x	ac2-script glue::math / glue::missile
 005587a0	x	ac2-script glue::math / glue::missile
-005587d0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558820	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558870	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+005587d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558820	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558870	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 005588a0	x	ac2-script glue::math / glue::missile
-005588f0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558920	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+005588f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558920	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00558960	x	ac2-script glue::math / glue::missile
 00558990	x	ac2-script glue::math / glue::missile
 005589d0	x	ac2-script glue::math / glue::missile
 00558a10	x	ac2-script glue::math / glue::missile
 00558a50	x	ac2-script glue::math / glue::missile
-00558aa0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558aa0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00558b00	x	ac2-script glue::math / glue::missile
 00558b40	x	ac2-script glue::math / glue::missile
 00558b80	x	ac2-script glue::math / glue::missile
 00558bd0	x	ac2-script glue::math / glue::missile
-00558c20	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558c50	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558c80	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-00558ce0	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558c20	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558c50	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558c80	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00558ce0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00558d10	x	ac2-script glue::math / glue::missile
-00558d40	~	ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+00558d40	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00558d70	x	ac2-script glue::math / glue::missile
 00558dc0	x	ac2-script glue::math / glue::missile
 00558e10	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
@@ -7592,13 +7592,13 @@ key	status	note
 0055af60	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0055aff0	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 0055b040	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
-0055b0b0	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b110	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b170	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b1e0	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b260	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b2d0	~	ac2-script glue::lists: iterators hold an index, not a node
-0055b390	~	ac2-script glue::lists: iterators hold an index, not a node
+0055b0b0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b110	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b170	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b1e0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b260	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b2d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+0055b390	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 0055b450	x	ac2-script glue::lists
 0055b4c0	x	ac2-script glue::lists
 0055b560	x	ac2-script glue::lists
@@ -7739,7 +7739,7 @@ key	status	note
 005600c0	-	debugger/debug output efun (admin only)
 005600e0	-	debugger/debug output efun (admin only)
 00560100	-	debugger/debug output efun (admin only)
-00560120	-	debugger/debug output efun (admin only)
+00560120	x	ac2-script glue::engine_misc print_string (log instead of the debug console)
 00560150	_	needs port: gdebug WSL assert efuns (assert failure path)
 00560190	_	needs port: gdebug WSL assert efuns (assert failure path)
 005601e0	_	needs port: gdebug WSL assert efuns (assert failure path)
@@ -7807,13 +7807,13 @@ key	status	note
 00562350	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 00562410	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 00562490	x	ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
-00562520	~	ac2-script glue::lists: iterators hold an index, not a node
-00562580	~	ac2-script glue::lists: iterators hold an index, not a node
-005625e0	~	ac2-script glue::lists: iterators hold an index, not a node
-00562650	~	ac2-script glue::lists: iterators hold an index, not a node
-005626d0	~	ac2-script glue::lists: iterators hold an index, not a node
-00562740	~	ac2-script glue::lists: iterators hold an index, not a node
-005627f0	~	ac2-script glue::lists: iterators hold an index, not a node
+00562520	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00562580	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005625e0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00562650	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005626d0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+00562740	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+005627f0	x	ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 00562880	x	ac2-script glue::lists
 005628f0	x	ac2-script glue::lists
 00562960	x	ac2-script glue::lists

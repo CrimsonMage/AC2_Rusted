@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1480 done, 110 partial, 544 to do, 334 skipped.
+2468 retail functions: 1601 done, 37 partial, 498 to do, 332 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -273,21 +273,21 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCharGenResult::CallEFun_GetName` · 004741f0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmCharGenResult::CallEFun_GetStartingPosition` · 004742c0 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 
-## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (15/21)
+## `ac2/shared/src/interp/glue/ggmkeyframe.cpp.c` (18/21)
 
 ### ggmKeyframe
 - [x] `ggmKeyframe::CallEFun_Clear` · 00473030 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetAudioTrack` · 00473090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+- [x] `ggmKeyframe::CallEFun_SetAudioTrackByName` · 004730f0 — ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 - [x] `ggmKeyframe::CallEFun_SetDuration` · 00473150 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetFrameNum` · 004731b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [ ] `ggmKeyframe::CallEFun_SetMovieTrack` · 00473210 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
 - [x] `ggmKeyframe::CallEFun_SetSceneID` · 00473270 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetSubtitle` · 004732d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_SetVideoTrack` · 00473330 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetVideoTrackByName` · 00473390 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+- [x] `ggmKeyframe::CallEFun_SetVideoTrackByName` · 00473390 — ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 - [x] `ggmKeyframe::CallEFun_SetVoiceTrack` · 004733f0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmKeyframe::CallEFun_SetVoiceTrackByName` · 00473450 — needs port: keyframe efuns (audio/video/voice/movie track setters and GetMovieTrack)
+- [x] `ggmKeyframe::CallEFun_SetVoiceTrackByName` · 00473450 — ac2-script glue::story set_track_by_name (FileArray::GetDIDForDummies; the Legions DATs hold no name table so the DID is 0, track bit still set as retail)
 - [x] `ggmKeyframe::CallEFun_GetAudioTrack` · 004734b0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetDuration` · 00473520 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmKeyframe::CallEFun_GetFrameNum` · 00473590 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -334,7 +334,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmRaceSexInfo::CallEFun_Verify` · 00472560 — ac2-script host::chargen / glue::chargen (CharacterGenSystem IFuns, gmCharGenResult, gmRaceSexInfo)
 - [x] `ggmRaceSexInfo::CallEFun_GetSubDataIDs` · 004725d0 · legions 004703b0 — ac2-script glue::places / enums / chargen (PlacesTable data::places)
 
-## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (17/20)
+## `ac2/shared/src/interp/glue/ggmsceneinfo.cpp.c` (18/20)
 
 ### ggmSceneInfo
 - [x] `ggmSceneInfo::CallEFun_Clear` · 00471950 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
@@ -355,7 +355,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmSceneInfo::CallEFun_IsPlayable` · 00471f60 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [-] `ggmSceneInfo::CallEFun_Dump` · 00471fd0 — WSL debug dump
 - [x] `ggmSceneInfo::CallEFun_GetName` · 00472090 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
-- [ ] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140 — needs port: scene info sub-DID list (GetSubDataIDs) and Verify
+- [x] `ggmSceneInfo::CallEFun_GetSubDataIDs` · 00472140 — ac2-script glue::sub_data_ids
 - [ ] `ggmSceneInfo::CallEFun_Verify` · 004721c0 · legions 00470280 — needs port: scene info sub-DID list (GetSubDataIDs) and Verify
 
 ## `ac2/shared/src/interp/glue/ggmsceneinfolist.cpp.c` (4/4)
@@ -366,16 +366,16 @@ Legend and workflow: [README](README.md).
 - [x] `ggmSceneInfoList::CallEFun_push_tail` · 00471810 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 - [x] `ggmSceneInfoList::CallEFun_insert_sort` · 004718d0 — ac2-script glue/story.rs (ggmKeyframe, ggmSceneInfo, ggmSceneInfoList efuns)
 
-## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (1/8)
+## `ac2/shared/src/interp/glue/gingredientadaptor.cpp.c` (5/8)
 
 ### gIngredientAdaptor
 - [ ] `gIngredientAdaptor::CallEFun_SetAutoPopulate` · 00471310 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
-- [~] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [x] `gIngredientAdaptor::CallEFun_SetDescription` · 00471370 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gIngredientAdaptor::CallEFun_SetID` · 004713d0 — net: craft_script_7160 (the VM runs the IFun or the forwarder; the packet or notice is asserted)
-- [~] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
-- [~] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [x] `gIngredientAdaptor::CallEFun_SetRecipeDID` · 00471430 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gIngredientAdaptor::CallEFun_GetAutoPopulate` · 00471490 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [ ] `gIngredientAdaptor::CallEFun_GetID` · 00471500 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
-- [~] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570 — net: bound or decoded, not yet exercised by a test (queries answer empty lists for the double's player; UpdateCost/UpdateCraftPanel/UpdateCraftSkill forwarders not sent)
+- [x] `gIngredientAdaptor::CallEFun_GetRecipeDID` · 00471570 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [ ] `gIngredientAdaptor::CallEFun_GetDescription` · 004715e0 — needs port: crafting ingredient adaptor (GetID, GetDescription, SetAutoPopulate)
 
 ## `ac2/shared/src/interp/glue/ginventoryglobals.cpp.c` (1/1)
@@ -388,31 +388,31 @@ Legend and workflow: [README](README.md).
 ### gRadarControl
 - [x] `gRadarControl::CallIFun_InqRadarRanges` · 0046ce60 · legions 0046d5c0 — ac2-audio/ac2-client: ambient environments, groove
 
-## `ac2/shared/src/interp/glue/grecipeadaptor.cpp.c` (11/34)
+## `ac2/shared/src/interp/glue/grecipeadaptor.cpp.c` (32/34)
 
 ### gRecipeAdaptor
-- [~] `gRecipeAdaptor::CallEFun_SetCharges` · 004704f0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_SetCharges` · 004704f0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_SetCost` · 00470550 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-- [~] `gRecipeAdaptor::CallEFun_SetCraftSkillCategory` · 004705b0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_SetCraftSkillCategory` · 004705b0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_SetCraftSkillDID` · 00470610 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 - [x] `gRecipeAdaptor::CallEFun_SetDID` · 00470670 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
-- [~] `gRecipeAdaptor::CallEFun_SetDescription` · 004706d0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetDifficulty` · 00470730 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetDifficultyMinusSkillCutoff` · 00470790 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetDynamicCost` · 004707f0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetDynamicDifficulty` · 00470850 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetHasAutoPopulatingIngredients` · 004708b0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetHasNameColoringTable` · 00470910 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetIconDID` · 00470970 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetLastSpinnerValue` · 004709d0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetMaxSpinnerValue` · 00470a30 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetMaximumNumberOfIngredients` · 00470a90 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetMinSpinnerValue` · 00470af0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetName` · 00470b50 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetNameColor` · 00470bb0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetReadOnlySpinner` · 00470c10 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
-- [~] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0 — net: bound in glue/craft_natives.rs; the query fills them, values not individually checked
+- [x] `gRecipeAdaptor::CallEFun_SetDescription` · 004706d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetDifficulty` · 00470730 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetDifficultyMinusSkillCutoff` · 00470790 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetDynamicCost` · 004707f0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetDynamicDifficulty` · 00470850 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetHasAutoPopulatingIngredients` · 004708b0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetHasNameColoringTable` · 00470910 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetIconDID` · 00470970 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetLastSpinnerValue` · 004709d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetMaxSpinnerValue` · 00470a30 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetMaximumNumberOfIngredients` · 00470a90 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetMinSpinnerValue` · 00470af0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetName` · 00470b50 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetNameColor` · 00470bb0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetReadOnlySpinner` · 00470c10 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetShown` · 00470c70 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_SetTimeUseAgain` · 00470cd0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gRecipeAdaptor::CallEFun_GetCharges` · 00470d30 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [ ] `gRecipeAdaptor::CallEFun_GetCost` · 00470da0 — needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
 - [x] `gRecipeAdaptor::CallEFun_GetCraftSkillCategory` · 00470e10 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
@@ -423,8 +423,8 @@ Legend and workflow: [README](README.md).
 - [x] `gRecipeAdaptor::CallEFun_GetShown` · 00471040 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [x] `gRecipeAdaptor::CallEFun_GetTimeUseAgain` · 004710b0 — ac2-script glue::craft_natives (unit test recipe_getters_return_the_fields_the_setters_write; the value is the setter's field)
 - [ ] `gRecipeAdaptor::CallEFun_HasReadOnlySpinner` · 00471130 — needs port: crafting recipe adaptor (GetCost, HasReadOnlySpinner)
-- [~] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
-- [~] `gRecipeAdaptor::CallEFun_GetName` · 00471260 — net: bound or read generically (ifun.rs read_filled / text_out); no test reads it back
+- [x] `gRecipeAdaptor::CallEFun_GetDescription` · 004711b0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRecipeAdaptor::CallEFun_GetName` · 00471260 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
 ## `ac2/shared/src/interp/glue/gselectioninfo.cpp.c` (15/16)
 
@@ -1237,16 +1237,16 @@ Legend and workflow: [README](README.md).
 - [x] `gAList::CallEFun_remove_head` · 00564570 — ac2-script glue::lists
 - [x] `gAList::CallEFun_remove_tail` · 00564650 — ac2-script glue::lists
 
-## `portal/shared/src/interp/glue/galistiter.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/galistiter.cpp.c` (7/7)
 
 ### gAListIter
-- [~] `gAListIter::CallEFun_next` · 00562520 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_prev` · 00562580 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_data` · 005625e0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_equals` · 00562650 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_notdone` · 005626d0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_insert` · 00562740 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gAListIter::CallEFun_remove` · 005627f0 — ac2-script glue::lists: iterators hold an index, not a node
+- [x] `gAListIter::CallEFun_next` · 00562520 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_prev` · 00562580 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_data` · 005625e0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_equals` · 00562650 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_notdone` · 005626d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_insert` · 00562740 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gAListIter::CallEFun_remove` · 005627f0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
 ## `portal/shared/src/interp/glue/galmultihash.cpp.c` (13/13)
 
@@ -1412,7 +1412,7 @@ Legend and workflow: [README](README.md).
 - [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (25/33)
+## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (26/33)
 
 ### BaseProperty
 - [ ] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0 — needs port: BaseProperty InqStringW (weenie property string)
@@ -1442,7 +1442,7 @@ Legend and workflow: [README](README.md).
 - [x] `gBaseProperty::CallEFun_InqEnum` · 0054bf50 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqFloat` · 0054c010 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqInteger` · 0054c0d0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
-- [-] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
+- [x] `gBaseProperty::CallEFun_InqLongInteger` · 0054c190 — ac2-script glue::base_property inq_long_integer
 - [x] `gBaseProperty::CallEFun_InqPackageID` · 0054c250 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [-] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 - [x] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (name, type, group words; names via ac2_property_name; type names via the 0x40000013 enum); tests glue/base_property_tests.rs (offline and against the DAT)
@@ -1613,14 +1613,14 @@ Legend and workflow: [README](README.md).
 - [x] `gDBCache::CallEFun_IsRunTime` · 00536b60 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 - [x] `gDBCache::CallEFun_IsServer` · 00536b90 — ac2-script glue (wlog, random, behavior, enums: gDBCache)
 
-## `portal/shared/src/interp/glue/gdebug.cpp.c` (0/11)
+## `portal/shared/src/interp/glue/gdebug.cpp.c` (1/11)
 
 ### gdebug
 - [-] `gdebug::CallEFun_PrintFloat` · 005600a0 — debugger/debug output efun (admin only)
 - [-] `gdebug::CallEFun_PrintInt` · 005600c0 — debugger/debug output efun (admin only)
 - [-] `gdebug::CallEFun_PrintLongFloat` · 005600e0 — debugger/debug output efun (admin only)
 - [-] `gdebug::CallEFun_PrintLongInt` · 00560100 — debugger/debug output efun (admin only)
-- [-] `gdebug::CallEFun_PrintString` · 00560120 — debugger/debug output efun (admin only)
+- [x] `gdebug::CallEFun_PrintString` · 00560120 — ac2-script glue::engine_misc print_string (log instead of the debug console)
 - [ ] `gdebug::CallEFun_WSLAssert` · 00560150 · legions 00534580 — needs port: gdebug WSL assert efuns (assert failure path)
 - [ ] `gdebug::CallEFun_WSLAssertFailure` · 00560190 · legions 005345c0 — needs port: gdebug WSL assert efuns (assert failure path)
 - [ ] `gdebug::CallEFun_WSLAssertMsg` · 005601e0 · legions 00534610 — needs port: gdebug WSL assert efuns (assert failure path)
@@ -1679,7 +1679,7 @@ Legend and workflow: [README](README.md).
 ### gEmailUtils
 - [-] `gEmailUtils::CallEFun_send_emailW` · 00547c90 — admin only: admin email tool (no Legions match)
 
-## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (4/28)
+## `portal/shared/src/interp/glue/gentitydesc.cpp.c` (7/28)
 
 ### gEntityDesc
 - [ ] `gEntityDesc::CallEFun_GetDataID` · 00546c10 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
@@ -1697,17 +1697,17 @@ Legend and workflow: [README](README.md).
 - [ ] `gEntityDesc::CallEFun_GetProperties` · 00547210 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_GetScale` · 005472f0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_GetWBNameW` · 005473b0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-- [ ] `gEntityDesc::CallEFun_InqBool` · 00547480 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [x] `gEntityDesc::CallEFun_InqBool` · 00547480 — ac2-script glue::entity_desc inq_word
 - [ ] `gEntityDesc::CallEFun_InqDataFilePathW` · 00547530 · legions 00526830 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_InqDataFileW` · 005475d0 · legions 005268a0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [x] `gEntityDesc::CallEFun_InqDataID` · 00547670 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 - [x] `gEntityDesc::CallEFun_InqEntityDescFromDataID` · 00547720 — ac2-script glue/entity_desc.rs: the entity link (NativeObject::EntityDesc) reads the record's properties through ScriptData::entity_properties (worker load, DataRequest::EntityDesc; DB type 0x40000049); InqDataID writes a DataFile property's DID (other types 0). Names and icons of the sale come through it
 - [ ] `gEntityDesc::CallEFun_InqEntityDescFromNameW` · 00547780 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-- [ ] `gEntityDesc::CallEFun_InqEnum` · 005477f0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
+- [x] `gEntityDesc::CallEFun_InqEnum` · 005477f0 — ac2-script glue::entity_desc inq_word
 - [ ] `gEntityDesc::CallEFun_InqFloat` · 005478a0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [x] `gEntityDesc::CallEFun_InqInteger` · 00547950 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 - [ ] `gEntityDesc::CallEFun_InqPackageID` · 00547a00 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
-- [~] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script glue/entity_desc.rs: the DB type check (DB_TYPE_ENTITYDESC 0x40000049) answers InqEntityDescFromDataID; the entity's properties are not read (InqStringInfo, InqDataID report missing), so names and icons the sale build takes from them stay empty
+- [x] `gEntityDesc::CallEFun_InqStringInfo` · 00547ab0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [ ] `gEntityDesc::CallEFun_InqStringW` · 00547b50 · legions 00526d30 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 - [ ] `gEntityDesc::CallEFun_InqVector` · 00547bf0 — needs port: entity description getters and inquiries (glue/entity_desc.rs covers only 4 of the 23)
 
@@ -1786,27 +1786,27 @@ Legend and workflow: [README](README.md).
 - [ ] `gFile::CallEFun_WSLWriteToFileTimestamped` · 00546230 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
 - [ ] `gFile::CallEFun_WSLReadFromFile` · 005462a0 — needs port: script file I/O efuns (WSL open/read/write/close, timestamped write)
 
-## `portal/shared/src/interp/glue/gfilearray.cpp.c` (1/4)
+## `portal/shared/src/interp/glue/gfilearray.cpp.c` (4/4)
 
 ### gFileArray
-- [~] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [x] `gFileArray::CallEFun_GetDIDForDummiesW` · 00545420 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gFileArray::CallEFun_GetDIDFromEnum` · 00545460 — ac2-script data/glue::enums
-- [~] `gFileArray::CallEFun_GetDIDW` · 005454a0 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
-- [~] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00 — ac2-script: FileArray has no data in Legions (no READONLY_DIDName.dat); DivineType by DID range
+- [x] `gFileArray::CallEFun_GetDIDW` · 005454a0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gFileArray::CallEFun_GetFileNameForDummiesW` · 005454f0 · legions 00524b00 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
 ## `portal/shared/src/interp/glue/gframe.cpp.c` (0/1)
 
 ### gFrame
 - [ ] `gFrame::CallEFun_SetOrigin` · 00543cf0 — needs port: frame origin setter
 
-## `portal/shared/src/interp/glue/gfxandbehaviorinfo.cpp.c` (0/5)
+## `portal/shared/src/interp/glue/gfxandbehaviorinfo.cpp.c` (5/5)
 
 ### gFXAndBehaviorInfo
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetAttackerFX` · 005439f0 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetBehavior` · 00543a50 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetTargetFX` · 00543ab0 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponBehavior` · 00543b10 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
-- [ ] `gFXAndBehaviorInfo::CallEFun_SetWeaponFX` · 00543b70 — needs port: FX and behaviour info setters (attacker/target/weapon FX and behaviour)
+- [x] `gFXAndBehaviorInfo::CallEFun_SetAttackerFX` · 005439f0 — ac2-script glue::data_bags (FxAndBehavior native)
+- [x] `gFXAndBehaviorInfo::CallEFun_SetTargetBehavior` · 00543a50 — ac2-script glue::data_bags (FxAndBehavior native)
+- [x] `gFXAndBehaviorInfo::CallEFun_SetTargetFX` · 00543ab0 — ac2-script glue::data_bags (FxAndBehavior native)
+- [x] `gFXAndBehaviorInfo::CallEFun_SetWeaponBehavior` · 00543b10 — ac2-script glue::data_bags (FxAndBehavior native)
+- [x] `gFXAndBehaviorInfo::CallEFun_SetWeaponFX` · 00543b70 — ac2-script glue::data_bags (FxAndBehavior native)
 
 ## `portal/shared/src/interp/glue/ggametime.cpp.c` (0/10)
 
@@ -2032,19 +2032,19 @@ Legend and workflow: [README](README.md).
 - [x] `gLArray::CallEFun_pop` · 0055e840 — ac2-script glue::lists
 - [x] `gLArray::CallEFun_query` · 0055e910 — ac2-script glue::lists
 
-## `portal/shared/src/interp/glue/glinkrequirements.cpp.c` (0/10)
+## `portal/shared/src/interp/glue/glinkrequirements.cpp.c` (10/10)
 
 ### gLinkRequirements
-- [ ] `gLinkRequirements::CallEFun_SetInputLink` · 00542e10 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_SetLinkType` · 00542e70 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_SetNumLinks` · 00542ed0 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_SetNumReqLinks` · 00542f30 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_SetRequired` · 00542f90 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_GetLinkType` · 00542ff0 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_GetNumLinks` · 00543060 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_GetNumReqLinks` · 005430d0 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_IsInputLink` · 00543140 — needs port: link requirement setters and getters
-- [ ] `gLinkRequirements::CallEFun_IsRequired` · 005431b0 — needs port: link requirement setters and getters
+- [x] `gLinkRequirements::CallEFun_SetInputLink` · 00542e10 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_SetLinkType` · 00542e70 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_SetNumLinks` · 00542ed0 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_SetNumReqLinks` · 00542f30 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_SetRequired` · 00542f90 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_GetLinkType` · 00542ff0 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_GetNumLinks` · 00543060 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_GetNumReqLinks` · 005430d0 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_IsInputLink` · 00543140 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
+- [x] `gLinkRequirements::CallEFun_IsRequired` · 005431b0 — ac2-script glue::data_bags (LinkRequirements native, retail +4..+0x14 words)
 
 ## `portal/shared/src/interp/glue/gllhash.cpp.c` (20/20)
 
@@ -2156,16 +2156,16 @@ Legend and workflow: [README](README.md).
 - [x] `gLList::CallEFun_remove_head` · 0055d240 — ac2-script glue::lists
 - [x] `gLList::CallEFun_remove_tail` · 0055d2e0 — ac2-script glue::lists
 
-## `portal/shared/src/interp/glue/gllistiter.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/gllistiter.cpp.c` (7/7)
 
 ### gLListIter
-- [~] `gLListIter::CallEFun_next` · 0055b0b0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_prev` · 0055b110 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_data` · 0055b170 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_equals` · 0055b1e0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_notdone` · 0055b260 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_insert` · 0055b2d0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gLListIter::CallEFun_remove` · 0055b390 — ac2-script glue::lists: iterators hold an index, not a node
+- [x] `gLListIter::CallEFun_next` · 0055b0b0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_prev` · 0055b110 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_data` · 0055b170 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_equals` · 0055b1e0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_notdone` · 0055b260 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_insert` · 0055b2d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gLListIter::CallEFun_remove` · 0055b390 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
 ## `portal/shared/src/interp/glue/gllmultihash.cpp.c` (14/14)
 
@@ -2327,48 +2327,48 @@ Legend and workflow: [README](README.md).
 - [x] `gLRMultiHashIter::CallEFun_key` · 00558f00 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gLRMultiHashIter::CallEFun_next` · 00558f70 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gmath.cpp.c` (16/28)
+## `portal/shared/src/interp/glue/gmath.cpp.c` (28/28)
 
 ### gMath
-- [~] `gMath::CallEFun_MapToUnitInterval` · 00558690 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_MapToUnitInterval` · 00558690 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun___max` · 00558700 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun___min` · 00558750 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_abs` · 005587a0 — ac2-script glue::math / glue::missile
-- [~] `gMath::CallEFun_acos` · 005587d0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_asin` · 00558820 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_atan` · 00558870 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_acos` · 005587d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_asin` · 00558820 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_atan` · 00558870 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun_ceil` · 005588a0 — ac2-script glue::math / glue::missile
-- [~] `gMath::CallEFun_cos` · 005588f0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_exp` · 00558920 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_cos` · 005588f0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_exp` · 00558920 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun_fabs` · 00558960 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_fake_abs64` · 00558990 · legions 00530920 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_floatMax` · 005589d0 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_floatMin` · 00558a10 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_floor` · 00558a50 — ac2-script glue::math / glue::missile
-- [~] `gMath::CallEFun_fmod` · 00558aa0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_fmod` · 00558aa0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun_intMax` · 00558b00 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_intMin` · 00558b40 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_lintMax` · 00558b80 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_lintMin` · 00558bd0 — ac2-script glue::math / glue::missile
-- [~] `gMath::CallEFun_log` · 00558c20 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_log10` · 00558c50 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_pow` · 00558c80 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
-- [~] `gMath::CallEFun_sin` · 00558ce0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_log` · 00558c20 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_log10` · 00558c50 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_pow` · 00558c80 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gMath::CallEFun_sin` · 00558ce0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun_sqrt` · 00558d10 — ac2-script glue::math / glue::missile
-- [~] `gMath::CallEFun_tan` · 00558d40 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gMath::CallEFun_tan` · 00558d40 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gMath::CallEFun_ulintMax` · 00558d70 — ac2-script glue::math / glue::missile
 - [x] `gMath::CallEFun_ulintMin` · 00558dc0 — ac2-script glue::math / glue::missile
 
-## `portal/shared/src/interp/glue/gmissileinfo.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/gmissileinfo.cpp.c` (7/7)
 
 ### gMissileInfo
-- [ ] `gMissileInfo::CallEFun_SetClone` · 00542290 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetCollisionParameters` · 005422f0 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetEntityDID` · 00542350 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetHoldingLocation` · 005423b0 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetMissileParameters` · 00542410 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470 — needs port: missile info setters (clone, collision, targeting, holding location)
-- [ ] `gMissileInfo::CallEFun_SetThrown` · 005424d0 — needs port: missile info setters (clone, collision, targeting, holding location)
+- [x] `gMissileInfo::CallEFun_SetClone` · 00542290 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetCollisionParameters` · 005422f0 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetEntityDID` · 00542350 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetHoldingLocation` · 005423b0 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetMissileParameters` · 00542410 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetTargetingParameters` · 00542470 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
+- [x] `gMissileInfo::CallEFun_SetThrown` · 005424d0 — ac2-script glue::data_bags (MissileInfo native; parameter natives copied)
 
 ## `portal/shared/src/interp/glue/gmissileparameters.cpp.c` (23/23)
 
@@ -2397,21 +2397,21 @@ Legend and workflow: [README](README.md).
 - [x] `gMissileParameters::CallEFun_SetUseNoFuel` · 005421d0 — ac2-script glue::math / glue::missile
 - [x] `gMissileParameters::CallEFun_UseEnvironmentalMaximumVelocities` · 00542230 — ac2-script glue::math / glue::missile
 
-## `portal/shared/src/interp/glue/gmissiletargetingparameters.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gmissiletargetingparameters.cpp.c` (12/12)
 
 ### gMissileTargetingParameters
-- [ ] `gMissileTargetingParameters::CallEFun_ClientUseParentForBasePosition` · 005414d0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetAlwaysStartTowardTarget` · 00541530 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetBasePosition` · 00541590 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetInitialPitch` · 005415f0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetInitialSpeed` · 00541650 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetMaxInitialTargetRange` · 005416b0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetMissileDetonationChance` · 00541710 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetNoFireIfTooFar` · 00541770 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetStartTowardTarget` · 005417d0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetTargetID` · 00541830 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_SetTargetPos` · 005418b0 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
-- [ ] `gMissileTargetingParameters::CallEFun_UseSourceObjectForBasePosition` · 00541910 — needs port: missile targeting parameter setters (speed, pitch, target, start toward target)
+- [x] `gMissileTargetingParameters::CallEFun_ClientUseParentForBasePosition` · 005414d0 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetAlwaysStartTowardTarget` · 00541530 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetBasePosition` · 00541590 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetInitialPitch` · 005415f0 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetInitialSpeed` · 00541650 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetMaxInitialTargetRange` · 005416b0 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetMissileDetonationChance` · 00541710 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetNoFireIfTooFar` · 00541770 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetStartTowardTarget` · 005417d0 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetTargetID` · 00541830 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_SetTargetPos` · 005418b0 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
+- [x] `gMissileTargetingParameters::CallEFun_UseSourceObjectForBasePosition` · 00541910 — ac2-script glue::data_bags (MissileTargeting native, retail group bits)
 
 ## `portal/shared/src/interp/glue/gmotionvalues.cpp.c` (0/22)
 
@@ -2760,7 +2760,7 @@ Legend and workflow: [README](README.md).
 - [ ] `gPlane::CallEFun_GetStringW` · 0053d510 · legions 0051f330 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
 - [ ] `gPlane::CallEFun_snap_to_plane` · 0053d590 · legions 0051f390 — needs port: plane efuns (InitPlane, distance to point, snap to plane, GetString)
 
-## `portal/shared/src/interp/glue/gposition.cpp.c` (38/41)
+## `portal/shared/src/interp/glue/gposition.cpp.c` (41/41)
 
 ### gPosition
 - [x] `gPosition::CallEFun_Set` · 0053be40 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -2773,8 +2773,8 @@ Legend and workflow: [README](README.md).
 - [x] `gPosition::CallEFun_set_origin` · 0053c110 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_FromCellCoords` · 0053c180 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_FromCellCoordsString` · 0053c200 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
-- [~] `gPosition::CallEFun_FromRealMapCoords` · 0053c280 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
-- [~] `gPosition::CallEFun_FromWPString` · 0053c300 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_FromRealMapCoords` · 0053c280 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gPosition::CallEFun_FromWPString` · 0053c300 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gPosition::CallEFun_GetBlockID` · 0053c380 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_GetCellDistance` · 0053c400 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_GetCellDistanceSquared` · 0053c440 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -2798,7 +2798,7 @@ Legend and workflow: [README](README.md).
 - [x] `gPosition::CallEFun_GetNullPosition` · 0053cd80 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_ToCellCoordsString` · 0053ce30 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_ToRealMapCoords` · 0053cef0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
-- [~] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0 — ac2-script glue::position: swscanf parsing approximated / StringInfo variable layout inferred
+- [x] `gPosition::CallEFun_ToRealMapCoords_Info` · 0053cfb0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gPosition::CallEFun_ToWPString` · 0053d060 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_get_block_offset` · 0053d120 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_get_offset` · 0053d1d0 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -3011,16 +3011,16 @@ Legend and workflow: [README](README.md).
 - [x] `gRList::CallEFun_remove_head` · 00555f90 — ac2-script glue::lists
 - [x] `gRList::CallEFun_remove_tail` · 00556070 — ac2-script glue::lists
 
-## `portal/shared/src/interp/glue/grlistiter.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/grlistiter.cpp.c` (7/7)
 
 ### gRListIter
-- [~] `gRListIter::CallEFun_next` · 005540c0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_prev` · 00554120 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_data` · 00554180 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_equals` · 005541f0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_notdone` · 00554270 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_insert` · 005542e0 — ac2-script glue::lists: iterators hold an index, not a node
-- [~] `gRListIter::CallEFun_remove` · 00554390 — ac2-script glue::lists: iterators hold an index, not a node
+- [x] `gRListIter::CallEFun_next` · 005540c0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_prev` · 00554120 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_data` · 00554180 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_equals` · 005541f0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_notdone` · 00554270 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_insert` · 005542e0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gRListIter::CallEFun_remove` · 00554390 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 
 ## `portal/shared/src/interp/glue/gsetpositionstruct.cpp.c` (0/10)
 
@@ -3059,21 +3059,21 @@ Legend and workflow: [README](README.md).
 - [ ] `gStoryHookData::CallEFun_SetTypeToFireMissile` · 005395e0 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
 - [ ] `gStoryHookData::CallEFun_SetWeaponID` · 00539640 — needs port: story hook data setters (attack, health, PK, missiles, weapon, target)
 
-## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (29/38)
+## `portal/shared/src/interp/glue/gstringinfo.cpp.c` (35/38)
 
 ### gStringInfo
 - [x] `gStringInfo::CallEFun_AddVariable_Float` · 00538010 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedFloat` · 00538080 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedInt` · 005380f0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_FormattedLInt` · 00538160 — needs port (check): implemented as glue/string_info.rs but uncited
+- [x] `gStringInfo::CallEFun_AddVariable_FormattedLInt` · 00538160 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gStringInfo::CallEFun_AddVariable_FormattedUInt` · 005381d0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_FormattedULInt` · 00538240 — needs port (check): implemented as glue/string_info.rs but uncited
+- [x] `gStringInfo::CallEFun_AddVariable_FormattedULInt` · 00538240 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gStringInfo::CallEFun_AddVariable_Int` · 005382b0 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_LInt` · 00538310 — needs port (check): implemented as glue/string_info.rs but uncited
+- [x] `gStringInfo::CallEFun_AddVariable_LInt` · 00538310 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gStringInfo::CallEFun_AddVariable_StringIDandTableEnum` · 00538370 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_StringInfo` · 005383d0 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_AddVariable_UInt` · 00538440 — ac2-script glue::string_info (lookups via ScriptData)
-- [ ] `gStringInfo::CallEFun_AddVariable_ULInt` · 005384a0 — needs port (check): implemented as glue/string_info.rs but uncited
+- [x] `gStringInfo::CallEFun_AddVariable_ULInt` · 005384a0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [ ] `gStringInfo::CallEFun_ApplyMetasToPlayerName` · 00538500 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 - [x] `gStringInfo::CallEFun_Reset` · 00538560 — ac2-script glue::string_info (lookups via ScriptData)
 - [x] `gStringInfo::CallEFun_SetLiteralValue` · 005385c0 — ac2-script glue::string_info (lookups via ScriptData)
@@ -3093,12 +3093,12 @@ Legend and workflow: [README](README.md).
 - [x] `gStringInfo::CallEFun_IsValid` · 00538bb0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `gStringInfo::CallEFun_eq` · 00538c20 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [x] `gStringInfo::CallEFun_ne` · 00538ca0 — ac2-script glue::string_text (tables via ScriptData::string_table)
-- [~] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script glue::string_text; table rendering is the ScriptData::render_string hook (plain strings only by default)
+- [x] `gStringInfo::CallEFun_GetLogString` · 00538d20 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gStringInfo::CallEFun_GetString` · 00538de0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_GetStringCaseInsensitive` · 00538ea0 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
 - [x] `gStringInfo::CallEFun_GetStringWithMetaTags` · 00538fa0 · legions 0051c0d0 — ac2-script glue::string_text (tables via ScriptData::string_table)
 - [ ] `gStringInfo::CallEFun_FromFileNode` · 00539060 · legions 0051c160 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
-- [ ] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0 — needs port: StringInfo efuns (GetStringCaseInsensitive, FromFileNode, GetSubDataIDs, ApplyMetasToPlayerName)
+- [x] `gStringInfo::CallEFun_GetSubDataIDs` · 00539100 · legions 0051c1d0 — ac2-script glue::sub_data_ids
 - [x] `gStringInfo::CallEFun_InqString` · 00539180 — ac2-script glue::string_text (tables via ScriptData::string_table)
 
 ## `portal/shared/src/interp/glue/gstringutils.cpp.c` (2/3)
@@ -3119,12 +3119,12 @@ Legend and workflow: [README](README.md).
 - [ ] `gTabooTableAdaptor::CallEFun_CheckCensorsW` · 00537f20 — needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
 - [ ] `gTabooTableAdaptor::CallEFun_FormatStringForAudienceW` · 00537fa0 — needs port: taboo table efuns (CheckCharacters, CheckCensors, FormatStringForAudience)
 
-## `portal/shared/src/interp/glue/gtimer.cpp.c` (0/3)
+## `portal/shared/src/interp/glue/gtimer.cpp.c` (1/3)
 
 ### gTimer
 - [ ] `gTimer::CallEFun_compute_time` · 00554020 — needs port: timer efuns (compute_time, get_time, get_real_time)
 - [ ] `gTimer::CallEFun_get_real_time` · 00554050 — needs port: timer efuns (compute_time, get_time, get_real_time)
-- [ ] `gTimer::CallEFun_get_time` · 00554080 — needs port: timer efuns (compute_time, get_time, get_real_time)
+- [x] `gTimer::CallEFun_get_time` · 00554080 — ac2-script glue::engine_misc get_time (Vm::cur_time, ScriptHost::set_time; the client must call set_time each frame)
 
 ## `portal/shared/src/interp/glue/gtokenize.cpp.c` (1/1)
 
@@ -3143,13 +3143,13 @@ Legend and workflow: [README](README.md).
 ### gUISaveLocations
 - [ ] `gUISaveLocations::CallEFun_Clear` · 00537e30 — needs port: UI save locations Clear
 
-## `portal/shared/src/interp/glue/gvector.cpp.c` (14/15)
+## `portal/shared/src/interp/glue/gvector.cpp.c` (15/15)
 
 ### gVector
 - [x] `gVector::CallEFun_Add` · 005376c0 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_Copy` · 00537730 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_MagnitudeSquared` · 005377a0 — ac2-script glue::math / glue::missile
-- [~] `gVector::CallEFun_Normalize` · 005377e0 — ac2-script glue::math: Rust f64 transcendentals / D3DXVec3Normalize, not the x87 instruction results
+- [x] `gVector::CallEFun_Normalize` · 005377e0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gVector::CallEFun_Scale` · 00537840 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_Set` · 005378b0 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_Subtract` · 00537920 — ac2-script glue::math / glue::missile
@@ -3162,7 +3162,7 @@ Legend and workflow: [README](README.md).
 - [x] `gVector::CallEFun_Cross` · 00537cd0 — ac2-script glue::math / glue::missile
 - [x] `gVector::CallEFun_GetStringW` · 00537db0 — ac2-script glue::math / glue::missile
 
-## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (12/13)
+## `portal/shared/src/interp/glue/gvisualdesc.cpp.c` (13/13)
 
 ### gVisualDesc
 - [x] `gVisualDesc::CallEFun_Clear` · 00537020 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
@@ -3175,18 +3175,18 @@ Legend and workflow: [README](README.md).
 - [x] `gVisualDesc::CallEFun_RemoveAppearanceKey` · 00537360 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 - [x] `gVisualDesc::CallEFun_ReplaceVisualDesc` · 005373f0 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
 - [x] `gVisualDesc::CallEFun_GetScale` · 00537470 — ac2-script glue/visual_desc.rs (efun test glue/visual_desc_tests.rs)
-- [~] `gVisualDesc::CallEFun_GetTotalIconDesc` · 00537520 · legions 0051b090 — ac2-script glue/visual_desc.rs: the parent-and-own icon layers; atom icon modifiers not modelled
+- [x] `gVisualDesc::CallEFun_GetTotalIconDesc` · 00537520 · legions 0051b090 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gVisualDesc::CallEFun_GetVisualDescFromDB` · 005375c0 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 - [x] `gVisualDesc::CallEFun_InqAppInfoHashForPartGroup` · 00537620 · legions 0051b160 — out args read through the SADDR local (out_native); LongInteger (0x4000000D) answers 0 and writes nothing, as EntityDesc::InqInteger's base virtual does
 
-## `portal/shared/src/interp/glue/gvm.cpp.c` (12/24)
+## `portal/shared/src/interp/glue/gvm.cpp.c` (17/24)
 
 ### gVM
-- [~] `gVM::CallEFun_GarbageCollect` · 00553840 — ac2-script glue: no collector/debugger
-- [~] `gVM::CallEFun_SetActiveGC` · 00553850 — ac2-script glue: no collector/debugger
-- [~] `gVM::CallEFun_SetAggressiveGCDeletion` · 00553870 — ac2-script glue: no collector/debugger
+- [x] `gVM::CallEFun_GarbageCollect` · 00553840 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gVM::CallEFun_SetActiveGC` · 00553850 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
+- [x] `gVM::CallEFun_SetAggressiveGCDeletion` · 00553870 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gVM::CallEFun_CloneReference` · 00553890 · legions 0052e1c0 — ac2-script vm::pack (dependent-reference walk, CloneReference)
-- [~] `gVM::CallEFun_DeleteAllUnUsedReferences` · 005538d0 — ac2-script glue: no collector/debugger
+- [x] `gVM::CallEFun_DeleteAllUnUsedReferences` · 005538d0 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gVM::CallEFun_GetContextID` · 00553900 — ac2-script glue
 - [x] `gVM::CallEFun_GetDataID` · 00553930 — ac2-script glue
 - [x] `gVM::CallEFun_GetPackageID` · 00553990 — ac2-script glue
@@ -3197,7 +3197,7 @@ Legend and workflow: [README](README.md).
 - [x] `gVM::CallEFun_IsInstanceOf` · 00553ae0 — ac2-script glue
 - [x] `gVM::CallEFun_WSL_EFun_GetInstanceReference` · 00553b20 · legions 0052e450 — ac2-script glue
 - [x] `gVM::CallEFun_GetPackageNameByPkgIDW` · 00553b50 · legions 0052e480 — ac2-script glue
-- [~] `gVM::CallEFun_GetStackTrace` · 00553bd0 · legions 0052e500 — ac2-script glue: no collector/debugger
+- [x] `gVM::CallEFun_GetStackTrace` · 00553bd0 · legions 0052e500 — ac2-script: efun bound in glue::register_pure / host_efuns (host::tests::efun_coverage lists unbound ones)
 - [x] `gVM::CallEFun_GetPackageIDByRef` · 00553c50 — ac2-script glue
 - [-] `gVM::CallEFun_QueryPerfW` · 00553c90 — WSL debugger query (process, reference and perf tables)
 - [-] `gVM::CallEFun_QueryProcessTableW` · 00553cf0 — WSL debugger query (process, reference and perf tables)

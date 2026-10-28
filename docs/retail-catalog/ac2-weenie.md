@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 818 done, 174 partial, 400 to do, 512 skipped.
+1904 retail functions: 823 done, 175 partial, 394 to do, 512 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2255,23 +2255,23 @@ Legend and workflow: [README](README.md).
 - [ ] `gCWBookKeeper::CallEFun_AddObjectToBeDestroyed` · 004bc7e0 — needs port: script efun add object to be destroyed on the book keeper; no citation in crates/
 - [ ] `gCWBookKeeper::CallEFun_RemoveObjectToBeDestroyed` · 004bc850 — needs port: script efun remove object to be destroyed on the book keeper; no citation in crates/
 
-## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (1/3)
+## `portal/client/src/weenie/interp/glue/gcwdistributor.cpp.c` (2/3)
 
 ### gCWDistributor
 - [x] `gCWDistributor::CallEFun_GetEntityDID` · 004bc690 — lead: ac2-script host/glue.rs get_entity_did: the DID the weenie was made with (CWDistributor::m_initData.m_did, +0x14), tag 4; null this crashes; host tests.
-- [ ] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — needs port: script efun get my package id on the distributor; no citation in crates/
-- [ ] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — needs port: script efun get process id on the distributor; no citation in crates/
+- [x] `gCWDistributor::CallEFun_GetMyPackageID` · 004bc700 — ac2-script glue::engine_misc get_my_package_id
+- [~] `gCWDistributor::CallEFun_GetProcessID` · 004bc770 — ac2-script glue::engine_misc: process id numbered in weenie creation order from 1; the singleton processes retail registers first are not modelled
 
-## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (5/32)
+## `portal/client/src/weenie/interp/glue/gcwinterface.cpp.c` (9/32)
 
 ### gCWInterface
 - [ ] `gCWInterface::Resume_Sleep` · 004bb120 · legions 004b0340 — needs port: resume continuation of latent sleep (the script waits and resumes here); no citation in crates/
 - [ ] `gCWInterface::CallEFun_DisplayHelpText` · 004bb200 — needs port: script efun display help text on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_Sleep` · 004bb260 — needs port: script efun sleep on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_AddShellCmd` · 004bb370 — needs port: script efun add shell cmd on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0 — needs port: script efun add shell cmd by string id on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_AddShellHelp` · 004bb480 — needs port: script efun add shell help on the interface; no citation in crates/
-- [ ] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500 — needs port: script efun add shell help by string id on the interface; no citation in crates/
+- [x] `gCWInterface::CallEFun_AddShellCmd` · 004bb370 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+- [x] `gCWInterface::CallEFun_AddShellCmdByStringID` · 004bb3f0 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+- [x] `gCWInterface::CallEFun_AddShellHelp` · 004bb480 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
+- [x] `gCWInterface::CallEFun_AddShellHelpByStringID` · 004bb500 — ac2-script glue::engine_misc add_shell (Vm::shell table: words split at ;:, lower-cased, trimmed; the chat shell reads Vm::shell)
 - [ ] `gCWInterface::CallEFun_GetExternalWeenieObject` · 004bb580 — needs port: script efun get external weenie object on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_GetInternalWeenieObject` · 004bb600 — needs port: script efun get internal weenie object on the interface; no citation in crates/
 - [ ] `gCWInterface::CallEFun_InqStringInfoValue` · 004bb680 — needs port: script efun inq string info value on the interface; no citation in crates/

@@ -121,6 +121,8 @@ pub struct ScriptHost {
     vm: Vm,
     processes: HashMap<u64, Process>,
     next_context: u32,
+    /// The next `ProcessState::m_procid` (`ProcessTable::RegisterProcess`).
+    next_process: u32,
 }
 
 impl ScriptHost {
@@ -131,6 +133,7 @@ impl ScriptHost {
             vm: Vm::new(program, data, efuns),
             processes: HashMap::new(),
             next_context: 1,
+            next_process: 1,
         }
     }
 
@@ -172,6 +175,8 @@ impl ScriptHost {
         match instance {
             Some(instance) => {
                 self.vm.owners.insert(instance, id);
+                self.vm.process_ids.insert(instance, self.next_process);
+                self.next_process += 1;
                 self.vm.init_data.insert(id, (pid, did));
                 self.processes.insert(
                     id,
@@ -184,6 +189,12 @@ impl ScriptHost {
             }
             None => false,
         }
+    }
+
+    /// `Timer::cur_time`, which `gTimer::get_time` returns: the client's time in seconds, set
+    /// once a frame.
+    pub fn set_time(&mut self, seconds: f64) {
+        self.vm.cur_time = seconds;
     }
 
     /// The player's object id (`CObjectMaint::GetPlayerID`); its process is
@@ -246,6 +257,7 @@ impl ScriptHost {
     pub fn remove_weenie(&mut self, id: u64) {
         if let Some(p) = self.processes.remove(&id) {
             self.vm.owners.remove(&p.instance);
+            self.vm.process_ids.remove(&p.instance);
         }
         self.vm.init_data.remove(&id);
         self.vm.repositories.remove(&id);

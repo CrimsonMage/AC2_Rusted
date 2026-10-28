@@ -30,6 +30,7 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gBaseProperty::CallEFun_SetBool" => set_bool,
             "gBaseProperty::CallEFun_InqInteger" => inq_integer,
             "gBaseProperty::CallEFun_SetInteger" => set_integer,
+            "gBaseProperty::CallEFun_InqLongInteger" => inq_long_integer,
             "gBaseProperty::CallEFun_InqFloat" => inq_float,
             "gBaseProperty::CallEFun_SetFloat" => set_float,
             "gBaseProperty::CallEFun_InqVector" => inq_vector,
@@ -141,6 +142,21 @@ fn inq_integer(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 /// `gBaseProperty::CallEFun_SetInteger(int)`.
 fn set_integer(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     set_scalar(vm, ctx, |v, x| v.set_integer(x as i32))
+}
+
+/// `gBaseProperty::CallEFun_InqLongInteger(long long &)`: a LongInteger value, written to the
+/// 64-bit out reference (tag 0x84).
+fn inq_long_integer(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, out) = this_and_arg(ctx);
+    let found = match read_value(vm, this, BasePropertyValue::inq_long_integer) {
+        Ok(found) => found,
+        Err(status) => return status,
+    };
+    if let Some(value) = found {
+        super::lists::write_out(vm, ctx, out, Some(value as u64), super::lists::Kind::L);
+    }
+    ret_flag(ctx, found.is_some());
+    InterpStatus::Success
 }
 
 /// `gBaseProperty::CallEFun_InqFloat(float &)`: the float's bits.

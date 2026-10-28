@@ -12,7 +12,7 @@ use crate::vm::{Context, EFuns, InterpStatus, Vm};
 /// `DB_TYPE_STRING_TABLE`.
 const STRING_TABLE: u32 = 0x4000_0026;
 /// The enum class `FileArray::GetDIDFromEnum` takes for string tables.
-const STRING_TABLE_ENUM: u32 = 0x4000_0004;
+pub(super) const STRING_TABLE_ENUM: u32 = 0x4000_0004;
 
 pub(super) fn register(efuns: &mut EFuns) {
     let table: [(u32, crate::vm::EFunFn); 27] = [

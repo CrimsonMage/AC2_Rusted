@@ -8,6 +8,7 @@
 mod chargen;
 mod collision;
 mod containers;
+mod data_bags;
 mod hash_table;
 mod multi;
 mod options;
@@ -22,6 +23,7 @@ pub use ac2_net::protocol::Position;
 pub use chargen::CharGenResult;
 pub use collision::{CollideProperty, CollisionParameters, CollisionProfile, ObjCollisionProfile};
 pub use containers::{RefKey, ScriptList};
+pub use data_bags::{FxAndBehavior, LinkRequirements, MissileInfo, MissileTargeting};
 pub use hash_table::{
     bucket_size_index, HashNode, HashPos, NativeKeys, PlainKeys, ScriptHash, BUCKET_SIZES,
     DEFAULT_BUCKETS,
@@ -62,6 +64,14 @@ pub mod ntype {
     pub const MISSILE_PARAMETERS: u32 = 0x46;
     /// `CollisionParameters` (`gCollisionParameters`): the impact minimums.
     pub const COLLISION_PARAMETERS: u32 = 0x1A;
+    /// `FXAndBehaviorInfo` (`gFXAndBehaviorInfo`).
+    pub const FX_AND_BEHAVIOR_INFO: u32 = 0x2B;
+    /// `LinkRequirements` (`gLinkRequirements`).
+    pub const LINK_REQUIREMENTS: u32 = 0x38;
+    /// `MissileInfo` (`gMissileInfo`).
+    pub const MISSILE_INFO: u32 = 0x45;
+    /// `MissileTargetingParameters` (`gMissileTargetingParameters`).
+    pub const MISSILE_TARGETING_PARAMETERS: u32 = 0x47;
     /// `CollisionProfile` (`gCollisionProfile`): a collision report.
     pub const COLLISION_PROFILE: u32 = 0x1B;
     /// `CollideProperty` (`gCollideProperty`): one property a collision report lists.
@@ -215,6 +225,14 @@ pub enum NativeObject {
     MissileParameters(MissileParameters),
     /// `CollisionParameters` (native 0x1A).
     CollisionParameters(CollisionParameters),
+    /// `LinkRequirements` (native 0x38).
+    LinkRequirements(LinkRequirements),
+    /// `MissileInfo` (native 0x45).
+    MissileInfo(Box<MissileInfo>),
+    /// `MissileTargetingParameters` (native 0x47).
+    MissileTargeting(Box<MissileTargeting>),
+    /// `FXAndBehaviorInfo` (native 0x2B).
+    FxAndBehavior(Box<FxAndBehavior>),
     /// `CollisionProfile` (native 0x1B).
     CollisionProfile(Box<CollisionProfile>),
     /// `CollideProperty` (native 0x19).
@@ -407,6 +425,10 @@ impl NativeObject {
             ntype::COLLISION_PARAMETERS => {
                 NativeObject::CollisionParameters(CollisionParameters::default())
             }
+            ntype::LINK_REQUIREMENTS => NativeObject::LinkRequirements(LinkRequirements::default()),
+            ntype::MISSILE_INFO => NativeObject::MissileInfo(Box::default()),
+            ntype::MISSILE_TARGETING_PARAMETERS => NativeObject::MissileTargeting(Box::default()),
+            ntype::FX_AND_BEHAVIOR_INFO => NativeObject::FxAndBehavior(Box::default()),
             ntype::COLLISION_PROFILE => NativeObject::CollisionProfile(Box::default()),
             ntype::COLLIDE_PROPERTY => NativeObject::CollideProperty(CollideProperty::default()),
             ntype::BASE_PROPERTY => {

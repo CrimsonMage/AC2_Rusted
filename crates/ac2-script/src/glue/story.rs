@@ -52,6 +52,17 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x009F_000E, |vm, c| {
         set_track(vm, c, TRACK_VOICE, |k, v| k.voice = v)
     });
+    // `gmKeyframe::Set{Video,Audio,Voice}TrackByName(name)`: the file's DID
+    // (`FileArray::GetDIDForDummies`; 0 when the name does not resolve) and the track bit.
+    efuns.register(0x009F_0009, |vm, c| {
+        set_track_by_name(vm, c, TRACK_VIDEO, |k, v| k.video = v)
+    });
+    efuns.register(0x009F_000C, |vm, c| {
+        set_track_by_name(vm, c, TRACK_AUDIO, |k, v| k.audio = v)
+    });
+    efuns.register(0x009F_000F, |vm, c| {
+        set_track_by_name(vm, c, TRACK_VOICE, |k, v| k.voice = v)
+    });
     efuns.register(0x009F_0010, get_subtitle);
     efuns.register(0x009F_0011, set_subtitle);
     efuns.register(0x009F_0014, get_duration);
@@ -194,6 +205,29 @@ fn set_keyframe(vm: &mut Vm, ctx: &mut Context, f: fn(&mut Keyframe, u32)) -> In
 /// `gmKeyframe::SetVideoTrack` / `SetAudioTrack` / `SetVoiceTrack`: the DID and its track bit.
 fn set_track(vm: &mut Vm, ctx: &mut Context, bit: u32, f: fn(&mut Keyframe, u32)) -> InterpStatus {
     let (this, did) = (Call::new(ctx).this(), word(ctx, 2));
+    let Some(k) = keyframe_mut(vm, this) else {
+        return vm.bad_this(this);
+    };
+    f(k, did);
+    k.defined_tracks |= bit;
+    InterpStatus::Success
+}
+
+/// `gmKeyframe::SetVideoTrackByName` / `SetAudioTrackByName` / `SetVoiceTrackByName`: the name
+/// (`wpstring`, narrowed) resolves through `FileArray::GetDIDForDummies`; the DID is stored and
+/// the track bit set whether or not the name resolved.
+fn set_track_by_name(
+    vm: &mut Vm,
+    ctx: &mut Context,
+    bit: u32,
+    f: fn(&mut Keyframe, u32),
+) -> InterpStatus {
+    let (this, name) = (Call::new(ctx).this(), word(ctx, 2));
+    if keyframe(vm, this).is_none() {
+        return vm.bad_this(this);
+    }
+    let name = vm.wstring(name).map(super::narrow).unwrap_or_default();
+    let did = vm.data().file_did(&name, 0).unwrap_or(0);
     let Some(k) = keyframe_mut(vm, this) else {
         return vm.bad_this(this);
     };

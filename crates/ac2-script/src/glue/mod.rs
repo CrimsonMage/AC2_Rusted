@@ -18,7 +18,9 @@ mod chargen;
 mod collision;
 mod cparse;
 mod craft_natives;
+mod data_bags;
 mod effect_node;
+mod engine_misc;
 mod entity_desc;
 mod enums;
 mod examination;
@@ -44,6 +46,7 @@ mod story;
 mod string_info;
 mod string_text;
 mod string_utils;
+mod sub_data_ids;
 mod turbine_gun;
 mod ui_natives;
 mod visual_desc;
@@ -100,6 +103,9 @@ pub fn register_pure(efuns: &mut EFuns) {
     shortcut::register(efuns);
     reserved_ids::register(efuns);
     turbine_gun::register(efuns);
+    data_bags::register(efuns);
+    engine_misc::register(efuns);
+    sub_data_ids::register(efuns);
 }
 
 pub(crate) use chargen::empty_race_sex_info;
@@ -229,5 +235,7 @@ pub(crate) const INT_RESULT: u8 = tag::BOOL;
 
 #[cfg(test)]
 mod base_property_tests;
+#[cfg(test)]
+mod data_bag_tests;
 #[cfg(test)]
 mod tests;

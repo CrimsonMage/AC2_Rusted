@@ -290,9 +290,65 @@ pub struct Vm {
     /// The world's name as the client holds it (`Turbine::Client`'s, set by the world-name
     /// notice); `gTurbineGunUtils::CallEFun_GetWorldName` answers with it.
     pub world_name: String,
+    /// The chat-shell commands and help handlers the scripts registered
+    /// (`CWInterface::AddShellCmd` / `AddShellHelp`), in registration order.
+    pub shell: ShellTable,
+    /// `Timer::cur_time` (seconds), which `gTimer::get_time` returns; the host updates it each
+    /// frame (`ScriptHost::set_time`).
+    pub cur_time: f64,
+    /// Each weenie script process's `ProcessState::m_procid` by instance reference
+    /// (`ProcessTable::RegisterProcess`: the table's size at registration).
+    pub process_ids: std::collections::HashMap<u32, u32>,
     /// `Random`: retail has one generator for the whole client; a host that runs other
     /// consumers of it on the same stream shares its state through this field.
     pub random: ac2_core::Random,
+}
+
+/// One chat-shell command (or help) handler a script registered: the lowercase command word and
+/// the script function that runs it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ShellCommand {
+    pub command: Vec<u16>,
+    pub function: u32,
+}
+
+/// `CWInterface::m_cmdFuncMap` and `m_helpFuncMap`: command word -> function. A word added twice
+/// keeps its latest function (`HashTable::add` replaces).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ShellTable {
+    pub commands: Vec<ShellCommand>,
+    pub help: Vec<ShellCommand>,
+}
+
+impl ShellTable {
+    /// `CWInterface::AddShellCmd` / `AddShellHelp` bookkeeping: the words of `text` split at
+    /// `;`, `:` and `,` (`PSUtils::FindAllWords`), each lower-cased and trimmed, map to `function`.
+    /// Returns how many words were registered.
+    pub fn add(&mut self, help: bool, text: &[u16], function: u32) -> usize {
+        let table = if help {
+            &mut self.help
+        } else {
+            &mut self.commands
+        };
+        let mut added = 0;
+        for word in text.split(|&c| matches!(c, 0x3B | 0x3A | 0x2C)) {
+            // `FindAllWords` keeps only non-empty tokens; trimming comes after.
+            if word.is_empty() {
+                continue;
+            }
+            let word: String = String::from_utf16_lossy(word).to_lowercase();
+            let word: Vec<u16> = word.trim().encode_utf16().collect();
+            added += 1;
+            match table.iter_mut().find(|c| c.command == word) {
+                Some(entry) => entry.function = function,
+                None => table.push(ShellCommand {
+                    command: word,
+                    function,
+                }),
+            }
+        }
+        added
+    }
 }
 
 /// `WLogSystem::m_logTypeFile` / `m_logTypePrint` (Legions starts them at 0x1A4 and 0).
@@ -344,6 +400,9 @@ impl Vm {
             appearances: Default::default(),
             chat: Default::default(),
             world_name: String::new(),
+            shell: ShellTable::default(),
+            cur_time: 0.0,
+            process_ids: Default::default(),
         }
     }
 
