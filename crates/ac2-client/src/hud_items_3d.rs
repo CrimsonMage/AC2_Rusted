@@ -44,13 +44,7 @@ impl HudView {
             ui_table: strings.ui_table,
             enums: &strings.enums,
         };
-        let mut requests = Vec::new();
-        if let Some(picked) = picked {
-            requests.extend(items.finish_pick(tree, &player, picked));
-        }
-        for message in &self.player_messages {
-            items.message(tree, &player, message);
-        }
+        let requests = items.frame_pass(tree, &player, picked, &self.player_messages);
         for request in requests {
             crate::ui_inventory::item_request(
                 request,

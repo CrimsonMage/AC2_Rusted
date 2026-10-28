@@ -1,14 +1,14 @@
 //! The shortcut bar's checks that the gameplay notices ask for (`gmShortcutUI::RecvNotice_*`):
 //! `CheckAllItems`, `CheckAllSkills`, `CheckSkill(skill)` and `CheckItem(item, setPending)`.
 
-use ac2_ui::ShortcutUi;
 use ac2_weenie::GameplayNotice;
 
-use crate::ui_sources::ClientPlayer;
+use crate::element::UiTree;
+use crate::shortcut::{ShortcutSource, ShortcutUi};
 
 /// One shortcut bar check a notice asks for.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ShortcutCheck {
+pub enum ShortcutCheck {
     /// `CheckAllItems`.
     Items,
     /// `CheckAllSkills`.
@@ -20,18 +20,18 @@ pub(crate) enum ShortcutCheck {
 }
 
 /// The bar's checks, in the order the notices arrived.
-pub(crate) fn apply_shortcut_checks(
+pub fn apply_shortcut_checks(
     bar: &mut ShortcutUi,
-    tree: &mut ac2_ui::UiTree,
-    player: &ClientPlayer,
+    tree: &mut UiTree,
+    source: &dyn ShortcutSource,
     checks: &[ShortcutCheck],
 ) {
     for &check in checks {
         match check {
-            ShortcutCheck::Items => bar.check_all_items(tree, player),
-            ShortcutCheck::Skills => bar.check_all_skills(tree, player),
-            ShortcutCheck::Skill(skill) => bar.check_skill(tree, player, skill),
-            ShortcutCheck::Item(item, pending) => bar.check_item(tree, player, item, pending),
+            ShortcutCheck::Items => bar.check_all_items(tree, source),
+            ShortcutCheck::Skills => bar.check_all_skills(tree, source),
+            ShortcutCheck::Skill(skill) => bar.check_skill(tree, source, skill),
+            ShortcutCheck::Item(item, pending) => bar.check_item(tree, source, item, pending),
         }
     }
 }
@@ -40,7 +40,7 @@ pub(crate) fn apply_shortcut_checks(
 /// `RecvNotice_UpdateInventory` (all items for 0x40000001, else the one item, pending for
 /// 0x40000005; then all skills), `RecvNotice_UpdateContainer` (the same items part) and
 /// `RecvNotice_UpdateResetTime` (CheckAllSkills).
-pub(crate) fn shortcut_checks_of(notice: &GameplayNotice) -> Vec<ShortcutCheck> {
+pub fn shortcut_checks_of(notice: &GameplayNotice) -> Vec<ShortcutCheck> {
     const ALL: u32 = 0x4000_0001;
     const PENDING: u32 = 0x4000_0005;
     let items = |code: u32, item: u64| {

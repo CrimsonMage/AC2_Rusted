@@ -148,6 +148,7 @@ mod shop_rows;
 #[cfg(test)]
 mod shop_tests;
 mod shortcut;
+mod shortcut_notices;
 mod shortcut_states;
 mod skill_tree;
 mod stack;
@@ -359,6 +360,7 @@ pub use shortcut::{
     Shortcut, ShortcutOptions, ShortcutRequest, ShortcutSource, ShortcutUi, SHORTCUT_ALIAS,
     SHORTCUT_EMPTY, SHORTCUT_ITEM, SHORTCUT_RECIPE, SHORTCUT_SKILL,
 };
+pub use shortcut_notices::{apply_shortcut_checks, shortcut_checks_of, ShortcutCheck};
 pub use skill_tree::{
     SkillNode, SkillPanel, SkillRequest, SkillSource, SkillStatus, SkillTreeUi, SkillVar,
     EXAMINE_PANEL, EXAMINE_SKILL, NODE_SKILL, ROOT_MAGIC_PANEL, ROOT_MELEE_PANEL,

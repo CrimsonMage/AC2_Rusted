@@ -5,10 +5,10 @@ use ac2_weenie::{GameplayNotice, SessionEvent};
 
 use crate::frame::ClientFrame;
 use crate::hud_player::PassOut;
-use crate::hud_shortcut_checks::{apply_shortcut_checks, shortcut_checks_of, ShortcutCheck};
 use crate::hud_view::HudView;
 use crate::ui_sources::ClientPlayer;
 use ac2_ui::StatusBar;
+use ac2_ui::{apply_shortcut_checks, shortcut_checks_of, ShortcutCheck};
 
 impl HudView {
     /// The frame's notices, in the order the frameworks get them (`RecvNotice_*`), then the

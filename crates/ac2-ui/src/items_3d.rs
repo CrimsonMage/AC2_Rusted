@@ -79,6 +79,26 @@ impl Items3dUi {
     }
 
     /// `gm3DItemsUI::ListenToMessage`: a drop on the field, or a press on it nothing took.
+    /// One frame of `gm3DItemsUI`: the target search the last frame started finishes with
+    /// `picked` (`finish_pick`), then the frame's `messages` are heard. Returns the requests the
+    /// drops made, in order.
+    pub fn frame_pass(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        picked: Option<Option<u64>>,
+        messages: &[UiMessage],
+    ) -> Vec<ItemRequest> {
+        let mut requests = Vec::new();
+        if let Some(picked) = picked {
+            requests.extend(self.finish_pick(tree, s, picked));
+        }
+        for message in messages {
+            self.message(tree, s, message);
+        }
+        requests
+    }
+
     pub fn message(&mut self, tree: &mut UiTree, s: &dyn InventorySource, message: &UiMessage) {
         if message.element != self.field || self.field.is_none() {
             return;

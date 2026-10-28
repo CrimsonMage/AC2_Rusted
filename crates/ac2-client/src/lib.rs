@@ -83,7 +83,6 @@ mod hud_player_notice;
 #[cfg(feature = "window")]
 mod hud_player_tick;
 mod hud_shop;
-mod hud_shortcut_checks;
 #[cfg(feature = "window")]
 mod hud_story;
 #[cfg(feature = "window")]
