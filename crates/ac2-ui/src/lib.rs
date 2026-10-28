@@ -55,7 +55,7 @@ mod hud;
 mod hud_notices;
 pub use hud_notices::notice_pass;
 mod hud_message;
-pub use hud_message::{consignment_requests, message_pass, MessagePanels, ShortcutCalls};
+pub use hud_message::{consignment_requests, message_pass, MessageInputs, ShortcutCalls};
 mod options_pages;
 pub use options_pages::{live_effects, OptionsEffect, OptionsHost, OptionsPages, DISPLAY_KEYS};
 mod hud_request;

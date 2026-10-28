@@ -1,20 +1,13 @@
 //! The HUD frameworks' message pass (`ListenToMessage`): the quests' global loop, the options'
 //! and dialogs' countdowns, then each of the frame's messages to the panels in the order the
-//! frameworks listen to them. The panels' requests come back as [`HudRequest`]s in that order;
-//! the client maps them to gameplay commands.
-
-use std::sync::Arc;
+//! frameworks listen to them. The panels are the HUD's ([`Hud`]); the requests the panels raise
+//! come back as [`HudRequest`]s in that order, and the client maps them to gameplay commands.
 
 use crate::{
-    assistance_message, select_key_calls, select_key_of, shop_stack_calls, AllegianceUi,
-    AssistancePanel, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentRequest,
-    ConsignmentUi, DialogFactory, EffectsUi, ExamineEffect, ExternalContainerRequest,
-    ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs, HudRequest, HudSource,
-    Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates, NewSaleSource,
-    NewSaleUi, OptionsHost, OptionsPages, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi,
-    SecureTradeUi, ShopUi, Shortcut, ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi,
-    ToolbarChild, ToolbarUi, UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE,
-    GLOBAL_KEY_PRESS, LOGOUT_ACTION,
+    assistance_message, select_key_calls, select_key_of, shop_stack_calls, ConsignmentRequest,
+    DialogFactory, ExamineEffect, ExternalContainerRequest, Hud, HudRequest, HudSource, NameLook,
+    NamePlates, NewSaleSource, NewSaleUi, OptionsHost, Shortcut, SocialAction, StackUi,
+    ToolbarChild, UiMessage, UiTree, EXAMINE_VITAE, GLOBAL_KEY_PRESS, LOGOUT_ACTION,
 };
 use crate::{item_dialog, ItemRequest};
 
@@ -26,16 +19,12 @@ pub trait ShortcutCalls {
     fn set_shortcut(&mut self, index: usize, shortcut: &Shortcut);
 }
 
-/// The panels the message pass feeds, borrowed from the client's HUD for one frame, and the
-/// frame's values the panels take. A panel that is not made yet is `None` and gets nothing.
-pub struct MessagePanels<'a> {
-    pub tree: &'a mut UiTree,
-    /// The HUD's clock at this frame (the dialogs' countdown).
-    pub now: f64,
+/// The frame's values the message pass takes beside the HUD and its tree: the server's time, the
+/// selection, the friends page's target, the client's answers to the panels' questions and the
+/// client side of `gmClientUI`.
+pub struct MessageInputs<'a> {
     /// The server's time at this frame.
     pub server_time: f64,
-    /// Whether shift is held (the money bag's melting confirmation).
-    pub shift_held: bool,
     /// The selected object's id, for the pet panel.
     pub selection: Option<u64>,
     /// The friends page's target (another player's name, when it is selected).
@@ -46,65 +35,33 @@ pub struct MessagePanels<'a> {
     pub max_purchase: &'a mut dyn FnMut(u64) -> u32,
     /// The consignment charge the script returns (`consignment_charge`, 0 when unknown).
     pub consignment_charge: &'a mut dyn FnMut() -> f32,
-    /// `gmClientUI`'s page.
-    pub options: &'a mut OptionsPages,
     /// The client side of `gmClientUI` (its preferences and live applies).
     pub options_host: &'a mut dyn OptionsHost,
-    /// The toolbar's layout, which the options page's widgets are made over.
-    pub toolbar_layout: Option<&'a Arc<LayoutDesc>>,
-    pub game_dialogs: &'a mut GameplayDialogs,
-    pub dialogs: &'a mut Option<DialogFactory>,
-    pub toolbar: &'a mut Option<ToolbarUi>,
-    pub shortcuts: &'a mut Option<ShortcutUi>,
-    pub skills: &'a mut Option<SkillTreeUi>,
-    pub overview: &'a mut Option<OverviewMapUi>,
-    pub fellowship: &'a mut Option<FellowshipUi>,
-    pub mini_fellow: &'a mut Option<MiniFellowUi>,
-    pub pets: &'a mut Option<PetUi>,
-    pub friends: &'a mut Option<FriendsPanel>,
-    pub social: &'a mut Option<SocialPanel>,
-    pub assistance: &'a mut Option<AssistancePanel>,
-    pub quests: &'a mut Option<QuestsUi>,
-    pub vitals: &'a mut Option<VitalsUi>,
-    pub vitae: &'a mut Option<VitaeStatusUi>,
-    pub radar: &'a mut Option<RadarUi>,
-    pub names: &'a mut Option<NamePlates>,
-    pub effects: &'a mut Option<EffectsUi>,
-    pub backpack: &'a mut Option<BackpackUi>,
-    pub money: &'a mut Option<MoneyBagUi>,
-    pub items_3d: &'a mut Option<Items3dUi>,
-    pub external_container: &'a mut Option<ExternalContainerUi>,
-    pub stack: &'a mut Option<StackUi>,
-    pub secure_trade: &'a mut Option<SecureTradeUi>,
-    pub shop: &'a mut Option<ShopUi>,
-    pub catalog: &'a mut Option<CatalogUi>,
-    pub new_sale: &'a mut Option<NewSaleUi>,
-    pub consignment: &'a mut Option<ConsignmentUi>,
-    pub paper_doll: &'a mut Option<PaperDollUi>,
-    pub allegiance: &'a mut Option<AllegianceUi>,
-    pub character: &'a mut Option<CharacterUi>,
-    pub chat_options: &'a mut Option<ChatOptionsUi>,
 }
 
 /// One frame's messages through the panels, in the frameworks' order; returns the requests the
-/// panels raised, in order.
+/// panels raised, in order. The panels are the HUD's ([`Hud`]); `now`, the shift key and the
+/// options page's layout are the HUD's too.
 pub fn message_pass<P: HudSource>(
-    panels: MessagePanels<'_>,
+    hud: &mut Hud,
+    tree: &mut UiTree,
+    inputs: MessageInputs<'_>,
     player: &P,
     messages: &[UiMessage],
 ) -> Vec<HudRequest> {
-    let MessagePanels {
-        tree,
-        now,
+    let MessageInputs {
         server_time,
-        shift_held,
         selection,
         friend_target,
         name_looks,
         max_purchase,
         consignment_charge,
-        options,
         options_host,
+    } = inputs;
+    let Hud {
+        now,
+        shift_held,
+        options,
         toolbar_layout,
         game_dialogs,
         dialogs,
@@ -138,7 +95,8 @@ pub fn message_pass<P: HudSource>(
         allegiance,
         character,
         chat_options,
-    } = panels;
+        ..
+    } = hud;
     let mut out = Vec::new();
     // `gmQuestsUI::Show` when the toolbar's Quest child changed, then
     // `gmJournalQuestsUI::ListenToMessage` on the global loop: the pages laid out, and the time
@@ -147,14 +105,14 @@ pub fn message_pass<P: HudSource>(
         if let Some(bar) = toolbar.as_ref() {
             panel.sync(tree, bar.shown(tree, ToolbarChild::Quest));
         }
-        panel.journal_mut().global_loop(tree, player, now);
+        panel.journal_mut().global_loop(tree, player, *now);
         panel.story_global_loop(tree, player, || player.act_list());
     }
     // `gmClientUI`'s widgets, once the HUD and the preferences are there.
-    options.make(options_host, tree, toolbar_layout);
+    options.make(options_host, tree, toolbar_layout.as_ref());
     // `TimedDialog`'s countdown: a question run out answers no.
     if let Some(dialogs) = dialogs.as_mut() {
-        dialogs.tick(tree, now);
+        dialogs.tick(tree, *now);
     }
     for message in messages {
         // `gmToolbarUI::ListenToMessage`: the dismount button calls `gmCWInterface::Dismount`.
@@ -287,7 +245,8 @@ pub fn message_pass<P: HudSource>(
         }
         // `gmMoneyBagUI::ListenToMessage`: a drop on the bag.
         if let (Some(bag), Some(dialogs)) = (money.as_mut(), dialogs.as_mut()) {
-            if let Some(request) = bag.message(tree, player, player, dialogs, message, shift_held) {
+            if let Some(request) = bag.message(tree, player, player, dialogs, message, *shift_held)
+            {
                 push_item(request, tree, stack, player, &mut out);
             }
         }
@@ -319,7 +278,7 @@ pub fn message_pass<P: HudSource>(
             let request = request.or_else(|| items_3d.as_mut()?.stack_ui_done(context, amount));
             let request = request.or_else(|| {
                 let (bag, dialogs) = (money.as_mut()?, dialogs.as_mut()?);
-                bag.stack_ui_done(tree, player, player, dialogs, context, amount, shift_held)
+                bag.stack_ui_done(tree, player, player, dialogs, context, amount, *shift_held)
             });
             if let Some(request) = request {
                 out.push(HudRequest::Item(request));

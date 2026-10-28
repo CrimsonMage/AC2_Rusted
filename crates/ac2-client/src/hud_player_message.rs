@@ -3,7 +3,7 @@
 //! commands ([`hud_request_commands`]). The client options page is answered over the client here.
 
 use ac2_render::prefs::SceneOptions;
-use ac2_ui::{MessagePanels, OptionsHost, OptionsPrefs, Shortcut, ShortcutCalls, UiMessage};
+use ac2_ui::{MessageInputs, OptionsHost, OptionsPrefs, Shortcut, ShortcutCalls, UiMessage};
 
 use crate::frame::ClientFrame;
 use crate::hud_friends::friend_target;
@@ -66,9 +66,7 @@ impl HudView {
         frame: &ClientFrame,
         messages: &[UiMessage],
     ) -> PassOut {
-        let HudView {
-            hud, panels: state, ..
-        } = self;
+        let HudView { hud, panels, .. } = self;
         let Some((tree, _)) = hud else {
             return PassOut::default();
         };
@@ -88,53 +86,16 @@ impl HudView {
                 .unwrap_or(0.0)
         };
         let mut host = ClientOptions { player };
-        let panels = MessagePanels {
-            tree,
-            now: state.now,
+        let inputs = MessageInputs {
             server_time: frame.server_time,
-            shift_held: state.shift_held,
             selection: frame.selection.as_ref().map(|s| s.id),
             friend_target: friend_target(frame.selection.as_ref()),
             name_looks: &looks,
             max_purchase: &mut most,
             consignment_charge: &mut charge,
-            options: &mut state.options,
             options_host: &mut host,
-            toolbar_layout: state.toolbar_layout.as_ref(),
-            game_dialogs: &mut state.game_dialogs,
-            dialogs: &mut state.dialogs,
-            toolbar: &mut state.toolbar,
-            shortcuts: &mut state.shortcuts,
-            skills: &mut state.skills,
-            overview: &mut state.overview,
-            fellowship: &mut state.fellowship,
-            mini_fellow: &mut state.mini_fellow,
-            pets: &mut state.pets,
-            friends: &mut state.friends,
-            social: &mut state.social,
-            assistance: &mut state.assistance,
-            quests: &mut state.quests,
-            vitals: &mut state.vitals,
-            vitae: &mut state.vitae,
-            radar: &mut state.radar,
-            names: &mut state.names,
-            effects: &mut state.effects,
-            backpack: &mut state.backpack,
-            money: &mut state.money,
-            items_3d: &mut state.items_3d,
-            external_container: &mut state.external_container,
-            stack: &mut state.stack,
-            secure_trade: &mut state.secure_trade,
-            shop: &mut state.shop,
-            catalog: &mut state.catalog,
-            new_sale: &mut state.new_sale,
-            consignment: &mut state.consignment,
-            paper_doll: &mut state.paper_doll,
-            allegiance: &mut state.allegiance,
-            character: &mut state.character,
-            chat_options: &mut state.chat_options,
         };
-        let requests = ac2_ui::message_pass(panels, player, messages);
+        let requests = ac2_ui::message_pass(panels, tree, inputs, player, messages);
         let mut out = PassOut::default();
         hud_request_commands(requests, &mut out);
         out
