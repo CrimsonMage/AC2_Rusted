@@ -12,7 +12,7 @@ use ac2_script::native::CharGenResult as ScriptCgr;
 use ac2_ui::pregame::CharGenSystem;
 use ac2_weenie::Appearance;
 
-use crate::chat_text::render_info;
+use ac2_ui::chat_text::render_info;
 
 /// The `CharacterGenSystem` on a script host.
 pub struct ScriptCharGen {

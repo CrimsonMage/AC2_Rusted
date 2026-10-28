@@ -159,9 +159,9 @@ pub(crate) struct HudView {
     /// Lines displayed before the HUD arrived (`RecvNotice_DisplayStringInfo`).
     early_lines: Vec<(u32, String)>,
     /// Images set after the build, loaded on demand.
-    images: crate::ui_images::UiImageLoader,
+    images: ac2_ui::UiImageLoader,
     /// The chat lines being rendered (`StringDownload`).
-    chat_text: crate::chat_text::ChatText,
+    chat_text: ac2_ui::chat_text::ChatText,
     overlay: UiOverlay,
     /// The root of each drawn layer, in drawing order (the viewports' scenes go after theirs).
     layer_roots: Vec<usize>,

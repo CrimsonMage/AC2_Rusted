@@ -157,7 +157,7 @@ fn text(info: &ac2_net::protocol::StringInfo) -> String {
     let dataset = ac2_dat::test_support::env_dataset().expect("dataset");
     let store = ac2_db::ResourceStore::new(dataset);
     let tables = ac2_db::StoreStringTables::new(store, 0x5800_0000);
-    let rendered = ac2_db::get_string(&tables, &ac2_client::chat_text::render_info(info), false);
+    let rendered = ac2_db::get_string(&tables, &ac2_ui::chat_text::render_info(info), false);
     String::from_utf16_lossy(&rendered)
 }
 

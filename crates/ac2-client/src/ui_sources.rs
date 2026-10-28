@@ -186,7 +186,7 @@ impl ClientPlayer<'_> {
     }
 
     fn text(&self, info: &ac2_net::protocol::StringInfo) -> String {
-        let info = crate::chat_text::render_info(info);
+        let info = ac2_ui::chat_text::render_info(info);
         String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
     }
 }
@@ -272,7 +272,7 @@ impl ClientPlayer<'_> {
                 precision: *precision as _,
             },
             SkillVar::Info(inner) => RenderVar::Info(Box::new(self.ui_info(inner))),
-            SkillVar::Wire(info) => RenderVar::Info(Box::new(crate::chat_text::render_info(info))),
+            SkillVar::Wire(info) => RenderVar::Info(Box::new(ac2_ui::chat_text::render_info(info))),
         };
         RenderInfo {
             string_id: string.string_id,

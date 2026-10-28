@@ -35,8 +35,8 @@ impl HudView {
         format: wgpu::TextureFormat,
         size: (u32, u32),
     ) -> Self {
-        let chat_text = crate::chat_text::ChatText::new((*store).clone());
-        let images = crate::ui_images::UiImageLoader::new(Arc::clone(&store));
+        let chat_text = ac2_ui::chat_text::ChatText::new((*store).clone());
+        let images = ac2_ui::UiImageLoader::new(Arc::clone(&store));
         let (send_strings, pending_strings) = mpsc::channel();
         let strings_store = Arc::clone(&store);
         std::thread::Builder::new()

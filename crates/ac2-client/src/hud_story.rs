@@ -16,7 +16,7 @@ use crate::ui_sources::UiStringTables;
 fn subtitle_text(strings: Option<&UiStringTables>, info: &StringInfo) -> String {
     match strings {
         Some(strings) => {
-            let info = crate::chat_text::render_info(info);
+            let info = ac2_ui::chat_text::render_info(info);
             String::from_utf16_lossy(&ac2_db::get_string(&strings.tables, &info, false))
         }
         None => info.literal.clone().unwrap_or_default(),

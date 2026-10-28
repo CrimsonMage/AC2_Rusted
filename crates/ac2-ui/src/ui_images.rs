@@ -6,11 +6,11 @@ use std::collections::{HashMap, HashSet};
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Arc;
 
+use crate::{UiPixels, UiTree};
 use ac2_core::DataId;
 use ac2_db::ResourceStore;
-use ac2_ui::{UiPixels, UiTree};
 
-pub(crate) struct UiImageLoader {
+pub struct UiImageLoader {
     send: Sender<u32>,
     receive: Receiver<(u32, Option<UiPixels>)>,
     asked: HashSet<u32>,
@@ -19,7 +19,7 @@ pub(crate) struct UiImageLoader {
 }
 
 impl UiImageLoader {
-    pub(crate) fn new(store: Arc<ResourceStore>) -> Self {
+    pub fn new(store: Arc<ResourceStore>) -> Self {
         let (send, requests) = mpsc::channel::<u32>();
         let (done, receive) = mpsc::channel();
         std::thread::Builder::new()
@@ -49,7 +49,7 @@ impl UiImageLoader {
     }
 
     /// Asks for every image the tree shows that is not loaded or asked for yet.
-    pub(crate) fn request_missing(&mut self, tree: &UiTree, images: &HashMap<u32, UiPixels>) {
+    pub fn request_missing(&mut self, tree: &UiTree, images: &HashMap<u32, UiPixels>) {
         for file in tree.image_files() {
             if file != 0
                 && !images.contains_key(&file)
@@ -62,7 +62,7 @@ impl UiImageLoader {
     }
 
     /// The images loaded since the last call into `images`; whether any arrived.
-    pub(crate) fn take(&mut self, images: &mut HashMap<u32, UiPixels>) -> bool {
+    pub fn take(&mut self, images: &mut HashMap<u32, UiPixels>) -> bool {
         let mut any = false;
         while let Ok(arrived) = self.receive.try_recv() {
             any |= self.arrived(arrived, images);
@@ -71,7 +71,7 @@ impl UiImageLoader {
     }
 
     /// Waits up to `timeout` for every image asked for (headless snapshots); whether any arrived.
-    pub(crate) fn wait_all(
+    pub fn wait_all(
         &mut self,
         images: &mut HashMap<u32, UiPixels>,
         timeout: std::time::Duration,

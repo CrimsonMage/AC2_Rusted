@@ -161,6 +161,7 @@ mod story_view;
 #[cfg(test)]
 mod story_view_tests;
 pub use story_view::StoryView;
+pub mod chat_text;
 pub mod help;
 #[cfg(test)]
 mod help_buttons_tests;
@@ -209,6 +210,8 @@ mod window_positions;
 pub use window_positions::{
     parse as parse_window_positions, to_text as window_positions_text, WindowPosition,
 };
+mod ui_images;
+pub use ui_images::UiImageLoader;
 mod ui_string;
 mod vitae;
 mod vitals;
@@ -231,6 +234,7 @@ pub use chat::{
     REPLY_STRING_TABLE, STRING_TABLE_GROUP,
 };
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
+pub use chat_text::ChatText;
 pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES};
 pub use client_options_page::{ClientOptionsUi, ClientRequest};
 pub use client_page::{

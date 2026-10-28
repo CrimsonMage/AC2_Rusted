@@ -22,7 +22,6 @@ mod audio;
 mod chargen;
 mod chargen_data;
 mod chat_commands;
-pub mod chat_text;
 mod client;
 mod client_ambient;
 mod client_audio;
@@ -126,7 +125,6 @@ mod tables;
 mod target_select;
 #[cfg(feature = "window")]
 mod ui_examination;
-mod ui_images;
 #[cfg(feature = "window")]
 mod ui_inventory;
 #[cfg(feature = "window")]
