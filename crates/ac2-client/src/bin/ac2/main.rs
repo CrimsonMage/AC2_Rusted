@@ -43,7 +43,7 @@ use std::time::{Duration, Instant};
 
 use ac2_client::pregame_view::PregameView;
 use ac2_client::view::ClientView;
-use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld};
+use ac2_client::{frame_input, pick_targets, Client, Command, DatWorld, WindowPresentation};
 use ac2_gpu::{render_to, Gpu, DEPTH_FORMAT};
 use ac2_net::Credential;
 use ac2_ui::{wheel_event_delta, Controls, InputEvent, SelectionUi, WheelAccumulator};
@@ -55,7 +55,7 @@ use winit::event::{
 };
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::keyboard::PhysicalKey;
-use winit::window::{CursorGrabMode, Window, WindowId};
+use winit::window::{CursorGrabMode, Fullscreen, Window, WindowId};
 
 /// Frame-thread time spent taking finished loads (`DBCache::UseTime`'s pump).
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
@@ -183,7 +183,32 @@ struct App {
     window_size: Option<winit::dpi::PhysicalSize<u32>>,
 }
 
+/// Borderless fullscreen on the window's current monitor (`Windowed = !FullScreen`; retail's
+/// exclusive display change has no portable form, see `window_presentation`).
+fn borderless() -> Fullscreen {
+    Fullscreen::Borderless(None)
+}
+
+/// The surface's present mode for vertical sync: FIFO (`PresentationInterval` ONE), else immediate
+/// presentation, which falls back to mailbox and FIFO where immediate is not supported.
+fn present_mode(vsync: bool) -> wgpu::PresentMode {
+    if vsync {
+        wgpu::PresentMode::Fifo
+    } else {
+        wgpu::PresentMode::AutoNoVsync
+    }
+}
+
 impl State {
+    /// Takes the display section's presentation as a verified change set it: the window's
+    /// fullscreen state, the present mode and the frame latency, then the surface is configured.
+    fn apply_presentation(&mut self, presentation: WindowPresentation) {
+        self.window
+            .set_fullscreen(presentation.fullscreen.then(borderless));
+        self.config.present_mode = present_mode(presentation.vsync);
+        self.config.desired_maximum_frame_latency = presentation.frame_latency;
+        self.surface.configure(&self.gpu.device, &self.config);
+    }
     fn now(&self) -> (u32, f64) {
         let elapsed = self.started.elapsed();
         (elapsed.as_millis() as u32, elapsed.as_secs_f64())
@@ -447,9 +472,9 @@ impl App {
                     view.set_scene_options(options);
                     self.scene_options = options;
                 }
-                ac2_client::OptionsEffect::Fullscreen(on) => state
-                    .window
-                    .set_fullscreen(on.then_some(winit::window::Fullscreen::Borderless(None))),
+                ac2_client::OptionsEffect::Presentation(presentation) => {
+                    state.apply_presentation(presentation);
+                }
             }
         }
         // The selection render: the object under the pointer, selected (or the selection
@@ -539,6 +564,17 @@ impl ApplicationHandler for App {
         if let Some(size) = self.window_size {
             attributes = attributes.with_inner_size(size);
         }
+        // The display section's FullScreen and the surface's presentation, as the player saved
+        // them (`Device::ChangePresentation` at the start of the session).
+        let presentation = self
+            .client
+            .prefs()
+            .map_or(WindowPresentation::from_flags(true, false, true), |prefs| {
+                WindowPresentation::from_bank(prefs.bank())
+            });
+        if presentation.fullscreen {
+            attributes = attributes.with_fullscreen(Some(borderless()));
+        }
         let window = Arc::new(event_loop.create_window(attributes).expect("window"));
         let instance = wgpu::Instance::default();
         let surface = instance.create_surface(window.clone()).expect("surface");
@@ -567,8 +603,8 @@ impl ApplicationHandler for App {
             format,
             width: size.width.max(1),
             height: size.height.max(1),
-            present_mode: wgpu::PresentMode::Fifo,
-            desired_maximum_frame_latency: 2,
+            present_mode: present_mode(presentation.vsync),
+            desired_maximum_frame_latency: presentation.frame_latency,
             alpha_mode: caps.alpha_modes[0],
             view_formats: vec![],
             color_space: Default::default(),

@@ -19,17 +19,16 @@ use ac2_ui::{
 };
 
 use crate::client::Client;
-
-/// `ac2_render::prefs::FULL_SCREEN`: the display section's `FullScreen`.
-const FULL_SCREEN: u32 = ac2_render::prefs::FULL_SCREEN;
+use crate::window_presentation::{WindowPresentation, DISPLAY_KEYS};
 
 /// A change the applied options make in the world, for the frame's owner to make.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum OptionsEffect {
     /// The scene's graphics options (`WorldScene::set_options`), when they changed.
     Scene(SceneOptions),
-    /// The window's fullscreen state (only a verified display change asks for it).
-    Fullscreen(bool),
+    /// The window's fullscreen state and the surface's presentation (only a verified display
+    /// change asks for it).
+    Presentation(WindowPresentation),
 }
 
 /// The client options page and the effects its applies left.
@@ -187,20 +186,19 @@ fn apply_live(
     let Some(options) = client.apply_live_preferences() else {
         return;
     };
-    let fullscreen = client
+    let presentation = client
         .prefs()
-        .and_then(|prefs| prefs.bank().find(FULL_SCREEN))
-        .map(|pref| matches!(pref.value, ac2_prefs::Value::Bool(true)));
-    effects.extend(live_effects(keys, options, fullscreen, scene));
+        .map(|prefs| WindowPresentation::from_bank(prefs.bank()));
+    effects.extend(live_effects(keys, options, presentation, scene));
 }
 
 /// What the applied keys change in the world: the scene's options when they differ from the last
-/// ones sent, and the window's fullscreen state, only when the display key itself was applied
-/// (a display change the player verified). `fullscreen` is the setting's value.
+/// ones sent, and the window's presentation, only when a display key itself was applied (a display
+/// change the player verified). `presentation` is the display section's values.
 pub(crate) fn live_effects(
     keys: &[u32],
     scene_now: SceneOptions,
-    fullscreen: Option<bool>,
+    presentation: Option<WindowPresentation>,
     last_scene: &mut Option<SceneOptions>,
 ) -> Vec<OptionsEffect> {
     let mut effects = Vec::new();
@@ -208,8 +206,8 @@ pub(crate) fn live_effects(
         *last_scene = Some(scene_now);
         effects.push(OptionsEffect::Scene(scene_now));
     }
-    if let (true, Some(on)) = (keys.contains(&FULL_SCREEN), fullscreen) {
-        effects.push(OptionsEffect::Fullscreen(on));
+    if let (true, Some(now)) = (keys.iter().any(|k| DISPLAY_KEYS.contains(k)), presentation) {
+        effects.push(OptionsEffect::Presentation(now));
     }
     effects
 }
@@ -234,19 +232,31 @@ mod tests {
         assert!(again.is_empty(), "the same scene is not sent twice");
     }
 
+    const FULL_SCREEN: u32 = crate::window_presentation::FULL_SCREEN;
+
+    fn window(fullscreen: bool) -> WindowPresentation {
+        WindowPresentation::from_flags(fullscreen, false, true)
+    }
+
     #[test]
-    fn the_window_goes_fullscreen_only_when_the_display_key_is_applied() {
+    fn the_window_takes_the_display_only_when_a_display_key_is_applied() {
         let mut last = Some(scene(4));
         // Not applied (a display change still waiting for its verification): no window change.
-        assert!(live_effects(&[0x4000_0044], scene(4), Some(true), &mut last).is_empty());
-        // Applied after the player verified it: the window follows the setting.
+        assert!(live_effects(&[0x4000_0044], scene(4), Some(window(true)), &mut last).is_empty());
+        // Applied after the player verified it: the window and surface follow the values.
         assert_eq!(
-            live_effects(&[FULL_SCREEN], scene(4), Some(true), &mut last),
-            vec![OptionsEffect::Fullscreen(true)]
+            live_effects(&[FULL_SCREEN], scene(4), Some(window(true)), &mut last),
+            vec![OptionsEffect::Presentation(window(true))]
         );
         assert_eq!(
-            live_effects(&[FULL_SCREEN], scene(4), Some(false), &mut last),
-            vec![OptionsEffect::Fullscreen(false)]
+            live_effects(&[FULL_SCREEN], scene(4), Some(window(false)), &mut last),
+            vec![OptionsEffect::Presentation(window(false))]
+        );
+        // The other display keys (sync, triple buffering) reach the surface the same way.
+        let triple = WindowPresentation::from_flags(false, true, false);
+        assert_eq!(
+            live_effects(&[0x4000_0005], scene(4), Some(triple), &mut last),
+            vec![OptionsEffect::Presentation(triple)]
         );
     }
 

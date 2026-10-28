@@ -6384,9 +6384,9 @@ key	status	note
 00533e10	-	Win32 dialog-box thread marshalling; Rust draws its own dialogs
 00533e20	x	crates/ac2-client/src/pregame.rs PregameOutcome::quit cites Device::Done (the done flag closes the client)
 00533e30	_	needs port (check): Device::Unfocus releases input on focus loss; implemented in crates/ac2-client/src/bin/ac2/main.rs (WindowEvent::Focused) but uncited
-00533e80	_	needs port (check): Device::LoadRenderingPreferences; crates/ac2-render/src/prefs.rs covers InitializeRenderingPreferences, this overload uncited
+00533e80	x	ac2-client window_presentation.rs: FullScreen, TripleBuffering and SyncToDisplayRefresh read from the bank into a WindowPresentation (from_bank, from_flags); tests in window_presentation.rs
 00533f20	-	D3D graphics-engine teardown; wgpu drop
-00533f80	_	needs port (check): Device::ToggleFullScreenMode; main.rs OptionsEffect::Fullscreen sets borderless fullscreen but uncited
+00533f80	~	ac2-client: FullScreen is borderless fullscreen on the current monitor (main.rs borderless, apply_presentation), applied at startup and on a verified display change; the exclusive display-mode change and forced resolution are not modelled. OptimalRefreshRate and Antialiasing are skipped (window_presentation.rs docs)
 00533fe0	-	registry install path (Win32); Rust takes --dat-dir and the config directory
 00534130	-	Win32/D3D device cleanup; Rust Drop
 00534190	-	Win32 window procedure; winit delivers the events
@@ -6394,7 +6394,7 @@ key	status	note
 00534a50	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 00534b50	-	registry install path (Win32); Rust takes --dat-dir and the config directory
 00534cd0	~	ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
-00534de0	_	needs port: display mode change (ChangePresentation, ForceDisplayResolution); only borderless fullscreen exists
+00534de0	~	ac2-client: FullScreen is borderless fullscreen on the current monitor (main.rs borderless, apply_presentation), applied at startup and on a verified display change; the exclusive display-mode change and forced resolution are not modelled. OptimalRefreshRate and Antialiasing are skipped (window_presentation.rs docs)
 00534fc0	-	Win32 16-bit display warning dialog; not a modern display case
 005350a0	_	needs port: display mode change (ChangePresentation, ForceDisplayResolution); only borderless fullscreen exists
 00535180	_	needs port (check): Device::StartupGraphicsEngine; wgpu device creation in crates/ac2-gpu uncited

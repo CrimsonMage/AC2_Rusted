@@ -60,6 +60,7 @@ pub use portal_sounds::{portal_sound_ids, PortalSoundIds};
 pub use pref_labels::pref_label;
 pub use rain_sounds::{rain_sound_ids, RainSoundIds};
 pub use target_select::pick_targets;
+pub use window_presentation::WindowPresentation;
 mod consignment;
 mod controls;
 mod craft;
@@ -140,6 +141,7 @@ mod ui_sources;
 pub mod view;
 #[cfg(feature = "window")]
 mod view_portal;
+mod window_presentation;
 mod world_data;
 
 /// `EffectUINode`: one effect as the status bar's strip shows it ([`Client::effect_list`]).

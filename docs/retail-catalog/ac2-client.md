@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 125 done, 49 partial, 73 to do, 107 skipped.
+354 retail functions: 126 done, 51 partial, 70 to do, 107 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -246,7 +246,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DevAVI::DevAVI` · 00733590 · legions 006afa40 — needs port: intro AVI playback (DevAVI); crates/ac2-ui/src/media.rs skips Avi media
 - [ ] `DevAVI::~DevAVI` · 007337a0 · legions 006afc50 — needs port: intro AVI playback (DevAVI); crates/ac2-ui/src/media.rs skips Avi media
 
-## `portal/client/src/device/win95/wdevice.cpp.c` (1/26)
+## `portal/client/src/device/win95/wdevice.cpp.c` (2/26)
 
 ### RenderDevicePresentation
 - [-] `RenderDevicePresentation::RenderDevicePresentation` · 00533d40 · legions 00517ce0 — ctor of plain data (presentation, event, dialog gateway)
@@ -262,9 +262,9 @@ Legend and workflow: [README](README.md).
 ### Device
 - [x] `Device::Done` · 00533e20 · legions 00517dc0 — crates/ac2-client/src/pregame.rs PregameOutcome::quit cites Device::Done (the done flag closes the client)
 - [ ] `Device::Unfocus` · 00533e30 · legions 00517dd0 — needs port (check): Device::Unfocus releases input on focus loss; implemented in crates/ac2-client/src/bin/ac2/main.rs (WindowEvent::Focused) but uncited
-- [ ] `Device::LoadRenderingPreferences` · 00533e80 · legions 00517e20 — needs port (check): Device::LoadRenderingPreferences; crates/ac2-render/src/prefs.rs covers InitializeRenderingPreferences, this overload uncited
+- [x] `Device::LoadRenderingPreferences` · 00533e80 · legions 00517e20 — ac2-client window_presentation.rs: FullScreen, TripleBuffering and SyncToDisplayRefresh read from the bank into a WindowPresentation (from_bank, from_flags); tests in window_presentation.rs
 - [-] `Device::ShutdownGraphicsEngine` · 00533f20 · legions 00517ec0 — D3D graphics-engine teardown; wgpu drop
-- [ ] `Device::ToggleFullScreenMode` · 00533f80 · legions 00517f20 — needs port (check): Device::ToggleFullScreenMode; main.rs OptionsEffect::Fullscreen sets borderless fullscreen but uncited
+- [~] `Device::ToggleFullScreenMode` · 00533f80 · legions 00517f20 — ac2-client: FullScreen is borderless fullscreen on the current monitor (main.rs borderless, apply_presentation), applied at startup and on a verified display change; the exclusive display-mode change and forced resolution are not modelled. OptimalRefreshRate and Antialiasing are skipped (window_presentation.rs docs)
 - [-] `Device::GetPath` · 00533fe0 · legions 00517f80 — registry install path (Win32); Rust takes --dat-dir and the config directory
 - [-] `Device::Cleanup` · 00534130 · legions 005180d0 — Win32/D3D device cleanup; Rust Drop
 - [-] `Device::WndProc` · 00534190 — Win32 window procedure; winit delivers the events
@@ -272,7 +272,7 @@ Legend and workflow: [README](README.md).
 - [~] `Device::SendStringToClipboard` · 00534a50 · legions 005189f0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
 - [-] `Device::SetPath` · 00534b50 · legions 00518af0 — registry install path (Win32); Rust takes --dat-dir and the config directory
 - [~] `Device::GetStringFromClipboard` · 00534cd0 — ac2-ui text_edit.rs / text_clip.rs / text.rs: drag and Shift selection, clipboard keys; not modelled: wheel on text (HandleMouseWheel), page up/down, IME, fallback fonts; clipboard is arboard, not CF_UNICODETEXT (ac2-client clipboard.rs)
-- [ ] `Device::ChangePresentation` · 00534de0 · legions 00518d80 — needs port: display mode change (ChangePresentation, ForceDisplayResolution); only borderless fullscreen exists
+- [~] `Device::ChangePresentation` · 00534de0 · legions 00518d80 — ac2-client: FullScreen is borderless fullscreen on the current monitor (main.rs borderless, apply_presentation), applied at startup and on a verified display change; the exclusive display-mode change and forced resolution are not modelled. OptimalRefreshRate and Antialiasing are skipped (window_presentation.rs docs)
 - [-] `Device::Show16BitWarning` · 00534fc0 · legions 00518f60 — Win32 16-bit display warning dialog; not a modern display case
 - [ ] `Device::ForceDisplayResolution` · 005350a0 · legions 00518fa0 — needs port: display mode change (ChangePresentation, ForceDisplayResolution); only borderless fullscreen exists
 - [ ] `Device::StartupGraphicsEngine` · 00535180 · legions 00519080 — needs port (check): Device::StartupGraphicsEngine; wgpu device creation in crates/ac2-gpu uncited
