@@ -1,0 +1,463 @@
+//! The HUD frameworks' message pass (`ListenToMessage`): the quests' global loop, the options'
+//! and dialogs' countdowns, then each of the frame's messages to the panels in the order the
+//! frameworks listen to them. The panels' requests come back as [`HudRequest`]s in that order;
+//! the client maps them to gameplay commands.
+
+use std::sync::Arc;
+
+use crate::{
+    assistance_message, select_key_calls, select_key_of, shop_stack_calls, AllegianceUi,
+    AssistancePanel, BackpackUi, CatalogUi, CharacterUi, ChatOptionsUi, ConsignmentRequest,
+    ConsignmentUi, DialogFactory, EffectsUi, ExamineEffect, ExternalContainerRequest,
+    ExternalContainerUi, FellowshipUi, FriendsPanel, GameplayDialogs, HudRequest, HudSource,
+    Items3dUi, LayoutDesc, MiniFellowUi, MoneyBagUi, NameLook, NamePlates, NewSaleSource,
+    NewSaleUi, OverviewMapUi, PaperDollUi, PetUi, QuestsUi, RadarUi, SecureTradeUi, ShopUi,
+    ShortcutUi, SkillTreeUi, SocialAction, SocialPanel, StackUi, ToolbarChild, ToolbarUi,
+    UiMessage, UiTree, VitaeStatusUi, VitalsUi, EXAMINE_VITAE, GLOBAL_KEY_PRESS, LOGOUT_ACTION,
+};
+use crate::{item_dialog, ItemRequest};
+
+/// The client options page's share of the HUD (`gmClientUI`), which the client answers over its
+/// preferences.
+pub trait OptionsMessages {
+    /// `gmClientUI::gmClientUI`: the page's widgets, made once the HUD's tree, its toolbar layout
+    /// and the preferences are there.
+    fn make(&mut self, tree: &mut UiTree, toolbar: Option<&Arc<LayoutDesc>>);
+    /// The page's share of a UI message.
+    fn message(&mut self, tree: &mut UiTree, dialogs: &mut DialogFactory, message: &UiMessage);
+}
+
+/// The panels the message pass feeds, borrowed from the client's HUD for one frame, and the
+/// frame's values the panels take. A panel that is not made yet is `None` and gets nothing.
+pub struct MessagePanels<'a> {
+    pub tree: &'a mut UiTree,
+    /// The HUD's clock at this frame (the dialogs' countdown).
+    pub now: f64,
+    /// The server's time at this frame.
+    pub server_time: f64,
+    /// Whether shift is held (the money bag's melting confirmation).
+    pub shift_held: bool,
+    /// The selected object's id, for the pet panel.
+    pub selection: Option<u64>,
+    /// The friends page's target (another player's name, when it is selected).
+    pub friend_target: Option<&'a str>,
+    /// The name plates' looks, taken only when the names key toggles them.
+    pub name_looks: &'a dyn Fn() -> Vec<NameLook>,
+    /// The shop's purchase limit for an item (`max_purchase_quantity`, 0 when unknown).
+    pub max_purchase: &'a mut dyn FnMut(u64) -> u32,
+    /// The consignment charge the script returns (`consignment_charge`, 0 when unknown).
+    pub consignment_charge: &'a mut dyn FnMut() -> f32,
+    /// `gmClientUI`'s page.
+    pub options: &'a mut dyn OptionsMessages,
+    /// The toolbar's layout, which the options page's widgets are made over.
+    pub toolbar_layout: Option<&'a Arc<LayoutDesc>>,
+    pub game_dialogs: &'a mut GameplayDialogs,
+    pub dialogs: &'a mut Option<DialogFactory>,
+    pub toolbar: &'a mut Option<ToolbarUi>,
+    pub shortcuts: &'a mut Option<ShortcutUi>,
+    pub skills: &'a mut Option<SkillTreeUi>,
+    pub overview: &'a mut Option<OverviewMapUi>,
+    pub fellowship: &'a mut Option<FellowshipUi>,
+    pub mini_fellow: &'a mut Option<MiniFellowUi>,
+    pub pets: &'a mut Option<PetUi>,
+    pub friends: &'a mut Option<FriendsPanel>,
+    pub social: &'a mut Option<SocialPanel>,
+    pub assistance: &'a mut Option<AssistancePanel>,
+    pub quests: &'a mut Option<QuestsUi>,
+    pub vitals: &'a mut Option<VitalsUi>,
+    pub vitae: &'a mut Option<VitaeStatusUi>,
+    pub radar: &'a mut Option<RadarUi>,
+    pub names: &'a mut Option<NamePlates>,
+    pub effects: &'a mut Option<EffectsUi>,
+    pub backpack: &'a mut Option<BackpackUi>,
+    pub money: &'a mut Option<MoneyBagUi>,
+    pub items_3d: &'a mut Option<Items3dUi>,
+    pub external_container: &'a mut Option<ExternalContainerUi>,
+    pub stack: &'a mut Option<StackUi>,
+    pub secure_trade: &'a mut Option<SecureTradeUi>,
+    pub shop: &'a mut Option<ShopUi>,
+    pub catalog: &'a mut Option<CatalogUi>,
+    pub new_sale: &'a mut Option<NewSaleUi>,
+    pub consignment: &'a mut Option<ConsignmentUi>,
+    pub paper_doll: &'a mut Option<PaperDollUi>,
+    pub allegiance: &'a mut Option<AllegianceUi>,
+    pub character: &'a mut Option<CharacterUi>,
+    pub chat_options: &'a mut Option<ChatOptionsUi>,
+}
+
+/// One frame's messages through the panels, in the frameworks' order; returns the requests the
+/// panels raised, in order.
+pub fn message_pass<P: HudSource>(
+    panels: MessagePanels<'_>,
+    player: &P,
+    messages: &[UiMessage],
+) -> Vec<HudRequest> {
+    let MessagePanels {
+        tree,
+        now,
+        server_time,
+        shift_held,
+        selection,
+        friend_target,
+        name_looks,
+        max_purchase,
+        consignment_charge,
+        options,
+        toolbar_layout,
+        game_dialogs,
+        dialogs,
+        toolbar,
+        shortcuts,
+        skills,
+        overview,
+        fellowship,
+        mini_fellow,
+        pets,
+        friends,
+        social,
+        assistance,
+        quests,
+        vitals,
+        vitae,
+        radar,
+        names,
+        effects,
+        backpack,
+        money,
+        items_3d,
+        external_container,
+        stack,
+        secure_trade,
+        shop,
+        catalog,
+        new_sale,
+        consignment,
+        paper_doll,
+        allegiance,
+        character,
+        chat_options,
+    } = panels;
+    let mut out = Vec::new();
+    // `gmQuestsUI::Show` when the toolbar's Quest child changed, then
+    // `gmJournalQuestsUI::ListenToMessage` on the global loop: the pages laid out, and the time
+    // displays counted down.
+    if let Some(panel) = quests.as_mut() {
+        if let Some(bar) = toolbar.as_ref() {
+            panel.sync(tree, bar.shown(tree, ToolbarChild::Quest));
+        }
+        panel.journal_mut().global_loop(tree, player, now);
+        panel.story_global_loop(tree, player, || player.act_list());
+    }
+    // `gmClientUI`'s widgets, once the HUD and the preferences are there.
+    options.make(tree, toolbar_layout);
+    // `TimedDialog`'s countdown: a question run out answers no.
+    if let Some(dialogs) = dialogs.as_mut() {
+        dialogs.tick(tree, now);
+    }
+    for message in messages {
+        // `gmToolbarUI::ListenToMessage`: the dismount button calls `gmCWInterface::Dismount`.
+        if toolbar
+            .as_ref()
+            .is_some_and(|bar| bar.is_dismount_press(message))
+        {
+            out.push(HudRequest::Dismount);
+        }
+        // `gmToolbarUI::ListenToMessage`: the consignments button's press asks for the sale
+        // reminders (`gmCWInterface::DisplaySaleReminders`).
+        if toolbar
+            .as_ref()
+            .is_some_and(|bar| bar.is_sale_reminder_press(message))
+        {
+            out.push(HudRequest::DisplaySaleReminders);
+        }
+        // `gmSelectionUI::ListenToMessage`: a target key selects (the cycling keys).
+        if let Some(key) = select_key_of(message) {
+            let typing = tree.text_mode();
+            out.extend(
+                select_key_calls(player, key, typing)
+                    .into_iter()
+                    .map(HudRequest::Selection),
+            );
+        }
+        if let (Some(page), Some(dialogs)) = (character.as_mut(), dialogs.as_mut()) {
+            page.message(tree, dialogs, message);
+            out.extend(page.take_requests().into_iter().map(HudRequest::Character));
+        }
+        if let (Some(page), Some(dialogs)) = (chat_options.as_mut(), dialogs.as_mut()) {
+            page.message(tree, dialogs, message);
+            out.extend(page.take_requests().into_iter().map(HudRequest::ChatOption));
+        }
+        if let Some(dialogs) = dialogs.as_mut() {
+            options.message(tree, dialogs, message);
+        }
+        if let (Some(skills), Some(dialogs)) = (skills.as_mut(), dialogs.as_mut()) {
+            skills.message(tree, dialogs, player, message);
+        }
+        if let Some(bar) = shortcuts.as_mut() {
+            bar.message(tree, player, message);
+        }
+        // `gmOverviewMapUI::ListenToMessage` (the close button) and the zoom buttons of
+        // `gmNavigationUI::ListenToMessage` (`ShowMap` with the button's map).
+        if let Some(overview) = overview.as_ref() {
+            overview.message(tree, message.element_id);
+        }
+        if let Some(panel) = fellowship.as_mut() {
+            panel.message(tree, message);
+        }
+        if let Some(panel) = mini_fellow.as_mut() {
+            panel.message(tree, message);
+        }
+        if let Some(panel) = pets.as_mut() {
+            out.extend(
+                panel
+                    .message(tree, message, selection)
+                    .into_iter()
+                    .map(HudRequest::Pet),
+            );
+        }
+        if let Some(panel) = friends.as_mut() {
+            out.extend(
+                panel
+                    .message(tree, message, friend_target)
+                    .into_iter()
+                    .map(HudRequest::Friends),
+            );
+        }
+        // `gmSocialUI::ListenToMessage` (`SocialHelpButton`): `KeyStone::OpenHelp`.
+        if let Some(panel) = social.as_mut() {
+            if let Some(SocialAction::OpenHelp(token)) = panel.message(tree, message) {
+                out.push(HudRequest::OpenHelp(token));
+            }
+        }
+        if let (Some(page), Some(dialogs)) = (assistance.as_mut(), dialogs.as_mut()) {
+            assistance_message(page, tree, dialogs, player, message);
+        }
+        if let Some(panel) = quests.as_mut() {
+            panel.journal_mut().message(tree, message);
+            if let Some(action) = panel.story_message(tree, message) {
+                panel.play_story_action(action, player);
+            }
+        }
+        if let Some(bar) = vitals.as_mut() {
+            bar.message(tree, message, player);
+        }
+        // `gmVitaeStatusUI::ListenToMessage`: examine the vitae.
+        if vitae.as_mut().is_some_and(|v| v.message(tree, message)) {
+            out.push(HudRequest::Examine {
+                kind: EXAMINE_VITAE,
+                data: 0,
+                item: 0,
+            });
+        }
+        // `gmRadarUI::ListenToMessage`: select the blip under the pointer, or show or hide the
+        // coordinates.
+        if let Some(request) = radar
+            .as_mut()
+            .and_then(|r| r.message(tree, player, message))
+        {
+            out.push(HudRequest::Radar(request));
+        }
+        // `gm3DTextUI::ListenToMessage`: a plate selects its object; the names key toggles the
+        // names (`ToggleNames`).
+        if let Some(plates) = names.as_mut() {
+            if let Some(id) = plates.message(tree, message) {
+                out.push(HudRequest::Select(id));
+            }
+            if NamePlates::toggle_requested(message) {
+                let show = !plates.showing();
+                plates.set_showing(tree, show, &name_looks());
+                out.push(HudRequest::SetShowObjectNames(show));
+            }
+        }
+        // `gmEffectsUI::ListenToMessage`: examine the pressed effect.
+        if let Some(ExamineEffect(eid)) = effects.as_mut().and_then(|s| s.message(tree, message)) {
+            out.push(HudRequest::Examine {
+                kind: 0x4000_0001,
+                data: eid,
+                item: 0,
+            });
+        }
+        if let Some(request) = backpack
+            .as_mut()
+            .and_then(|p| p.message(tree, player, message))
+        {
+            push_item(request, tree, stack, player, &mut out);
+        }
+        // `gmMoneyBagUI::ListenToMessage`: a drop on the bag.
+        if let (Some(bag), Some(dialogs)) = (money.as_mut(), dialogs.as_mut()) {
+            if let Some(request) = bag.message(tree, player, player, dialogs, message, shift_held) {
+                push_item(request, tree, stack, player, &mut out);
+            }
+        }
+        if let Some(panel) = external_container.as_mut() {
+            let (request, close) = panel.message(tree, player, message);
+            if let Some(dialog) = stack.as_mut() {
+                for context in close {
+                    dialog.close_stack_ui(tree, context);
+                }
+            }
+            if let Some(request) = request {
+                push_container(request, tree, stack, player, &mut out);
+            }
+        }
+        // `gmStackUI::ListenToMessage`; its `StackUIDone` finishes the waiting drop.
+        let done = stack
+            .as_mut()
+            .and_then(|d| d.message(tree, message, player));
+        if let Some(done) = done {
+            let (context, amount) = (done.context, done.amount);
+            let request = backpack
+                .as_mut()
+                .and_then(|p| p.stack_ui_done(player, context, amount))
+                .or_else(|| {
+                    external_container
+                        .as_mut()
+                        .and_then(|p| p.stack_ui_done(player, context, amount))
+                });
+            let request = request.or_else(|| items_3d.as_mut()?.stack_ui_done(context, amount));
+            let request = request.or_else(|| {
+                let (bag, dialogs) = (money.as_mut()?, dialogs.as_mut()?);
+                bag.stack_ui_done(tree, player, player, dialogs, context, amount, shift_held)
+            });
+            if let Some(request) = request {
+                out.push(HudRequest::Item(request));
+            }
+            if let Some(panel) = secure_trade.as_mut() {
+                panel.recv_stack_ui_done(context, amount);
+            }
+            if let Some(panel) = shop.as_mut() {
+                panel.recv_stack_ui_done(context, amount);
+            }
+            if let Some(panel) = new_sale.as_mut() {
+                panel.recv_stack_ui_done(tree, player, context, amount);
+            }
+            if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+                panel.recv_stack_ui_done(tree, dialogs, player, context, amount);
+                consignment_requests(
+                    panel.take_requests(),
+                    new_sale.as_mut(),
+                    tree,
+                    dialogs,
+                    player,
+                    server_time,
+                    &mut out,
+                );
+                shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+            }
+        }
+        if let Some(request) = paper_doll
+            .as_mut()
+            .and_then(|d| d.message(tree, player, message))
+        {
+            out.push(HudRequest::Item(request));
+        }
+        if let (Some(page), Some(dialogs)) = (allegiance.as_mut(), dialogs.as_mut()) {
+            page.message(tree, dialogs, player, message);
+        }
+        if let Some(panel) = secure_trade.as_mut() {
+            panel.message(tree, player, message);
+        }
+        // `gmShopUI::ListenToMessage`; a purchase asks the player how many it may buy.
+        if let (Some(panel), Some(dialogs)) = (shop.as_mut(), dialogs.as_mut()) {
+            panel.message(tree, player, dialogs, message, server_time, max_purchase);
+        }
+        // `gmGamePlayUI::ListenToMessage`: the logout key (`LOGOUT_KEY`, global key press
+        // `0x4100000e`) asks for the end of the session on the next loop.
+        if message.element.is_none()
+            && message.message == GLOBAL_KEY_PRESS
+            && message.data as u32 == LOGOUT_ACTION
+        {
+            game_dialogs.logout_key();
+        }
+        // `gmShopCatalogUI::ListenToMessage`: the catalog's buttons and rows.
+        if let Some(panel) = catalog.as_mut() {
+            panel.message(tree, message, server_time);
+            out.extend(panel.take_requests().into_iter().map(HudRequest::Catalog));
+        }
+        // `gmShopConsignmentUI::ListenToMessage`: the consignment's buttons, rows and drop.
+        if let (Some(panel), Some(dialogs)) = (consignment.as_mut(), dialogs.as_mut()) {
+            panel.message(tree, dialogs, player, message, server_time);
+            consignment_requests(
+                panel.take_requests(),
+                new_sale.as_mut(),
+                tree,
+                dialogs,
+                player,
+                server_time,
+                &mut out,
+            );
+            shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+        }
+        // `gmShopNewSaleUI::ListenToMessage`: the sale's buttons and the drop on its slot.
+        if let (Some(panel), Some(dialogs)) = (new_sale.as_mut(), dialogs.as_mut()) {
+            panel.message(
+                tree,
+                dialogs,
+                player,
+                message,
+                server_time,
+                consignment_charge,
+            );
+            out.extend(panel.take_requests().into_iter().map(HudRequest::NewSale));
+            shop_stack_calls(panel.take_stack_calls(), tree, stack.as_mut());
+        }
+        if let Some(dialogs) = dialogs.as_mut() {
+            dialogs.message(tree, message);
+        }
+    }
+    out
+}
+
+/// A slot's request: the stack dialogs it opens (`ac2_ui::item_dialog`), then the rest as
+/// [`HudRequest::Item`].
+fn push_item<S: crate::InventoryNoticeSource>(
+    request: ItemRequest,
+    tree: &mut UiTree,
+    stack: &mut Option<StackUi>,
+    source: &S,
+    out: &mut Vec<HudRequest>,
+) {
+    if let Some(request) = item_dialog(request, tree, stack.as_mut(), source) {
+        out.push(HudRequest::Item(request));
+    }
+}
+
+/// An external container's request: its item requests open their dialogs, the rest are kept for
+/// the client.
+fn push_container<S: crate::InventoryNoticeSource>(
+    request: ExternalContainerRequest,
+    tree: &mut UiTree,
+    stack: &mut Option<StackUi>,
+    source: &S,
+    out: &mut Vec<HudRequest>,
+) {
+    match request {
+        ExternalContainerRequest::Item(request) => push_item(request, tree, stack, source, out),
+        other => out.push(HudRequest::ExternalContainer(other)),
+    }
+}
+
+/// The consignment's requests: the new-sale dialog opens for `NewSale` (`InitNewSale`), the
+/// examination is asked for ([`HudRequest::OpenExamination`]), and the rest are kept for the
+/// client ([`HudRequest::Consignment`]).
+pub fn consignment_requests(
+    requests: Vec<ConsignmentRequest>,
+    mut new_sale: Option<&mut NewSaleUi>,
+    tree: &mut UiTree,
+    dialogs: &mut DialogFactory,
+    source: &dyn NewSaleSource,
+    now: f64,
+    out: &mut Vec<HudRequest>,
+) {
+    for request in requests {
+        match request {
+            ConsignmentRequest::NewSale { item, quantity } => {
+                if let Some(panel) = new_sale.as_deref_mut() {
+                    panel.recv_init_new_sale(tree, dialogs, source, item, quantity, now);
+                }
+            }
+            ConsignmentRequest::OpenExamination => out.push(HudRequest::OpenExamination),
+            other => out.push(HudRequest::Consignment(other)),
+        }
+    }
+}

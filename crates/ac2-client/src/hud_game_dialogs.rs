@@ -7,7 +7,7 @@
 
 use ac2_ui::{
     DeathPanel, DialogFactory, DialogOutcome, DialogRequest, DisplayNotice, GameplayDialogs,
-    PopupQuestion, UiMessage, UiStrings, UiTree,
+    PopupQuestion, UiStrings, UiTree,
 };
 use ac2_weenie::SessionEvent;
 
@@ -36,17 +36,6 @@ pub(crate) fn game_dialog_notices(
         popup_backlog,
         display_backlog,
     );
-}
-
-/// `gmGamePlayUI::ListenToMessage` for the frame's messages: the logout key (`LOGOUT_KEY`,
-/// global key press `0x4100000e`) asks for the end of the session on the next loop.
-pub(crate) fn game_dialog_message(game: &mut GameplayDialogs, message: &UiMessage) {
-    if message.element.is_none()
-        && message.message == ac2_ui::GLOBAL_KEY_PRESS
-        && message.data as u32 == ac2_ui::LOGOUT_ACTION
-    {
-        game.logout_key();
-    }
 }
 
 /// `gmGamePlayUI::ListenToMessage` for the global loop: a pending logout runs `EndSession(1)`,

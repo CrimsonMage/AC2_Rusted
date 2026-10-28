@@ -2,10 +2,10 @@
 //! the page, and its buttons and status choice become the client's friend requests
 //! ([`crate::gameplay::Command::Friends`]).
 
-use ac2_ui::{FriendsPanel, UiMessage, UiTree};
+use ac2_ui::{FriendsPanel, UiTree};
 
 use crate::friends::FriendEvent;
-use crate::gameplay::{Command, SelectionFrame};
+use crate::gameplay::SelectionFrame;
 
 /// `gmCWInterface::GetSelection` as the friends page takes it: the name of the selected player
 /// when it is another player (not the local one), the add button's target. `None` otherwise.
@@ -21,19 +21,6 @@ pub(crate) fn friend_event(panel: &mut FriendsPanel, tree: &mut UiTree, event: F
     match event {
         FriendEvent::Start(list) => panel.recv_list(tree, &list),
         FriendEvent::Status(friend) => panel.recv_status(tree, &friend),
-    }
-}
-
-/// The page's messages: its buttons and the status choice, as requests in order.
-pub(crate) fn friends_message(
-    panel: &mut FriendsPanel,
-    tree: &mut UiTree,
-    message: &UiMessage,
-    target: Option<&str>,
-    commands: &mut Vec<Command>,
-) {
-    for request in panel.message(tree, message, target) {
-        commands.push(Command::Friends(request));
     }
 }
 

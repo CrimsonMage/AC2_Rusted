@@ -82,6 +82,7 @@ mod hud_player_message;
 mod hud_player_notice;
 #[cfg(feature = "window")]
 mod hud_player_tick;
+mod hud_request;
 mod hud_shop;
 #[cfg(feature = "window")]
 mod hud_story;
@@ -144,7 +145,7 @@ pub use gameplay::{
     Command, ContainerFrame, InventoryFrame, ItemFrame, ProgressFrame, SelectionFrame,
 };
 pub use hud_chat_options::{chat_option_commands, ui_chat_settings};
-pub use hud_shop::{catalog_commands, consignment_requests, new_sale_commands, shop_commands};
+pub use hud_shop::{catalog_commands, new_sale_commands, shop_commands};
 pub use pregame::{
     pregame_event, pregame_notice, pregame_requests, pregame_requests_capturing, PregameOutcome,
 };

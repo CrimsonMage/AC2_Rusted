@@ -11,11 +11,6 @@ use crate::frame::ClientFrame;
 use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
-/// The commands a target key asks for (`gmSelectionUI::Select`); see `ac2_ui::select_key_calls`.
-pub(crate) fn select_commands(player: &ClientPlayer<'_>, key: u32, typing: bool) -> Vec<Command> {
-    commands(ac2_ui::select_key_calls(player, key, typing))
-}
-
 /// The frame's selection events, in order (see `ac2_ui::frame_selection_calls`).
 pub(crate) fn frame_notices(
     player: &ClientPlayer<'_>,

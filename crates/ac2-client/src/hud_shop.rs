@@ -4,10 +4,7 @@
 //! from `hud_player_*`, which routes the notices and the messages in the order the frameworks get
 //! them.
 
-use ac2_ui::{
-    CatalogRequest, ConsignmentRequest, ConsignmentSource, DialogFactory, NewSaleRequest,
-    NewSaleSource, NewSaleUi, ShopRequest, ShopSource, UiTree,
-};
+use ac2_ui::{CatalogRequest, ConsignmentSource, NewSaleRequest, ShopRequest, ShopSource};
 
 use crate::gameplay::Command;
 #[cfg(feature = "window")]
@@ -81,44 +78,4 @@ pub fn shop_commands(requests: Vec<ShopRequest>) -> Vec<Command> {
             })
         })
         .collect()
-}
-
-/// The consignment's requests: the new-sale dialog opens for `NewSale` (`InitNewSale`), the
-/// examination is asked for (returns true), and the rest are gameplay commands.
-pub fn consignment_requests(
-    requests: Vec<ConsignmentRequest>,
-    new_sale: Option<&mut NewSaleUi>,
-    tree: &mut UiTree,
-    dialogs: &mut DialogFactory,
-    source: &dyn NewSaleSource,
-    now: f64,
-    commands: &mut Vec<Command>,
-) -> bool {
-    let mut open_examination = false;
-    let mut new_sale = new_sale;
-    for request in requests {
-        match request {
-            ConsignmentRequest::NewSale { item, quantity } => {
-                if let Some(panel) = new_sale.as_deref_mut() {
-                    panel.recv_init_new_sale(tree, dialogs, source, item, quantity, now);
-                }
-            }
-            ConsignmentRequest::OpenExamination => open_examination = true,
-            ConsignmentRequest::LeaveConsignment => commands.push(Command::LeaveConsignment),
-            ConsignmentRequest::Select(item) => commands.push(Command::Select(Some(item))),
-            ConsignmentRequest::Collect { target, profits } => {
-                commands.push(Command::RequestCollect { target, profits })
-            }
-            ConsignmentRequest::Restock {
-                item,
-                quantity,
-                target,
-            } => commands.push(Command::RequestRestock {
-                item,
-                quantity,
-                target,
-            }),
-        }
-    }
-    open_examination
 }

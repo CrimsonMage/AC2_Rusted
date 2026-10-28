@@ -4,8 +4,8 @@
 
 use ac2_net::protocol::StringInfo;
 use ac2_ui::{
-    ExternalContainerRequest, InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot,
-    SecureTradeSplit, StackUi, UiTree,
+    InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, SecureTradeSplit, StackUi,
+    UiTree,
 };
 
 use crate::gameplay::Command;
@@ -152,36 +152,6 @@ pub(crate) fn item_request(
     match ac2_ui::item_dialog(request, tree, stack, player) {
         Some(request) => item_commands(request, commands),
         None => false,
-    }
-}
-
-/// The external container's request as commands; whether the examination panel opens.
-pub(crate) fn external_container_request(
-    request: ExternalContainerRequest,
-    tree: &mut UiTree,
-    stack: Option<&mut StackUi>,
-    player: &ClientPlayer<'_>,
-    commands: &mut Vec<Command>,
-) -> bool {
-    match request {
-        ExternalContainerRequest::Item(request) => {
-            item_request(request, tree, stack, player, commands)
-        }
-        ExternalContainerRequest::Close(container) => {
-            commands.push(Command::SetContainerOpen {
-                container,
-                open: false,
-            });
-            false
-        }
-        ExternalContainerRequest::LootAll(container) => {
-            commands.push(Command::LootAll(container));
-            false
-        }
-        ExternalContainerRequest::TransmuteAll(container) => {
-            commands.push(Command::TransmuteAll(container));
-            false
-        }
     }
 }
 

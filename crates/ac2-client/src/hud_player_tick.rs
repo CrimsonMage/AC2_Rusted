@@ -128,14 +128,20 @@ impl HudView {
             // The restock's confirmation (`gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog`).
             if let Some(panel) = consignment.as_mut() {
                 panel.dialog_outcomes(&outcomes);
-                open_examination |= crate::hud_shop::consignment_requests(
+                let mut requests = Vec::new();
+                ac2_ui::consignment_requests(
                     panel.take_requests(),
                     new_sale.as_mut(),
                     tree,
                     dialogs,
                     player,
                     frame.server_time,
+                    &mut requests,
+                );
+                crate::hud_request::hud_request_into(
+                    requests,
                     &mut commands,
+                    &mut open_examination,
                 );
             }
             // The recall's and default's confirmations (`gmCharacterUI::RecvNotice_CloseConfirmationDialog`).
