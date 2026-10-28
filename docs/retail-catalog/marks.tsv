@@ -8,7 +8,7 @@ key	status	note
 004017e0	-	engine factory / singleton allocator: Rust builds and owns these directly
 00401810	-	engine factory: Rust builds the subsystems directly
 00401830	-	engine factory: Rust builds the subsystems directly
-00401850	_	needs port: notice handler::recv notice char gen verification; no citation in crates/
+00401850	x	NoticeHandler base virtual: retail body returns (Legions 0x00401BB0 is empty); the pregame subclasses dispatch in ac2-ui pregame/ui.rs
 00401860	-	admin-only: admin string info display (no admin tools in the client)
 00401870	-	admin/debug/logging tooling: not in the client
 00401880	_	needs port: notice handler::recv notice character set; no citation in crates/
@@ -2941,9 +2941,9 @@ key	status	note
 00492bf0	x	implemented: cited at crates/ac2-weenie/src/session.rs:173
 00492c10	~	ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 00492c20	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
-00492c40	_	needs port: server event CharacterDeletion (decode and handler); no citation in crates/
+00492c40	x	GlobalEventHandler::RecvEvt_CharacterDeletion dispatches notice 0x10406; no handler registers it in admin 7148 or Legions 7160, so retail reacts with nothing. Session emits SessionEvent::CharacterDeleted; pregame UI leaves the list alone (as retail). Request side: Proto_UI::SendDeleteCharacter byte test in ac2-net client_event senders_use_their_retail_queues_and_layouts; pregame_7160 delete_is_confirmed_then_sent
 00492c60	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
-00492c90	_	needs port: server event CharGenVerification (decode and handler); no citation in crates/
+00492c90	~	CharGenVerification dispatches notice 0x10404 to gmGenerationConfirmationUI. Legions body of its RecvNotice_CharGenVerification is not in the decompile (admin 7148 0x0042D080 adds the identity on response 1); session AddIdentity mirrors admin. pregame_7160 char_gen_7160 tests
 00492cb0	x	implemented: cited at crates/ac2-weenie/src/world.rs:377
 00492ce0	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 00492d20	x	audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
@@ -2970,9 +2970,9 @@ key	status	note
 00493500	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:35
 00493520	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:29
 00493680	-	destructor: Rust Drop replaces it
-00493700	_	needs port: notice CharExitGame to the UI/client; no citation in crates/
-00493780	_	needs port: notice CharGenVerification to the UI/client; no citation in crates/
-00493810	_	needs port: notice CharacterDeletion to the UI/client; no citation in crates/
+00493700	x	ECM_Login::SendNotice_CharExitGame broadcasts notice 0x10405: no registrant in either build. Session LeftWorld; Proto_UI::LogOffCharacter byte test (ac2-net client_event) and logoff_7160 / logout_hud_7160
+00493780	~	CharGenVerification dispatches notice 0x10404 to gmGenerationConfirmationUI. Legions body of its RecvNotice_CharGenVerification is not in the decompile (admin 7148 0x0042D080 adds the identity on response 1); session AddIdentity mirrors admin. pregame_7160 char_gen_7160 tests
+00493810	x	GlobalEventHandler::RecvEvt_CharacterDeletion dispatches notice 0x10406; no handler registers it in admin 7148 or Legions 7160, so retail reacts with nothing. Session emits SessionEvent::CharacterDeleted; pregame UI leaves the list alone (as retail). Request side: Proto_UI::SendDeleteCharacter byte test in ac2-net client_event senders_use_their_retail_queues_and_layouts; pregame_7160 delete_is_confirmed_then_sent
 004938a0	_	needs port: notice CharacterError to the UI/client; no citation in crates/
 00493930	_	needs port: notice CharacterSet to the UI/client; no citation in crates/
 004939b0	x	implemented: cited at crates/ac2-weenie/src/session.rs:130

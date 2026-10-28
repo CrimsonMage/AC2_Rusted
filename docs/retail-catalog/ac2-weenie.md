@@ -1,9 +1,9 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 814 done, 172 partial, 406 to do, 512 skipped.
+1904 retail functions: 818 done, 174 partial, 400 to do, 512 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (0/11)
+## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
 
 ### gmCEngineFactory
 - [-] `gmCEngineFactory::Init` · 004017e0 · legions 00401750 — engine factory / singleton allocator: Rust builds and owns these directly
@@ -11,7 +11,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCEngineFactory::MakeUI_Internal` · 00401830 — engine factory: Rust builds the subsystems directly
 
 ### NoticeHandler
-- [ ] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — needs port: notice handler::recv notice char gen verification; no citation in crates/
+- [x] `NoticeHandler::RecvNotice_CharGenVerification` · 00401850 · legions 00401bb0 — NoticeHandler base virtual: retail body returns (Legions 0x00401BB0 is empty); the pregame subclasses dispatch in ac2-ui pregame/ui.rs
 - [-] `NoticeHandler::RecvNotice_DisplayAdminStringInfo` · 00401860 · legions 00401b50 — admin-only: admin string info display (no admin tools in the client)
 
 ### ArgumentParser
@@ -1353,7 +1353,7 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Interp::SendEvt_InterpSEvent` · 00498f30 · legions 00491440 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:58
 - [x] `ECM_Interp::SendEvt_InterpSEventEncrypt` · 00498fe0 · legions 004914f0 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:66
 
-## `portal/client/src/events/ecm_login.cpp.c` (9/21)
+## `portal/client/src/events/ecm_login.cpp.c` (11/21)
 
 ### ECM_Login
 - [~] `ECM_Login::RecvEvt_CharExitGame` · 004933b0 · legions 0048be00 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
@@ -1367,9 +1367,9 @@ Legend and workflow: [README](README.md).
 - [-] `CharacterSet::~CharacterSet` · 00493680 · legions 0048c0d0 — destructor: Rust Drop replaces it
 
 ### ECM_Login
-- [ ] `ECM_Login::SendNotice_CharExitGame` · 00493700 — needs port: notice CharExitGame to the UI/client; no citation in crates/
-- [ ] `ECM_Login::SendNotice_CharGenVerification` · 00493780 — needs port: notice CharGenVerification to the UI/client; no citation in crates/
-- [ ] `ECM_Login::SendNotice_CharacterDeletion` · 00493810 — needs port: notice CharacterDeletion to the UI/client; no citation in crates/
+- [x] `ECM_Login::SendNotice_CharExitGame` · 00493700 — ECM_Login::SendNotice_CharExitGame broadcasts notice 0x10405: no registrant in either build. Session LeftWorld; Proto_UI::LogOffCharacter byte test (ac2-net client_event) and logoff_7160 / logout_hud_7160
+- [~] `ECM_Login::SendNotice_CharGenVerification` · 00493780 — CharGenVerification dispatches notice 0x10404 to gmGenerationConfirmationUI. Legions body of its RecvNotice_CharGenVerification is not in the decompile (admin 7148 0x0042D080 adds the identity on response 1); session AddIdentity mirrors admin. pregame_7160 char_gen_7160 tests
+- [x] `ECM_Login::SendNotice_CharacterDeletion` · 00493810 — GlobalEventHandler::RecvEvt_CharacterDeletion dispatches notice 0x10406; no handler registers it in admin 7148 or Legions 7160, so retail reacts with nothing. Session emits SessionEvent::CharacterDeleted; pregame UI leaves the list alone (as retail). Request side: Proto_UI::SendDeleteCharacter byte test in ac2-net client_event senders_use_their_retail_queues_and_layouts; pregame_7160 delete_is_confirmed_then_sent
 - [ ] `ECM_Login::SendNotice_CharacterError` · 004938a0 · legions 0048c230 — needs port: notice CharacterError to the UI/client; no citation in crates/
 - [ ] `ECM_Login::SendNotice_CharacterSet` · 00493930 — needs port: notice CharacterSet to the UI/client; no citation in crates/
 - [x] `ECM_Login::SendNotice_LoginFinished` · 004939b0 — implemented: cited at crates/ac2-weenie/src/session.rs:130
@@ -1489,16 +1489,16 @@ Legend and workflow: [README](README.md).
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Private` · 00498af0 · legions 00491000 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 - [x] `ECM_Qualities::RecvEvt_UpdateString_Visual` · 00498c00 · legions 00491110 — ac2-net protocol/quality_event.rs decodes and encodes each kind (private: no object, visual: InstanceIdWithStamp first), world.rs queues visual updates to their object (GetObjectOrQueueEvent)
 
-## `portal/client/src/events/globaleventhandler.cpp.c` (8/21)
+## `portal/client/src/events/globaleventhandler.cpp.c` (9/21)
 
 ### GlobalEventHandler
 - [-] `GlobalEventHandler::GetGlobalEventHandler` · 00492be0 · legions 0048b590 — singleton accessor: Rust owns the handler directly
 - [x] `GlobalEventHandler::RecvEvt_AccountBooted` · 00492bf0 · legions 0048b5a0 — implemented: cited at crates/ac2-weenie/src/session.rs:173
 - [~] `GlobalEventHandler::RecvEvt_CharExitGame` · 00492c10 · legions 0048b5c0 — ac2-weenie session.rs ServerEvent::CharExitGame leaves the world and emits SessionEvent::LeftWorld (logoff_7160, logout_hud_7160); the notice fan-out FUN_0048c150 is not named or ported
 - [x] `GlobalEventHandler::RecvEvt_CharacterSet` · 00492c20 · legions 0048b5d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
-- [ ] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0 — needs port: server event CharacterDeletion (decode and handler); no citation in crates/
+- [x] `GlobalEventHandler::RecvEvt_CharacterDeletion` · 00492c40 · legions 0048b5f0 — GlobalEventHandler::RecvEvt_CharacterDeletion dispatches notice 0x10406; no handler registers it in admin 7148 or Legions 7160, so retail reacts with nothing. Session emits SessionEvent::CharacterDeleted; pregame UI leaves the list alone (as retail). Request side: Proto_UI::SendDeleteCharacter byte test in ac2-net client_event senders_use_their_retail_queues_and_layouts; pregame_7160 delete_is_confirmed_then_sent
 - [x] `GlobalEventHandler::RecvEvt_CharacterError` · 00492c60 · legions 0048b610 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
-- [ ] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — needs port: server event CharGenVerification (decode and handler); no citation in crates/
+- [~] `GlobalEventHandler::RecvEvt_CharGenVerification` · 00492c90 · legions 0048b640 — CharGenVerification dispatches notice 0x10404 to gmGenerationConfirmationUI. Legions body of its RecvNotice_CharGenVerification is not in the decompile (admin 7148 0x0042D080 adds the identity on response 1); session AddIdentity mirrors admin. pregame_7160 char_gen_7160 tests
 - [x] `GlobalEventHandler::RecvEvt_CreatePlayer` · 00492cb0 · legions 0048b660 — implemented: cited at crates/ac2-weenie/src/world.rs:377
 - [x] `GlobalEventHandler::RecvEvt_CreateObject` · 00492ce0 · legions 0048b690 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
 - [x] `GlobalEventHandler::RecvEvt_DestroyObject` · 00492d20 · legions 0048b6d0 — audit: decoded in ac2-net server_event/physics_event and applied in ac2-weenie objects.rs apply_action / session.rs handle_world
