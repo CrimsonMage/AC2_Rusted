@@ -1,11 +1,12 @@
-//! The inventory panel's backpack (`gmBackpackUI` over `ContainerDisplay` / `ItemDisplay`) driven
-//! from the client: the player answers what the slots show from the frame's inventory, the
-//! container notices go to it, and its presses become selection, use and examination.
+//! The inventory panels' player side: the answers they read from the player (`ClientPlayer`
+//! implements their sources), and the requests they queue becoming gameplay commands. The panels'
+//! notices, dialogs and request mapping live in `ac2_ui::inventory_notices`.
 
+use ac2_net::protocol::StringInfo;
 use ac2_ui::{
-    BackpackUi, DialogFactory, ExternalContainerRequest, ExternalContainerUi, InventorySource,
-    ItemRequest, ItemSlot, PaperDollUi, SecureTradeSplit, SecureTradeUi, StackUi, UiString,
-    UiStrings, UiTree,
+    BackpackUi, DialogFactory, ExternalContainerRequest, ExternalContainerUi,
+    InventoryNoticeSource, InventorySource, ItemRequest, ItemSlot, PaperDollUi, SecureTradeSplit,
+    SecureTradeUi, StackUi, UiTree,
 };
 use ac2_weenie::{GameplayNotice, SessionEvent};
 
@@ -131,27 +132,13 @@ impl InventorySource for ClientPlayer<'_> {
     }
 }
 
-/// One notice for the paper doll (`gmPaperDollUI::RecvNotice_UpdateInventory`,
-/// `RecvNotice_ItemUpdate`, the slots' selection); `old_selection` is the selection before it.
-pub(crate) fn paper_doll_notice(
-    doll: &mut PaperDollUi,
-    tree: &mut UiTree,
-    player: &ClientPlayer<'_>,
-    old_selection: u64,
-    notice: &GameplayNotice,
-) {
-    match *notice {
-        GameplayNotice::UpdateInventory {
-            code,
-            item,
-            location,
-        } => {
-            let equipped = player.equipped();
-            doll.update_inventory(tree, player, code, item, location, &equipped);
-        }
-        GameplayNotice::ItemUpdate(item) => doll.item_changed(tree, player, item),
-        GameplayNotice::SelectionChanged(new) => doll.selection_changed(tree, old_selection, new),
-        _ => {}
+impl InventoryNoticeSource for ClientPlayer<'_> {
+    fn equipped(&self) -> Vec<(u32, u64)> {
+        ClientPlayer::equipped(self)
+    }
+
+    fn render_wire(&self, info: &StringInfo) -> String {
+        self.render_info(info)
     }
 }
 
@@ -172,7 +159,18 @@ pub(crate) fn effect_entries(player: &ClientPlayer<'_>) -> Vec<ac2_ui::EffectEnt
         .collect()
 }
 
-/// One notice for the backpack; `selection` is the selection before it.
+/// `gmPaperDollUI::RecvNotice_UpdateInventory`, `RecvNotice_ItemUpdate`, the slots' selection.
+pub(crate) fn paper_doll_notice(
+    doll: &mut PaperDollUi,
+    tree: &mut UiTree,
+    player: &ClientPlayer<'_>,
+    old_selection: u64,
+    notice: &GameplayNotice,
+) {
+    ac2_ui::paper_doll_notice(doll, tree, player, old_selection, notice);
+}
+
+/// The backpack's notices; `selection` is the selection before them.
 pub(crate) fn backpack_notice(
     backpack: &mut BackpackUi,
     tree: &mut UiTree,
@@ -180,27 +178,11 @@ pub(crate) fn backpack_notice(
     selection: &mut u64,
     notice: &GameplayNotice,
 ) {
-    match *notice {
-        GameplayNotice::UpdateContainer {
-            container,
-            code,
-            item,
-            slot,
-        } => {
-            backpack.update_container(tree, player, container, code, item, slot);
-        }
-        GameplayNotice::ItemUpdate(item) => backpack.item_changed(tree, player, item),
-        GameplayNotice::SelectionChanged(new) => {
-            backpack.selection_changed(tree, *selection, new);
-            *selection = new;
-        }
-        _ => {}
-    }
+    ac2_ui::backpack_notice(backpack, tree, player, selection, notice);
 }
 
-/// A slot's request: a split shows the stack dialog (`CM_UI::SendNotice_InitStackUI` to
-/// `gmStackUI::RecvNotice_InitStackUI`, the item's name as the question); the rest are commands.
-/// Whether the examination panel opens.
+/// A slot's request: the stack dialogs it opens (`ac2_ui::item_dialog`), then the rest as
+/// commands. Whether the examination panel opens.
 pub(crate) fn item_request(
     request: ItemRequest,
     tree: &mut UiTree,
@@ -208,86 +190,18 @@ pub(crate) fn item_request(
     player: &ClientPlayer<'_>,
     commands: &mut Vec<Command>,
 ) -> bool {
-    match request {
-        ItemRequest::Split {
-            context,
-            item,
-            target,
-            amount,
-        } => {
-            if let Some(dialog) = stack {
-                let name = player.item(item).map(|i| i.name).unwrap_or_default();
-                dialog.init(tree, context, &name, amount, amount, item, target);
-            }
-            false
-        }
-        // `gmMoneyBagUI::HandleMoneyBagDrop`: the stack's name, from the player.
-        ItemRequest::MoneyBagSplit {
-            context,
-            item,
-            from,
-            amount,
-        } => {
-            if let Some(dialog) = stack {
-                let name = player.item(item).map(|i| i.name).unwrap_or_default();
-                dialog.init(tree, context, &name, amount, amount, from, 0);
-            }
-            false
-        }
-        // `gm3DItemsUI::MidItemDrop`: the stack's name, from the player.
-        ItemRequest::DropSplit {
-            context,
-            item,
-            amount,
-        } => {
-            if let Some(dialog) = stack {
-                let name = player.item(item).map(|i| i.name).unwrap_or_default();
-                dialog.init(
-                    tree,
-                    context,
-                    &name,
-                    amount,
-                    amount,
-                    ac2_ui::InventorySource::player(player),
-                    0,
-                );
-            }
-            false
-        }
-        // `ContainerDisplay::HandleDragFromMoneyBag`: `ID_Inventory_MoneyStack`, no target item.
-        ItemRequest::MoneyStack {
-            context,
-            target,
-            amount,
-        } => {
-            if let Some(dialog) = stack {
-                let question = player.render_string(&UiString::ui(
-                    ac2_ui::tokenize("ID_Inventory_MoneyStack"),
-                    Vec::new(),
-                ));
-                dialog.init(tree, context, &question, amount, amount, 0, target);
-            }
-            false
-        }
-        request => item_commands(request, commands),
+    match ac2_ui::item_dialog(request, tree, stack, player) {
+        Some(request) => item_commands(request, commands),
+        None => false,
     }
 }
 
-/// `gmStackUI::RecvNotice_ContainerStateUpdate` and `RecvNotice_BeingDeleted`, which it hears
-/// for the object the amount comes from.
+/// `StackUI` event hearing; see `ac2_ui::stack_event`.
 pub(crate) fn stack_event(stack: &mut StackUi, tree: &mut UiTree, event: &SessionEvent) {
-    match event {
-        SessionEvent::Notice(GameplayNotice::ContainerStateUpdate { container, open }) => {
-            stack.container_state_update(tree, *container, *open);
-        }
-        SessionEvent::ObjectRemoved(id) => stack.being_deleted(tree, *id),
-        _ => {}
-    }
+    ac2_ui::stack_event(stack, tree, event);
 }
 
-/// One event for `gmExternalContainerUI` (it hears every object) and its display's container and
-/// item notices; `selection` is the selection before the event. A cleanup closes the stack
-/// dialog its drop waited on (`ContainerDisplay::Cleanup`'s `SendNotice_CloseStackUI`).
+/// One event for the external container; see `ac2_ui::external_container_event`.
 pub(crate) fn external_container_event(
     panel: &mut ExternalContainerUi,
     tree: &mut UiTree,
@@ -296,39 +210,7 @@ pub(crate) fn external_container_event(
     selection: u64,
     event: &SessionEvent,
 ) {
-    let close = match event {
-        SessionEvent::Notice(GameplayNotice::ContainerStateUpdate { container, open }) => {
-            panel.container_state_update(tree, player, *container, *open)
-        }
-        SessionEvent::ObjectRemoved(id) => panel.being_deleted(tree, *id),
-        SessionEvent::Notice(notice) => {
-            let Some(display) = panel.display_mut() else {
-                return;
-            };
-            match *notice {
-                GameplayNotice::UpdateContainer {
-                    container,
-                    code,
-                    item,
-                    slot,
-                } if container == display.container => {
-                    display.update_container(tree, player, code, item, slot);
-                }
-                GameplayNotice::ItemUpdate(item) => display.item_changed(tree, player, item),
-                GameplayNotice::SelectionChanged(new) => {
-                    display.selection_changed(tree, selection, new);
-                }
-                _ => {}
-            }
-            Vec::new()
-        }
-        _ => Vec::new(),
-    };
-    if let Some(stack) = stack {
-        for context in close {
-            stack.close_stack_ui(tree, context);
-        }
-    }
+    ac2_ui::external_container_event(panel, tree, player, stack, selection, event);
 }
 
 /// The external container's request as commands; whether the examination panel opens.
@@ -341,20 +223,24 @@ pub(crate) fn external_container_request(
 ) -> bool {
     match request {
         ExternalContainerRequest::Item(request) => {
-            return item_request(request, tree, stack, player, commands);
+            item_request(request, tree, stack, player, commands)
         }
         ExternalContainerRequest::Close(container) => {
             commands.push(Command::SetContainerOpen {
                 container,
                 open: false,
             });
+            false
         }
-        ExternalContainerRequest::LootAll(container) => commands.push(Command::LootAll(container)),
+        ExternalContainerRequest::LootAll(container) => {
+            commands.push(Command::LootAll(container));
+            false
+        }
         ExternalContainerRequest::TransmuteAll(container) => {
             commands.push(Command::TransmuteAll(container));
+            false
         }
     }
-    false
 }
 
 /// A slot's press as commands; whether the examination panel opens.
@@ -418,8 +304,7 @@ pub(crate) fn item_commands(request: ItemRequest, commands: &mut Vec<Command>) -
     false
 }
 
-/// `gmSecureTradeUI`'s notices (`RecvNotice_Trade_*`); `now` is the frame's time, which the
-/// ended trade's delay runs from. The partner's name is rendered here, from the notice's string.
+/// `gmSecureTradeUI`'s notices; see `ac2_ui::secure_trade_notice`.
 pub(crate) fn secure_trade_notice(
     panel: &mut SecureTradeUi,
     tree: &mut UiTree,
@@ -428,53 +313,15 @@ pub(crate) fn secure_trade_notice(
     now: f64,
     notice: &GameplayNotice,
 ) {
-    match notice {
-        GameplayNotice::TradeRegistered {
-            initiator,
-            partner,
-            partner_name,
-        } => {
-            let name = player.render_info(partner_name);
-            panel.recv_trade_be_registered(tree, dialogs, player, *initiator, *partner, &name);
-        }
-        GameplayNotice::TradeOpened => panel.recv_trade_be_opened(tree),
-        GameplayNotice::TradeClosed { source, .. } => {
-            panel.recv_trade_be_closed(tree, dialogs, player, *source, now);
-        }
-        GameplayNotice::TradeAccepted(src) => panel.recv_trade_be_accepted(tree, *src),
-        GameplayNotice::TradeDeclined(src) => panel.recv_trade_be_declined(tree, *src),
-        GameplayNotice::TradeReset => panel.recv_trade_be_reset(tree),
-        GameplayNotice::TradeAcceptanceCleared => panel.recv_trade_be_acceptance_cleared(tree),
-        GameplayNotice::TradeOffered {
-            source,
-            item,
-            amount,
-        } => panel.recv_trade_be_offered(tree, player, *source, *item, *amount),
-        GameplayNotice::TradeRevoked { source, item } => {
-            panel.recv_trade_be_revoked(tree, *source, *item);
-        }
-        _ => {}
-    }
+    ac2_ui::secure_trade_notice(panel, tree, dialogs, player, now, notice);
 }
 
-/// A stack dropped on the trade's list asks how many (`CM_UI::SendNotice_InitStackUI`): the
-/// stack's question is the item's name, and the stack comes from the player.
+/// A stack dropped on the trade's list asks how many; see `ac2_ui::secure_trade_split`.
 pub(crate) fn secure_trade_split(
     split: SecureTradeSplit,
     tree: &mut UiTree,
     stack: Option<&mut StackUi>,
     player: &ClientPlayer<'_>,
 ) {
-    if let Some(dialog) = stack {
-        let name = player.item(split.item).map(|i| i.name).unwrap_or_default();
-        dialog.init(
-            tree,
-            split.context,
-            &name,
-            split.amount,
-            split.amount,
-            player.player(),
-            0,
-        );
-    }
+    ac2_ui::secure_trade_split(split, tree, stack, player);
 }

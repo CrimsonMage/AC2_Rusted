@@ -59,6 +59,7 @@ mod input;
 #[cfg(test)]
 mod input_tests;
 mod interpreter;
+mod inventory_notices;
 mod item_display;
 mod journal_quests;
 pub mod keymap_file;
@@ -292,6 +293,10 @@ pub use input::{
 pub use interpreter::{
     ActionInfo, ActionInterpreter, Dispatch, CLASS_BEHAVIOR, CLASS_CAMERA, CLASS_MODIFIER,
     CLASS_MOVEMENT, CLASS_UI, TOGGLE_HOLD, TOGGLE_ONE_SHOT, TOGGLE_TOGGLE,
+};
+pub use inventory_notices::{
+    backpack_notice, external_container_event, item_dialog, paper_doll_notice, secure_trade_notice,
+    secure_trade_split, stack_event, InventoryNoticeSource,
 };
 pub use item_display::{ContainerDisplay, InventorySource, ItemDisplay, ItemRequest, ItemSlot};
 pub use items_3d::Items3dUi;
