@@ -2,6 +2,7 @@
 //! their sources), and the calls they queue becoming gameplay commands. The pages' notices,
 //! dialogs and request mapping live in `ac2_ui::social_notices`.
 
+use ac2_script::host::social_queries::SocialQueries;
 use ac2_ui::{AllegianceRequest, FellowStrings, FellowshipRequest, FellowshipSource, SkillSource};
 use ac2_ui::{AllegianceSource, SkillVar, SocialCall};
 

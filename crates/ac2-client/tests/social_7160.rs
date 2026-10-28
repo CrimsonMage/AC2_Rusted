@@ -11,6 +11,7 @@ use ac2_client::{Command, FrameInput};
 use ac2_core::DataId;
 use ac2_net::protocol::{NativeObject, PackValue, ScriptCall};
 use ac2_script::data::DatScriptData;
+use ac2_script::host::social_queries::SocialQueries;
 use ac2_script::host::ScriptHost;
 use ac2_script::vm::Program;
 use ac2_script::{load_wlib, LEGIONS_WLIB_DID};

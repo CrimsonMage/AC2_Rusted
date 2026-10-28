@@ -102,7 +102,6 @@ mod scripts;
 mod scripts_io;
 mod scripts_queries;
 mod skills;
-mod social_queries;
 mod tables;
 #[cfg(feature = "window")]
 mod target_select;

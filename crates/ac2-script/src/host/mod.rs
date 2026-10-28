@@ -24,6 +24,7 @@ pub mod port;
 pub mod queries;
 pub mod radar;
 mod skill_panel;
+pub mod social_queries;
 pub mod ui_calls;
 
 use std::collections::HashMap;
