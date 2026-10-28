@@ -51,7 +51,9 @@ mod typed_cache;
 mod typed_ref;
 mod worker_lanes;
 
-pub use base_property::{BaseProperty, BasePropertyValue, PropertyPosition, RgbaColor};
+pub use base_property::{
+    BaseProperty, BasePropertyValue, PropertyPosition, RgbaColor, StringInfoValue,
+};
 pub use body_decode::ResourceBodyDecodeWith;
 pub use body_decode::{ResourceBodyDecode, ResourceDbObjBody, ResourceDbObjDecodeContext};
 pub use db_type::ResourceTypeId;

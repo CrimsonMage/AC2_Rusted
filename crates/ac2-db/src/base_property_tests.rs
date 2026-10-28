@@ -4,11 +4,14 @@
 use ac2_math::waveform::kind;
 use ac2_math::{AFrame, Quat, Vec3, Waveform};
 
-use crate::base_property::{BaseProperty, BasePropertyValue, PropertyPosition, RgbaColor};
+use crate::base_property::{
+    BaseProperty, BasePropertyValue, PropertyPosition, RgbaColor, StringInfoValue,
+};
 use crate::property::{
     TYPE_BOOL, TYPE_COLOR, TYPE_DATA_FILE, TYPE_ENUM, TYPE_FLOAT, TYPE_INTEGER, TYPE_LONG_INTEGER,
-    TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING, TYPE_VECTOR, TYPE_WAVEFORM,
+    TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING, TYPE_STRING_INFO, TYPE_VECTOR, TYPE_WAVEFORM,
 };
+use crate::string_info::{RenderInfo, RenderVar};
 
 #[test]
 fn every_master_property_type_has_a_value_class_of_that_type() {
@@ -25,13 +28,12 @@ fn every_master_property_type_has_a_value_class_of_that_type() {
         TYPE_PACKAGE_ID,
         TYPE_LONG_INTEGER,
         TYPE_POSITION,
+        TYPE_STRING_INFO,
     ];
     for t in types {
         let v = BasePropertyValue::new_for_type(t).expect("value class");
         assert_eq!(v.value_type(), t);
     }
-    // 0x4000000A (StringInfo) has no value class in this port yet.
-    assert!(BasePropertyValue::new_for_type(0x4000_000A).is_none());
     assert!(BasePropertyValue::new_for_type(0).is_none());
 }
 
@@ -200,4 +202,101 @@ fn base_property_compare_needs_name_type_and_value() {
         ..a.clone()
     };
     assert!(!a.is_equal(&other_name));
+}
+
+fn info(string_id: u32, table_id: u32, vars: Vec<(u32, RenderVar)>) -> RenderInfo {
+    RenderInfo {
+        string_id,
+        table_id,
+        literal: None,
+        variables: vars,
+    }
+}
+
+#[test]
+fn string_info_inquiry_and_set_answer_only_for_their_own_type() {
+    let mut v = BasePropertyValue::new_for_type(TYPE_STRING_INFO).expect("value class");
+    assert_eq!(v.inq_string_info(), Some(&RenderInfo::default()));
+    assert_eq!(v.inq_string(), None);
+    let set = info(7, 0x4000_0026, vec![(1, RenderVar::Int(3))]);
+    assert!(v.set_string_info(set.clone()));
+    assert_eq!(v.inq_string_info(), Some(&set));
+    // A wrong-type value takes no StringInfo.
+    let mut b = BasePropertyValue::Bool(true);
+    assert!(!b.set_string_info(set));
+    assert_eq!(b.inq_string_info(), None);
+}
+
+#[test]
+fn string_info_set_keeps_the_token() {
+    let mut v = BasePropertyValue::StringInfo(StringInfoValue {
+        token: b"tok".to_vec(),
+        info: RenderInfo::default(),
+    });
+    assert!(v.set_string_info(info(9, 0, Vec::new())));
+    match &v {
+        BasePropertyValue::StringInfo(s) => {
+            assert_eq!(s.token, b"tok");
+            assert_eq!(s.info.string_id, 9);
+        }
+        other => panic!("StringInfo expected, got {other:?}"),
+    }
+}
+
+#[test]
+fn string_info_compare_ignores_variable_order_and_checks_tokens() {
+    let a = BasePropertyValue::StringInfo(StringInfoValue {
+        token: Vec::new(),
+        info: info(
+            5,
+            2,
+            vec![(1, RenderVar::Int(1)), (2, RenderVar::String(vec![65]))],
+        ),
+    });
+    let mut swapped = match a.clone() {
+        BasePropertyValue::StringInfo(s) => s,
+        _ => unreachable!(),
+    };
+    swapped.info.variables.reverse();
+    assert!(a.is_equal(&BasePropertyValue::StringInfo(swapped.clone())));
+    // A different variable value, a missing variable and a different token are not equal.
+    swapped.info.variables[0].1 = RenderVar::Int(2);
+    assert!(!a.is_equal(&BasePropertyValue::StringInfo(swapped.clone())));
+    let mut missing = swapped.clone();
+    missing.info.variables.pop();
+    assert!(!a.is_equal(&BasePropertyValue::StringInfo(missing)));
+    let mut tokened = swapped;
+    tokened.token = b"x".to_vec();
+    assert!(!a.is_equal(&BasePropertyValue::StringInfo(tokened)));
+    // A literal compares its text only, against another literal.
+    let lit = |text: &[u16]| RenderInfo {
+        literal: Some(text.to_vec()),
+        ..RenderInfo::default()
+    };
+    let l1 = BasePropertyValue::StringInfo(StringInfoValue {
+        token: Vec::new(),
+        info: lit(&[104, 105]),
+    });
+    let l2 = BasePropertyValue::StringInfo(StringInfoValue {
+        token: Vec::new(),
+        info: lit(&[104, 105]),
+    });
+    assert!(l1.is_equal(&l2));
+    assert!(!l1.is_equal(&a));
+}
+
+#[test]
+fn nested_string_info_variables_compare_as_string_infos() {
+    let inner = |id: u32| info(id, 0, vec![(1, RenderVar::Int(4))]);
+    let x = BasePropertyValue::StringInfo(StringInfoValue {
+        token: Vec::new(),
+        info: info(1, 0, vec![(3, RenderVar::Info(Box::new(inner(8))))]),
+    });
+    let same = x.clone();
+    assert!(x.is_equal(&same));
+    let other = BasePropertyValue::StringInfo(StringInfoValue {
+        token: Vec::new(),
+        info: info(1, 0, vec![(3, RenderVar::Info(Box::new(inner(9))))]),
+    });
+    assert!(!x.is_equal(&other));
 }

@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 154 done, 13 partial, 152 to do, 314 skipped.
+633 retail functions: 159 done, 15 partial, 147 to do, 312 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -555,7 +555,7 @@ Legend and workflow: [README](README.md).
 - [ ] `BasePropertyDesc::StreamPack` · 006b7070 · legions 0064ef20 — needs port: BasePropertyDesc::StreamPack (typed load of property descriptions)
 - [-] `BasePropertyDesc::FromFileNode` · 006b7100 — text source format (admin tools)
 
-## `portal/shared/src/property/masterproperty.cpp.c` (26/130)
+## `portal/shared/src/property/masterproperty.cpp.c` (31/130)
 
 ### BoolPropertyValue
 - [-] `BoolPropertyValue::ToFileNode` · 006b3d50 — text source format (admin tools)
@@ -693,9 +693,9 @@ Legend and workflow: [README](README.md).
 - [-] `StringInfoPropertyValue::StringInfoPropertyValue` · 006b5050 · legions 0064d850 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `StringInfoPropertyValue::FromFileNode` · 006b5080 — text source format (admin tools)
 - [-] `StringInfoPropertyValue::ToFileNode` · 006b50b0 — text source format (admin tools)
-- [ ] `StringInfoPropertyValue::InqStringInfo` · 006b50e0 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; StringInfoPropertyValue::InqStringInfo (typed accessor)
-- [ ] `StringInfoPropertyValue::SetStringInfo` · 006b5100 — needs port: typed property value setter (runtime property updates)
-- [ ] `StringInfoPropertyValue::Set` · 006b5120 — needs port: typed property value setter (runtime property updates)
+- [x] `StringInfoPropertyValue::InqStringInfo` · 006b50e0 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+- [x] `StringInfoPropertyValue::SetStringInfo` · 006b5100 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+- [x] `StringInfoPropertyValue::Set` · 006b5120 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 - [-] `StringInfoPropertyValue::HasValidData` · 006b5140 — skip: admin/debug text or tool code (no client use in Legions) (validity check, no Legions match)
 - [~] `StringInfoPropertyValue::StreamPack` · 006b5160 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 
@@ -703,10 +703,10 @@ Legend and workflow: [README](README.md).
 - [ ] `STREAMPACK_PACKOBJ` · 006b5190 · legions 00578ab0 — needs port: STREAMPACK_PACKOBJ (property value object load)
 
 ### StringInfoPropertyValue
-- [-] `StringInfoPropertyValue::Copy` · 006b5200 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [ ] `StringInfoPropertyValue::InqStringInfo` · 006b5260 · legions 0064d990 — needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; StringInfoPropertyValue::InqStringInfo overload (typed accessor)
-- [ ] `StringInfoPropertyValue::SetStringInfo` · 006b5290 — needs port: typed property value setter (runtime property updates)
-- [-] `StringInfoPropertyValue::Compare` · 006b52c0 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
+- [x] `StringInfoPropertyValue::Copy` · 006b5200 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+- [~] `StringInfoPropertyValue::InqStringInfo` · 006b5260 · legions 0064d990 — token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
+- [~] `StringInfoPropertyValue::SetStringInfo` · 006b5290 — token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
+- [x] `StringInfoPropertyValue::Compare` · 006b52c0 — ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 
 ### PositionPropertyValue
 - [-] `PositionPropertyValue::Copy` · 006b5410 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)

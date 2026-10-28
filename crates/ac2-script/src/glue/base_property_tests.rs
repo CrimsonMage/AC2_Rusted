@@ -3,6 +3,7 @@
 use std::sync::Arc;
 
 use super::*;
+use crate::native::{StringInfo, StringVar, StringVarValue};
 use crate::vm::refs::{flags, Target};
 use crate::vm::{NoData, Program, ReferenceTable};
 use ac2_db::{BaseProperty, BasePropertyValue};
@@ -197,14 +198,82 @@ fn a_bad_this_crashes_the_efun() {
 }
 
 #[test]
-fn unbound_property_name_efuns_stay_unbound() {
+fn string_info_efuns_copy_the_string_info_both_ways() {
     let mut vm = vm();
-    let p = property_ref(&mut vm, property(None));
-    let (status, _) = call(
+    let p = property_ref(
         &mut vm,
-        id("gBaseProperty::CallEFun_InqPropertyNameW"),
-        &[0],
+        property(Some(BasePropertyValue::StringInfo(
+            ac2_db::StringInfoValue::default(),
+        ))),
+    );
+    // Set from a script StringInfo with a table, a string id and an int variable.
+    let src = vm.refs.create_native(
+        ntype::STRING_INFO,
+        NativeObject::StringInfo(StringInfo {
+            string_id: 0x51,
+            table_id: 0x4000_0026,
+            literal: None,
+            variables: vec![StringVar {
+                id: 1,
+                kind: 2,
+                value: StringVarValue::Int(-7),
+            }],
+        }),
+    );
+    let (_, set) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_SetStringInfo"),
+        &[src],
         p,
     );
-    assert_ne!(status, InterpStatus::Success);
+    assert_eq!(set, 1);
+    // Inquire into an empty StringInfo native: the same string, table and variable come back.
+    let out = vm.refs.create_native(
+        ntype::STRING_INFO,
+        NativeObject::StringInfo(StringInfo::default()),
+    );
+    let (_, got) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqStringInfo"),
+        &[out],
+        p,
+    );
+    assert_eq!(got, 1);
+    let Some(NativeObject::StringInfo(info)) = vm.native(out) else {
+        panic!("StringInfo native expected");
+    };
+    assert_eq!((info.string_id, info.table_id), (0x51, 0x4000_0026));
+    assert_eq!(info.variables.len(), 1);
+    assert_eq!(info.variables[0].value, StringVarValue::Int(-7));
+}
+
+#[test]
+fn string_info_efuns_answer_zero_for_other_types() {
+    let mut vm = vm();
+    let p = property_ref(&mut vm, property(Some(BasePropertyValue::Bool(true))));
+    let out = vm.refs.create_native(
+        ntype::STRING_INFO,
+        NativeObject::StringInfo(StringInfo {
+            string_id: 3,
+            ..StringInfo::default()
+        }),
+    );
+    let (_, got) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_InqStringInfo"),
+        &[out],
+        p,
+    );
+    assert_eq!(got, 0);
+    let (_, set) = call(
+        &mut vm,
+        id("gBaseProperty::CallEFun_SetStringInfo"),
+        &[out],
+        p,
+    );
+    assert_eq!(set, 0);
+    let Some(NativeObject::StringInfo(info)) = vm.native(out) else {
+        panic!("StringInfo native expected");
+    };
+    assert_eq!(info.string_id, 3);
 }

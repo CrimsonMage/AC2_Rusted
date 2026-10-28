@@ -5,7 +5,7 @@
 use ac2_db::{RenderInfo, RenderVar, StringStateRef, StringTableRef, StringTables};
 
 use super::DatScriptData;
-use crate::native::{GetStringError, StringInfo, StringVarValue};
+use crate::native::{GetStringError, StringInfo, StringVar, StringVarValue};
 use crate::vm::ScriptData;
 
 /// The script's `StringInfo` as a `RenderInfo` (variables map one to one; a `SID_String`
@@ -21,6 +21,111 @@ pub fn render_info(info: &StringInfo) -> RenderInfo {
             .map(|v| (v.id, render_var(&v.value)))
             .collect(),
     }
+}
+
+/// A `RenderInfo` (a `StringInfo` a property holds) as the script's `StringInfo` native
+/// (`StringInfo::operator=`): each variable keeps the `SID_*` type its value implies.
+pub fn script_string_info(info: &RenderInfo) -> StringInfo {
+    StringInfo {
+        string_id: info.string_id,
+        table_id: info.table_id,
+        literal: info.literal.clone(),
+        variables: info
+            .variables
+            .iter()
+            .filter_map(|(id, var)| {
+                let (kind, value) = script_var(var)?;
+                Some(StringVar {
+                    id: *id,
+                    kind,
+                    value,
+                })
+            })
+            .collect(),
+    }
+}
+
+/// A render variable's `SID_*` type and the script's value for it; `None` for a skipped one.
+fn script_var(var: &RenderVar) -> Option<(u16, StringVarValue)> {
+    use StringVarValue as V;
+    Some(match var {
+        RenderVar::String(s) => (1, V::String(s.clone())),
+        RenderVar::Int(v) => (2, V::Int(*v)),
+        RenderVar::FormattedInt {
+            value,
+            grouping,
+            base,
+        } => (
+            3,
+            V::FormattedInt {
+                value: *value,
+                grouping: *grouping,
+                base: *base,
+            },
+        ),
+        RenderVar::Float { value, precision } => (
+            4,
+            V::Float {
+                value: *value,
+                precision: *precision,
+            },
+        ),
+        RenderVar::FormattedFloat {
+            value,
+            precision,
+            grouping,
+            base,
+        } => (
+            5,
+            V::FormattedFloat {
+                value: *value,
+                precision: *precision,
+                grouping: *grouping,
+                base: *base,
+            },
+        ),
+        RenderVar::UInt(v) => (6, V::UInt(*v)),
+        RenderVar::FormattedUInt {
+            value,
+            grouping,
+            base,
+        } => (
+            7,
+            V::FormattedUInt {
+                value: *value,
+                grouping: *grouping,
+                base: *base,
+            },
+        ),
+        RenderVar::Info(inner) => (9, V::StringInfo(Box::new(script_string_info(inner)))),
+        RenderVar::LInt(v) => (10, V::LInt(*v)),
+        RenderVar::FormattedLInt {
+            value,
+            grouping,
+            base,
+        } => (
+            11,
+            V::FormattedLInt {
+                value: *value,
+                grouping: *grouping,
+                base: *base,
+            },
+        ),
+        RenderVar::ULInt(v) => (12, V::ULInt(*v)),
+        RenderVar::FormattedULInt {
+            value,
+            grouping,
+            base,
+        } => (
+            13,
+            V::FormattedULInt {
+                value: *value,
+                grouping: *grouping,
+                base: *base,
+            },
+        ),
+        RenderVar::Skipped => return None,
+    })
 }
 
 fn render_var(value: &StringVarValue) -> RenderVar {

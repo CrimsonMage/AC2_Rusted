@@ -7118,7 +7118,7 @@ key	status	note
 0054baa0	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 0054bb30	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
 0054bbb0	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054bc30	~	not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+0054bc30	x	ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 0054bcc0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054bd40	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054bdd0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -7131,7 +7131,7 @@ key	status	note
 0054c310	-	no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 0054c3c0	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
 0054c460	~	not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-0054c500	~	not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+0054c500	x	ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 0054c5b0	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c650	x	ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 0054c700	x	ac2-script glue/visual_desc.rs (gAppliedAppearanceKey over native 0x10)
@@ -13577,16 +13577,16 @@ key	status	note
 006b4f70	-	skip: admin/debug text or tool code (no client use in Legions) (GetValueAsString)
 006b4f90	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 006b5050	-	skip: constructor/destructor of plain data; Rust struct init and Drop
-006b50e0	_	needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; StringInfoPropertyValue::InqStringInfo (typed accessor)
-006b5100	_	needs port: typed property value setter (runtime property updates)
-006b5120	_	needs port: typed property value setter (runtime property updates)
+006b50e0	x	ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+006b5100	x	ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+006b5120	x	ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 006b5140	-	skip: admin/debug text or tool code (no client use in Legions) (validity check, no Legions match)
 006b5160	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 006b5190	_	needs port: STREAMPACK_PACKOBJ (property value object load)
-006b5200	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-006b5260	_	needs port (check): implemented as crates/ac2-db/src/property.rs (Ac2PropertyValue) but uncited; StringInfoPropertyValue::InqStringInfo overload (typed accessor)
-006b5290	_	needs port: typed property value setter (runtime property updates)
-006b52c0	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
+006b5200	x	ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
+006b5260	~	token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
+006b5290	~	token kept in StringInfoValue and compared; the 2-argument token-out form has no efun, so only the one-argument slots are bound
+006b52c0	x	ac2-db BasePropertyValue::StringInfo (StringInfoValue: token + RenderInfo); inq/set_string_info, set_from, is_equal (string_info_equal); tests base_property_tests.rs
 006b5410	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 006b5480	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b54a0	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)

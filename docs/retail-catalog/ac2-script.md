@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1470 done, 120 partial, 544 to do, 334 skipped.
+2468 retail functions: 1472 done, 118 partial, 544 to do, 334 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1412,7 +1412,7 @@ Legend and workflow: [README](README.md).
 - [x] `gARMultiHashIter::CallEFun_key` · 005603e0 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 - [x] `gARMultiHashIter::CallEFun_next` · 00560450 — ac2-script glue::multi over native::multi (STLport hash_multimap / multimap model)
 
-## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (16/33)
+## `portal/shared/src/interp/glue/gbaseproperty.cpp.c` (18/33)
 
 ### BaseProperty
 - [ ] `BaseProperty::InqStringW` · 0054b360 · legions 005292d0 — needs port: BaseProperty InqStringW (weenie property string)
@@ -1434,7 +1434,7 @@ Legend and workflow: [README](README.md).
 - [-] `gBaseProperty::CallEFun_SetPosition` · 0054baa0 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 - [~] `gBaseProperty::CallEFun_SetPropertyName` · 0054bb30 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
 - [~] `gBaseProperty::CallEFun_SetPropertyNameW` · 0054bbb0 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-- [~] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+- [x] `gBaseProperty::CallEFun_SetStringInfo` · 0054bc30 — ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetStringW` · 0054bcc0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_SetVector` · 0054bd40 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqBool` · 0054bdd0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
@@ -1447,7 +1447,7 @@ Legend and workflow: [README](README.md).
 - [-] `gBaseProperty::CallEFun_InqPosition` · 0054c310 — no efun id in the Legions dispatcher (efun_names.txt); Legions has no such efun
 - [~] `gBaseProperty::CallEFun_InqPropertyNameW` · 0054c3c0 · legions 00529f30 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
 - [~] `gBaseProperty::CallEFun_InqPropertyTypeW` · 0054c460 — not bound: needs the property name tables (weenie side); not in the Legions efun table as ported
-- [~] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — not bound: ac2_db has no StringInfo property value class yet (Legions StringInfoPropertyValue vtable)
+- [x] `gBaseProperty::CallEFun_InqStringInfo` · 0054c500 — ac2-script glue/base_property.rs over ac2_db StringInfo value (script_string_info / render_info); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqStringW` · 0054c5b0 · legions 0052a0a0 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 - [x] `gBaseProperty::CallEFun_InqVector` · 0054c650 — ac2-script glue/base_property.rs over ac2_db::BaseProperty (native 0x16); tests glue/base_property_tests.rs
 

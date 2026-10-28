@@ -27,7 +27,7 @@ mod visual;
 pub use db_types::{db_type, DB_TYPE_DID_MAPPER, DB_TYPE_ENUM_MAPPER, DB_TYPE_STRING_TABLE};
 pub use enum_map::{EnumIdMap, EnumMapper};
 pub use places::{PlacesTable, PLACES_TABLE_ENUM, UNIQUEDB_GROUP_ENUM};
-pub use render::{render_info, script_error};
+pub use render::{render_info, script_error, script_string_info};
 
 use std::collections::{BTreeSet, HashMap, HashSet};
 use std::ops::Deref;

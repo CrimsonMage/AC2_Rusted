@@ -11,8 +11,9 @@ use ac2_math::{AFrame, Quat, Vec3, Waveform};
 
 use crate::property::{
     TYPE_BOOL, TYPE_COLOR, TYPE_DATA_FILE, TYPE_ENUM, TYPE_FLOAT, TYPE_INTEGER, TYPE_LONG_INTEGER,
-    TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING, TYPE_VECTOR, TYPE_WAVEFORM,
+    TYPE_PACKAGE_ID, TYPE_POSITION, TYPE_STRING, TYPE_STRING_INFO, TYPE_VECTOR, TYPE_WAVEFORM,
 };
+use crate::string_info::{RenderInfo, RenderVar};
 
 /// The per-component tolerance of `VectorPropertyValue`, `ColorPropertyValue`,
 /// `WaveformPropertyValue` and `PositionPropertyValue` equality (`ABS(a - b) < 0.0002`).
@@ -54,10 +55,19 @@ impl Default for PropertyPosition {
     }
 }
 
+/// `StringInfoPropertyValue`: the property's token (`m_token`, a `PStringBase<char>` the file
+/// format names the value by) and its `StringInfo` (`m_value`).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct StringInfoValue {
+    pub token: Vec<u8>,
+    pub info: RenderInfo,
+}
+
 /// One property's value, by its `MasterProperty` type.
 ///
 /// `Integer` is 32-bit (`long` in the 32-bit client). `DataFile` holds the DID as a raw `ulong`,
 /// `Enum`/`PackageId` the raw enum word. `String` keeps the stored bytes (`PStringBase<char>`).
+/// `StringInfo` is a string-table reference with its variables (see [`StringInfoValue`]).
 #[derive(Debug, Clone, PartialEq)]
 pub enum BasePropertyValue {
     Bool(bool),
@@ -72,6 +82,7 @@ pub enum BasePropertyValue {
     Waveform(Waveform),
     PackageId(u32),
     Position(PropertyPosition),
+    StringInfo(StringInfoValue),
 }
 
 /// The waveform a fresh `WaveformPropertyValue` starts at (`Waveform::Waveform`).
@@ -108,6 +119,35 @@ fn near_frame(a: &AFrame, b: &AFrame) -> bool {
     near_vec(a.origin, b.origin) && near_quat(a.orientation, b.orientation)
 }
 
+/// `StringInfo::operator==`: the same string and table ids and the same literal flag. Literals
+/// compare their text; otherwise the variable counts match and each variable of `a` is found in
+/// `b` by id with an equal value (retail keeps the variables in a hash, so order does not count).
+fn string_info_equal(a: &RenderInfo, b: &RenderInfo) -> bool {
+    if a.string_id != b.string_id || a.table_id != b.table_id {
+        return false;
+    }
+    match (&a.literal, &b.literal) {
+        (None, None) => {
+            a.variables.len() == b.variables.len()
+                && a.variables.iter().all(|(id, va)| {
+                    b.variables
+                        .iter()
+                        .any(|(bid, vb)| bid == id && render_var_equal(va, vb))
+                })
+        }
+        (Some(x), Some(y)) => x == y,
+        _ => false,
+    }
+}
+
+/// `StringInfoData::operator==`: a nested `StringInfo` compares as a `StringInfo`.
+fn render_var_equal(a: &RenderVar, b: &RenderVar) -> bool {
+    match (a, b) {
+        (RenderVar::Info(x), RenderVar::Info(y)) => string_info_equal(x, y),
+        _ => a == b,
+    }
+}
+
 fn near_waveform(a: &Waveform, b: &Waveform) -> bool {
     a.kind == b.kind
         && near(a.base, b.base)
@@ -139,6 +179,7 @@ impl BasePropertyValue {
             TYPE_PACKAGE_ID => Self::PackageId(0),
             TYPE_LONG_INTEGER => Self::LongInteger(0),
             TYPE_POSITION => Self::Position(PropertyPosition::default()),
+            TYPE_STRING_INFO => Self::StringInfo(StringInfoValue::default()),
             _ => return None,
         })
     }
@@ -158,6 +199,7 @@ impl BasePropertyValue {
             Self::Waveform(_) => TYPE_WAVEFORM,
             Self::PackageId(_) => TYPE_PACKAGE_ID,
             Self::Position(_) => TYPE_POSITION,
+            Self::StringInfo(_) => TYPE_STRING_INFO,
         }
     }
 
@@ -229,6 +271,15 @@ impl BasePropertyValue {
     pub fn inq_data_file(&self) -> Option<u32> {
         match self {
             Self::DataFile(v) => Some(*v),
+            _ => None,
+        }
+    }
+
+    /// `StringInfoPropertyValue::InqStringInfo` (the 1-argument form: the `StringInfo`, not the
+    /// token).
+    pub fn inq_string_info(&self) -> Option<&RenderInfo> {
+        match self {
+            Self::StringInfo(v) => Some(&v.info),
             _ => None,
         }
     }
@@ -317,6 +368,18 @@ impl BasePropertyValue {
         self.set_with(Self::Position(value))
     }
 
+    /// `StringInfoPropertyValue::SetStringInfo` (the 1-argument form): replaces the `StringInfo`
+    /// and keeps the token. Writes only into a `StringInfo` value.
+    pub fn set_string_info(&mut self, value: RenderInfo) -> bool {
+        match self {
+            Self::StringInfo(v) => {
+                v.info = value;
+                true
+            }
+            _ => false,
+        }
+    }
+
     /// `XPropertyValue::Set(BasePropertyValue*)`: copies `source` in when both are the same
     /// type, and reports whether it did (the source's typed getter answers only for its type).
     pub fn set_from(&mut self, source: &Self) -> bool {
@@ -346,6 +409,9 @@ impl BasePropertyValue {
             (Self::PackageId(a), Self::PackageId(b)) => a == b,
             (Self::Position(a), Self::Position(b)) => {
                 a.cell == b.cell && near_frame(&a.frame, &b.frame)
+            }
+            (Self::StringInfo(a), Self::StringInfo(b)) => {
+                a.token == b.token && string_info_equal(&a.info, &b.info)
             }
             _ => false,
         }

@@ -8,15 +8,16 @@
 //! and returns the same flag. The string and vector efuns take a native (`wpstring`, `Vector`),
 //! and the string output of a missing value is empty, as `InqStringW` leaves it.
 //!
-//! Not bound: the name and type efuns (`GetPropertyName`, `InqPropertyNameW`, `InqPropertyTypeW`,
-//! `SetPropertyName[W]`, `GetGroupName`, `GetPropertyType`), which need the property name tables
-//! the weenie side holds; and `InqStringInfo` / `SetStringInfo`, because `ac2_db` has no
-//! StringInfo property value yet.
+//! `InqStringInfo` / `SetStringInfo` copy a `StringInfo` native to and from the value
+//! (`StringInfoPropertyValue::InqStringInfo` / `SetStringInfo`, the one-argument slots 0x80 and
+//! 0x88). Not bound: `GetPropertyName`, `GetPropertyType`, `GetGroupName` and the name efuns,
+//! which need the property name tables.
 
 use ac2_db::BasePropertyValue;
 use ac2_math::Vec3;
 
 use super::{narrow, out_native, Call, INT_RESULT};
+use crate::data::{render_info, script_string_info};
 use crate::native::NativeObject;
 use crate::vm::{tag, Context, EFuns, InterpStatus, Vm};
 
@@ -39,6 +40,8 @@ pub(super) fn register(efuns: &mut EFuns) {
             "gBaseProperty::CallEFun_SetDataID" => set_data_id,
             "gBaseProperty::CallEFun_InqPackageID" => inq_package_id,
             "gBaseProperty::CallEFun_SetPackageID" => set_package_id,
+            "gBaseProperty::CallEFun_InqStringInfo" => inq_string_info,
+            "gBaseProperty::CallEFun_SetStringInfo" => set_string_info,
             _ => continue,
         };
         efuns.register(id, function);
@@ -244,6 +247,47 @@ fn set_string(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
             .value
             .as_mut()
             .is_some_and(|slot| slot.set_string(&bytes)),
+        _ => return vm.bad_this(this),
+    };
+    ret_flag(ctx, ok);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_InqStringInfo(StringInfo &)`: copies the value's `StringInfo` into the
+/// out native. A property without a `StringInfo` value answers 0 and leaves the out alone.
+fn inq_string_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, out) = this_and_arg(ctx);
+    let found = match read_value(vm, this, |v| v.inq_string_info().cloned()) {
+        Ok(found) => found,
+        Err(status) => return status,
+    };
+    let Some(info) = found else {
+        ret_flag(ctx, false);
+        return InterpStatus::Success;
+    };
+    let target = out_native(vm, ctx, out);
+    match vm.native_mut(target) {
+        Some(NativeObject::StringInfo(out_info)) => *out_info = script_string_info(&info),
+        _ => return vm.bad_this(target),
+    }
+    ret_flag(ctx, true);
+    InterpStatus::Success
+}
+
+/// `gBaseProperty::CallEFun_SetStringInfo(StringInfo)`: the argument's `StringInfo` becomes the
+/// value, when the value is a `StringInfo`.
+fn set_string_info(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let (this, arg) = this_and_arg(ctx);
+    let source = out_native(vm, ctx, arg);
+    let info = match vm.native(source) {
+        Some(NativeObject::StringInfo(info)) => render_info(info),
+        _ => return vm.bad_this(source),
+    };
+    let ok = match vm.native_mut(this) {
+        Some(NativeObject::BaseProperty(property)) => property
+            .value
+            .as_mut()
+            .is_some_and(|slot| slot.set_string_info(info)),
         _ => return vm.bad_this(this),
     };
     ret_flag(ctx, ok);
