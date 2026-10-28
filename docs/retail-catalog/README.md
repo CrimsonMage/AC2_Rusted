@@ -50,7 +50,7 @@ scripts/retail_catalog.py status
 | [ac2-client](ac2-client.md) | 354 | 126 | 51 | 70 | 107 |
 | [ac2-ui](ac2-ui.md) | 2247 | 1104 | 359 | 444 | 340 |
 | [ac2-script](ac2-script.md) | 2468 | 1470 | 120 | 544 | 334 |
-| [ac2-gameplay](ac2-gameplay.md) | 499 | 220 | 31 | 33 | 215 |
+| [ac2-gameplay](ac2-gameplay.md) | 499 | 224 | 31 | 29 | 215 |
 | [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |
 | [replaced](replaced.md) | 2058 | 36 | 0 | 0 | 2022 |
 

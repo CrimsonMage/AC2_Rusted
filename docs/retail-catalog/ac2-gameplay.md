@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 220 done, 31 partial, 33 to do, 215 skipped.
+499 retail functions: 224 done, 31 partial, 29 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -168,7 +168,7 @@ Legend and workflow: [README](README.md).
 - [-] `IngredientAdaptor::operator=` · 0060c2e0 · legions 005cd030 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `IngredientAdaptor::IngredientAdaptor` · 0060c310 · legions 005cd060 — constructor of plain data
 
-## `ac2/shared/src/craft/recipeadaptor.cpp.c` (2/5)
+## `ac2/shared/src/craft/recipeadaptor.cpp.c` (3/5)
 
 ### RecipeAdaptor
 - [x] `RecipeAdaptor::RecipeAdaptor` · 0060c350 · legions 005cd0a0 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
@@ -178,7 +178,7 @@ Legend and workflow: [README](README.md).
 
 ### RecipeAdaptor
 - [-] `RecipeAdaptor::operator=` · 0060c400 · legions 005cd150 — assignment or comparison of plain data (operator=, ==, <)
-- [ ] `RecipeAdaptor::SetDifficultyMinusSkillCutoff` · 0060c500 · legions 005cd250 — needs port (check): implemented as ac2-weenie/src/craft.rs (difficulty_minus) but uncited
+- [x] `RecipeAdaptor::SetDifficultyMinusSkillCutoff` · 0060c500 · legions 005cd250 — ac2-script glue/craft_natives.rs efun 0xAA0027 (flag set, cutoff stored); byte-level test set_difficulty_minus_skill_cutoff_stores_the_cutoff_and_sets_its_flag
 - [x] `RecipeAdaptor::RecipeAdaptor` · 0060c520 · legions 005cd270 — net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 
 ## `ac2/shared/src/damagetext/damagetextblob.cpp.c` (1/5)
@@ -204,7 +204,7 @@ Legend and workflow: [README](README.md).
 - [x] `EffectUINode::EffectUINode` · 00607f00 · legions 005c8da0 — ac2-net EffectUiNode: Default is the null-string constructor plus Clear, Clone is the copy constructor (operator=)
 - [x] `EffectUINode::StreamPack` · 00607f50 · legions 005c8df0 — ac2-net EffectUiNode (StreamPack field order, is_pulsed, Default = Clear's -1 times)
 
-## `ac2/shared/src/examination/examinationprofile.cpp.c` (16/35)
+## `ac2/shared/src/examination/examinationprofile.cpp.c` (18/35)
 
 ### ExaminationDataNode
 - [-] `ExaminationDataNode::operator==` · 006081f0 · legions 005c9310 — assignment or comparison of plain data (operator=, ==, <)
@@ -242,9 +242,9 @@ Legend and workflow: [README](README.md).
 - [x] `ExaminationProfile::AddSimpleStringInfo` · 006090e0 · legions 005c9fc0 — ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 
 ### PList<ExaminationDataNode>
-- [ ] `PList<ExaminationDataNode>::Pack` · 00609140 · legions 005ca030 — needs port (check): examination profile list wire, implemented in ac2-net/src/protocol/native/examination.rs but uncited
+- [x] `PList<ExaminationDataNode>::Pack` · 00609140 · legions 005ca030 — ac2-net native/examination.rs ExaminationProfile: u32 count then each node (Legions 005CA030/005CA0D4); exact-byte test examination_profile_nodes_take_their_type_layouts
 - [-] `PList<ExaminationDataNode>::GetPackSize` · 00609190 — container template instance; Rust collections replace it
-- [ ] `PList<ExaminationDataNode>::UnPack` · 006091d0 · legions 005ca0d4 — needs port (check): examination profile list wire, implemented in ac2-net/src/protocol/native/examination.rs but uncited
+- [x] `PList<ExaminationDataNode>::UnPack` · 006091d0 · legions 005ca0d4 — ac2-net native/examination.rs ExaminationProfile: u32 count then each node (Legions 005CA030/005CA0D4); exact-byte test examination_profile_nodes_take_their_type_layouts
 
 ### ExaminationProfile
 - [-] `ExaminationProfile::ExaminationProfile` · 00609360 · legions 005ca250 — constructor of plain data
@@ -382,7 +382,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmQuestInfoList::operator=` · 0060b8a0 · legions 005cc5f0 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `gmQuestInfoList::gmQuestInfoList` · 0060b8c0 · legions 005cc610 — constructor of plain data
 
-## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (4/18)
+## `ac2/shared/src/quest/gmsceneinfo.cpp.c` (5/18)
 
 ### gmSceneInfo
 - [x] `gmSceneInfo::SetIDByName` · 00609a50 — ac2-script/src/glue/story.rs set_id_by_name (gmSceneInfo::SetIDByName)
@@ -398,7 +398,7 @@ Legend and workflow: [README](README.md).
 - [-] `PList<gmSceneInfo>::GetPackSize` · 00609ce0 — container template instance; Rust collections replace it
 
 ### PList<gmKeyframe>
-- [ ] `PList<gmKeyframe>::UnPack` · 00609d20 · legions 005caa44 — needs port (check): scene keyframe list wire, implemented in ac2-net/src/protocol/native/gm.rs but uncited
+- [x] `PList<gmKeyframe>::UnPack` · 00609d20 · legions 005caa44 — ac2-net native/gm.rs GmSceneInfo: u32 keyframe count then each keyframe (Legions 005CAA44); exact-byte test a_scene_packs_its_keyframe_count_then_each_keyframe_exactly
 
 ### gmSceneInfo
 - [-] `gmSceneInfo::gmSceneInfo` · 00609e50 · legions 005cab60 — constructor of plain data

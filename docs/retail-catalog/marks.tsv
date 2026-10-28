@@ -10614,9 +10614,9 @@ key	status	note
 00608e50	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 00608ee0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
 006090e0	x	ac2-net ExaminationProfile Add* (raw valDataID words, sorted insert); ac2-script glue examination.rs binds gExaminationProfile 0x990001-0x990019
-00609140	_	needs port (check): examination profile list wire, implemented in ac2-net/src/protocol/native/examination.rs but uncited
+00609140	x	ac2-net native/examination.rs ExaminationProfile: u32 count then each node (Legions 005CA030/005CA0D4); exact-byte test examination_profile_nodes_take_their_type_layouts
 00609190	-	container template instance; Rust collections replace it
-006091d0	_	needs port (check): examination profile list wire, implemented in ac2-net/src/protocol/native/examination.rs but uncited
+006091d0	x	ac2-net native/examination.rs ExaminationProfile: u32 count then each node (Legions 005CA030/005CA0D4); exact-byte test examination_profile_nodes_take_their_type_layouts
 00609360	-	constructor of plain data
 006093b0	-	destructor of plain data
 00609400	-	assignment or comparison of plain data (operator=, ==, <)
@@ -10646,7 +10646,7 @@ key	status	note
 00609c00	x	ac2-script/src/glue/story.rs Set and AddKeyframe (gmSceneInfo::Set, AddKeyframe)
 00609ca0	-	teardown or reset of plain data
 00609ce0	-	container template instance; Rust collections replace it
-00609d20	_	needs port (check): scene keyframe list wire, implemented in ac2-net/src/protocol/native/gm.rs but uncited
+00609d20	x	ac2-net native/gm.rs GmSceneInfo: u32 keyframe count then each keyframe (Legions 005CAA44); exact-byte test a_scene_packs_its_keyframe_count_then_each_keyframe_exactly
 00609e50	-	constructor of plain data
 00609eb0	-	destructor of plain data
 00609f10	-	assignment or comparison of plain data (operator=, ==, <)
@@ -10733,7 +10733,7 @@ key	status	note
 0060c350	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0060c3e0	-	destructor of plain data
 0060c400	-	assignment or comparison of plain data (operator=, ==, <)
-0060c500	_	needs port (check): implemented as ac2-weenie/src/craft.rs (difficulty_minus) but uncited
+0060c500	x	ac2-script glue/craft_natives.rs efun 0xAA0027 (flag set, cutoff stored); byte-level test set_difficulty_minus_skill_cutoff_stores_the_cutoff_and_sets_its_flag
 0060c520	x	net: client call over the script VM (craft_script_7160); DAT-backed answers and the request bytes tested
 0060c550	x	ac2-script glue::ui_natives (ac2-weenie Shop/ShopSale/CraftSkill/DamageText)
 0060c590	-	assignment or comparison of plain data (operator=, ==, <)

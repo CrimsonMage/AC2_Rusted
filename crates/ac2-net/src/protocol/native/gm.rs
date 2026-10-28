@@ -465,6 +465,40 @@ mod tests {
     }
 
     #[test]
+    fn a_scene_packs_its_keyframe_count_then_each_keyframe_exactly() {
+        let scene = GmSceneInfo {
+            id: 1,
+            name: StringInfo::default(),
+            act_id: 2,
+            scene_num: 3,
+            is_hidden: 0,
+            is_playable: 1,
+            keyframes: vec![GmKeyframe {
+                scene_id: 1,
+                frame_num: 0,
+                duration: 2.5,
+                video_fragment: 0,
+                audio_fragment: 0,
+                voice_fragment: 0,
+                text_fragment: StringInfo::default(),
+                movie_fragment_filename: String::new(),
+                defined_tracks: 7,
+            }],
+        };
+        let bytes = round_trip(NativeObject::GmSceneInfo(Box::new(scene)));
+        let mut expected = words(&[1]);
+        expected.extend(StringInfo::default().to_bytes());
+        expected.extend(words(&[2, 3, 0, 1, 1])); // act, scene, hidden, playable, keyframe count
+        expected.extend(words(&[1, 0]));
+        expected.extend(2.5f64.to_le_bytes());
+        expected.extend(words(&[0, 0, 0])); // video, audio, voice fragments
+        expected.extend(StringInfo::default().to_bytes());
+        expected.extend([0, 0, 0, 0]); // empty movie filename: count 0, padded to a word
+        expected.extend(words(&[7]));
+        assert_eq!(bytes, expected);
+    }
+
+    #[test]
     fn effect_nodes_pack_eid_flags_texts_icon_and_times() {
         let node = EffectUiNode {
             eid: 7,

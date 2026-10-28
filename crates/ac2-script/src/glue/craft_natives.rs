@@ -233,4 +233,32 @@ mod tests {
         // The low word is the deeper return slot, the high word the one above it.
         assert_eq!(call(&mut vm, 0x00AA_000E, 2, this), vec![0x8000_0002, 0x1]);
     }
+
+    /// Calls setter efun `id` with `value` (the argument sits below `this`, as `set` reads it).
+    fn call_set(vm: &mut Vm, id: u32, value: u32, this: u32) {
+        let mut ctx = Context::new(1, None);
+        ctx.enter(0).unwrap();
+        ctx.push(value, crate::vm::tag::INT).unwrap();
+        ctx.push(this, crate::vm::tag::REF).unwrap();
+        vm.run_efun(id, &mut ctx);
+    }
+
+    /// `RecipeAdaptor::SetDifficultyMinusSkillCutoff` (Legions 0x005CD250): the cutoff is stored
+    /// and its flag set, so the recipe reports it.
+    #[test]
+    fn set_difficulty_minus_skill_cutoff_stores_the_cutoff_and_sets_its_flag() {
+        let mut vm = vm();
+        let this = vm
+            .refs
+            .create_native(ntype::RECIPE_ADAPTOR, NativeObject::Recipe(Box::default()));
+        assert!(
+            !native::<Recipe>(&vm, this)
+                .unwrap()
+                .has_difficulty_minus_skill_cutoff
+        );
+        call_set(&mut vm, 0x00AA_0027, (-3i32) as u32, this);
+        let recipe = native::<Recipe>(&vm, this).unwrap();
+        assert!(recipe.has_difficulty_minus_skill_cutoff);
+        assert_eq!(recipe.difficulty_minus_skill_cutoff, -3);
+    }
 }
