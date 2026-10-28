@@ -264,11 +264,13 @@ fn execute_craft_takes_the_ingredients_and_gives_the_result() {
             ingredients: vec![(0, POTIONS), (1, SWORD)],
         }],
     );
-    // The double sends the pack's update (the result given, the ingredients gone) before the
+    // The double creates the result (`CObjectMaint::FinishEntityCreation`'s CreateObject
+    // notice), sends the pack's update (the result given, the ingredients gone) before the
     // answer, then the recipe's record, whose forwarder refreshes the panel.
     assert_eq!(
         notices,
         vec![
+            GameplayNotice::CreateObject(0x8000_0000_0000_0401),
             GameplayNotice::UpdateContainer {
                 container: PLAYER,
                 code: 0x4000_0001,
