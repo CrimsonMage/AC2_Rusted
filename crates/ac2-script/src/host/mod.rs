@@ -17,6 +17,8 @@ mod latent;
 mod notices;
 mod notices_typed;
 mod popup;
+pub mod port;
+pub mod queries;
 pub mod radar;
 mod skill_panel;
 
