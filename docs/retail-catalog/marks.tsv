@@ -6167,10 +6167,10 @@ key	status	note
 0052eb80	_	needs port: interface get output files path; no citation in crates/
 0052ed30	-	STL/container internals: a Rust collection replaces it
 0052ee50	_	needs port: citation only in a test; port and cite in the client code
-0052ef20	_	needs port: interface handle cmd args; no citation in crates/
+0052ef20	x	ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 0052f070	_	needs port: interface resume callback; no citation in crates/
 0052f100	_	needs port: interface sleep; no citation in crates/
-0052f1f0	_	needs port: interface do cmd interp; no citation in crates/
+0052f1f0	x	ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 0052f300	_	needs port: interface do help interp; no citation in crates/
 0052f430	x	implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
 0052f6e0	_	needs port: interface add shell help; no citation in crates/
@@ -6574,32 +6574,32 @@ key	status	note
 0053aef0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 0053af50	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 0053afb0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-0053b010	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b090	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b110	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b190	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b210	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b280	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b2f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b370	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b3f0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b470	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b510	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b5b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b650	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b6f0	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b790	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b810	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053b890	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b910	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053b990	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053ba00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053ba80	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053bb20	_	called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-0053bbc0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053bc60	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053bd00	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-0053bda0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0053b010	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b090	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b110	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b190	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b210	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b280	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b2f0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b370	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b3f0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b470	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b510	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b5b0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b650	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b6f0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b790	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b810	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b890	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b910	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053b990	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053ba00	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053ba80	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053bb20	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053bbc0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053bc60	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053bd00	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+0053bda0	x	ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
 0053be40	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053beb0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 0053bf10	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
@@ -6864,16 +6864,16 @@ key	status	note
 005434a0	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 00543510	x	ac2-script glue::position over ac2-physics landdefs/Position/Heading
 005435b0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-00543630	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-00543670	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-005436e0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-00543750	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-005437c0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-00543830	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-005438a0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-005438f0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-00543960	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-005439b0	_	needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+00543630	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+00543670	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+005436e0	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+00543750	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+005437c0	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+00543830	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+005438a0	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+005438f0	~	not bound: no library code calls it (needs GameTime::GetGameTimeFromTimeStamp)
+00543960	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+005439b0	x	ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 005439f0	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543a50	x	ac2-script glue::data_bags (FxAndBehavior native)
 00543ab0	x	ac2-script glue::data_bags (FxAndBehavior native)
@@ -6940,17 +6940,17 @@ key	status	note
 005461c0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 00546230	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
 005462a0	-	authoring/diagnostic tool glue (WSL data-file parse and write, DB forms, file IO, e-mail, VM/debugger dumps): referenced only by tool scripts; the client has no PFile parser, so no script is ever handed these objects
-00546360	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005463c0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00546420	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005464a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00546520	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00546580	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005465e0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00546640	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005466a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00546720	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005467a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00546360	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005463c0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00546420	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005464a0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00546520	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00546580	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005465e0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00546640	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005466a0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00546720	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005467a0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00546820	x	ac2-script data/glue::enums
 00546850	x	ac2-script data/glue::enums
 00546900	x	ac2-script data/glue::enums
@@ -7031,17 +7031,17 @@ key	status	note
 00549150	x	ac2-script native/collision.rs CollisionProfile::from_report: the report (ac2-physics collision_report.rs) fills the object, environment, surface, water and contact lists these efuns read; ac2-client sends it. Begin or end of a property record is not kept (CollideProperty has no begin flag)
 005491f0	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 00549250	x	ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-005492b0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549320	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549390	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549400	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549470	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005494e0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549550	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005495c0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549630	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-005496a0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549710	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+005492b0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549320	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549390	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549400	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549470	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005494e0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549550	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005495c0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549630	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+005496a0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549710	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549780	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549800	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549880	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
@@ -7049,11 +7049,11 @@ key	status	note
 00549980	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549a00	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 00549a80	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549b00	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549bc0	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549c80	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549d40	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-00549e20	_	blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+00549b00	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549bc0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549c80	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549d40	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+00549e20	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549f00	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 00549f70	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
 00549fe0	x	ac2-script glue/collision.rs: GetID is the master id word, IsBegin, IsEnd and IsChanged test the collide type (0, 1, 2) the report listed (host/tests/collision.rs)
@@ -8296,8 +8296,8 @@ key	status	note
 0057c610	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 0057c6b0	_	needs port (check): WorldManager Init, SetRegion, Refresh, ResetWorldState; uncited
 0057c720	_	needs port: game time lighting refresh cadence
-0057c740	_	needs port: game time lighting refresh cadence
-0057c760	_	needs port: game time lighting refresh cadence
+0057c740	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+0057c760	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
 0057c780	x	ac2-world RegionDesc::physics_wind (rain wind or the Perlin breeze); ac2-client sets it on the bodies each animation step
 0057c7d0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 0057c820	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -10970,10 +10970,10 @@ key	status	note
 00618fb0	x	crates/ac2-world/src/region/game_time.rs GameTime::GameTime clock setup
 00619090	-	destructor (Rust Drop)
 00619130	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-00619200	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-00619250	_	needs port: game time, day/night and time dilation
-00619320	_	needs port: game time, day/night and time dilation
-00619880	_	needs port: game time, day/night and time dilation
+00619200	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+00619250	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+00619320	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+00619880	x	ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
 006198a0	-	SmartArray container operation (Vec replaces it)
 00619f70	x	
 00619fe0	x	
@@ -13109,11 +13109,11 @@ key	status	note
 006a4270	x	ac2-physics los (Terrain::los_check)
 006a44d0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4510	_	needs port: ethereal/collision parameter state
-006a4590	_	needs port: ethereal/collision parameter state
+006a4590	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a45e0	_	needs port: ethereal/collision parameter state
-006a4630	_	needs port: ethereal/collision parameter state
+006a4630	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a4690	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006a46b0	~	no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+006a46b0	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a46c0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a46d0	_	needs port: ethereal/collision parameter state
 006a46f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
@@ -13125,7 +13125,7 @@ key	status	note
 006a4880	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 006a48a0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a49b0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-006a49f0	x	ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+006a49f0	x	ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 006a4a30	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 006a4c10	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a4ce0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -13468,49 +13468,49 @@ key	status	note
 006b28b0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b2920	_	needs port: PropertyGroup::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
 006b2960	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
-006b2a00	_	needs port: PropertyGroup::RemoveProperty
-006b2a80	_	needs port: PropertyGroup::GetProperty
-006b2ad0	_	needs port: PropertyGroup::GetOptionalProperty
-006b2b20	_	needs port: PropertyGroup::InqProperty
-006b2b80	_	needs port: PropertyGroup::InqOptionalProperty
+006b2a00	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2a80	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2ad0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2b20	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2b80	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b2be0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b2c10	-	skip: constructor/destructor of plain data; Rust struct init and Drop
-006b2c80	_	needs port: PropertyGroup::InqPropertyAt
-006b2cb0	_	needs port: PropertyGroup::InqOptionalPropertyAt
-006b2ce0	_	needs port: PropertyGroup::InqPropertyGroupNameW
-006b2db0	_	needs port: PropertyGroup::ContainsProperty
-006b2dd0	_	needs port: PropertyGroup::ContainsOptionalProperty
+006b2c80	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2cb0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2ce0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2db0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2dd0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b2df0	-	skip: STL/container internal (iterator, tree, comparator); Rust collections (SmartArray append; Rust Vec push)
-006b2e40	_	needs port: PropertyGroup::SetOptionalToRequired
-006b2e80	_	needs port: PropertyGroup::AddProperty
-006b2eb0	_	needs port: PropertyGroup::AddOptionalProperty
-006b2ee0	x	
-006b2ff0	x	
+006b2e40	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2e80	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2eb0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2ee0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b2ff0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3150	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 006b31b0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
-006b31f0	_	needs port: PropertyCollection::SetOptionalToRequired
+006b31f0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3230	_	needs port: PropertyCollection::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
-006b3270	_	needs port: PropertyCollection::GetGroup
-006b32b0	_	needs port: PropertyCollection::GetProperty
-006b3320	_	needs port: PropertyCollection::GetOptionalProperty
-006b3390	_	needs port: PropertyCollection::InqGroup
-006b33e0	_	needs port: PropertyCollection::InqProperty
-006b3410	_	needs port: PropertyCollection::InqOptionalProperty
+006b3270	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b32b0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3320	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3390	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b33e0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3410	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3440	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006b3460	-	skip: constructor/destructor of plain data; Rust struct init and Drop
-006b34e0	_	needs port: PropertyCollection::InqGroupAt
-006b3510	_	needs port: PropertyCollection::ContainsGroup
-006b3560	_	needs port: PropertyCollection::ContainsProperty
-006b3580	_	needs port: PropertyCollection::InqPropertyW
-006b3600	_	needs port: PropertyCollection::InqOptionalPropertyW
+006b34e0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3510	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3560	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3580	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3600	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3680	-	skip: STL/container internal (iterator, tree, comparator); Rust collections (SmartArray append; Rust Vec push)
-006b36d0	_	needs port: PropertyCollection::AddGroup
-006b3700	x	
-006b3770	x	
+006b36d0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3700	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3770	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3b10	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-006b3b50	_	needs port: PropertyCollection::AddProperty
-006b3c20	_	needs port: PropertyCollection::AddOptionalProperty
-006b3cf0	_	needs port: PropertyCollection::UpdateProperty (runtime property update; UpdateCollection is cited in property.rs)
+006b3b50	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3c20	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+006b3cf0	x	ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 006b3d80	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b3da0	x	ac2-db base_property.rs: typed BasePropertyValue Inq/Set by type, same-type copy, Compare semantics (Legions Compare rows are the vtable form)
 006b3dc0	-	skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)

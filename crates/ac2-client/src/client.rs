@@ -381,6 +381,7 @@ impl Client {
             profile_scope!("net_use_time");
             self.session.net_use_time();
         }
+        self.sync_script_clock();
         {
             profile_scope!("db_cache");
             self.db_cache()?;

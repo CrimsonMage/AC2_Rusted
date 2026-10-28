@@ -29,6 +29,9 @@ mod prefetch_sequence;
 mod preparation_executor;
 mod preparation_queue;
 mod property;
+mod property_collection;
+#[cfg(test)]
+mod property_collection_tests;
 #[cfg(test)]
 mod property_tests;
 mod resource_runtime;
@@ -57,6 +60,7 @@ pub use base_property::{
 pub use body_decode::ResourceBodyDecodeWith;
 pub use body_decode::{ResourceBodyDecode, ResourceDbObjBody, ResourceDbObjDecodeContext};
 pub use db_type::ResourceTypeId;
+pub use property_collection::{PropertyCollection, PropertyGroup};
 
 pub use ddd::{ResourceDddApplyOutcome, ResourceDddInvalidation};
 pub use deferred_work::spawn_deferred_on;

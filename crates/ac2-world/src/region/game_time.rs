@@ -115,6 +115,7 @@ pub struct GameClock {
     zero_time_of_year: f64,
     zero_year: i32,
     day_length: f32,
+    days_per_year: i32,
     year_length: f64,
     /// `TimeOfDay::begin` of each time of day, and `Season::begin` of each season.
     times_of_day: Vec<f32>,
@@ -137,6 +138,8 @@ pub struct GameClock {
     current_day: i32,
     current_season: u32,
     current_time_of_day: u32,
+    /// `GameTime::m_bNeedLightingRefresh`.
+    need_lighting_refresh: bool,
 }
 
 impl GameClock {
@@ -147,6 +150,7 @@ impl GameClock {
             zero_time_of_year: time.zero_time_of_year,
             zero_year: time.zero_year,
             day_length: time.day_length,
+            days_per_year: time.days_per_year as i32,
             year_length: f64::from(time.day_length) * f64::from(time.days_per_year),
             times_of_day: time.times_of_day.iter().map(|t| t.start).collect(),
             times_of_day_night: time.times_of_day.iter().map(|t| t.is_night).collect(),
@@ -166,6 +170,7 @@ impl GameClock {
             current_day: 0,
             current_season: 0,
             current_time_of_day: 0,
+            need_lighting_refresh: false,
         }
     }
 
@@ -281,6 +286,67 @@ impl GameClock {
         )
     }
 
+    /// `GameTime::day_length`: seconds in a day.
+    pub fn day_length(&self) -> f32 {
+        self.day_length
+    }
+
+    /// `GameTime::days_per_year`.
+    pub fn days_per_year(&self) -> i32 {
+        self.days_per_year
+    }
+
+    /// `GameTime::GetNeedLightingRefresh`.
+    pub fn need_lighting_refresh(&self) -> bool {
+        self.need_lighting_refresh
+    }
+
+    /// `GameTime::NotifyLightingRefreshed`.
+    pub fn lighting_refreshed(&mut self) {
+        self.need_lighting_refresh = false;
+    }
+
+    /// `GameTime::AlterTimeOfDayImmediate` (Legions 0x005D5B70): moves the user offset so the
+    /// day is at `fraction_of_day` now, wraps a negative offset by one day, asks for a lighting
+    /// refresh and runs `UseTime` at `cur_time` with the next event reset. Every step is a double.
+    pub fn alter_time_of_day_immediate(&mut self, fraction_of_day: f32, cur_time: f64) {
+        self.need_lighting_refresh = true;
+        self.user_offset += (f64::from(fraction_of_day) - f64::from(self.present_time_of_day))
+            * f64::from(self.day_length);
+        if self.user_offset < 0.0 {
+            self.user_offset += f64::from(self.day_length);
+        }
+        self.time_of_next_event = 0.0;
+        self.use_time(cur_time);
+    }
+
+    /// `GameTime::TemporalDilationInternal` (Legions 0x005D5AA0): refused (false) for a dilation
+    /// of 0.0002 or less. Otherwise the dilation takes effect, the clock is refreshed at
+    /// `cur_time`, and the user offset is moved back by the time the new rate added, so the day
+    /// does not jump (the day count difference is taken as an unsigned word, as retail does).
+    pub fn temporal_dilation(&mut self, dilation: f32, cur_time: f64) -> bool {
+        if dilation <= 0.0002 {
+            return false;
+        }
+        let old_present = f64::from(self.present_time_of_day);
+        let old_total = self
+            .days_per_year
+            .wrapping_mul(self.current_year)
+            .wrapping_add(self.current_day);
+        self.time_dilation = f64::from(dilation);
+        self.time_of_day_begin = -1.0;
+        self.use_time(cur_time);
+        let new_total = self
+            .days_per_year
+            .wrapping_mul(self.current_year)
+            .wrapping_add(self.current_day);
+        let days = f64::from(new_total.wrapping_sub(old_total) as u32);
+        let advanced = days + f64::from(self.present_time_of_day) - old_present;
+        self.time_of_day_begin = -1.0;
+        self.user_offset -= advanced * f64::from(self.day_length);
+        true
+    }
+
     /// `present_time_in_day_unit`: progress through the current time of day.
     pub fn present_time_in_day_unit(&self) -> f32 {
         self.present_time_in_day_unit
@@ -355,5 +421,32 @@ mod clock_tests {
         clock.use_time(1060.0);
         assert_eq!(clock.date_time().day, 2);
         assert_eq!(clock.date_time().time, 0x5000_0010);
+    }
+
+    #[test]
+    fn altering_the_time_of_day_moves_the_day_to_the_fraction() {
+        let mut clock = GameClock::new(&time());
+        clock.use_time(1000.0);
+        assert_eq!(clock.present_time_of_day(), 0.5);
+        clock.alter_time_of_day_immediate(0.75, 1000.0);
+        assert_eq!(clock.present_time_of_day(), 0.75);
+        assert!(clock.need_lighting_refresh());
+        clock.lighting_refreshed();
+        assert!(!clock.need_lighting_refresh());
+        // A move back past the start of the offset wraps by one day.
+        clock.alter_time_of_day_immediate(0.25, 1000.0);
+        assert_eq!(clock.present_time_of_day(), 0.25);
+    }
+
+    #[test]
+    fn temporal_dilation_keeps_the_time_of_day_and_refuses_a_tiny_rate() {
+        let mut clock = GameClock::new(&time());
+        clock.use_time(1000.0);
+        assert!(!clock.temporal_dilation(0.0002, 1000.0));
+        assert!(clock.temporal_dilation(2.0, 1000.0));
+        assert_eq!(clock.present_time_of_day(), 0.5);
+        // The day now passes twice as fast: 20 seconds are 0.4 of a day.
+        clock.use_time(1020.0);
+        assert!((clock.present_time_of_day() - 0.9).abs() < 1e-5);
     }
 }

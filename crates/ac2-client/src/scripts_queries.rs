@@ -67,7 +67,7 @@ impl ScriptPort for Client {
     }
 
     fn process_text(&mut self, line: &str) -> Vec<SessionEvent> {
-        self.session.process_text(line)
+        self.chat_line(line)
     }
 
     fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypt: bool) {

@@ -55,6 +55,10 @@ pub mod ntype {
     pub const A_LIST_ITER: u32 = 0x0B;
     pub const AR_HASH: u32 = 0x11;
     pub const BEHAVIOR_PARAMS: u32 = 0x17;
+    /// `PropertyCollection` (`gPropertyCollection`).
+    pub const PROPERTY_COLLECTION: u32 = 0x5B;
+    /// `PropertyGroup` (`gPropertyGroup`).
+    pub const PROPERTY_GROUP: u32 = 0x5C;
     pub const LA_HASH: u32 = 0x32;
     pub const L_ARRAY: u32 = 0x37;
     pub const LL_HASH: u32 = 0x39;
@@ -64,6 +68,10 @@ pub mod ntype {
     pub const MISSILE_PARAMETERS: u32 = 0x46;
     /// `CollisionParameters` (`gCollisionParameters`): the impact minimums.
     pub const COLLISION_PARAMETERS: u32 = 0x1A;
+    /// `EtherealPhysicsType` (`gEtherealPhysicsType`): a 64-bit physics-type mask.
+    pub const ETHEREAL_PHYSICS_TYPE: u32 = 0x24;
+    /// `EtherealWeenieType` (`gEtherealWeenieType`): a weenie mask and id lists.
+    pub const ETHEREAL_WEENIE_TYPE: u32 = 0x25;
     /// `FXAndBehaviorInfo` (`gFXAndBehaviorInfo`).
     pub const FX_AND_BEHAVIOR_INFO: u32 = 0x2B;
     /// `LinkRequirements` (`gLinkRequirements`).
@@ -225,6 +233,10 @@ pub enum NativeObject {
     MissileParameters(MissileParameters),
     /// `CollisionParameters` (native 0x1A).
     CollisionParameters(CollisionParameters),
+    /// `EtherealPhysicsType` (native 0x24).
+    EtherealPhysicsType(ac2_physics::PhysicsTypeMask),
+    /// `EtherealWeenieType` (native 0x25).
+    EtherealWeenieType(Box<ac2_physics::WeenieTypes>),
     /// `LinkRequirements` (native 0x38).
     LinkRequirements(LinkRequirements),
     /// `MissileInfo` (native 0x45).
@@ -239,6 +251,10 @@ pub enum NativeObject {
     CollideProperty(CollideProperty),
     /// `BaseProperty` (native 0x16): the property's name, type and value (`ac2_db`).
     BaseProperty(Box<ac2_db::BaseProperty>),
+    /// `PropertyCollection` (native 0x5B).
+    PropertyCollection(Box<ac2_db::PropertyCollection>),
+    /// `PropertyGroup` (native 0x5C).
+    PropertyGroup(Box<ac2_db::PropertyGroup>),
     /// `ObjCollisionProfile` (native 0x4F).
     ObjCollisionProfile(ObjCollisionProfile),
     /// `Plane` (native 0x59): the normal and `d`.
@@ -425,6 +441,15 @@ impl NativeObject {
             ntype::COLLISION_PARAMETERS => {
                 NativeObject::CollisionParameters(CollisionParameters::default())
             }
+            ntype::ETHEREAL_PHYSICS_TYPE => {
+                NativeObject::EtherealPhysicsType(ac2_physics::PhysicsTypeMask::default())
+            }
+            // `EtherealWeenieType::EtherealWeenieType`: mask 0 and empty lists.
+            ntype::ETHEREAL_WEENIE_TYPE => {
+                let mut types = ac2_physics::WeenieTypes::default();
+                types.set_to_ethereal();
+                NativeObject::EtherealWeenieType(Box::new(types))
+            }
             ntype::LINK_REQUIREMENTS => NativeObject::LinkRequirements(LinkRequirements::default()),
             ntype::MISSILE_INFO => NativeObject::MissileInfo(Box::default()),
             ntype::MISSILE_TARGETING_PARAMETERS => NativeObject::MissileTargeting(Box::default()),
@@ -434,6 +459,8 @@ impl NativeObject {
             ntype::BASE_PROPERTY => {
                 NativeObject::BaseProperty(Box::new(ac2_db::BaseProperty::new(0)))
             }
+            ntype::PROPERTY_COLLECTION => NativeObject::PropertyCollection(Box::default()),
+            ntype::PROPERTY_GROUP => NativeObject::PropertyGroup(Box::default()),
             ntype::OBJ_COLLISION_PROFILE => {
                 NativeObject::ObjCollisionProfile(ObjCollisionProfile::default())
             }

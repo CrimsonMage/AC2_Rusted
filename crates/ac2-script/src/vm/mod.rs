@@ -296,6 +296,10 @@ pub struct Vm {
     /// `Timer::cur_time` (seconds), which `gTimer::get_time` returns; the host updates it each
     /// frame (`ScriptHost::set_time`).
     pub cur_time: f64,
+    /// `GameTime::current_game_time` as the client's clock stands (`ScriptHost::set_game_time`).
+    pub game_time: Option<crate::host::game_time::GameTimeState>,
+    /// The clock changes `gGameTime` made, for the client to apply.
+    pub game_time_requests: Vec<crate::host::game_time::GameTimeRequest>,
     /// Each weenie script process's `ProcessState::m_procid` by instance reference
     /// (`ProcessTable::RegisterProcess`: the table's size at registration).
     pub process_ids: std::collections::HashMap<u32, u32>,
@@ -402,6 +406,8 @@ impl Vm {
             world_name: String::new(),
             shell: ShellTable::default(),
             cur_time: 0.0,
+            game_time: None,
+            game_time_requests: Vec::new(),
             process_ids: Default::default(),
         }
     }

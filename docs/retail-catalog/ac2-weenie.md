@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 823 done, 175 partial, 398 to do, 508 skipped.
+1904 retail functions: 825 done, 175 partial, 396 to do, 508 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2576,7 +2576,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWDistributor::DispatchInterpMsg` · 0052e150 · legions 005124d0 — implemented: cited at crates/ac2-script/src/host/mod.rs:2
 - [x] `CWDistributor::RecvEvt_InterpCEvent_Private` · 0052e250 · legions 00512590 — implemented: cited at crates/ac2-net/src/protocol/server_event.rs:59
 
-## `portal/shared/src/weenie/interface/winterface.cpp.c` (11/52)
+## `portal/shared/src/weenie/interface/winterface.cpp.c` (13/52)
 
 ### CWInterface
 - [-] `CWInterface::CWInterface` · 0052e280 · legions 005125c0 — constructor of plain data: Rust struct init replaces it
@@ -2636,10 +2636,10 @@ Legend and workflow: [README](README.md).
 
 ### CWInterface
 - [ ] `CWInterface::ProcessText` · 0052ee50 · legions 00513060 — needs port: citation only in a test; port and cite in the client code
-- [ ] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130 — needs port: interface handle cmd args; no citation in crates/
+- [x] `CWInterface::HandleCmdArgs` · 0052ef20 · legions 00513130 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::ResumeCallback` · 0052f070 · legions 00513280 — needs port: interface resume callback; no citation in crates/
 - [ ] `CWInterface::Sleep` · 0052f100 — needs port: interface sleep; no citation in crates/
-- [ ] `CWInterface::DoCmdInterp` · 0052f1f0 — needs port: interface do cmd interp; no citation in crates/
+- [x] `CWInterface::DoCmdInterp` · 0052f1f0 — ac2-script host/shell.rs run_script_commands: a ShellCommand event whose word a script registered runs that function on the player's process with (text, RList of tokens)
 - [ ] `CWInterface::DoHelpInterp` · 0052f300 — needs port: interface do help interp; no citation in crates/
 - [x] `CWInterface::AddShellCmd` · 0052f430 · legions 005135f0 — implemented: cited at crates/ac2-weenie/src/shell/mod.rs:160
 - [ ] `CWInterface::AddShellHelp` · 0052f6e0 · legions 005138a0 — needs port: interface add shell help; no citation in crates/

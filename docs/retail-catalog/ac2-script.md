@@ -1,6 +1,6 @@
 # ac2-script: WSL interpreter and native glue
 
-2468 retail functions: 1619 done, 29 partial, 403 to do, 417 skipped.
+2468 retail functions: 1681 done, 30 partial, 340 to do, 417 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/interp/glue/gcharactergensystem.cpp.c` (14/25)
@@ -1557,22 +1557,22 @@ Legend and workflow: [README](README.md).
 - [x] `gCollideProperty::CallEFun_GetProperty` · 0054a0c0 — ac2-script glue/collision.rs: copies the CollideProperty's BaseProperty (native from the report, Ac2PropertyValue -> ac2_db::BaseProperty) into a new BaseProperty native; tests glue/base_property_tests.rs
 - [ ] `gCollideProperty::CallEFun_GetPropertyOutputStringW` · 0054a170 · legions 005288a0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 
-## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (9/25)
+## `portal/shared/src/interp/glue/gcollisionparameters.cpp.c` (25/25)
 
 ### gCollisionParameters
 - [x] `gCollisionParameters::CallEFun_SetMinReportedImpactXY` · 005491f0 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
 - [x] `gCollisionParameters::CallEFun_SetMinReportedImpactZ` · 00549250 — ac2-script glue/collision.rs and host/interface.rs: the CollisionParameters native (native/collision.rs) holds the minimums; SetCollisionState queues the non-zero ones for the weenie's body; HasCollided and IsEndCollision read the CollisionProfile native
-- [ ] `gCollisionParameters::CallEFun_SetMovementHighDWord` · 005492b0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetMovementLowDWord` · 00549320 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsMovementType` · 00549390 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsPlacementType` · 00549400 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsType` · 00549470 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeHighDWord` · 005494e0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPhysicsTypeLowDWord` · 00549550 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPlacementHighDWord` · 005495c0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetPlacementLowDWord` · 00549630 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetWeenieMovementType` · 005496a0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_SetWeeniePlacementType` · 00549710 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+- [x] `gCollisionParameters::CallEFun_SetMovementHighDWord` · 005492b0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetMovementLowDWord` · 00549320 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPhysicsMovementType` · 00549390 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPhysicsPlacementType` · 00549400 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPhysicsType` · 00549470 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPhysicsTypeHighDWord` · 005494e0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPhysicsTypeLowDWord` · 00549550 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPlacementHighDWord` · 005495c0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetPlacementLowDWord` · 00549630 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetWeenieMovementType` · 005496a0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_SetWeeniePlacementType` · 00549710 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 - [x] `gCollisionParameters::CallEFun_AddToEtherealList` · 00549780 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 - [x] `gCollisionParameters::CallEFun_RemovePhysicsType` · 00549800 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 - [x] `gCollisionParameters::CallEFun_UpdateMovementEthereal` · 00549880 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
@@ -1580,11 +1580,11 @@ Legend and workflow: [README](README.md).
 - [x] `gCollisionParameters::CallEFun_UpdatePhysicsType` · 00549980 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 - [x] `gCollisionParameters::CallEFun_UpdatePlacementEthereal` · 00549a00 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
 - [x] `gCollisionParameters::CallEFun_UpdatePlacementSolid` · 00549a80 — ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsMovementType` · 00549b00 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsPlacementType` · 00549bc0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_GetPhysicsType` · 00549c80 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+- [x] `gCollisionParameters::CallEFun_GetPhysicsMovementType` · 00549b00 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_GetPhysicsPlacementType` · 00549bc0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_GetPhysicsType` · 00549c80 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_GetWeenieMovementType` · 00549d40 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gCollisionParameters::CallEFun_GetWeeniePlacementType` · 00549e20 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 
 ## `portal/shared/src/interp/glue/gcollisionprofile.cpp.c` (10/15)
 
@@ -1734,24 +1734,24 @@ Legend and workflow: [README](README.md).
 - [x] `gEnumMapper::CallEFun_InqEnum` · 00546b30 — ac2-script data/glue::enums
 - [x] `gEnumMapper::CallEFun_InqString` · 00546bb0 — ac2-script data/glue::enums
 
-## `portal/shared/src/interp/glue/getherealphysicstype.cpp.c` (0/7)
+## `portal/shared/src/interp/glue/getherealphysicstype.cpp.c` (7/7)
 
 ### gEtherealPhysicsType
-- [ ] `gEtherealPhysicsType::CallEFun_SetEtherealToWaterLayer` · 00546520 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetSolidOnlyToEnvironment` · 00546580 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetToEthereal` · 005465e0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetToSolid` · 00546640 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetProperty` · 005466a0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetPropertyEthereal` · 00546720 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealPhysicsType::CallEFun_SetPropertySolid` · 005467a0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+- [x] `gEtherealPhysicsType::CallEFun_SetEtherealToWaterLayer` · 00546520 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetSolidOnlyToEnvironment` · 00546580 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetToEthereal` · 005465e0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetToSolid` · 00546640 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetProperty` · 005466a0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetPropertyEthereal` · 00546720 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealPhysicsType::CallEFun_SetPropertySolid` · 005467a0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 
-## `portal/shared/src/interp/glue/getherealweenietype.cpp.c` (0/4)
+## `portal/shared/src/interp/glue/getherealweenietype.cpp.c` (4/4)
 
 ### gEtherealWeenieType
-- [ ] `gEtherealWeenieType::CallEFun_SetToEthereal` · 00546360 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealWeenieType::CallEFun_SetToSolid` · 005463c0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealWeenieType::CallEFun_AddToEtherealList` · 00546420 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
-- [ ] `gEtherealWeenieType::CallEFun_AddToSolidList` · 005464a0 — blocked on ac2-physics: its CollisionParameters keeps the placement/movement/physics masks and weenie sets private with no raw setters, so the script-side Set*/Get* cannot forward them (the EtherealPhysicsType/EtherealWeenieType natives would only feed these)
+- [x] `gEtherealWeenieType::CallEFun_SetToEthereal` · 00546360 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealWeenieType::CallEFun_SetToSolid` · 005463c0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealWeenieType::CallEFun_AddToEtherealList` · 00546420 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
+- [x] `gEtherealWeenieType::CallEFun_AddToSolidList` · 005464a0 — ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 
 ## `portal/shared/src/interp/glue/gfile.cpp.c` (0/15)
 
@@ -1808,19 +1808,19 @@ Legend and workflow: [README](README.md).
 - [x] `gFXAndBehaviorInfo::CallEFun_SetWeaponBehavior` · 00543b10 — ac2-script glue::data_bags (FxAndBehavior native)
 - [x] `gFXAndBehaviorInfo::CallEFun_SetWeaponFX` · 00543b70 — ac2-script glue::data_bags (FxAndBehavior native)
 
-## `portal/shared/src/interp/glue/ggametime.cpp.c` (0/10)
+## `portal/shared/src/interp/glue/ggametime.cpp.c` (9/10)
 
 ### gGameTime
-- [ ] `gGameTime::CallEFun_AlterTimeOfDayImmediate` · 00543630 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_GetDayInYear` · 00543670 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_GetDayLength` · 005436e0 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_GetTimeOfDay` · 00543750 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_GetYear` · 005437c0 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_GetYearLength` · 00543830 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_InqCurrentGameDateTimeString` · 005438a0 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_IsNight` · 00543960 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
-- [ ] `gGameTime::CallEFun_TemporalDilation` · 005439b0 — needs the client's GameTime (time of day, calendar) exposed to the Vm; not wired
+- [x] `gGameTime::CallEFun_AlterTimeOfDayImmediate` · 00543630 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_GetDayInYear` · 00543670 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_GetDayLength` · 005436e0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_GetTimeOfDay` · 00543750 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_GetYear` · 005437c0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_GetYearLength` · 00543830 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_InqCurrentGameDateTimeString` · 005438a0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [~] `gGameTime::CallEFun_InqGameDateTimeString` · 005438f0 — not bound: no library code calls it (needs GameTime::GetGameTimeFromTimeStamp)
+- [x] `gGameTime::CallEFun_IsNight` · 00543960 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
+- [x] `gGameTime::CallEFun_TemporalDilation` · 005439b0 — ac2-script glue/game_time.rs reads the GameTimeState the client sets each frame (Client::sync_script_clock); changes queue GameTimeRequests the client applies to its GameClock
 
 ## `portal/shared/src/interp/glue/gheading.cpp.c` (4/5)
 
@@ -2805,39 +2805,39 @@ Legend and workflow: [README](README.md).
 - [x] `gPosition::CallEFun_get_origin` · 0053d280 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 - [x] `gPosition::CallEFun_heading` · 0053d330 — ac2-script glue::position over ac2-physics landdefs/Position/Heading
 
-## `portal/shared/src/interp/glue/gpropertycollection.cpp.c` (0/12)
+## `portal/shared/src/interp/glue/gpropertycollection.cpp.c` (12/12)
 
 ### gPropertyCollection
-- [ ] `gPropertyCollection::CallEFun_AddOptionalProperty` · 0053b790 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyCollection::CallEFun_AddProperty` · 0053b810 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyCollection::CallEFun_ContainsGroup` · 0053b890 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_ContainsProperty` · 0053b910 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_GetNumGroups` · 0053b990 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyCollection::CallEFun_UpdateProperty` · 0053ba00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_InqGroup` · 0053ba80 · legions 0051e060 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_InqGroupAt` · 0053bb20 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyCollection::CallEFun_InqOptionalProperty` · 0053bbc0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_InqOptionalPropertyW` · 0053bc60 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_InqProperty` · 0053bd00 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyCollection::CallEFun_InqPropertyW` · 0053bda0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+- [x] `gPropertyCollection::CallEFun_AddOptionalProperty` · 0053b790 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_AddProperty` · 0053b810 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_ContainsGroup` · 0053b890 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_ContainsProperty` · 0053b910 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_GetNumGroups` · 0053b990 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_UpdateProperty` · 0053ba00 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqGroup` · 0053ba80 · legions 0051e060 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqGroupAt` · 0053bb20 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqOptionalProperty` · 0053bbc0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqOptionalPropertyW` · 0053bc60 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqProperty` · 0053bd00 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyCollection::CallEFun_InqPropertyW` · 0053bda0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
 
-## `portal/shared/src/interp/glue/gpropertygroup.cpp.c` (0/14)
+## `portal/shared/src/interp/glue/gpropertygroup.cpp.c` (14/14)
 
 ### gPropertyGroup
-- [ ] `gPropertyGroup::CallEFun_AddOptionalProperty` · 0053b010 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_AddProperty` · 0053b090 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_ContainsOptionalProperty` · 0053b110 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_ContainsProperty` · 0053b190 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_GetNumOptionalProperties` · 0053b210 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyGroup::CallEFun_GetNumProperties` · 0053b280 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyGroup::CallEFun_RemoveProperty` · 0053b2f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_SetGroupName` · 0053b370 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_UpdateProperty` · 0053b3f0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_InqOptionalProperty` · 0053b470 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_InqOptionalPropertyAt` · 0053b510 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyGroup::CallEFun_InqProperty` · 0053b5b0 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
-- [ ] `gPropertyGroup::CallEFun_InqPropertyAt` · 0053b650 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
-- [ ] `gPropertyGroup::CallEFun_InqPropertyGroupNameW` · 0053b6f0 — called by the Legions wlib; unbound. Needs PropertyCollection/PropertyGroup natives, IconDesc layer colour null test or TabooTable data not yet ported
+- [x] `gPropertyGroup::CallEFun_AddOptionalProperty` · 0053b010 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_AddProperty` · 0053b090 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_ContainsOptionalProperty` · 0053b110 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_ContainsProperty` · 0053b190 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_GetNumOptionalProperties` · 0053b210 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_GetNumProperties` · 0053b280 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_RemoveProperty` · 0053b2f0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_SetGroupName` · 0053b370 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_UpdateProperty` · 0053b3f0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_InqOptionalProperty` · 0053b470 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_InqOptionalPropertyAt` · 0053b510 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_InqProperty` · 0053b5b0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_InqPropertyAt` · 0053b650 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
+- [x] `gPropertyGroup::CallEFun_InqPropertyGroupNameW` · 0053b6f0 — ac2-script glue/property_collection.rs over ac2-db PropertyCollection/PropertyGroup (property_collection.rs); int results as the PropertyCollection/PropertyGroup methods return them
 
 ## `portal/shared/src/interp/glue/gpsutils.cpp.c` (2/13)
 

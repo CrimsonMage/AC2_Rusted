@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 136 done, 57 partial, 228 to do, 360 skipped.
+781 retail functions: 138 done, 57 partial, 226 to do, 360 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1182,12 +1182,12 @@ Legend and workflow: [README](README.md).
 - [~] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — tunnel geometry (positions, uvs, index buffer, ring fade) in ac2-render portal/tunnel.rs; not yet: the vertex buffer locks, the portal sounds, the ring-to-alpha mapping (unverified), the outer ring's material
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (6/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (8/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0 — needs port: game time lighting refresh cadence
-- [ ] `GameTime::GetNeedLightingRefresh` · 0057c740 · legions 0054c010 — needs port: game time lighting refresh cadence
-- [ ] `GameTime::NotifyLightingRefreshed` · 0057c760 · legions 0054c030 — needs port: game time lighting refresh cadence
+- [x] `GameTime::GetNeedLightingRefresh` · 0057c740 · legions 0054c010 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+- [x] `GameTime::NotifyLightingRefreshed` · 0057c760 · legions 0054c030 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
 
 ### PhysicsGlobals
 - [x] `PhysicsGlobals::SetWind` · 0057c780 · legions 0054c050 — ac2-world RegionDesc::physics_wind (rain wind or the Perlin breeze); ac2-client sets it on the bodies each animation step

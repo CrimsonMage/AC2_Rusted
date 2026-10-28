@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 679 done, 152 partial, 484 to do, 809 skipped.
+2124 retail functions: 682 done, 151 partial, 482 to do, 809 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1116,20 +1116,20 @@ Legend and workflow: [README](README.md).
 ### ProfileListType
 - [-] `ProfileListType::ProfileListType` · 006a2d40 · legions 0063fc20 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (1/6)
+## `portal/shared/src/physobj/ethereal/etherealphysicstype.cpp.c` (3/6)
 
 ### EtherealPhysicsType
 - [x] `EtherealPhysicsType::SetProperty` · 006a44d0 · legions 00641430 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 - [ ] `EtherealPhysicsType::UpdateEthereality` · 006a4510 · legions 00641470 — needs port: ethereal/collision parameter state
-- [ ] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — needs port: ethereal/collision parameter state
+- [x] `EtherealPhysicsType::SetSolidOnlyToEnvironment` · 006a4590 · legions 006414f0 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [ ] `EtherealPhysicsType::SetCameraEthereal` · 006a45e0 · legions 00641540 — needs port: ethereal/collision parameter state
-- [ ] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — needs port: ethereal/collision parameter state
+- [x] `EtherealPhysicsType::SetEtherealToWaterLayer` · 006a4630 · legions 00641590 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [-] `EtherealPhysicsType::EtherealPhysicsType` · 006a4690 · legions 006415f0 — C++ constructor/destructor; Rust constructor and Drop replace it
 
-## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (8/14)
+## `portal/shared/src/physobj/ethereal/etherealweenietype.cpp.c` (9/14)
 
 ### EtherealWeenieType
-- [~] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — no Rust caller: the sets are set through update_*/add_to_ethereal_list (collision_types.rs)
+- [x] `EtherealWeenieType::SetToEthereal` · 006a46b0 · legions 00641610 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [x] `EtherealWeenieType::SetToSolid` · 006a46c0 · legions 00641620 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [ ] `EtherealWeenieType::NeedLOSCheck` · 006a46d0 · legions 00641630 — needs port: ethereal/collision parameter state
 - [x] `EtherealWeenieType::FindInEtherealList` · 006a46f0 · legions 00641650 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
@@ -1141,7 +1141,7 @@ Legend and workflow: [README](README.md).
 - [x] `EtherealWeenieType::InSolidList` · 006a4880 · legions 006417e0 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
 - [-] `EtherealWeenieType::CopyInto` · 006a48a0 · legions 00641800 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [x] `EtherealWeenieType::AddToEtherealList` · 006a49b0 · legions 00641910 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
-- [x] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950 — ac2-physics collision_types.rs (CollisionParameters sets, IsBlocking); DAT existence via the master property table in glue
+- [x] `EtherealWeenieType::AddToSolidList` · 006a49f0 · legions 00641950 — ac2-physics PhysicsTypeMask / WeenieTypes via ac2-script glue/ethereal.rs
 - [x] `EtherealWeenieType::Update` · 006a4a30 · legions 00641990 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 
 ## `portal/shared/src/physobj/ethereal/losparameters.cpp.c` (5/10)

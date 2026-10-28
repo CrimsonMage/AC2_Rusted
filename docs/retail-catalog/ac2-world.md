@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 187 done, 25 partial, 326 to do, 451 skipped.
+989 retail functions: 190 done, 25 partial, 323 to do, 451 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (19/140)
@@ -721,7 +721,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 
-## `portal/shared/src/gametime/gametime.cpp.c` (10/29)
+## `portal/shared/src/gametime/gametime.cpp.c` (13/29)
 
 ### GameTime
 - [x] `GameTime::SetYearLength` · 00618860 · legions 005d50d0 — GameClock::new: day_length * days_per_year as a double
@@ -751,9 +751,9 @@ Legend and workflow: [README](README.md).
 - [x] `GameTime::GameTime` · 00618fb0 · legions 005d5800 — crates/ac2-world/src/region/game_time.rs GameTime::GameTime clock setup
 - [-] `GameTime::~GameTime` · 00619090 · legions 005d58e0 — destructor (Rust Drop)
 - [x] `GameTime::UseTime` · 00619130 · legions 005d5980 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-- [x] `GameTime::InqCurrentGameDateTimeString` · 00619200 · legions 005d5a50 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-- [ ] `GameTime::TemporalDilationInternal` · 00619250 · legions 005d5aa0 — needs port: game time, day/night and time dilation
-- [ ] `GameTime::AlterTimeOfDayImmediate` · 00619320 · legions 005d5b70 — needs port: game time, day/night and time dilation
+- [x] `GameTime::InqCurrentGameDateTimeString` · 00619200 · legions 005d5a50 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+- [x] `GameTime::TemporalDilationInternal` · 00619250 · legions 005d5aa0 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
+- [x] `GameTime::AlterTimeOfDayImmediate` · 00619320 · legions 005d5b70 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
 
 ### Season
 - [-] `Season::FromFileNode` · 006193a0 — text source format (admin tools)
@@ -765,7 +765,7 @@ Legend and workflow: [README](README.md).
 - [-] `TimeOfDay::FromFileNode` · 006196a0 — text source format (admin tools)
 
 ### GameTime
-- [ ] `GameTime::TemporalDilation` · 00619880 · legions 005d5bf0 — needs port: game time, day/night and time dilation
+- [x] `GameTime::TemporalDilation` · 00619880 · legions 005d5bf0 — ac2-world GameClock::alter_time_of_day_immediate / temporal_dilation (x87 double arithmetic, objdump-verified) and need_lighting_refresh
 
 ### SmartArray<TimeOfDay>
 - [-] `SmartArray<TimeOfDay>::AddToEnd` · 006198a0 — SmartArray container operation (Vec replaces it)

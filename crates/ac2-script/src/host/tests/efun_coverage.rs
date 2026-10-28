@@ -62,5 +62,5 @@ fn every_efun_the_library_calls_is_bound() {
             .collect();
         std::fs::write(path, names.join("\n")).unwrap();
     }
-    assert!(unbound.len() <= 128, "{} unbound", unbound.len());
+    assert!(unbound.len() <= 99, "{} unbound", unbound.len());
 }

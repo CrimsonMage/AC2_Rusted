@@ -12,6 +12,7 @@
 //! or shown twice. UI commands still go to the stand-ins.
 
 use ac2_net::protocol::PackValue;
+use ac2_script::host::game_time::{GameDate, GameTimeRequest, GameTimeState};
 use ac2_script::host::lifecycle::ScriptLifecycle;
 use ac2_script::host::{ChatServices, IFunArg, ScriptHost, ScriptState};
 use ac2_weenie::SessionEvent;
@@ -228,6 +229,56 @@ impl Client {
         for id in known {
             self.request_script(id);
         }
+    }
+
+    /// Once a frame: `Timer::cur_time` for `gTimer::get_time`, the game clock the `gGameTime`
+    /// efuns read, and the clock changes the scripts asked for since the last frame
+    /// (`GameTime::AlterTimeOfDayImmediate`, `GameTime::TemporalDilation`).
+    pub(crate) fn sync_script_clock(&mut self) {
+        let cur_time = self.session.cur_time();
+        let Some(scripts) = self.scripts.as_mut() else {
+            return;
+        };
+        scripts.host.set_time(cur_time);
+        let Some(clock) = self.game_clock.as_mut() else {
+            scripts.host.set_game_time(None);
+            return;
+        };
+        for request in scripts.host.take_game_time_requests() {
+            match request {
+                GameTimeRequest::AlterTimeOfDay(fraction) => {
+                    clock.alter_time_of_day_immediate(fraction, cur_time);
+                }
+                GameTimeRequest::TemporalDilation(dilation) => {
+                    clock.temporal_dilation(dilation, cur_time);
+                }
+            }
+        }
+        let (year, day_of_year, _, _) = clock.calendar();
+        let date = clock.date_time();
+        scripts.host.set_game_time(Some(GameTimeState {
+            night: clock.is_night(),
+            time_of_day: clock.present_time_of_day(),
+            day_length: clock.day_length(),
+            days_per_year: clock.days_per_year(),
+            year,
+            day_of_year,
+            date: GameDate {
+                year: date.year,
+                day: date.day,
+                year_spec: date.year_spec,
+                season: date.season,
+                time: date.time,
+            },
+        }));
+    }
+
+    /// `CWInterface::ProcessText` for a line entered in the chat window or by a script: the
+    /// session's shell runs what it knows, and a command a script registered (`AddShellCmd`)
+    /// runs that script function (`CWInterface::DoCmdInterp`).
+    pub(crate) fn chat_line(&mut self, line: &str) -> Vec<SessionEvent> {
+        let events = self.session.process_text(line);
+        ac2_script::host::shell::run_script_commands(self, events)
     }
 
     /// The script VM, when attached.

@@ -455,7 +455,7 @@ impl Client {
                     self.session.tell(recipient, text);
                     Vec::new()
                 }
-                Command::ChatLine(line) => self.session.process_text(line),
+                Command::ChatLine(line) => self.chat_line(line),
                 Command::SetAttacking(attacking) => self.request_attack_state(*attacking),
                 Command::RequestResurrect => self.request_resurrect(),
                 Command::ClearResurrectionRequest => self.clear_resurrection_request(),

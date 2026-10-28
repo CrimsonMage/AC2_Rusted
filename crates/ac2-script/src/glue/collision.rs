@@ -67,14 +67,27 @@ fn set_minimum(
     }
 }
 
-/// `MasterProperty::GetPropertyDesc(name)` against the table the world source installed on the
-/// preload path: a name the table lacks is not a property, so its set is left alone.
-fn master_property(name: u64) -> bool {
+/// Marks a name the master property table cannot give a bit for.
+const NO_BIT: u64 = u64::MAX;
+
+/// `MasterProperty::GetPropertyDesc(name, &bit)` (Legions 0x0064E2D0) against the table the world
+/// source installed on the preload path: a desc of a bool property gives its data word, the bit
+/// `EtherealPhysicsType::SetProperty` sets; any other name gives none.
+pub(super) fn property_bit(name: u64) -> u64 {
     u32::try_from(name)
         .ok()
-        .and_then(ac2_db::ac2_property_type)
-        .is_some()
+        .and_then(ac2_db::ac2_property_desc)
+        .filter(|desc| desc.value_type == TYPE_BOOL)
+        .map_or(NO_BIT, |desc| u64::from(desc.data))
 }
+
+/// Whether [`property_bit`] found a bit.
+pub(super) fn has_bit(bit: u64) -> bool {
+    bit != NO_BIT
+}
+
+/// The `bool` `MasterProperty` type word (`0x40000001`).
+const TYPE_BOOL: u32 = 0x4000_0001;
 
 /// Runs one set update on the native's collision sets: `this` and the 64-bit name or id at words
 /// 2 and 3, the int result in the return slot (word 4).
@@ -102,42 +115,42 @@ fn add_to_ethereal_list(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 /// `gCollisionParameters::CallEFun_UpdatePhysicsType(name)`: sets the bit of the physics type.
 fn update_physics_type(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_physics_type(name, true, master_property)
+        sets.update_physics_type(property_bit(name), true, has_bit)
     })
 }
 
 /// `gCollisionParameters::CallEFun_RemovePhysicsType(name)`: clears it.
 fn remove_physics_type(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_physics_type(name, false, master_property)
+        sets.update_physics_type(property_bit(name), false, has_bit)
     })
 }
 
 /// `gCollisionParameters::CallEFun_UpdateMovementEthereal(name)`: the movement type is ethereal.
 fn update_movement_ethereal(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_movement(name, true, master_property)
+        sets.update_movement(property_bit(name), true, has_bit)
     })
 }
 
 /// `gCollisionParameters::CallEFun_UpdateMovementSolid(name)`: the movement type is solid.
 fn update_movement_solid(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_movement(name, false, master_property)
+        sets.update_movement(property_bit(name), false, has_bit)
     })
 }
 
 /// `gCollisionParameters::CallEFun_UpdatePlacementEthereal(name)`: the placement type is ethereal.
 fn update_placement_ethereal(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_placement(name, true, master_property)
+        sets.update_placement(property_bit(name), true, has_bit)
     })
 }
 
 /// `gCollisionParameters::CallEFun_UpdatePlacementSolid(name)`: the placement type is solid.
 fn update_placement_solid(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     update_sets(vm, ctx, |sets, name| {
-        sets.update_placement(name, false, master_property)
+        sets.update_placement(property_bit(name), false, has_bit)
     })
 }
 

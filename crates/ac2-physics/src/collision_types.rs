@@ -44,6 +44,19 @@ impl PhysicsTypeMask {
         true
     }
 
+    /// `gCollisionParameters::CallEFun_Set*LowDWord`: the low word is replaced and the high word
+    /// gains the sign extension of the argument (an `int` widened to 64 bits, then OR-ed in).
+    pub fn set_low_dword(&mut self, low: u32) {
+        let extension = if low >> 31 != 0 { u32::MAX } else { 0 };
+        let high = ((self.0 >> 32) as u32) | extension;
+        self.0 = u64::from(high) << 32 | u64::from(low);
+    }
+
+    /// `gCollisionParameters::CallEFun_Set*HighDWord`: the high word is replaced.
+    pub fn set_high_dword(&mut self, high: u32) {
+        self.0 = u64::from(high) << 32 | (self.0 & 0xFFFF_FFFF);
+    }
+
     /// Whether the two masks share a bit (`IsBlocking`'s test).
     pub fn intersects(self, other: Self) -> bool {
         self.0 & other.0 != 0
@@ -73,6 +86,16 @@ impl Default for WeenieTypes {
 }
 
 impl WeenieTypes {
+    /// `EtherealWeenieType::m_wtype_mask`.
+    pub fn mask(&self) -> u64 {
+        self.mask
+    }
+
+    /// `EtherealWeenieType::SetToEthereal`: the mask empties.
+    pub fn set_to_ethereal(&mut self) {
+        self.mask = 0;
+    }
+
     /// `EtherealWeenieType::SetToSolid`: the mask fills.
     pub fn set_to_solid(&mut self) {
         self.mask = u64::MAX;
@@ -115,8 +138,7 @@ impl WeenieTypes {
         }
     }
 
-    /// `EtherealWeenieType::AddToSolidList`: each id once (tests build solid sets with it).
-    #[cfg(test)]
+    /// `EtherealWeenieType::AddToSolidList`: each id once.
     pub fn add_to_solid_list(&mut self, id: InstanceId) -> bool {
         if !self.in_solid_list(id) {
             self.solid.push(id);
@@ -339,6 +361,49 @@ impl CollisionParameters {
     /// The body's own physics-type mask (`CollisionParameters::m_physics_type`).
     pub fn physics_type(&self) -> PhysicsTypeMask {
         self.physics_type
+    }
+
+    /// `gCollisionParameters::CallEFun_SetPhysicsType`: the physics-type mask is replaced and its
+    /// bit (0x10) set.
+    pub fn set_physics_type(&mut self, ptype: PhysicsTypeMask) {
+        self.physics_type = ptype;
+        self.set_bit(PHYSICS_TYPE_BIT);
+    }
+
+    /// `CollisionParameters::m_physics_type`, to write raw words into
+    /// (`gCollisionParameters::CallEFun_SetPhysicsTypeLowDWord` and its kin set no bitfield bit).
+    pub fn physics_type_mut(&mut self) -> &mut PhysicsTypeMask {
+        &mut self.physics_type
+    }
+
+    /// `CollisionParameters::m_placement_physics`.
+    pub fn placement_physics(&self) -> PhysicsTypeMask {
+        self.placement_physics
+    }
+
+    /// `CollisionParameters::m_placement_physics`, to write raw words into.
+    pub fn placement_physics_mut(&mut self) -> &mut PhysicsTypeMask {
+        &mut self.placement_physics
+    }
+
+    /// `CollisionParameters::m_movement_physics`.
+    pub fn movement_physics(&self) -> PhysicsTypeMask {
+        self.movement_physics
+    }
+
+    /// `CollisionParameters::m_movement_physics`, to write raw words into.
+    pub fn movement_physics_mut(&mut self) -> &mut PhysicsTypeMask {
+        &mut self.movement_physics
+    }
+
+    /// `CollisionParameters::m_placement_weenie`.
+    pub fn placement_weenie(&self) -> &WeenieTypes {
+        &self.placement_weenie
+    }
+
+    /// `CollisionParameters::m_movement_weenie`.
+    pub fn movement_weenie(&self) -> &WeenieTypes {
+        &self.movement_weenie
     }
 
     /// `CPhysicsObj::IsBlocking(wtype, ptype)` against this body's sets: the placement or the

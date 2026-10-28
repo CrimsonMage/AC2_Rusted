@@ -23,9 +23,11 @@ mod effect_node;
 mod engine_misc;
 mod entity_desc;
 mod enums;
+mod ethereal;
 mod examination;
 mod format;
 mod friend_natives;
+mod game_time;
 mod hashes;
 pub(crate) mod lists;
 mod math;
@@ -35,6 +37,7 @@ mod options;
 mod options_tables;
 mod places;
 mod position;
+mod property_collection;
 mod quests;
 mod random;
 mod repository;
@@ -80,6 +83,7 @@ pub fn register_pure(efuns: &mut EFuns) {
     behavior::register(efuns);
     base_property::register(efuns);
     collision::register(efuns);
+    ethereal::register(efuns);
     missile::register(efuns);
     math::register(efuns);
     multi::register(efuns);
@@ -92,6 +96,8 @@ pub fn register_pure(efuns: &mut EFuns) {
     examination::register(efuns);
     effect_node::register(efuns);
     places::register(efuns);
+    game_time::register(efuns);
+    property_collection::register(efuns);
     social::register(efuns);
     quests::register(efuns);
     act_info::register(efuns);
@@ -235,6 +241,8 @@ pub(crate) const INT_RESULT: u8 = tag::BOOL;
 
 #[cfg(test)]
 mod base_property_tests;
+#[cfg(test)]
+mod batch_tests;
 #[cfg(test)]
 mod data_bag_tests;
 #[cfg(test)]

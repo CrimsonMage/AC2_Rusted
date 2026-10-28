@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 165 done, 15 partial, 141 to do, 312 skipped.
+633 retail functions: 194 done, 15 partial, 112 to do, 312 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -779,41 +779,41 @@ Legend and workflow: [README](README.md).
 - [-] `MasterProperty::MasterProperty` · 006b6670 · legions 0064eb10 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `MasterProperty::Allocate` · 006b66d0 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 
-## `portal/shared/src/property/propertycollection.cpp.c` (2/26)
+## `portal/shared/src/property/propertycollection.cpp.c` (18/26)
 
 ### PropertyCollection
 - [-] `PropertyCollection::Destroy` · 006b31b0 · legions 0064c070 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PropertyCollection::SetOptionalToRequired` · 006b31f0 · legions 0064c0b0 — needs port: PropertyCollection::SetOptionalToRequired
+- [x] `PropertyCollection::SetOptionalToRequired` · 006b31f0 · legions 0064c0b0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [ ] `PropertyCollection::GetSubDataIDs` · 006b3230 · legions 0064c0f0 — needs port: PropertyCollection::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
-- [ ] `PropertyCollection::GetGroup` · 006b3270 · legions 0064c130 — needs port: PropertyCollection::GetGroup
-- [ ] `PropertyCollection::GetProperty` · 006b32b0 · legions 0064c170 — needs port: PropertyCollection::GetProperty
-- [ ] `PropertyCollection::GetOptionalProperty` · 006b3320 · legions 0064c1e0 — needs port: PropertyCollection::GetOptionalProperty
-- [ ] `PropertyCollection::InqGroup` · 006b3390 · legions 0064c250 — needs port: PropertyCollection::InqGroup
-- [ ] `PropertyCollection::InqProperty` · 006b33e0 · legions 0064c2a0 — needs port: PropertyCollection::InqProperty
-- [ ] `PropertyCollection::InqOptionalProperty` · 006b3410 · legions 0064c2d0 — needs port: PropertyCollection::InqOptionalProperty
+- [x] `PropertyCollection::GetGroup` · 006b3270 · legions 0064c130 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::GetProperty` · 006b32b0 · legions 0064c170 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::GetOptionalProperty` · 006b3320 · legions 0064c1e0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::InqGroup` · 006b3390 · legions 0064c250 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::InqProperty` · 006b33e0 · legions 0064c2a0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::InqOptionalProperty` · 006b3410 · legions 0064c2d0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [-] `PropertyCollection::PropertyCollection` · 006b3440 · legions 0064c300 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `PropertyCollection::~PropertyCollection` · 006b3460 · legions 0064c320 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PropertyCollection::InqGroupAt` · 006b34e0 · legions 0064c3a0 — needs port: PropertyCollection::InqGroupAt
-- [ ] `PropertyCollection::ContainsGroup` · 006b3510 · legions 0064c3d0 — needs port: PropertyCollection::ContainsGroup
-- [ ] `PropertyCollection::ContainsProperty` · 006b3560 · legions 0064c420 — needs port: PropertyCollection::ContainsProperty
-- [ ] `PropertyCollection::InqPropertyW` · 006b3580 · legions 0064c440 — needs port: PropertyCollection::InqPropertyW
-- [ ] `PropertyCollection::InqOptionalPropertyW` · 006b3600 · legions 0064c4c0 — needs port: PropertyCollection::InqOptionalPropertyW
+- [x] `PropertyCollection::InqGroupAt` · 006b34e0 · legions 0064c3a0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::ContainsGroup` · 006b3510 · legions 0064c3d0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::ContainsProperty` · 006b3560 · legions 0064c420 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::InqPropertyW` · 006b3580 · legions 0064c440 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::InqOptionalPropertyW` · 006b3600 · legions 0064c4c0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 
 ### SmartArray<PropertyGroup>
 - [-] `SmartArray<PropertyGroup>::AddToEnd` · 006b3680 · legions 0064c540 — skip: STL/container internal (iterator, tree, comparator); Rust collections (SmartArray append; Rust Vec push)
 
 ### PropertyCollection
-- [ ] `PropertyCollection::AddGroup` · 006b36d0 · legions 0064c590 — needs port: PropertyCollection::AddGroup
-- [x] `PropertyCollection::UpdateGroup` · 006b3700 · legions 0064c5c0
-- [x] `PropertyCollection::UpdateCollection` · 006b3770 · legions 0064c630
+- [x] `PropertyCollection::AddGroup` · 006b36d0 · legions 0064c590 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::UpdateGroup` · 006b3700 · legions 0064c5c0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::UpdateCollection` · 006b3770 · legions 0064c630 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [-] `PropertyCollection::ToFileNode` · 006b37c0 — text source format (admin tools)
 - [-] `PropertyCollection::FromFileNode` · 006b3910 — text source format (admin tools)
 - [-] `PropertyCollection::operator=` · 006b3b10 · legions 0064c680 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
-- [ ] `PropertyCollection::AddProperty` · 006b3b50 · legions 0064c6c0 — needs port: PropertyCollection::AddProperty
-- [ ] `PropertyCollection::AddOptionalProperty` · 006b3c20 · legions 0064c790 — needs port: PropertyCollection::AddOptionalProperty
-- [ ] `PropertyCollection::UpdateProperty` · 006b3cf0 · legions 0064c860 — needs port: PropertyCollection::UpdateProperty (runtime property update; UpdateCollection is cited in property.rs)
+- [x] `PropertyCollection::AddProperty` · 006b3b50 · legions 0064c6c0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::AddOptionalProperty` · 006b3c20 · legions 0064c790 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyCollection::UpdateProperty` · 006b3cf0 · legions 0064c860 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 
-## `portal/shared/src/property/propertygroup.cpp.c` (2/25)
+## `portal/shared/src/property/propertygroup.cpp.c` (15/25)
 
 ### PropertyGroup
 - [ ] `PropertyGroup::InqPropertyGroupName` · 006b2890 — needs port: PropertyGroup::InqPropertyGroupName
@@ -821,28 +821,28 @@ Legend and workflow: [README](README.md).
 - [ ] `PropertyGroup::GetSubDataIDs` · 006b2920 · legions 0064b950 — needs port: PropertyGroup::GetSubDataIDs (sub-object DID resolution, AGENTS keeps)
 - [~] `PropertyGroup::StreamPack` · 006b2960 · legions 0064b990 — unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
 - [-] `PropertyGroup::ToFileNode` · 006b29b0 — text source format (admin tools)
-- [ ] `PropertyGroup::RemoveProperty` · 006b2a00 · legions 0064b9e0 — needs port: PropertyGroup::RemoveProperty
-- [ ] `PropertyGroup::GetProperty` · 006b2a80 · legions 0064ba60 — needs port: PropertyGroup::GetProperty
-- [ ] `PropertyGroup::GetOptionalProperty` · 006b2ad0 · legions 0064bab0 — needs port: PropertyGroup::GetOptionalProperty
-- [ ] `PropertyGroup::InqProperty` · 006b2b20 · legions 0064bb00 — needs port: PropertyGroup::InqProperty
-- [ ] `PropertyGroup::InqOptionalProperty` · 006b2b80 · legions 0064bb60 — needs port: PropertyGroup::InqOptionalProperty
+- [x] `PropertyGroup::RemoveProperty` · 006b2a00 · legions 0064b9e0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::GetProperty` · 006b2a80 · legions 0064ba60 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::GetOptionalProperty` · 006b2ad0 · legions 0064bab0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::InqProperty` · 006b2b20 · legions 0064bb00 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::InqOptionalProperty` · 006b2b80 · legions 0064bb60 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [-] `PropertyGroup::PropertyGroup` · 006b2be0 · legions 0064bbc0 — skip: constructor/destructor of plain data; Rust struct init and Drop
 - [-] `PropertyGroup::~PropertyGroup` · 006b2c10 · legions 0064bbf0 — skip: constructor/destructor of plain data; Rust struct init and Drop
-- [ ] `PropertyGroup::InqPropertyAt` · 006b2c80 · legions 0064bc60 — needs port: PropertyGroup::InqPropertyAt
-- [ ] `PropertyGroup::InqOptionalPropertyAt` · 006b2cb0 · legions 0064bc90 — needs port: PropertyGroup::InqOptionalPropertyAt
-- [ ] `PropertyGroup::InqPropertyGroupNameW` · 006b2ce0 · legions 0064bcc0 — needs port: PropertyGroup::InqPropertyGroupNameW
-- [ ] `PropertyGroup::ContainsProperty` · 006b2db0 · legions 0064bd90 — needs port: PropertyGroup::ContainsProperty
-- [ ] `PropertyGroup::ContainsOptionalProperty` · 006b2dd0 · legions 0064bdb0 — needs port: PropertyGroup::ContainsOptionalProperty
+- [x] `PropertyGroup::InqPropertyAt` · 006b2c80 · legions 0064bc60 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::InqOptionalPropertyAt` · 006b2cb0 · legions 0064bc90 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::InqPropertyGroupNameW` · 006b2ce0 · legions 0064bcc0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::ContainsProperty` · 006b2db0 · legions 0064bd90 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::ContainsOptionalProperty` · 006b2dd0 · legions 0064bdb0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 
 ### SmartArray<BaseProperty>
 - [-] `SmartArray<BaseProperty>::AddToEnd` · 006b2df0 · legions 0064bdd0 — skip: STL/container internal (iterator, tree, comparator); Rust collections (SmartArray append; Rust Vec push)
 
 ### PropertyGroup
-- [ ] `PropertyGroup::SetOptionalToRequired` · 006b2e40 · legions 0064be20 — needs port: PropertyGroup::SetOptionalToRequired
-- [ ] `PropertyGroup::AddProperty` · 006b2e80 · legions 0064be60 — needs port: PropertyGroup::AddProperty
-- [ ] `PropertyGroup::AddOptionalProperty` · 006b2eb0 · legions 0064be90 — needs port: PropertyGroup::AddOptionalProperty
-- [x] `PropertyGroup::UpdateProperty` · 006b2ee0 · legions 0064bec0
-- [x] `PropertyGroup::UpdateGroup` · 006b2ff0 · legions 0064bfd0
+- [x] `PropertyGroup::SetOptionalToRequired` · 006b2e40 · legions 0064be20 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::AddProperty` · 006b2e80 · legions 0064be60 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::AddOptionalProperty` · 006b2eb0 · legions 0064be90 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::UpdateProperty` · 006b2ee0 · legions 0064bec0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
+- [x] `PropertyGroup::UpdateGroup` · 006b2ff0 · legions 0064bfd0 — ac2-db property_collection.rs (PropertyCollection/PropertyGroup over BaseProperty; group lookup by the MasterProperty group of the name, as GetProperty does)
 - [-] `PropertyGroup::FromFileNode` · 006b3030 — text source format (admin tools)
 - [-] `PropertyGroup::operator=` · 006b3150 · legions 0064c010 — skip: copy/assign/compare operator; Rust derive(Clone, PartialEq)
 

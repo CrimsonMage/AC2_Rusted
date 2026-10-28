@@ -97,7 +97,7 @@ pub use collision_impact::ImpactReport;
 pub use collision_report::{
     CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, RecordState,
 };
-pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask};
+pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask, WeenieTypes};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
 pub use fx_follow::{follow_frame, placed_at, FxFollow};

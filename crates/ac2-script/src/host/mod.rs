@@ -9,6 +9,7 @@
 pub mod chargen;
 pub mod consignment;
 pub mod craft_queries;
+pub mod game_time;
 mod glue;
 mod gun;
 mod ifun;
@@ -26,6 +27,7 @@ mod popup;
 pub mod port;
 pub mod queries;
 pub mod radar;
+pub mod shell;
 mod skill_panel;
 pub mod skill_requests;
 pub mod social_queries;

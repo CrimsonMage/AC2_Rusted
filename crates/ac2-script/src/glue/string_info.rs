@@ -66,7 +66,7 @@ fn with_this(
 }
 
 /// `StringInfo::AddVar`: a variable replaces any with the same id.
-fn add_var(info: &mut StringInfo, id: u32, kind: u16, value: StringVarValue) {
+pub(super) fn add_var(info: &mut StringInfo, id: u32, kind: u16, value: StringVarValue) {
     let var = StringVar { id, kind, value };
     match info.variables.iter_mut().find(|v| v.id == id) {
         Some(slot) => *slot = var,
@@ -75,7 +75,7 @@ fn add_var(info: &mut StringInfo, id: u32, kind: u16, value: StringVarValue) {
 }
 
 /// The table id a string-table DID gives (`~-(DivineType != STRING_TABLE) & did`).
-fn table_id(vm: &Vm, did: u32) -> u32 {
+pub(super) fn table_id(vm: &Vm, did: u32) -> u32 {
     if vm.data().db_type(did) == Some(STRING_TABLE) {
         did
     } else {

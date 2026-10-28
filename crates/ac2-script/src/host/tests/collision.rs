@@ -374,7 +374,7 @@ fn a_mask_efun_with_an_unknown_property_changes_nothing() {
     assert!(p.sets.blocks(7, none, true));
 }
 
-/// With the DATs installed, a mask efun answers whether the master property table names the
+/// With the DATs installed, a mask efun answers whether the master property table names a bool
 /// property, as `MasterProperty::GetPropertyDesc` does. Skipped without `AC2_DAT_DIR`.
 #[test]
 fn a_mask_efun_answers_the_master_property_table() {
@@ -390,7 +390,8 @@ fn a_mask_efun_answers_the_master_property_table() {
         NativeObject::CollisionParameters(CollisionParameters::default()),
     );
     for name in [0x4000_0038_u32, 0x4000_001B, 0x4000_0026, 0x4000_001C] {
-        let known = ac2_db::ac2_property_type(name).is_some();
+        // `MasterProperty::GetPropertyDesc` answers only for a bool property.
+        let known = ac2_db::ac2_property_type(name) == Some(0x4000_0001);
         let answer = efun_result(&mut host.vm, 0x001A_000B, &[0, name], native, 4);
         assert_eq!(
             answer,
