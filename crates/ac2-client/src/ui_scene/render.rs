@@ -54,6 +54,8 @@ pub fn render_with_scenes(
     if let (Some(world), Some(hdr)) = (world, &hdr) {
         let [r, g, b] = clear.map(|c| ac2_gpu::srgb_to_linear(c.clamp(0.0, 1.0)));
         hdr.render(gpu, &mut encoder, [r, g, b, 1.0], None, world);
+        // Bloom and eye adaptation over the world alone, before any viewport scene draws in.
+        presenter.post(gpu, &mut encoder, hdr);
     }
     let mut pass_clear = Some(clear);
     let mut first = Some(first);
@@ -126,7 +128,7 @@ fn output_head(
         return;
     };
     if let (true, Some(hdr)) = (world, hdr) {
-        presenter.tonemap().draw(pass, hdr, None);
+        presenter.draw_world(pass, hdr);
     }
     first(pass);
 }

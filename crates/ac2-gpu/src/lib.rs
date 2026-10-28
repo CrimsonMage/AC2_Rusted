@@ -13,6 +13,7 @@ mod object_pipelines;
 mod object_state;
 mod pixel_program;
 mod portal_fader;
+mod post;
 mod scene;
 mod screen_quad;
 pub mod screenshot;

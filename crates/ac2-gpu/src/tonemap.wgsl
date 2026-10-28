@@ -12,6 +12,12 @@
 
 @group(0) @binding(0) var scene: texture_2d<f32>;
 @group(0) @binding(1) var scene_depth: texture_depth_2d;
+// The world's post chain (`post.rs`): its bloom, and one texel with the adapted EV (r), the bloom
+// strength (g), the vignette strength (b) and one over the bloom's level count (a). Neutral (all
+// zero) for the UI viewports' scenes and offline renders.
+@group(1) @binding(0) var bloom: texture_2d<f32>;
+@group(1) @binding(1) var bloom_sampler: sampler;
+@group(1) @binding(2) var exposure: texture_2d<f32>;
 
 const EXPOSURE: f32 = 1.0;
 const START_COMPRESSION: f32 = 0.76;
@@ -54,7 +60,17 @@ fn display(linear: vec3<f32>) -> vec3<f32> {
 @fragment
 fn fs(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     let texel = textureLoad(scene, vec2<i32>(position.xy), 0);
-    return vec4(display(texel.rgb), 1.0);
+    let size = vec2<f32>(textureDimensions(scene));
+    let uv = position.xy / size;
+    let post = textureLoad(exposure, vec2(0, 0), 0);
+    // The bloom's sum over its levels, as their mean, mixed into the scene in linear light.
+    let glow = textureSampleLevel(bloom, bloom_sampler, uv, 0.0).rgb * post.a;
+    var c = mix(max(texel.rgb, vec3(0.0)), glow, post.g) * exp2(post.r);
+    // The vignette: 0 at the centre, 1 in the corners whatever the aspect.
+    let aspect = vec2(size.x / size.y, 1.0);
+    let edge = length((uv - 0.5) * aspect) / length(0.5 * aspect);
+    c *= 1.0 - post.b * smoothstep(0.35, 1.0, edge);
+    return vec4(display(c), 1.0);
 }
 
 @fragment

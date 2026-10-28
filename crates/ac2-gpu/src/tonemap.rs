@@ -7,6 +7,7 @@
 //! curve, then sRGB encode) once, before the UI's
 //! surfaces draw over it. What is drawn, in which order and with which blend stays retail's.
 
+use crate::post::{PostChain, PostPipelines};
 use crate::{Gpu, DEPTH_FORMAT};
 
 /// The scene colour format: linear light, unclamped.
@@ -151,6 +152,38 @@ pub struct ToneMap {
     opaque: wgpu::RenderPipeline,
     composite: wgpu::RenderPipeline,
     layout: wgpu::BindGroupLayout,
+    /// The post chain's inputs: bloom, its sampler and the exposure texel (`post.rs`).
+    post_layout: wgpu::BindGroupLayout,
+    /// Inputs for a scene without the post chain: no bloom, EV 0, no vignette.
+    neutral: wgpu::BindGroup,
+}
+
+/// The tone map's post inputs: `bloom` (sampled with `sampler`) and the one-texel `exposure`.
+pub(crate) fn post_inputs(
+    device: &wgpu::Device,
+    layout: &wgpu::BindGroupLayout,
+    bloom: &wgpu::TextureView,
+    sampler: &wgpu::Sampler,
+    exposure: &wgpu::TextureView,
+) -> wgpu::BindGroup {
+    device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: Some("ac2 tone map post"),
+        layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(bloom),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(sampler),
+            },
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: wgpu::BindingResource::TextureView(exposure),
+            },
+        ],
+    })
 }
 
 impl ToneMap {
@@ -173,13 +206,50 @@ impl ToneMap {
                 entry(1, wgpu::TextureSampleType::Depth),
             ],
         });
+        let post_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            label: Some("ac2 tone map post"),
+            entries: &[
+                entry(0, wgpu::TextureSampleType::Float { filterable: true }),
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
+                    count: None,
+                },
+                entry(2, wgpu::TextureSampleType::Float { filterable: true }),
+            ],
+        });
+        // One black texel serves as both the bloom and the exposure: EV 0, bloom and vignette 0.
+        let black = device
+            .create_texture(&wgpu::TextureDescriptor {
+                label: Some("ac2 tone map neutral"),
+                size: wgpu::Extent3d {
+                    width: 1,
+                    height: 1,
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: HDR_FORMAT,
+                usage: wgpu::TextureUsages::TEXTURE_BINDING | wgpu::TextureUsages::COPY_DST,
+                view_formats: &[],
+            })
+            .create_view(&Default::default());
+        let neutral = post_inputs(
+            device,
+            &post_layout,
+            &black,
+            &device.create_sampler(&Default::default()),
+            &black,
+        );
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 tone map"),
             source: wgpu::ShaderSource::Wgsl(include_str!("tonemap.wgsl").into()),
         });
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             label: Some("ac2 tone map"),
-            bind_group_layouts: &[Some(&layout)],
+            bind_group_layouts: &[Some(&layout), Some(&post_layout)],
             immediate_size: 0,
         });
         let pipeline = |entry_point, blend| {
@@ -223,6 +293,8 @@ impl ToneMap {
                 Some(wgpu::BlendState::PREMULTIPLIED_ALPHA_BLENDING),
             ),
             layout,
+            post_layout,
+            neutral,
         }
     }
 
@@ -235,6 +307,16 @@ impl ToneMap {
         source: &HdrTarget,
         viewport: Option<[u32; 4]>,
     ) {
+        self.draw_with(pass, source, viewport, &self.neutral);
+    }
+
+    fn draw_with(
+        &self,
+        pass: &mut wgpu::RenderPass<'_>,
+        source: &HdrTarget,
+        viewport: Option<[u32; 4]>,
+        post: &wgpu::BindGroup,
+    ) {
         if let Some([x, y, w, h]) = viewport {
             pass.set_viewport(x as f32, y as f32, w as f32, h as f32, 0.0, 1.0);
             pass.set_scissor_rect(x, y, w, h);
@@ -244,6 +326,7 @@ impl ToneMap {
             None => &self.opaque,
         });
         pass.set_bind_group(0, &source.group, &[]);
+        pass.set_bind_group(1, post, &[]);
         pass.draw(0..3, 0..1);
         if viewport.is_some() {
             pass.set_viewport(
@@ -259,11 +342,13 @@ impl ToneMap {
     }
 }
 
-/// A tone map for one output format with the HDR target it reads, remade when the output's
-/// size changes (the window resizes freely).
+/// A tone map for one output format with the HDR target it reads and the world's post chain,
+/// remade when the output's size changes (the window resizes freely).
 pub struct ScenePresenter {
     tonemap: ToneMap,
     target: std::cell::RefCell<Option<HdrTarget>>,
+    post_pipelines: PostPipelines,
+    post: std::cell::RefCell<Option<PostChain>>,
 }
 
 impl ScenePresenter {
@@ -271,6 +356,37 @@ impl ScenePresenter {
         Self {
             tonemap: ToneMap::new(gpu, output),
             target: std::cell::RefCell::new(None),
+            post_pipelines: PostPipelines::new(gpu),
+            post: std::cell::RefCell::new(None),
+        }
+    }
+
+    /// Records the world's post chain (bloom and eye adaptation) over `hdr`, once per frame after
+    /// the world drew into it and before [`Self::draw_world`].
+    pub fn post(&self, gpu: &Gpu, encoder: &mut wgpu::CommandEncoder, hdr: &HdrTarget) {
+        let mut post = self.post.borrow_mut();
+        if !post.as_ref().is_some_and(|chain| chain.fits(hdr)) {
+            *post = Some(PostChain::new(
+                gpu,
+                &self.post_pipelines,
+                &self.tonemap.post_layout,
+                hdr,
+            ));
+        }
+        if let Some(chain) = post.as_ref() {
+            chain.record(gpu, &self.post_pipelines, encoder);
+        }
+    }
+
+    /// Tone maps the world in `hdr` over the whole output with the post chain's bloom and
+    /// exposure (neutral until [`Self::post`] has run at this size).
+    pub fn draw_world(&self, pass: &mut wgpu::RenderPass<'_>, hdr: &HdrTarget) {
+        let post = self.post.borrow();
+        match post.as_ref().filter(|chain| chain.fits(hdr)) {
+            Some(chain) => self
+                .tonemap
+                .draw_with(pass, hdr, None, chain.tonemap_inputs()),
+            None => self.tonemap.draw(pass, hdr, None),
         }
     }
 
