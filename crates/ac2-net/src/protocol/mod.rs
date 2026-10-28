@@ -8,6 +8,7 @@
 mod char_gen;
 mod character;
 mod client_event;
+mod conversation;
 mod dat_event;
 mod error;
 mod fx;
@@ -37,6 +38,9 @@ mod weenie_desc;
 pub use char_gen::{decode_char_gen_result, CharGenResult};
 pub use character::{CharacterIdentity, CharacterSet, MinimalCharacterSet};
 pub use client_event::ClientEvent;
+pub use conversation::{
+    ConversationAction, ConversationDecision, ConversationNode, ConversationTree,
+};
 pub use dat_event::{
     dat_request, end_ddd, interrogation_response, read_int_set, DatEvent, MissingIteration,
 };

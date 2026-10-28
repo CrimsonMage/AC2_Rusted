@@ -1,6 +1,6 @@
 # ac2-gameplay: Characters, qualities, quests, fellowships, crafting, trade
 
-499 retail functions: 202 done, 30 partial, 52 to do, 215 skipped.
+499 retail functions: 210 done, 30 partial, 44 to do, 215 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/allegiance/allegiancedataadaptor.cpp.c` (3/4)
@@ -460,7 +460,7 @@ Legend and workflow: [README](README.md).
 - [-] `SkillUINode::operator=` · 00607bd0 · legions 005c8a70 — assignment or comparison of plain data (operator=, ==, <)
 - [-] `SkillUINode::SkillUINode` · 00607c60 · legions 005c8b00 — constructor of plain data
 
-## `portal/shared/src/conversation/conversationaction.cpp.c` (0/6)
+## `portal/shared/src/conversation/conversationaction.cpp.c` (1/6)
 
 ### ConversationAction
 - [-] `ConversationAction::ConversationAction` · 006bb610 · legions 00650f40 — constructor of plain data
@@ -468,12 +468,12 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationAction::~ConversationAction` · 006bb670 · legions 00650fa0 — destructor of plain data
 - [-] `ConversationAction::FromFileNode` · 006bb6f0 — text source format (admin tools)
 - [-] `ConversationAction::ToFileNode` · 006bb8a0 — text source format (admin tools)
-- [ ] `ConversationAction::StreamPack` · 006bb930 · legions 00651040 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `ConversationAction::StreamPack` · 006bb930 · legions 00651040 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 
-## `portal/shared/src/conversation/conversationdecision.cpp.c` (0/10)
+## `portal/shared/src/conversation/conversationdecision.cpp.c` (2/10)
 
 ### ConversationDecision
-- [ ] `ConversationDecision::WantsResponse` · 006bb980 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `ConversationDecision::WantsResponse` · 006bb980 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 - [-] `ConversationDecision::ConversationDecision` · 006bb990 · legions 00651090 — constructor of plain data
 - [-] `ConversationDecision::ConversationDecision` · 006bb9d0 · legions 006510d0 — constructor of plain data
 - [-] `ConversationDecision::operator=` · 006bba20 · legions 00675360 — assignment or comparison of plain data (operator=, ==, <)
@@ -482,9 +482,9 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationDecision::FromFileNode_Decision` · 006bbba0 — ConversationDecision text source parser (admin authoring form), not a client path
 - [-] `ConversationDecision::FromFileNode_Response` · 006bbf50 — ConversationDecision text source parser (admin authoring form), not a client path
 - [-] `ConversationDecision::ToFileNode` · 006bc0d0 — text source format (admin tools)
-- [ ] `ConversationDecision::StreamPack` · 006bc290 · legions 00651230 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `ConversationDecision::StreamPack` · 006bc290 · legions 00651230 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 
-## `portal/shared/src/conversation/conversationnode.cpp.c` (0/6)
+## `portal/shared/src/conversation/conversationnode.cpp.c` (1/6)
 
 ### ConversationNode
 - [-] `ConversationNode::Destroy` · 006bafb0 — teardown or reset of plain data
@@ -492,20 +492,20 @@ Legend and workflow: [README](README.md).
 - [-] `ConversationNode::ConversationNode` · 006bb340 · legions 00650e10 — constructor of plain data
 - [-] `ConversationNode::~ConversationNode` · 006bb3a0 · legions 00650e70 — destructor of plain data
 - [-] `ConversationNode::ToFileNode` · 006bb410 — text source format (admin tools)
-- [ ] `ConversationNode::StreamPack` · 006bb5b0 · legions 00650ee0 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `ConversationNode::StreamPack` · 006bb5b0 · legions 00650ee0 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 
-## `portal/shared/src/conversation/conversationtree.cpp.c` (0/18)
+## `portal/shared/src/conversation/conversationtree.cpp.c` (4/18)
 
 ### ConversationTree
 - [-] `ConversationTree::ToFileNode` · 006b9af0 — text source format (admin tools)
 
 ### PList<ConversationAction>
-- [ ] `PList<ConversationAction>::UnPack` · 006b9d40 · legions 0064fe54 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `PList<ConversationAction>::UnPack` · 006b9d40 · legions 0064fe54 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 
 ### PList<ConversationDecision>
-- [ ] `PList<ConversationDecision>::Pack` · 006b9e10 · legions 0064ff10 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `PList<ConversationDecision>::Pack` · 006b9e10 · legions 0064ff10 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 - [-] `PList<ConversationDecision>::GetPackSize` · 006b9e60 — container template instance; Rust collections replace it
-- [ ] `PList<ConversationDecision>::UnPack` · 006b9ea0 · legions 0064ffb4 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `PList<ConversationDecision>::UnPack` · 006b9ea0 · legions 0064ffb4 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 
 ### ConversationNode
 - [-] `ConversationNode::operator=` · 006ba160 · legions 00650260 — assignment or comparison of plain data (operator=, ==, <)
@@ -525,7 +525,7 @@ Legend and workflow: [README](README.md).
 - [-] `STREAMPACK_STL` · 006baa40 · legions 00650b40 — STL streampack helper; Rust serialisation replaces it
 
 ### ConversationTree
-- [ ] `ConversationTree::StreamPack` · 006bacb0 — needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+- [x] `ConversationTree::StreamPack` · 006bacb0 — ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 - [-] `ConversationTree::CopyInto` · 006bacf0 — copy of plain data (Clone)
 
 ### _STL::map<PStringBase<unsigned_short>,ConversationNode,_STL::less<PStringBase<unsigned_short>_>,_STL::allocator<_STL::pair<PStringBase<unsigned_short>_const_,ConversationNode>_>_>

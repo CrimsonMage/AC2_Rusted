@@ -13673,10 +13673,10 @@ key	status	note
 006b8b10	-	ctor/dtor, allocator, zero-init or copy of plain data; STL streambuf (Rust replaces)
 006b8b20	x	ac2-audio: SoundManager / DirectXPlayingSound / sound records
 006b8fb0	_	needs port (check): implemented as crates/ac2-audio/src/data.rs flags and test() but uncited
-006b9d40	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
-006b9e10	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006b9d40	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
+006b9e10	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006b9e60	-	container template instance; Rust collections replace it
-006b9ea0	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006b9ea0	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006ba160	-	assignment or comparison of plain data (operator=, ==, <)
 006ba200	-	constructor of plain data
 006ba290	-	teardown or reset of plain data
@@ -13686,18 +13686,18 @@ key	status	note
 006ba400	-	retail DBO or table allocation; Rust owns values directly
 006ba700	-	assignment or comparison of plain data (operator=, ==, <)
 006baa40	-	STL streampack helper; Rust serialisation replaces it
-006bacb0	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006bacb0	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006bacf0	-	copy of plain data (Clone)
 006bad10	-	assignment or comparison of plain data (operator=, ==, <)
 006bafb0	-	teardown or reset of plain data
 006bb340	-	constructor of plain data
 006bb3a0	-	destructor of plain data
-006bb5b0	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006bb5b0	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006bb610	-	constructor of plain data
 006bb640	-	constructor of plain data
 006bb670	-	destructor of plain data
-006bb930	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
-006bb980	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006bb930	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
+006bb980	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006bb990	-	constructor of plain data
 006bb9d0	-	constructor of plain data
 006bba20	-	assignment or comparison of plain data (operator=, ==, <)
@@ -13705,7 +13705,7 @@ key	status	note
 006bbb40	-	destructor of plain data
 006bbba0	-	ConversationDecision text source parser (admin authoring form), not a client path
 006bbf50	-	ConversationDecision text source parser (admin authoring form), not a client path
-006bc290	_	needs port: NPC conversation tree wire (no crate owns conversations; cell.dat holds 6 real records)
+006bc290	x	ac2-net protocol/conversation.rs (DAT tree codec, Legions layouts, exact-byte tests); ac2-gameplay conversation.rs (WantsResponse rule)
 006bc300	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
 006bc340	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
 006bc380	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
