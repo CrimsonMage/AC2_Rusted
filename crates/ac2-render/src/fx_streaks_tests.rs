@@ -3,17 +3,16 @@
 
 use std::sync::Arc;
 
+use crate::scene::{ObjectPlacement, WorldScene};
+use crate::Camera;
 use ac2_assets::{
     Ac2FxObject, Ac2ParticleAnchor, Ac2ParticleAttachment, Ac2StreakFx, Ac2VisualFxParticles,
 };
 use ac2_core::DataId;
 use ac2_math::{Frame, Quat, Vec3};
-use ac2_render::scene::{ObjectPlacement, WorldScene};
-use ac2_render::Camera;
 use ac2_world::Ac2WorldSource;
 
-use super::{ObjectStreakCall, StreakContext};
-use crate::fx_objects::FxObjects;
+use super::{FxStreaks, ObjectStreakCall, StreakContext};
 
 const FX: u32 = 0x4000_0100;
 const EMITTER: u64 = 3;
@@ -88,7 +87,7 @@ fn activate(emitter: u64, on: bool) -> ObjectStreakCall {
 #[test]
 fn an_fx_with_a_streak_node_makes_a_streak_and_starts_it() {
     let table = table(vec![node(Some(streak()), true, false)]);
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     let calls = std::mem::take(&mut fx.streak_calls);
     assert_eq!(calls.len(), 2, "one streak and one start");
@@ -113,7 +112,7 @@ fn an_fx_with_a_streak_node_makes_a_streak_and_starts_it() {
 #[test]
 fn a_running_fx_starts_nothing_and_streaks_off_makes_none() {
     let table = table(vec![node(Some(streak()), false, true)]);
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     assert_eq!(fx.streak_calls.len(), 2, "make, then stop");
     fx.streak_calls.clear();
@@ -126,8 +125,8 @@ fn a_running_fx_starts_nothing_and_streaks_off_makes_none() {
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     assert_eq!(fx.streak_calls.len(), 2, "a stopped FX starts again");
 
-    let mut off = FxObjects::default();
-    off.streaks_off = true;
+    let mut off = FxStreaks::default();
+    off.set_enabled(false);
     off.start_streaks(EMITTER, FX, &table, &day(&[]));
     assert_eq!(
         off.streak_calls,
@@ -143,7 +142,7 @@ fn a_running_fx_starts_nothing_and_streaks_off_makes_none() {
 #[test]
 fn leaving_the_world_destroys_the_emitters_streaks_once() {
     let table = table(vec![node(Some(streak()), true, false)]);
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     fx.streak_calls.clear();
     assert_eq!(fx.streaked_emitters(), vec![EMITTER]);
@@ -169,7 +168,7 @@ fn an_object_streak_is_created_moves_with_its_emitter_and_is_removed() {
         .expect("the world opens")
         .expect("the portal DAT has a world");
     let table = table(vec![node(Some(streak()), true, false)]);
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     let calls = std::mem::take(&mut fx.streak_calls);
 
@@ -242,7 +241,7 @@ fn a_start_at_a_holding_point_reaches_the_children_held_there() {
     let table = table(vec![gated_node(5, true, false, Default::default())]);
     // Child 4 is held at 5, its child 7 at 5 too; child 6 is held at 9.
     let holds = [(EMITTER, 4, 5), (EMITTER, 6, 9), (4, 7, 5)];
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&holds));
     let activated: Vec<ObjectStreakCall> = fx
         .streak_calls
@@ -266,7 +265,7 @@ fn a_start_at_a_holding_point_reaches_the_children_held_there() {
 fn a_zero_holding_location_reaches_every_child() {
     let table = table(vec![gated_node(0, true, false, Default::default())]);
     let holds = [(EMITTER, 4, 5), (EMITTER, 6, 9), (4, 7, 5)];
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&holds));
     let activated: Vec<ObjectStreakCall> = fx
         .streak_calls
@@ -291,7 +290,7 @@ fn a_zero_holding_location_reaches_every_child() {
 fn a_stop_walks_the_children_and_streaks_off_starts_none() {
     let stop = table(vec![gated_node(5, false, true, Default::default())]);
     let holds = [(EMITTER, 4, 5)];
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &stop, &day(&holds));
     let stops: Vec<ObjectStreakCall> = fx
         .streak_calls
@@ -302,8 +301,8 @@ fn a_stop_walks_the_children_and_streaks_off_starts_none() {
     assert_eq!(stops, vec![activate(EMITTER, false), activate(4, false)]);
 
     let start = table(vec![gated_node(5, true, false, Default::default())]);
-    let mut off = FxObjects::default();
-    off.streaks_off = true;
+    let mut off = FxStreaks::default();
+    off.set_enabled(false);
     off.start_streaks(EMITTER, FX, &start, &day(&holds));
     assert!(
         off.streak_calls.is_empty(),
@@ -328,7 +327,7 @@ fn the_time_of_day_and_player_gates_apply_to_streak_nodes() {
         ..Default::default()
     };
     let creates = |nodes: Vec<Ac2ParticleAttachment>, ctx: StreakContext<'_>| {
-        let mut fx = FxObjects::default();
+        let mut fx = FxStreaks::default();
         fx.start_streaks(EMITTER, FX, &table(nodes), &ctx);
         fx.streak_calls
             .iter()
@@ -376,7 +375,7 @@ fn a_hidden_streak_keeps_thinking_and_resumes_at_the_emitter() {
         .expect("the world opens")
         .expect("the portal DAT has a world");
     let table = table(vec![gated_node(0, true, false, Default::default())]);
-    let mut fx = FxObjects::default();
+    let mut fx = FxStreaks::default();
     fx.start_streaks(EMITTER, FX, &table, &day(&[]));
     let calls = std::mem::take(&mut fx.streak_calls);
     let mut scene = WorldScene::new(world, 1);

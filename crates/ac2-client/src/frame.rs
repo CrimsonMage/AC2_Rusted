@@ -77,12 +77,7 @@ pub struct ObjectFrame {
     pub anim_scale: [f32; 4],
 }
 
-/// An FX-created object's emitter and where on it the object hangs.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct FxFollow {
-    pub emitter: u64,
-    pub attach: ac2_assets::Ac2FxAttach,
-}
+pub use ac2_physics::FxFollow;
 
 /// Where a held object hangs.
 #[derive(Debug, Clone, Copy, PartialEq)]

@@ -20,8 +20,10 @@ use ac2_physics::{CellSource, PhysicsBody, Position};
 use ac2_render::portal::PortalSound;
 
 use crate::client::Client;
-use crate::fx_particles::{light_starts, particle_starts, ObjectLightStart, ObjectParticleStart};
 use crate::sound_space::PhysicsSpace;
+use ac2_render::fx_particles::{
+    light_starts, particle_starts, ObjectLightStart, ObjectParticleStart,
+};
 
 /// A visual's FX sounds, read on the loader thread: `FXTable::GetFXData` per FX id, and which of
 /// their sounds loop (`FXManager::SoundIsLooping`).

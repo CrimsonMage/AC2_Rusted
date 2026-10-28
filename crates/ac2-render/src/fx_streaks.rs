@@ -5,13 +5,14 @@
 //! day or night, channels), as the node's other parts are. A running FX starts nothing again
 //! (`DoTargettedFX`'s `m_current_fx` check), and `StopFX` does not touch streaks: they end when they
 //! are stopped, when their lifespan is over, or when their emitter leaves the world. The calls queue
-//! here and the renderer takes them (`Client::take_object_streak_calls`).
+//! here (`FxStreaks`) and the renderer takes them ([`FxStreaks::take_calls`]).
+
+use std::collections::BTreeSet;
 
 use ac2_assets::Ac2VisualFxParticles;
 use ac2_core::DataId;
-use ac2_render::streak::StreakSpec;
 
-use crate::fx_objects::FxObjects;
+use crate::streak::StreakSpec;
 
 /// The holding tree is shallow; the bound only guards a corrupt parent link.
 const MAX_HOLD_DEPTH: usize = 16;
@@ -19,14 +20,29 @@ const MAX_HOLD_DEPTH: usize = 16;
 /// What the streak part of `DoTargettedFX` reads beside the FX: the player (for a player-only
 /// node), the time of day, and which objects hang from which holding point.
 #[derive(Debug, Clone, Copy)]
-pub(crate) struct StreakContext<'a> {
+pub struct StreakContext<'a> {
     /// The player's object id.
-    pub(crate) player: Option<u64>,
+    pub player: Option<u64>,
     /// `CalcTimeOfDay`'s night flag: a night node plays, a day node does.
-    pub(crate) night: bool,
+    pub night: bool,
     /// `(parent, child, holding location)` for each object held at a holding point of its parent
     /// (`CHILDLIST`'s holding entries).
-    pub(crate) holds: &'a [(u64, u64, u32)],
+    pub holds: &'a [(u64, u64, u32)],
+}
+
+/// The FX streak state (`FXManager`'s streak part): the FX that are running their streak nodes,
+/// the emitters that hold streaks, the calls not yet taken by the renderer, and `StreakEffects`.
+#[derive(Debug, Default)]
+pub struct FxStreaks {
+    /// The FX whose start ran its streak nodes and has not stopped (`FXManager::m_current_fx`
+    /// for the streak part of `DoTargettedFX`).
+    pub(crate) streaking: BTreeSet<(u64, u32)>,
+    /// The emitters that hold streaks.
+    pub(crate) streaked: BTreeSet<u64>,
+    /// The streak calls the renderer takes, in order.
+    pub(crate) streak_calls: Vec<ObjectStreakCall>,
+    /// `StreakEffects` is off: no streak is made (`DoStreakFX` returns without one).
+    pub(crate) streaks_off: bool,
 }
 
 /// What the renderer does for an object's streaks, in the order the FX made them.
@@ -74,13 +90,13 @@ fn node_plays(gate: &ac2_assets::Ac2FxNodeGate, is_player: bool, night: bool) ->
         }
 }
 
-impl FxObjects {
+impl FxStreaks {
     /// `FXManager::DoTargettedFX`'s streak part for an FX that starts on `emitter`: each node that
     /// plays (see [`node_plays`]) in order makes its streak (`DoStreakFX`), then starts
     /// (`start_streak`) or stops the emitter's streaks and those of its holding-point children.
     /// Nothing is made while `StreakEffects` is off, but a stop still applies. An FX that is already
     /// running starts nothing.
-    pub(crate) fn start_streaks(
+    pub fn start_streaks(
         &mut self,
         emitter: u64,
         fx: u32,
@@ -140,43 +156,42 @@ impl FxObjects {
     }
 
     /// `StopFX` ends the FX's running state, so the FX can start (and make its streaks) again.
-    pub(crate) fn stop_streaks(&mut self, emitter: u64, fx: u32) {
+    pub fn stop_streaks(&mut self, emitter: u64, fx: u32) {
         self.streaking.remove(&(emitter, fx));
     }
 
     /// The emitter left the world: its streaks are destroyed once, if it had any.
-    pub(crate) fn remove_streaks(&mut self, emitter: u64) {
+    pub fn remove_streaks(&mut self, emitter: u64) {
         if self.streaked.remove(&emitter) {
             self.streak_calls.push(ObjectStreakCall::Gone { emitter });
         }
     }
 
     /// The emitters that hold streaks, in id order.
-    pub(crate) fn streaked_emitters(&self) -> Vec<u64> {
+    pub fn streaked_emitters(&self) -> Vec<u64> {
         self.streaked.iter().copied().collect()
     }
-}
 
-impl crate::client::Client {
     /// The streak calls the FX started since the renderer last took them, in order.
-    pub fn take_object_streak_calls(&mut self) -> Vec<ObjectStreakCall> {
-        std::mem::take(&mut self.fx_objects.streak_calls)
-    }
-
-    /// `Render::m_Prefs.StreakEffects`: the streak preference the bank holds.
-    pub fn apply_streak_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
-        self.set_streaks_enabled(ac2_render::prefs::streak_effects(bank));
+    pub fn take_calls(&mut self) -> Vec<ObjectStreakCall> {
+        std::mem::take(&mut self.streak_calls)
     }
 
     /// `StreakEffects` turned on or off. Off makes no new streak and starts none, and the view
     /// stops drawing the streaks; the existing ones keep thinking, so they resume where they are.
-    pub(crate) fn set_streaks_enabled(&mut self, on: bool) {
-        self.fx_objects.streaks_off = !on;
+    pub fn set_enabled(&mut self, on: bool) {
+        self.streaks_off = !on;
     }
 
     /// Whether the FX make and draw streaks (`StreakEffects` is on).
-    pub fn streaks_enabled(&self) -> bool {
-        !self.fx_objects.streaks_off
+    pub fn enabled(&self) -> bool {
+        !self.streaks_off
+    }
+
+    /// The emitter's running FX are forgotten with it (`FXManager::DestroyAllTransientFX`), so
+    /// its FX can start again if it returns.
+    pub fn forget_emitter(&mut self, emitter: u64) {
+        self.streaking.retain(|(id, _)| *id != emitter);
     }
 }
 

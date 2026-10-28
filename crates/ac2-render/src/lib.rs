@@ -6,8 +6,11 @@
 
 pub mod frill;
 pub mod frustum;
+pub mod fx_particles;
+pub mod fx_streaks;
 mod image;
 pub mod object;
+pub mod object_fx;
 pub mod particles;
 pub mod portal;
 pub mod prefs;

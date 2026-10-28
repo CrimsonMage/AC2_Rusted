@@ -5,9 +5,9 @@
 //! places its light at the node's offset (`CPartArray::CreateLightSource`). The renderer starts
 //! them on the object and poses their attachment with the object's bones each frame.
 
+use crate::scene::ParticleAnchor;
 use ac2_assets::{Ac2FxLight, Ac2VisualFxParticles};
 use ac2_core::{DataId, Random};
-use ac2_render::scene::ParticleAnchor;
 
 /// A particle system an object's FX started: the handle that names it until it is stopped, the
 /// emitter (object) id, the FX, the chosen `PSDesc`, and where the system attaches on its object.
@@ -36,7 +36,7 @@ pub struct ObjectLightStart {
 /// `PSDesc`. A node that attaches to a bone the object lacks starts none (`DoParticleFX`'s
 /// `CreateParticleSystem` returns zero). `water_z` is the water surface under the object now
 /// (`FXManager::FireParticleFX`'s water branch). The handles are left at zero for the caller.
-pub(crate) fn particle_starts(
+pub fn particle_starts(
     emitter: u64,
     fx: u32,
     table: &Ac2VisualFxParticles,
@@ -71,11 +71,7 @@ pub(crate) fn particle_starts(
 
 /// The lights `fx` places on `emitter`, one per node of the visual's entry that carries one, in
 /// the entry's order.
-pub(crate) fn light_starts(
-    emitter: u64,
-    fx: u32,
-    table: &Ac2VisualFxParticles,
-) -> Vec<ObjectLightStart> {
+pub fn light_starts(emitter: u64, fx: u32, table: &Ac2VisualFxParticles) -> Vec<ObjectLightStart> {
     let Some(nodes) = table.get(fx) else {
         return Vec::new();
     };
@@ -91,10 +87,7 @@ pub(crate) fn light_starts(
 /// `FXManager::DoStartupFX`, whose object branch runs `DoLightSourceFX` for each node of each
 /// startup FX that carries a light). The particle systems of the same nodes start with the
 /// shared rep (`ApplyStartupFX(rep, NULL)`), not here.
-pub(crate) fn startup_light_starts(
-    emitter: u64,
-    table: &Ac2VisualFxParticles,
-) -> Vec<ObjectLightStart> {
+pub fn startup_light_starts(emitter: u64, table: &Ac2VisualFxParticles) -> Vec<ObjectLightStart> {
     table
         .startup()
         .iter()

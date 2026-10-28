@@ -11,6 +11,7 @@ workspace = true
 [dependencies]
 ac2-core = { path = "../ac2-core" }
 ac2-math = { path = "../ac2-math" }
+ac2-physics = { path = "../ac2-physics" }
 ac2-prefs = { path = "../ac2-prefs" }
 ac2-db = { path = "../ac2-db" }
 ac2-dat = { path = "../ac2-dat" }

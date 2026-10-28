@@ -12,11 +12,12 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use ac2_audio::RecordingSink;
-use ac2_client::{ClientPrefs, DatWorld, FrameInput, ObjectLightStart};
+use ac2_client::{ClientPrefs, DatWorld, FrameInput};
 use ac2_core::CellId;
 use ac2_db::ResourceStore;
 use ac2_net::protocol::{Opcode, VisualDesc};
 use ac2_prefs::Value;
+use ac2_render::fx_particles::ObjectLightStart;
 use ac2_render::prefs::LIGHT_SOURCE_EFFECTS;
 use common::{entered_with, step};
 use legions_server_double::{create_object_with_visual, object_event_bytes, ObjectSpawn, Spawn};

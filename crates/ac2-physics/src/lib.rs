@@ -31,6 +31,7 @@ mod envcell_tests;
 mod find_cells;
 mod fpu;
 mod frame;
+mod fx_follow;
 mod heading;
 mod interp;
 pub mod landdefs;
@@ -75,6 +76,7 @@ pub use collision_impact::ImpactReport;
 pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask};
 pub use envcell::{CellBsp, CellBspNode, CellPortal, CellStructure, EnvCell};
 pub use frame::Frame;
+pub use fx_follow::{follow_frame, placed_at, FxFollow};
 pub use heading::Heading;
 pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,

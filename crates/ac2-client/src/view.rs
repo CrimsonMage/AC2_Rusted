@@ -15,6 +15,7 @@ use ac2_core::DataId;
 use ac2_gpu::{Gpu, SceneObject, SceneRenderer};
 use ac2_math::{Frame, Mat4, Quat, Vec3};
 use ac2_render::object::ObjectPose;
+use ac2_render::object_fx::{follow_emitters, object_placements, world_matrix, FxSlot};
 use ac2_render::scene::WorldScene;
 use ac2_render::Camera;
 use ac2_weenie::Appearance;
@@ -26,7 +27,6 @@ use crate::motion::PartPose;
 
 use self::overlays::radar_view;
 
-mod fx_follow;
 mod held;
 mod hud_api;
 mod object_fx;
@@ -97,9 +97,17 @@ fn model_key(visual: u32, appearance: &Appearance) -> u64 {
     hasher.finish()
 }
 
-/// An object's model-to-world matrix: its total scale, then its place.
-fn world_matrix(scale: Vec3, at: Frame) -> Mat4 {
-    Mat4::from_scale_rotation_translation(scale, at.orientation, at.origin)
+/// The FX view of each drawn object (its id, model key, cell and follow).
+fn fx_slots(drawn: &[Drawn<'_>]) -> Vec<FxSlot> {
+    drawn
+        .iter()
+        .map(|drawn| FxSlot {
+            id: drawn.id,
+            key: drawn.key,
+            cell: drawn.cell,
+            follow: drawn.follow,
+        })
+        .collect()
 }
 
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
@@ -291,9 +299,10 @@ impl ClientView {
             .zip(&frames)
             .map(|(drawn, at)| self.placed(drawn, *at))
             .collect();
-        self.follow_emitters(&drawn, &mut frames, &mut placed);
+        let slots = fx_slots(&drawn);
+        follow_emitters(&self.scene, &slots, &mut frames, &mut placed);
         self.follow_holders(&drawn, &mut frames, &mut placed);
-        let placements = self.object_placements(&drawn, &frames, &placed);
+        let placements = object_placements(&self.scene, &slots, &frames, &placed);
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
         let objects = drawn

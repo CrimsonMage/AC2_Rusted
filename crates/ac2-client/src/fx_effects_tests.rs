@@ -17,9 +17,9 @@ use ac2_render::Camera;
 use ac2_world::Ac2WorldSource;
 
 use super::{FxCall, FxSoundData, FxSounds};
-use crate::fx_particles::particle_starts;
 use crate::motion::apply;
 use crate::world_data::{DatWorld, WorldData};
+use ac2_render::fx_particles::particle_starts;
 
 /// The human visual (`0x1F000023`).
 const HUMAN: u32 = 0x1F00_0023;
