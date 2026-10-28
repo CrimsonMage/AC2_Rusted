@@ -179,3 +179,34 @@ impl DerefMut for ClientPrefs {
         &mut self.file
     }
 }
+
+impl crate::Client {
+    /// Gives the client its preferences, read before the frame loop; the options pages write them.
+    pub fn attach_prefs(&mut self, prefs: ClientPrefs) {
+        self.prefs = Some(prefs);
+    }
+
+    pub fn prefs(&self) -> Option<&ClientPrefs> {
+        self.prefs.as_ref()
+    }
+
+    pub fn prefs_mut(&mut self) -> Option<&mut ClientPrefs> {
+        self.prefs.as_mut()
+    }
+
+    /// The applied preferences as the live client reads them: the sound manager's volumes
+    /// (`SoundManager::HandleApply`) and the camera's values (`CameraManager::HandleApply`). Returns
+    /// the scene's graphics options for the view (`WorldScene::set_options`).
+    pub fn apply_live_preferences(&mut self) -> Option<ac2_render::prefs::SceneOptions> {
+        let prefs = self.prefs.take()?;
+        self.apply_sound_preferences(prefs.bank());
+        self.apply_light_preferences(prefs.bank());
+        self.apply_streak_preferences(prefs.bank());
+        self.apply_decal_preferences(prefs.bank());
+        self.camera
+            .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
+        let scene = prefs.scene_options();
+        self.prefs = Some(prefs);
+        Some(scene)
+    }
+}
