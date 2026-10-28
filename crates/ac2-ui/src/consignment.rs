@@ -319,8 +319,16 @@ impl ConsignmentUi {
         context: u32,
     ) {
         if let Some(icon) = tree.child_recursive(row, id("ItemIcon")) {
-            if sale.icon_did != 0 {
-                tree.set_image(icon, sale.icon_did, 2);
+            // A sold sale shows the product icon's `sold_icon`; any other its item's icon.
+            let sold_icon = tree.child_recursive(row, id("ProductIcon")).and_then(|p| {
+                match tree.get(p)?.attribute(id("sold_icon")) {
+                    Some(AttributeValue::DataId(did)) => Some(*did),
+                    _ => None,
+                }
+            });
+            match sold_icon {
+                Some(did) if sale.status == 3 => tree.set_image(icon, did, 2),
+                _ => tree.set_sale_icon(icon, &sale.icon_desc, sale.icon_did),
             }
             tree.set_tooltip(icon, Some(s.render_wire(&sale.item_desc)));
             // A drag source of the row's own context: the item (`Token_ShortcutType`

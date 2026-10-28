@@ -65,9 +65,7 @@ impl ShopUi {
     fn post_sale(&mut self, tree: &mut UiTree, s: &dyn ShopSource, sale: &ShopSale, row: usize) {
         if let Some(product) = tree.child_recursive(row, id("ProductIcon")) {
             if let Some(icon) = tree.child_recursive(product, id("ItemIcon")) {
-                if sale.icon_did != 0 {
-                    tree.set_image(icon, sale.icon_did, 2);
-                }
+                tree.set_sale_icon(icon, &sale.icon_desc, sale.icon_did);
                 tree.set_tooltip(icon, Some(s.render_wire(&sale.item_desc)));
                 let attributes = &mut tree.el_mut(icon).attributes;
                 // An item drag (`Token_ShortcutType` 0x40000002), as the pack's drop takes.

@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 199 done, 14 partial, 0 to do, 572 skipped.
+785 retail functions: 200 done, 13 partial, 0 to do, 572 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -1147,7 +1147,7 @@ Legend and workflow: [README](README.md).
 - [-] `VisualModTable::VisualModTable` · 0064b010 · legions 005fa340 — ctor/dtor of plain data; Rust constructs and drops values
 - [-] `VisualModTable::~VisualModTable` · 0064b070 · legions 005fa3a0 — ctor/dtor of plain data; Rust constructs and drops values
 
-## `portal/shared/src/objdesc/icon/icondesc.cpp.c` (4/18)
+## `portal/shared/src/objdesc/icon/icondesc.cpp.c` (5/18)
 
 ### RGBAColor
 - [-] `RGBAColor::operator==` · 0063faf0 · legions 005f3a20 — operator of plain data or container; Rust value semantics / derived PartialEq
@@ -1158,7 +1158,7 @@ Legend and workflow: [README](README.md).
 ### IconDesc
 - [x] `IconDesc::StreamPack` · 0063fb80
 - [-] `IconDesc::operator==` · 0063fc00 · legions 005f3b10 — operator of plain data or container; Rust value semantics / derived PartialEq
-- [~] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90 — glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so the null colour is packed 0 (assumption on the packed shift colour)
+- [x] `IconDesc::IsValid` · 0063fc80 · legions 005f3b90 — ac2-ui icon_desc.rs icon_desc_valid (every layer with a layer id and a non-null shift colour, one with an image; the null colour is packed 0, RGBAColor_Null is never written); also ac2-script glue/ui_natives.rs; icon_desc_tests
 - [-] `IconDesc::GetSubDataIDs` · 0063fcd0 · legions 005f3be0 — GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 - [-] `IconDesc::ToFileNode` · 0063fea0 — text source format (admin tools)
 - [-] `IconDesc::Clear` · 006400e0 · legions 005f3e10 — reset to defaults before decode / reset of plain fields; Rust builds fresh values

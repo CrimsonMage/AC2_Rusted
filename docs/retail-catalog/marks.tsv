@@ -455,7 +455,7 @@ key	status	note
 0041bd90	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bde0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041bff0	~	no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
-0041c0f0	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
+0041c0f0	x	ac2-ui consignment.rs post_sale: a sold sale (status 3) shows the ProductIcon's sold_icon, any other its icon description when valid, else its icon id (set_sale_icon); drag source with its own context; consignment_tests
 0041c480	~	consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) opens ID_Help_ShopConsignment (hud_help.rs)
 0041c800	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041c820	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -489,7 +489,7 @@ key	status	note
 0041dc40	x	ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
 0041de50	~	no Drop: RequestLeaveStore is not sent when the panel is destroyed
 0041df30	x	ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
-0041df90	x	ac2-ui shop_rows.rs post_sale: icon, descriptions, cost, stock; drag context on the icon
+0041df90	x	ac2-ui shop_rows.rs post_sale: the item icon from the sale's icon description when IconDesc::IsValid (SetIconDesc), else its icon id in draw mode 2 (icon_desc.rs set_sale_icon); descriptions, cost, stock; drag context on the icon
 0041e2c0	~	ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
 0041e540	x	ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
 0041e6a0	x	ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
@@ -11620,7 +11620,7 @@ key	status	note
 0063fb60	-	accessor of a Rust typed field
 0063fb80	x	
 0063fc00	-	operator of plain data or container; Rust value semantics / derived PartialEq
-0063fc80	~	glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so the null colour is packed 0 (assumption on the packed shift colour)
+0063fc80	x	ac2-ui icon_desc.rs icon_desc_valid (every layer with a layer id and a non-null shift colour, one with an image; the null colour is packed 0, RGBAColor_Null is never written); also ac2-script glue/ui_natives.rs; icon_desc_tests
 0063fcd0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 006400e0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 00640100	-	writer for DAT/pack output; the client only reads (tool-only)

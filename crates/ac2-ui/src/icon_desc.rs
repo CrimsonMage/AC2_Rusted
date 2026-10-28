@@ -89,7 +89,40 @@ pub(crate) fn composite(layers: &[IconLayer], images: &HashMap<u32, UiPixels>) -
     })
 }
 
+/// `IconDesc::IsValid` (admin 0x0063FC80) of `(layer id, image, shift colour)` layers: every layer
+/// has a layer id and a shift colour, and at least one has an image.
+pub fn icon_desc_valid(layers: &[(u32, u32, u32)]) -> bool {
+    layers
+        .iter()
+        .all(|&(layer, _, shift)| layer != 0 && shift != 0)
+        && layers.iter().any(|&(_, image, _)| image != 0)
+}
+
 impl UiTree {
+    /// A sale's item icon (`gmShopUI::PostSale`, `gmShopConsignmentUI::PostSale`): its icon
+    /// description when it is valid (`SetIconDesc`), else its icon id in draw mode 2.
+    pub(crate) fn set_sale_icon(
+        &mut self,
+        index: usize,
+        desc: &[ac2_net::protocol::IconLayer],
+        icon: u32,
+    ) {
+        let triples: Vec<(u32, u32, u32)> =
+            desc.iter().map(|l| (l.layer, l.image, l.color)).collect();
+        if icon_desc_valid(&triples) {
+            let layers: Vec<IconLayer> = desc
+                .iter()
+                .map(|l| IconLayer {
+                    image: l.image,
+                    shift_color: l.color,
+                })
+                .collect();
+            self.set_icon_desc(index, &layers);
+        } else {
+            self.set_image(index, icon, 2);
+        }
+    }
+
     /// `UIElement::SetIconDesc`: the element shows the layers' icon (draw mode 0). No layers, or
     /// a first layer with no image (`InitFromIconLayerDesc` fails on it), leave the element as it
     /// was; a later layer with no image is left out.

@@ -125,3 +125,63 @@ fn the_element_asks_for_every_layers_image() {
     let files = tree.image_files();
     assert!(files.contains(&0x0600_0001) && files.contains(&0x0600_0002));
 }
+
+/// `IconDesc::IsValid`: every layer has a layer id and a shift colour, and one has an image.
+#[test]
+fn an_icon_desc_is_valid_only_with_ids_colours_and_an_image() {
+    assert!(icon_desc_valid(&[(1000, 7, WHITE)]));
+    assert!(icon_desc_valid(&[(1000, 7, WHITE), (3000, 0, 0xFFDD_6060)]));
+    assert!(!icon_desc_valid(&[]), "no image");
+    assert!(!icon_desc_valid(&[(1000, 0, WHITE)]), "no image");
+    assert!(!icon_desc_valid(&[(1000, 7, 0)]), "a null shift colour");
+    assert!(!icon_desc_valid(&[(0, 7, WHITE)]), "no layer id");
+}
+
+/// A sale's icon: a valid description is drawn as layers, an invalid one falls back to the icon
+/// id in draw mode 2.
+#[test]
+fn a_sale_icon_takes_its_description_or_its_icon_id() {
+    use ac2_net::protocol::IconLayer as Wire;
+    let mut tree = UiTree::new(10, 10);
+    let layout = Arc::new(crate::layout::LayoutDesc {
+        did: 0,
+        sub_ids: Vec::new(),
+        string_table: 0,
+        width: 10,
+        height: 10,
+        elements: vec![Arc::new(crate::text_tests::element(
+            "Icon",
+            0x4DA7_2ECC,
+            crate::layout::Rect {
+                x0: 0,
+                y0: 0,
+                x1: 9,
+                y1: 9,
+            },
+            vec![],
+            vec![],
+        ))],
+    });
+    let icon = tree
+        .create_root(layout, crate::token::tokenize("Icon"))
+        .unwrap();
+    let valid = [Wire {
+        layer: 1000,
+        image: 0x0600_0001,
+        color: WHITE,
+    }];
+    tree.set_sale_icon(icon, &valid, 0x0600_0009);
+    assert!(tree.get(icon).unwrap().icon_layers.is_some());
+    let invalid = [Wire {
+        layer: 1000,
+        image: 0x0600_0001,
+        color: 0,
+    }];
+    tree.set_sale_icon(icon, &invalid, 0x0600_0009);
+    let el = tree.get(icon).unwrap();
+    assert!(el.icon_layers.is_none());
+    assert_eq!(
+        el.image().map(|i| (i.file, i.draw_mode)),
+        Some((0x0600_0009, 2))
+    );
+}
