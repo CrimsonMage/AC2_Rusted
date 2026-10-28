@@ -109,6 +109,17 @@ pub fn resolve_ac2_visual_particles(
             }
         }
     }
+    // `PartGroupDataDesc::FillFXTable`: with FX at all (`HasFX`), the global appearance keys' FX
+    // atoms join the table behind the overrides.
+    if fx_table.is_some() || !overrides.is_empty() {
+        for atom in crate::ac2_drawn_groups::global_fx_atoms(store, visual)? {
+            for id in atom.ids.iter() {
+                if !overrides.iter().any(|(known, _)| known == id) {
+                    overrides.push((*id, Arc::clone(&atom.particles)));
+                }
+            }
+        }
+    }
     let mut nodes = Vec::new();
     for fx_id in startup {
         match overrides.iter().find(|(id, _)| *id == fx_id) {

@@ -41,7 +41,7 @@ scripts/retail_catalog.py status
 | [ac2-net](ac2-net.md) | 556 | 230 | 20 | 82 | 224 |
 | [ac2-weenie](ac2-weenie.md) | 1904 | 945 | 171 | 131 | 657 |
 | [ac2-anim](ac2-anim.md) | 532 | 128 | 17 | 95 | 292 |
-| [ac2-assets](ac2-assets.md) | 785 | 122 | 17 | 226 | 420 |
+| [ac2-assets](ac2-assets.md) | 785 | 197 | 14 | 0 | 574 |
 | [ac2-world](ac2-world.md) | 989 | 347 | 34 | 27 | 581 |
 | [ac2-render](ac2-render.md) | 781 | 145 | 52 | 226 | 358 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 8 | 3 | 8 | 76 |

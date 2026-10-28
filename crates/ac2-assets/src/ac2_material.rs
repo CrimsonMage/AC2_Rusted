@@ -1,6 +1,17 @@
 //! Asheron's Call 2 material records, decoded in the order of the client's own `StreamPack`
 //! methods (`RenderMaterial`, `MaterialLayer`, `LayerStage`, `LM_*`, `MaterialModifier`,
 //! `MaterialProperty`). Every Legions `0x2B` material decodes to its exact record length.
+//!
+//! Records, in the client's own names: `RenderMaterial::StreamPack` (properties, layers, sort
+//! mode), `MaterialLayer::StreamPack`, `LayerStage::StreamPack`, `LM_UVTranslate::StreamPack`,
+//! `LM_UVRotate::StreamPack` and `LM_UVTransform::StreamPack` (the layer's modifier types 4 to 7),
+//! `MaterialModifier::StreamPack`, `MaterialProperty::StreamPack` (name, data type, data and the
+//! fields it drives) and `MaterialInstance::StreamPack`. The `MaterialLayer::SetAlphaTestRef` /
+//! `SetSpecularPower` and `LM_UVTranslate::SetUTranslate` setters are what
+//! `MaterialProperty::Apply` runs ([`crate::load_ac2_material`] writes the same fields). The
+//! origin, normal and diffuse layer modifiers (`LM_Origin`, `LM_Normal`, `LM_Diffuse`) and the
+//! `Set*Data` / `LoadFromFileNode` / `SaveToFileNode` authoring paths have no Legions body and no
+//! reader in `MaterialLayer::StreamPack`.
 
 use std::sync::Arc;
 

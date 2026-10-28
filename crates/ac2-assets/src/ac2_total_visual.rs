@@ -6,6 +6,7 @@
 use ac2_core::DataId;
 use ac2_math::Vec3;
 
+use crate::ac2_icon::Ac2IconDesc;
 use crate::ac2_visual_desc::Ac2VisualDesc;
 
 /// `GLOBAL_PGD_KEY`: the key `VisualDesc::GetPGDDesc` maps to `m_global_app_mods`.
@@ -52,6 +53,8 @@ pub struct Ac2TotalVisualDesc {
     pub scale: Vec3,
     pub child_scale: f32,
     pub particle_scale: f32,
+    /// `m_icon_desc`, merged by `IconDesc::ApplyAdditiveIconDesc`.
+    pub icon: Ac2IconDesc,
     /// `m_global_app_mods`.
     pub global: Ac2TotalGroup,
     /// `m_pgd_desc_table`, in join order.
@@ -72,6 +75,7 @@ impl Default for Ac2TotalVisualDesc {
             scale: Vec3::ONE,
             child_scale: 1.0,
             particle_scale: 1.0,
+            icon: Ac2IconDesc::default(),
             global: Ac2TotalGroup {
                 key: GLOBAL_PART_GROUP,
                 ..Ac2TotalGroup::default()
@@ -199,6 +203,7 @@ impl Ac2TotalVisualDesc {
         self.scale *= delta.scale.unwrap_or(Vec3::ONE);
         self.child_scale *= delta.child_scale.unwrap_or(1.0);
         self.particle_scale *= delta.particle_scale.unwrap_or(1.0);
+        self.icon.apply_additive_desc(&delta.icon);
         let global: Vec<_> = delta
             .global_appearance
             .iter()
@@ -261,6 +266,7 @@ mod tests {
             scale: None,
             child_scale: None,
             particle_scale: None,
+            icon: Ac2IconDesc::default(),
             part_groups: groups
                 .iter()
                 .map(|&(key, parent_key, connection_point, setup)| Ac2PartGroup {

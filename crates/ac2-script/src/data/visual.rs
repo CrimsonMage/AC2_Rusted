@@ -1,7 +1,8 @@
 //! A DAT `VisualDesc` (DB type 0x40000021) as the script's appearance: the parent it adds to,
 //! the scales, the part groups with their appearance tables and the global group, in the model
-//! `VisualDesc::DBObj` decodes to (ac2-weenie's [`Appearance`]). The DAT record's icon and FX
-//! overrides are not carried (the appearance efuns do not read them).
+//! `VisualDesc::DBObj` decodes to (ac2-weenie's [`Appearance`]), with its icon layers
+//! (`GetTotalIconDesc` merges the parent's). The DAT record's FX overrides are not carried (the
+//! appearance efuns do not read them).
 
 use ac2_assets::Ac2VisualDesc;
 use ac2_core::DataId;
@@ -50,6 +51,12 @@ pub(crate) fn appearance_of_dat(desc: &Ac2VisualDesc) -> Appearance {
         scale: desc.scale.map_or([1.0; 3], |v| v.to_array()),
         child_scale: desc.child_scale.unwrap_or(1.0),
         particle_scale: desc.particle_scale.unwrap_or(1.0),
+        icon: desc
+            .icon
+            .layers
+            .iter()
+            .map(|l| (l.layer_id, l.image, l.shift_color))
+            .collect(),
         global,
         part_groups,
         ..Appearance::default()

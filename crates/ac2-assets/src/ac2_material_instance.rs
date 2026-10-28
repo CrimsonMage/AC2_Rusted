@@ -1,6 +1,12 @@
 //! Asheron's Call 2 material resolution: a `RenderMaterial` (`0x2B`) directly, or a
 //! `MaterialInstance` (`0x31`) whose `MaterialModifier`s (`0x30`) are applied to a copy of its
 //! template material, as `MaterialInstance::RefreshMaterial` does.
+//!
+//! The instance's mutators map onto this resolution: `SetTemplateMaterial` and
+//! `RestoreOriginalTemplateMaterial` pick the template a refresh starts from (an appearance atom's
+//! template replaces it, the instance's own `m_materialID` is the restored one), and
+//! `InsertModifier` adds a modifier that the next refresh applies after the earlier ones
+//! ([`crate::load_ac2_material_with_atoms`] appends the atoms' modifiers the same way).
 
 use ac2_core::DataId;
 use ac2_dat::DatFileKind;

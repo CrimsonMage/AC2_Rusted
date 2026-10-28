@@ -1,6 +1,12 @@
 //! Asheron's Call 2 `CDataMesh` (`0x06`), decoded in `CBaseMesh::StreamPack` order: mesh type,
 //! `MaterialInstance` table, `CVertexArray`, bounding sphere, then `CMeshTriList` degrades whose
 //! fragments carry u16 index buffers. Physics polygons and BSP that follow are not retained.
+//!
+//! `CBaseMesh::StreamPack` (Legions 0x004C6610) runs `PSmartArray<MeshMaterials::MaterialAndDataID>
+//! ::StreamPack` (material DID and type per slot), `STREAMPACK_PACKOBJ` of the `CVertexArray` (its
+//! bounding box is [`Ac2Mesh::bounds_min`] / `bounds_max`: `CBaseMesh::BuildBoundingBox`) and of
+//! each `CMeshTriList`; the mesh is found by DID through the resource store
+//! (`CDataMesh::Get`, `CMeshGroup::GetMesh`). It has no morph target or vertex set data.
 
 use std::sync::Arc;
 

@@ -209,7 +209,10 @@ impl BehaviorParams {
     }
 }
 
-/// `PhysicsDesc::StreamPack`, in stream order.
+/// `PhysicsDesc::StreamPack`, in stream order. The getters are plain reads of these fields:
+/// `get_timestamp` ([`PhysicsDesc::timestamp`]), `get_parent_id`, `get_parent_instance_stamp` and
+/// `get_location_id` (`parent`: object, location, instance stamp), `get_mode`, `get_behaviors`,
+/// `get_sliders` and `get_fx`.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct PhysicsDesc {
     pub bitfield: u32,
@@ -246,6 +249,11 @@ pub struct PhysicsDesc {
 const MAX_SLIDERS: usize = 256;
 
 impl PhysicsDesc {
+    /// `PhysicsDesc::get_timestamp`: the stamp at `stamp_id` (0 to 3).
+    pub fn timestamp(&self, stamp_id: usize) -> u16 {
+        self.timestamps[stamp_id]
+    }
+
     pub(crate) fn read(reader: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let bits = reader.u32()?;
         let mut d = Self {
@@ -376,5 +384,6 @@ mod tests {
         assert_eq!(d.position.unwrap().cell, 0x0299_0109);
         assert_eq!(d.fx, vec![(0x22, 0.5, 9)]);
         assert_eq!(d.timestamps, [1, 2, 3, 4]);
+        assert_eq!((d.timestamp(0), d.timestamp(3)), (1, 4));
     }
 }

@@ -80,6 +80,17 @@ pub fn resolve_ac2_visual_fx_sounds(
             entries.entry(*id).or_insert_with(|| Arc::clone(nodes));
         }
     }
+    // `PartGroupDataDesc::FillFXTable`: with FX at all (`HasFX`), the global appearance keys' FX
+    // atoms join the table behind the overrides.
+    if fx_table.is_some() || !entries.is_empty() {
+        for atom in crate::ac2_drawn_groups::global_fx_atoms(store, visual)? {
+            for id in atom.ids.iter() {
+                entries
+                    .entry(*id)
+                    .or_insert_with(|| Arc::clone(&atom.sounds));
+            }
+        }
+    }
     let mut table_nodes = HashMap::<u32, Vec<Ac2FxSoundNode>>::new();
     if let Some(table) = fx_table {
         collect_table(store, table, 0, &mut table_nodes)?;

@@ -11,8 +11,9 @@ use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId
 use ac2_math::Vec3;
 
 use crate::ac2_fx::{
-    count, float, hash_count, read_fx_map, skip, word, Ac2FxEntry, Ac2FxSoundEntry, Malformed,
+    count, float, hash_count, read_fx_map, word, Ac2FxEntry, Ac2FxSoundEntry, Malformed,
 };
+use crate::ac2_icon::{Ac2IconDesc, Ac2IconLayer};
 
 /// One visual part group: its key, parent group, connection point and authored resources.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -46,6 +47,8 @@ pub struct Ac2VisualDesc {
     pub child_scale: Option<f32>,
     /// `m_particle_scale` (`CPhysicsObj::GetParticleScale`).
     pub particle_scale: Option<f32>,
+    /// `m_icon_desc` (`IconDesc::StreamPack`).
+    pub icon: Ac2IconDesc,
     pub part_groups: Arc<[Ac2PartGroup]>,
     /// `m_app_hash` of each part group, in `part_groups` order.
     pub part_group_appearance: Arc<[Ac2AppearanceHash]>,
@@ -130,10 +133,16 @@ fn decode(
     } else {
         None
     };
+    let mut icon = Ac2IconDesc::default();
     if bits & 0x80 != 0 {
-        // `IconDesc`: layers of (layer id, image DID, shift colour).
-        let layers = count(cursor, 12)?;
-        skip(cursor, layers * 12)?;
+        // `IconDesc`: layers of (layer id, image DID, shift colour), kept as streamed.
+        for _ in 0..count(cursor, 12)? {
+            icon.layers.push(Ac2IconLayer {
+                layer_id: word(cursor)?,
+                image: word(cursor)?,
+                shift_color: word(cursor)?,
+            });
+        }
     }
     let mut part_groups = Vec::new();
     let mut part_group_appearance = Vec::new();
@@ -164,6 +173,7 @@ fn decode(
         scale,
         child_scale,
         particle_scale,
+        icon,
         part_groups: Arc::from(part_groups),
         part_group_appearance: Arc::from(part_group_appearance),
         global_appearance,

@@ -253,7 +253,7 @@ fn every_appearance_table_decodes_all_its_atom_kinds() {
         .ids_in_range(DatFileKind::Portal, 0x2000_0000, 0x20FF_FFFF)
         .collect::<Vec<_>>();
     assert!(!tables.is_empty());
-    let mut kinds = [0_usize; 4];
+    let mut kinds = [0_usize; 6];
     for did in &tables {
         let table =
             store
@@ -267,18 +267,145 @@ fn every_appearance_table_decodes_all_its_atom_kinds() {
             kinds[1] += atoms.opacities.len();
             kinds[2] += atoms.meshes.len();
             kinds[3] += atoms.part_groups.len();
+            kinds[4] += atoms.fx.len();
+            kinds[5] += atoms.icons.len();
         }
     }
     eprintln!(
-        "{} tables: {} material, {} opacity, {} mesh, {} part-group atoms",
+        "{} tables: {} material, {} opacity, {} mesh, {} part-group, {} FX, {} icon atoms",
         tables.len(),
         kinds[0],
         kinds[1],
         kinds[2],
-        kinds[3]
+        kinds[3],
+        kinds[4],
+        kinds[5]
     );
     assert!(
         kinds[0] > 0 && kinds[2] > 0,
         "characters swap meshes and materials"
     );
+}
+
+/// `AppearanceTableAdaptor::HasAppearanceKey`, `InqTsysAppearanceKeyModCount` and
+/// `InqAppearanceKeyModList` over every shipped table.
+#[test]
+fn appearance_key_queries_follow_the_table_data() {
+    use crate::ac2_appearance::Ac2AppearanceTable;
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut lists = 0;
+    for did in dataset.ids_in_range(DatFileKind::Portal, 0x2000_0000, 0x20FF_FFFF) {
+        let did = DataId::new(did);
+        let table = store
+            .load_cached_packed::<Ac2AppearanceTable>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                did,
+                0,
+            ))
+            .unwrap()
+            .unwrap();
+        for (key, collections) in &table.atoms {
+            assert_eq!(
+                crate::ac2_has_appearance_key(&store, did, *key).unwrap(),
+                Some(true)
+            );
+            let list = crate::ac2_appearance_key_mod_list(&store, did, *key)
+                .unwrap()
+                .unwrap();
+            assert!(
+                list.windows(2).all(|pair| pair[0] <= pair[1]),
+                "{did:?} {key:#x}"
+            );
+            // The table's own collections are all in the list (base tables may add more).
+            assert!(list.len() >= collections.len());
+            lists += 1;
+        }
+        for (key, count) in &table.threshold_counts {
+            assert_eq!(
+                crate::ac2_appearance_key_mod_count(&store, did, *key).unwrap(),
+                Some(Some(*count))
+            );
+        }
+        assert_eq!(
+            crate::ac2_appearance_key_mod_count(&store, did, 0xFFFF_FFFE).unwrap(),
+            Some(None)
+        );
+    }
+    assert!(lists > 0);
+    // A table that is not there answers the adaptor's miss.
+    let missing = DataId::new(0x20FF_FF00);
+    assert_eq!(
+        crate::ac2_has_appearance_key(&store, missing, 1).unwrap(),
+        None
+    );
+    assert_eq!(
+        crate::ac2_appearance_key_mod_list(&store, missing, 1).unwrap(),
+        None
+    );
+}
+
+/// `VisualDesc::GetTotalIconDesc`: the DAT visuals' own icon layers are kept (the pack bit
+/// `0x80`), merged along the parent chain in layer-id order, and the icon atoms of the
+/// visual's global appearance keys are applied on top.
+#[test]
+fn total_icon_desc_merges_the_chain_and_applies_icon_atoms() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let (mut with_layers, mut with_atoms) = (0, 0);
+    for did in dataset.ids_in_range(DatFileKind::Portal, 0x1F00_0000, 0x1FFF_FFFF) {
+        let visual = DataId::new(did);
+        let Some(icon) = crate::ac2_total_icon_desc(&store, visual, None).unwrap() else {
+            continue;
+        };
+        with_layers += 1;
+        assert!(
+            icon.layers
+                .windows(2)
+                .all(|p| p[0].layer_id <= p[1].layer_id),
+            "{did:08X}: layers stay in layer-id order"
+        );
+        let desc = store
+            .load_cached_packed::<crate::Ac2VisualDesc>(TypedResourceRef::new(
+                DatFileKind::Portal,
+                visual,
+                0,
+            ))
+            .unwrap()
+            .unwrap();
+        // Every layer the visual itself streams is in the merged description.
+        for own in &desc.icon.layers {
+            assert!(
+                icon.layers.iter().any(|l| l.layer_id == own.layer_id),
+                "{did:08X}"
+            );
+        }
+        let mut atoms = crate::Ac2Atoms::default();
+        for (table, keys) in desc.global_appearance.iter() {
+            for (key, scalar) in keys.iter() {
+                if *scalar != -1.0 {
+                    crate::ac2_appearance_atoms(&store, *table, *key, *scalar, false, &mut atoms)
+                        .unwrap();
+                }
+            }
+        }
+        for atom in &atoms.icons {
+            with_atoms += 1;
+            let layer = icon
+                .layers
+                .iter()
+                .find(|l| l.layer_id == atom.layer_id)
+                .unwrap_or_else(|| panic!("{did:08X}: icon atom layer {}", atom.layer_id));
+            if atom.image != 0 {
+                assert_eq!(layer.image, atom.image, "{did:08X}");
+            }
+            if atom.shift_color != 0 {
+                assert_eq!(layer.shift_color, atom.shift_color, "{did:08X}");
+            }
+        }
+    }
+    eprintln!("{with_layers} visuals with icon layers, {with_atoms} icon atoms applied");
+    assert!(with_layers > 0);
 }

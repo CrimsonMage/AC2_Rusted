@@ -11,6 +11,27 @@
 
 use super::{augment_table, Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 
+/// `IconDesc::ApplyAdditiveIconDesc`: `incoming`'s layers applied to a copy of `base`.
+fn merge_icons(base: &[(u32, u32, u32)], incoming: &[(u32, u32, u32)]) -> Vec<(u32, u32, u32)> {
+    let desc = |layers: &[(u32, u32, u32)]| ac2_assets::Ac2IconDesc {
+        layers: layers
+            .iter()
+            .map(|&(layer_id, image, shift_color)| ac2_assets::Ac2IconLayer {
+                layer_id,
+                image,
+                shift_color,
+            })
+            .collect(),
+    };
+    let mut merged = desc(base);
+    merged.apply_additive_desc(&desc(incoming));
+    merged
+        .layers
+        .iter()
+        .map(|l| (l.layer_id, l.image, l.shift_color))
+        .collect()
+}
+
 /// `PartGroupDataDesc::HasFX`: an FX table, or FX overrides.
 pub(super) fn has_fx(group: &PartGroupAppearance) -> bool {
     group.fx_table != 0 || !group.fx_overrides.is_empty()
@@ -69,13 +90,8 @@ impl Appearance {
         self.child_scale = (f64::from(incoming.child_scale) * f64::from(self.child_scale)) as f32;
         self.particle_scale =
             (f64::from(incoming.particle_scale) * f64::from(self.particle_scale)) as f32;
-        // `IconDesc::ApplyAdditiveIconDesc`: a layer id already present takes the new image.
-        for &(layer, image, color) in &incoming.icon {
-            match self.icon.iter_mut().find(|(id, ..)| *id == layer) {
-                Some(existing) => *existing = (layer, image, color),
-                None => self.icon.push((layer, image, color)),
-            }
-        }
+        // `IconDesc::ApplyAdditiveIconDesc`.
+        self.icon = merge_icons(&self.icon, &incoming.icon);
         if !super::apply_additive_group(&mut self.global, &incoming.global) {
             return None;
         }
@@ -415,16 +431,11 @@ impl Appearance {
 
     /// `VisualDesc::GetTotalIconDesc`'s icon layers: the parent's layers (the DAT chain), with this
     /// description's layers applied on top (`IconDesc::ApplyAdditiveIconLayer`). The appearance
-    /// tables' icon modifiers (`AugmentAtomCollection`) are not modelled.
+    /// tables' icon atoms are applied after this by `ac2_assets::ac2_total_icon_desc`, which
+    /// reads the tables.
     pub fn total_icon_layers(&self, parent: Option<&Appearance>) -> Vec<(u32, u32, u32)> {
-        let mut layers = parent.map_or_else(Vec::new, |p| p.icon.clone());
-        for &(layer, image, color) in &self.icon {
-            match layers.iter_mut().find(|(id, ..)| *id == layer) {
-                Some(existing) => *existing = (layer, image, color),
-                None => layers.push((layer, image, color)),
-            }
-        }
-        layers
+        let parent_layers = parent.map_or(&[][..], |p| p.icon.as_slice());
+        merge_icons(parent_layers, &self.icon)
     }
 
     /// `VisualDesc::GetScale`.

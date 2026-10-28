@@ -4148,8 +4148,8 @@ key	status	note
 004ceeb0	x	
 004cef30	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004cef40	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-004cef50	_	needs port: dependent DIDs of CCellMesh for sub-object resolution (AGENTS.md exception)
-004cefc0	_	needs port: mesh record: CCellMesh::GetCellPlanes
+004cef50	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+004cefc0	-	CCellMesh::GetCellPlanes walks the cell BSP (vtable slot 0x2c) for its bounding planes; its only caller CEnvCell::GetCellPlanes has no direct caller; ac2-world answers point-in-cell through the BSP traversal instead
 004ceff0	-	ctor/dtor of plain data; Rust constructs and drops values
 004cf040	-	accessor of a Rust typed field
 004cf050	-	accessor of the cell mesh DID; Rust typed field
@@ -4161,75 +4161,75 @@ key	status	note
 004cf3a0	x	ac2-physics/src/loader.rs cell_structure cites CCellMesh::StreamPack (physics BSP, cell BSP, portals)
 004cf840	-	ctor/dtor of plain data; Rust constructs and drops values
 004cf860	-	accessor of a Rust typed field
-004cf870	_	needs port: CMeshInstance::GetMesh DBO lookup by DID
-004cf880	_	needs port: mesh record: CMeshInstance::InitDatabaseMesh (initialisation from the DB record)
-004cf8b0	_	needs port: mesh record: CMeshInstance::InitCellMesh (initialisation from the DB record)
-004cf8e0	_	needs port: mesh record: CMeshInstance::InitStaticMesh (initialisation from the DB record)
+004cf870	x	ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
+004cf880	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004cf8b0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004cf8e0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004cf900	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004cf930	x	ac2-render object/model.rs load_object_model_with
-004cf9a0	_	needs port: CMeshInstance::DrawMesh fragment draw by degrade level (ac2-render; no citation)
+004cf9a0	~	degrade selection and the chosen degrade's batch run are ac2-render DegradeLists::select / ac2-gpu object_prepare (see CBaseMesh::DrawMesh)
 004cf9f0	-	ctor/dtor of plain data; Rust constructs and drops values
 004cfa20	-	accessor of a Rust typed field
 004cfa40	-	accessor of a Rust typed field
-004cfa60	_	needs port: mesh record: CMeshInstance::RemoveMaterialModifiers (atom removal rule)
-004cfab0	_	needs port: mesh record: CMeshInstance::MakeDynamic
+004cfa60	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004cfab0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004cfb60	x	ac2-render object/model.rs load_object_model_with
 004cfbe0	-	accessor of a Rust typed field
 004cfc00	-	D3D index-buffer plumbing; ac2-gpu owns buffers
 004cfc20	-	ctor/dtor of plain data; Rust constructs and drops values
-004cfc40	_	needs port (check): cited only from a caller in ac2-render terrain/far.rs; verify and cite, or port
+004cfc40	x	ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
 004cfc60	-	accessor of a Rust typed field
-004cfc80	_	needs port: mesh record: CBaseMesh::BuildBoundingBox (derived bounding data)
-004cfca0	_	needs port: mesh record: CBaseMesh::BuildDefaultBoundingBox (derived bounding data)
-004cfcc0	_	needs port: generic StreamPack op for int STREAMPACK_PACKOBJ(STREAMTYPE op, CVertexArray * obj, void * * addr, uint * size)
-004cfd30	_	needs port: generic StreamPack op for int STREAMPACK_PACKOBJ(STREAMTYPE op, CMeshTriList * obj, void * * addr, uint * size)
+004cfc80	x	ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
+004cfca0	-	derived bounds of the static mesh's render box / the default box: the Rust renderer culls against Ac2Mesh::bounds_min/bounds_max and the Setup's own bounds; no separate render bbox is read
+004cfcc0	x	ac2-assets ac2_mesh.rs decodes the material table, CVertexArray and each CMeshTriList in CBaseMesh::StreamPack order (Legions 0x004C6610), tested by every_legions_mesh_setup_and_visual_desc_decodes
+004cfd30	x	ac2-assets ac2_mesh.rs decodes the material table, CVertexArray and each CMeshTriList in CBaseMesh::StreamPack order (Legions 0x004C6610), tested by every_legions_mesh_setup_and_visual_desc_decodes
 004cfda0	-	ctor/dtor of plain data; Rust constructs and drops values
 004cfde0	-	accessor of a Rust typed field
 004cfe00	-	retail DBO object-graph walk for the cache; Arc replaces it
 004cfeb0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004cfef0	_	needs port: dependent DIDs of MeshMaterials for sub-object resolution (AGENTS.md exception)
+004cfef0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 004cff30	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004cff60	-	D3D vertex buffer plumbing; ac2-gpu owns buffers
-004cfff0	_	needs port: mesh record: CBaseMesh::SetMaterial (runtime setter)
-004d0050	_	needs port: mesh record: CBaseMesh::SetMaterialID (runtime setter)
+004cfff0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d0050	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d0080	~	ac2-gpu object_prepare: the chosen degrade's batch run (PartDegrades::drawn) over one vertex/index buffer per part
-004d0320	_	needs port: mesh record: CBaseMesh::GenerateLocalIndices (derived index/triangle/connectivity data)
-004d0530	_	needs port: mesh record: CBaseMesh::GenerateTriangleData (derived index/triangle/connectivity data)
-004d0820	_	needs port: mesh record: CBaseMesh::GenerateConnectivityData (derived index/triangle/connectivity data)
+004d0320	-	stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
+004d0530	-	stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
+004d0820	-	stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
 004d08c0	-	retail DBO object-graph walk for the cache; Arc replaces it
 004d08f0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d0910	_	needs port: dependent DIDs of CBaseMesh for sub-object resolution (AGENTS.md exception)
-004d0920	_	needs port: mesh record: CBaseMesh::GenerateShadowVolume (derived index/triangle/connectivity data)
+004d0910	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+004d0920	-	stencil shadow-volume data (connectivity, triangle and local index tables): its only non-draw caller is SceneTool::GenerateGlobalShadowVolume (a tool); the single modern pass has no stencil volumes
 004d1090	-	ctor/dtor of plain data; Rust constructs and drops values
 004d10c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d1260	x	ac2-assets/src/ac2_physics_mesh.rs cites PSmartArray<CPolygon>::StreamPack (CPolygon::UnPack records)
 004d1450	-	ctor/dtor of plain data; Rust constructs and drops values
 004d1460	~	ac2-render DegradeLists::select, degrade_level, mesh_degrade_factor (x1.5 player, _ftol2 truncation, empty list falls back to all degrades); ac2-gpu draws the chosen degrade's batches. Not ported: m_ForcedDetailLevel/m_nForcedDegradeLevel (tool overrides), first-person head/beard/crest/totem hide, shadow volume path
 004d17c0	-	text source format (admin tools)
-004d1830	_	needs port: mesh record: PSmartArray::StreamPack (stream decode)
-004d18d0	_	needs port: mesh record: CMeshDegradeList::Create (initialisation from the DB record)
+004d1830	x	ac2-assets ac2_mesh.rs decodes the material table, CVertexArray and each CMeshTriList in CBaseMesh::StreamPack order (Legions 0x004C6610), tested by every_legions_mesh_setup_and_visual_desc_decodes
+004d18d0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d1930	x	ac2-render object::DegradeLists::new (m_DLIndices by m_DetailLevels bits 1/2/4)
 004d19c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d1a30	_	needs port: MeshMaterials::DynamicCopy (per-instance copy of material instances)
+004d1a30	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d1ba0	-	ctor/dtor of plain data; Rust constructs and drops values
 004d1ec0	-	ctor/dtor of plain data; Rust constructs and drops values
 004d1fc0	-	text source format (admin tools)
 004d2240	-	text source format (admin tools)
-004d24e0	_	needs port: mesh record: PHashTable::StreamPack (stream decode)
-004d26d0	_	needs port: mesh record: PHashTable::StreamPack (stream decode)
+004d24e0	-	no Legions body and no caller in CBaseMesh::StreamPack (Legions 0x004C6610) or CStaticMesh::StreamPack: morph targets and vertex sets are not part of a shipped mesh record
+004d26d0	-	no Legions body and no caller in CBaseMesh::StreamPack (Legions 0x004C6610) or CStaticMesh::StreamPack: morph targets and vertex sets are not part of a shipped mesh record
 004d28c0	-	ctor/dtor of plain data; Rust constructs and drops values
-004d2950	_	needs port: mesh record: CBaseMesh::InitMesh (initialisation from the DB record)
-004d29d0	_	needs port: mesh record: CBaseMesh::SetDegradeList (runtime setter)
+004d2950	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d29d0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d2a40	-	allocation of material array; Rust Vec
 004d2ab0	x	ac2-assets/src/ac2_mesh.rs header: CBaseMesh::StreamPack order (CDataMesh record)
 004d2cd0	-	text source format (admin tools)
 004d2e80	-	text source format (admin tools)
-004d3190	_	needs port: mesh record: CStaticMesh::BuildRenderBoundingBox (derived bounding data)
-004d31a0	_	needs port: mesh record: CStaticMesh::BuildDefaultRenderBoundingBox (derived bounding data)
+004d3190	-	derived bounds of the static mesh's render box / the default box: the Rust renderer culls against Ac2Mesh::bounds_min/bounds_max and the Setup's own bounds; no separate render bbox is read
+004d31a0	-	derived bounds of the static mesh's render box / the default box: the Rust renderer culls against Ac2Mesh::bounds_min/bounds_max and the Setup's own bounds; no separate render bbox is read
 004d31b0	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004d3230	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004d32d0	x	ac2-assets/src/ac2_physics_mesh.rs header: CStaticMesh::StreamPack (physics polygons, BSP)
-004d33b0	_	needs port: dependent DIDs of CStaticMesh for sub-object resolution (AGENTS.md exception)
+004d33b0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 004d3400	-	ctor/dtor of plain data; Rust constructs and drops values
 004d3440	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d34a0	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -4237,40 +4237,40 @@ key	status	note
 004d36b0	-	allocation of physics polygon array; Rust Vec
 004d36e0	-	text source format (admin tools)
 004d3930	-	ctor/dtor of plain data; Rust constructs and drops values
-004d3960	_	needs port: CDataMesh::GetDID DBO lookup by DID
+004d3960	-	admin-only: no Legions body; the DBO is fetched by the typed resource store, not by DID name
 004d3970	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d3980	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d3990	_	needs port: dependent DIDs of CDataMesh for sub-object resolution (AGENTS.md exception)
+004d3990	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 004d39a0	-	retail DBO object-graph walk for the cache; Arc replaces it
 004d39c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d39f0	_	needs port: file-node tree accessor MakeSubNodeAsUInt32 (binary reader in ac2-dat)
+004d39f0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 004d3a50	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d3aa0	-	ctor/dtor of plain data; Rust constructs and drops values
 004d3ad0	-	FileNode text-source name setter (admin tools)
-004d3b40	_	needs port: file-node tree accessor MakeSubNodeAsPString (binary reader in ac2-dat)
-004d3bb0	_	needs port: file-node tree accessor MakeSubNode (binary reader in ac2-dat)
+004d3b40	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+004d3bb0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 004d3bf0	x	ac2-assets/src/ac2_physics_mesh.rs header: CDataMesh::StreamPack runs CStaticMesh then CBaseMesh
 004d3c70	-	text source format (admin tools)
 004d3e50	-	writer for DAT/pack output; the client only reads (tool-only)
 004d4220	-	writer for DAT/pack output; the client only reads (tool-only)
-004d43b0	_	needs port: CDataMesh::Get DBO lookup by DID
+004d43b0	x	ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
 004d4410	-	ctor/dtor of plain data; Rust constructs and drops values
 004d4430	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 004d4490	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d44e0	_	needs port: mesh record: CMeshGroup::InitCellMesh (initialisation from the DB record)
-004d4580	_	needs port: mesh record: CMeshGroup::InitStaticMesh (initialisation from the DB record)
-004d4610	_	needs port: CMeshGroup::GetMesh DBO lookup by DID
+004d44e0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d4580	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d4610	x	ac2-assets ac2_mesh.rs Ac2Mesh: loaded by DID through the resource store (CDataMesh::Get / CMeshGroup::GetMesh); the vertex array's bounding box is Ac2Mesh::bounds_min/bounds_max (CBaseMesh::BuildBoundingBox), tested by every_legions_mesh_setup_and_visual_desc_decodes
 004d4630	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d4670	_	needs port: CMeshGroup::DrawMesh fragment draw by degrade level (ac2-render; no citation)
-004d46c0	_	needs port: mesh record: HashBase::remove
-004d4790	_	needs port: mesh record: CMeshGroup::InitDatabaseMesh (initialisation from the DB record)
+004d4670	~	degrade selection and the chosen degrade's batch run are ac2-render DegradeLists::select / ac2-gpu object_prepare (see CBaseMesh::DrawMesh)
+004d46c0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d4790	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d48e0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d4920	_	needs port: mesh record: CMeshGroup::SpawnDynamicMesh (initialisation from the DB record)
+004d4920	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
 004d4990	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 004d49a0	x	ac2-assets/src/ac2_appearance.rs cites CDynamicMesh::ApplyMaterialModifier
 004d4a40	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-004d4ab0	_	needs port: mesh record: CDynamicMesh::InitDynamicMesh (initialisation from the DB record)
-004d4c40	_	needs port: mesh record: CMorphTargetData::StreamPack (stream decode)
+004d4ab0	-	mutable-mesh machinery: Rust meshes are immutable shared Arc<Ac2Mesh>; per-object material overrides resolve at build time through load_ac2_material_with_atoms (CPartArray/CEnvCell::ApplyAtomCollection), and procedural meshes (SceneTool, FrillRender, LScapeTerrainMesh builders) are built in ac2-render
+004d4c40	-	no Legions body and no caller in CBaseMesh::StreamPack (Legions 0x004C6610) or CStaticMesh::StreamPack: morph targets and vertex sets are not part of a shipped mesh record
 004d4ca0	-	ctor/dtor of plain data; Rust constructs and drops values
 004d4cc0	-	ctor/dtor of plain data; Rust constructs and drops values
 004d4da0	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -7979,8 +7979,8 @@ key	status	note
 00567f50	-	admin only: test system IFun (admin test harness)
 00568050	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005680a0	-	ctor/dtor of plain data; Rust constructs and drops values
-005680c0	_	needs port: UI graphic: Graphic::Incorporate
-005680f0	_	needs port: UI graphic: Graphic::SetToDefaultGraphic (runtime setter)
+005680c0	-	ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
+005680f0	-	ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
 005681e0	-	accessor of a Rust typed field
 00568200	-	accessor of a Rust typed field
 00568220	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -7988,7 +7988,7 @@ key	status	note
 00568380	~	ac2-ui: no transitions, timed media, mouse, listeners or dirty rects; A8R8G8B8 blits only; HUD roots from SetupChildren's radar/selection/statusbar/toolbar
 00568430	-	ctor/dtor of plain data; Rust constructs and drops values
 00568470	x	ac2-ui compose.rs / element.rs set_image
-00568920	_	needs port: UI graphic: Graphic::InitFromIconLayerDesc (initialisation from the DB record)
+00568920	-	ac2-ui owns Graphic (UIElement::SetIconDesc); Incorporate/SetToDefaultGraphic/InitFromIconLayerDesc are its icon-layer blit helpers, catalogued with the ac2-ui Graphic rows
 00568a20	-	CryptoAPI provider handle plumbing and its error log; Rust crypto crates
 00568a30	-	CryptoAPI provider handle plumbing and its error log; Rust crypto crates
 00568b00	-	CryptoAPI provider handle plumbing and its error log; Rust crypto crates
@@ -9024,45 +9024,45 @@ key	status	note
 005b8f70	_	needs port (check): Rust code with a similar name exists but does not cite this function; verify and cite, or port
 005b8fb0	-	ctor/dtor of plain data; Rust constructs and drops values
 005b8fe0	-	DBO type tag; Rust uses typed resource ids
-005b8ff0	_	needs port: material record: MaterialModifier::End (post-decode finaliser)
+005b8ff0	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005b9050	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005b9060	_	needs port: dependent DIDs of MaterialModifier for sub-object resolution (AGENTS.md exception)
+005b9060	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 005b90b0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005b90c0	-	ctor/dtor of plain data; Rust constructs and drops values
 005b9130	-	copy of plain data; Rust clones values
-005b91b0	_	needs port: material record: MaterialModifier::StreamPack (stream decode)
+005b91b0	x	ac2-assets ac2_material.rs Ac2MaterialModifier::decode_packed (MaterialModifier::StreamPack), resolved by material_instances_resolve_to_loadable_textures
 005b9690	-	operator of plain data or container; Rust value semantics / derived PartialEq
 005b96b0	-	ctor/dtor of plain data; Rust constructs and drops values
 005b9700	-	DBO type tag; Rust uses typed resource ids
-005b9710	_	needs port: dependent DIDs of RenderMaterial for sub-object resolution (AGENTS.md exception)
-005b97c0	~	hardware-class layer filter (object::layer_drawn, class 2 default)
+005b9710	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+005b97c0	-	RenderMaterial::GetSubObjects is the hardware-class layer filter: ac2-assets object::layer_drawn (class 2 default) in ac2-render; recorded there
 005b9ad0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005b9b50	_	needs port: dependent DIDs of RenderMaterial for sub-object resolution (AGENTS.md exception)
+005b9b50	-	authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 005b9bf0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005b9c00	_	needs port: material record: RenderMaterial::End (post-decode finaliser)
+005b9c00	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005b9c70	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005b9c90	-	text source format (admin tools)
 005b9d50	-	copy of plain data; Rust clones values
-005b9e00	_	needs port: material record: RenderMaterial::StreamPack (stream decode)
+005b9e00	x	ac2-assets ac2_material.rs Ac2RenderMaterial::decode_packed (RenderMaterial::StreamPack), tested by every_legions_material_record_decodes_to_its_exact_length
 005ba540	-	text source format (admin tools)
-005ba670	_	needs port: material record: MaterialInstance::Refresh
-005ba680	_	needs port: material record: MaterialInstance::SetTemplateMaterial (runtime setter)
-005ba6c0	_	needs port: material record: MaterialInstance::RestoreOriginalTemplateMaterial
-005ba730	_	needs port: dependent DIDs of MaterialInstance for sub-object resolution (AGENTS.md exception)
+005ba670	x	ac2-assets ac2_material_instance.rs load_ac2_material applies each modifier over a copy of the template (MaterialInstance::RefreshMaterial); the set/restore/insert mutators are the template and modifier choices of load_ac2_material_with_atoms, tested by dungeon_appearance_atoms_retexture_cell_materials
+005ba680	x	ac2-assets ac2_material_instance.rs load_ac2_material applies each modifier over a copy of the template (MaterialInstance::RefreshMaterial); the set/restore/insert mutators are the template and modifier choices of load_ac2_material_with_atoms, tested by dungeon_appearance_atoms_retexture_cell_materials
+005ba6c0	x	ac2-assets ac2_material_instance.rs load_ac2_material applies each modifier over a copy of the template (MaterialInstance::RefreshMaterial); the set/restore/insert mutators are the template and modifier choices of load_ac2_material_with_atoms, tested by dungeon_appearance_atoms_retexture_cell_materials
+005ba730	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 005ba780	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005ba800	_	needs port: dependent DIDs of MaterialInstance for sub-object resolution (AGENTS.md exception)
+005ba800	-	authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 005ba8e0	x	ac2-assets/src/ac2_material_instance.rs (RefreshMaterial): modifiers applied to a copy of the template
 005ba9e0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005baa50	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 005baae0	-	copy of plain data; Rust clones values
 005bad00	-	retail DBO object-graph walk for the cache; Arc replaces it
-005badf0	_	needs port: material record: MaterialInstance::StreamPack (stream decode)
-005bb390	_	needs port: material record: MaterialInstance::InsertModifier
+005badf0	x	ac2-assets ac2_material.rs Ac2MaterialInstance::decode_packed (MaterialInstance::StreamPack: template DID, material type, modifier DIDs), tested by material_instances_resolve_to_loadable_textures
+005bb390	x	ac2-assets ac2_material_instance.rs load_ac2_material applies each modifier over a copy of the template (MaterialInstance::RefreshMaterial); the set/restore/insert mutators are the template and modifier choices of load_ac2_material_with_atoms, tested by dungeon_appearance_atoms_retexture_cell_materials
 005bb3d0	-	ctor/dtor of plain data; Rust constructs and drops values
 005bb430	-	DBO type tag; Rust uses typed resource ids
-005bb440	_	needs port: material record: MaterialInstance::End (post-decode finaliser)
+005bb440	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005bb4c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005bb5e0	_	needs port: material record: MaterialInstance::ReadInstanceFilename
+005bb5e0	-	authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 005bb7c0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005bb7d0	-	ctor/dtor of plain data; Rust constructs and drops values
 005bb860	-	D3D device/resource plumbing; wgpu replaces
@@ -9130,13 +9130,13 @@ key	status	note
 005bdfe0	-	D3D device/resource plumbing; wgpu replaces
 005be070	-	D3D device/resource plumbing; wgpu replaces
 005be2e0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005be300	_	needs port: material record: LayerStage::StreamPack (stream decode)
-005be460	_	needs port: dependent DIDs of LayerStage for sub-object resolution (AGENTS.md exception)
+005be300	x	ac2-assets ac2_material.rs read_stage: the stage record in LayerStage::StreamPack order, tested by every_legions_material_record_decodes_to_its_exact_length
+005be460	-	authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 005be4b0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 005be550	-	copy of plain data; Rust clones values
 005be610	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-005be620	_	needs port: material record: LayerStage::SetTexture (runtime setter)
-005be6c0	_	needs port: material record: LayerStage::SetTexture (runtime setter)
+005be620	x	ac2-assets ac2_material_instance.rs apply_property sets a stage's texture and address modes (MaterialProperty::Apply -> LayerStage::SetTexture), tested by modifier_texture_property_replaces_the_template_stage_texture
+005be6c0	x	ac2-assets ac2_material_instance.rs apply_property sets a stage's texture and address modes (MaterialProperty::Apply -> LayerStage::SetTexture), tested by modifier_texture_property_replaces_the_template_stage_texture
 005be760	-	ctor/dtor of plain data; Rust constructs and drops values
 005be790	-	copy of plain data; Rust clones values
 005be7e0	-	retail DBO object-graph walk for the cache; Arc replaces it
@@ -9338,7 +9338,7 @@ key	status	note
 005cb660	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 005cb7e0	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005cb8b0	-	pack size helper (STREAMPACK_SIZEOF); Rust reads fields directly
-005cb9b0	_	needs port: material record: MaterialLayer::End (post-decode finaliser)
+005cb9b0	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005cbad0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005cbae0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 005cbbd0	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -9349,9 +9349,9 @@ key	status	note
 005cbdc0	-	copy of plain data; Rust clones values
 005cc0b0	x	ac2-assets/src/ac2_material.rs: MaterialLayer::StreamPack stage decode (4-stage limit, LM modifiers)
 005ce650	-	writer for DAT/pack output; the client only reads (tool-only)
-005cfef0	_	needs port: material record: MaterialLayer::BuildVertexShader (derived bounding data)
+005cfef0	~	object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
 005d0320	-	copy of plain data; Rust clones values
-005d0360	_	needs port: material record: SmartArray::AddToEnd (atom insert rule)
+005d0360	~	object.wgsl runs the fragment.dll programs (unlit, lit, lit vertex diffuse, per-pixel sun); point-light variants not yet. The shader-info array append (SmartArray<ShaderInfo>::AddToEnd) is the same table
 005d03d0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 005d06e0	~	fragment.dll programs in object.wgsl: unlit, lit, lit vertex diffuse, per-pixel (sun); point-light variants not yet
 005d07a0	x	ac2-render particles
@@ -9416,17 +9416,17 @@ key	status	note
 005d6550	-	accessor of a Rust typed field
 005d6560	x	ac2-render object::pass / texture_matrix, ac2-gpu object
 005d6590	-	pack size helper (STREAMPACK_SIZEOF) for LM modifier records; Rust reads fields directly
-005d65e0	_	needs port: material record: LM_Origin::StreamPack (stream decode)
+005d65e0	-	no Legions body: LM_Origin/LM_Normal/LM_Diffuse have no StreamPack in the Legions layermodifier.cpp.c (only the UV classes), and MaterialLayer::StreamPack accepts modifier types 4 to 7 only; origin and diffuse modifiers are authoring-only
 005d6710	-	copy of plain data; Rust clones values
 005d6750	-	copy of plain data; Rust clones values
-005d6790	_	needs port: material record: LM_Diffuse::StreamPack (stream decode)
+005d6790	-	no Legions body: LM_Origin/LM_Normal/LM_Diffuse have no StreamPack in the Legions layermodifier.cpp.c (only the UV classes), and MaterialLayer::StreamPack accepts modifier types 4 to 7 only; origin and diffuse modifiers are authoring-only
 005d6860	-	copy of plain data; Rust clones values
-005d68c0	_	needs port: material record: LM_UVTranslate::StreamPack (stream decode)
+005d68c0	x	ac2-assets ac2_material.rs read_modifier (UV translate, type 4) decoded in MaterialLayer::StreamPack order; every Legions 0x2B material decodes to its exact length (every_legions_material_record_decodes_to_its_exact_length)
 005d6940	-	copy of plain data; Rust clones values
-005d6990	_	needs port: material record: LM_UVRotate::StreamPack (stream decode)
+005d6990	x	ac2-assets ac2_material.rs read_modifier (UV rotate, type 5); every Legions 0x2B material decodes to its exact length
 005d6a00	-	copy of plain data; Rust clones values
 005d6a40	-	copy of plain data; Rust clones values
-005d6ab0	_	needs port: material record: LM_UVTransform::StreamPack (stream decode)
+005d6ab0	x	ac2-assets ac2_material.rs read_modifier (type 7, a 4x4 matrix); every Legions 0x2B material decodes to its exact length
 005d6b20	-	copy of plain data; Rust clones values
 005d6f00	-	writer for DAT/pack output; the client only reads (tool-only)
 005d77a0	-	writer for DAT/pack output; the client only reads (tool-only)
@@ -9472,31 +9472,31 @@ key	status	note
 005d9d00	-	D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 005d9dc0	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005d9e70	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
-005da1a0	_	needs port: material record: LM_Origin::SetYScale (runtime setter)
-005da210	_	needs port: material record: LM_Origin::SetZScale (runtime setter)
-005da280	_	needs port: material record: LM_Origin::SetOriginPhase (runtime setter)
-005da2f0	_	needs port: material record: LM_Origin::SetNormalPhase (runtime setter)
-005da360	_	needs port: material record: LM_Origin::SetXTranslate (runtime setter)
-005da3b0	_	needs port: material record: LM_Origin::SetYTranslate (runtime setter)
-005da400	_	needs port: material record: LM_Origin::SetZTranslate (runtime setter)
-005da450	_	needs port: material record: LM_Origin::SetXScale (runtime setter)
-005da4c0	_	needs port: material record: LM_UVTranslate::SetUTranslate (runtime setter)
-005da510	_	needs port: material record: MaterialLayer::SetAlphaTestRef (runtime setter)
-005da560	_	needs port: material record: MaterialLayer::SetSpecularPower (runtime setter)
-005da5d0	_	needs port: material record: MaterialProperty::SetWaveformData (runtime setter)
-005da650	_	needs port: material record: MaterialProperty::SetColorData (runtime setter)
-005da6a0	_	needs port: material record: MaterialProperty::SetBoolData (runtime setter)
-005da6e0	_	needs port: MaterialProperty::GetDataTypeForID
+005da1a0	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da210	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da280	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da2f0	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da360	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da3b0	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da400	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da450	-	admin-only: LM_Origin has no Legions body; origin layer modifiers are not streamed by MaterialLayer::StreamPack
+005da4c0	x	ac2-assets ac2_material_instance.rs apply_property writes the layer's alpha test ref, specular power and the UV translate waveforms straight into the resolved layer (MaterialProperty::Apply -> MaterialLayer::SetAlphaTestRef/SetSpecularPower, LM_UVTranslate::SetUTranslate), tested by modifier_texture_property_replaces_the_template_stage_texture
+005da510	x	ac2-assets ac2_material_instance.rs apply_property writes the layer's alpha test ref, specular power and the UV translate waveforms straight into the resolved layer (MaterialProperty::Apply -> MaterialLayer::SetAlphaTestRef/SetSpecularPower, LM_UVTranslate::SetUTranslate), tested by modifier_texture_property_replaces_the_template_stage_texture
+005da560	x	ac2-assets ac2_material_instance.rs apply_property writes the layer's alpha test ref, specular power and the UV translate waveforms straight into the resolved layer (MaterialProperty::Apply -> MaterialLayer::SetAlphaTestRef/SetSpecularPower, LM_UVTranslate::SetUTranslate), tested by modifier_texture_property_replaces_the_template_stage_texture
+005da5d0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+005da650	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+005da6a0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+005da6e0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 005da720	-	generic 32-bit field pack helper (STREAMPACK_BIT32); ArchiveCursor reads primitives
-005da750	_	needs port: dependent DIDs of MaterialProperty for sub-object resolution (AGENTS.md exception)
+005da750	-	authoring/tool-only: GetDIDsForFilenames maps authored file names to DIDs for the preproc text loaders (callers are LoadFromFileNode paths); the DVD ships no file-name table
 005da830	x	ac2-assets/src/ac2_material_instance.rs: MaterialProperty::Apply (RMFieldType handling)
 005dabb0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
-005dac50	_	needs port: material record: MaterialProperty::End (post-decode finaliser)
+005dac50	-	frees the record's sub-objects and arrays (destructor path); Rust values drop
 005dacf0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 005dad00	-	ctor/dtor of plain data; Rust constructs and drops values
 005dad50	-	ctor/dtor of plain data; Rust constructs and drops values
 005dadb0	-	copy of plain data; Rust clones values
-005daf10	_	needs port: material record: MaterialProperty::StreamPack (stream decode)
+005daf10	x	ac2-assets ac2_material.rs read_properties / read_waveform: MaterialProperty::StreamPack (name, data type, data, fields), tested by every_legions_material_record_decodes_to_its_exact_length
 005db420	-	writer for DAT/pack output; the client only reads (tool-only)
 005db680	-	copy of plain data; Rust clones values
 005db6c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -10439,60 +10439,60 @@ key	status	note
 00601d20	x	
 00601d40	x	
 00601e70	x	
-00601e90	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::GetMyPackageID
-00601ea0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::SetMyPackageID (setter; no direct callers in the admin call graph)
-00601ed0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::GetEntityDID
-00601ee0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::SetEntityDID (setter; no direct callers in the admin call graph)
-00601f10	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddInt (atom insert rule)
-00601f20	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveInt (atom removal rule)
+00601e90	x	ac2-net weenie_desc.rs WeenieDesc::my_package_id / set_my_package_id / entity_did_or_zero / set_entity_did (mask bit 0x1 and 0x02000000, null value clears the bit); tested by package_id_and_entity_did_follow_their_mask_bits
+00601ea0	x	ac2-net weenie_desc.rs WeenieDesc::my_package_id / set_my_package_id / entity_did_or_zero / set_entity_did (mask bit 0x1 and 0x02000000, null value clears the bit); tested by package_id_and_entity_did_follow_their_mask_bits
+00601ed0	x	ac2-net weenie_desc.rs WeenieDesc::my_package_id / set_my_package_id / entity_did_or_zero / set_entity_did (mask bit 0x1 and 0x02000000, null value clears the bit); tested by package_id_and_entity_did_follow_their_mask_bits
+00601ee0	x	ac2-net weenie_desc.rs WeenieDesc::my_package_id / set_my_package_id / entity_did_or_zero / set_entity_did (mask bit 0x1 and 0x02000000, null value clears the bit); tested by package_id_and_entity_did_follow_their_mask_bits
+00601f10	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00601f20	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
 00601f40	x	ac2-weenie/src/qualities.rs (test ~L438, remove_in_weenie_desc) cites gmWeenieDesc::RemoveInt; answers 1 and clears the field
-006021b0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqInt (property inquiry)
+006021b0	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 006023c0	x	
-00602590	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AdjInt
-006026b0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddLongInt (atom insert rule)
-006026d0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveLongInt (atom removal rule)
+00602590	-	gmWeenieDesc::AdjInt/AdjFloat have no direct caller (vtable only) and set the field without its data-mask bit; the client applies server quality changes with Set* (CWRepository::RecvEvt_Update*_Private) and clamps with truncate_int/long/float
+006026b0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006026d0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
 006026f0	-	writer for DAT/pack output; the client only reads (tool-only)
-00602700	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveBool (atom removal rule)
-00602720	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveBool (atom removal rule)
-006027f0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqBool (property inquiry)
+00602700	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602720	x	ac2-weenie qualities.rs remove_from_weenie_desc: the field and its data-mask bit clear and the call answers 1, tested by remove_clears_a_description_field_and_its_mask_bit
+006027f0	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 00602890	x	
-00602990	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddFloat (atom insert rule)
-006029a0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveFloat (atom removal rule)
-006029c0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveFloat (atom removal rule)
-00602a00	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqFloat (property inquiry)
+00602990	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006029a0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006029c0	x	ac2-weenie qualities.rs remove_from_weenie_desc: the field and its data-mask bit clear and the call answers 1, tested by remove_clears_a_description_field_and_its_mask_bit
+00602a00	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 00602a30	x	
-00602a60	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AdjFloat
-00602a90	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddTimestamp (atom insert rule)
-00602ab0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveTimestamp (atom removal rule)
-00602ad0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddDataID (atom insert rule)
-00602ae0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveDataID (atom removal rule)
-00602b00	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveDataID (atom removal rule)
-00602b30	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqDataID (property inquiry)
+00602a60	-	gmWeenieDesc::AdjInt/AdjFloat have no direct caller (vtable only) and set the field without its data-mask bit; the client applies server quality changes with Set* (CWRepository::RecvEvt_Update*_Private) and clamps with truncate_int/long/float
+00602a90	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602ab0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602ad0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602ae0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602b00	x	ac2-weenie qualities.rs remove_from_weenie_desc: the field and its data-mask bit clear and the call answers 1, tested by remove_clears_a_description_field_and_its_mask_bit
+00602b30	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 00602b60	x	
-00602b90	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddInstanceID (atom insert rule)
-00602bb0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveInstanceID (atom removal rule)
-00602bd0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveInstanceID (atom removal rule)
-00602e40	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqInstanceID (property inquiry)
+00602b90	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602bb0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00602bd0	x	ac2-weenie qualities.rs remove_from_weenie_desc: the field and its data-mask bit clear and the call answers 1, tested by remove_clears_a_description_field_and_its_mask_bit
+00602e40	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 00603090	x	
-006032d0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddString (atom insert rule)
-006032e0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddPosition (atom insert rule)
-006032f0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemovePosition (atom removal rule)
-00603370	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddStringInfo (atom insert rule)
-00603380	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveStringInfo (atom removal rule)
-006033c0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveStringInfo (atom removal rule)
-00603420	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::InqStringInfo (property inquiry)
+006032d0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006032e0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006032f0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00603370	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00603380	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006033c0	x	ac2-weenie qualities.rs remove_from_weenie_desc: the field and its data-mask bit clear and the call answers 1, tested by remove_clears_a_description_field_and_its_mask_bit
+00603420	x	ac2-weenie qualities.rs inq_* answer the description's fields first (only a field whose data-mask bit is set), tested by inq_reads_the_description_before_the_tables
 00603470	x	
-006034c0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::AddPackageID (atom insert rule)
-006034d0	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemovePackageID (atom removal rule)
-006034f0	_	needs port: dependent DIDs of gmWeenieDesc for sub-object resolution (AGENTS.md exception)
+006034c0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006034d0	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+006034f0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00603530	-	ctor/dtor of plain data; Rust constructs and drops values
 006035a0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 006037c0	x	
 00603b70	-	ctor/dtor of plain data; Rust constructs and drops values
 00603ba0	-	copy of plain data; Rust clones values
 00603bf0	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00603c00	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::RemoveString (atom removal rule)
-00603c60	_	needs port: weenie property bag (gmWeenieDesc): gmWeenieDesc::Dump
+00603c00	-	vtable thunk with no direct caller: tail-calls the CBaseQualities virtual slot (the 1-argument Remove* pass a dummy out value); the client's property bag is ac2-weenie WeenieQualities, whose set/remove/inq cover the same slots
+00603c60	-	debug dump of the description's fields (Legions 0x005C4B40); no client caller outside tools
 00604530	x	net: friends_script_7160 / ac2-ui friends model (the status event runs the script; the native's efuns read name, location, mode; the GUN code converts through the admin table, 23 rows, default 0xc741)
 00604550	-	ctor/dtor/operator= of plain data or container: Rust owns the state
 006045a0	-	GUN helper: HRESULT/mode text, global-name mapping, user status (Gaming Zone)
@@ -10893,63 +10893,63 @@ key	status	note
 00615d40	-	debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 00615d90	-	accessor of a Rust typed field
 00615da0	-	text source format (admin tools)
-00615dd0	_	needs port: file-node tree accessor SetNameAsInstanceID (binary reader in ac2-dat)
-00615e20	_	needs port: file-node tree accessor MakeSubNodeAsInstanceID (binary reader in ac2-dat)
-00615e50	_	needs port: entity description: EntityDesc::SetProperties (runtime setter)
-00615e70	_	needs port: entity description: EntityDesc::InqBool (property inquiry)
+00615dd0	-	PFileNode accessor: authoring-tool text tree; no client caller
+00615e20	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00615e50	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00615e70	x	ac2-script glue/entity_desc.rs binds the gEntityDesc efuns over the entity's property collection (InqInteger/Bool/Enum/DataID/StringInfo/GetProperties); the Legions wlib calls no other entity inquiry
 00615ea0	x	Integer property of an entity link (name, out long); a property of another type answers 0 (entity_desc.rs). SaleProfile::ComputeMaxStackSize reads its max stack size through it; the sell's rig test runs it.
-00615ed0	_	needs port: entity description: EntityDesc::InqFloat (property inquiry)
-00615f00	_	needs port: entity description: EntityDesc::InqVector (property inquiry)
-00615f30	_	needs port: entity description: EntityDesc::InqEnum (property inquiry)
+00615ed0	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00615f00	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00615f30	x	ac2-script glue/entity_desc.rs binds the gEntityDesc efuns over the entity's property collection (InqInteger/Bool/Enum/DataID/StringInfo/GetProperties); the Legions wlib calls no other entity inquiry
 00615f60	x	ac2-script/src/glue/entity_desc.rs inq_data_id cites EntityDesc::InqDataID
-00615f90	_	needs port: entity description: EntityDesc::InqPackageID (property inquiry)
+00615f90	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
 00615fc0	x	ac2-script/src/glue/entity_desc.rs cites EntityDesc::InqStringInfo (StringInfo property read)
-00615ff0	_	needs port: dependent DIDs of EntityDesc for sub-object resolution (AGENTS.md exception)
-00616030	_	needs port: entity description: EntityDesc::SetDataFileName (runtime setter)
+00615ff0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+00616030	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00616080	-	writer for DAT/pack output; the client only reads (tool-only)
-006161b0	_	needs port: generic StreamPack op for int STREAMPACK_STREAMPACKOBJ(STREAMTYPE op, Frame * obj, void * * addr, uint * size)
-00616200	_	needs port: file-node tree accessor GetNameAsInstanceID (binary reader in ac2-dat)
+006161b0	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
+00616200	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 006162d0	-	ctor/dtor of plain data; Rust constructs and drops values
 00616390	-	DBO type tag; Rust uses typed resource ids
 006163a0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 006164c0	-	ctor/dtor of plain data; Rust constructs and drops values
-00616520	_	needs port: entity description: EntityDesc::InqDataFile (property inquiry)
-006165d0	_	needs port: entity description: EntityDesc::InqDataFileW (property inquiry)
-00616690	_	needs port: entity description: EntityDesc::InqDataFilePath (property inquiry)
-00616720	_	needs port: entity description: EntityDesc::InqDataFilePathW (property inquiry)
-006167d0	_	needs port: entity description: EntityDesc::InqStringW (property inquiry)
+00616520	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+006165d0	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00616690	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00616720	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+006167d0	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
 00616800	-	copy of plain data; Rust clones values
 00616820	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-00616960	_	needs port: entity description: EntityDesc::GetRootPackageID
+00616960	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
 006169c0	x	template chain first, own properties update over it (ac2_world entity_total_properties)
 00616a50	x	ac2-assets ac2_static_model.rs resolve_ac2_entity_visual: an EntityDesc (0x47) follows its template (m_dataID) to the VisualDesc or CSetup it draws; ac2-client world_data.rs load_body_data resolves FX object DIDs through it on the loader thread (real-data test every_fx_objects_entity_resolves_to_a_drawable_visual)
 00616ac0	x	ac2-script/src/glue/entity_desc.rs cites EntityDesc::InqEntityDescFromDataID
 00616b20	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 00616b30	-	ctor/dtor of plain data; Rust constructs and drops values
-00617320	_	needs port: entity description: EntityDesc::GetEntityNameFromDataIDW
-00617370	~	unpack only, in ac2-net protocol::property / fx (types from a PropertyTypes resolver; Legions BaseProperty::StreamPack 0x0064B4E0 instruction-identical)
+00617320	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00617370	x	ac2-assets ac2_entity.rs read_ac2_entity_desc / ac2-net protocol::property decode the entity record in EntityDesc::StreamPack order; the EntityGroupDesc/EntityLinkDesc/LinkRequirements records are streamed after it and not read by the client
 006174d0	x	ac2-script/src/glue/enums.rs get_data_id_from_entity_name_w cites EntityDesc::GetDataIDFromEntityNameW
-00617520	_	needs port: entity description: EntityDesc::InqEntityDescFromNameW (property inquiry)
-00617580	_	needs port: entity description: EntityGroupDesc::StreamPack (stream decode)
-00617600	_	needs port: dependent DIDs of EntityGroupDesc for sub-object resolution (AGENTS.md exception)
+00617520	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00617580	-	EntityGroupDesc/EntityLinkDesc/LinkRequirements are authoring-side entity group records: the client never loads an entity group; the script reads link requirements through ac2-script glue data_bags.rs (LinkRequirements native) and no DAT record of these types is read
+00617600	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00617640	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 006176b0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00617720	-	ctor/dtor of plain data; Rust constructs and drops values
 00617760	-	DBO type tag; Rust uses typed resource ids
 00617770	-	ctor/dtor of plain data; Rust constructs and drops values
 006177e0	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00617850	_	needs port: entity description: PSmartArray::StreamPack (stream decode)
+00617850	-	EntityGroupDesc/EntityLinkDesc/LinkRequirements are authoring-side entity group records: the client never loads an entity group; the script reads link requirements through ac2-script glue data_bags.rs (LinkRequirements native) and no DAT record of these types is read
 006178f0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 00617b10	-	copy of plain data; Rust clones values
-00617e70	_	needs port: entity description: EntityLinkDesc::GetOppositeID
+00617e70	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
 00617ee0	-	ctor/dtor of plain data; Rust constructs and drops values
-00617f40	_	needs port: entity description: EntityLinkDesc::GetWBName_ForWsl
-00617f60	_	needs port: entity description: EntityLinkDesc::InqStringPropertyW (property inquiry)
-00617fc0	_	needs port: entity description: LinkDesc::InqLinkType (property inquiry)
-00618540	_	needs port: entity description: EntityLinkDesc::StreamPack (stream decode)
+00617f40	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00617f60	-	efun-only and the Legions wlib has no call site (scan: host::tests::efun_coverage lists no gEntityDesc gap beyond the bound ones); the property types involved are not read by the client
+00617fc0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00618540	-	EntityGroupDesc/EntityLinkDesc/LinkRequirements are authoring-side entity group records: the client never loads an entity group; the script reads link requirements through ac2-script glue data_bags.rs (LinkRequirements native) and no DAT record of these types is read
 006185b0	-	ctor/dtor of plain data; Rust constructs and drops values
 006185f0	-	ctor/dtor of plain data; Rust constructs and drops values
-00618610	_	needs port: entity description: LinkRequirements::StreamPack (stream decode)
+00618610	-	EntityGroupDesc/EntityLinkDesc/LinkRequirements are authoring-side entity group records: the client never loads an entity group; the script reads link requirements through ac2-script glue data_bags.rs (LinkRequirements native) and no DAT record of these types is read
 006186a0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00618700	-	admin wlib database (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
 00618780	-	admin wlib link map (no Legions match) [vtable-checked: not a slot of any located Legions vtable]
@@ -11560,24 +11560,24 @@ key	status	note
 0063c8b0	-	Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 0063c8c0	-	Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
 0063c8e0	-	Win32 threads, events and critical sections (platform sync; Rust std/tokio replaces)
-0063c910	_	needs port: appearance/visual record: VisualDesc::FillFXTable
-0063c920	_	needs port: VisualDesc::GetStartupFX
-0063c930	_	needs port: VisualDesc::HasFX (global FX table test; uncited)
-0063c940	_	needs port: generic StreamPack op for int STREAMPACK_STREAMPACKOBJ(STREAMTYPE op, IconDesc * obj, void * * addr, uint * size)
-0063c960	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+0063c910	x	ac2-assets ac2_drawn_groups.rs global_fx_atoms + ac2_visual_particles / ac2_visual_fx_particles / ac2_visual_fx_sounds: with FX at all (HasFX) the global appearance keys' FX atoms join the table behind the overrides (FXTable::AddEntry keeps the first); tested by fx_atoms_of_the_global_appearance_keys_join_the_fx_table (406 shipped visuals)
+0063c920	x	ac2-assets ac2_visual_desc.rs Ac2VisualFx::startup (m_startup_fx ids and scalars) feeds the startup FX of ac2_visual_particles (PHYSICSOBJREP::InitFXManager), tested by startup_particles_of_every_visual_name_decodable_particle_systems
+0063c930	x	ac2-assets ac2_drawn_groups.rs global_fx_atoms + ac2_visual_particles / ac2_visual_fx_particles / ac2_visual_fx_sounds: with FX at all (HasFX) the global appearance keys' FX atoms join the table behind the overrides (FXTable::AddEntry keeps the first); tested by fx_atoms_of_the_global_appearance_keys_join_the_fx_table (406 shipped visuals)
+0063c940	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
+0063c960	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
 0063caf0	x	
 0063cb50	-	hash iterator op
 0063cc30	-	container iterator (PGD table); Rust iterates the map
 0063cc60	-	writer for DAT/pack output; the client only reads (tool-only)
 0063cd60	-	operator of plain data or container; Rust value semantics / derived PartialEq
-0063d1c0	_	needs port: dependent DIDs of VisualDesc for sub-object resolution (AGENTS.md exception)
+0063d1c0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 0063d2f0	x	ac2-weenie appearance.rs
 0063d310	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063d3e0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063d450	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063d680	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-0063d740	_	needs port: appearance/visual record: VisualDesc::GatherAppearanceKeys
-0063d7f0	~	part-group FX overrides (FXData/FXNode) refused as unsupported
+0063d740	-	GatherAppearanceKeys's only caller CPhysicsObj::CombineAndApplyVisualDesc (the script-edited description pushed back to the object) is covered by ac2-physics appearance_ops app_info_of / ac2_assets total_visual_desc; the list outputs are not read elsewhere
+0063d7f0	x	ac2-assets ac2_visual_desc.rs part_group / decode and ac2-net protocol::visual PartGroupDesc / VisualDesc (FX overrides included): VisualDesc::StreamPack and PartGroupDataDesc::StreamPack decoded in stream order, tested by every_legions_mesh_setup_and_visual_desc_decodes and fx_overrides_follow_the_startup_fx; the client only unpacks visual descriptions
 0063db70	x	ac2-assets ac2_total_visual.rs (drawn description; ac2-weenie keeps the session copy)
 0063dcc0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063dd00	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
@@ -11591,7 +11591,7 @@ key	status	note
 0063e3e0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063e460	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063eaf0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-0063eb00	_	needs port: appearance/visual record: PHashTable::StreamPack (stream decode)
+0063eb00	x	ac2-assets ac2_visual_desc.rs part_group / decode and ac2-net protocol::visual PartGroupDesc / VisualDesc (FX overrides included): VisualDesc::StreamPack and PartGroupDataDesc::StreamPack decoded in stream order, tested by every_legions_mesh_setup_and_visual_desc_decodes and fx_overrides_follow_the_startup_fx; the client only unpacks visual descriptions
 0063ecd0	-	ctor/dtor of plain data; Rust constructs and drops values
 0063ed70	-	DBO type tag; Rust uses typed resource ids
 0063ed80	-	ctor/dtor of plain data; Rust constructs and drops values
@@ -11602,26 +11602,26 @@ key	status	note
 0063f070	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f250	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f340	-	copy of plain data; Rust clones values
-0063f380	_	needs port: appearance/visual record: VisualDesc::AddAppearanceMod (atom insert rule)
-0063f390	_	needs port: appearance/visual record: VisualDesc::RemoveAppearanceMod (atom removal rule)
+0063f380	~	VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
+0063f390	~	VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
 0063f3a0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f410	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 0063f440	-	ctor/dtor of plain data; Rust constructs and drops values
 0063f4d0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f520	-	ctor/dtor of plain data; Rust constructs and drops values
 0063f650	-	operator of plain data or container; Rust value semantics / derived PartialEq
-0063f6c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+0063f6c0	x	ac2-assets ac2_visual_desc.rs part_group / decode and ac2-net protocol::visual PartGroupDesc / VisualDesc (FX overrides included): VisualDesc::StreamPack and PartGroupDataDesc::StreamPack decoded in stream order, tested by every_legions_mesh_setup_and_visual_desc_decodes and fx_overrides_follow_the_startup_fx; the client only unpacks visual descriptions
 0063f770	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0063f880	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f930	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 0063f9c0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
-0063f9f0	~	ac2-weenie total_icon_layers and glue GetTotalIconDesc: parent DAT icons and this icon; the appearance tables' icon modifiers (AugmentAtomCollection) not modelled
+0063f9f0	~	ac2-assets ac2_total_icon_desc = GetTotalIconDesc for a DAT visual (parent chain merge + the icon atoms of its own global appearance keys), tested by total_icon_desc_merges_the_chain_and_applies_icon_atoms; the script efun and the HUD icon path (ac2-weenie/ac2-client inventory icons) merge the wire appearance with total_icon_layers and do not yet run the icon atoms
 0063faf0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0063fb60	-	accessor of a Rust typed field
 0063fb80	x	
 0063fc00	-	operator of plain data or container; Rust value semantics / derived PartialEq
-0063fc80	~	glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so null colour = packed 0 (assumption on the packed shift colour)
-0063fcd0	_	needs port: dependent DIDs of IconDesc for sub-object resolution (AGENTS.md exception)
+0063fc80	~	glue/ui_natives.rs; RGBAColor at 0xaf6104 is never written (bss zero), so the null colour is packed 0 (assumption on the packed shift colour)
+0063fcd0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 006400e0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 00640100	-	writer for DAT/pack output; the client only reads (tool-only)
 00640150	-	writer for DAT/pack output; the client only reads (tool-only)
@@ -11629,22 +11629,22 @@ key	status	note
 006402c0	-	ctor/dtor of plain data; Rust constructs and drops values
 006402f0	-	ctor/dtor of plain data; Rust constructs and drops values
 00640320	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00640360	~	ac2-weenie icon layers; AppearanceTable icon modifiers missing
+00640360	x	ac2-assets ac2_icon.rs Ac2IconLayer::apply_additive (IconLayerDesc::ApplyAdditive) and Ac2IconDesc::apply_additive_layer / apply_additive_desc (IconDesc::ApplyAdditiveIconLayer: same id merges, else sorted insert); ac2-physics appearance_ops merge_icons uses them; tested by a_layer_with_a_held_id_merges_field_by_field, a_new_layer_joins_in_id_order, a_whole_icon_desc_applies_layer_by_layer
 00640440	-	ctor/dtor of plain data; Rust constructs and drops values
-00640580	~	ac2-weenie appearance.rs: a layer id replaces
+00640580	x	ac2-assets ac2_icon.rs Ac2IconLayer::apply_additive (IconLayerDesc::ApplyAdditive) and Ac2IconDesc::apply_additive_layer / apply_additive_desc (IconDesc::ApplyAdditiveIconLayer: same id merges, else sorted insert); ac2-physics appearance_ops merge_icons uses them; tested by a_layer_with_a_held_id_merges_field_by_field, a_new_layer_joins_in_id_order, a_whole_icon_desc_applies_layer_by_layer
 006405c0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
-006405f0	_	needs port: IconLayerDesc::ApplyAdditive icon layer compositing
-00640640	_	needs port: generic StreamPack op for int STREAMPACK_STREAMPACKOBJ(STREAMTYPE op, RGBAColor * obj, void * * addr, uint * size)
+006405f0	x	ac2-assets ac2_icon.rs Ac2IconLayer::apply_additive (IconLayerDesc::ApplyAdditive) and Ac2IconDesc::apply_additive_layer / apply_additive_desc (IconDesc::ApplyAdditiveIconLayer: same id merges, else sorted insert); ac2-physics appearance_ops merge_icons uses them; tested by a_layer_with_a_held_id_merges_field_by_field, a_new_layer_joins_in_id_order, a_whole_icon_desc_applies_layer_by_layer
+00640640	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
 00640660	-	ctor/dtor of plain data; Rust constructs and drops values
 006406a0	x	
-00640b30	_	needs port: appearance/visual record: PhysicsDesc::get_timestamp
-00640b40	_	needs port: appearance/visual record: PhysicsDesc::get_parent_id
-00640b60	_	needs port: appearance/visual record: PhysicsDesc::get_parent_instance_stamp
-00640b70	_	needs port: appearance/visual record: PhysicsDesc::get_location_id
-00640b80	_	needs port: appearance/visual record: PhysicsDesc::get_mode
-00640b90	_	needs port: appearance/visual record: PhysicsDesc::get_behaviors
-00640ba0	_	needs port: appearance/visual record: PhysicsDesc::get_sliders
-00640bb0	_	needs port: appearance/visual record: PhysicsDesc::get_fx
+00640b30	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640b40	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640b60	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640b70	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640b80	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640b90	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640ba0	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
+00640bb0	x	ac2-net physics.rs PhysicsDesc fields are the getters' data (timestamp() = get_timestamp; parent = object, location, instance stamp; mode, behaviors, sliders, fx); tested by behaviors_and_fx_sit_where_streampack_puts_them
 00640f40	x	
 006410e0	x	
 006412a0	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
@@ -11657,13 +11657,13 @@ key	status	note
 00641fe0	x	ac2-script native AppliedAppearanceKey (plain data)
 00642000	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00642020	-	ctor/dtor of plain data; Rust constructs and drops values
-00642040	_	needs port: appearance/visual record: AppliedAppearanceKey::AppearanceKeyFFN
-006421f0	_	needs port: appearance/visual record: AppliedAppearanceKey::ValueFFN
-00642260	~	FromFileNode reads a PFileNode (gPFileNode, unbound: no PFileNode native in the port; ac2-dat PFileNode rows unchecked)
+00642040	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+006421f0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00642260	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00642410	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 00642430	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00642470	x	ac2-assets/src/ac2_appearance.rs fn replaces cites MaterialModifierAtom::Replaces (priority and mesh-type rule)
-006424b0	_	needs port: dependent DIDs of MaterialModifierAtom for sub-object resolution (AGENTS.md exception)
+006424b0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 006424e0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 006424f0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642510	-	operator of plain data or container; Rust value semantics / derived PartialEq
@@ -11673,63 +11673,63 @@ key	status	note
 006425b0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
 006425c0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006425f0	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00642620	_	needs port: dependent DIDs of PGDReplacementAtom for sub-object resolution (AGENTS.md exception)
+00642620	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00642630	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
-00642640	_	needs port: appearance/visual record: IconModAtom::Replaces (replacement rule)
-006426b0	_	needs port: dependent DIDs of IconModAtom for sub-object resolution (AGENTS.md exception)
-006426e0	_	needs port: mesh record: MeshMaterials::StreamPack (stream decode)
-00642710	_	needs port: material record: MaterialModifierAtom::StreamPack (stream decode)
+00642640	x	ac2-assets ac2_appearance.rs Ac2FxAtom::replaces / Ac2Atoms::add_fx and Ac2IconLayer::replaces / add_icon; Ac2Atoms::update runs them after the mesh atoms like AtomCollection::UpdateAtomCollection; unit tests an_fx_atom_replaces_..., an_icon_atom_replaces_...
+006426b0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+006426e0	x	ac2-assets ac2_mesh.rs decodes the material table, CVertexArray and each CMeshTriList in CBaseMesh::StreamPack order (Legions 0x004C6610), tested by every_legions_mesh_setup_and_visual_desc_decodes
+00642710	x	ac2-assets ac2_appearance.rs read_collection: the material modifier atoms are read with their priority first (AppearanceAtom::ReadPriority order), tested by every_appearance_table_decodes_all_its_atom_kinds
 00642790	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006427d0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00642830	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
-00642870	_	needs port: appearance/visual record: FXAtom::Replaces (replacement rule)
+00642870	x	ac2-assets ac2_appearance.rs Ac2FxAtom::replaces / Ac2Atoms::add_fx and Ac2IconLayer::replaces / add_icon; Ac2Atoms::update runs them after the mesh atoms like AtomCollection::UpdateAtomCollection; unit tests an_fx_atom_replaces_..., an_icon_atom_replaces_...
 00642890	-	operator of plain data or container; Rust value semantics / derived PartialEq
-006428c0	_	needs port: dependent DIDs of FXAtom for sub-object resolution (AGENTS.md exception)
+006428c0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00642910	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00642950	_	needs port: mesh record: CVertexSetData::StreamPack (stream decode)
+00642950	-	no Legions body and no caller in CBaseMesh::StreamPack (Legions 0x004C6610) or CStaticMesh::StreamPack: morph targets and vertex sets are not part of a shipped mesh record
 00642980	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
-00642990	_	needs port: AppearanceAtom::ReadPriority (atom priority read inside the atom StreamPack order; uncited)
+00642990	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00642a20	-	writer for DAT/pack output; the client only reads (tool-only)
 00643f50	-	container append (SmartArray::AddToEnd); Rust Vec push
-00644090	_	needs port: UI region (ac2-ui): UIRegion::SetZLevel_Internal (runtime setter)
+00644090	-	identical-code-folded duplicate (the linker merged an identical body from another class); the real function is ac2-ui UIRegion::SetZLevel_Internal / ac2-physics CMotionInterp::GetLocalDesiredVelocity, catalogued with their classes
 006440a0	-	operator of plain data or container; Rust value semantics / derived PartialEq
-006440f0	_	needs port: motion interpreter (ac2-anim): CMotionInterp::GetLocalDesiredVelocity
+006440f0	-	identical-code-folded duplicate (the linker merged an identical body from another class); the real function is ac2-ui UIRegion::SetZLevel_Internal / ac2-physics CMotionInterp::GetLocalDesiredVelocity, catalogued with their classes
 00644100	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644160	x	ac2-weenie appearance.rs
 006441a0	x	ac2-render object/appearance.rs over ac2-assets Ac2TotalVisualDesc
 00644210	-	container compaction (RemoveNullsOrdered); Rust collections
 00644260	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 006442b0	-	reset to defaults before decode / reset of plain fields; Rust builds fresh values
-006442f0	_	needs port: appearance/visual record: PartGroupDataDesc::AddChildPointer (atom insert rule)
+006442f0	-	inline in the client: PartGroupDataDesc::AddChildPointer links a group to its parent while VisualDesc::StreamPack/AddPGDDesc build the tree; the Rust trees are keyed by parent_key (ac2-assets Ac2TotalVisualDesc, ac2-weenie Appearance::reset_tree)
 00644330	x	ac2-weenie/src/appearance_ops.rs has_fx cites PartGroupDataDesc::HasFX
 00644350	-	writer for DAT/pack output; the client only reads (tool-only)
-006443c0	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006443c0	x	ac2-assets ac2_visual_desc.rs part_group / decode and ac2-net protocol::visual PartGroupDesc / VisualDesc (FX overrides included): VisualDesc::StreamPack and PartGroupDataDesc::StreamPack decoded in stream order, tested by every_legions_mesh_setup_and_visual_desc_decodes and fx_overrides_follow_the_startup_fx; the client only unpacks visual descriptions
 00644510	x	ac2-render object/appearance.rs augment_atoms
 00644590	-	writer for DAT/pack output; the client only reads (tool-only)
-00644950	_	needs port: dependent DIDs of PartGroupDataDesc for sub-object resolution (AGENTS.md exception)
+00644950	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
 00644a30	-	Clear of PartGroupDataDesc (reset)
 00644a80	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644ad0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 00644bb0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-00644c40	_	needs port: appearance/visual record: PartGroupDataDesc::ReadFX
+00644c40	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00645580	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
-006455e0	_	needs port: appearance/visual record: PartGroupDataDesc::ReadAppearanceKeys
+006455e0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00645940	-	ctor/dtor of plain data; Rust constructs and drops values
-00645f00	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+00645f00	x	ac2-assets ac2_visual_desc.rs part_group / decode and ac2-net protocol::visual PartGroupDesc / VisualDesc (FX overrides included): VisualDesc::StreamPack and PartGroupDataDesc::StreamPack decoded in stream order, tested by every_legions_mesh_setup_and_visual_desc_decodes and fx_overrides_follow_the_startup_fx; the client only unpacks visual descriptions
 006460f0	-	ctor/dtor of plain data; Rust constructs and drops values
 006462a0	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00646300	x	ac2-weenie appearance.rs (FX override data kept by id)
 006464f0	-	ctor/dtor of plain data; Rust constructs and drops values
-006465d0	_	needs port: appearance/visual record: PartGroupDataDesc::FillFXTable
+006465d0	x	ac2-assets ac2_drawn_groups.rs global_fx_atoms + ac2_visual_particles / ac2_visual_fx_particles / ac2_visual_fx_sounds: with FX at all (HasFX) the global appearance keys' FX atoms join the table behind the overrides (FXTable::AddEntry keeps the first); tested by fx_atoms_of_the_global_appearance_keys_join_the_fx_table (406 shipped visuals)
 00646840	-	ctor/dtor of plain data; Rust constructs and drops values
 00646880	-	ctor/dtor of plain data; Rust constructs and drops values
-00646990	_	needs port: dependent DIDs of AtomCollection for sub-object resolution (AGENTS.md exception)
-00646fa0	_	needs port: appearance/visual record: AtomCollection::AddIconModAtom (atom insert rule)
-00646fd0	_	needs port: appearance/visual record: AtomCollection::AddReplacementIconModAtom (atom insert rule)
+00646990	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+00646fa0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00646fd0	x	ac2-assets ac2_appearance.rs Ac2FxAtom::replaces / Ac2Atoms::add_fx and Ac2IconLayer::replaces / add_icon; Ac2Atoms::update runs them after the mesh atoms like AtomCollection::UpdateAtomCollection; unit tests an_fx_atom_replaces_..., an_icon_atom_replaces_...
 00647130	-	operator of plain data or container; Rust value semantics / derived PartialEq
-006471d0	_	needs port: appearance/visual record: AtomCollection::AddOpacityAtom (atom insert rule)
-00647200	_	needs port: appearance/visual record: AtomCollection::AddMeshReplacementAtom (atom insert rule)
-00647230	_	needs port: appearance/visual record: AtomCollection::AddPGDReplacementAtom (atom insert rule)
+006471d0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00647200	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00647230	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00647260	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00647320	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 006473e0	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
@@ -11743,30 +11743,30 @@ key	status	note
 006478a0	-	ctor/dtor of plain data; Rust constructs and drops values
 00647b60	-	operator of plain data or container; Rust value semantics / derived PartialEq
 00647f20	-	operator of plain data or container; Rust value semantics / derived PartialEq
-00647fe0	_	needs port: appearance/visual record: AtomCollection::AddFXAtom (atom insert rule)
-00648000	_	needs port: appearance/visual record: AtomCollection::AddReplacementFXAtom (atom insert rule)
-006487a0	_	needs port: generic StreamPack op for int STREAMPACK_STL_SET(STREAMTYPE op, set<FXAtom,_STL::less<FXAtom>,_STL::allocator<FXAtom>_> * n, void * * ad
+00647fe0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+00648000	x	ac2-assets ac2_appearance.rs Ac2FxAtom::replaces / Ac2Atoms::add_fx and Ac2IconLayer::replaces / add_icon; Ac2Atoms::update runs them after the mesh atoms like AtomCollection::UpdateAtomCollection; unit tests an_fx_atom_replaces_..., an_icon_atom_replaces_...
+006487a0	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
 00648990	-	ctor/dtor of plain data; Rust constructs and drops values
 00648a80	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00648c40	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
-00648cf0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
+00648cf0	-	STREAMPACK op wrapper for a generic template instance (no body of its own)
 00648d80	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 00648f70	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
-00649260	_	needs port: dependent DIDs of AppearanceTable for sub-object resolution (AGENTS.md exception)
-00649330	_	needs port: appearance/visual record: AppearanceTable::AddBaseAppearanceDID (atom insert rule)
+00649260	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+00649330	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 00649370	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
-00649470	_	needs port: appearance/visual record: AppearanceTable::HasAppearanceKey
+00649470	x	ac2-assets ac2_appearance.rs ac2_has_appearance_key (base tables first, then the key hash), tested by appearance_key_queries_follow_the_table_data
 00649540	x	ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
-00649650	_	needs port: appearance/visual record: AppearanceTable::InqTsysAppearanceKeyModCount (property inquiry)
-006497a0	_	needs port: appearance/visual record: AppearanceTable::CalculateAppearanceModsBelowThreshold
-006499a0	_	needs port: appearance/visual record: PHashTable::StreamPack (stream decode)
+00649650	x	ac2-assets ac2_appearance.rs ac2_appearance_key_mod_count (the table's own threshold hash), tested by appearance_key_queries_follow_the_table_data
+006497a0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
+006499a0	x	ac2-assets ac2_appearance.rs: the table's threshold-count and per-key collection lists are kept (AppearanceTable::StreamPack tail), tested by every_appearance_table_decodes_all_its_atom_kinds
 00649ba0	-	ctor/dtor of plain data; Rust constructs and drops values
 00649c30	-	DBO type tag; Rust uses typed resource ids
 00649c60	-	ctor/dtor of plain data; Rust constructs and drops values
 00649d10	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 00649e20	-	writer for DAT/pack output; the client only reads (tool-only)
 00649e70	-	writer for DAT/pack output; the client only reads (tool-only)
-00649eb0	_	needs port: appearance/visual record: PList::UnPack (stream decode)
+00649eb0	x	ac2-assets ac2_appearance.rs: the table's threshold-count and per-key collection lists are kept (AppearanceTable::StreamPack tail), tested by every_appearance_table_decodes_all_its_atom_kinds
 0064a060	-	operator of plain data or container; Rust value semantics / derived PartialEq
 0064a210	-	text source format (admin tools)
 0064a370	-	operator of plain data or container; Rust value semantics / derived PartialEq
@@ -11784,13 +11784,13 @@ key	status	note
 0064a970	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0064aa60	-	ctor/dtor of plain data; Rust constructs and drops values
 0064aaa0	-	ctor/dtor of plain data; Rust constructs and drops values
-0064aaf0	_	needs port: appearance/visual record: AppearanceTableAdaptor::HasAppearanceKey
-0064ab50	_	needs port: appearance/visual record: AppearanceTableAdaptor::InqTsysAppearanceKeyModCount (property inquiry)
+0064aaf0	x	ac2-assets ac2_appearance.rs ac2_has_appearance_key (base tables first, then the key hash), tested by appearance_key_queries_follow_the_table_data
+0064ab50	x	ac2-assets ac2_appearance.rs ac2_appearance_key_mod_count (the table's own threshold hash), tested by appearance_key_queries_follow_the_table_data
 0064abc0	x	ac2-script glue/appearance_table.rs (efun 0x000E0002) over ScriptData::appearance_key_mods (DataRequest::AppearanceKeyMods, read on the loader) and ac2-assets AppearanceTable::key_mods (base tables first, insert_sort ascending); unit-tested with a table stub
 0064ac30	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
 0064ac60	x	ac2-assets ac2_appearance.rs (all atom kinds; FX/icon atoms decoded past)
-0064aca0	_	needs port: dependent DIDs of VisualModTable for sub-object resolution (AGENTS.md exception)
-0064adc0	_	needs port: appearance/visual record: VisualModTable::GetAtomCollection
+0064aca0	-	GetSubDataIDs lists a record's dependent DIDs for the data-graph prefetch (DBObj::AddToDataGraph, StringInfo::AsyncGetString; the script efuns are ac2_script glue sub_data_ids). DBOCache::GetIfInMemory does not call it: it calls an int-returning vtable slot (+0x24) once when !m_bLoaded, not this void (type, array) slot. The client reads every DID on demand from the local DATs, so no consumer exists
+0064adc0	-	authoring-tool path (FromFileNode/LoadFromFileNode/ToFileNode text loader, preproc); the client reads packed DAT records only (callers: FromFileNode/ToFileNode only)
 0064b010	-	ctor/dtor of plain data; Rust constructs and drops values
 0064b070	-	ctor/dtor of plain data; Rust constructs and drops values
 0064b0c0	-	Win32 time wrapper and real-time clock (Rust monotonic clock; asctime/strftime CRT log text)

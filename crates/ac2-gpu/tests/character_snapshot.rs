@@ -224,6 +224,7 @@ fn human_skin_takes_the_appearance_tables_modifiers() {
         scale: None,
         child_scale: None,
         particle_scale: None,
+        icon: ac2_assets::Ac2IconDesc::default(),
         part_groups: std::sync::Arc::from([]),
         part_group_appearance: std::sync::Arc::from([]),
         global_appearance: std::sync::Arc::from([(

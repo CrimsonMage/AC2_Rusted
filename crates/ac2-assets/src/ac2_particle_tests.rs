@@ -235,6 +235,41 @@ fn the_visuals_fx_particles_resolve_per_fx_id() {
     );
 }
 
+/// `PartGroupDataDesc::FillFXTable`: a visual with FX whose global appearance keys carry FX
+/// atoms answers those atoms' ids too, in the particle view and the sound view alike, and an
+/// override of the same id keeps its own nodes (`FXTable::AddEntry` keeps the first).
+#[test]
+fn fx_atoms_of_the_global_appearance_keys_join_the_fx_table() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let mut checked = 0;
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let visual = DataId::new(did);
+        let atoms = crate::ac2_drawn_groups::global_fx_atoms(&store, visual).unwrap();
+        let Some(with_particles) = atoms.iter().find(|atom| !atom.particles.is_empty()) else {
+            continue;
+        };
+        let Some(fx) = crate::resolve_ac2_visual_fx_particles(&store, visual).unwrap() else {
+            continue;
+        };
+        let id = with_particles.ids[0];
+        let resolved: Vec<_> = fx.entries_for_test().collect();
+        let Some((_, attachments)) = resolved.iter().find(|(fx_id, _)| *fx_id == id) else {
+            panic!("{did:08X}: FX atom id {id:08X} is missing from the FX table");
+        };
+        assert!(!attachments.is_empty());
+        let sounds = crate::resolve_ac2_visual_fx_sounds(&store, visual).unwrap();
+        assert!(
+            sounds.is_some(),
+            "{did:08X}: the sound view has the atoms too"
+        );
+        checked += 1;
+    }
+    eprintln!("{checked} visuals take FX atoms into their FX table");
+    assert!(checked > 0, "no visual has FX atoms on its global keys");
+}
+
 /// An FX node's object is an `EntityDesc` (`0x47`): `EntityDesc::GetVisualDescID` follows its
 /// template to a `VisualDesc` or `CSetup`, and that visual has meshes to draw. Every object DID
 /// the FX tables name must resolve so.

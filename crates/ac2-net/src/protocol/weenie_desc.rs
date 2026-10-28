@@ -34,7 +34,48 @@ pub struct WeenieDesc {
     pub durability_max: Option<i32>,
 }
 
+/// `gmWeenieDesc::_data_mask` bit of `_my_pkgid`.
+const MASK_PACKAGE_ID: u32 = 0x1;
+/// `gmWeenieDesc::_data_mask` bit of `m_entityDID`.
+const MASK_ENTITY_DID: u32 = 0x0200_0000;
+
 impl WeenieDesc {
+    /// `gmWeenieDesc::GetMyPackageID`: the package id, or `0xFFFFFFFF` when the mask bit is clear.
+    pub fn my_package_id(&self) -> u32 {
+        self.package_id
+            .filter(|_| self.data_mask & MASK_PACKAGE_ID != 0)
+            .unwrap_or(u32::MAX)
+    }
+
+    /// `gmWeenieDesc::SetMyPackageID`: the id is stored; `0xFFFFFFFF` clears the mask bit, any
+    /// other value sets it.
+    pub fn set_my_package_id(&mut self, id: u32) {
+        self.package_id = Some(id);
+        if id == u32::MAX {
+            self.data_mask &= !MASK_PACKAGE_ID;
+        } else {
+            self.data_mask |= MASK_PACKAGE_ID;
+        }
+    }
+
+    /// `gmWeenieDesc::GetEntityDID`: the entity DID, or 0 when the mask bit is clear.
+    pub fn entity_did_or_zero(&self) -> u32 {
+        self.entity_did
+            .filter(|_| self.data_mask & MASK_ENTITY_DID != 0)
+            .unwrap_or(0)
+    }
+
+    /// `gmWeenieDesc::SetEntityDID`: the DID is stored; 0 clears the mask bit, any other value
+    /// sets it.
+    pub fn set_entity_did(&mut self, did: u32) {
+        self.entity_did = Some(did);
+        if did == 0 {
+            self.data_mask &= !MASK_ENTITY_DID;
+        } else {
+            self.data_mask |= MASK_ENTITY_DID;
+        }
+    }
+
     pub(crate) fn read(reader: &mut Reader<'_>) -> Result<Self, ProtocolError> {
         let mask = reader.u32()?;
         let has = |bit: u32| mask & bit != 0;
@@ -200,6 +241,30 @@ mod tests {
         assert_eq!(
             (w.entity_did, w.bitfield, w.container, w.scale, w.quantity),
             (Some(0x4700_110F), Some(0x10), Some(7), Some(1.25), Some(3))
+        );
+    }
+
+    #[test]
+    fn package_id_and_entity_did_follow_their_mask_bits() {
+        let mut desc = WeenieDesc::default();
+        assert_eq!(
+            (desc.my_package_id(), desc.entity_did_or_zero()),
+            (u32::MAX, 0)
+        );
+        desc.set_my_package_id(0x1AA9);
+        desc.set_entity_did(0x4700_110F);
+        assert_eq!(desc.data_mask, 0x0200_0001);
+        assert_eq!(
+            (desc.my_package_id(), desc.entity_did_or_zero()),
+            (0x1AA9, 0x4700_110F)
+        );
+        // The null values clear the bits and read as absent.
+        desc.set_my_package_id(u32::MAX);
+        desc.set_entity_did(0);
+        assert_eq!(desc.data_mask, 0);
+        assert_eq!(
+            (desc.my_package_id(), desc.entity_did_or_zero()),
+            (u32::MAX, 0)
         );
     }
 

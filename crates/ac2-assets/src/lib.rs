@@ -10,6 +10,7 @@ mod ac2_cell_surface_tests;
 mod ac2_drawn_groups;
 mod ac2_entity;
 mod ac2_fx;
+mod ac2_icon;
 mod ac2_light_source;
 mod ac2_material;
 mod ac2_material_instance;
@@ -72,14 +73,15 @@ pub(crate) use texture_dxt::BlockCompressedTexture;
 pub use texture_dxt::{decode_block_compressed_texture, BlockCompressedTextureFormat};
 
 pub use ac2_appearance::{
-    ac2_appearance_atoms, ac2_appearance_material_atoms, ac2_dungeon_appearance_table,
-    ac2_enum_did, load_ac2_appearance_table, load_ac2_material_with_atoms, Ac2Atoms,
-    Ac2MaterialAtom, Ac2MeshAtom, Ac2OpacityAtom, Ac2PartGroupAtom, AppearanceTable,
+    ac2_appearance_atoms, ac2_appearance_key_mod_count, ac2_appearance_key_mod_list,
+    ac2_appearance_material_atoms, ac2_dungeon_appearance_table, ac2_enum_did,
+    ac2_has_appearance_key, load_ac2_appearance_table, load_ac2_material_with_atoms, Ac2Atoms,
+    Ac2FxAtom, Ac2MaterialAtom, Ac2MeshAtom, Ac2OpacityAtom, Ac2PartGroupAtom, AppearanceTable,
 };
 pub use ac2_cell_surface::decode_ac2_cell_surfaces;
 pub use ac2_drawn_groups::{
-    drawn_groups, holding_search_order, resolve_drawn_groups, rest_named_bones, total_visual_desc,
-    DrawnGroup,
+    ac2_total_icon_desc, drawn_groups, holding_search_order, resolve_drawn_groups,
+    rest_named_bones, total_visual_desc, DrawnGroup,
 };
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
@@ -87,6 +89,7 @@ pub use ac2_fx::{
     Ac2DecalFx, Ac2FxAttach, Ac2FxAttachPoint, Ac2FxLight, Ac2FxNodeGate, Ac2FxObject,
     Ac2FxObjectAttach, Ac2FxTable, Ac2StreakFx,
 };
+pub use ac2_icon::{Ac2IconDesc, Ac2IconLayer};
 pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource};
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,

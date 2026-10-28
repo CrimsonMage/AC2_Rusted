@@ -83,6 +83,64 @@ pub fn total_visual_desc(
     Ok(Some(total))
 }
 
+/// `VisualDesc::GetTotalIconDesc` of `local` (its parent chain, then itself), or of the DAT
+/// `VisualDesc` `visual` alone: the merged icon description, with the icon atoms of this
+/// description's own global appearance keys applied on top (`IconDesc::ApplyAdditiveIconLayer`
+/// of each `IconModAtom` that `PartGroupDataDesc::AugmentAtomCollection` gathers). `None` when
+/// the chain does not load or there is no icon layer.
+pub fn ac2_total_icon_desc(
+    store: &ResourceStore,
+    visual: DataId,
+    local: Option<&Ac2VisualDesc>,
+) -> ResourceResult<Option<crate::Ac2IconDesc>> {
+    let Some(total) = total_visual_desc(store, visual, local)? else {
+        return Ok(None);
+    };
+    let mut icon = total.icon;
+    // The atoms come from this description's own global group, not the merged one.
+    let dat = match local {
+        Some(_) => None,
+        None => store.load_cached_packed::<Ac2VisualDesc>(ac2_db::TypedResourceRef::new(
+            ac2_dat::DatFileKind::Portal,
+            visual,
+            0,
+        ))?,
+    };
+    let own = local.or(dat.as_deref());
+    if let Some(own) = own {
+        let group = Ac2TotalGroup {
+            appearance: own
+                .global_appearance
+                .iter()
+                .map(|(table, keys)| (*table, keys.to_vec()))
+                .collect(),
+            ..Ac2TotalGroup::default()
+        };
+        let mut atoms = Ac2Atoms::default();
+        augment_atoms(store, &group, false, &mut atoms)?;
+        for layer in &atoms.icons {
+            icon.apply_additive_layer(layer);
+        }
+    }
+    Ok((!icon.layers.is_empty()).then_some(icon))
+}
+
+/// The FX atoms of a visual's global appearance keys, in set order: what
+/// `PartGroupDataDesc::FillFXTable` adds to the FX table after the part group's overrides
+/// (`FXTable::AddEntry` keeps the first entry added for an id). The global group is the total
+/// description's (`VisualDesc::GetTotalVisualDesc`).
+pub(crate) fn global_fx_atoms(
+    store: &ResourceStore,
+    visual: DataId,
+) -> ResourceResult<Vec<crate::Ac2FxAtom>> {
+    let Some(total) = total_visual_desc(store, visual, None)? else {
+        return Ok(Vec::new());
+    };
+    let mut atoms = Ac2Atoms::default();
+    augment_atoms(store, &total.global, false, &mut atoms)?;
+    Ok(atoms.fx)
+}
+
 /// `PartGroupDataDesc::AugmentAtomCollection` of one group's appearance hash.
 fn augment_atoms(
     store: &ResourceStore,

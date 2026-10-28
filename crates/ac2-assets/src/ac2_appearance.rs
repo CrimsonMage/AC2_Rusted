@@ -10,10 +10,15 @@
 //! base tables first, then the last collection whose intensity does not exceed the applied scalar
 //! (`VisualModTable::UpdateAtomCollection`, through the `AddReplacement*Atom` rules).
 //! `CDynamicMesh::ApplyMaterialModifier` then gives every material instance whose
-//! `m_materialType` matches the atom its template and appends its modifier. FX and icon atoms are
-//! decoded past and dropped.
+//! `m_materialType` matches the atom its template and appends its modifier. The FX atoms
+//! (`PartGroupDataDesc::FillFXTable` adds them to the FX table) and the icon atoms
+//! (`IconDesc::ApplyAdditiveIconLayer` is what the icon composition runs them through) are kept
+//! with their `Replaces` rules (`AtomCollection::AddReplacementFXAtom` / `AddReplacementIconModAtom`).
+//! The key and threshold tables answer `AppearanceTable::HasAppearanceKey`,
+//! `InqTsysAppearanceKeyModCount` and `InqAppearanceKeyModList`.
 
 use std::collections::HashMap;
+use std::sync::Arc;
 
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::DatFileKind;
@@ -23,7 +28,10 @@ use ac2_db::{
     ResourceTypeId, TypedResourceRef,
 };
 
-use crate::ac2_fx::{count as fx_count, float, read_fx_data, skip, word, Malformed};
+use crate::ac2_fx::{
+    count as fx_count, float, read_fx_data, word, Ac2FxParticleNode, Ac2FxSoundNode, Malformed,
+};
+use crate::ac2_icon::Ac2IconLayer;
 use crate::ac2_material::{Ac2MaterialInstance, Ac2MaterialModifier, Ac2RenderMaterial};
 use crate::ac2_material_instance::apply_modifier;
 use crate::ac2_visual_desc::{part_group, Ac2AppearanceHash, Ac2PartGroup};
@@ -84,6 +92,23 @@ pub struct Ac2PartGroupAtom {
     pub appearance: Ac2AppearanceHash,
 }
 
+/// One `FXAtom`: the FX ids it answers and their `FXData` (reduced to the particle and sound
+/// views, as the FX tables are).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Ac2FxAtom {
+    /// `m_fx_ids`; the first one orders the atom in its set and decides what it replaces.
+    pub ids: Arc<[u32]>,
+    pub particles: Arc<[Ac2FxParticleNode]>,
+    pub sounds: Arc<[Ac2FxSoundNode]>,
+}
+
+impl Ac2FxAtom {
+    /// `FXAtom::Replaces`: the same first FX id.
+    fn replaces(&self, other: &Self) -> bool {
+        matches!((self.ids.first(), other.ids.first()), (Some(a), Some(b)) if a == b)
+    }
+}
+
 /// The atoms an `AtomCollection` gathers, in application order.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2Atoms {
@@ -91,6 +116,10 @@ pub struct Ac2Atoms {
     pub opacities: Vec<Ac2OpacityAtom>,
     pub meshes: Vec<Ac2MeshAtom>,
     pub part_groups: Vec<Ac2PartGroupAtom>,
+    /// `m_fx`, a `std::set<FXAtom>` ordered by first FX id.
+    pub fx: Vec<Ac2FxAtom>,
+    /// `m_iconModifiers`, in insertion order.
+    pub icons: Vec<Ac2IconLayer>,
 }
 
 /// `AddReplacementOpacityAtom` / `AddReplacementMeshReplacementAtom` /
@@ -156,11 +185,49 @@ impl Ac2Atoms {
                 return false;
             }
         }
-        collection.meshes.iter().all(|atom| {
-            add_replacing(&mut self.meshes, atom, |a, b| {
+        for atom in &collection.meshes {
+            if !add_replacing(&mut self.meshes, atom, |a, b| {
                 a.mesh_type == b.mesh_type && b.priority <= a.priority
+            }) {
+                return false;
+            }
+        }
+        for atom in &collection.fx {
+            self.add_fx(atom);
+        }
+        collection.icons.iter().all(|atom| self.add_icon(atom))
+    }
+
+    /// `AtomCollection::AddReplacementFXAtom`: the first held atom the new one replaces leaves
+    /// the set, then the new atom joins at its place in the set's order (an atom with the same
+    /// first id cannot be there, so the insert is unique). Always answers 1.
+    fn add_fx(&mut self, atom: &Ac2FxAtom) {
+        if let Some(at) = self.fx.iter().position(|held| atom.replaces(held)) {
+            self.fx.remove(at);
+        }
+        // `FXAtom::operator<`: an atom with no ids sorts before everything.
+        let at = self
+            .fx
+            .iter()
+            .position(|held| match (atom.ids.first(), held.ids.first()) {
+                (Some(new), Some(held)) => new < held,
+                _ => true,
             })
-        })
+            .unwrap_or(self.fx.len());
+        self.fx.insert(at, atom.clone());
+    }
+
+    /// `AtomCollection::AddReplacementIconModAtom`: the first held atom the new one replaces is
+    /// removed; an equal atom still held refuses it; otherwise it joins at the end.
+    fn add_icon(&mut self, atom: &Ac2IconLayer) -> bool {
+        if let Some(at) = self.icons.iter().position(|held| atom.replaces(held)) {
+            self.icons.remove(at);
+        }
+        if self.icons.contains(atom) {
+            return false;
+        }
+        self.icons.push(*atom);
+        true
     }
 }
 
@@ -169,6 +236,8 @@ pub(crate) struct Ac2AppearanceTable {
     pub(crate) base: Vec<DataId>,
     /// Appearance key -> (intensity, atoms) collections in stream order.
     pub(crate) atoms: HashMap<u32, Vec<(f32, Ac2Atoms)>>,
+    /// `m_threshCountHash`: appearance key -> the count `InqTsysAppearanceKeyModCount` answers.
+    pub(crate) threshold_counts: HashMap<u32, u32>,
 }
 
 /// `AtomCollection::StreamPack`.
@@ -207,17 +276,42 @@ fn read_collection(cursor: &mut ArchiveCursor<'_>) -> Result<(f32, Ac2Atoms), Ma
             appearance: decoded.appearance,
         });
     }
-    // `STREAMPACK_STL_SET` of `FXAtom`s: their FX ids, then their `FXData`.
+    // `STREAMPACK_STL_SET` of `FXAtom`s: their FX ids, then their `FXData`. The set is rebuilt in
+    // stream order, so each atom goes in at its place in the set's order.
     for _ in 0..fx_count(cursor, 8)? {
-        let ids = fx_count(cursor, 4)?;
-        skip(cursor, ids * 4)?;
+        let ids = (0..fx_count(cursor, 4)?)
+            .map(|_| word(cursor))
+            .collect::<Result<Vec<_>, _>>()?;
+        let mut particles = Vec::new();
+        let mut sounds = Vec::new();
         for _ in 0..fx_count(cursor, 8)? {
-            read_fx_data(cursor)?;
+            let (particle, sound) = read_fx_data(cursor)?;
+            particles.extend(particle);
+            sounds.push(sound);
         }
+        let atom = Ac2FxAtom {
+            ids: Arc::from(ids),
+            particles: Arc::from(particles),
+            sounds: Arc::from(sounds),
+        };
+        let at = atoms
+            .fx
+            .iter()
+            .position(|held| match (atom.ids.first(), held.ids.first()) {
+                (Some(new), Some(held)) => new < held,
+                _ => true,
+            })
+            .unwrap_or(atoms.fx.len());
+        atoms.fx.insert(at, atom);
     }
     // `IconModAtom`s: an `IconLayerDesc` each (layer id, image DID, shift colour).
-    let icons = fx_count(cursor, 12)?;
-    skip(cursor, icons * 12)?;
+    for _ in 0..fx_count(cursor, 12)? {
+        atoms.icons.push(Ac2IconLayer {
+            layer_id: word(cursor)?,
+            image: word(cursor)?,
+            shift_color: word(cursor)?,
+        });
+    }
     Ok((intensity, atoms))
 }
 
@@ -253,11 +347,19 @@ impl ResourcePackedDecode for Ac2AppearanceTable {
             atoms.insert(key, collections);
         }
         let thresholds = (cursor.read_u32()? & 0xFFFF) as usize;
-        cursor.read_bytes(thresholds * 8)?;
+        let mut threshold_counts = HashMap::with_capacity(thresholds);
+        for _ in 0..thresholds {
+            let key = cursor.read_u32()?;
+            threshold_counts.insert(key, cursor.read_u32()?);
+        }
         if cursor.remaining() != 0 {
             return Err(malformed("trailing bytes after AppearanceTable"));
         }
-        Ok(Self { base, atoms })
+        Ok(Self {
+            base,
+            atoms,
+            threshold_counts,
+        })
     }
 
     fn cache_retained_bytes(&self) -> usize {
@@ -272,6 +374,8 @@ impl ResourcePackedDecode for Ac2AppearanceTable {
                         + atoms.opacities.len() * 8
                         + atoms.meshes.len() * 12
                         + atoms.part_groups.len() * 96
+                        + atoms.fx.len() * 64
+                        + atoms.icons.len() * 12
                 })
                 .sum::<usize>()
     }
@@ -476,6 +580,91 @@ fn collect_atoms(
     Ok(())
 }
 
+/// `AppearanceTable::HasAppearanceKey`: the key is in a base table (searched first, in order) or
+/// in this one's own key hash. `None` is a table that does not load (the adaptor's miss).
+pub fn ac2_has_appearance_key(
+    store: &ResourceStore,
+    table: DataId,
+    key: u32,
+) -> ResourceResult<Option<bool>> {
+    let Some(table) = load::<Ac2AppearanceTable>(store, table)? else {
+        return Ok(None);
+    };
+    Ok(Some(has_key(store, &table, key, 0)?))
+}
+
+fn has_key(
+    store: &ResourceStore,
+    table: &Ac2AppearanceTable,
+    key: u32,
+    depth: usize,
+) -> ResourceResult<bool> {
+    if depth <= MAX_BASE_DEPTH {
+        for base in &table.base {
+            if let Some(base) = load::<Ac2AppearanceTable>(store, *base)? {
+                if has_key(store, &base, key, depth + 1)? {
+                    return Ok(true);
+                }
+            }
+        }
+    }
+    Ok(table.atoms.contains_key(&key))
+}
+
+/// `AppearanceTable::InqTsysAppearanceKeyModCount` (through
+/// `AppearanceTableAdaptor::InqTsysAppearanceKeyModCount`): the count the table's own threshold
+/// hash holds for `key` (base tables are not searched). The outer `None` is a table that does
+/// not load.
+pub fn ac2_appearance_key_mod_count(
+    store: &ResourceStore,
+    table: DataId,
+    key: u32,
+) -> ResourceResult<Option<Option<u32>>> {
+    Ok(load::<Ac2AppearanceTable>(store, table)?
+        .map(|table| table.threshold_counts.get(&key).copied()))
+}
+
+/// `AppearanceTable::InqAppearanceKeyModList` (through the adaptor, which first empties the
+/// list): the intensities of the key's atom collections, the base tables' first, each inserted
+/// with `List<float>::insert_sort` (before the first element it is less than, so ascending with
+/// equal values kept in arrival order). `None` is a table that does not load.
+pub fn ac2_appearance_key_mod_list(
+    store: &ResourceStore,
+    table: DataId,
+    key: u32,
+) -> ResourceResult<Option<Vec<f32>>> {
+    let Some(table) = load::<Ac2AppearanceTable>(store, table)? else {
+        return Ok(None);
+    };
+    let mut list = Vec::new();
+    collect_mod_list(store, &table, key, &mut list, 0)?;
+    Ok(Some(list))
+}
+
+fn collect_mod_list(
+    store: &ResourceStore,
+    table: &Ac2AppearanceTable,
+    key: u32,
+    list: &mut Vec<f32>,
+    depth: usize,
+) -> ResourceResult<()> {
+    if depth <= MAX_BASE_DEPTH {
+        for base in &table.base {
+            if let Some(base) = load::<Ac2AppearanceTable>(store, *base)? {
+                collect_mod_list(store, &base, key, list, depth + 1)?;
+            }
+        }
+    }
+    for (intensity, _) in table.atoms.get(&key).into_iter().flatten() {
+        let at = list
+            .iter()
+            .position(|held| *intensity < *held)
+            .unwrap_or(list.len());
+        list.insert(at, *intensity);
+    }
+    Ok(())
+}
+
 /// A `MaterialInstance` resolved with appearance atoms applied: matching atoms
 /// (`m_materialType`, or the any-type `1`) replace the template and append their modifiers
 /// after the instance's own. Other materials resolve as [`crate::load_ac2_material`] does.
@@ -517,4 +706,73 @@ pub fn load_ac2_material_with_atoms(
         }
     }
     Ok(Some(material))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn fx(ids: &[u32]) -> Ac2FxAtom {
+        Ac2FxAtom {
+            ids: Arc::from(ids),
+            particles: Arc::from([]),
+            sounds: Arc::from([]),
+        }
+    }
+
+    #[test]
+    fn an_fx_atom_replaces_the_held_atom_with_the_same_first_id_and_the_set_stays_ordered() {
+        let mut atoms = Ac2Atoms::default();
+        atoms.add_fx(&fx(&[30, 31]));
+        atoms.add_fx(&fx(&[10]));
+        atoms.add_fx(&fx(&[20]));
+        let firsts = |atoms: &Ac2Atoms| atoms.fx.iter().map(|a| a.ids[0]).collect::<Vec<_>>();
+        assert_eq!(firsts(&atoms), [10, 20, 30]);
+        // The same first id replaces the held atom whatever its other ids are.
+        atoms.add_fx(&fx(&[30, 99]));
+        assert_eq!(firsts(&atoms), [10, 20, 30]);
+        assert_eq!(atoms.fx[2].ids.as_ref(), [30, 99]);
+    }
+
+    #[test]
+    fn an_icon_atom_replaces_a_matching_layer_and_an_equal_one_is_not_added_twice() {
+        let layer = |layer_id, image, shift_color| Ac2IconLayer {
+            layer_id,
+            image,
+            shift_color,
+        };
+        let mut atoms = Ac2Atoms::default();
+        assert!(atoms.add_icon(&layer(1, 0x0600_0001, 0)));
+        assert!(atoms.add_icon(&layer(2, 0, 0xFF00_00FF)));
+        // Same layer, still an image and no colour: replaces the first.
+        assert!(atoms.add_icon(&layer(1, 0x0600_0002, 0)));
+        assert_eq!(
+            atoms.icons,
+            [layer(2, 0, 0xFF00_00FF), layer(1, 0x0600_0002, 0)]
+        );
+        // An image-less layer 1 does not replace the imaged one: both are held.
+        assert!(atoms.add_icon(&layer(1, 0, 0xFF)));
+        assert_eq!(atoms.icons.len(), 3);
+        // Replacing then equal: the replaced atom leaves and the new one joins again.
+        assert!(atoms.add_icon(&layer(1, 0x0600_0002, 0)));
+        assert_eq!(atoms.icons.len(), 3);
+    }
+
+    #[test]
+    fn update_merges_fx_and_icon_atoms_after_the_mesh_atoms() {
+        let mut collection = Ac2Atoms::default();
+        collection.fx.push(fx(&[5]));
+        collection.icons.push(Ac2IconLayer {
+            layer_id: 3,
+            image: 0x0600_0003,
+            shift_color: 0,
+        });
+        let mut all = Ac2Atoms::default();
+        assert!(all.update(&collection, 0.5, false));
+        assert_eq!((all.fx.len(), all.icons.len()), (1, 1));
+        // Only the part-group pass leaves them out.
+        let mut groups = Ac2Atoms::default();
+        assert!(groups.update(&collection, 0.5, true));
+        assert_eq!((groups.fx.len(), groups.icons.len()), (0, 0));
+    }
 }

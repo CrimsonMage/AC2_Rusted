@@ -99,11 +99,11 @@ pub enum DataRequest {
     EntityDesc(u32),
     /// A `VisualDesc` record (DB type 0x40000021), its appearance.
     VisualDesc(u32),
+    /// The intensities of an appearance key in an `AppearanceTable` (DB type 0x40000022), base
+    /// tables included (`AppearanceTable::InqAppearanceKeyModList`).
+    AppearanceKeyMods(u32, u32),
     /// The class defaults at a qualities DID (`CBaseQualities::m_defaults`, DB type 0x40000019).
     ClassDefaults(u32),
-    /// An `AppearanceTable` (DB type 0x40000022) and the key whose collections' intensities a
-    /// script asked for (`AppearanceTableAdaptor::InqAppearanceKeyModList`).
-    AppearanceKeyMods(u32, u32),
 }
 
 /// An entity description's properties in stream order (`PropertyCollection` flattened).

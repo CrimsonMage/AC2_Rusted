@@ -144,8 +144,9 @@ impl WeenieQualities {
 }
 
 /// `CBaseQualities::Inq*` (`InqInt`, `InqBool`, ...): the description answers first
-/// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::Inq*` answers only a field that
-/// was set), then the quality's table. Retail then asks `m_defaults` (the class defaults),
+/// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::InqInt`, `InqBool`, `InqFloat`,
+/// `InqDataID`, `InqInstanceID` and `InqStringInfo` answer only a field that was set), then the
+/// quality's table. Retail then asks `m_defaults` (the class defaults),
 /// which the client does not have.
 /// `CBaseQualities::TruncateInt` (Legions 0x00507AE0): a change that wrapped (a decrease
 /// by a positive `modifier` or an increase by a negative one, or no change at all) is pulled
@@ -317,7 +318,9 @@ impl WeenieQualities {
     }
 }
 
-/// `gmWeenieDesc::Remove*` for one field: its mask bit clears with it. A bool keeps its
+/// `gmWeenieDesc::Remove*` for one field (the two-argument `RemoveBool`, `RemoveFloat`,
+/// `RemoveDataID`, `RemoveInstanceID` and `RemoveStringInfo`, like `RemoveInt`): its mask bit
+/// clears with it. A bool keeps its
 /// `_bitfield` flag (the mask bit alone says it is not set).
 fn remove_from_weenie_desc(w: &mut WeenieDesc, quality: u32, kind: DescKind) -> bool {
     fn clear<T>(mask: &mut u32, bit: u32, field: &mut Option<T>) -> bool {

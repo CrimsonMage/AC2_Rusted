@@ -22,7 +22,7 @@ fn hash(group: &PartGroupAppearance) -> ac2_assets::Ac2AppearanceHash {
 }
 
 /// The local description as a delta: its parent, DIDs, scales, global appearance keys and part
-/// groups in join order (FX and icon layers, which do not change what is drawn, are left out).
+/// groups in join order, and its icon layers (its FX are left out: they are not drawn).
 pub fn local_visual_desc(appearance: &Appearance) -> Ac2VisualDesc {
     Ac2VisualDesc {
         parent: did(appearance.parent),
@@ -32,6 +32,17 @@ pub fn local_visual_desc(appearance: &Appearance) -> Ac2VisualDesc {
         scale: Some(Vec3::from_array(appearance.scale)),
         child_scale: Some(appearance.child_scale),
         particle_scale: Some(appearance.particle_scale),
+        icon: ac2_assets::Ac2IconDesc {
+            layers: appearance
+                .icon
+                .iter()
+                .map(|&(layer_id, image, shift_color)| ac2_assets::Ac2IconLayer {
+                    layer_id,
+                    image,
+                    shift_color,
+                })
+                .collect(),
+        },
         part_groups: appearance
             .part_groups
             .iter()
