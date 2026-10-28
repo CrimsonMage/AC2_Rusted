@@ -7,8 +7,10 @@
 
 use ac2_net::protocol::ObjectAction;
 
+use super::port::ScriptPort;
 use super::{DispatchOutcome, ScriptHost};
 use crate::vm::{tag, Fault};
+use ac2_weenie::SessionEvent;
 
 /// `gCWPhysicsObject::CallEFun_DoMode` (the efun the context waits in, `m_efun` 0x800015).
 pub(super) const DO_MODE: u32 = 0x0080_0015;
@@ -52,4 +54,37 @@ impl ScriptHost {
         };
         Some(self.finish(id, ctx, status))
     }
+}
+
+/// Starts the modes and behaviours the scripts made latent. The body takes each with its context
+/// through [`ScriptPort::start_latent`]; one it refuses (an error comes back at once), and one on
+/// an object without a body, finishes at once and resumes the script ([`resume`]).
+pub fn start_all<P: ScriptPort + ?Sized>(
+    port: &mut P,
+    starts: Vec<LatentPhysics>,
+    out: &mut Vec<SessionEvent>,
+) {
+    for start in starts {
+        if let Some(error) = port.start_latent(&start) {
+            resume(port, start.object, start.context, error, out);
+        }
+    }
+}
+
+/// `Resume_DoMode` / `Resume_DoBehavior`: the script's context takes `error` and runs on, its
+/// output routed as a call of the VM (`outcome`).
+pub fn resume<P: ScriptPort + ?Sized>(
+    port: &mut P,
+    object: u64,
+    context: u32,
+    error: u32,
+    out: &mut Vec<SessionEvent>,
+) {
+    let Some(scripts) = port.script_state() else {
+        return;
+    };
+    let Some(outcome) = scripts.host.resume_latent(object, context, error) else {
+        return;
+    };
+    super::outcome::outcome(port, object, None, Ok(outcome), out);
 }

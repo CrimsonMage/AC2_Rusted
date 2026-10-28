@@ -11,10 +11,8 @@
 //! too (its state follows the server's) but what it produces is set aside, so nothing is sent
 //! or shown twice. UI commands still go to the stand-ins.
 
-use std::collections::{BTreeMap, BTreeSet};
-
 use ac2_net::protocol::{unpack_values, PackValue};
-use ac2_script::host::{ChatServices, IFunArg, ScriptHost, ScriptNotice};
+use ac2_script::host::{ChatServices, IFunArg, ScriptHost, ScriptState};
 use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
@@ -204,43 +202,6 @@ pub const SCRIPT_VM_FUNCTIONS: &[u32] = &[
 
 pub use ac2_script::host::ifun_ids::*;
 
-/// The script VM and the objects waiting for their process.
-pub(crate) struct Scripts {
-    pub(crate) host: ScriptHost,
-    /// Objects whose WState is being read, and the script calls that arrived meanwhile
-    /// (`CObjectMaint::GetObjectOrQueueEvent` keeps an object's events until it exists).
-    pub(crate) waiting: BTreeMap<u64, Vec<(u32, Vec<u8>)>>,
-    /// Objects with a process.
-    pub(crate) running: BTreeSet<u64>,
-    /// What the boundary dropped and dispatches that failed, for diagnostics.
-    pub(crate) problems: Vec<String>,
-    /// The server calls and UI IFuns handed to the VM.
-    pub(crate) owned: BTreeSet<u32>,
-    /// Events produced between frames (a process started on a loader result), for the next
-    /// frame's events.
-    pub(crate) produced: Vec<SessionEvent>,
-    /// Contexts stopped for data the loader is reading: context id -> (object, the call it
-    /// runs; `None` for a UI IFun, always the VM's).
-    pub(crate) data_waits: BTreeMap<u32, (u64, Option<u32>)>,
-    /// Script data reads handed to the loader and not back yet.
-    pub(crate) data_pending: usize,
-    /// Objects whose process could not start for a WState the loader is reading, with the
-    /// package and entity DID to ask again with once those reads are answered.
-    pub(crate) state_retries: BTreeMap<u64, (u32, u32)>,
-    /// A read of the current batch the world did not answer (`load_script_data` gave `false`):
-    /// nothing waiting on the batch resumes, since the reads would only be asked again.
-    pub(crate) data_unanswered: bool,
-    /// The `CM_*` notices ac2-weenie has no type for, since the last take.
-    pub(crate) script_notices: Vec<ScriptNotice>,
-    /// GUN requests for the GUN service ([`Client::set_gun_service`]).
-    pub(crate) gun_requests: Vec<ac2_script::host::ChatRequest>,
-    /// Whether the client has a GUN service (`Client::set_gun_service`); the UI's requests are
-    /// queued only with one.
-    pub(crate) gun_service: bool,
-    /// The objects whose physics objects the scripts set no-draw (`SetNoDrawPhysics`).
-    pub(crate) no_draw: BTreeSet<u64>,
-}
-
 impl Client {
     /// Runs the weenies' scripts on `host` from now on, the server calls in `functions`
     /// handed over from the session's stand-ins (`OnlineSession::set_script_functions`). Build
@@ -261,22 +222,7 @@ impl Client {
             turbine_chat: true,
             gun: false,
         });
-        self.scripts = Some(Scripts {
-            host,
-            waiting: BTreeMap::new(),
-            running: BTreeSet::new(),
-            problems: Vec::new(),
-            owned: functions.iter().copied().collect(),
-            produced: Vec::new(),
-            data_waits: BTreeMap::new(),
-            data_pending: 0,
-            state_retries: BTreeMap::new(),
-            data_unanswered: false,
-            script_notices: Vec::new(),
-            gun_requests: Vec::new(),
-            gun_service: false,
-            no_draw: BTreeSet::new(),
-        });
+        self.scripts = Some(ScriptState::new(host, functions));
         // Objects already known get their processes too.
         let known: Vec<u64> = self.session.objects().iter().map(|o| o.id).collect();
         for id in known {

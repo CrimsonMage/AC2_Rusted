@@ -164,7 +164,7 @@ pub struct Client {
     /// The physics objects of everything but the player.
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
-    pub(crate) scripts: Option<crate::scripts::Scripts>,
+    pub(crate) scripts: Option<ac2_script::host::ScriptState>,
     pub(crate) audio: Option<crate::client_audio::ClientAudio>,
     /// The FX-made objects, colours and hides (`FXManager`'s object parts); no sound device needed.
     pub(crate) fx_objects: ac2_smartbox::fx_objects::FxObjects,

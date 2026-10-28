@@ -4,14 +4,12 @@
 //! stopped for, handed to the loader threads. Also the UI's entries into the VM: IFun calls
 //! (`ggmCWInterface::CallIFun_*`) and the skill panels (`gSkillPanelManager`).
 
-use ac2_net::protocol::pack_values;
 use ac2_script::host::{
     ChatRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptNotice, SkillPanelData,
 };
 use ac2_weenie::SessionEvent;
 
 use crate::client::Client;
-use crate::loader::Request;
 
 impl Client {
     /// The end of one dispatch, resume or IFun: problems noted, a call that stopped for data
@@ -24,106 +22,7 @@ impl Client {
         result: Result<DispatchOutcome, String>,
         out: &mut Vec<SessionEvent>,
     ) {
-        // The physics changes the scripts made (`gCWPhysicsObject` scale and FX efuns) reach the
-        // bodies whatever became of the call.
-        let physics = self
-            .scripts
-            .as_mut()
-            .map(|scripts| scripts.host.take_physics())
-            .unwrap_or_default();
-        for (object, action) in physics {
-            self.apply_script_physics(object, &action);
-        }
-        // `gCWPhysicsObject::CallEFun_SetCollisionState` (the impact minimums).
-        let minimums = self
-            .scripts
-            .as_mut()
-            .map(|scripts| scripts.host.take_collision_minimums())
-            .unwrap_or_default();
-        for (object, xy, z) in minimums {
-            self.apply_collision_minimums(object, xy, z);
-        }
-        // The same call's ethereal and physics-type sets (`CCollisionManager::SetCollisionState`).
-        let sets = self
-            .scripts
-            .as_mut()
-            .map(|scripts| scripts.host.take_collision_sets())
-            .unwrap_or_default();
-        for (object, sets) in sets {
-            self.apply_collision_sets(object, &sets);
-        }
-        let latent = self
-            .scripts
-            .as_mut()
-            .map(|scripts| scripts.host.take_latent_physics())
-            .unwrap_or_default();
-        self.start_latent_physics(latent, out);
-        let owned = function.is_none_or(|f| !self.session.stand_in_handles(f));
-        let Some(scripts) = self.scripts.as_mut() else {
-            return;
-        };
-        let call = function.map_or("IFun".to_owned(), |f| format!("{f:#010x}"));
-        match result {
-            Err(error) => scripts.problems.push(format!("{id:#018x} {call}: {error}")),
-            Ok(outcome) if outcome.fault.is_some() => scripts.problems.push(format!(
-                "{id:#018x} {call}: {:?} {:?}",
-                outcome.status, outcome.fault
-            )),
-            // A context stopped for a DAT read runs again when the read lands; one stopped for
-            // a question (`PopupYesNoDialog`) waits for its answer.
-            Ok(outcome) if outcome.data_wait => {
-                scripts.data_waits.insert(outcome.context, (id, function));
-            }
-            Ok(_) => {}
-        }
-        let lines = scripts.host.take_shell_lines();
-        for (object, flag) in scripts.host.take_no_draw() {
-            if flag {
-                scripts.no_draw.insert(object);
-            } else {
-                scripts.no_draw.remove(&object);
-            }
-        }
-        let calls = scripts.host.take_server_calls();
-        let notices = scripts.host.take_notices();
-        let script_notices = scripts.host.take_script_notices();
-        let chat = scripts.host.take_chat_requests();
-        let dropped = scripts.host.take_dropped();
-        scripts.problems.extend(dropped);
-        let reads = scripts.host.take_data_requests();
-        scripts.data_pending += reads.len();
-        for read in reads {
-            self.loader.request(Request::ScriptData(read));
-        }
-        if !owned {
-            return;
-        }
-        // The lines the scripts entered for the chat shell (`CWInterface::ProcessText`), in order.
-        for line in lines {
-            out.extend(self.session.process_text(&line));
-        }
-        for call in calls {
-            self.session
-                .send_interp(call.function, pack_values(&call.args), call.encrypt);
-        }
-        for request in chat {
-            match request {
-                ChatRequest::SendToRoom { room, text, flags } => {
-                    self.session.send_to_room(room, &text, flags);
-                }
-                // The GUN service's (friends, ignore list, presence): only queued once
-                // `set_gun_service(true)` says the client has one.
-                other => {
-                    if let Some(scripts) = self.scripts.as_mut() {
-                        scripts.gun_requests.push(other);
-                    }
-                }
-            }
-        }
-        out.extend(notices.into_iter().map(SessionEvent::Notice));
-        if let Some(scripts) = self.scripts.as_mut() {
-            scripts.script_notices.extend(script_notices);
-        }
+        ac2_script::host::outcome::outcome(self, id, function, result, out);
     }
 
     /// `ggmCWInterface::Resume_PopupYesNoDialog`: the player's answer to a script's question

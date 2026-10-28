@@ -14,9 +14,10 @@ pub mod ifun_ids;
 mod interface;
 mod inventory_globals;
 pub mod item_queries;
-mod latent;
+pub mod latent;
 mod notices;
 mod notices_typed;
+pub mod outcome;
 mod popup;
 pub mod port;
 pub mod queries;
@@ -42,6 +43,7 @@ pub use gun::{ChatRequest, ChatServices};
 pub use ifun::{IFunArg, IFunResult, IFunReturn, OutValue};
 pub use latent::LatentPhysics;
 pub use notices::{notice_names, NoticeArg, ScriptNotice};
+pub use outcome::ScriptState;
 pub use skill_panel::SkillPanelData;
 
 /// A script call for the server (`ECM_Interp::SendEvt_InterpSEvent[Encrypt]`).

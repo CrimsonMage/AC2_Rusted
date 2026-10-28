@@ -3,12 +3,19 @@
 //! written against its [`ScriptPort`]; the client answers that port here and keeps these
 //! delegates for its callers.
 
+use ac2_net::protocol::ObjectAction;
 use ac2_net::protocol::{EffectUiNode, GameplayOptionsProfile, ShortcutInfo};
+use ac2_physics::CollisionParameters;
 use ac2_script::host::item_queries::{ItemDisplay, ItemLook, ItemQueries};
 use ac2_script::host::port::ScriptPort;
 use ac2_script::host::queries::ScriptQueries;
-use ac2_script::host::{DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptHost};
+use ac2_script::host::LatentPhysics;
+use ac2_script::host::{
+    DataRequest, DispatchOutcome, IFunArg, IFunResult, IFunReturn, ScriptHost, ScriptState,
+};
 use ac2_weenie::SessionEvent;
+
+use crate::loader::Request;
 
 pub use ac2_script::host::queries::{
     ifun, ChatSettings, ShortcutDisplay, ShortcutSettings, SkillLevel, SkillTime,
@@ -32,7 +39,47 @@ impl ScriptPort for Client {
         result: Result<DispatchOutcome, String>,
         out: &mut Vec<SessionEvent>,
     ) {
-        self.script_outcome(id, function, result, out);
+        ac2_script::host::outcome::outcome(self, id, function, result, out);
+    }
+
+    fn script_state(&mut self) -> Option<&mut ScriptState> {
+        self.scripts.as_mut()
+    }
+
+    fn stand_in_handles(&self, function: u32) -> bool {
+        self.session.stand_in_handles(function)
+    }
+
+    fn apply_script_physics(&mut self, object: u64, action: &ObjectAction) {
+        Client::apply_script_physics(self, object, action);
+    }
+
+    fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32) {
+        Client::apply_collision_minimums(self, object, xy, z);
+    }
+
+    fn apply_collision_sets(&mut self, object: u64, sets: &CollisionParameters) {
+        Client::apply_collision_sets(self, object, sets);
+    }
+
+    fn start_latent(&mut self, start: &LatentPhysics) -> Option<u32> {
+        self.start_latent_on_body(start)
+    }
+
+    fn process_text(&mut self, line: &str) -> Vec<SessionEvent> {
+        self.session.process_text(line)
+    }
+
+    fn send_interp(&mut self, function: u32, arguments: Vec<u8>, encrypt: bool) {
+        self.session.send_interp(function, arguments, encrypt);
+    }
+
+    fn send_to_room(&mut self, room: u32, text: &str, flags: u32) {
+        self.session.send_to_room(room, text, flags);
+    }
+
+    fn request_script_data(&mut self, read: DataRequest) {
+        self.loader.request(Request::ScriptData(read));
     }
 
     fn push_produced(&mut self, events: Vec<SessionEvent>) {
