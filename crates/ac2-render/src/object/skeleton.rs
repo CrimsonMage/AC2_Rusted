@@ -205,6 +205,9 @@ pub struct SkeletonGroup {
     bone_names: Vec<u32>,
     /// `m_boneTransforms` after `SetPlacementFrameID(0)`.
     placement: Vec<Ac2Transform>,
+    /// The other placement frames (`CharacterSetup::GetPlacementFrame(id)`), by id, each padded to
+    /// the group's bone count.
+    frames: Vec<(u32, Vec<Ac2Transform>)>,
     /// `CharacterSetup::rest_matrix` when a part carries matrix weights; `None` for a rigid group.
     rest: Option<Vec<Matrix4>>,
     /// Parent group, the parent bone (`m_parentBoneIndex`, `None` past the parent's bones) and
@@ -230,6 +233,23 @@ impl SkeletonGroup {
                     .unwrap_or(Ac2Transform::IDENTITY)
             })
             .collect();
+        let frames = setup
+            .placements
+            .iter()
+            .filter(|frame| frame.kind != DEFAULT_PLACEMENT)
+            .map(|frame| {
+                let bones = (0..bones)
+                    .map(|index| {
+                        frame
+                            .bones
+                            .get(index)
+                            .copied()
+                            .unwrap_or(Ac2Transform::IDENTITY)
+                    })
+                    .collect();
+                (frame.kind, bones)
+            })
+            .collect();
         let attachment = parent.map(|(group, parent_setup, connection)| {
             // `CPartGroup::SetParentOffset` takes the parent Setup's connection point only when
             // its bone exists; otherwise the child keeps an identity offset.
@@ -247,9 +267,19 @@ impl SkeletonGroup {
             parents: setup.bones.iter().map(|bone| bone.parent).collect(),
             bone_names: setup.bones.iter().map(|bone| bone.name).collect(),
             placement,
+            frames,
             rest: weighted.then(|| rest_matrices(setup)).flatten(),
             attachment,
         }
+    }
+
+    /// `CPartGroup::SetPlacementFrameID(id)` on this group: the bones of placement frame `id`, or of
+    /// frame 0 when the Setup has no frame `id` (`CPartArray::SetPlacementFrameID` falls back to 0).
+    fn placed(&self, id: u32) -> &[Ac2Transform] {
+        self.frames
+            .iter()
+            .find(|(kind, _)| *kind == id)
+            .map_or(&self.placement[..], |(_, bones)| &bones[..])
     }
 
     /// Whether the group's parts blend by deform matrices (`m_state & 0x40000000`).
@@ -389,12 +419,21 @@ impl ObjectSkeleton {
     /// the transforms `pose` builds them from: each bone's parent-relative local composed up its
     /// chain. `root` is taken as `pose` takes it.
     pub fn root_bones(&self, root: Option<&[Ac2Transform]>) -> Vec<Ac2Transform> {
+        self.root_bones_placed(root, DEFAULT_PLACEMENT)
+    }
+
+    /// [`Self::root_bones`] with the root group at placement frame `placement`.
+    pub fn root_bones_placed(
+        &self,
+        root: Option<&[Ac2Transform]>,
+        placement: u32,
+    ) -> Vec<Ac2Transform> {
         let Some(group) = self.groups.first() else {
             return Vec::new();
         };
         let locals = match root {
             Some(root) if root.len() == group.bone_count() => root,
-            _ => &group.placement[..],
+            _ => group.placed(placement),
         };
         let mut model: Vec<Ac2Transform> = Vec::with_capacity(locals.len());
         for (index, local) in locals.iter().enumerate() {
@@ -416,11 +455,17 @@ impl ObjectSkeleton {
     /// `root` of the wrong length is ignored. `CPartGroup::UpdateBones` then `RefreshMatrices`
     /// from the identity (`CheckRefreshMatrices`).
     pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Vec<GroupPose> {
+        self.pose_placed(root, DEFAULT_PLACEMENT)
+    }
+
+    /// [`Self::pose`] with every group at placement frame `placement` (`CPartGroup::SetPlacementFrameID`
+    /// over the whole tree) where the root has no animation.
+    pub fn pose_placed(&self, root: Option<&[Ac2Transform]>, placement: u32) -> Vec<GroupPose> {
         let mut poses: Vec<GroupPose> = Vec::with_capacity(self.groups.len());
         for (index, group) in self.groups.iter().enumerate() {
             let locals = match root {
                 Some(root) if index == 0 && root.len() == group.bone_count() => root,
-                _ => &group.placement[..],
+                _ => group.placed(placement),
             };
             let mut pose = group.update_bones(locals);
             pose.matrix = match group.attachment {
@@ -485,7 +530,7 @@ pub fn blend_vertex(
 mod tests {
     use std::sync::Arc;
 
-    use ac2_anim::Ac2Bone;
+    use ac2_anim::{Ac2Bone, Ac2PlacementFrame};
     use ac2_math::{Quat, Vec3};
 
     use super::*;
@@ -536,5 +581,40 @@ mod tests {
         }
         // The child sits at the root's rotated (0, 4, 0): (-4, 0, 0) after a quarter turn about z.
         assert!(bones[1].offset.distance(Vec3::new(-3.0, 2.0, 3.0)) < 1e-4);
+    }
+
+    fn frame(kind: u32, x: f32) -> Ac2PlacementFrame {
+        Ac2PlacementFrame {
+            kind,
+            bones: Arc::from(vec![Ac2Transform {
+                offset: Vec3::new(x, 0.0, 0.0),
+                scale: Vec3::ONE,
+                rotation: Quat::IDENTITY,
+            }]),
+        }
+    }
+
+    /// `CPartArray::SetPlacementFrameID`: a held object's placement frame poses the rest bones
+    /// (no animation), a frame the Setup lacks falls back to frame 0.
+    #[test]
+    fn a_placement_frame_poses_the_rest_bones_and_a_missing_one_falls_back_to_frame_0() {
+        let setup = Ac2Setup {
+            meshes: Arc::from(Vec::new()),
+            bones: Arc::from(vec![bone(None)]),
+            placements: Arc::from(vec![frame(0, 1.0), frame(5, 7.0)]),
+            holding_points: Arc::from(Vec::new()),
+            connection_points: Arc::from(Vec::new()),
+            bounds_min: Vec3::ZERO,
+            bounds_max: Vec3::ZERO,
+        };
+        let skeleton = ObjectSkeleton {
+            groups: vec![SkeletonGroup::new(DataId::new(1), &setup, false, None)],
+        };
+        let x = |id: u32| skeleton.root_bones_placed(None, id)[0].offset.x;
+        assert_eq!(x(0), 1.0);
+        assert_eq!(x(5), 7.0);
+        assert_eq!(x(9), 1.0, "a frame the Setup lacks is frame 0");
+        let posed = skeleton.pose_placed(None, 5);
+        assert!((posed[0].bones[0][12] - 7.0).abs() < 1e-5);
     }
 }

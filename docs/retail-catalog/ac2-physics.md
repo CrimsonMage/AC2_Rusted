@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 498 done, 111 partial, 738 to do, 777 skipped.
+2124 retail functions: 501 done, 110 partial, 736 to do, 777 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (22/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (23/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -1996,7 +1996,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::SetAnimMapID` · 004ee050 · legions 004e09c0 — render plumbing
 - [x] `CPartArray::UpdateBones` · 004ee0c0 · legions 004e0a20 — ac2-render object/skeleton.rs (render-side bones)
 - [ ] `CPartArray::SetBoundingObject` · 004ee1e0 · legions 004e0b40 — needs port: cite-only physics-object method
-- [~] `CPartArray::SetPlacementFrameID` · 004ee200 · legions 004e0b60 — ac2-render skeleton: placement frame 0 only
+- [x] `CPartArray::SetPlacementFrameID` · 004ee200 · legions 004e0b60 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 - [-] `CPartArray::InitParts` · 004ee2b0 · legions 004e0c10 — render plumbing
 - [-] `CPartArray::DestroyParts` · 004ee380 · legions 004e0ce0 — render plumbing
 - [~] `CPartArray::InitBones` · 004ee3e0 · legions 004e0d40 — ac2-render skeleton: placement frame 0 only
@@ -2074,7 +2074,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPartArray::~CPartArray` · 004f0d40 · legions 004e3670 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `CPartArray::DoAnimation` · 004f0de0 · legions 004e3710 — impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
 
-## `portal/shared/src/physobj/partgroup.cpp.c` (13/44)
+## `portal/shared/src/physobj/partgroup.cpp.c` (14/44)
 
 ### CPartGroup
 - [ ] `CPartGroup::InitSetup` · 004f45e0 · legions 004e6e00 — needs port: cite-only physics-object method
@@ -2098,7 +2098,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPartGroup::TraceRay` · 004f4d20 · legions 004e7540 — needs port: cite-only physics-object method
 - [-] `CPartGroup::Draw` · 004f4e20 · legions 004e7640 — render plumbing
 - [x] `CPartGroup::RefreshMatrices` · 004f4f10 · legions 004e7730 — ac2-render object/skeleton.rs (render-side bones)
-- [ ] `CPartGroup::SetPlacementFrameID` · 004f4fc0 · legions 004e77e0 — needs port: cite-only physics-object method
+- [x] `CPartGroup::SetPlacementFrameID` · 004f4fc0 · legions 004e77e0 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 - [-] `CPartGroup::BuildRenderBoundingBox` · 004f5020 · legions 004e7840 — render plumbing
 - [-] `CPartGroup::BuildDefaultRenderBoundingBox` · 004f5070 · legions 004e7890 — render plumbing
 - [ ] `CPartGroup::CacheHasPhysicsBSP` · 004f50c0 · legions 004e78e0 — needs port: cite-only physics-object method
@@ -2550,7 +2550,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::GetScaledRenderBoundingBox` · 004e5660 — render plumbing
 - [x] `CPhysicsObj::JumpLogic` · 004e56e0 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 - [~] `CPhysicsObj::GetHeightAboveWalkable` · 004e5780 — vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
+- [~] `CPhysicsObj::UpdateChild` · 004e5980 · legions 004d83d0 — held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place), and their parts take the holder's orientation as the placement frame (SetPlacementFrame, pose_placed); m_offset is identity for held children (set_parent passes a zero offset); child part-group holding points and nested holders are not yet applied
 - [~] `CPhysicsObj::handle_all_collisions` · 004e5d10 · legions 004d8760 — environment response only; object collisions and the collision manager not ported
 - [~] `CPhysicsObj::CheckRayIntersect` · 004e60f0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 - [ ] `CPhysicsObj::SetVisualDesc` · 004e6650 · legions 004d90a0 — needs port: cite-only physics-object method
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (48/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (49/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2847,7 +2847,7 @@ Legend and workflow: [README](README.md).
 - [ ] `PHYSICSOBJREP::SetCellID` · 004f1f50 — needs port: cite-only physics-object method
 - [ ] `PHYSICSOBJREP::GetEffectsScale` · 004f1f60 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetVdescScale` · 004f1f90 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-- [ ] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 - [~] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [x] `PHYSICSOBJREP::StartStreakInternal` · 004f20f0 · legions 004e49f0 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `PHYSICSOBJREP::StopStreakInternal` · 004f2100 · legions 004e4a00 — ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass

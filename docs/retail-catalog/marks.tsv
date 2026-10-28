@@ -4776,7 +4776,7 @@ key	status	note
 004e5660	-	render plumbing
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	vertical distance to the terrain polygon instead of CObjCell::LOSCheck
-004e5980	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place); child part-group holding points, the child's placement frame (SetPlacementFrame) and m_offset are not applied
+004e5980	~	held objects (Holder.point from the holder's root Setup holding points, world_data::load_holding_locations) are placed each frame at the holder's posed root bone times the location transform, scaled by the holder's scale (view/held.rs follow_holders, held_place), and their parts take the holder's orientation as the placement frame (SetPlacementFrame, pose_placed); m_offset is identity for held children (set_parent passes a zero offset); child part-group holding points and nested holders are not yet applied
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e60f0	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e6650	_	needs port: cite-only physics-object method
@@ -4981,7 +4981,7 @@ key	status	note
 004ee050	-	render plumbing
 004ee0c0	x	ac2-render object/skeleton.rs (render-side bones)
 004ee1e0	_	needs port: cite-only physics-object method
-004ee200	~	ac2-render skeleton: placement frame 0 only
+004ee200	x	ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 004ee2b0	-	render plumbing
 004ee380	-	render plumbing
 004ee3e0	~	ac2-render skeleton: placement frame 0 only
@@ -5148,7 +5148,7 @@ key	status	note
 004f1f50	_	needs port: cite-only physics-object method
 004f1f60	_	needs port: cite-only physics-object method
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
-004f1fb0	_	needs port: cite-only physics-object method
+004f1fb0	x	ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 004f1fe0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f20f0	x	ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f2100	x	ac2-client fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
@@ -5240,7 +5240,7 @@ key	status	note
 004f4d20	_	needs port: cite-only physics-object method
 004f4e20	-	render plumbing
 004f4f10	x	ac2-render object/skeleton.rs (render-side bones)
-004f4fc0	_	needs port: cite-only physics-object method
+004f4fc0	x	ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
 004f5020	-	render plumbing
 004f5070	-	render plumbing
 004f50c0	_	needs port: cite-only physics-object method

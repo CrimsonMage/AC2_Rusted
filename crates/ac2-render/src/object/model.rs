@@ -191,7 +191,14 @@ pub struct PoseRig {
 impl PoseRig {
     /// [`ObjectModel::pose`].
     pub fn pose(&self, root: Option<&[Ac2Transform]>) -> Option<ObjectPose> {
-        let groups = self.skeleton.pose(root);
+        self.pose_placed(root, 0)
+    }
+
+    /// [`Self::pose`] with every group at placement frame `placement` where the root has no
+    /// animation (`CPartGroup::SetPlacementFrameID`; a held object takes its holder's
+    /// `orientation_id` here).
+    pub fn pose_placed(&self, root: Option<&[Ac2Transform]>, placement: u32) -> Option<ObjectPose> {
+        let groups = self.skeleton.pose_placed(root, placement);
         let mut palette = Vec::new();
         let mut starts = Vec::with_capacity(groups.len());
         for group in &groups {
@@ -211,7 +218,7 @@ impl PoseRig {
                 (pose.part_matrix(index), starts[group].filter(|_| skinned))
             })
             .unzip();
-        let bones = self.skeleton.root_bones(root);
+        let bones = self.skeleton.root_bones_placed(root, placement);
         let named_bones = self.skeleton.named_bones(&groups, &bones);
         Some(ObjectPose {
             parts,

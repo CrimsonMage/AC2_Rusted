@@ -59,6 +59,9 @@ struct Drawn<'a> {
     /// The holder's id and the holding location the object hangs from: it is placed there each
     /// frame (`CPhysicsObj::UpdateChild`).
     held: Option<(u64, HoldPoint)>,
+    /// The placement frame a held object's parts take (`PHYSICSOBJREP::SetPlacementFrame` from the
+    /// holder's `orientation_id`); `None` for an object that is not held.
+    placement: Option<u32>,
 }
 
 /// The view's state.
@@ -115,6 +118,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
             follow: None,
             held: None,
+            placement: None,
         })
     });
     let others = frame
@@ -145,6 +149,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                 ),
                 follow: o.fx_follow,
                 held: o.holder.and_then(|holder| Some((holder.id, holder.point?))),
+                placement: o.holder.and_then(|holder| holder.orientation),
             })
         });
     player.chain(others).collect()
@@ -336,7 +341,8 @@ impl ClientView {
         let (rig, scale) = self.scene.object_rig(key)?;
         let world = world_matrix(*scale, at);
         let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
-        let pose = rig.pose((!bones.is_empty()).then_some(bones.as_slice()));
+        let placement = drawn.placement.unwrap_or(0);
+        let pose = rig.pose_placed((!bones.is_empty()).then_some(bones.as_slice()), placement);
         Some((key, world, pose))
     }
 
