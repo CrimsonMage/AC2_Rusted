@@ -11,7 +11,9 @@ use crate::color::Rgba;
 mod ac2_region;
 #[path = "region_environment.rs"]
 mod environment;
-pub use ac2_region::{ac2_region_detail_map_table, ac2_region_game_map, ac2_region_sound_desc};
+pub use ac2_region::{
+    ac2_region_detail_map_table, ac2_region_game_map, ac2_region_info, ac2_region_sound_desc,
+};
 #[path = "region/detail_map.rs"]
 mod detail_map;
 #[cfg(test)]
@@ -24,6 +26,26 @@ pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
 pub use detail_map::{
     ac2_detail_map, ac2_map_note_desc, DetailMap, DetailMapRow, MapNoteDesc, MapNoteRow,
 };
+#[cfg(test)]
+#[path = "region/descs_real_tests.rs"]
+mod descs_real_tests;
+#[path = "region/encounter_desc.rs"]
+mod encounter_desc;
+#[path = "region/fog_desc.rs"]
+mod fog_desc;
+#[path = "region/property_desc.rs"]
+mod property_desc;
+pub use encounter_desc::{EncounterDesc, EncounterElem, EncounterExcept, EncounterRow};
+pub use fog_desc::{
+    FogCombine, FogCombineType, FogDesc, FogInfo, FogType, LightColors, LightFogInfo,
+};
+pub use property_desc::{
+    color_corner_interp, float_corner_interp, integer_corner_interp, vector_corner_interp,
+    BlockProperty, PropertyDesc,
+};
+#[path = "region/info_lists.rs"]
+mod info_lists;
+pub use info_lists::{DidLookup, InfoList, RegionInfo};
 #[path = "region/day_desc.rs"]
 mod day_desc;
 #[path = "region/game_time.rs"]
@@ -32,7 +54,7 @@ mod game_time;
 mod sky_objects;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc, SkyRain};
 use game_time::GameTime;
-pub use game_time::{GameClock, GameDateTime};
+pub use game_time::{GameClock, GameDateTime, TimeStampCalendar};
 pub use sky_objects::CelestialPosition;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -65,6 +87,23 @@ impl RegionDesc {
 
     pub fn sky_lighting(&self) -> Option<&SkyLightingDesc> {
         self.sky.as_ref()?.default_lighting()
+    }
+
+    /// `CSkyDesc::GetTickSize(quality)` of the region's sky.
+    pub fn sky_tick_size(&self, quality: f32) -> Option<f64> {
+        Some(tick_size(self.sky.as_ref()?.tick_sizes, quality))
+    }
+
+    /// `CSkyDesc::GetLightTickSize(quality)` of the region's sky.
+    pub fn sky_light_tick_size(&self, quality: f32) -> Option<f64> {
+        Some(tick_size(self.sky.as_ref()?.light_tick_sizes, quality))
+    }
+
+    /// `CSkyDesc::GetDayByIndex`: the data id of the sky's day at `index`, 0 past the end.
+    pub fn sky_day_by_index(&self, index: usize) -> Option<u32> {
+        let sky = self.sky.as_ref()?;
+        let day = sky.day_groups.get(index)?;
+        u32::from_str_radix(&day.name, 16).ok()
     }
 
     /// The authored sky and light update deadlines.
@@ -219,10 +258,28 @@ impl SkyLightingDesc {
 }
 
 /// `CSkyDesc`: update cadence and the authored days with their frequencies.
+/// The quality `WorldRender::UpdateTimeOfDay` passes `CSkyDesc::GetTickSize` and
+/// `GetLightTickSize`.
+const WORLD_RENDER_TICK_QUALITY: f32 = 0.5;
+
+/// `CSkyDesc::GetTickSize` / `GetLightTickSize`: below 0 the minimum, at 1 and over the maximum,
+/// between them the maximum less the span scaled by the quality.
+pub(crate) fn tick_size((min, max): (f64, f64), quality: f32) -> f64 {
+    if quality < 0.0 {
+        min
+    } else if quality < 1.0 {
+        max - (max - min) * f64::from(quality)
+    } else {
+        max
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 struct SkyDesc {
-    tick_size: f64,
-    light_tick_size: f64,
+    /// `CSkyDesc::min_tick_size` and `max_tick_size`.
+    tick_sizes: (f64, f64),
+    /// `CSkyDesc::min_light_tick_size` and `max_light_tick_size`.
+    light_tick_sizes: (f64, f64),
     day_groups: Arc<[DayGroup]>,
     day_frequencies: Arc<[f32]>,
 }
@@ -233,7 +290,10 @@ impl SkyDesc {
     }
 
     fn environment_cadence(&self) -> SkyEnvironmentCadence {
-        SkyEnvironmentCadence::new(self.tick_size, self.light_tick_size)
+        SkyEnvironmentCadence::new(
+            tick_size(self.tick_sizes, WORLD_RENDER_TICK_QUALITY),
+            tick_size(self.light_tick_sizes, WORLD_RENDER_TICK_QUALITY),
+        )
     }
 
     fn default_lighting(&self) -> Option<&SkyLightingDesc> {

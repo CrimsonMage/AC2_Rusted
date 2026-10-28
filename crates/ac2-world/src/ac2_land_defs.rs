@@ -43,18 +43,10 @@ impl Ac2LandDefs {
         self.subdivisions_per_cell
     }
 
-    /// (offset, mask) of cell-info field `index` (0 terrain .. 5 replace).
-    pub(crate) fn cell_info_field(&self, index: usize) -> (u32, u32) {
-        let offset = self.cell_info_bits[..index].iter().sum::<u32>();
-        let bits = self.cell_info_bits[index];
-        (
-            offset,
-            if bits >= 32 {
-                u32::MAX
-            } else {
-                (1 << bits) - 1
-            },
-        )
+    /// `LandDefs::set_bitlengths` of this record: the cell-info word layout.
+    pub(crate) fn cell_info_layout(&self) -> crate::cell_info::CellInfoLayout {
+        crate::cell_info::CellInfoLayout::new(self.cell_info_bits)
+            .expect("the decoder refuses widths past 32 bits")
     }
 
     pub(crate) fn height_table(&self) -> &[f32] {

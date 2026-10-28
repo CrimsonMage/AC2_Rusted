@@ -27,11 +27,14 @@ mod ac2_terrain_desc;
 mod ac2_water;
 mod ac2_world;
 mod cell;
+mod cell_info;
 mod cell_query;
 mod color;
 mod coordinates;
+mod land_blocks;
 mod land_lattice;
 mod landblock;
+mod quad_tree;
 mod region;
 mod surface_desc;
 mod surface_info;
@@ -50,12 +53,15 @@ pub use ac2_particle_sources::{ac2_block_particle_sources, ac2_blocks_within, Ac
 pub use ac2_scene::{
     ac2_ambient_sound_points, ac2_scene_object_visual, ac2_scene_placements, Ac2AmbientSoundPoint,
 };
-pub use ac2_water::Ac2BlockWater;
+pub use ac2_water::{
+    load_ac2_block_map, Ac2BlockMap, Ac2BlockWater, Ac2WaterSource, WaterLightInfo,
+};
 pub use ac2_world::Ac2WorldSource;
 pub use cell::{
-    adjust_to_outside_cell_id, classify_cell, outdoor_cell_id_at_render_position,
-    same_outdoor_block, CellKind, LAND_BLOCK_CELLS_PER_SIDE,
+    adjust_to_outside_cell_id, classify_cell, culling_plane_check,
+    outdoor_cell_id_at_render_position, same_outdoor_block, CellKind, LAND_BLOCK_CELLS_PER_SIDE,
 };
+pub use cell_info::{CellInfoField, CellInfoLayout, LandBlockCellInfo};
 pub use cell_query::{outdoor_cell_ids_for_moving_sphere, OutdoorCellCandidates};
 pub use color::Rgba;
 pub use coordinates::{
@@ -63,15 +69,23 @@ pub use coordinates::{
     cell_local_render_position_relative_to_landblock, retail_position_offset,
     world_render_position_from_cell_local,
 };
+pub use land_blocks::{
+    block_id_at_offset, blockpart_to_blockcoord, get_block_gid, inbound_valid_blockid, interpolate,
+    within_block,
+};
 pub use land_lattice::{
     land_block_size, land_cell_size, land_lattice, set_land_lattice, LandLattice,
 };
 pub use landblock::LandBlockDesc;
+pub use quad_tree::{BoundingType, LandBlockQuadTree, PhysObjBrush};
 pub use region::{
     ac2_detail_map, ac2_map_note_desc, ac2_region_detail_map_table, ac2_region_game_map,
-    ac2_region_sound_desc, CelestialPosition, DetailMap, DetailMapRow, GameClock, GameDateTime,
-    MapNoteDesc, MapNoteRow, RegionDesc, SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc,
-    SkyLightingDesc,
+    ac2_region_info, ac2_region_sound_desc, color_corner_interp, float_corner_interp,
+    integer_corner_interp, vector_corner_interp, BlockProperty, CelestialPosition, DetailMap,
+    DetailMapRow, DidLookup, EncounterDesc, EncounterElem, EncounterExcept, EncounterRow,
+    FogCombine, FogCombineType, FogDesc, FogInfo, FogType, GameClock, GameDateTime, InfoList,
+    LightColors, LightFogInfo, MapNoteDesc, MapNoteRow, PropertyDesc, RegionDesc, RegionInfo,
+    SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc, SkyLightingDesc, TimeStampCalendar,
 };
 pub use surface_desc::Ac2FarTerrain;
 pub use surface_info::Ac2SurfaceInfo;

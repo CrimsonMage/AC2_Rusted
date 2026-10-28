@@ -351,6 +351,32 @@ fn entities(
 pub(super) struct Ac2SceneFile {
     pub(super) frill: Option<Ac2SceneGroup>,
     pub(super) degrades: Vec<Vec<Ac2SceneEntity>>,
+    /// `SceneDegrade`'s `(min_distance, ideal_distance, max_distance)` of each degrade.
+    pub(super) degrade_distances: Vec<[f32; 3]>,
+}
+
+/// `Ac2SceneFile::degrade_dist` quality `GetCorrectDegrade` asks with (`DAT_00a3d06c`).
+const DEGRADE_QUALITY: f32 = 0.5;
+
+/// `SceneDegrade::GetDegradeDist`: below half quality the span from the minimum to the ideal
+/// distance, from half up the span from the ideal to the maximum.
+pub(super) fn degrade_dist([min, ideal, max]: [f32; 3], deg_value: f32) -> f32 {
+    if deg_value < 0.5 {
+        (deg_value + deg_value) * (ideal - min) + min
+    } else {
+        ((deg_value - 0.5) + (deg_value - 0.5)) * (max - ideal) + ideal
+    }
+}
+
+impl Ac2SceneFile {
+    /// `SceneFile::GetCorrectDegrade`: the first degrade whose distance at the degrade quality
+    /// (0.5, so its ideal distance) lies beyond `player_dist`.
+    pub(super) fn correct_degrade(&self, player_dist: f32) -> Option<&Vec<Ac2SceneEntity>> {
+        self.degrade_distances
+            .iter()
+            .position(|dists| player_dist < degrade_dist(*dists, DEGRADE_QUALITY))
+            .and_then(|index| self.degrades.get(index))
+    }
 }
 
 impl ResourcePackedDecode for Ac2SceneFile {
@@ -374,14 +400,23 @@ impl ResourcePackedDecode for Ac2SceneFile {
                 None
             };
             let mut degrades = Vec::new();
+            let mut degrade_distances = Vec::new();
             for _ in 0..count(cursor)? {
-                let _distances = (float(cursor)?, float(cursor)?, float(cursor)?);
+                degrade_distances.push([
+                    float(cursor)? as f32,
+                    float(cursor)? as f32,
+                    float(cursor)? as f32,
+                ]);
                 degrades.push(entities(cursor, 0)?);
             }
             if cursor.remaining() != 0 {
                 return Err("trailing bytes after SceneFile");
             }
-            Ok(Self { frill, degrades })
+            Ok(Self {
+                frill,
+                degrades,
+                degrade_distances,
+            })
         };
         decode(&mut ArchiveCursor::new(bytes))
             .map_err(|context| malformed(qdid, Self::TYPE_NAME, context))
@@ -472,5 +507,33 @@ impl ResourcePackedDecode for Ac2SceneLandDefs {
 
     fn cache_retained_bytes(&self) -> usize {
         std::mem::size_of::<Self>() + self.heights.len() * 8
+    }
+}
+
+#[cfg(test)]
+mod degrade_tests {
+    use super::*;
+
+    #[test]
+    fn degrade_distance_spans_min_ideal_max_by_quality() {
+        let dists = [10.0, 30.0, 100.0];
+        assert_eq!(degrade_dist(dists, 0.0), 10.0);
+        assert_eq!(degrade_dist(dists, 0.25), 20.0);
+        assert_eq!(degrade_dist(dists, 0.5), 30.0);
+        assert_eq!(degrade_dist(dists, 0.75), 65.0);
+        assert_eq!(degrade_dist(dists, 1.0), 100.0);
+    }
+
+    #[test]
+    fn the_correct_degrade_is_the_first_whose_ideal_distance_is_beyond_the_player() {
+        let file = Ac2SceneFile {
+            frill: None,
+            degrades: vec![Vec::new(), vec![Ac2SceneEntity::Scene(7)]],
+            degrade_distances: vec![[0.0, 20.0, 40.0], [0.0, 80.0, 90.0]],
+        };
+        assert!(file.correct_degrade(0.0).unwrap().is_empty());
+        assert!(file.correct_degrade(19.9).unwrap().is_empty());
+        assert_eq!(file.correct_degrade(20.0).unwrap().len(), 1);
+        assert!(file.correct_degrade(80.0).is_none());
     }
 }

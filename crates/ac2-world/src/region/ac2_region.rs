@@ -12,17 +12,12 @@ use ac2_db::{
 };
 
 use super::game_time::{GameTime, Season, TimeOfDay};
+use super::info_lists::{DidLookup, InfoList, RegionInfo};
 use super::sky_objects::{SkyObject, SkyObjectReplace};
 use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyRain, SkyTimeOfDay};
 use crate::color::set_color32;
 
 const AC2_REGION_DID: DataId = DataId::new(0x0F00_0000);
-/// `CRegionDesc::UnPack` info lists in stream order; the sky list is the seventh.
-const SOUND_INFO_LIST: usize = 0;
-/// `CRegionDesc::UnPack` info lists: encounter 4, detail map table 5, sky 6, water 7.
-const DETAIL_MAP_INFO_LIST: usize = 5;
-const SKY_INFO_LIST: usize = 6;
-const WATER_INFO_LIST: usize = 7;
 const INFO_LIST_COUNT: usize = 11;
 const MAX_ITEMS: usize = 4096;
 
@@ -33,9 +28,10 @@ pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<Re
         return Ok(None);
     };
     let Some(sky) = region
-        .sky_info
-        .first()
-        .map(|did| load::<Ac2SkyRecord>(store, *did))
+        .info
+        .current(InfoList::Sky)
+        .filter(|did| did.raw() != 0)
+        .map(|did| load::<Ac2SkyRecord>(store, did))
         .transpose()?
         .flatten()
     else {
@@ -58,11 +54,11 @@ pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<Re
     }
     Ok(Some(RegionDesc {
         qdid: QualifiedDataId::new(AC2_REGION_DID, 0),
-        region_number: region.region_number,
+        region_number: region.info.region_number,
         game_time: game_time.game_time.clone(),
         sky: Some(Arc::new(SkyDesc {
-            tick_size: sky.tick_size,
-            light_tick_size: sky.light_tick_size,
+            tick_sizes: sky.tick_sizes,
+            light_tick_sizes: sky.light_tick_sizes,
             day_groups: Arc::from(day_groups),
             day_frequencies: Arc::from(frequencies),
         })),
@@ -72,26 +68,28 @@ pub(crate) fn load_ac2_region(store: &ResourceStore) -> ResourceResult<Option<Re
 /// `CRegionDesc::GetCurrentSoundInfo`: the region's first `CSoundDesc` (`0x10`).
 pub fn ac2_region_sound_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
     Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
-        .and_then(|region| region.sound_info.first().copied()))
+        .and_then(|region| region.info.current(InfoList::Sound)))
 }
 
 /// `CRegionDesc::GetGameMap`: the region's game map image (`game_map`), `None` when it has none.
 pub fn ac2_region_game_map(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
-    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
-        .and_then(|region| (region.game_map != 0).then(|| DataId::new(region.game_map))))
+    Ok(
+        load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
+            .and_then(|region| region.info.game_map_id()),
+    )
 }
 
 /// `CRegionDesc::GetCurrentDetailMapTable`: the region's first `CDetailMapDesc` (`0x5A`), the
 /// table `current_detailmap_table` (0) picks; `None` when the region has none.
 pub fn ac2_region_detail_map_table(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
     Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
-        .and_then(|region| region.detail_map_info.first().copied()))
+        .and_then(|region| region.info.current(InfoList::DetailMap)))
 }
 
 /// `CRegionDesc::GetCurrentWaterInfo`: the region's first `CWaterDesc`.
 pub(crate) fn ac2_region_water_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
     Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
-        .and_then(|region| region.water_info.first().copied()))
+        .and_then(|region| region.info.current(InfoList::Water)))
 }
 
 /// `CSkyDesc::GetCurrentDay`: a hashed day number weighted by each day's authored frequency.
@@ -127,13 +125,7 @@ pub(super) fn load<T: ResourcePackedDecode + Send + Sync + 'static>(
 /// `UnPackInfoList`s (count, DIDs, region indices, 4-byte aligned).
 #[derive(Debug)]
 struct Ac2RegionRecord {
-    region_number: u32,
-    /// `CRegionDesc::game_map`: the map image's DID (0 for none).
-    game_map: u32,
-    sound_info: Vec<DataId>,
-    detail_map_info: Vec<DataId>,
-    sky_info: Vec<DataId>,
-    water_info: Vec<DataId>,
+    info: RegionInfo,
 }
 
 impl ResourcePackedDecode for Ac2RegionRecord {
@@ -160,52 +152,60 @@ impl ResourcePackedDecode for Ac2RegionRecord {
         // `CRegionDesc::UnPack`: game_map, game_map_scale, autotest_map, autotest_map_size,
         // land_defs_id, num_block_length, num_block_width.
         let game_map = cursor.read_u32()?;
-        cursor.read_bytes(6 * 4)?;
-        let mut sound_info = Vec::new();
-        let mut detail_map_info = Vec::new();
-        let mut sky_info = Vec::new();
-        let mut water_info = Vec::new();
-        for list in 0..INFO_LIST_COUNT {
+        cursor.read_u32()?;
+        let autotest_map = cursor.read_u32()?;
+        cursor.read_u32()?;
+        let land_defs_id = cursor.read_u32()?;
+        let num_block_length = cursor.read_u32()?;
+        let num_block_width = cursor.read_u32()?;
+        let mut lists: [Vec<DidLookup>; INFO_LIST_COUNT] = Default::default();
+        for list in &mut lists {
+            // `CRegionDesc::UnPackInfoList`.
             let count = read_count(&mut cursor, qdid, Self::TYPE_NAME, 8)?;
             let dids = cursor.read_u32_items(count)?;
-            cursor.read_bytes(count * 4)?;
+            let rindices = cursor.read_u32_items(count)?;
             cursor.align_to(4)?;
-            let dids = dids.into_iter().filter(|did| *did != 0).map(DataId::new);
-            match list {
-                SOUND_INFO_LIST => sound_info = dids.collect(),
-                DETAIL_MAP_INFO_LIST => detail_map_info = dids.collect(),
-                SKY_INFO_LIST => sky_info = dids.collect(),
-                WATER_INFO_LIST => water_info = dids.collect(),
-                _ => {}
-            }
+            *list = dids
+                .into_iter()
+                .zip(rindices)
+                .map(|(did, rindex)| DidLookup {
+                    rindex,
+                    data_id: DataId::new(did),
+                })
+                .collect();
         }
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
-        Ok(Self {
-            region_number,
-            game_map,
-            sound_info,
-            detail_map_info,
-            sky_info,
-            water_info,
-        })
+        let mut info = RegionInfo::new(lists);
+        info.region_number = region_number;
+        info.game_map = game_map;
+        info.autotest_map = autotest_map;
+        info.land_defs_id = land_defs_id;
+        info.num_block_length = num_block_length;
+        info.num_block_width = num_block_width;
+        Ok(Self { info })
     }
 
     fn cache_retained_bytes(&self) -> usize {
         std::mem::size_of::<Self>()
-            + (self.sound_info.len()
-                + self.detail_map_info.len()
-                + self.sky_info.len()
-                + self.water_info.len())
-                * 4
+            + InfoList::ALL
+                .iter()
+                .map(|list| self.info.list(*list).len())
+                .sum::<usize>()
+                * 8
     }
+}
+
+/// The active region's `CRegionDesc` info (`None` when the DAT has no region record).
+pub fn ac2_region_info(store: &ResourceStore) -> ResourceResult<Option<RegionInfo>> {
+    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?.map(|region| region.info.clone()))
 }
 
 /// `CSkyDesc::StreamPack`: version, DID, min/max tick and light-tick sizes (f64), the `GameTime`
 /// DID, then `SkyDay`s (`CDayDesc` DID, frequency).
 #[derive(Debug)]
 struct Ac2SkyRecord {
-    tick_size: f64,
-    light_tick_size: f64,
+    tick_sizes: (f64, f64),
+    light_tick_sizes: (f64, f64),
     game_time: DataId,
     days: Vec<(DataId, f32)>,
 }
@@ -233,8 +233,8 @@ impl ResourcePackedDecode for Ac2SkyRecord {
             .collect::<ResourceResult<Vec<_>>>()?;
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
         Ok(Self {
-            tick_size: min_tick.max(max_tick),
-            light_tick_size: min_light_tick.max(max_light_tick),
+            tick_sizes: (min_tick, max_tick),
+            light_tick_sizes: (min_light_tick, max_light_tick),
             game_time,
             days,
         })

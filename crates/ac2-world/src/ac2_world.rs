@@ -10,6 +10,7 @@ use ac2_db::{
 
 use crate::ac2_land_defs::load_ac2_land_defs;
 use crate::ac2_terrain_desc::{load_ac2_terrain_desc, Ac2TerrainDesc};
+use crate::cell_info::CellInfoField;
 use crate::surface_desc::{load_ac2_surface_desc, Ac2SurfaceDesc};
 use crate::surface_info::{vertex_info, Ac2SurfaceInfo};
 use crate::LandBlockDesc;
@@ -17,11 +18,6 @@ use crate::LandBlockDesc;
 /// AC2 `LandDefs::side_vertex_count`: 8 cells per block x 2 pixels per cell + 1.
 const AC2_SIDE_VERTICES: usize = 17;
 const AC2_SAMPLES: usize = AC2_SIDE_VERTICES * AC2_SIDE_VERTICES;
-const TERRAIN_FIELD: usize = 0;
-const ROAD_FIELD: usize = 4;
-/// `CLandBlockData::GetColor`: the colour field of a vertex's cell-info word, whose bits name the
-/// shadow lights a vertex is in (`LScapeTerrainMesh::UpdateNearTerrain`'s vertex alpha).
-const COLOUR_FIELD: usize = 3;
 /// `CLandBlockMesh::ConstructPolygons` and `LScapeTerrainMesh::UpdateNearTerrain` drop every
 /// terrain quad touching a vertex of this terrain type, opening the landscape over cave mouths.
 const AC2_HOLE_TERRAIN: u32 = 0x1E;
@@ -93,10 +89,9 @@ pub struct Ac2WorldSource {
     lattice: crate::LandLattice,
     terrain: CachedResource<Ac2TerrainDesc>,
     surfaces: CachedResource<Ac2SurfaceDesc>,
-    /// (offset, mask) of the terrain and road fields of a vertex's cell-info word.
-    terrain_field: (u32, u32),
-    road_field: (u32, u32),
-    colour_field: (u32, u32),
+    /// The fields of a vertex's cell-info word. The colour field's bits name the shadow lights a
+    /// vertex is in (`CLandBlockData::GetColor`, `LScapeTerrainMesh::UpdateNearTerrain`'s alpha).
+    cell_info: crate::cell_info::CellInfoLayout,
     region: Option<Arc<crate::RegionDesc>>,
     water: Option<crate::ac2_water::Ac2WaterSource>,
 }
@@ -139,9 +134,7 @@ impl Ac2WorldSource {
                 land.subdivisions_per_cell(),
             ),
             store,
-            terrain_field: land.cell_info_field(TERRAIN_FIELD),
-            road_field: land.cell_info_field(ROAD_FIELD),
-            colour_field: land.cell_info_field(COLOUR_FIELD),
+            cell_info: land.cell_info_layout(),
             terrain,
             surfaces,
             region,
@@ -344,7 +337,6 @@ impl Ac2WorldSource {
             height,
             cut,
         );
-        let field = |word: u32, (offset, mask): (u32, u32)| (word >> offset) & mask;
         // Global vertex coordinates seed the per-vertex material picks
         // (`CLandBlockData::CacheFarValues`: `(side_vertex_count - 1) * block + i`).
         let (base_x, base_y) = (block_x * polygons, block_y * polygons);
@@ -365,10 +357,10 @@ impl Ac2WorldSource {
                 let [nx, ny, _] = samples.normals[index];
                 let pitch_squared = nx * nx + ny * ny;
                 let word = record.cell_info[index];
-                let terrain = field(word, self.terrain_field);
-                let road = field(word, self.road_field);
+                let terrain = self.cell_info.get(CellInfoField::Terrain, word);
+                let road = self.cell_info.get(CellInfoField::Road, word);
                 samples.holes[index] = terrain == AC2_HOLE_TERRAIN;
-                samples.colours[index] = field(word, self.colour_field);
+                samples.colours[index] = self.cell_info.get(CellInfoField::Color, word);
                 let (gx, gy) = (base_x + x as i32, base_y + y as i32);
                 // `CSurfaceDesc::GetVertexInfo` for the terrain's surface type, `GetRoadInfo` for
                 // the road bits; a miss keeps `SurfaceInfo::SetToDefault`.

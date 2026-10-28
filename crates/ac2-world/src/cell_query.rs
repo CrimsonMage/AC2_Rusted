@@ -109,7 +109,7 @@ fn retail_valid_outside_adjust_source(cell_id: u32) -> bool {
     (1..=0x40).contains(&local) || (0x100..=0xFFFD).contains(&local) || local == 0xFFFF
 }
 
-fn retail_block_lcoord(block_id: u32) -> Option<(i32, i32)> {
+pub(crate) fn retail_block_lcoord(block_id: u32) -> Option<(i32, i32)> {
     if block_id == 0 {
         return None;
     }

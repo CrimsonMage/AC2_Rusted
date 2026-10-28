@@ -97,8 +97,8 @@ impl<'a, L: Ac2SceneLookup> Generator<'a, L> {
             return true;
         };
         let seed = scene.wrapping_mul(seed).wrapping_mul(SCENE_SEED);
-        // `GetCorrectDegrade(0)`: the nearest degrade.
-        if let Some(objects) = file.degrades.first() {
+        // `SceneFile::GetCorrectDegrade(0.0)`.
+        if let Some(objects) = file.correct_degrade(0.0) {
             let start = (!frill).then(|| self.push_group_clearance(pose, 0.0, false));
             for (index, entity) in objects.iter().enumerate() {
                 let child_seed = seed.wrapping_add((index as u32).wrapping_mul(ENTITY_SEED_STEP));

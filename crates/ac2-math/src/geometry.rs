@@ -191,6 +191,35 @@ impl BBox {
         union
     }
 
+    /// `BBox::DoesOverlap`: whether the boxes' centres are closer than the sum of their half
+    /// extents on every axis, less `epsilon` (a box that only touches does not overlap once
+    /// `epsilon` is positive).
+    pub fn does_overlap(self, other: Self, epsilon: f32) -> bool {
+        let half = |b: Self| (b.max - b.min) * 0.5;
+        let (this_half, other_half) = (half(self), half(other));
+        let this_center = this_half + self.min;
+        let other_center = other_half + other.min;
+        let separation = (other_center - this_center).abs();
+        let reach = this_half.abs() + other_half.abs();
+        (separation + Vec3::splat(epsilon)).cmple(reach).all()
+    }
+
+    /// `BBox::GetPoints`: the eight corners in retail's order (the low corner first, then x, z,
+    /// x and z raised, and the same four with y raised).
+    pub fn points(self) -> [Vec3; 8] {
+        let (lo, hi) = (self.min, self.max);
+        [
+            Vec3::new(lo.x, lo.y, lo.z),
+            Vec3::new(hi.x, lo.y, lo.z),
+            Vec3::new(lo.x, lo.y, hi.z),
+            Vec3::new(hi.x, lo.y, hi.z),
+            Vec3::new(lo.x, hi.y, lo.z),
+            Vec3::new(hi.x, hi.y, lo.z),
+            Vec3::new(lo.x, hi.y, hi.z),
+            Vec3::new(hi.x, hi.y, hi.z),
+        ]
+    }
+
     fn corners(self) -> [Vec3; 8] {
         [
             Vec3::new(self.min.x, self.min.y, self.min.z),
@@ -307,5 +336,27 @@ mod tests {
         let union = left.union(right);
         assert_eq!(union.min, Vec3::ZERO);
         assert_eq!(union.max, Vec3::splat(4.0));
+    }
+
+    #[test]
+    fn bbox_overlap_needs_the_epsilon_margin_on_every_axis() {
+        let a = BBox::new(Vec3::ZERO, Vec3::splat(2.0));
+        let b = BBox::new(Vec3::splat(1.0), Vec3::splat(3.0));
+        let touching = BBox::new(Vec3::new(2.0, 0.0, 0.0), Vec3::new(4.0, 2.0, 2.0));
+        let apart = BBox::new(Vec3::new(2.5, 0.0, 0.0), Vec3::new(4.5, 2.0, 2.0));
+        assert!(a.does_overlap(b, 0.0));
+        assert!(a.does_overlap(touching, 0.0));
+        assert!(!a.does_overlap(touching, 0.01));
+        assert!(!a.does_overlap(apart, 0.0));
+    }
+
+    #[test]
+    fn bbox_points_follow_the_retail_corner_order() {
+        let points = BBox::new(Vec3::new(1.0, 2.0, 3.0), Vec3::new(4.0, 5.0, 6.0)).points();
+        assert_eq!(points[0], Vec3::new(1.0, 2.0, 3.0));
+        assert_eq!(points[1], Vec3::new(4.0, 2.0, 3.0));
+        assert_eq!(points[2], Vec3::new(1.0, 2.0, 6.0));
+        assert_eq!(points[4], Vec3::new(1.0, 5.0, 3.0));
+        assert_eq!(points[7], Vec3::new(4.0, 5.0, 6.0));
     }
 }

@@ -7,6 +7,8 @@
 use std::sync::Arc;
 
 use ac2_core::{CellId, DataId, QualifiedDataId};
+
+use crate::region::LightFogInfo;
 use ac2_dat::ArchiveCursor;
 use ac2_dat::DatFileKind;
 use ac2_db::{
@@ -34,27 +36,38 @@ pub struct Ac2BlockWater {
     pub color: u32,
 }
 
+/// `WaterLightInfo`: the light and fog under water from `depth` down.
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub struct WaterLightInfo {
+    pub depth: f32,
+    pub water_light: LightFogInfo,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 struct WaterType {
     above_material: DataId,
     below_material: DataId,
     physics_material: DataId,
     tiling: f32,
     color: u32,
+    lighting: Arc<[WaterLightInfo]>,
 }
 
 /// `CWaterDesc` with its height and type maps resolved.
 #[derive(Debug)]
-pub(crate) struct Ac2WaterSource {
+pub struct Ac2WaterSource {
     types: Vec<Option<WaterType>>,
     indices: Vec<u32>,
+    /// The default type (`CWaterDesc::default_water`); its inner `None` has no water.
+    default_slot: Option<Option<WaterType>>,
     default: Option<WaterType>,
     height_map: Arc<Ac2BlockMap>,
     type_map: Arc<Ac2BlockMap>,
 }
 
 impl Ac2WaterSource {
-    pub(crate) fn load(store: &ResourceStore, water_desc: DataId) -> ResourceResult<Option<Self>> {
+    /// `DBObj::Get` of the `CWaterDesc` and its two block maps.
+    pub fn load(store: &ResourceStore, water_desc: DataId) -> ResourceResult<Option<Self>> {
         let Some(desc) = load::<Ac2WaterDescRecord>(store, water_desc)? else {
             return Ok(None);
         };
@@ -66,11 +79,63 @@ impl Ac2WaterSource {
         };
         Ok(Some(Self {
             indices: desc.types.iter().map(|(index, _)| *index).collect(),
-            types: desc.types.iter().map(|(_, water)| *water).collect(),
-            default: desc.default,
+            types: desc.types.iter().map(|(_, water)| water.clone()).collect(),
+            default_slot: desc.default.clone(),
+            default: desc.default.clone().flatten(),
             height_map: Arc::new((*height_map).clone()),
             type_map: Arc::new((*type_map).clone()),
         }))
+    }
+
+    /// `CWaterDesc::FindWaterType`: the type with that index, else the default type. The inner
+    /// `None` is a type that has no water.
+    fn find_water_type(&self, index: u32) -> Option<&Option<WaterType>> {
+        match self
+            .indices
+            .iter()
+            .position(|candidate| *candidate == index)
+        {
+            Some(slot) => Some(&self.types[slot]),
+            None => self.default_slot.as_ref(),
+        }
+    }
+
+    /// `CWaterDesc::HasWater`: false for a type with no water and for no type at all.
+    pub fn has_water(&self, index: u32) -> bool {
+        matches!(self.find_water_type(index), Some(Some(_)))
+    }
+
+    /// `CWaterDesc::GetTileWidth`: metres per texture repeat, 0 without water.
+    pub fn tile_width(&self, index: u32) -> f32 {
+        self.water(index).map_or(0.0, |water| water.tiling)
+    }
+
+    /// `CWaterDesc::GetAboveMaterial`: 0 without water.
+    pub fn above_material(&self, index: u32) -> DataId {
+        self.water(index)
+            .map_or(DataId::new(0), |water| water.above_material)
+    }
+
+    /// `CWaterDesc::GetBelowMaterial`: 0 without water.
+    pub fn below_material(&self, index: u32) -> DataId {
+        self.water(index)
+            .map_or(DataId::new(0), |water| water.below_material)
+    }
+
+    /// `CWaterDesc::GetWaterLighting` (`WaterType::GetWaterLighting`): the depth-keyed lights of
+    /// the type in stream order, `None` for no type.
+    pub fn water_lighting(&self, index: u32) -> Option<Vec<WaterLightInfo>> {
+        self.water(index).map(|water| water.lighting.to_vec())
+    }
+
+    /// `CWaterDesc::GetVertexColor`: the packed ARGB water colour, `None` without water (retail
+    /// answers a static default colour then).
+    pub fn vertex_color(&self, index: u32) -> Option<u32> {
+        self.water(index).map(|water| water.color)
+    }
+
+    fn water(&self, index: u32) -> Option<&WaterType> {
+        self.find_water_type(index)?.as_ref()
     }
 
     /// The block's water, if its lowest height lies below the water surface.
@@ -89,8 +154,8 @@ impl Ac2WaterSource {
             .iter()
             .position(|candidate| *candidate == index)
         {
-            Some(slot) => self.types[slot],
-            None => self.default,
+            Some(slot) => self.types[slot].clone(),
+            None => self.default.clone(),
         }?;
         let height =
             height_table.get(usize::from(self.height_map.value(x, y)))? + WATER_SURFACE_OFFSET;
@@ -111,7 +176,7 @@ impl Ac2WaterSource {
 struct Ac2WaterDescRecord {
     height_map: DataId,
     type_map: DataId,
-    default: Option<WaterType>,
+    default: Option<Option<WaterType>>,
     types: Vec<(u32, Option<WaterType>)>,
 }
 
@@ -139,7 +204,7 @@ impl ResourcePackedDecode for Ac2WaterDescRecord {
         let has_default = cursor.read_u32()? != 0;
         cursor.align_to(4)?;
         let default = if has_default {
-            read_water_type(&mut cursor).map_err(malformed)?.1
+            Some(read_water_type(&mut cursor).map_err(malformed)?.1)
         } else {
             None
         };
@@ -187,20 +252,14 @@ fn read_water_type(
     if lights == 0 || lights > MAX_TYPES {
         return Err("water lighting count");
     }
+    let mut lighting = Vec::with_capacity(lights);
     for _ in 0..lights {
-        // `WaterLighting`: depth, then `LightFogInfo`: fog min/max/sky/density, fog type and colour,
-        // directional brightness and colour, ambient brightness and colour, then the combine code
-        // whose ADD_COLORS (1) fields each carry two multipliers.
-        cursor
-            .read_bytes(11 * 4)
-            .map_err(|_| "record ended early")?;
-        let combine = word(cursor)?;
-        let added = (0..7)
-            .filter(|field| (combine >> (field * 3)) & 7 == 1)
-            .count();
-        cursor
-            .read_bytes(added * 8)
-            .map_err(|_| "record ended early")?;
+        // `WaterLighting`: depth, then `LightFogInfo`.
+        let depth = f32::from_bits(word(cursor)?);
+        lighting.push(WaterLightInfo {
+            depth,
+            water_light: LightFogInfo::unpack(cursor),
+        });
     }
     Ok((
         index,
@@ -210,13 +269,14 @@ fn read_water_type(
             physics_material,
             tiling,
             color,
+            lighting: lighting.into(),
         }),
     ))
 }
 
 /// `BlockMap::StreamPack`: DID, height, width, then `width * height` bytes.
 #[derive(Debug, Clone)]
-pub(crate) struct Ac2BlockMap {
+pub struct Ac2BlockMap {
     height: u32,
     width: u32,
     values: Arc<[u8]>,
@@ -224,7 +284,7 @@ pub(crate) struct Ac2BlockMap {
 
 impl Ac2BlockMap {
     /// `BlockMap::GetValue`: `map[height * x + y]` inside the map, else `map[0]`.
-    pub(crate) fn value(&self, x: u32, y: u32) -> u8 {
+    pub fn value(&self, x: u32, y: u32) -> u8 {
         let index = if x < self.width && y < self.height {
             (self.height * x + y) as usize
         } else {
@@ -232,6 +292,14 @@ impl Ac2BlockMap {
         };
         self.values.get(index).copied().unwrap_or(0)
     }
+}
+
+/// `DBObj::Get` of a `BlockMap` (`0x40000015`) by data id.
+pub fn load_ac2_block_map(
+    store: &ResourceStore,
+    did: DataId,
+) -> ResourceResult<Option<Ac2BlockMap>> {
+    Ok(load::<Ac2BlockMap>(store, did)?.map(|map| (*map).clone()))
 }
 
 impl ResourcePackedDecode for Ac2BlockMap {

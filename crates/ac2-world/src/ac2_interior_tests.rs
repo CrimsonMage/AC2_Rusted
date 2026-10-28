@@ -151,6 +151,46 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
 }
 
 #[test]
+fn light_info_cell_lookup_lists_the_lights_that_light_the_cell() {
+    let Some((dataset, world)) = ac2_world() else {
+        return;
+    };
+    let mut checked = 0;
+    let mut sunlit = 0;
+    for did in cell_ids(&dataset, |low| low == 0xFFFC) {
+        let info = world
+            .light_info(CellId::new(did))
+            .unwrap()
+            .expect("listed record exists");
+        for (key, light) in info.lights.iter().enumerate() {
+            for (cell, indices) in light.lit.iter() {
+                // `GetLitIndices` answers the light's own list; `None` for an empty one.
+                let lit = info.lit_indices(*cell, key as u32);
+                assert_eq!(lit.is_some(), !indices.is_empty());
+                if let Some(lit) = lit {
+                    assert_eq!(lit, &indices[..]);
+                    // A light that lights a cell is one of the cell's lookup lights.
+                    let listed = (0..info.num_lights(*cell))
+                        .filter_map(|n| info.light(*cell, n))
+                        .any(|(listed, _)| listed as usize == key);
+                    assert!(listed, "{cell:?} lookup lacks light {key}");
+                    checked += 1;
+                }
+            }
+        }
+        assert!(info.light(CellId::new(did), usize::MAX).is_none());
+        for tod in 0..9 {
+            for light in info.lights.iter().flat_map(|l| l.lit.iter()) {
+                sunlit += usize::from(info.sun_lit_indices(light.0, tod).is_some());
+            }
+        }
+        assert!(info.sun_lit_indices(CellId::new(did), 9).is_none());
+    }
+    assert!(checked > 1_000, "{checked}");
+    eprintln!("sun-lit cell lists: {sunlit}");
+}
+
+#[test]
 fn ac2_dungeon_cell_is_found_from_a_point_inside_it() {
     let Some((_, world)) = ac2_world() else {
         return;

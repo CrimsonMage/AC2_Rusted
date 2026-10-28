@@ -505,6 +505,35 @@ pub fn read_ac2_property_groups(
     Ok(groups)
 }
 
+/// Reads a counted `PSmartArray<BaseProperty>` (`PSmartArray<BaseProperty>::StreamPack`): the
+/// count, then each `BaseProperty::StreamPack` (the name, whose `MasterProperty` type sets the
+/// value stream that follows).
+pub fn read_ac2_base_property_array(
+    cursor: &mut ArchiveCursor<'_>,
+) -> Result<Vec<Ac2PropertyValue>, &'static str> {
+    let types = PROPERTY_TYPES
+        .get()
+        .ok_or("AC2 MasterProperty table is not installed")?;
+    let mut properties = Vec::new();
+    for _ in 0..count(cursor, 4)? {
+        let name = word(cursor)?;
+        let value_type = types
+            .descs
+            .get(&name)
+            .map(|desc| desc.value_type)
+            .ok_or("property name is not in MasterProperty")?;
+        let start = cursor.position();
+        skip_value(cursor, value_type)?;
+        let end = cursor.position();
+        properties.push(Ac2PropertyValue {
+            name,
+            value_type,
+            bytes: cursor.bytes()[start..end].into(),
+        });
+    }
+    Ok(properties)
+}
+
 /// Reads a `PropertyCollection` into its properties, in stream order across groups.
 pub fn read_ac2_property_collection(
     cursor: &mut ArchiveCursor<'_>,

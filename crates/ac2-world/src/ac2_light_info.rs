@@ -75,6 +75,54 @@ impl Ac2StaticLight {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Ac2LightInfo {
     pub lights: Arc<[Ac2StaticLight]>,
+    /// `CLightInfo::m_lookupHash`: per cell (low word), the keys of the lights that reach it.
+    cell_lights: Box<[(u32, Box<[u32]>)]>,
+    /// `CLightInfo::m_aSunlights`: per time of day (nine), the cells and vertex indices the
+    /// sun reaches; `None` when `m_bSunlightEnabled` is off.
+    sunlights: Option<Box<[Vec<(CellId, Box<[u16]>)>]>>,
+}
+
+impl Ac2LightInfo {
+    /// `CLightInfo::GetNumLights`: how many lights reach `cell` (matched on its low word).
+    pub fn num_lights(&self, cell: CellId) -> usize {
+        self.cell_light_keys(cell).len()
+    }
+
+    /// `CLightInfo::GetLight`: the key (index into `lights`) and light `n` reaches `cell` as
+    /// listed in the lookup, `None` past the cell's lights or for a key outside `lights`.
+    pub fn light(&self, cell: CellId, n: usize) -> Option<(u32, &Ac2StaticLight)> {
+        let key = *self.cell_light_keys(cell).get(n)?;
+        Some((key, self.lights.get(key as usize)?))
+    }
+
+    fn cell_light_keys(&self, cell: CellId) -> &[u32] {
+        self.cell_lights
+            .iter()
+            .find(|(low, _)| *low == cell.raw() & 0xFFFF)
+            .map_or(&[][..], |(_, keys)| &keys[..])
+    }
+
+    /// `CLightInfo::GetLitIndices`: the vertex indices light `light_key` reaches in `cell`.
+    /// `None` for an unknown key, a cell it does not reach or an empty list.
+    pub fn lit_indices(&self, cell: CellId, light_key: u32) -> Option<&[u16]> {
+        self.lights
+            .get(light_key as usize)?
+            .lit_indices(cell)
+            .filter(|indices| !indices.is_empty())
+    }
+
+    /// `CLightInfo::GetSunLitIndices`: the vertex indices the sun reaches in `cell` at time of
+    /// day `time_of_day` (0..9). `None` when sunlight is off, the time of day is out of range or
+    /// the cell has no list.
+    pub fn sun_lit_indices(&self, cell: CellId, time_of_day: usize) -> Option<&[u16]> {
+        self.sunlights
+            .as_ref()?
+            .get(time_of_day)?
+            .iter()
+            .find(|(lit, _)| lit.raw() & 0xFFFF == cell.raw() & 0xFFFF)
+            .map(|(_, indices)| &indices[..])
+            .filter(|indices| !indices.is_empty())
+    }
 }
 
 impl ResourcePackedDecode for Ac2LightInfo {
@@ -189,20 +237,28 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Read<Ac2LightInfo> {
     }
     // Cell -> light lookup hash: entry count in the low half, then (cell, counted light keys).
     let entries = (word(cursor)? & 0xFFFF) as usize;
+    let mut cell_lights = Vec::with_capacity(entries);
     for _ in 0..entries {
-        let _cell = word(cursor)?;
+        let cell = word(cursor)?;
         let keys = count(cursor, 4)?;
-        cursor
-            .read_bytes(keys * 4)
+        let keys = cursor
+            .read_u32_items(keys)
             .map_err(|_| "record ended early")?;
+        cell_lights.push((cell & 0xFFFF, keys.into_boxed_slice()));
     }
-    if word(cursor)? != 0 {
+    let sunlights = if word(cursor)? != 0 {
+        let mut sets = Vec::with_capacity(SUNLIGHT_SETS);
         for _ in 0..SUNLIGHT_SETS {
-            read_cells(cursor, block)?;
+            sets.push(read_cells(cursor, block)?);
         }
-    }
+        Some(sets.into_boxed_slice())
+    } else {
+        None
+    };
     Ok(Ac2LightInfo {
         lights: Arc::from(lights),
+        cell_lights: cell_lights.into_boxed_slice(),
+        sunlights,
     })
 }
 

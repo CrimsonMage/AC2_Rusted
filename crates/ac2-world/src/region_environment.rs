@@ -19,6 +19,17 @@ impl SkyEnvironmentCadence {
         }
     }
 
+    /// When `WorldRender::UpdateTimeOfDay` next ticks: `tick_size / GameTime::GetTimeDilation`
+    /// after `now`, in `float` (`m_nextTick`).
+    pub fn next_tick(self, now: f64, time_dilation: f32) -> f64 {
+        f64::from((self.tick_size_seconds as f32) / time_dilation) + f64::from(now as f32)
+    }
+
+    /// `m_nextLightTick`: the same with the light tick size.
+    pub fn next_light_tick(self, now: f64, time_dilation: f32) -> f64 {
+        f64::from((self.light_tick_size_seconds as f32) / time_dilation) + f64::from(now as f32)
+    }
+
     pub const fn tick_size_seconds(self) -> f64 {
         self.tick_size_seconds
     }

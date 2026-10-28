@@ -91,6 +91,15 @@ pub struct GameDateTime {
     pub time: u32,
 }
 
+/// `GameTime::GetGameTimeFromTimeStamp`'s results.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TimeStampCalendar {
+    pub year: i32,
+    pub day: i32,
+    pub season: u32,
+    pub time_of_day: u32,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub(super) struct GameCalendar {
     pub(super) year: i32,
@@ -258,22 +267,75 @@ impl GameClock {
     /// `GameTime::GetDateTimeString` at the clock's present values: `DAY` is `current_day` less
     /// the season's first day, plus one (`GameTime.cpp` 0x618D40, admin).
     pub fn date_time(&self) -> GameDateTime {
+        self.date_time_for(self.current_season, self.current_time_of_day)
+    }
+
+    /// `GameTime::GetDateTimeString` with a given season and time of day: `YEAR` and `DAY` always
+    /// come from the running clock (`current_year`, `current_day` less the *current* season's
+    /// first day); only `SEASON` and `TIME` follow the arguments.
+    fn date_time_for(&self, season: u32, time_of_day: u32) -> GameDateTime {
         let season_start = self.seasons.get(self.current_season as usize).copied();
         GameDateTime {
             year: self.current_year,
             day: self.current_day - season_start.unwrap_or(0) as i32 + 1,
             year_spec: self.year_spec,
-            season: self
-                .season_names
-                .get(self.current_season as usize)
-                .copied()
-                .unwrap_or(0),
+            season: self.season_names.get(season as usize).copied().unwrap_or(0),
             time: self
                 .time_names
-                .get(self.current_time_of_day as usize)
+                .get(time_of_day as usize)
                 .copied()
                 .unwrap_or(0),
         }
+    }
+
+    /// `GameTime::GetTimeDilation` of this clock: the rate set by `TemporalDilation`.
+    pub fn time_dilation(&self) -> f32 {
+        self.time_dilation as f32
+    }
+
+    /// `GameTime::GetGameTimeFromTimeStamp` (Legions 0x005D5690): the year, day of the year,
+    /// season and time of day of a server timestamp. As in retail, the season is chosen by the
+    /// clock's running `current_day` and the time of day by the timestamp's offset from the start
+    /// of that running day, not of the timestamp's own day.
+    pub fn game_time_from_time_stamp(&self, time_stamp: f64) -> TimeStampCalendar {
+        let total = time_stamp + self.zero_time_of_year;
+        let years = (total / self.year_length).floor();
+        let year = (years as i32).wrapping_add(self.zero_year);
+        let offset = total - years * self.year_length;
+        let day_length = f64::from(self.day_length);
+        let day = (f64::from(offset as f32) / day_length).floor() as i32;
+        let mut season = 0_u32;
+        if self.seasons.len() > 1 {
+            while (season as usize) < self.seasons.len() - 1
+                && self.current_day >= self.seasons[season as usize + 1] as i32
+            {
+                season += 1;
+            }
+        }
+        let mut time_of_day = 0_u32;
+        if self.times_of_day.len() > 1 {
+            let stamp = f64::from(time_stamp as f32);
+            let into_day = f64::from(offset as f32) - f64::from(self.current_day) * day_length;
+            let fraction = (stamp - (stamp - into_day)) / day_length;
+            while (time_of_day as usize) < self.times_of_day.len() - 1
+                && !(fraction < f64::from(self.times_of_day[time_of_day as usize + 1]))
+            {
+                time_of_day += 1;
+            }
+        }
+        TimeStampCalendar {
+            year,
+            day,
+            season,
+            time_of_day,
+        }
+    }
+
+    /// `GameTime::InqGameDateTimeString`: the date and time variables for a server timestamp
+    /// (`GetGameTimeFromTimeStamp`, then `GetDateTimeString`).
+    pub fn date_time_at(&self, time_stamp: f64) -> GameDateTime {
+        let calendar = self.game_time_from_time_stamp(time_stamp);
+        self.date_time_for(calendar.season, calendar.time_of_day)
     }
 
     /// `current_year`, `current_day` (of the year), `current_season` and `current_time_of_day`.
@@ -421,6 +483,36 @@ mod clock_tests {
         clock.use_time(1060.0);
         assert_eq!(clock.date_time().day, 2);
         assert_eq!(clock.date_time().time, 0x5000_0010);
+    }
+
+    #[test]
+    fn a_time_stamp_reads_season_and_time_of_day_against_the_running_day() {
+        let mut clock = GameClock::new(&time());
+        assert_eq!(clock.time_dilation(), 1.0);
+        clock.use_time(1000.0);
+        // Running day 2 (season 1). Stamp 1230 + 50 = 1280: year 13, offset 80 = day 0 of that
+        // year, but retail picks the season from the running day and measures the time of day
+        // from the running day's start, so the offset (80 - 200) / 100 falls before every start.
+        let calendar = clock.game_time_from_time_stamp(1230.0);
+        assert_eq!(
+            calendar,
+            TimeStampCalendar {
+                year: 13,
+                day: 0,
+                season: 1,
+                time_of_day: 0
+            }
+        );
+        // Stamp 1000 + 50 = 1050: offset 250 is day 2, 0.5 into it, time of day 1.
+        let calendar = clock.game_time_from_time_stamp(1000.0);
+        assert_eq!((calendar.year, calendar.day), (12, 2));
+        assert_eq!((calendar.season, calendar.time_of_day), (1, 1));
+        // `InqGameDateTimeString`: the names follow, `YEAR` and `DAY` stay the running clock's.
+        assert_eq!(clock.date_time_at(1000.0), clock.date_time());
+        assert_eq!(clock.date_time_at(1230.0).time, 0x5000_0010);
+        assert_eq!(clock.date_time_at(1230.0).year, 12);
+        assert!(clock.temporal_dilation(2.0, 1000.0));
+        assert_eq!(clock.time_dilation(), 2.0);
     }
 
     #[test]

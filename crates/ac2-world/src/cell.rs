@@ -2,7 +2,7 @@
 //! (`0x0100` and up) in the low word.
 
 use ac2_core::CellId;
-use ac2_math::Vec3;
+use ac2_math::{BBox, Vec3};
 
 use crate::cell_query::{retail_adjust_to_outside_cell_id, retail_lcoord_to_gid};
 use crate::land_cell_size;
@@ -46,8 +46,33 @@ pub fn outdoor_cell_id_at_render_position(position: Vec3) -> Option<CellId> {
     retail_lcoord_to_gid(cell_x, cell_y).map(CellId::new)
 }
 
+/// `CEnvCell::CullingPlaneCheck`: whether none of the eight corners of `bbox` (`BBox::GetPoints`)
+/// lies within `culling_plane_dist` of `camera`; any corner that close fails the check.
+pub fn culling_plane_check(camera: Vec3, culling_plane_dist: f32, bbox: BBox) -> bool {
+    let limit = culling_plane_dist * culling_plane_dist;
+    !bbox
+        .points()
+        .iter()
+        .any(|point| (camera - *point).length_squared() < limit)
+}
+
 pub fn same_outdoor_block(left: CellId, right: CellId) -> bool {
     classify_cell(left) == CellKind::Outdoor
         && classify_cell(right) == CellKind::Outdoor
         && (left.raw() & BLOCK_PREFIX_MASK) == (right.raw() & BLOCK_PREFIX_MASK)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn culling_plane_check_fails_when_any_corner_is_near_the_camera() {
+        let bbox = BBox::new(Vec3::new(10.0, 10.0, 10.0), Vec3::new(20.0, 20.0, 20.0));
+        assert!(culling_plane_check(Vec3::ZERO, 5.0, bbox));
+        // The nearest corner (10, 10, 10) is 17.3 away; a 18 m plane reaches it.
+        assert!(!culling_plane_check(Vec3::ZERO, 18.0, bbox));
+        // Exactly on the plane is not within it.
+        assert!(culling_plane_check(Vec3::new(5.0, 10.0, 10.0), 5.0, bbox));
+    }
 }
