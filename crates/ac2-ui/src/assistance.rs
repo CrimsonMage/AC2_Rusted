@@ -14,7 +14,7 @@
 //! The toolbar's `AssistanceButton` closes an open message box (`ListenToMessage`). The call carries
 //! the world name the caller passes (`Turbine::Client`'s).
 
-use crate::dialog::{DialogFactory, DIALOG_MESSAGE};
+use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_MESSAGE};
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
 use crate::menu::MSG_MENU_NEW_SELECTION;
@@ -266,4 +266,45 @@ fn ui_text(tree: &UiTree, table: u32, string: u32) -> String {
         .and_then(|data| data.string(table, string))
         .map(|units| String::from_utf16_lossy(&units))
         .unwrap_or_default()
+}
+
+/// What the assistance page reads from the player: the world the call carries, and the GUN
+/// service the call goes to.
+pub trait AssistanceSource {
+    /// The world's name (`Turbine::Client::GetWorldName`).
+    fn world_name(&self) -> String;
+    /// Sends a call to the GUN service (`gmCWInterface::RequestGUN_CallCreate`); whether it was
+    /// queued.
+    fn call_create(&self, call_type: u32, world: &str, target: &str, description: &str) -> bool;
+}
+
+/// The page's message, with the world's name as the call's world.
+pub fn assistance_message<S: AssistanceSource>(
+    page: &mut AssistancePanel,
+    tree: &mut UiTree,
+    dialogs: &mut DialogFactory,
+    source: &S,
+    message: &UiMessage,
+) {
+    let world = source.world_name();
+    let Some(request) = page.message(tree, dialogs, message, &world) else {
+        return;
+    };
+    let AssistanceRequest::CallCreate {
+        call_type,
+        world,
+        target,
+        description,
+    } = request;
+    let queued = source.call_create(call_type, &world, &target, &description);
+    page.send_answered(tree, dialogs, queued);
+}
+
+/// The message box the page opened is answered (`RecvNotice_CloseMessageDialog`).
+pub fn assistance_outcomes(page: &mut AssistancePanel, outcomes: &[DialogOutcome]) {
+    for outcome in outcomes {
+        if let DialogOutcome::Message { context } = *outcome {
+            page.close_message(context);
+        }
+    }
 }

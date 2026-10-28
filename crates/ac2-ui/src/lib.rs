@@ -250,7 +250,10 @@ mod window_locations_tests;
 mod window_positions_tests;
 
 pub use allegiance::{AllegianceRequest, AllegianceSource, AllegianceUi};
-pub use assistance::{AssistancePanel, AssistanceRequest, CALL_TYPES};
+pub use assistance::{
+    assistance_message, assistance_outcomes, AssistancePanel, AssistanceRequest, AssistanceSource,
+    CALL_TYPES,
+};
 pub use backpack::BackpackUi;
 pub use camera_ui::{CameraUi, CameraUiEffect};
 pub use catalog::{CatalogRequest, CatalogUi};

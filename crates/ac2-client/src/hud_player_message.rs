@@ -148,7 +148,7 @@ impl HudView {
                 }
             }
             if let (Some(page), Some(dialogs)) = (assistance.as_mut(), dialogs.as_mut()) {
-                crate::hud_assistance::assistance_message(page, tree, dialogs, player, message);
+                ac2_ui::assistance_message(page, tree, dialogs, player, message);
             }
             if let Some(panel) = quests.as_mut() {
                 panel.journal_mut().message(tree, message);

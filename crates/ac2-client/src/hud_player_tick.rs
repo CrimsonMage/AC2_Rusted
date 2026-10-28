@@ -102,7 +102,7 @@ impl HudView {
                 &outcomes,
             );
             if let Some(page) = assistance.as_mut() {
-                crate::hud_assistance::assistance_outcomes(page, &outcomes);
+                ac2_ui::assistance_outcomes(page, &outcomes);
             }
             // The train, untrain and cancel confirmations (`gmSkillTreeUI::RecvNotice_CloseConfirmationDialog`).
             if let Some(skills) = skills.as_mut() {

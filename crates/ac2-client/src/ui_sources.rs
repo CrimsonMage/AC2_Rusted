@@ -46,6 +46,18 @@ impl ac2_ui::UiStrings for ClientPlayer<'_> {
     }
 }
 
+impl ac2_ui::AssistanceSource for ClientPlayer<'_> {
+    fn world_name(&self) -> String {
+        self.client.borrow().world_name().to_owned()
+    }
+
+    fn call_create(&self, call_type: u32, world: &str, target: &str, description: &str) -> bool {
+        self.client
+            .borrow_mut()
+            .call_create(call_type, world, target, description)
+    }
+}
+
 impl ac2_ui::PetSource for ClientPlayer<'_> {
     fn render_wire(&self, info: &ac2_net::protocol::StringInfo) -> String {
         self.render_info(info)
