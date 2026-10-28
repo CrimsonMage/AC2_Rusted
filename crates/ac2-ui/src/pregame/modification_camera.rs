@@ -3,16 +3,15 @@
 //! shining from the camera.
 
 use ac2_math::Vec3;
+use ac2_render::ui_scene::data::CameraData;
+use ac2_render::ui_scene::ViewSetup;
 use ac2_render::Camera;
-use ac2_ui::pregame::ModificationCamera;
 
-use ac2_ui::pregame::PregameUi;
-
-use crate::ui_scene::{CameraData, ViewSetup};
+use super::{ModificationCamera, PregameUi};
 
 /// The frame of avatar modification's viewport: its camera framing the avatar and `Light_1`
 /// from the camera.
-pub(crate) fn direct(ui: &PregameUi, setup: &mut ViewSetup<'_>) {
+pub fn direct(ui: &PregameUi, setup: &mut ViewSetup<'_>) {
     let Some(modification) = ui
         .avatar_modification()
         .filter(|m| m.viewport() == Some(setup.viewport.root))
@@ -58,7 +57,7 @@ fn framing(race: u32, zoomed: bool) -> (f64, f64, f64, f64) {
 /// avatar's height (its box, scaled by the avatar's height when zoomed, the lower three
 /// quarters then skipped), looking at the target height on the avatar's axis, turned about it
 /// so the camera's heading is the rotation slider's position times 360 degrees.
-pub(crate) fn modification_camera(
+pub fn modification_camera(
     base: &CameraData,
     race: u32,
     bounds: (Vec3, Vec3),

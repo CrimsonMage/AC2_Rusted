@@ -34,6 +34,9 @@ mod tests;
 mod tests_creation;
 mod ui;
 
+pub mod modification_camera;
+pub mod scene;
+
 pub use crate::scene_viewport::SceneViewport;
 pub use arms::{CharacterArms, SceneEntity};
 pub use assets::{load_pregame, PregameAssets, PREGAME_LAYOUTS};

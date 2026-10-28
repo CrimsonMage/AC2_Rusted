@@ -11,7 +11,6 @@
 //!
 //! Picks are `UIScene::StartSelection` / `FinishSelection` (`UiViews::pick`).
 
-pub(crate) use ac2_render::ui_scene::camera;
 pub(crate) mod data;
 mod render;
 

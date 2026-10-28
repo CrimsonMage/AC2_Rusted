@@ -3,20 +3,18 @@
 //! and avatar modification's camera ([`modification`]). Picks answer what the figure under the
 //! pointer stands for (a character slot, an avatar).
 
-mod content;
-mod modification;
-
 use std::sync::Arc;
 
 use ac2_anim::Ac2BehaviorParams;
 use ac2_db::ResourceStore;
 use ac2_gpu::Gpu;
+use ac2_ui::pregame::modification_camera as modification;
+use ac2_ui::pregame::scene::{self as content, MODE_AVATAR_SELECTION};
 use ac2_ui::pregame::PregameUi;
 use ac2_ui::SceneViewport;
 use ac2_world::Ac2WorldSource;
 
 use crate::ui_scene::{Figure, UiScenes, ViewSetup};
-use content::MODE_AVATAR_SELECTION;
 
 /// `gmAvatarSelectionUI`'s selected animation (`BehaviorParams::mBehaviorID`).
 const BEHAVIOR_SELECTED: u32 = 0x4100_0005;

@@ -14,23 +14,24 @@
 //!   (`gmAvatarModificationUI::Init`, mode 0x41000008).
 
 use ac2_math::{Frame, Vec3};
-use ac2_ui::pregame::PregameUi;
-use ac2_ui::SceneViewport;
+use ac2_physics::local_visual_desc;
+use ac2_render::ui_scene::data::SceneData;
+use ac2_render::ui_scene::figure::{figure_key as key, scene_figures, At, Figure};
 use ac2_weenie::Appearance;
 
-use crate::ui_scene::{figure_key as key, scene_figures, At, Figure, SceneData};
-use ac2_physics::local_visual_desc;
+use super::{identity, CharacterSelectionUi, PregameUi};
+use crate::SceneViewport;
 
 /// `AddPhysObjToArm`: figures hang from the arm's holding location 1.
 const ARM_LOCATION: u32 = 1;
 /// The land mesh avatars stand on (`UIScene::GetEntity(0x8100000B)`).
 const LAND_MESH: &str = "CHARGEN_LANDMESH";
 /// The mode avatar selection's avatars go to (`DoMode`), and avatar modification's.
-pub(crate) const MODE_AVATAR_SELECTION: u32 = 0x4100_0006;
-pub(crate) const MODE_AVATAR_MODIFICATION: u32 = 0x4100_0008;
+pub const MODE_AVATAR_SELECTION: u32 = 0x4100_0006;
+pub const MODE_AVATAR_MODIFICATION: u32 = 0x4100_0008;
 
 /// The figures of `viewport`'s scene, parents before the figures they hold.
-pub(crate) fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneData) -> Vec<Figure> {
+pub fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneData) -> Vec<Figure> {
     let did = viewport.scene;
     let mut out: Vec<Figure> = scene_figures(did, scene);
     let root = Some(viewport.root);
@@ -91,7 +92,7 @@ pub(crate) fn figures(ui: &PregameUi, viewport: &SceneViewport, scene: &SceneDat
 /// The arms and the figures on them.
 fn character_selection(
     ui: &PregameUi,
-    selection: &ac2_ui::pregame::CharacterSelectionUi,
+    selection: &CharacterSelectionUi,
     did: u32,
     out: &mut Vec<Figure>,
 ) {
@@ -114,9 +115,7 @@ fn character_selection(
         let (object, local) = match occupant.stand_in {
             Some(stand_in) => (stand_in, None),
             None => {
-                let Some(identity) =
-                    characters.and_then(|set| ac2_ui::pregame::identity(set, occupant.slot))
-                else {
+                let Some(identity) = characters.and_then(|set| identity(set, occupant.slot)) else {
                     continue;
                 };
                 let appearance = Appearance::from_delta(&identity.visual);

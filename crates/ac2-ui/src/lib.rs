@@ -126,6 +126,7 @@ pub use help_window::{help_pass, HelpWindow};
 mod overview_map;
 mod panel;
 mod paper_doll;
+pub mod paper_doll_scene;
 mod pk_status;
 mod place;
 mod placement;
