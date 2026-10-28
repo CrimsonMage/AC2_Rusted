@@ -194,6 +194,12 @@ pub enum GameplayNotice {
     },
     /// `CM_Character::SendNotice_RemovePet`.
     RemovePet(u64),
+    /// `ECM_Physics::SendNotice_CreateObject` (`CObjectMaint::FinishEntityCreation`): an object
+    /// was created.
+    CreateObject(u64),
+    /// `ECM_Physics::SendNotice_LocalVisualDescUpdate` (`CPhysicsObj::SetLocalVisualDesc` on
+    /// `RecvEvt_UpdateVisualDesc`): an object's appearance changed.
+    LocalVisualDescUpdate(u64),
     /// `CM_Character::SendNotice_UpdatePetMode`.
     UpdatePetMode { pet: u64, mode: u32 },
     /// `CM_Character::SendNotice_UpdatePetName`.

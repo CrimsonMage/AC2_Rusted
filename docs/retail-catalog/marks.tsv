@@ -785,8 +785,8 @@ key	status	note
 0042ef40	_	needs port (check): ItemDisplay::SetQuantity behaviour; implemented area ac2-ui item_display.rs but uncited
 0042ef60	x	ItemDisplay::SetShortcutType done: item_display.rs set_shortcut_type cites it
 0042ef90	x	ac2-ui item_display.rs / backpack.rs
-0042efc0	_	Legions has it: vtable slot 14 of ItemDisplay at 0x0042eec0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
-0042eff0	_	Legions has it: vtable slot 11 of ItemDisplay at 0x0042eef0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+0042efc0	x	ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
+0042eff0	x	ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
 0042f020	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 0042f0f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f180	_	Legions has it: vtable slot 10 of ItemDisplay at 0x0042eaf0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
@@ -1139,7 +1139,7 @@ key	status	note
 00442580	-	C++ destructors: the Rust state drops
 00442870	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00442890	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-00442900	_	Legions has it: vtable slot 11 of gmPaperDollUI at 0x00443250 (vtable audit); was skip: no Legions 7160 counterpart; the durability meter refreshes 
+00442900	x	ac2-ui inventory_notices.rs: CreateObject of an item in the doll refreshes its slot (doll.item_changed); Legions 0x00443250 looks the id up in the doll's item table, then CObjectMaint::GetWeenieObject
 004429e0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00442af0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00442c70	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
@@ -2058,15 +2058,15 @@ key	status	note
 004699f0	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 00469a40	x	Script notice glue: the efun is bound in ac2-script host/notices.rs (table of CM_*::SendNotice_* targets with argument kinds) and carries its efun id from glue/efun_names.txt; the raise reaches the UI through host/notices_typed.rs
 00469a90	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469b10	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00469b10	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00469b80	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469bc0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00469c10	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
-00469c60	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00469c60	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00469cb0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469d40	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00469d90	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00469d90	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00469de0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469e30	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469e80	x	ac2-ui death.rs (DeathPanel: the resurrect dialog, its text, its button's respawn); client hud_death.rs wires the notice and the answer; death_panel_7160 and combat_7160 (death, respawn)
@@ -2075,7 +2075,7 @@ key	status	note
 00469f60	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00469fd0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a020	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
-0046a070	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+0046a070	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 0046a0d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a110	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 0046a160	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
@@ -3041,10 +3041,10 @@ key	status	note
 00496c10	-	serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 00496cb0	x	implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
 00496d60	x	CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
-00496de0	_	needs port: notice CreateObject to the UI/client; no citation in crates/
+00496de0	x	ac2-weenie session.rs: every created object (CObjectMaint::FinishEntityCreation) pushes GameplayNotice::CreateObject
 00496e70	_	needs port: notice CreatePlayerObject to the UI/client; no citation in crates/
 00496f00	x	implemented: cited at crates/ac2-weenie/src/notice.rs:150
-00496f90	_	needs port: notice LocalVisualDescUpdate to the UI/client; no citation in crates/
+00496f90	x	ac2-weenie session.rs: an UpdateVisualDesc object action (SetLocalVisualDesc) pushes GameplayNotice::LocalVisualDescUpdate
 00497010	_	needs port: notice ModeUpdate to the UI/client; no citation in crates/
 00497090	_	needs port: notice NextFrameDrawn to the UI/client; no citation in crates/
 00497110	_	needs port: notice PlayerReadyToEnterWorld to the UI/client; no citation in crates/
@@ -14777,17 +14777,17 @@ key	status	note
 00724700	x	typed GameplayNotice (ac2-script notices_typed.rs) raised on the VM with a store open: client tests/store_script_7160.rs (ViewStore, UpdateStore, LeaveStore/LeaveCatalog/LeaveConsignment, ConfirmPurchase) and consignment_script_7160.rs (ViewConsignment, UpdateConsignment)
 007247f0	x	lead: WM_Store 0x52 -> CPlayer 0x1F3 -> CStoreSystem 0xF (vendor, StoreGroup DID 0x3858, AAHash store DID -> size): closes store/consignment/catalog, sets the shopper's group (CShopperContext 0x2), lists the group's StoreTemplates (build 0x117914) and raises it; ac2-net StoreCatalog; consignment_script_7160 view_catalog asserts the shops and sizes.
 007248b0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724970	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00724970	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00724a30	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724ac0	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 00724b50	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 00724be0	x	retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
-00724c70	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00724c70	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00724d00	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724d90	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 00724e20	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00724eb0	x	ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-00724f50	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+00724f50	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00724fe0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725070	-	no Legions 7160 counterpart: the Legions script table (glue/efun_names.txt) has no efun that raises it; admin 7148 only. Shortcut height is set through gGameplayOptionsProfile (glue/options.rs) [vtable-checked: not a slot of any located Legions vtable]
 00725100	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
@@ -14798,7 +14798,7 @@ key	status	note
 007253d0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725490	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725520	x	ac2-ui pets.rs update_pet_mode (gmPetUI::RecvNotice_UpdatePetMode: server mode; a row following the old mode moves its wanted mode and text); ac2-client hud_pets.rs
-007255c0	~	ac2-ui pets.rs: AddPet and PetIsUnderAttack reach the panel; RemovePet and UpdatePetName have no identified Legions handler, so the panel leaves them unchanged
+007255c0	x	script efun (ac2-script host/notices.rs, 0x0085001C-1F and PetIsUnderAttack) -> ac2-weenie Notice -> ac2-ui hud_notices.rs pet_notice -> pets.rs (Legions gmPetUI notice slots: AddPet 0x419810, RemovePet 0x418F70, UpdatePetName 0x41A1E0, PetIsUnderAttack 0x419570, UpdatePetMode 0x4199B0); pets_tests.rs
 00725660	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 007256f0	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)
 00725780	x	typed notice (ac2-script notices_typed) reaches its Legions panel in ac2-client (hud_player (frame_passes notices), hud_status, hud_death, hud_game_dialogs, target_select, hud_view reticle, hud_shortcut_checks)

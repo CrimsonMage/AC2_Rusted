@@ -44,7 +44,11 @@ pub fn paper_doll_notice<S: InventoryNoticeSource>(
             let equipped = source.equipped();
             doll.update_inventory(tree, source, code, item, location, &equipped);
         }
-        GameplayNotice::ItemUpdate(item) => doll.item_changed(tree, source, item),
+        // `gmPaperDollUI::RecvNotice_CreateObject` (Legions 0x00443250): an object in the doll's
+        // table refreshes its slot.
+        GameplayNotice::ItemUpdate(item) | GameplayNotice::CreateObject(item) => {
+            doll.item_changed(tree, source, item)
+        }
         GameplayNotice::SelectionChanged(new) => doll.selection_changed(tree, old_selection, new),
         _ => {}
     }
@@ -67,7 +71,11 @@ pub fn backpack_notice<S: InventoryNoticeSource>(
         } => {
             backpack.update_container(tree, source, container, code, item, slot);
         }
-        GameplayNotice::ItemUpdate(item) => backpack.item_changed(tree, source, item),
+        // `ItemDisplay::RecvNotice_CreateObject` / `RecvNotice_LocalVisualDescUpdate` (Legions
+        // 0x0042EEF0 / 0x0042EEC0): the display of that item updates (`ItemDisplay::Update`).
+        GameplayNotice::ItemUpdate(item)
+        | GameplayNotice::CreateObject(item)
+        | GameplayNotice::LocalVisualDescUpdate(item) => backpack.item_changed(tree, source, item),
         GameplayNotice::SelectionChanged(new) => {
             backpack.selection_changed(tree, *selection, new);
             *selection = new;
@@ -191,7 +199,11 @@ pub fn external_container_event<S: InventoryNoticeSource>(
                 } if container == display.container => {
                     display.update_container(tree, source, code, item, slot);
                 }
-                GameplayNotice::ItemUpdate(item) => display.item_changed(tree, source, item),
+                GameplayNotice::ItemUpdate(item)
+                | GameplayNotice::CreateObject(item)
+                | GameplayNotice::LocalVisualDescUpdate(item) => {
+                    display.item_changed(tree, source, item)
+                }
                 GameplayNotice::SelectionChanged(new) => {
                     display.selection_changed(tree, selection, new);
                 }

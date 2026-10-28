@@ -560,6 +560,10 @@ impl OnlineSession {
                 } else {
                     out.push(SessionEvent::ObjectAdded(object.id));
                 }
+                // `CObjectMaint::FinishEntityCreation`'s `ECM_Physics::SendNotice_CreateObject`.
+                out.push(SessionEvent::Notice(GameplayNotice::CreateObject(
+                    object.id,
+                )));
             }
             ServerEvent::UpdatePosition(update) | ServerEvent::PositionCell(update) => {
                 let applied = self
@@ -599,10 +603,19 @@ impl OnlineSession {
                     out.push(SessionEvent::ObjectContained(child.id));
                 }
             }
-            ServerEvent::Object(event) => out.push(SessionEvent::ObjectAction {
-                object: event.sender.id,
-                action: event.action,
-            }),
+            ServerEvent::Object(event) => {
+                let updated = matches!(event.action, ObjectAction::UpdateVisualDesc(_));
+                out.push(SessionEvent::ObjectAction {
+                    object: event.sender.id,
+                    action: event.action,
+                });
+                // `CPhysicsObj::SetLocalVisualDesc`'s `ECM_Physics::SendNotice_LocalVisualDescUpdate`.
+                if updated {
+                    out.push(SessionEvent::Notice(GameplayNotice::LocalVisualDescUpdate(
+                        event.sender.id,
+                    )));
+                }
+            }
             ServerEvent::PlayerDescription(qualities) => {
                 out.push(SessionEvent::PlayerQualities(qualities.clone()));
                 out.push(SessionEvent::LoginFinished);

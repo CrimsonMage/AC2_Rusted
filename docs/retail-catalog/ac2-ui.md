@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1265 done, 343 partial, 144 to do, 495 skipped.
+2247 retail functions: 1268 done, 343 partial, 141 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (29/53)
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (8/15)
+## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (10/15)
 
 ### ItemDisplay
 - [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
@@ -804,8 +804,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40 — needs port (check): ItemDisplay::SetQuantity behaviour; implemented area ac2-ui item_display.rs but uncited
 - [x] `ItemDisplay::SetShortcutType` · 0042ef60 · legions 0042ee60 — ItemDisplay::SetShortcutType done: item_display.rs set_shortcut_type cites it
 - [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — Legions has it: vtable slot 14 of ItemDisplay at 0x0042eec0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
-- [ ] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — Legions has it: vtable slot 11 of ItemDisplay at 0x0042eef0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+- [x] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
+- [x] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
 - [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 
 ## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (6/7)
@@ -1254,7 +1254,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (22/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (23/31)
 
 ### gmMiniFellowUI
 - [x] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260 — ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
@@ -1283,7 +1283,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmPaperDollUI::~gmPaperDollUI` · 00442580 · legions 00442ed0 — C++ destructors: the Rust state drops
 - [x] `gmPaperDollUI::ListenToMessage` · 00442870 · legions 004431c0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::ListenToMessage` · 00442890 · legions 004431e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-- [ ] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — Legions has it: vtable slot 11 of gmPaperDollUI at 0x00443250 (vtable audit); was skip: no Legions 7160 counterpart; the durability meter refreshes 
+- [x] `gmPaperDollUI::RecvNotice_CreateObject` · 00442900 — ac2-ui inventory_notices.rs: CreateObject of an item in the doll refreshes its slot (doll.item_changed); Legions 0x00443250 looks the id up in the doll's item table, then CObjectMaint::GetWeenieObject
 - [x] `gmPaperDollUI::RecvNotice_ItemUpdate` · 004429e0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::AddItem` · 00442af0 · legions 00443440 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RemoveItem` · 00442c70 · legions 004435c0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it

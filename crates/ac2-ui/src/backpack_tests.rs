@@ -184,3 +184,84 @@ fn a_stack_dragged_asks_how_many_then_moves_that_many() {
     );
     assert_eq!(backpack.stack_ui_done(&player, 1, 2), None);
 }
+
+/// A pack whose sword's object may not be created yet.
+struct Arriving {
+    sword_known: bool,
+}
+
+impl InventorySource for Arriving {
+    fn item(&self, item: u64) -> Option<ItemSlot> {
+        if item == SWORD && !self.sword_known {
+            return None;
+        }
+        ONE_POTION.item(item)
+    }
+
+    fn contents_info(&self, container: u64, segment: u32) -> (Vec<u64>, u32, u32) {
+        ONE_POTION.contents_info(container, segment)
+    }
+
+    fn max_container_size(&self, container: u64) -> u32 {
+        ONE_POTION.max_container_size(container)
+    }
+
+    fn selection(&self) -> u64 {
+        0
+    }
+}
+
+impl crate::UiStrings for Arriving {
+    fn render_string(&self, _: &crate::UiString) -> String {
+        String::new()
+    }
+}
+
+impl crate::InventoryNoticeSource for Arriving {
+    fn equipped(&self) -> Vec<(u32, u64)> {
+        Vec::new()
+    }
+
+    fn render_wire(&self, _: &ac2_net::protocol::StringInfo) -> String {
+        String::new()
+    }
+}
+
+/// `ItemDisplay::RecvNotice_CreateObject`: a display waiting for its item's object fills in when
+/// the object is created.
+#[test]
+fn a_waiting_item_fills_in_when_its_object_is_created() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let before = Arriving { sword_known: false };
+    let mut backpack = BackpackUi::create(tree, &layout, &before, PLAYER);
+    let sword_icon = backpack.packs[0].items[1].icon;
+    assert!(tree.get(sword_icon).unwrap().image().is_none(), "waiting");
+    let after = Arriving { sword_known: true };
+    let mut selection = 0;
+    // Another object's creation changes nothing; the sword's fills its icon.
+    crate::backpack_notice(
+        &mut backpack,
+        tree,
+        &before,
+        &mut selection,
+        &ac2_weenie::GameplayNotice::CreateObject(POTIONS),
+    );
+    assert!(tree.get(sword_icon).unwrap().image().is_none());
+    crate::backpack_notice(
+        &mut backpack,
+        tree,
+        &after,
+        &mut selection,
+        &ac2_weenie::GameplayNotice::CreateObject(SWORD),
+    );
+    assert_eq!(
+        tree.get(sword_icon).unwrap().image().unwrap().file,
+        0x0600_1002
+    );
+}
