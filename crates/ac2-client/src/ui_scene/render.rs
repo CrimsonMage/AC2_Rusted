@@ -8,14 +8,14 @@
 //! over the UI surfaces behind it where the scene drew. The UI surfaces themselves draw straight
 //! to the window.
 
-use ac2_gpu::{Gpu, ScenePresenter, UiOverlay};
+use ac2_gpu::{Gpu, ScenePresenter, SceneRenderer, UiOverlay};
 
 use super::UiScenes;
 use crate::ui_scale::UiScale;
 use ac2_ui::SceneViewport;
 
 /// Draws into `color` (cleared to `clear`, an sRGB colour) on the window `scale` fits the UI
-/// to: `world` (when there is one), then `portal` (the portal space, from its own camera over a
+/// to: `world` (when there is one, with its lens flares' scan of its depth), then `portal` (the portal space, from its own camera over a
 /// cleared depth) in the scene target, both through the tone map with the world's post chain,
 /// then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
 /// of `scenes`' prepared viewports after its root's layer.
@@ -30,7 +30,7 @@ pub fn render_with_scenes(
     overlay: &UiOverlay,
     layer_roots: &[usize],
     scenes: &[&UiScenes],
-    world: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
+    world: Option<&SceneRenderer>,
     portal: Option<&dyn Fn(&mut wgpu::RenderPass<'_>)>,
 ) {
     let mut views: Vec<(usize, usize, SceneViewport)> = scenes
@@ -58,9 +58,12 @@ pub fn render_with_scenes(
         let [r, g, b] = clear.map(|c| ac2_gpu::srgb_to_linear(c.clamp(0.0, 1.0)));
         hdr.render(gpu, &mut encoder, [r, g, b, 1.0], None, |pass| {
             if let Some(world) = world {
-                world(pass);
+                world.draw(pass);
             }
         });
+        if let Some(world) = world {
+            world.scan_flares(gpu, &mut encoder, hdr);
+        }
         // The occlusion reads the world's depth, so it is recorded before the portal pass clears
         // it: the world keeps its occlusion while it fades under the portal space.
         presenter.occlusion(gpu, &mut encoder, hdr, world.is_some());

@@ -7,6 +7,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
+//! [--light-coronas 0|1]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
@@ -15,6 +16,7 @@
 //! `--model-detail` and `--scenery-distance` set the headless scene's `ModelDetail` and
 //! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
 //! medium. `--object-shadows` sets its `DynamicObjectShadows` level (default 2, medium; 0 none).
+//! `--light-coronas 0` turns off the sky's lens flares (`LightCoronas`; default on).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -86,6 +88,8 @@ struct Args {
     degrade: ac2_render::object::DegradeOptions,
     /// The headless scene's `DynamicObjectShadows` level (sun shadows of bodies and objects).
     object_shadows: ac2_render::prefs::ObjectShadows,
+    /// The headless scene's `LightCoronas` (the sky's lens flares).
+    light_coronas: bool,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -110,6 +114,7 @@ fn parse_args() -> Result<Args, String> {
         look: None,
         degrade: ac2_render::object::DegradeOptions::default(),
         object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
+        light_coronas: ac2_render::prefs::SceneOptions::default().light_coronas,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -165,6 +170,12 @@ fn parse_args() -> Result<Args, String> {
                     .parse()
                     .map_err(|e| format!("--object-shadows: {e}"))?;
                 args.object_shadows = ac2_render::prefs::ObjectShadows::from_preference(level);
+            }
+            "--light-coronas" => {
+                let on: u8 = value()?
+                    .parse()
+                    .map_err(|e| format!("--light-coronas: {e}"))?;
+                args.light_coronas = on != 0;
             }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
@@ -321,6 +332,7 @@ fn snapshot(
     view.set_scene_options(ac2_render::prefs::SceneOptions {
         degrade: args.degrade,
         object_shadows: args.object_shadows,
+        light_coronas: args.light_coronas,
         ..Default::default()
     });
     let model = models.get(args.model).filter(|_| !args.fly);

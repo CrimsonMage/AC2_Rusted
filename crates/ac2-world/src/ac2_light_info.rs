@@ -21,6 +21,10 @@ const PROPERTY_DIRECTION: u32 = 0x4000_0003;
 const PROPERTY_RANGE: u32 = 0x4000_0004;
 const PROPERTY_DIFFUSE: u32 = 0x4000_0008;
 const PROPERTY_INTENSITY: u32 = 0x4000_0009;
+const PROPERTY_CORONA_TEXTURE: u32 = 0x4000_0061;
+const PROPERTY_CORONA_SIZE: u32 = 0x4000_0062;
+const PROPERTY_CORONA_OPACITY: u32 = 0x4000_0063;
+const PROPERTY_CORONA_FADE_SPEED: u32 = 0x4000_0064;
 
 const LIGHT_POINT: u32 = 0x4000_0001;
 const LIGHT_DIRECTIONAL: u32 = 0x4000_0002;
@@ -48,6 +52,20 @@ pub struct Ac2StaticLight {
     pub color: [f32; 3],
     /// Per lit cell, the vertex indices of its cell mesh this light reaches.
     pub lit: Box<[(CellId, Box<[u16]>)]>,
+    /// The corona a point light with a corona texture draws (`CEnvCell::CreateLightSource`).
+    pub corona: Option<Ac2Corona>,
+}
+
+/// A light's corona: a one-sprite lens flare on the light (`CEnvCell::CreateLightSource`:
+/// `LensFlareEffect::InitNew(m_fCoronaOpacity, m_fCoronaFadeSpeed)`, then one point at axis -1 of
+/// `m_CoronaTextureDID` and `m_fCoronaSize`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Ac2Corona {
+    pub texture: ac2_core::DataId,
+    pub size: f32,
+    /// The flare's opacity when the cell loads (the fade moves it from there).
+    pub opacity: f32,
+    pub fade_speed: f32,
 }
 
 impl Ac2StaticLight {
@@ -196,7 +214,11 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Read<Ac2LightInfo> {
             intensity: 0.5,
             color: [1.0; 3],
             lit: Box::default(),
+            corona: None,
         };
+        // `LightSource::LightSource`'s corona defaults.
+        let (mut corona_texture, mut corona_size) = (0, 1.0);
+        let (mut corona_opacity, mut corona_fade_speed) = (1.0, 1.0);
         for property in read_ac2_property_collection(cursor)? {
             match property.name {
                 PROPERTY_TYPE => {
@@ -226,8 +248,26 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Read<Ac2LightInfo> {
                         light.color = [channel(16), channel(8), channel(0)];
                     }
                 }
+                PROPERTY_CORONA_TEXTURE => {
+                    corona_texture = property.word().unwrap_or(corona_texture)
+                }
+                PROPERTY_CORONA_SIZE => corona_size = property.float_at(0).unwrap_or(corona_size),
+                PROPERTY_CORONA_OPACITY => {
+                    corona_opacity = property.float_at(0).unwrap_or(corona_opacity)
+                }
+                PROPERTY_CORONA_FADE_SPEED => {
+                    corona_fade_speed = property.float_at(0).unwrap_or(corona_fade_speed)
+                }
                 _ => {}
             }
+        }
+        if light.kind == Ac2LightKind::Point && corona_texture != 0 {
+            light.corona = Some(Ac2Corona {
+                texture: ac2_core::DataId::new(corona_texture),
+                size: corona_size,
+                opacity: corona_opacity,
+                fade_speed: corona_fade_speed,
+            });
         }
         let f =
             |cursor: &mut ArchiveCursor<'_>| cursor.read_f32().map_err(|_| "record ended early");

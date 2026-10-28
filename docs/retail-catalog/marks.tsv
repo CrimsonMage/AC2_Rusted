@@ -8094,7 +8094,7 @@ key	status	note
 0056e450	~	ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 0056e5f0	_	needs port: DrawScreenQuadUsingMaterial draw
 0056e860	_	needs port: scene Think step
-0056e880	_	needs port: pixel scan (colour/ID under a screen pixel)
+0056e880	x	only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 0056ea20	x	SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 0056ed50	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
 0056eef0	_	needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
@@ -8121,7 +8121,7 @@ key	status	note
 00570f00	-	D3D device lifecycle/restore; wgpu replaces
 00571630	x	SceneTool::LinkLight cited in ac2-client ui_scene/camera.rs:13 (scene lights linked, sun disabled)
 005716c0	_	needs port: scene AddDynamicLights step
-00571860	_	needs port: pixel scan (colour/ID under a screen pixel)
+00571860	x	only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 005718c0	_	needs port: pixel scan (colour/ID under a screen pixel)
 00571a40	_	needs port: scene EndFrame step
 00571da0	x	ac2-render object::cell / point_lights
@@ -8401,7 +8401,7 @@ key	status	note
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 00585870	_	needs port: landscape sky state (sky clear/fog)
 005858b0	x	ac2-world region::sky_objects, ac2-render sky
-00585980	~	sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad; only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole), the moon keeps its authored alpha blend; lens flares and fixed_pos/height_mod not yet
+00585980	~	sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod not yet
 00585b30	_	needs port: landscape sky state (sky clear/fog)
 00585b50	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
@@ -8981,14 +8981,14 @@ key	status	note
 005b5ee0	_	needs port: graphics preference apply (quality, degrade, device-independent effects)
 005b6050	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b6070	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005b6090	_	needs port: lens flare (flare points, fade, sprite draw)
+005b6090	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 005b60c0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b60f0	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 005b6130	_	needs port: lens flare (flare points, fade, sprite draw)
-005b6160	_	needs port: lens flare (flare points, fade, sprite draw)
-005b61f0	x	LensFlareEffect::StreamPack cited in ac2-world ac2_region.rs:293 (fade speed, counted points parsed; drawing is a separate row)
+005b6160	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
+005b61f0	x	ac2-world ac2_region.rs read_lens_flare: fade speed and counted points kept on SkyObject/CelestialPosition
 005b62f0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005b63d0	_	needs port: lens flare (flare points, fade, sprite draw)
+005b63d0	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 005b6980	-	SmartArray/STL container internals; Vec replaces
 005b69e0	_	needs port: lens flare (flare points, fade, sprite draw)
 005b6f90	-	D3D device/resource plumbing; wgpu replaces

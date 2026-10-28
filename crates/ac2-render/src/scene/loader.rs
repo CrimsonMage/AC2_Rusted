@@ -125,6 +125,8 @@ pub enum Loaded {
     Object(LoadedObject),
     /// An object FX's particle system description (`WorldScene::start_object_particle`).
     ObjectParticle(Box<LoadedObjectParticle>),
+    /// Images the frame asked for on their own (the sky's lens flare sprites).
+    Images(Images),
 }
 
 /// An object FX particle system's load: its description (`None` when it draws nothing), and its
@@ -174,6 +176,8 @@ pub(crate) enum Request {
     /// A streak's material: drawn through the particle material's model (one empty triangle with
     /// the material's layers), loaded once.
     StreakMaterial(DataId),
+    /// Images drawn without a model (`LensFlarePoint` textures).
+    Images(Vec<TextureKey>),
 }
 
 /// The loader thread and its queues.
@@ -491,6 +495,7 @@ impl Worker {
             Request::ObjectParticle(handle, did) => {
                 Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
             }
+            Request::Images(keys) => Loaded::Images(self.images(keys)),
             Request::StreakMaterial(material) => {
                 let store = self.world.resource_store().clone();
                 let model = self

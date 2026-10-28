@@ -2,11 +2,11 @@
 //! object centred on the viewer (`SetViewerPosition`), turned to its heading and then pitched about
 //! the world Y axis (`CalcFrame`: `Frame::set_heading`, `Frame::grotate(0, -pitch, 0)`), and tinted
 //! by its colour (`UpdateTimeOfDay`). `Draw(0)` draws the objects before the world and then the
-//! sky fog quad; `Draw(1)` draws the rest after it.
+//! sky fog quad; `Draw(1)` draws the rest after it, then each object's lens flare.
 
 use ac2_core::DataId;
 use ac2_math::{Frame, Mat4, Vec3};
-use ac2_world::CelestialPosition;
+use ac2_world::{CelestialPosition, LensFlare};
 
 /// `Draw` skips the before-world objects when the sky is fogged out (`|fog_sky - 1| < 0.0002`).
 const FOG_SKY_EPSILON: f32 = 0.0002;
@@ -27,6 +27,16 @@ pub struct SkyFrame {
     /// `DrawScreenQuad` colour over the before-world objects (fog colour, alpha `fog_sky`),
     /// or `None` when `fog_sky` is 0.
     pub fog_quad: Option<[f32; 4]>,
+    /// The lens flares drawn over everything (`LScapeSky::Draw(1)`, `LensFlareEffect::Draw`).
+    pub flares: Vec<SkyFlare>,
+}
+
+/// One sky object's lens flare: the unit direction from the viewer to its light, at infinite
+/// distance (`LensFlareEffect::Draw(origin, bInfiniteDistance = 1)`).
+#[derive(Debug, Clone, PartialEq)]
+pub struct SkyFlare {
+    pub direction: Vec3,
+    pub flare: LensFlare,
 }
 
 /// `LScapeSky::SetViewerPosition` and `Draw` for `objects` seen from `viewer`.
@@ -45,12 +55,26 @@ pub fn sky_frame(
         let Some(gfx) = object.gfx else {
             continue;
         };
+        let celestial = celestial_frame(object.heading, object.pitch, viewer);
+        // `LScapeSky::Draw(1)` draws the flare of every object that is up, in or out of water:
+        // towards the object's local -Y axis, normalised and taken 1000 out. Retail transforms
+        // that point without the viewer's origin; at infinite distance only its direction counts,
+        // so it is taken from the viewer here.
+        if let Some(flare) = &object.lens_flare {
+            let direction = (-celestial.local_to_global_vector(Vec3::Y)).normalize_or_zero();
+            if direction != Vec3::ZERO {
+                frame.flares.push(SkyFlare {
+                    direction,
+                    flare: flare.clone(),
+                });
+            }
+        }
         if object.water != 0 && object.water != u32::from(in_water) {
             continue;
         }
         let placement = SkyPlacement {
             gfx,
-            world: celestial_frame(object.heading, object.pitch, viewer).to_mat4(),
+            world: celestial.to_mat4(),
             tint: object.color,
         };
         if object.after {
@@ -91,6 +115,7 @@ mod tests {
             fixed_pos: false,
             fixed_x: 0,
             fixed_y: 0,
+            lens_flare: None,
         }
     }
 
@@ -114,6 +139,35 @@ mod tests {
         // A fully fogged sky drops the before-world objects.
         let fogged = sky_frame(&[object(false, 0.0, 0.0)], viewer, false, [1.0; 3], 1.0);
         assert!(fogged.before.is_empty());
+    }
+
+    #[test]
+    fn a_flare_points_along_its_objects_minus_y_even_when_fogged_out() {
+        let flare = ac2_world::LensFlare {
+            fade_speed: 4.0,
+            points: std::sync::Arc::from(Vec::new()),
+        };
+        let sun = CelestialPosition {
+            lens_flare: Some(flare.clone()),
+            ..object(false, 90.0, 0.0)
+        };
+        let sky = sky_frame(
+            std::slice::from_ref(&sun),
+            Vec3::new(5.0, 6.0, 7.0),
+            false,
+            [1.0; 3],
+            1.0,
+        );
+        assert!(sky.before.is_empty());
+        assert_eq!(sky.flares.len(), 1);
+        // Heading 90 turns local -y to west (-x).
+        assert!((sky.flares[0].direction + Vec3::X).length() < 1e-5);
+        assert_eq!(sky.flares[0].flare, flare);
+        // An object that is not up draws no flare.
+        let down = CelestialPosition { gfx: None, ..sun };
+        assert!(sky_frame(&[down], Vec3::ZERO, false, [1.0; 3], 0.0)
+            .flares
+            .is_empty());
     }
 
     #[test]

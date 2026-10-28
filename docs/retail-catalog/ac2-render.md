@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 146 done, 54 partial, 223 to do, 358 skipped.
+781 retail functions: 151 done, 54 partial, 218 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -485,21 +485,21 @@ Legend and workflow: [README](README.md).
 - [x] `DecalEffectManager::Render` · 005c3a30 · legions 0058ab40 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 - [x] `DecalEffectManager::CreateDecalEffect` · 005c3c10 · legions 0058ad20 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
-## `portal/client/src/render/flare/lensflareeffect.cpp.c` (1/14)
+## `portal/client/src/render/flare/lensflareeffect.cpp.c` (4/14)
 
 ### LensFlarePoint
 - [-] `LensFlarePoint::LensFlarePoint` · 005b6050 · legions 005809f0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [-] `LensFlarePoint::~LensFlarePoint` · 005b6070 · legions 00580a10 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 
 ### LensFlareEffect
-- [ ] `LensFlareEffect::LensFlareEffect` · 005b6090 · legions 00580a30 — needs port: lens flare (flare points, fade, sprite draw)
+- [x] `LensFlareEffect::LensFlareEffect` · 005b6090 · legions 00580a30 — ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 - [-] `LensFlareEffect::~LensFlareEffect` · 005b60c0 · legions 00580a60 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [-] `LensFlareEffect::Destroy` · 005b60f0 · legions 00580a90 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 - [ ] `LensFlareEffect::InitNew` · 005b6130 · legions 00580ad0 — needs port: lens flare (flare points, fade, sprite draw)
-- [ ] `LensFlareEffect::GetSubDataIDs` · 005b6160 · legions 00580b00 — needs port: lens flare (flare points, fade, sprite draw)
-- [x] `LensFlareEffect::StreamPack` · 005b61f0 · legions 00580b90 — LensFlareEffect::StreamPack cited in ac2-world ac2_region.rs:293 (fade speed, counted points parsed; drawing is a separate row)
+- [x] `LensFlareEffect::GetSubDataIDs` · 005b6160 · legions 00580b00 — ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
+- [x] `LensFlareEffect::StreamPack` · 005b61f0 · legions 00580b90 — ac2-world ac2_region.rs read_lens_flare: fade speed and counted points kept on SkyObject/CelestialPosition
 - [-] `LensFlareEffect::CopyInto` · 005b62f0 · legions 00580c90 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `LensFlareEffect::Draw` · 005b63d0 · legions 00580d70 — needs port: lens flare (flare points, fade, sprite draw)
+- [x] `LensFlareEffect::Draw` · 005b63d0 · legions 00580d70 — ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 
 ### SmartArray<LensFlarePoint>
 - [-] `SmartArray<LensFlarePoint>::AddToEnd` · 005b6980 · legions 00581320 — SmartArray/STL container internals; Vec replaces
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0 — needs port: scene camera properties
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (17/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (19/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10 — needs port: motion blur flag (scene effect)
@@ -848,7 +848,7 @@ Legend and workflow: [README](README.md).
 - [~] `SceneTool::StartSelection` · 0056e450 · legions 0053e830 — ac2-render selection.rs: drawn-mesh triangles (skinned parts at their group matrix), no potential list, no selectability / LookAtSelection / own-item checks
 - [ ] `SceneTool::DrawScreenQuadUsingMaterial` · 0056e5f0 · legions 0053e9d0 — needs port: DrawScreenQuadUsingMaterial draw
 - [ ] `SceneTool::Think` · 0056e860 · legions 0053ec40 — needs port: scene Think step
-- [ ] `SceneTool::GetPixelScanResult` · 0056e880 · legions 0053ec60 — needs port: pixel scan (colour/ID under a screen pixel)
+- [x] `SceneTool::GetPixelScanResult` · 0056e880 · legions 0053ec60 — only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 - [x] `SceneTool::SetupCamera` · 0056ea20 · legions 0053ee00 — SceneTool::SetupCamera cited in ac2-client ui_scene/camera.rs:3 (viewport renders through camera entity)
 - [ ] `SceneTool::GetPointLightShadowVector` · 0056ed50 · legions 0053f130 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
 - [ ] `SceneTool::DisableSunlight` · 0056eef0 · legions 0053f2d0 — needs port: shadow volumes and sunlight disable (shadow mapping of the scene)
@@ -887,7 +887,7 @@ Legend and workflow: [README](README.md).
 - [-] `SceneTool::Startup` · 00570f00 · legions 005413b0 — D3D device lifecycle/restore; wgpu replaces
 - [x] `SceneTool::LinkLight` · 00571630 · legions 00541ae0 — SceneTool::LinkLight cited in ac2-client ui_scene/camera.rs:13 (scene lights linked, sun disabled)
 - [ ] `SceneTool::AddDynamicLights` · 005716c0 · legions 00541b70 — needs port: scene AddDynamicLights step
-- [ ] `SceneTool::RequestPixelScan` · 00571860 · legions 00541d10 — needs port: pixel scan (colour/ID under a screen pixel)
+- [x] `SceneTool::RequestPixelScan` · 00571860 · legions 00541d10 — only LensFlareEffect::Draw scanned pixels; replaced by ac2-gpu lens_flare.rs's depth scan pass (AGENTS.md exception)
 - [ ] `SceneTool::ScanRequestedPixels` · 005718c0 · legions 00541d70 — needs port: pixel scan (colour/ID under a screen pixel)
 - [ ] `SceneTool::EndFrame` · 00571a40 · legions 00541ef0 — needs port: scene EndFrame step
 - [x] `SceneTool::SortLights` · 00571da0 · legions 00542250 — ac2-render object::cell / point_lights
@@ -1064,7 +1064,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0 — ac2-world region::sky_objects, ac2-render sky
 - [ ] `LScapeSky::Clear` · 00585870 · legions 00554f60 — needs port: landscape sky state (sky clear/fog)
 - [x] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0 — ac2-world region::sky_objects, ac2-render sky
-- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad; only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole), the moon keeps its authored alpha blend; lens flares and fixed_pos/height_mod not yet
+- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod not yet
 - [ ] `LScapeSky::LScapeSky` · 00585b30 · legions 00555220 — needs port: landscape sky state (sky clear/fog)
 - [-] `LScapeSky::~LScapeSky` · 00585b50 · legions 00555240 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet

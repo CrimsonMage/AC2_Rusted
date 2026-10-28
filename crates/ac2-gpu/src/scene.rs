@@ -1,7 +1,8 @@
 //! The GPU side of `ac2_render::scene`: uploads what the scene's loader finished and draws a
 //! `SceneFrame` in `WorldRender::Draw` order (the sky before the world and its fog quad, the near
 //! and far landscape, the objects with near and far water, each block's visible interiors under
-//! its inside environment, then the sky after the world). Images arrive decoded with the loads,
+//! its inside environment, then the sky after the world and its lens flares). Images arrive
+//! decoded with the loads,
 //! so nothing here reads the DATs.
 
 use std::collections::HashMap;
@@ -15,6 +16,7 @@ use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneObject, Scene
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
+use crate::lens_flare::LensFlares;
 use crate::sky::{SkyLook, SkyRenderer};
 use crate::sun_shadow::{fit_cascades, SunShadows};
 use crate::{
@@ -46,6 +48,8 @@ pub struct SceneRenderer {
     fog_quad: ScreenQuad,
     /// The sky under the DAT sky objects.
     sky: SkyRenderer,
+    /// The sky lights' lens flares over the world.
+    flares: LensFlares,
     /// The near landscape's static shadow map.
     shadow_map: StaticShadowMap,
     /// The sun shadow cascades of bodies and objects, and the level they are sized for next.
@@ -88,6 +92,22 @@ impl SceneRenderer {
         self.object_shadows = level;
     }
 
+    /// Whether the sky lights draw their lens flares (`LightCoronas`), from the next `prepare`.
+    pub fn set_light_coronas(&mut self, enabled: bool) {
+        self.flares.set_enabled(enabled);
+    }
+
+    /// The lens flares' scan of the world's depth in `hdr`: record it after the world pass and
+    /// before anything clears that depth (the portal space's pass).
+    pub fn scan_flares(
+        &self,
+        gpu: &Gpu,
+        encoder: &mut wgpu::CommandEncoder,
+        hdr: &crate::HdrTarget,
+    ) {
+        self.flares.scan(gpu, encoder, &hdr.depth_view);
+    }
+
     /// The renderers of a scene drawn into an [`crate::HdrTarget`] (`HDR_FORMAT`).
     pub fn new(gpu: &Gpu) -> Self {
         let mut terrain = TerrainRenderer::new(gpu, HDR_FORMAT);
@@ -104,6 +124,7 @@ impl SceneRenderer {
             objects,
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
+            flares: LensFlares::new(gpu, HDR_FORMAT),
             models: HashMap::new(),
             world_objects: HashMap::new(),
             frame_objects: Vec::new(),
@@ -172,6 +193,7 @@ impl SceneRenderer {
                 // `WorldScene` hands the rain's loads on as models; a far layout change has no data.
                 // The scene keeps an object FX's system; its material arrives as a model.
                 Loaded::Layout | Loaded::Rain(_) | Loaded::ObjectParticle(_) => {}
+                Loaded::Images(images) => self.take_images(images),
                 Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;
@@ -272,6 +294,11 @@ impl SceneRenderer {
         };
         self.sky
             .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
+        let images = &self.images;
+        self.flares
+            .prepare(gpu, camera, aspect, time, &frame.sky.flares, &mut |key| {
+                images.get(&key).cloned()
+            });
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect, time);
         let all_world = world_instances(models, placed, blocks, far, frame);
@@ -446,6 +473,10 @@ impl SceneRenderer {
         }
         self.objects
             .draw(pass, 2, &sky_instances(models, &frame.sky.after));
+        // `LScapeSky::Draw(1)`: then each sky light's `LensFlareEffect::Draw`.
+        if landscape_sky(&frame.sky) {
+            self.flares.draw(pass);
+        }
     }
 }
 

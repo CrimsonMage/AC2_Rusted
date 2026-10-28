@@ -134,6 +134,33 @@ fn ac2_region_publishes_sky_lighting_and_fog() {
             assert!(matches!(gfx.raw() >> 24, 0x04 | 0x1F), "{gfx:?}");
         }
     }
+    // `SkyObject`'s `LensFlareEffect`: the sun (0x04000023) alone carries one, its sprites on
+    // the axis through the screen centre, each a `RenderTexture`.
+    let day = (0..24)
+        .filter_map(|step| region.sky_objects(f64::from(step) * 7347.0 / 24.0))
+        .find(|objects| {
+            objects
+                .iter()
+                .any(|o| o.gfx.is_some() && o.lens_flare.is_some())
+        })
+        .expect("the sun is up at some hour");
+    let flares: Vec<_> = day
+        .iter()
+        .filter_map(|object| Some((object.gfx?, object.lens_flare.as_ref()?)))
+        .collect();
+    assert_eq!(flares.len(), 1, "{flares:?}");
+    let (sun, flare) = flares[0];
+    assert_eq!(sun.raw(), 0x0400_0023);
+    assert!(flare.fade_speed > 0.0);
+    assert!(flare.points.len() > 1);
+    assert!(
+        flare.points.iter().any(|p| p.axis_pos == -1.0),
+        "one on the light"
+    );
+    for point in flare.points.iter() {
+        assert!(point.size > 0.0 && point.axis_pos.abs() <= 1.0);
+        assert_eq!(point.texture.map(|t| t.raw() >> 24), Some(0x40));
+    }
 }
 
 #[test]

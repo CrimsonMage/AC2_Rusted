@@ -48,7 +48,6 @@ impl ClientView {
         depth: &wgpu::TextureView,
     ) {
         let (overlay, roots) = self.hud.layers_for_scenes();
-        let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
         let draw_portal: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.portal.draw(pass);
         crate::ui_scene::render_with_scenes(
             gpu,
@@ -60,7 +59,7 @@ impl ClientView {
             overlay,
             roots,
             &[],
-            self.world_drawn.then_some(draw_world),
+            self.world_drawn.then_some(&self.renderer),
             self.portal.drawn().then_some(draw_portal),
         );
     }

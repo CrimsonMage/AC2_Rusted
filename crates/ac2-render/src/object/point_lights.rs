@@ -107,6 +107,7 @@ mod tests {
                 intensity: 0.5,
                 color: [1.0; 3],
                 lit: Box::new([]),
+                corona: None,
             },
             origin: Vec3::new(x, 0.0, 0.0),
             indoor,

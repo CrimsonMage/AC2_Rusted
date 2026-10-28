@@ -233,6 +233,7 @@ impl ClientView {
     /// the frill distance, as the graphics preferences set them.
     pub fn set_scene_options(&mut self, options: ac2_render::prefs::SceneOptions) {
         self.renderer.set_object_shadows(options.object_shadows);
+        self.renderer.set_light_coronas(options.light_coronas);
         self.scene.set_options(options);
     }
 
@@ -471,7 +472,6 @@ impl ClientView {
     ) {
         profile_scope!("view.render");
         let (overlay, roots) = self.hud.layers_for_scenes();
-        let draw_world: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.renderer.draw(pass);
         let draw_portal: &dyn Fn(&mut wgpu::RenderPass<'_>) = &|pass| self.portal.draw(pass);
         crate::ui_scene::render_with_scenes(
             gpu,
@@ -483,7 +483,7 @@ impl ClientView {
             overlay,
             roots,
             &[self.doll.scenes()],
-            (world && self.world_drawn).then_some(draw_world),
+            (world && self.world_drawn).then_some(&self.renderer),
             self.portal.drawn().then_some(draw_portal),
         );
     }

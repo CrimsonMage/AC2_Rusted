@@ -3,14 +3,34 @@
 //! replacement also offsets heading and pitch, and its colour is interpolated (HSB) towards the
 //! next key's replacement.
 
+use std::sync::Arc;
+
 use ac2_core::DataId;
 
 use super::day_desc::{after_time, before_time, interp_color, time_ratio};
 use super::SkyTimeOfDay;
 use crate::color::{Rgba, WHITE};
 
-/// `SkyObject` (`SkyObject::StreamPack` order).
+/// One sprite of a lens flare (`LensFlarePoint`): where it sits on the axis from the light
+/// through the screen centre (-1 on the light, 1 mirrored across the centre), its
+/// `RenderTexture`, and its size as a fraction of the screen's width.
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub struct LensFlarePoint {
+    pub axis_pos: f32,
+    pub texture: Option<DataId>,
+    pub size: f32,
+}
+
+/// `LensFlareEffect`: the flare a sky object draws over the world (`LScapeSky::Draw(1)`), fading
+/// in and out at `fade_speed` per second as the light is seen or hidden.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LensFlare {
+    pub fade_speed: f32,
+    pub points: Arc<[LensFlarePoint]>,
+}
+
+/// `SkyObject` (`SkyObject::StreamPack` order).
+#[derive(Debug, Clone, PartialEq)]
 pub(crate) struct SkyObject {
     pub(crate) name: u32,
     pub(crate) default_gfx: u32,
@@ -27,6 +47,8 @@ pub(crate) struct SkyObject {
     pub(crate) fixed_x: f32,
     pub(crate) fixed_y: f32,
     pub(crate) west_to_east: bool,
+    /// Its `LensFlareEffect`, when it has points.
+    pub(crate) lens_flare: Option<LensFlare>,
 }
 
 /// `SkyObjectReplace` of one `SkyTimeOfDay`.
@@ -40,7 +62,7 @@ pub(crate) struct SkyObjectReplace {
 }
 
 /// `CelestialPosition`: one sky object as `LScapeSky` places and tints it.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CelestialPosition {
     /// The `CSetup`/visual to draw; `None` when the object is not up.
     pub gfx: Option<DataId>,
@@ -58,6 +80,9 @@ pub struct CelestialPosition {
     pub fixed_pos: bool,
     pub fixed_x: i32,
     pub fixed_y: i32,
+    /// The flare it draws after the world (`m_bDrawLensFlareEffect`: its object's effect has
+    /// points).
+    pub lens_flare: Option<LensFlare>,
 }
 
 /// `CDayDesc::GetSky` at `time` (fraction of the day).
@@ -84,6 +109,7 @@ pub(crate) fn get_sky(
                 fixed_pos: false,
                 fixed_x: 0,
                 fixed_y: 0,
+                lens_flare: object.lens_flare.clone(),
             };
             if up {
                 position.gfx = gfx(object.default_gfx);
@@ -182,6 +208,7 @@ mod tests {
             fixed_x: 0.0,
             fixed_y: 0.0,
             west_to_east: false,
+            lens_flare: None,
         }
     }
 

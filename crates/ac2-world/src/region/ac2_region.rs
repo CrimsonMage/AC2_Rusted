@@ -13,7 +13,7 @@ use ac2_db::{
 
 use super::game_time::{GameTime, Season, TimeOfDay};
 use super::info_lists::{DidLookup, InfoList, RegionInfo};
-use super::sky_objects::{SkyObject, SkyObjectReplace};
+use super::sky_objects::{LensFlare, LensFlarePoint, SkyObject, SkyObjectReplace};
 use super::{DayGroup, RegionDesc, SkyDesc, SkyFogDesc, SkyLightingDesc, SkyRain, SkyTimeOfDay};
 use crate::color::set_color32;
 
@@ -289,11 +289,8 @@ impl ResourcePackedDecode for Ac2DayRecord {
                 fixed_x: cursor.read_f32()?,
                 fixed_y: cursor.read_f32()?,
                 west_to_east: cursor.read_u32()? != 0,
+                lens_flare: read_lens_flare(&mut cursor, qdid)?,
             });
-            // `LensFlareEffect::StreamPack`: fade speed, then counted points (not drawn yet).
-            let _fade_speed = cursor.read_f32()?;
-            let points = read_count(&mut cursor, qdid, Self::TYPE_NAME, 12)?;
-            cursor.read_bytes(points * 12)?;
         }
         expect_end(qdid, Self::TYPE_NAME, &cursor)?;
         Ok(Self {
@@ -308,6 +305,31 @@ impl ResourcePackedDecode for Ac2DayRecord {
 }
 
 /// `SkyTimeOfDay::StreamPack`. Colours are `RGBAColor::StreamPack` ARGB words.
+/// `LensFlareEffect::StreamPack`: fade speed, then counted points of axis position, texture and
+/// size; `None` when there are no points (`CDayDesc::GetSky` draws a flare only then).
+fn read_lens_flare(
+    cursor: &mut ArchiveCursor<'_>,
+    qdid: QualifiedDataId,
+) -> ResourceResult<Option<LensFlare>> {
+    let fade_speed = cursor.read_f32()?;
+    let count = read_count(cursor, qdid, Ac2DayRecord::TYPE_NAME, 12)?;
+    let points = (0..count)
+        .map(|_| {
+            Ok(LensFlarePoint {
+                axis_pos: cursor.read_f32()?,
+                texture: Some(cursor.read_u32()?)
+                    .filter(|did| *did != 0)
+                    .map(DataId::new),
+                size: cursor.read_f32()?,
+            })
+        })
+        .collect::<ResourceResult<Vec<_>>>()?;
+    Ok((!points.is_empty()).then(|| LensFlare {
+        fade_speed,
+        points: Arc::from(points),
+    }))
+}
+
 fn read_time_of_day(
     cursor: &mut ArchiveCursor<'_>,
     qdid: QualifiedDataId,

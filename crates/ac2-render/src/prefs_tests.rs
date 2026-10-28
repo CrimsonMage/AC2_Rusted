@@ -179,11 +179,12 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
     let mut bank = bank();
     register_graphics(&mut bank, &Names);
     // The defaults are the scene's own: draw distance 2 (radius 4), the long frill distance;
-    // `DynamicObjectShadows` registers at 0, no object shadows.
+    // `DynamicObjectShadows` registers at 0, no object shadows, and `LightCoronas` off.
     assert_eq!(
         scene_options(&bank),
         SceneOptions {
             object_shadows: crate::prefs::ObjectShadows::Off,
+            light_coronas: false,
             ..SceneOptions::default()
         }
     );
@@ -252,4 +253,17 @@ fn the_dynamic_object_shadows_level_sizes_the_sun_shadows() {
     // Quality 5 sets level 2 (`Render::SetOverallGraphicsQuality`).
     assert!(apply_quality(&mut bank, 5));
     assert_eq!(scene_options(&bank).object_shadows, ObjectShadows::Medium);
+}
+
+#[test]
+fn light_coronas_turn_the_lens_flares_on_from_quality_4() {
+    use crate::prefs::scene_options;
+
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    assert!(!scene_options(&bank).light_coronas, "registered off");
+    for (level, on) in [(1, false), (3, false), (4, true), (5, true)] {
+        assert!(apply_quality(&mut bank, level));
+        assert_eq!(scene_options(&bank).light_coronas, on, "level {level}");
+    }
 }

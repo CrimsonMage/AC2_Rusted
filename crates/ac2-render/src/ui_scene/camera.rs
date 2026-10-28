@@ -152,6 +152,7 @@ pub fn point_lights(scene: &SceneData, camera_light: bool) -> Vec<SceneLight> {
                 intensity: l.intensity,
                 color: l.diffuse,
                 lit: Box::default(),
+                corona: None,
             },
             origin: l.origin,
             indoor: false,

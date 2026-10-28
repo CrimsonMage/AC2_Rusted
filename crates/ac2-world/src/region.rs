@@ -55,7 +55,7 @@ mod sky_objects;
 pub use environment::{SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc, SkyRain};
 use game_time::GameTime;
 pub use game_time::{GameClock, GameDateTime, TimeStampCalendar};
-pub use sky_objects::CelestialPosition;
+pub use sky_objects::{CelestialPosition, LensFlare, LensFlarePoint};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct RegionDesc {

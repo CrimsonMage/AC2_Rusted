@@ -135,6 +135,7 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
     assert_eq!(lights.len(), 1_042);
     let mut vertex_counts = HashMap::<DataId, usize>::new();
     let mut point_lights = 0;
+    let mut coronas = Vec::new();
     for did in &lights {
         let info = world
             .light_info(CellId::new(*did))
@@ -142,6 +143,7 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
             .expect("listed record exists");
         for light in info.lights.iter() {
             point_lights += usize::from(light.kind == Ac2LightKind::Point);
+            coronas.extend(light.corona);
             for (cell, indices) in light.lit.iter() {
                 let Some(env) = world.env_cell(*cell).unwrap() else {
                     continue;
@@ -160,6 +162,12 @@ fn every_ac2_landblock_interior_and_light_info_decodes() {
         }
     }
     assert_eq!(point_lights, 39_859);
+    // `CEnvCell::CreateLightSource`: point lights with a corona texture draw a corona, each a
+    // `RenderTexture`.
+    assert_eq!(coronas.len(), 3_125);
+    assert!(coronas
+        .iter()
+        .all(|c| c.texture.raw() >> 24 == 0x40 && c.size > 0.0 && c.fade_speed > 0.0));
 }
 
 #[test]

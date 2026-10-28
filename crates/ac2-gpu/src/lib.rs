@@ -8,6 +8,7 @@
 
 mod ao;
 mod frame;
+mod lens_flare;
 mod object;
 mod object_draw;
 mod object_pipelines;

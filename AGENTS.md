@@ -70,6 +70,15 @@ game rules and server-visible behaviour exactly retail.
   map seamlessly; the terrain takes the darker of the two, and a frill already darkened by the
   landscape map is not darkened twice. The landscape map stays as retail draws it past the
   cascades. Level 0 draws none, as retail.
+- Exception: lens flares fade by the world's depth. Retail's `LensFlareEffect::Draw` drew a
+  triangle at the light after the world and read one back-buffer pixel the next frame
+  (`SceneTool::RequestPixelScan`, `GetPixelScanResult`), raising `m_fOpacity` by the elapsed time
+  times `m_fFadeSpeed` only while it showed. Here a pass after the world pass steps the opacity
+  the same way towards the fraction of a 5 x 5 patch around the light that shows the cleared far
+  depth (`ac2_gpu` `lens_flare.rs`), on the GPU, and the sprites read it a frame late as retail's
+  did. The screen falloff stays at its fifth for a light past the screen's corners (retail's
+  square rose again there while the flare faded), and a sky light's direction is taken from the
+  viewer (retail transformed the point 1000 out without the viewer's origin).
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

@@ -253,7 +253,7 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         enumeration(0x4000_0044, FRILL, 0),
         flag(0x4000_0049, false),
         flag(0x4000_0020, false),
-        flag(0x4000_0042, false),
+        flag(LIGHT_CORONAS, false),
         flag(0x4000_005E, true),
         flag(0x4000_005F, false),
         flag(0x4000_0074, false),
@@ -363,17 +363,21 @@ pub struct SceneOptions {
     pub degrade: DegradeOptions,
     /// The sun shadows of bodies and objects (`DynamicObjectShadows`).
     pub object_shadows: ObjectShadows,
+    /// The sky lights' lens flares (`LightCoronas`; `LScapeSky::Draw(1)` skips
+    /// `LensFlareEffect::Draw` while it is off).
+    pub light_coronas: bool,
 }
 
 impl Default for SceneOptions {
-    /// The scene's own defaults: draw distance 2 (radius 4), the long frill distance and medium
-    /// object shadows.
+    /// The scene's own defaults: draw distance 2 (radius 4), the long frill distance, medium
+    /// object shadows and lens flares.
     fn default() -> Self {
         Self {
             far_radius: far_radius_for_draw_distance(2),
             frill: FrillSettings::default(),
             degrade: DegradeOptions::default(),
             object_shadows: ObjectShadows::Medium,
+            light_coronas: true,
         }
     }
 }
@@ -427,8 +431,15 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             Some(Value::Int(value)) => ObjectShadows::from_preference(*value),
             _ => defaults.object_shadows,
         },
+        light_coronas: match bank.find(LIGHT_CORONAS).map(|pref| &pref.value) {
+            Some(Value::Bool(on)) => *on,
+            _ => defaults.light_coronas,
+        },
     }
 }
+
+/// `ID_Graphics_LightCoronas` (`Render::m_Prefs.LightCoronas`).
+pub const LIGHT_CORONAS: u32 = 0x4000_0042;
 
 /// `ModelDetail` (`Render::m_Prefs.ModelDetail`).
 pub const MODEL_DETAIL: u32 = 0x4000_004E;

@@ -41,6 +41,7 @@ use crate::rain::{RainField, RAIN_DRAW_THRESHOLD};
 use crate::sky::{sky_frame, SkyFrame};
 use crate::streak_objects::ObjectStreaks;
 use crate::terrain::{shadow_light_bit, FarTerrain, TerrainHeights, FIRST_FAR_CHUNK};
+use crate::TextureKey;
 use crate::{Camera, SceneLighting};
 use loader::{Request, SceneLoader};
 use object_lights::ObjectLights;
@@ -149,6 +150,8 @@ pub struct WorldScene {
     models: HashMap<DataId, (u32, u32)>,
     pending_models: HashSet<DataId>,
     known_models: HashSet<DataId>,
+    /// Images asked for on their own (lens flare sprites), each once.
+    requested_images: HashSet<TextureKey>,
     outstanding: usize,
     evicted: Vec<BlockKey>,
     /// The loaded far mesh's chunk boxes.
@@ -213,6 +216,7 @@ impl WorldScene {
             models: HashMap::new(),
             pending_models: HashSet::new(),
             known_models: HashSet::new(),
+            requested_images: HashSet::new(),
             outstanding: 0,
             evicted: Vec::new(),
             far_bounds: Vec::new(),
@@ -390,7 +394,7 @@ impl WorldScene {
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
-            Loaded::Layout | Loaded::Rain(..) => {}
+            Loaded::Layout | Loaded::Rain(..) | Loaded::Images(_) => {}
             Loaded::Object(object) => {
                 if let Some(model) = &object.model {
                     self.degrades.note_object(object.key, model);
@@ -742,6 +746,16 @@ impl WorldScene {
             if self.pending_models.insert(gfx) {
                 self.request(Request::Model(gfx));
             }
+        }
+        let flare_images: Vec<TextureKey> = sky
+            .flares
+            .iter()
+            .flat_map(|flare| flare.flare.points.iter())
+            .filter_map(|point| point.texture.map(TextureKey::Texture))
+            .filter(|key| self.requested_images.insert(*key))
+            .collect();
+        if !flare_images.is_empty() {
+            self.request(Request::Images(flare_images));
         }
         let terrain = keys
             .iter()
