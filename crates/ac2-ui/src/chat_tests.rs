@@ -165,3 +165,47 @@ fn error_lines_show_in_the_spew_box_and_leave_after_their_decay_time() {
         "an expired line is deleted"
     );
 }
+
+#[test]
+fn a_press_on_the_log_scroll_bar_holds_the_log_until_release() {
+    let Some((mut tree, mut chat)) = hud() else {
+        return;
+    };
+    // The client applies the player's settings at login (`build.rs`): window 1 shows say lines.
+    let mut settings = ChatSettings::default();
+    settings.filters.insert(1, TEXT_TYPE_SAY);
+    chat.reload_chat_settings(&mut tree, &settings);
+    let root = chat.roots()[0];
+    let scrollbar = tree
+        .child_recursive(root, tokenize("ChatLogScrollbar"))
+        .expect("the log has its scroll bar");
+    let log = tree.child_recursive(root, tokenize("ChatLog")).unwrap();
+    let message = |tree: &mut UiTree, chat: &mut ChatUi, what: u32| {
+        let element_id = tree.get(scrollbar).unwrap().id();
+        let m = UiMessage {
+            element_id,
+            element: Some(scrollbar),
+            message: what,
+            data: 0,
+            item: None,
+        };
+        chat.message(tree, &m, Modifiers::default());
+    };
+    for n in 0..60 {
+        chat.display(TEXT_TYPE_SAY, &format!("line {n}"));
+    }
+    chat.global_loop(&mut tree, 0.0);
+    let view = |tree: &UiTree| tree.el(log).text.as_ref().map_or(0, |text| text.view.1);
+    let at_end = view(&tree);
+    assert_ne!(at_end, 0);
+    assert!(at_end > 0, "the log scrolls to its end without a lock");
+    tree.scroll_to_home(log);
+    message(&mut tree, &mut chat, tokenize("widget_press"));
+    chat.display(TEXT_TYPE_SAY, "held");
+    chat.global_loop(&mut tree, 0.0);
+    assert_eq!(view(&tree), 0, "a locked log keeps its place");
+    message(&mut tree, &mut chat, tokenize("widget_release"));
+    chat.display(TEXT_TYPE_SAY, "released");
+    chat.global_loop(&mut tree, 0.0);
+    assert!(view(&tree) > 0, "the release unlocks the log");
+}

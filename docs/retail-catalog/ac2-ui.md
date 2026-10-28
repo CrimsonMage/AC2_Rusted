@@ -651,7 +651,7 @@ Legend and workflow: [README](README.md).
 ### ChatWindow
 - [x] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-- [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
 
 ### PStringBaseIter_Common<unsigned_short>
 - [-] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b5b0 · legions 0044c090 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -679,12 +679,12 @@ Legend and workflow: [README](README.md).
 ### ChatWindow
 - [ ] `ChatWindow::~ChatWindow` · 0044beb0 · legions 0044cbc0 — needs port (check): ChatWindow::~ChatWindow lifecycle (create/teardown: listeners, children, surfaces); ac2-ui chat_window.rs
 - [x] `ChatWindow::HandleCommandOrAliasKey` · 0044bf80 · legions 0044cc90 — ac2-ui chat.rs / chat_window.rs
-- [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat + ac2-client chat_text
+- [x] `ChatWindow::AllTextToLog` · 0044c020 · legions 0044cd30 — ac2-ui chat_window.rs: pending lines write to the log, the log scrolls to its end unless the scroll bar holds the lock (tested on the real layout)
 - [x] `ChatWindow::DisplayCmdHistory` · 0044c110 · legions 0044ce30 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+- [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
 - [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 - [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)

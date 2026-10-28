@@ -1274,7 +1274,7 @@ key	status	note
 0044b1a0	x	ac2-ui chat.rs / chat_window.rs
 0044b1b0	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 0044b1f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
-0044b220	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044b220	~	ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
 0044b5b0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0044b650	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044b730	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -1286,12 +1286,12 @@ key	status	note
 0044bc80	_	needs port (check): PSUtils::FindAllWords split in ac2-script string_utils.rs, cite is on the separator constant
 0044beb0	_	needs port (check): ChatWindow::~ChatWindow lifecycle (create/teardown: listeners, children, surfaces); ac2-ui chat_window.rs
 0044bf80	x	ac2-ui chat.rs / chat_window.rs
-0044c020	x	ac2-ui chat + ac2-client chat_text
+0044c020	x	ac2-ui chat_window.rs: pending lines write to the log, the log scrolls to its end unless the scroll bar holds the lock (tested on the real layout)
 0044c110	x	ac2-ui chat + ac2-client chat_text
 0044c1f0	x	ac2-ui chat + ac2-client chat_text
 0044c2a0	x	ac2-ui chat + ac2-client chat_text
 0044c400	x	ac2-ui chat.rs / chat_window.rs
-0044c5b0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
+0044c5b0	~	ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
 0044c5f0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044c7d0	~	ac2-ui chat: no opacity, scroll lock, save loc, spew box, selection
 0044cb10	x	ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)

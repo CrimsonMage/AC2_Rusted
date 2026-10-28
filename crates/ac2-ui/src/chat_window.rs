@@ -8,9 +8,12 @@
 //! asks for the window's opacity to be saved (`SetWindowOpacity`, then `UploadUISettings`); the
 //! reload applies the saved opacity (`ChatWindow::RecvNotice_ReloadOptions`).
 //!
-//! Not modelled yet: the log scroll bar's scroll lock, the move bar's active look
-//! (`SetActiveWindow`), selection in the entry line (`SelectAll` / `Deselect`) and the IME font
-//! (`kanjifont`).
+//! The log's scroll bar (`ChatLogScrollbar`) locks the log while the player drags it
+//! (`ChatWindow::ListenToMessage`'s `m_lockScroll`): a new line then does not scroll the log to
+//! its end (`AllTextToLog`).
+//!
+//! Not modelled yet: the move bar's active look (`SetActiveWindow`), selection in the entry
+//! line (`SelectAll` / `Deselect`) and the IME font (`kanjifont`).
 
 use std::collections::HashMap;
 
@@ -77,6 +80,8 @@ pub fn chat_window_id(number: u32) -> u32 {
 const Y_POSITION: u32 = tokenize("y_position");
 /// `Token_ScrollbarMsg_widget_release`.
 pub(crate) const MSG_WIDGET_RELEASE: u32 = tokenize("widget_release");
+/// `Token_ScrollbarMsg_widget_press`: the bar's thumb taken (the scroll lock starts).
+pub(crate) const MSG_WIDGET_PRESS: u32 = tokenize("widget_press");
 
 /// A chat window's elements and state.
 #[derive(Debug, Clone)]
@@ -89,6 +94,8 @@ pub(crate) struct ChatWindow {
     pub root: usize,
     /// `m_opacitySlider`.
     pub opacity_slider: Option<usize>,
+    /// `ChatLogScrollbar`: the log's scroll bar, whose press locks the log.
+    pub log_scrollbar: Option<usize>,
     pub entry: Option<usize>,
     /// `m_textBox`: the log.
     pub log: Option<usize>,
@@ -134,6 +141,7 @@ impl ChatWindow {
             window_id: chat_window_id(number),
             root,
             opacity_slider: child(tree, "OpacitySliderBar"),
+            log_scrollbar: child(tree, "ChatLogScrollbar"),
             entry: child(tree, "ChatEntry"),
             log: child(tree, "ChatLog"),
             move_bar: child(tree, "MoveBar"),

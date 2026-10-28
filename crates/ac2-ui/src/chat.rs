@@ -19,7 +19,8 @@ use std::sync::Arc;
 
 use crate::chat_spew::SpewBox;
 use crate::chat_window::{
-    ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, MSG_WIDGET_RELEASE, TEXT_TYPE_ERROR,
+    ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, MSG_WIDGET_PRESS, MSG_WIDGET_RELEASE,
+    TEXT_TYPE_ERROR,
 };
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
@@ -276,6 +277,16 @@ impl ChatUi {
             window.apply_opacity(tree, opacity);
             if message.message == MSG_WIDGET_RELEASE || message.message == MSG_MOUSE_RELEASE {
                 self.opacity_requests.push((window.window_id, opacity));
+            }
+            return;
+        }
+        // `ChatWindow::ListenToMessage`'s log scroll bar: a press locks the log, a release
+        // unlocks it.
+        if message.element.is_some() && message.element == window.log_scrollbar {
+            if message.message == MSG_WIDGET_PRESS {
+                window.lock_scroll = true;
+            } else if message.message == MSG_WIDGET_RELEASE {
+                window.lock_scroll = false;
             }
             return;
         }
