@@ -1,6 +1,6 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 187 done, 24 partial, 326 to do, 452 skipped.
+989 retail functions: 187 done, 25 partial, 325 to do, 452 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/cell/envcell.cpp.c` (19/140)
@@ -1299,7 +1299,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/sky/skyday.cpp.c` (0/5)
 
 ### DecalFX
-- [ ] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — needs port: decal effects (sub-object DID list for async sub-object resolution, AGENTS.md)
+- [~] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — DecalFX sub-object DIDs: the material is not resolved through the async sub-object path yet
 
 ### SkyDay
 - [-] `SkyDay::SkyDay` · 006c8980 — constructor (struct init; Rust builds it directly)

@@ -168,6 +168,8 @@ pub struct Client {
     pub(crate) fx_objects: ac2_smartbox::fx_objects::FxObjects,
     /// The FX streaks the objects' FX make (`FXManager`'s streak part) and `StreakEffects`.
     pub(crate) fx_streaks: ac2_render::fx_streaks::FxStreaks,
+    /// The decals the FX project (`FXManager::DoDecalFX`).
+    pub(crate) fx_decals: ac2_render::fx_decals::FxDecals,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
     pub(crate) radar: ac2_ui::RadarState,
     /// The GUN list and status events for the friends page (`gmFriendsUI`), in order.
@@ -267,6 +269,7 @@ impl Client {
             audio: None,
             fx_objects: ac2_smartbox::fx_objects::FxObjects::default(),
             fx_streaks: Default::default(),
+            fx_decals: Default::default(),
             radar: Default::default(),
             friend_events: Vec::new(),
             portal: PortalSpace::new(),
@@ -317,6 +320,7 @@ impl Client {
         self.apply_sound_preferences(prefs.bank());
         self.apply_light_preferences(prefs.bank());
         self.apply_streak_preferences(prefs.bank());
+        self.apply_decal_preferences(prefs.bank());
         self.camera
             .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
         let scene = prefs.scene_options();

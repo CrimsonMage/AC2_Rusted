@@ -2490,7 +2490,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/render/decal/decaleffect.cpp.c` (0/1)
 
 ### SmartArray<DecalTriangle>
-- [-] `SmartArray<DecalTriangle>::grow` · 005de6f0 · legions 0059f480 — Rust std replaces it
+- [-] `SmartArray<DecalTriangle>::grow` · 005de6f0 · legions 0059f480 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 
 ## `portal/client/src/render/material/materiallayer.cpp.c` (0/3)
 

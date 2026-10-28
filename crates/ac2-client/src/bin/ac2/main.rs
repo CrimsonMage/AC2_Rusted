@@ -506,6 +506,8 @@ impl App {
         // The streaks the objects' FX made, started, stopped or destroyed since the last frame.
         let streaks = self.client.take_object_streak_calls();
         view.set_object_streaks(&streaks, self.client.streaks_enabled());
+        let decals = self.client.take_object_decal_calls();
+        view.set_object_decals(&decals);
         view.update(&state.gpu, &frame, LOAD_BUDGET);
         // The HUD's sounds play from the client's sound manager on its next frame.
         if let Some(audio) = self.client.audio_mut() {

@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 533 done, 121 partial, 694 to do, 776 skipped.
+2124 retail functions: 534 done, 121 partial, 693 to do, 776 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1176,14 +1176,14 @@ Legend and workflow: [README](README.md).
 - [-] `DBFXTable::Allocate` · 006a9550 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 - [-] `DBFXTable::CopyInto` · 006a9560 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
-## `portal/shared/src/physobj/fx/decalfx.cpp.c` (0/5)
+## `portal/shared/src/physobj/fx/decalfx.cpp.c` (1/5)
 
 ### DecalFX
-- [-] `DecalFX::SetDefaults` · 006a9890 · legions 00643910 — plain field accessor on a runtime record; Rust struct field replaces it
-- [-] `DecalFX::DecalFX` · 006a9900 · legions 006439a0 — C++ constructor/destructor; Rust constructor and Drop replace it
-- [~] `DecalFX::StreamPack` · 006a9930 · legions 006439d0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-- [-] `DecalFX::FromFileNode` · 006a99e0 — text source format (admin tools)
-- [-] `DecalFX::ToFileNode` · 006a9d20 — text source format (admin tools)
+- [-] `DecalFX::SetDefaults` · 006a9890 · legions 00643910 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+- [-] `DecalFX::DecalFX` · 006a9900 · legions 006439a0 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+- [x] `DecalFX::StreamPack` · 006a9930 · legions 006439d0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [-] `DecalFX::FromFileNode` · 006a99e0 — editor file-node parse (DecalFX::FromFileNode/ToFileNode); the decoded DBObj carries the same fields
+- [-] `DecalFX::ToFileNode` · 006a9d20 — editor file-node parse (DecalFX::FromFileNode/ToFileNode); the decoded DBObj carries the same fields
 
 ## `portal/shared/src/physobj/fx/fxdefs.cpp.c` (4/25)
 
@@ -1202,7 +1202,7 @@ Legend and workflow: [README](README.md).
 - [~] `FXNode::get_pack_bitfield` · 006a4e50 · legions 00641db0 — unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
 
 ### DecalFX
-- [-] `DecalFX::operator=` · 006a51a0 · legions 00642100 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+- [-] `DecalFX::operator=` · 006a51a0 · legions 00642100 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 
 ### FXNode
 - [-] `FXNode::ToFileNode` · 006a52f0 — text source format (admin tools)
@@ -1245,7 +1245,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (10/44)
 
 ### DecalEffectDesc
-- [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — C++ constructor/destructor; Rust constructor and Drop replace it
+- [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 
 ### FXManager
 - [x] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
@@ -1268,7 +1268,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXState::FXState` · 005058b0 · legions 004f3b80 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [ ] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — needs port: FX manager effect
+- [~] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
 - [ ] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — needs port: FX manager effect
 
 ### DBObjGrabber<FxScript>

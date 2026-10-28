@@ -5432,7 +5432,7 @@ key	status	note
 00504220	x	PSDesc::StreamPack - PSDesc::StreamPack decoder, ac2-assets ac2_particle_desc.rs
 005048f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00504940	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-005051c0	-	C++ constructor/destructor; Rust constructor and Drop replace it
+005051c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 00505210	x	ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 005052d0	_	needs port: FX manager effect
 00505310	_	needs port: FX manager effect
@@ -5443,7 +5443,7 @@ key	status	note
 00505850	_	needs port: FX appearance key
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005058b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00505960	_	needs port: FX manager effect
+00505960	~	DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
 00505c30	_	needs port: FX manager effect
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
@@ -9197,12 +9197,12 @@ key	status	note
 005c37f0	-	trivial accessor of plain particle/record field; Rust struct field replaces it
 005c3820	-	trivial accessor of plain particle/record field; Rust struct field replaces it
 005c3870	_	needs port: particle repulsor (push-away field, active state, position)
-005c38c0	_	needs port: decal effect manager (decal list think/render)
-005c3900	_	needs port: decal effect manager (decal list think/render)
+005c38c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+005c3900	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 005c3920	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005c39b0	_	needs port: decal effect manager (decal list think/render)
-005c3a30	_	needs port: decal effect manager (decal list think/render)
-005c3c10	_	needs port: decal effect manager (decal list think/render)
+005c39b0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005c3a30	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005c3c10	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005c3d00	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c3d80	_	needs port (check): RenderUI::SetCursorProperties behaviour; implemented area ac2-ui media.rs but uncited
 005c3f20	_	needs port (check): RenderUI::SetDefaultCursor behaviour; implemented area ac2-ui media.rs but uncited
@@ -9498,11 +9498,11 @@ key	status	note
 005daf10	_	needs port: material record: MaterialProperty::StreamPack (stream decode)
 005db420	-	writer for DAT/pack output; the client only reads (tool-only)
 005db680	-	copy of plain data; Rust clones values
-005db6c0	_	needs port: decal effect group (decal spawning/think/render)
+005db6c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 005db730	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005db7b0	_	needs port: decal effect group (decal spawning/think/render)
-005db850	_	needs port: decal effect group (decal spawning/think/render)
-005db920	_	needs port: decal effect group (decal spawning/think/render)
+005db7b0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005db850	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005db920	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005db9a0	-	D3D device/resource plumbing; wgpu replaces
 005db9b0	-	D3D device/resource plumbing; wgpu replaces
 005dba90	-	D3D device/resource plumbing; wgpu replaces
@@ -9584,15 +9584,16 @@ key	status	note
 005dd060	-	D3D device/resource plumbing; wgpu replaces
 005dd090	-	D3D device/resource plumbing; wgpu replaces
 005dd0e0	-	D3D device/resource plumbing; wgpu replaces
-005dd100	_	needs port: decal polygon clipped against plane (decal geometry)
-005de3e0	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-005de430	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-005de500	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
+005dd100	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005de3e0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005de430	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005de500	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005de6f0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 005de7b0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005de7e0	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-005dee50	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-005df1e0	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-005df350	_	needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
+005de7e0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005dee50	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+005df1e0	~	dungeon decal needs CEnvCell::GetNearbyGeometry; not ported, such nodes make no decal
+005df350	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005df410	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df4a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df590	~	subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
@@ -13130,7 +13131,7 @@ key	status	note
 006a4db0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 006a4e00	x	FXNode::GetParticleID - DBFXTable/FXNode/FXData decode and defaults, ac2-assets ac2_fx.rs, ac2-world ac2_particle_sources.rs
 006a4e50	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
-006a51a0	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
+006a51a0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 006a5f00	-	admin/debug or text-file tooling
 006a5fc0	x	FXNode::SetDefaults - DBFXTable/FXNode/FXData decode and defaults, ac2-assets ac2_fx.rs, ac2-world ac2_particle_sources.rs
 006a6180	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
@@ -13163,9 +13164,11 @@ key	status	note
 006a97a0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a9830	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a9870	_	needs port: FX table registration
-006a9890	-	plain field accessor on a runtime record; Rust struct field replaces it
-006a9900	-	C++ constructor/destructor; Rust constructor and Drop replace it
-006a9930	~	unpack only, in ac2-net protocol::fx / protocol::visual (Legions FXNode::StreamPack 0x00642410 instruction-identical)
+006a9890	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+006a9900	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+006a9930	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+006a99e0	-	editor file-node parse (DecalFX::FromFileNode/ToFileNode); the decoded DBObj carries the same fields
+006a9d20	-	editor file-node parse (DecalFX::FromFileNode/ToFileNode); the decoded DBObj carries the same fields
 006a9f00	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 006a9f20	-	C++ constructor/destructor; Rust constructor and Drop replace it
 006a9f80	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
@@ -13889,7 +13892,7 @@ key	status	note
 006c8250	_	needs port: world content (MotionValues)
 006c8260	-	constructor (struct init; Rust builds it directly)
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
-006c8960	_	needs port: decal effects (sub-object DID list for async sub-object resolution, AGENTS.md)
+006c8960	~	DecalFX sub-object DIDs: the material is not resolved through the async sub-object path yet
 006c8980	-	constructor (struct init; Rust builds it directly)
 006c89a0	-	destructor (Rust Drop)
 006c8c90	-	DBO release (Drop frees on last drop, AGENTS.md)

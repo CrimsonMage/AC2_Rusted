@@ -7,9 +7,10 @@
 
 use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
+use ac2_math::Vec3;
 use ac2_physics::placed_at;
 use ac2_smartbox::fx_objects::{create_alpha_moves, fx_nodes};
-use ac2_world::GameClock;
+use ac2_world::{land_block_size, GameClock};
 
 use crate::client::Client;
 use crate::frame::FxFollow;
@@ -49,6 +50,17 @@ impl Client {
                             let nodes = fx_nodes(table, fx);
                             self.fx_objects.start(*id, fx, &nodes, now);
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
+                            let at = self.emitter_place(*id);
+                            self.fx_decals.start(
+                                *id,
+                                fx,
+                                table,
+                                at,
+                                &streak_ctx,
+                                land_block_size(),
+                                now,
+                                &mut self.random,
+                            );
                         }
                     }
                     Ac2AnimEvent::StopFx { fx } => {
@@ -57,6 +69,7 @@ impl Client {
                             .unwrap_or_default();
                         self.fx_objects.stop(*id, fx, &nodes, now);
                         self.fx_streaks.stop_streaks(*id, fx);
+                        self.fx_decals.stop(*id, fx);
                     }
                     _ => {}
                 }
@@ -68,7 +81,7 @@ impl Client {
     /// exists runs its visual's startup FX once. The objects they create are made here; their
     /// lights (`DoLightSourceFX`, gated by `LightSourceEffects`) and sounds (`DoSoundFX`) need
     /// the sound pass's state, so they start only with a sound device.
-    pub(crate) fn start_startup_fx(&mut self) {
+    pub(crate) fn start_startup_fx(&mut self, now: f64) {
         let player = self
             .player
             .as_ref()
@@ -108,6 +121,16 @@ impl Client {
                     .map(|list| list.iter().map(|a| a.object).collect())
                     .unwrap_or_default();
                 self.fx_objects.start_startup(id, fx, &objects);
+                if let Some(nodes) = table.get(fx) {
+                    let at = self.emitter_place(id);
+                    self.fx_decals.start_startup(
+                        nodes,
+                        at,
+                        land_block_size(),
+                        now,
+                        &mut self.random,
+                    );
+                }
             }
         }
     }
@@ -128,6 +151,7 @@ impl Client {
             if is_gone(id) {
                 self.fx_objects.remove_emitter(id, now);
                 self.fx_streaks.forget_emitter(id);
+                self.fx_decals.forget_emitter(id);
             }
         }
         // A streak's emitter may have no FX left running: its streaks go with it all the same.
@@ -188,6 +212,35 @@ impl Client {
 }
 
 impl Client {
+    /// The emitter's place for an FX decal: its cell and block-local origin, `None` while it has no
+    /// body (`DoDecalFX` needs the physics rep).
+    fn emitter_place(&self, id: u64) -> Option<(u32, Vec3)> {
+        let is_player = self.player.as_ref().is_some_and(|p| p.id == id);
+        let at = if is_player {
+            self.player
+                .as_ref()
+                .filter(|p| p.body.is_some())
+                .map(|p| p.position())
+        } else {
+            self.remotes.get(id).and_then(|r| r.position())
+        };
+        at.map(|p| {
+            let o = p.frame.origin;
+            (p.cell_id, Vec3::new(o.x, o.y, o.z))
+        })
+    }
+
+    /// The decal calls the FX made since the renderer last took them, in order.
+    pub fn take_object_decal_calls(&mut self) -> Vec<ac2_render::decal::DecalSpec> {
+        self.fx_decals.take_calls()
+    }
+
+    /// `Render::m_Prefs.DecalEffects`: the decal preference the bank holds.
+    pub fn apply_decal_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
+        self.fx_decals
+            .set_enabled(ac2_render::prefs::decal_effects(bank));
+    }
+
     /// The streak calls the FX started since the renderer last took them, in order.
     pub fn take_object_streak_calls(&mut self) -> Vec<ac2_render::fx_streaks::ObjectStreakCall> {
         self.fx_streaks.take_calls()

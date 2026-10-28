@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 123 done, 56 partial, 245 to do, 357 skipped.
+781 retail functions: 136 done, 57 partial, 228 to do, 360 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -453,37 +453,37 @@ Legend and workflow: [README](README.md).
 - [ ] `RenderVertexBuffer::RayIntersectsTriList` · 005b7e00 · legions 005821b0 — needs port: ray vs triangle list (picking)
 - [-] `RenderVertexBuffer::LockAnimVertices` · 005b8450 · legions 00582800 — D3D device/resource plumbing; wgpu replaces
 
-## `portal/client/src/render/decal/decaleffect.cpp.c` (0/9)
+## `portal/client/src/render/decal/decaleffect.cpp.c` (7/9)
 
 ### DecalEffect
-- [ ] `DecalEffect::ClipPolygonAgainstPlane` · 005dd100 · legions 0059ddf0 — needs port: decal polygon clipped against plane (decal geometry)
-- [ ] `DecalEffect::DecalEffect` · 005de3e0 · legions 0059f170 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-- [ ] `DecalEffect::Think` · 005de430 · legions 0059f1c0 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-- [ ] `DecalEffect::CreateGeometry` · 005de500 · legions 0059f290 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
+- [x] `DecalEffect::ClipPolygonAgainstPlane` · 005dd100 · legions 0059ddf0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffect::DecalEffect` · 005de3e0 · legions 0059f170 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffect::Think` · 005de430 · legions 0059f1c0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffect::CreateGeometry` · 005de500 · legions 0059f290 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 - [-] `DecalEffect::~DecalEffect` · 005de7b0 · legions 0059f540 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `DecalEffect::ConstructDecal` · 005de7e0 · legions 0059f570 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-- [ ] `DecalEffect::ConstructLandscapeDecal` · 005dee50 · legions 0059fbe0 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-- [ ] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
-- [ ] `DecalEffect::Init` · 005df350 · legions 005a00e0 — needs port: decal effect (projected decal geometry, lifetime, landscape/dungeon variants)
+- [x] `DecalEffect::ConstructDecal` · 005de7e0 · legions 0059f570 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffect::ConstructLandscapeDecal` · 005dee50 · legions 0059fbe0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [~] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — dungeon decal needs CEnvCell::GetNearbyGeometry; not ported, such nodes make no decal
+- [x] `DecalEffect::Init` · 005df350 · legions 005a00e0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
-## `portal/client/src/render/decal/decaleffectgroup.cpp.c` (0/5)
+## `portal/client/src/render/decal/decaleffectgroup.cpp.c` (3/5)
 
 ### DecalEffectGroup
-- [ ] `DecalEffectGroup::Init` · 005db6c0 — needs port: decal effect group (decal spawning/think/render)
+- [-] `DecalEffectGroup::Init` · 005db6c0 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 - [-] `DecalEffectGroup::~DecalEffectGroup` · 005db730 · legions 0059c540 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `DecalEffectGroup::Think` · 005db7b0 · legions 0059c5c0 — needs port: decal effect group (decal spawning/think/render)
-- [ ] `DecalEffectGroup::Render` · 005db850 · legions 0059c660 — needs port: decal effect group (decal spawning/think/render)
-- [ ] `DecalEffectGroup::CreateDecalEffect` · 005db920 · legions 0059c730 — needs port: decal effect group (decal spawning/think/render)
+- [x] `DecalEffectGroup::Think` · 005db7b0 · legions 0059c5c0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffectGroup::Render` · 005db850 · legions 0059c660 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffectGroup::CreateDecalEffect` · 005db920 · legions 0059c730 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
-## `portal/client/src/render/decal/decaleffectmanager.cpp.c` (0/6)
+## `portal/client/src/render/decal/decaleffectmanager.cpp.c` (3/6)
 
 ### DecalEffectManager
-- [ ] `DecalEffectManager::Init` · 005c38c0 · legions 0058a9d0 — needs port: decal effect manager (decal list think/render)
-- [ ] `DecalEffectManager::DecalEffectManager` · 005c3900 · legions 0058aa10 — needs port: decal effect manager (decal list think/render)
+- [-] `DecalEffectManager::Init` · 005c38c0 · legions 0058a9d0 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
+- [-] `DecalEffectManager::DecalEffectManager` · 005c3900 · legions 0058aa10 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 - [-] `DecalEffectManager::~DecalEffectManager` · 005c3920 · legions 0058aa30 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `DecalEffectManager::Think` · 005c39b0 · legions 0058aac0 — needs port: decal effect manager (decal list think/render)
-- [ ] `DecalEffectManager::Render` · 005c3a30 · legions 0058ab40 — needs port: decal effect manager (decal list think/render)
-- [ ] `DecalEffectManager::CreateDecalEffect` · 005c3c10 · legions 0058ad20 — needs port: decal effect manager (decal list think/render)
+- [x] `DecalEffectManager::Think` · 005c39b0 · legions 0058aac0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffectManager::Render` · 005c3a30 · legions 0058ab40 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
+- [x] `DecalEffectManager::CreateDecalEffect` · 005c3c10 · legions 0058ad20 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
 ## `portal/client/src/render/flare/lensflareeffect.cpp.c` (1/14)
 
