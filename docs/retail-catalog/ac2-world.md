@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 191 done, 25 partial, 322 to do, 451 skipped.
+989 retail functions: 317 done, 25 partial, 82 to do, 565 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (20/140)
+## `portal/shared/src/cell/envcell.cpp.c` (28/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -27,13 +27,13 @@ Legend and workflow: [README](README.md).
 - [x] `RGBAColor::CapHigh` · 0047f500 · legions 00479510
 
 ### Plane
-- [ ] `Plane::which_side` · 0047f550 · legions 00479560 — ac2-math Plane::which_side (geometry.rs)
+- [x] `Plane::which_side` · 0047f550 · legions 00479560 — ac2-math Plane::which_side (geometry.rs)
 
 ### Waveform
 - [-] `Waveform::operator=` · 0047f5a0 · legions 004795b0 — copy assignment of plain data (Rust clone/move)
 
 ### LightSource
-- [ ] `LightSource::SetDiffuseIntensity` · 0047f5f0 · legions 00479600 — Waveform copy (Rust assignment of the plain Waveform value)
+- [-] `LightSource::SetDiffuseIntensity` · 0047f5f0 · legions 00479600 — Waveform copy (Rust assignment of the plain Waveform value)
 
 ### AppliedAppearanceKey
 - [-] `AppliedAppearanceKey::AppliedAppearanceKey` · 0047f650 · legions 00479660 — constructor (struct init; Rust builds it directly)
@@ -46,7 +46,7 @@ Legend and workflow: [README](README.md).
 - [-] `IconModAtom::~IconModAtom` · 0047f6d0 — destructor (Rust Drop)
 
 ### CEnvCell
-- [ ] `CEnvCell::CullingPlaneCheck` · 0047f730 · legions 00479700 — ac2-world cell.rs culling_plane_check: true only when no corner of the box (BBox::points) is within the culling distance of the camera; unit tested. The visibility culling that calls it (CullCellGroupInternal) is not ported
+- [x] `CEnvCell::CullingPlaneCheck` · 0047f730 · legions 00479700 — ac2-world cell.rs culling_plane_check: true only when no corner of the box (BBox::points) is within the culling distance of the camera; unit tested. The visibility culling that calls it (CullCellGroupInternal) is not ported
 
 ### Frustum
 - [-] `Frustum::operator=` · 0047f9b0 · legions 00479980 — copy assignment of plain data (Rust clone/move)
@@ -56,17 +56,17 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::find_collisions` · 0047fa50 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [x] `CEnvCell::find_env_collisions` · 0047fa80 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [ ] `CEnvCell::GetSubDataIDs` · 0047fb70 · legions 00479b10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
-- [ ] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
-- [ ] `CEnvCell::BuildOptionalProperties` · 00480180 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::SumBumpMapVectors` · 0047fbd0 · legions 00479b70 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
+- [-] `CEnvCell::NormalizeBumpMapVectors` · 0047fd00 · legions 00479ca0 — D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
+- [-] `CEnvCell::BuildOptionalProperties` · 00480180 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CEnvCell::GetPhysicsMaterialDID` · 004801b0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### SmartArray<unsigned_long>
 - [-] `SmartArray<unsigned_long>::SetNElements` · 004801c0 · legions 0047a160 — SmartArray container operation (Vec replaces it)
 
 ### LandDefs
-- [ ] `LandDefs::inbound_valid_blockid` · 00480320 · legions 0047a290 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
-- [ ] `LandDefs::blockpart_to_blockcoord` · 00480390 · legions 0047a300 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+- [x] `LandDefs::inbound_valid_blockid` · 00480320 · legions 0047a290 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+- [x] `LandDefs::blockpart_to_blockcoord` · 00480390 · legions 0047a300 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 
 ### FileNodeName_UInt32
 - [-] `FileNodeName_UInt32::Clone` · 00480400 · legions 0047a370 — FileNode name wrapper (Rust strings)
@@ -92,21 +92,21 @@ Legend and workflow: [README](README.md).
 - [-] `CEnvCell::RecoverFromFreelist` · 004807b0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CEnvCell::ClearForFreelist` · 00480800 · legions 0047a6d0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [x] `CEnvCell::GetTouchesOutside` · 00480860 · legions 0047a730 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-- [ ] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::DestroyStaticLights` · 00480890 · legions 0047a760 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [~] `CEnvCell::DrawCellMesh` · 00480900 · legions 0047a7d0 — cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
 - [ ] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [x] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [ ] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
-- [ ] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
+- [-] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
+- [-] `CEnvCell::CacheDiffuseFromVB` · 00480ff0 · legions 0047aeb0 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
 - [x] `CEnvCell::LightIndices` · 00481030 · legions 0047aef0 — ac2-render object::cell / point_lights
 - [ ] `CEnvCell::TraceRayAgainstMesh` · 004813a0 · legions 0047b260 — needs port: CEnvCell::TraceRayAgainstMesh (exact render-mesh ray trace; physics holds no render mesh)
-- [ ] `CEnvCell::ApplyPropertyCollection` · 00481580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::ApplyPropertyCollection` · 00481580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [ ] `CEnvCell::InqVisibleCells` · 00481630 · legions 0047b4f0 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [ ] `CEnvCell::GetCellPlanes` · 00481680 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GetCellPlanes` · 00481680 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### IntrusiveSmartPointer<LightSource>
 - [-] `IntrusiveSmartPointer<LightSource>::~IntrusiveSmartPointer<LightSource>` · 00481710 · legions 0047b5d0 — intrusive pointer; Arc replaces it
@@ -118,11 +118,11 @@ Legend and workflow: [README](README.md).
 - [-] `FileNodeName_PString::ToPString` · 00481d70 · legions 0047bce0 — FileNode name wrapper (Rust strings)
 
 ### PFileNode
-- [ ] `PFileNode::GetNameAsBool` · 00481dc0 · legions 0047bd30 — FileNode text export (admin/editor tool); the client reads packed DATs
-- [ ] `PFileNode::GetLeafAsBool` · 00481e80 — FileNode text export (admin/editor tool); the client reads packed DATs
-- [ ] `PFileNode::GetNameAsUInt32` · 00481ea0 · legions 0047bdf0 — FileNode text export (admin/editor tool); the client reads packed DATs
-- [ ] `PFileNode::GetNameAsPString` · 00481f60 · legions 0047beb0 — FileNode text export (admin/editor tool); the client reads packed DATs
-- [ ] `PFileNode::GetSubNameAsPString` · 00482040 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetNameAsBool` · 00481dc0 · legions 0047bd30 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetLeafAsBool` · 00481e80 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetNameAsUInt32` · 00481ea0 · legions 0047bdf0 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetNameAsPString` · 00481f60 · legions 0047beb0 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetSubNameAsPString` · 00482040 — FileNode text export (admin/editor tool); the client reads packed DATs
 
 ### LOSParameters
 - [x] `LOSParameters::SetFinalRay` · 00482060 · legions 0047bf90 — ac2-physics los (Terrain::los_check)
@@ -132,22 +132,22 @@ Legend and workflow: [README](README.md).
 
 ### CEnvCell
 - [-] `CEnvCell::CEnvCell` · 004820d0 · legions 0047c000 — constructor (struct init; Rust builds it directly)
-- [ ] `CEnvCell::HasLighting` · 004822c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::SetGatherTimestamp` · 004822d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::GetGatherTimestamp` · 004822e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::HasLighting` · 004822c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::SetGatherTimestamp` · 004822d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GetGatherTimestamp` · 004822e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CEnvCell::GetDBOType` · 004822f0 — DBO type tag (Rust typed decoders)
-- [ ] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CEnvCell::~CEnvCell` · 00482310 · legions 0047c240 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [x] `CEnvCell::FindTransitCells` · 00482450 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-- [ ] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GetSubObjects` · 00482460 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [ ] `CEnvCell::ApplyAtomCollection` · 004825c0 · legions 0047c490 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::UpdateDynamicLights` · 00482710 · legions 0047c5b0 — Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
-- [ ] `CEnvCell::UpdateCellMaterial` · 00482a80 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::UpdateCellMaterial` · 00482a80 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### SmartArray<CCellPortal>
 - [-] `SmartArray<CCellPortal>::SetNElements` · 00482b40 · legions 0047c9e0 — SmartArray container operation (Vec replaces it)
 
 ### PFileNode
-- [ ] `PFileNode::GetSubName` · 00482c10 · legions 0047cab0 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetSubName` · 00482c10 · legions 0047cab0 — FileNode text export (admin/editor tool); the client reads packed DATs
 
 ### CEnvCell
 - [-] `CEnvCell::Allocate` · 00482c30 — retail free-object pool (DBOCache exception, AGENTS.md)
@@ -184,11 +184,11 @@ Legend and workflow: [README](README.md).
 - [x] `CEnvCell::InitStaticObjects` · 00484680 · legions 0047def0 — ac2-world env_cell_markers; drawn by ac2-render scene interiors
 - [ ] `CEnvCell::InitLightSources` · 00484710 · legions 0047df80 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::GatherInsideObjects` · 00484760 · legions 0047dfd0 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [ ] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::InitLoad` · 00484800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### PList<IconModAtom>
 - [-] `PList<IconModAtom>::GetPackSize` · 004848a0 — write path (client reads DATs only)
-- [ ] `PList<IconModAtom>::UnPack` · 004848e0 · legions 0047e1b4 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+- [x] `PList<IconModAtom>::UnPack` · 004848e0 · legions 0047e1b4 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 
 ### ListNode<IconModAtom>
 - [-] `ListNode<IconModAtom>::ListNode<IconModAtom>` · 00484a30 · legions 0047e2f0 — constructor (struct init; Rust builds it directly)
@@ -197,26 +197,26 @@ Legend and workflow: [README](README.md).
 - [ ] `CEnvCell::GetVisible` · 00484e30 · legions 0047e710 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::CullCellGroupInternal` · 00484e70 · legions 0047e750 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::CullCellsInternal` · 00485290 · legions 0047eb70 — needs port: indoor env cell: visibility, lights, portals, rendering
-- [ ] `CEnvCell::DrawEnvironment` · 004856b0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::DrawPostEffects` · 00485770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::GatherVisibleInsideObjects` · 00485800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::DrawEnvironment` · 004856b0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::DrawPostEffects` · 00485770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::GatherVisibleInsideObjects` · 00485800 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CEnvCell::find_visible_child_cell` · 00485890 · legions 0047f140 — ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 - [~] `CEnvCell::TraceRay` · 00485930 · legions 0047f1e0 — ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 
 ### PList<MaterialModifierAtom>
 - [-] `PList<MaterialModifierAtom>::Pack` · 00486180 · legions 0047fa20 — write path (client reads DATs only)
 - [-] `PList<MaterialModifierAtom>::GetPackSize` · 004861d0 — write path (client reads DATs only)
-- [ ] `PList<MaterialModifierAtom>::UnPack` · 00486210 · legions 0047fac4 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+- [x] `PList<MaterialModifierAtom>::UnPack` · 00486210 · legions 0047fac4 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 
 ### MaterialModifierAtom
 - [-] `MaterialModifierAtom::MaterialModifierAtom` · 00486360 · legions 0047fc00 — constructor (struct init; Rust builds it directly)
 
 ### PList<OpacityAtom>
 - [-] `PList<OpacityAtom>::Pack` · 004863b0 · legions 0064fdb0 — write path (client reads DATs only)
-- [ ] `PList<OpacityAtom>::UnPack` · 00486400 · legions 0047fc64 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+- [x] `PList<OpacityAtom>::UnPack` · 00486400 · legions 0047fc64 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 
 ### PList<MeshReplacementAtom>
-- [ ] `PList<MeshReplacementAtom>::UnPack` · 00486560 · legions 0047fe04 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+- [x] `PList<MeshReplacementAtom>::UnPack` · 00486560 · legions 0047fe04 — ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 
 ### ListNode<MeshReplacementAtom>
 - [-] `ListNode<MeshReplacementAtom>::ListNode<MeshReplacementAtom>` · 004866a0 · legions 0047ff30 — constructor (struct init; Rust builds it directly)
@@ -224,19 +224,19 @@ Legend and workflow: [README](README.md).
 ### PList<PGDReplacementAtom>
 - [-] `PList<PGDReplacementAtom>::Pack` · 004866e0 · legions 0047ff70 — write path (client reads DATs only)
 - [-] `PList<PGDReplacementAtom>::GetPackSize` · 00486730 — write path (client reads DATs only)
-- [ ] `PList<PGDReplacementAtom>::UnPack` · 00486770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `PList<PGDReplacementAtom>::UnPack` · 00486770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### ListNode<PGDReplacementAtom>
 - [-] `ListNode<PGDReplacementAtom>::ListNode<PGDReplacementAtom>` · 004868f0 · legions 00480180 — constructor (struct init; Rust builds it directly)
 
 ### CEnvCell
 - [x] `CEnvCell::Trace` · 00486af0 — ac2-physics los (Terrain::los_check)
-- [ ] `CEnvCell::release_visible` · 00486b00 · legions 00480390 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CEnvCell::ReleaseVisibleCells` · 00486bd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::add_visible_cell` · 00486d10 · legions 004805a0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CEnvCell::CullCells` · 00486dd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CEnvCell::grab_visible` · 00486ee0 · legions 00480740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CEnvCell::GrabVisibleCells` · 00486f10 · legions 00480770 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::release_visible` · 00486b00 · legions 00480390 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::ReleaseVisibleCells` · 00486bd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::add_visible_cell` · 00486d10 · legions 004805a0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::CullCells` · 00486dd0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::grab_visible` · 00486ee0 · legions 00480740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CEnvCell::GrabVisibleCells` · 00486f10 · legions 00480770 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
 ### AtomCollection
 - [-] `AtomCollection::AtomCollection` · 00486f70 · legions 004807d0 — constructor (struct init; Rust builds it directly)
@@ -244,16 +244,16 @@ Legend and workflow: [README](README.md).
 
 ### CEnvCell
 - [ ] `CEnvCell::BuildAndApplyAtomCollection` · 00487180 · legions 004809e0 — needs port: CEnvCell::BuildAndApplyAtomCollection (only its constants are present)
-- [ ] `CEnvCell::ApplyProperty` · 00487270 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CEnvCell::ApplyProperty` · 00487270 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [ ] `CEnvCell::ComputeCellGroups` · 004873b0 · legions 00480be0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [ ] `CEnvCell::FlushCellGroups` · 004876a0 · legions 00480ed0 — needs port: indoor env cell: visibility, lights, portals, rendering
 - [~] `CEnvCell::flush_cells` · 00487750 · legions 00480f80 — static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 
-## `portal/shared/src/cell/landblock.cpp.c` (24/72)
+## `portal/shared/src/cell/landblock.cpp.c` (28/72)
 
 ### LandDefs
 - [x] `LandDefs::GetBlockOffset` · 00488140 · legions 00481970 — ac2-physics los (Terrain::los_check)
-- [ ] `LandDefs::within_block` · 00488270 · legions 00481aa0 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+- [x] `LandDefs::within_block` · 00488270 · legions 00481aa0 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 
 ### EtherealPhysicsType
 - [x] `EtherealPhysicsType::SetPropertyEthereal` · 004882c0 · legions 00481af0 — ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
@@ -265,37 +265,37 @@ Legend and workflow: [README](README.md).
 - [x] `Plane::set_height` · 004882f0 · legions 00481b00 — crates/ac2-render/src/terrain/heights.rs (Plane::set_height over terrain heights)
 
 ### Random
-- [ ] `Random::pseudorand2` · 00488330 · legions 00481b40 — ac2-world ac2_scene/generate.rs: prand2 (the 16-bit placement hash)
+- [x] `Random::pseudorand2` · 00488330 · legions 00481b40 — ac2-world ac2_scene/generate.rs: prand2 (the 16-bit placement hash)
 
 ### SceneGroup
-- [ ] `SceneGroup::HasRadiusCheck` · 00488390 · legions 00481ba0 — ac2-world ac2_scene/generate.rs: a group checks its radius when check_slope_radius is above 0
+- [x] `SceneGroup::HasRadiusCheck` · 00488390 · legions 00481ba0 — ac2-world ac2_scene/generate.rs: a group checks its radius when check_slope_radius is above 0
 
 ### CLandBlock
-- [ ] `CLandBlock::Init` · 004883b0 · legions 00481bc0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::Init` · 004883b0 · legions 00481bc0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlock::SetVertexValue` · 004883c0 · legions 00481bd0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
 - [x] `CLandBlock::OnRoad` · 004883d0 · legions 00481be0 — ac2-world ac2_scene/road.rs: the sixteen corner-road cases match Legions 0x00481BE0 (admin 0x004883D0 is the same body); the index is x times the reciprocal pixel length, the intermediates are float-rounded, and the road field comes from the DAT LandDefs bit lengths (CLandBlockData::GetRoad). Out-of-block vertices read as no road where retail reads neighbour memory
-- [ ] `CLandBlock::GrabVisibleCells` · 004886f0 · legions 00481f00 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CLandBlock::ReleaseVisibleCells` · 00488720 · legions 00481f30 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::GrabVisibleCells` · 004886f0 · legions 00481f00 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::ReleaseVisibleCells` · 00488720 · legions 00481f30 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlock::FindInteriorCell` · 00488750 · legions 00481f60 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::InitLBI` · 004887f0 · legions 00482000 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::InitLBI` · 004887f0 · legions 00482000 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
 ### LandDefs
-- [ ] `LandDefs::get_block_gid` · 00488b70 · legions 004823f0 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+- [x] `LandDefs::get_block_gid` · 00488b70 · legions 004823f0 — ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 - [x] `LandDefs::GetBlockID` · 00488bc0 · legions 00482440 — crates/ac2-physics/src/los/land.rs LandDefs::GetBlockID neighbour id
 
 ### CLandBlockMesh
-- [ ] `CLandBlockMesh::GetLandCell` · 00488c10 · legions 00482490 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlockMesh::GetLandCell` · 00488c10 · legions 00482490 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
 ### CLandBlock
 - [-] `CLandBlock::RecoverFromFreelist` · 00488c60 · legions 004824e0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLandBlock::ClearForFreelist` · 00488d00 · legions 00482580 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [ ] `CLandBlock::GenerateMesh` · 00488d90 · legions 00482610 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690 — ac2-physics terrain.rs land_material picks the nearest vertex (LandDefs::GetNearestPixel) inline; no standalone local x / y accessor
-- [ ] `CLandBlock::InitDynamicObjects` · 00488e70 · legions 004826f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CLandBlock::ReleaseDynamicObjects` · 00488ec0 · legions 00482740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [~] `CLandBlock::GetNearestPixel` · 00488e10 · legions 00482690 — ac2-physics terrain.rs land_material picks the nearest vertex (LandDefs::GetNearestPixel) inline; no standalone local x / y accessor
+- [-] `CLandBlock::InitDynamicObjects` · 00488e70 · legions 004826f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::ReleaseDynamicObjects` · 00488ec0 · legions 00482740 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::InqClearanceInfo` · 00488f10 · legions 00482790
 - [ ] `CLandBlock::InitializeQuadtree` · 00488f70 · legions 004827f0 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::ClearEncounterList` · 00489110 · legions 00482990 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::ClearEncounterList` · 00489110 · legions 00482990 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::ObjectCollides` · 00489160 · legions 004829e0
 - [x] `CLandBlock::ProcFrill` · 004891c0 · legions 00482a40 — crates/ac2-world/src/ac2_landblock_info.rs frill placements (CLandBlock::ProcFrill)
 - [~] `CLandBlock::CheckRadius` · 00489230 · legions 00482ab0 — ported; CLandCell::CheckRadius per-cell test not re-verified
@@ -320,8 +320,8 @@ Legend and workflow: [README](README.md).
 
 ### CLandBlock
 - [-] `CLandBlock::CLandBlock` · 00489e40 · legions 00483750 — constructor (struct init; Rust builds it directly)
-- [ ] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [~] `CLandBlock::GetPhysicsMaterial` · 0048a060 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlock::DestroyStaticObjects` · 00489f70 · legions 00483880 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::GetPhysicsMaterial` · 0048a060 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CLandBlock::GetWaterPhysicsMaterial` · 0048a0e0 · legions 004839f0 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [x] `CLandBlock::CheckGroupPlacement` · 0048a160 · legions 00483a50
 - [ ] `CLandBlock::RemoveDynamicObject` · 0048a330 · legions 00483c20 — needs port: landblock streaming: scenery, objects, cells, water, sound points
@@ -333,7 +333,7 @@ Legend and workflow: [README](README.md).
 - [-] `CELLARRAY::CELLARRAY` · 0048a3f0 · legions 00483ce0 — constructor (struct init; Rust builds it directly)
 
 ### CLandBlock
-- [ ] `CLandBlock::Clear` · 0048a420 · legions 00483d10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::Clear` · 0048a420 · legions 00483d10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandBlock::InitCellConnections` · 0048a460 · legions 00483d50 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CLandBlock::CreateAmbientSoundPoints` · 0048a620 · legions 00483f10 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `CLandBlock::DoIntersection` · 0048a7e0 · legions 00484090 — needs port: landblock streaming: scenery, objects, cells, water, sound points
@@ -342,7 +342,7 @@ Legend and workflow: [README](README.md).
 - [x] `PSmartArray<InstanceID>::StreamPack` · 0048a9c0
 
 ### CLandBlock
-- [ ] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlock::~CLandBlock` · 0048ab10 · legions 004843c0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [x] `CLandBlock::AddEntityToClearList` · 0048abb0 · legions 00484460
 - [x] `CLandBlock::StartSceneGroup` · 0048ace0 · legions 00484590
 - [x] `CLandBlock::ProcEntity` · 0048ad70 · legions 00484620
@@ -360,35 +360,35 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlock::GenerateLBIObjectList` · 0048b450 · legions 00484d00
 - [x] `CLandBlock::ProcScene` · 0048b4c0 · legions 00484d70
 - [x] `CLandBlock::ProcGroup` · 0048b700 · legions 00484f60
-- [ ] `CLandBlock::RemoveLandCellsFromHash` · 0048b990 · legions 004851f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::RemoveLandCellsFromHash` · 0048b990 · legions 004851f0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlock::GatherObjects` · 0048ba30 · legions 00485290 — needs port: CLandBlock::GatherObjects (object gather for culling and shadow map)
 - [x] `CLandBlock::TraceRayCrossBlock` · 0048bcd0 · legions 00485500 — ac2-physics los (Terrain::los_check)
 - [x] `CLandBlock::GenerateSceneObjectList` · 0048bfe0 · legions 00485810 — crates/ac2-world/src/ac2_scene/generate.rs procedural scenery and grass
-- [ ] `CLandBlock::AddLandCellsToHash` · 0048c180 · legions 004859b0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::AddLandCellsToHash` · 0048c180 · legions 004859b0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlock::InitStaticObjects` · 0048c240 · legions 00485a60 — needs port: landblock streaming: scenery, objects, cells, water, sound points
-- [ ] `CLandBlock::Regenerate` · 0048c2f0 · legions 00485b10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CLandBlock::Refresh` · 0048c320 · legions 00485b40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::Regenerate` · 0048c2f0 · legions 00485b10 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlock::Refresh` · 0048c320 · legions 00485b40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
-## `portal/shared/src/cell/landblockdata.cpp.c` (9/31)
+## `portal/shared/src/cell/landblockdata.cpp.c` (15/31)
 
 ### SurfaceInfo
 - [-] `SurfaceInfo::operator=` · 0048ee70 · legions 00487c90 — copy assignment of plain data (Rust clone/move)
 - [x] `SurfaceInfo::SetToDefault` · 0048eef0 · legions 00487d10
 
 ### CLandBlockData
-- [ ] `CLandBlockData::GetSubDataIDs` · 0048ef60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlockData::GetSubDataIDs` · 0048ef60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### SurfaceInfo
 - [-] `SurfaceInfo::SurfaceInfo` · 0048ef90 — constructor (struct init; Rust builds it directly)
 
 ### CLandBlockData
-- [ ] `CLandBlockData::SetHeight` · 0048efc0 · legions 00487de0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-- [ ] `CLandBlockData::SetTerrain` · 0048efe0 · legions 00487e00 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-- [ ] `CLandBlockData::SetScene` · 0048f040 · legions 00487e60 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-- [ ] `CLandBlockData::SetEncounter` · 0048f0a0 · legions 00487ec0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-- [ ] `CLandBlockData::SetRoad` · 0048f100 · legions 00487f20 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::SetHeight` · 0048efc0 · legions 00487de0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::SetTerrain` · 0048efe0 · legions 00487e00 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::SetScene` · 0048f040 · legions 00487e60 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::SetEncounter` · 0048f0a0 · legions 00487ec0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::SetRoad` · 0048f100 · legions 00487f20 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
 - [x] `CLandBlockData::GetTerrain` · 0048f160 · legions 00487f80
-- [ ] `CLandBlockData::GetScene` · 0048f1b0 · legions 00487fd0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+- [x] `CLandBlockData::GetScene` · 0048f1b0 · legions 00487fd0 — ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
 - [x] `CLandBlockData::GetColor` · 0048f200 · legions 00488020
 - [x] `CLandBlockData::GetRoad` · 0048f250 · legions 00488070
 - [ ] `CLandBlockData::InqAsyncLoadDIDs` · 0048f2a0 · legions 004880c0 — needs port: landblock data: heights, terrain, scene, encounters
@@ -398,16 +398,16 @@ Legend and workflow: [README](README.md).
 - [-] `DBObjGrabber<CSurfaceDesc>::DBObjGrabber<CSurfaceDesc>` · 0048f3d0 · legions 004881f0 — DBO cache grabber (DBOCache exception, AGENTS.md)
 
 ### CLandBlockData
-- [ ] `CLandBlockData::~CLandBlockData` · 0048f560 · legions 00488380 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlockData::~CLandBlockData` · 0048f560 · legions 00488380 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [-] `CLandBlockData::GetDBOType` · 0048f600 — DBO type tag (Rust typed decoders)
 - [x] `CLandBlockData::GetNeighborIsSWtoNECut` · 0048f610 · legions 00488430
 - [x] `CLandBlockData::GetNeighborHeightValue` · 0048f720 · legions 00488540
 - [x] `CLandBlockData::GetNormalFromTriangle` · 0048f830 · legions 00488650
 - [x] `CLandBlockData::CachePackValues` · 0048f980 · legions 004887a0
-- [ ] `CLandBlockData::InitLoad` · 0048fa90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandBlockData::InitLoad` · 0048fa90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### PSmartArray<unsigned_char>
-- [ ] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `PSmartArray<unsigned_char>::StreamPack` · 0048faa0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### (free functions)
 - [ ] `STREAMPACK` · 0048fb40 · legions 00488960 — no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
@@ -443,18 +443,18 @@ Legend and workflow: [README](README.md).
 - [ ] `CLandBlockInfo::InitLoad` · 00491a50 · legions 0048a750 — needs port: landblock interior info: cells, lights, properties (post-load init)
 - [-] `CLandBlockInfo::FromFileNode` · 00491b10 — text source format (admin tools)
 
-## `portal/shared/src/cell/landblockmesh.cpp.c` (4/15)
+## `portal/shared/src/cell/landblockmesh.cpp.c` (6/15)
 
 ### CLandBlockMesh
 - [-] `CLandBlockMesh::CLandBlockMesh` · 0048c390 · legions 00485bb0 — constructor (struct init; Rust builds it directly)
-- [ ] `CLandBlockMesh::Clear` · 0048c440 · legions 00485c60 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CLandBlockMesh::HasWater` · 0048c490 · legions 00485cb0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
-- [ ] `CLandBlockMesh::GetWaterIndex` · 0048c4a0 · legions 00485cc0 — Ac2BlockWater carries the water type's resolved materials, tiling and colour, not the type map index CLandBlockMesh::GetWaterIndex answers
-- [ ] `CLandBlockMesh::GetWaterPlane` · 0048c4b0 · legions 00485cd0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
+- [-] `CLandBlockMesh::Clear` · 0048c440 · legions 00485c60 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [x] `CLandBlockMesh::HasWater` · 0048c490 · legions 00485cb0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
+- [~] `CLandBlockMesh::GetWaterIndex` · 0048c4a0 · legions 00485cc0 — Ac2BlockWater carries the water type's resolved materials, tiling and colour, not the type map index CLandBlockMesh::GetWaterIndex answers
+- [x] `CLandBlockMesh::GetWaterPlane` · 0048c4b0 · legions 00485cd0 — ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
 - [x] `CLandBlockMesh::InqWaterPlane` · 0048c4d0 · legions 00485cf0
 - [ ] `CLandBlockMesh::SetVertexValueInternal` · 0048c510 · legions 00485d30 — needs port: landblock terrain mesh build and water
-- [ ] `CLandBlockMesh::~CLandBlockMesh` · 0048c690 · legions 00485eb0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
-- [ ] `CLandBlockMesh::Init` · 0048c6b0 · legions 00485ed0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandBlockMesh::~CLandBlockMesh` · 0048c690 · legions 00485eb0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandBlockMesh::Init` · 0048c6b0 · legions 00485ed0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [ ] `CLandBlockMesh::SetMinMax` · 0048c7d0 · legions 00485ff0 — needs port: landblock terrain mesh build and water
 - [x] `CLandBlockMesh::ConstructVertices` · 0048ca50 · legions 00486270
 - [x] `CLandBlockMesh::SetPolygon` · 0048cb40 · legions 00486360
@@ -462,20 +462,20 @@ Legend and workflow: [README](README.md).
 - [x] `CLandBlockMesh::ConstructPolygons` · 0048cca0 · legions 004864c0
 - [ ] `CLandBlockMesh::GenerateMesh` · 0048d0a0 · legions 004868c0 — needs port: landblock terrain mesh build and water
 
-## `portal/shared/src/cell/landblockquadtree.cpp.c` (0/22)
+## `portal/shared/src/cell/landblockquadtree.cpp.c` (16/22)
 
 ### QuadTree<ICPhysicsObj_*>
-- [ ] `QuadTree<ICPhysicsObj_*>::GetChildCenter` · 00491e60 · legions 0048a810 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `QuadTree<ICPhysicsObj_*>::DestroyTree` · 00491ef0 · legions 0048a8a0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `QuadTree<ICPhysicsObj_*>::GetChildQuad` · 00491f50 · legions 0048a900 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::GetChildCenter` · 00491e60 · legions 0048a810 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::DestroyTree` · 00491ef0 · legions 0048a8a0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::GetChildQuad` · 00491f50 · legions 0048a900 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### CLandBlockQuadTree
-- [ ] `CLandBlockQuadTree::UpdateMinMax` · 00491ff0 · legions 0048a9a0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `CLandBlockQuadTree::DoCull` · 004920e0 · legions 0048aa90 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `CLandBlockQuadTree::Cull` · 004922b0 · legions 0048ac60 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::UpdateMinMax` · 00491ff0 · legions 0048a9a0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::DoCull` · 004920e0 · legions 0048aa90 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::Cull` · 004922b0 · legions 0048ac60 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### QuadTree<ICPhysicsObj_*>
-- [ ] `QuadTree<ICPhysicsObj_*>::Reset` · 004922e0 · legions 0048ac90 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::Reset` · 004922e0 · legions 0048ac90 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 - [-] `QuadTree<ICPhysicsObj_*>::~QuadTree<ICPhysicsObj_*>` · 00492310 · legions 0048acc0 — destructor (Rust Drop)
 
 ### CLandBlockQuadTree
@@ -489,36 +489,36 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<_STL::pair<ICPhysicsObj*,BBox>_>::operator=` · 00492590 · legions 0048af40 — copy assignment of plain data (Rust clone/move)
 
 ### CLandBlockQuadTree
-- [ ] `CLandBlockQuadTree::CreateNode` · 00492650 · legions 0048b000 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `CLandBlockQuadTree::DoDraw` · 00492680 · legions 0048b030 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::CreateNode` · 00492650 · legions 0048b000 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::DoDraw` · 00492680 · legions 0048b030 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### QuadTree<ICPhysicsObj_*>
-- [ ] `QuadTree<ICPhysicsObj_*>::CreateNode` · 00492750 · legions 0048b100 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `QuadTree<ICPhysicsObj_*>::Initialize` · 00492780 · legions 0048b130 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::CreateNode` · 00492750 · legions 0048b100 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::Initialize` · 00492780 · legions 0048b130 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### SmartArray<_STL::pair<ICPhysicsObj_*,BBox>_>
 - [-] `SmartArray<_STL::pair<ICPhysicsObj_*,BBox>_>::AddToEnd` · 004927b0 · legions 0048b160 — STL internals
 
 ### QuadTree<ICPhysicsObj_*>
-- [ ] `QuadTree<ICPhysicsObj_*>::DoGenerate` · 00492820 · legions 0048b1d0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::DoGenerate` · 00492820 · legions 0048b1d0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### CLandBlockQuadTree
-- [ ] `CLandBlockQuadTree::Draw` · 004929e0 · legions 0048b390 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::Draw` · 004929e0 · legions 0048b390 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### QuadTree<ICPhysicsObj_*>
-- [ ] `QuadTree<ICPhysicsObj_*>::AddObject` · 00492a00 · legions 0048b3b0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-- [ ] `QuadTree<ICPhysicsObj_*>::Generate` · 00492a50 · legions 0048b400 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::AddObject` · 00492a00 · legions 0048b3b0 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `QuadTree<ICPhysicsObj_*>::Generate` · 00492a50 · legions 0048b400 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
 ### CLandBlockQuadTree
-- [ ] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+- [x] `CLandBlockQuadTree::Generate` · 00492b60 · legions 0048b510 — ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 
-## `portal/shared/src/cell/landcell.cpp.c` (20/38)
+## `portal/shared/src/cell/landcell.cpp.c` (21/38)
 
 ### (free functions)
-- [ ] `AreFloatEqual` · 0047d8e0 · legions 00477910 — inline |a - b| < epsilon
+- [-] `AreFloatEqual` · 0047d8e0 · legions 00477910 — inline |a - b| < epsilon
 
 ### Position
-- [ ] `Position::adjust_to_outside` · 0047d900 · legions 00477930 — ac2-world cell.rs adjust_to_outside_cell_id (LandDefs::adjust_to_outside on the cell id and block-local origin); ac2-physics landdefs.rs adjust_to_outside is the Position form
+- [x] `Position::adjust_to_outside` · 0047d900 · legions 00477930 — ac2-world cell.rs adjust_to_outside_cell_id (LandDefs::adjust_to_outside on the cell id and block-local origin); ac2-physics landdefs.rs adjust_to_outside is the Position form
 
 ### PositionOffset
 - [x] `PositionOffset::GetOffset` · 0047d920 · legions 00489c10
@@ -543,16 +543,16 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [-] `CLandCell::CLandCell` · 0047dc60 · legions 00477c20 — constructor (struct init; Rust builds it directly)
-- [ ] `CLandCell::~CLandCell` · 0047dca0 · legions 00477c60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLandCell::~CLandCell` · 0047dca0 · legions 00477c60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [ ] `CLandCell::SetPolygon` · 0047dcc0 · legions 00477c80 — needs port: landscape cell (terrain polygon) queries and visibility
 - [x] `CLandCell::InqWaterPlane` · 0047dce0
 - [x] `CLandCell::find_terrain_poly` · 0047dd00 · legions 00477cc0
 - [x] `CLandCell::find_terrain_plane` · 0047dd60 · legions 00477d20 — crates/ac2-world/src/ac2_scene/geometry.rs CLandCell::find_terrain_plane
 - [x] `CLandCell::point_in_cell` · 0047ddc0
-- [ ] `CLandCell::GetViewerDistance` · 0047de50 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CLandCell::GrabVisibleCells` · 0047dea0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CLandCell::ReleaseVisibleCells` · 0047deb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CLandCell::UpdateCellMaterial` · 0047dec0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::GetViewerDistance` · 0047de50 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::GrabVisibleCells` · 0047dea0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::ReleaseVisibleCells` · 0047deb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::UpdateCellMaterial` · 0047dec0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CLandCell::GetPhysicsMaterialDID` · 0047df20 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 
 ### Ray
@@ -572,37 +572,37 @@ Legend and workflow: [README](README.md).
 
 ### CLandCell
 - [x] `CLandCell::FindOutsideCells` · 0047e570 · legions 004785b0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-- [~] `CLandCell::find_env_collisions` · 0047e670 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::find_env_collisions` · 0047e670 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CLandCell::TraceRay` · 0047e7d0 · legions 00478810 — ac2-physics los (Terrain::los_check)
 
 ### SmartArray<Plane>
 - [-] `SmartArray<Plane>::AddToEnd` · 0047ecb0 · legions 00478ce0 — SmartArray container operation (Vec replaces it)
 
 ### CLandCell
-- [ ] `CLandCell::GetCellPlanes` · 0047ed10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLandCell::GetCellPlanes` · 0047ed10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### LScapeManager
-- [ ] `LScapeManager::GetLandCell` · 0047ee60 · legions 00478e90 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `LScapeManager::GetLandCell` · 0047ee60 · legions 00478e90 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 
 ### CLandCell
-- [ ] `CLandCell::Get` · 0047eea0 · legions 00478ed0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CLandCell::Get` · 0047eea0 · legions 00478ed0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CLandCell::Trace` · 0047eed0 — ac2-physics los (Terrain::los_check)
 
-## `portal/shared/src/cell/lightinfo.cpp.c` (3/26)
+## `portal/shared/src/cell/lightinfo.cpp.c` (9/26)
 
 ### PackObj
 - [x] `PackObj::UNPACK_TYPE` · 0048d160 · legions 00486970 — crates/ac2-script/src/bytestream/mod.rs PackObj::UNPACK_TYPE check
-- [ ] `PackObj::UnPack` · 0048d190 · legions 004869a0 — the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
+- [x] `PackObj::UnPack` · 0048d190 · legions 004869a0 — the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
 
 ### (free functions)
 - [-] `STREAMPACK_SIZEOF` · 0048d1c0 · legions 004869d0 — retail StreamPack macro dispatch (Rust decoders)
 
 ### CLightInfo
-- [ ] `CLightInfo::GetLitIndices` · 0048d220 · legions 00486b50 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
-- [ ] `CLightInfo::GetSunLitIndices` · 0048d290 · legions 00486bc0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+- [x] `CLightInfo::GetLitIndices` · 0048d220 · legions 00486b50 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+- [x] `CLightInfo::GetSunLitIndices` · 0048d290 · legions 00486bc0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 
 ### CLightInfo::LightCellInfo
-- [ ] `CLightInfo::LightCellInfo::LightCellInfo` · 0048d300 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CLightInfo::LightCellInfo::LightCellInfo` · 0048d300 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CLightInfo::LightCellInfo::~LightCellInfo` · 0048d310 · legions 00486c40 — destructor (Rust Drop)
 
 ### RLE
@@ -610,19 +610,19 @@ Legend and workflow: [README](README.md).
 - [-] `RLE::Encode` · 0048d4c0 · legions 00486df0 — write or admin-only FileNode import
 
 ### PFileNode
-- [ ] `PFileNode::GetLeafAsUInt32` · 0048d660 · legions 00486f90 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetLeafAsUInt32` · 0048d660 · legions 00486f90 — FileNode text export (admin/editor tool); the client reads packed DATs
 
 ### SmartArray<short>
 - [-] `SmartArray<short>::SetNElements` · 0048d710 · legions 00487040 — SmartArray container operation (Vec replaces it)
 
 ### CLightInfo
 - [-] `CLightInfo::LoadFromFile` · 0048d740 — text source loader, admin build only
-- [ ] `CLightInfo::StreamPackCell` · 0048d870 · legions 00487070 — ac2-world ac2_light_info.rs read_cells: cell id, index count, RLE byte count, RLE words, 4-byte align, with RLE::Decode
+- [x] `CLightInfo::StreamPackCell` · 0048d870 · legions 00487070 — ac2-world ac2_light_info.rs read_cells: cell id, index count, RLE byte count, RLE words, 4-byte align, with RLE::Decode
 - [-] `CLightInfo::Destroy` · 0048da40 · legions 00487240 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `CLightInfo::GetNumLights` · 0048db70 · legions 00487370 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
-- [ ] `CLightInfo::GetLight` · 0048dbc0 · legions 004873c0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+- [x] `CLightInfo::GetNumLights` · 0048db70 · legions 00487370 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+- [x] `CLightInfo::GetLight` · 0048dbc0 · legions 004873c0 — ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 - [x] `CLightInfo::StreamPack` · 0048dc30 · legions 00487430 — crates/ac2-world/src/ac2_light_info.rs CLightInfo::StreamPack order
-- [ ] `CLightInfo::~CLightInfo` · 0048e110 · legions 00487910 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CLightInfo::~CLightInfo` · 0048e110 · legions 00487910 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [-] `CLightInfo::GetDBOType` · 0048e1c0 — DBO type tag (Rust typed decoders)
 - [-] `CLightInfo::CellInfoFromFileNode` · 0048e290 — write or admin-only FileNode import
 
@@ -636,16 +636,16 @@ Legend and workflow: [README](README.md).
 - [-] `CLightInfo::Allocator` · 0048ed70 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CLightInfo::FromFileNode` · 0048ed90 — text source format (admin tools)
 
-## `portal/shared/src/cell/objcell.cpp.c` (10/53)
+## `portal/shared/src/cell/objcell.cpp.c` (11/53)
 
 ### DBObj
 - [-] `DBObj::SaveToFile` · 0047b860 — admin-only dump, save or error report
 
 ### StreamDBObj
-- [ ] `StreamDBObj::StreamPack` · 0047b870 · legions 00475960 — the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
+- [x] `StreamDBObj::StreamPack` · 0047b870 · legions 00475960 — the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
 - [-] `StreamDBObj::GetPackSize` · 0047b8c0 — write path (client reads DATs only)
 - [-] `StreamDBObj::Pack` · 0047b8f0 — write path (client reads DATs only)
-- [ ] `StreamDBObj::UnPack` · 0047b930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `StreamDBObj::UnPack` · 0047b930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### Cylsphere
 - [-] `Cylsphere::Cylsphere` · 0047b950 — constructor (struct init; Rust builds it directly)
@@ -654,11 +654,11 @@ Legend and workflow: [README](README.md).
 - [-] `FrillEntry::FrillEntry` · 0047b970 — constructor (struct init; Rust builds it directly)
 
 ### CObjCell
-- [ ] `CObjCell::Get` · 0047b9c0 · legions 00475af0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CObjCell::Get` · 0047b9c0 · legions 00475af0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [x] `CObjCell::GetVisible` · 0047ba10 · legions 00475b40 — crates/ac2-physics/src/cells.rs CObjCell::GetVisible resident cell
 - [ ] `CObjCell::SendObjectDetection` · 0047ba40 · legions 00475b70 — needs port: object cells: membership, detection voyeurs, frills, shadows
-- [ ] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CObjCell::GetViewerDistance` · 0047bb20 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CObjCell::SetObjectMaintainer` · 0047bb10 · legions 00475c40 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CObjCell::GetViewerDistance` · 0047bb20 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CObjCell::FindCells` · 0047bb40 · legions 00475c70 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047bbd0 · legions 00475d00 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 - [x] `CObjCell::FindCellsLocal` · 0047bcb0 · legions 00475de0 — ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -687,12 +687,12 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionVoyeur>_*>::~IntrusiveHashTable<InstanceID,HashTableData<InstanceID,DetectionVoyeur>_*>` · 0047c640 · legions 00476700 — hash table container; Rust map replaces it
 
 ### DetectionReportType
-- [ ] `DetectionReportType::StreamPack` · 0047c8c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `DetectionReportType::StreamPack` · 0047c8c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### CObjCell
 - [-] `CObjCell::CObjCell` · 0047c8f0 · legions 004769d0 — constructor (struct init; Rust builds it directly)
-- [ ] `CObjCell::GetCellID` · 0047c9d0 · legions 00476ac0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-- [ ] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CObjCell::GetCellID` · 0047c9d0 · legions 00476ac0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+- [-] `CObjCell::~CObjCell` · 0047c9e0 · legions 00476ad0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [ ] `CObjCell::InvalidateShadowObjects` · 0047ca70 · legions 00476b60 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [~] `CObjCell::ReleaseDynamicObjects` · 0047cb40 · legions 00476c30 — ac2-client: CellManager's block changes
 - [~] `CObjCell::find_obj_collisions` · 0047cb70 · legions 00476c60 — ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
@@ -721,7 +721,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CObjCell::InqVoyeurs` · 0047d5a0 · legions 004775d0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 - [ ] `CObjCell::AddVoyeur` · 0047d7b0 · legions 004777e0 — needs port: object cells: membership, detection voyeurs, frills, shadows
 
-## `portal/shared/src/gametime/gametime.cpp.c` (13/29)
+## `portal/shared/src/gametime/gametime.cpp.c` (16/29)
 
 ### GameTime
 - [x] `GameTime::SetYearLength` · 00618860 · legions 005d50d0 — GameClock::new: day_length * days_per_year as a double
@@ -733,7 +733,7 @@ Legend and workflow: [README](README.md).
 - [-] `TimeOfDay::TimeOfDay` · 00618890 — constructor (struct init; Rust builds it directly)
 
 ### GameTime
-- [ ] `GameTime::GetTimeDilation` · 006188a0 · legions 005d5110 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+- [x] `GameTime::GetTimeDilation` · 006188a0 · legions 005d5110 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
 
 ### Season
 - [-] `Season::Season` · 006188c0 — constructor (struct init; Rust builds it directly)
@@ -746,8 +746,8 @@ Legend and workflow: [README](README.md).
 - [x] `GameTime::CalcDayBegin` · 00618bd0 · legions 005d5420 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 - [x] `GameTime::CalcTimeOfDay` · 00618c90 · legions 005d54e0 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 - [x] `GameTime::GetDateTimeString` · 00618d40 · legions 005d5590 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-- [ ] `GameTime::GetGameTimeFromTimeStamp` · 00618e40 · legions 005d5690 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
-- [ ] `GameTime::InqGameDateTimeString` · 00618f30 · legions 005d5780 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+- [x] `GameTime::GetGameTimeFromTimeStamp` · 00618e40 · legions 005d5690 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+- [x] `GameTime::InqGameDateTimeString` · 00618f30 · legions 005d5780 — ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
 - [x] `GameTime::GameTime` · 00618fb0 · legions 005d5800 — crates/ac2-world/src/region/game_time.rs GameTime::GameTime clock setup
 - [-] `GameTime::~GameTime` · 00619090 · legions 005d58e0 — destructor (Rust Drop)
 - [x] `GameTime::UseTime` · 00619130 · legions 005d5980 — ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
@@ -798,7 +798,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/blockmaps/blockmap.cpp.c` (1/8)
 
 ### BlockMap
-- [ ] `BlockMap::UnPack` · 006cf150 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `BlockMap::UnPack` · 006cf150 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `BlockMap::Pack` · 006cf200 — write path (client reads DATs only)
 - [x] `BlockMap::GetValue` · 006cf2c0 · legions 00658ee0 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [-] `BlockMap::BlockMap` · 006cf300 · legions 00658f20 — constructor (struct init; Rust builds it directly)
@@ -807,12 +807,12 @@ Legend and workflow: [README](README.md).
 - [-] `BlockMap::Allocate` · 006cf400 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `BlockMap::~BlockMap` · 006cf410 · legions 00659030 — destructor (Rust Drop)
 
-## `portal/shared/src/region/encounter/encounterdesc.cpp.c` (0/16)
+## `portal/shared/src/region/encounter/encounterdesc.cpp.c` (3/16)
 
 ### CEncounterDesc
 - [-] `CEncounterDesc::Destroy` · 00520430 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `CEncounterDesc::StreamPack` · 00520440 · legions 0050b5b0 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-- [ ] `CEncounterDesc::GetSubDataIDs` · 005204b0 · legions 0050b620 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `CEncounterDesc::StreamPack` · 00520440 · legions 0050b5b0 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `CEncounterDesc::GetSubDataIDs` · 005204b0 · legions 0050b620 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 - [-] `CEncounterDesc::CEncounterDesc` · 00520500 · legions 0050b670 — constructor (struct init; Rust builds it directly)
 - [-] `CEncounterDesc::GetDBOType` · 00520530 — DBO type tag (Rust typed decoders)
 - [-] `CEncounterDesc::~CEncounterDesc` · 00520540 · legions 0050b6b0 — destructor (Rust Drop)
@@ -830,29 +830,29 @@ Legend and workflow: [README](README.md).
 - [-] `EncounterRow::operator=` · 00520b40 · legions 0050ba10 — copy assignment of plain data (Rust clone/move)
 
 ### PSmartArray<EncounterRow>
-- [ ] `PSmartArray<EncounterRow>::StreamPack` · 00520cf0 · legions 0050bbc0 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `PSmartArray<EncounterRow>::StreamPack` · 00520cf0 · legions 0050bbc0 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 
 ### CEncounterDesc
 - [-] `CEncounterDesc::CheckDupAdd` · 00520d90 — text source format (admin tools)
 - [-] `CEncounterDesc::LoadRow` · 00520e10 — text source loader, admin build only
 - [-] `CEncounterDesc::FromFileNode` · 00520ea0 — text source format (admin tools)
 
-## `portal/shared/src/region/encounter/encounterelem.cpp.c` (0/13)
+## `portal/shared/src/region/encounter/encounterelem.cpp.c` (3/13)
 
 ### EncounterElem
-- [ ] `EncounterElem::StreamPack` · 006c6c70 · legions 00656470 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-- [ ] `EncounterElem::GetSubDataIDs` · 006c6d10 · legions 00656510 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `EncounterElem::StreamPack` · 006c6c70 · legions 00656470 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `EncounterElem::GetSubDataIDs` · 006c6d10 · legions 00656510 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 - [-] `EncounterElem::EncounterElem` · 006c6d90 — constructor (struct init; Rust builds it directly)
 - [-] `EncounterElem::~EncounterElem` · 006c6dd0 · legions 006565d0 — destructor (Rust Drop)
-- [ ] `EncounterElem::PutSubObject` · 006c6e60 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `EncounterElem::PutSubObject` · 006c6e60 — FileNode text export (admin/editor tool); the client reads packed DATs
 - [-] `EncounterElem::LoadEncounter` · 006c6f10 — text source loader, admin build only
 
 ### PSmartArray<EncounterExcept>
-- [ ] `PSmartArray<EncounterExcept>::StreamPack` · 006c7070 · legions 00656660 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `PSmartArray<EncounterExcept>::StreamPack` · 006c7070 · legions 00656660 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 
 ### EncounterElem
-- [ ] `EncounterElem::PutTerrainException` · 006c7110 — FileNode text export (admin/editor tool); the client reads packed DATs
-- [ ] `EncounterElem::PutWaterException` · 006c71f0 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `EncounterElem::PutTerrainException` · 006c7110 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `EncounterElem::PutWaterException` · 006c71f0 — FileNode text export (admin/editor tool); the client reads packed DATs
 - [-] `EncounterElem::ToFileNode` · 006c72d0 — text source format (admin tools)
 - [-] `EncounterElem::LoadTerrainExcept` · 006c7510 — text source loader, admin build only
 - [-] `EncounterElem::LoadWaterExcept` · 006c7720 — text source loader, admin build only
@@ -863,18 +863,18 @@ Legend and workflow: [README](README.md).
 ### EncounterExcept
 - [-] `EncounterExcept::EncounterExcept` · 006c6c50 — constructor (struct init; Rust builds it directly)
 
-## `portal/shared/src/region/encounter/encounterrow.cpp.c` (0/10)
+## `portal/shared/src/region/encounter/encounterrow.cpp.c` (3/10)
 
 ### EncounterRow
-- [ ] `EncounterRow::GetSubDataIDs` · 006c7c10 · legions 00656700 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `EncounterRow::GetSubDataIDs` · 006c7c10 · legions 00656700 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 - [-] `EncounterRow::EncounterRow` · 006c7c50 · legions 00656740 — constructor (struct init; Rust builds it directly)
 - [-] `EncounterRow::Destroy` · 006c7c90 · legions 00656780 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `EncounterRow::~EncounterRow` · 006c7ce0 · legions 006567d0 — destructor (Rust Drop)
 - [-] `EncounterRow::ToFileNode` · 006c7d40 — text source format (admin tools)
-- [ ] `EncounterRow::StreamPack` · 006c7e40 · legions 00656830 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `EncounterRow::StreamPack` · 006c7e40 · legions 00656830 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 
 ### PSmartArray<EncounterElem>
-- [ ] `PSmartArray<EncounterElem>::StreamPack` · 006c7ea0 · legions 00656890 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+- [x] `PSmartArray<EncounterElem>::StreamPack` · 006c7ea0 · legions 00656890 — ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 
 ### EncounterRow
 - [-] `EncounterRow::CheckDupAdd` · 006c7f40 — text source format (admin tools)
@@ -887,7 +887,7 @@ Legend and workflow: [README](README.md).
 - [-] `FileNameDesc::FileNameDesc` · 0052bd90 — constructor (struct init; Rust builds it directly)
 - [-] `FileNameDesc::~FileNameDesc` · 0052be40 · legions 00510a30 — destructor (Rust Drop)
 
-## `portal/shared/src/region/fog/fogdesc.cpp.c` (0/15)
+## `portal/shared/src/region/fog/fogdesc.cpp.c` (4/15)
 
 ### CFogDesc
 - [-] `CFogDesc::CFogDesc` · 00524ce0 · legions 0050e1b0 — constructor (struct init; Rust builds it directly)
@@ -895,30 +895,30 @@ Legend and workflow: [README](README.md).
 - [-] `CFogDesc::Destroy` · 00524d30 · legions 0050e200 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `CFogDesc::Pack` · 00524db0 — write path (client reads DATs only)
 - [-] `CFogDesc::GetPackSize` · 00524f10 · legions 0050e3e0 — write path (client reads DATs only)
-- [ ] `CFogDesc::GetSubDataIDs` · 00524f70 · legions 0050e440 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-- [ ] `CFogDesc::FindFogType` · 00524fe0 · legions 0050e4b0 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-- [ ] `CFogDesc::HasFog` · 00525030 · legions 0050e500 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-- [ ] `CFogDesc::GetFogging` · 00525050 · legions 0050e520 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `CFogDesc::GetSubDataIDs` · 00524f70 · legions 0050e440 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `CFogDesc::FindFogType` · 00524fe0 · legions 0050e4b0 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `CFogDesc::HasFog` · 00525030 · legions 0050e500 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `CFogDesc::GetFogging` · 00525050 · legions 0050e520 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [-] `CFogDesc::Allocate` · 00525080 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CFogDesc::UnPack` · 005250d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CFogDesc::UnPack` · 005250d0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CFogDesc::ToFileNode` · 00525280 — text source format (admin tools)
 - [-] `CFogDesc::CheckDupAdd` · 005254d0 — text source format (admin tools)
 - [-] `CFogDesc::LoadFog` · 00525540 — text source loader, admin build only
 - [-] `CFogDesc::FromFileNode` · 005255e0 — text source format (admin tools)
 
-## `portal/shared/src/region/fog/fogtype.cpp.c` (0/8)
+## `portal/shared/src/region/fog/fogtype.cpp.c` (3/8)
 
 ### FogType
 - [-] `FogType::FogType` · 006ca330 · legions 006570a0 — constructor (struct init; Rust builds it directly)
-- [ ] `FogType::unpack` · 006ca350 · legions 006570c0 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `FogType::unpack` · 006ca350 · legions 006570c0 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [-] `FogType::GetPackSize` · 006ca3a0 · legions 006580a0 — write path (client reads DATs only)
-- [ ] `FogType::HasFog` · 006ca3b0 · legions 00657110 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-- [ ] `FogType::GetFogging` · 006ca3c0 · legions 00657120 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `FogType::HasFog` · 006ca3b0 · legions 00657110 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+- [x] `FogType::GetFogging` · 006ca3c0 · legions 00657120 — ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 - [-] `FogType::~FogType` · 006ca3e0 · legions 00657140 — destructor (Rust Drop)
 - [-] `FogType::FromFileNode` · 006ca410 — text source format (admin tools)
 - [-] `FogType::ToFileNode` · 006ca590 — text source format (admin tools)
 
-## `portal/shared/src/region/fog/lightfoginfo.cpp.c` (0/19)
+## `portal/shared/src/region/fog/lightfoginfo.cpp.c` (5/19)
 
 ### LightInfo
 - [-] `LightInfo::Destroy` · 006ca670 · legions 00657170 — DBO release (Drop frees on last drop, AGENTS.md)
@@ -926,12 +926,12 @@ Legend and workflow: [README](README.md).
 ### LightFogInfo
 - [-] `LightFogInfo::LightFogInfo` · 006ca6f0 · legions 006571f0 — constructor (struct init; Rust builds it directly)
 - [-] `LightFogInfo::Destroy` · 006ca790 · legions 00657290 — DBO release (Drop frees on last drop, AGENTS.md)
-- [ ] `LightFogInfo::GetCodePart` · 006ca810 · legions 00657310 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-- [ ] `LightFogInfo::FindCodeType` · 006ca870 · legions 00657370 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-- [ ] `LightFogInfo::SetCombine` · 006ca8c0 · legions 006573c0 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+- [x] `LightFogInfo::GetCodePart` · 006ca810 · legions 00657310 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+- [x] `LightFogInfo::FindCodeType` · 006ca870 · legions 00657370 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+- [x] `LightFogInfo::SetCombine` · 006ca8c0 · legions 006573c0 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
 - [-] `LightFogInfo::~LightFogInfo` · 006ca940 · legions 00657440 — destructor (Rust Drop)
-- [ ] `LightFogInfo::unpack` · 006ca950 · legions 00657450 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-- [ ] `LightFogInfo::GetCode` · 006cabd0 · legions 006576d0 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+- [x] `LightFogInfo::unpack` · 006ca950 · legions 00657450 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+- [x] `LightFogInfo::GetCode` · 006cabd0 · legions 006576d0 — ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
 - [-] `LightFogInfo::pack` · 006cac30 · legions 00657730 — write path (client reads DATs only)
 - [-] `LightFogInfo::GetPackSize` · 006caea0 · legions 006579a0 — write path (client reads DATs only)
 - [-] `LightFogInfo::LoadFog` · 006caf10 — text source loader, admin build only
@@ -939,51 +939,51 @@ Legend and workflow: [README](README.md).
 - [-] `LightFogInfo::LoadAmbientLight` · 006cb430 — text source loader, admin build only
 - [-] `LightFogInfo::LoadShadowColor` · 006cb5d0 — text source loader, admin build only
 - [-] `LightFogInfo::LoadCombine` · 006cb700 — text source loader, admin build only
-- [ ] `LightFogInfo::SaveCombine` · 006cb930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `LightFogInfo::SaveCombine` · 006cb930 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `LightFogInfo::FromFileNode` · 006cba90 — text source format (admin tools)
 - [-] `LightFogInfo::ToFileNode` · 006cbcc0 — text source format (admin tools)
 
-## `portal/shared/src/region/properties/blockproperty.cpp.c` (0/16)
+## `portal/shared/src/region/properties/blockproperty.cpp.c` (7/16)
 
 ### BlockProperty
-- [ ] `BlockProperty::GetPropertyType` · 006cd220 · legions 00658100 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::StreamPack` · 006cd240 · legions 00658120 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetProperty` · 006cd2b0 · legions 00658190 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetInteger` · 006cd2e0 · legions 006581c0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetFloat` · 006cd320 · legions 00658240 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetVector` · 006cd360 · legions 00658280 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetColor` · 006cd3a0 · legions 006582c0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-- [ ] `BlockProperty::GetEnum` · 006cd3e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [x] `BlockProperty::GetPropertyType` · 006cd220 · legions 00658100 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::StreamPack` · 006cd240 · legions 00658120 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::GetProperty` · 006cd2b0 · legions 00658190 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::GetInteger` · 006cd2e0 · legions 006581c0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::GetFloat` · 006cd320 · legions 00658240 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::GetVector` · 006cd360 · legions 00658280 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `BlockProperty::GetColor` · 006cd3a0 · legions 006582c0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [-] `BlockProperty::GetEnum` · 006cd3e0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `BlockProperty::BlockProperty` · 006cd420 — constructor (struct init; Rust builds it directly)
 - [-] `BlockProperty::~BlockProperty` · 006cd450 · legions 00658330 — destructor (Rust Drop)
 - [-] `BlockProperty::LoadName` · 006cd4a0 — text source loader, admin build only
-- [ ] `BlockProperty::CheckGrow` · 006cd580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `BlockProperty::CheckGrow` · 006cd580 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `BlockProperty::LoadBlockMap` · 006cd640 — text source loader, admin build only
 - [-] `BlockProperty::LoadValue` · 006cd710 — text source loader, admin build only
 - [-] `BlockProperty::LoadLinear` · 006cd950 — text source loader, admin build only
 - [-] `BlockProperty::Load` · 006ce070 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/properties/propertydesc.cpp.c` (0/18)
+## `portal/shared/src/region/properties/propertydesc.cpp.c` (8/18)
 
 ### PropertyDesc
-- [ ] `PropertyDesc::IntegerCornerInterp` · 006ce4a0 · legions 00658380 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-- [ ] `PropertyDesc::FloatCornerInterp` · 006ce4f0 · legions 006583d0 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-- [ ] `PropertyDesc::VectorCornerInterp` · 006ce520 · legions 00658400 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-- [ ] `PropertyDesc::ColorCornerInterp` · 006ce5b0 · legions 00658490 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-- [ ] `PropertyDesc::GetSubDataIDs` · 006ce660 · legions 00658540 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+- [x] `PropertyDesc::IntegerCornerInterp` · 006ce4a0 · legions 00658380 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+- [x] `PropertyDesc::FloatCornerInterp` · 006ce4f0 · legions 006583d0 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+- [x] `PropertyDesc::VectorCornerInterp` · 006ce520 · legions 00658400 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+- [x] `PropertyDesc::ColorCornerInterp` · 006ce5b0 · legions 00658490 — ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+- [x] `PropertyDesc::GetSubDataIDs` · 006ce660 · legions 00658540 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 - [-] `PropertyDesc::PropertyDesc` · 006ce6a0 · legions 00658580 — constructor (struct init; Rust builds it directly)
 - [-] `PropertyDesc::GetDBOType` · 006ce6d0 — DBO type tag (Rust typed decoders)
 - [-] `PropertyDesc::~PropertyDesc` · 006ce6e0 · legions 006585c0 — destructor (Rust Drop)
-- [ ] `PropertyDesc::GetBlockPropertyInternal` · 006ce760 · legions 00658640 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
-- [ ] `PropertyDesc::GetPassiblity` · 006ceb80 · legions 00658a20 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+- [x] `PropertyDesc::GetBlockPropertyInternal` · 006ce760 · legions 00658640 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+- [x] `PropertyDesc::GetPassiblity` · 006ceb80 · legions 00658a20 — ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 - [-] `PropertyDesc::Allocate` · 006cec80 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `PropertyDesc::UpdateBlockMaterial` · 006cecb0 · legions 00658b30 — ac2-world PropertyDesc::block_properties_at gathers each property's value at the position in table order; folding them into a PhysicsMaterial (PhysicsMaterial::UpdateProperty) is ac2-physics
+- [~] `PropertyDesc::UpdateBlockMaterial` · 006cecb0 · legions 00658b30 — ac2-world PropertyDesc::block_properties_at gathers each property's value at the position in table order; folding them into a PhysicsMaterial (PhysicsMaterial::UpdateProperty) is ac2-physics
 
 ### BlockProperty
 - [-] `BlockProperty::operator=` · 006ced20 · legions 00658ba0 — copy assignment of plain data (Rust clone/move)
 
 ### PSmartArray<BlockProperty>
-- [ ] `PSmartArray<BlockProperty>::StreamPack` · 006cee50 · legions 00658cd0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+- [x] `PSmartArray<BlockProperty>::StreamPack` · 006cee50 · legions 00658cd0 — ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
 
 ### SmartArray<BlockProperty>
 - [-] `SmartArray<BlockProperty>::AddToEnd` · 006ceef0 — SmartArray container operation (Vec replaces it)
@@ -993,42 +993,42 @@ Legend and workflow: [README](README.md).
 - [-] `PropertyDesc::LoadProperty` · 006cefb0 — text source loader, admin build only
 - [-] `PropertyDesc::FromFileNode` · 006cf040 — text source format (admin tools)
 
-## `portal/shared/src/region/regiondesc.cpp.c` (7/47)
+## `portal/shared/src/region/regiondesc.cpp.c` (13/47)
 
 ### PackObj
 - [x] `PackObj::ALIGN_PTR` · 0051d6e0 · legions 0050a0e0 — crates/ac2-script/src/unpack.rs PackObj::ALIGN_PTR
 
 ### CRegionDesc
-- [ ] `CRegionDesc::SetLandDefs` · 0051d730 · legions 0050a130 — process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
-- [ ] `CRegionDesc::RemoveCurrentRegion` · 0051d7a0 · legions 0050a1a0 — process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
+- [-] `CRegionDesc::SetLandDefs` · 0051d730 · legions 0050a130 — process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
+- [-] `CRegionDesc::RemoveCurrentRegion` · 0051d7a0 · legions 0050a1a0 — process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
 - [-] `CRegionDesc::LoadHeader` · 0051d800 — text source loader, admin build only
 - [x] `CRegionDesc::GetGameMap` · 0051d850 · legions 0050a200 — crates/ac2-world/src/region/ac2_region.rs CRegionDesc::GetGameMap
 - [-] `CRegionDesc::Destroy` · 0051d920 · legions 0050a2d0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `CRegionDesc::PackInfoList` · 0051db20 · legions 0050a4d0 — write path (client reads DATs only)
-- [ ] `CRegionDesc::GetSubDataIDs` · 0051dbd0 · legions 0050a580 — ac2-world RegionInfo::sub_data_ids (region/info_lists.rs): game map, autotest map, land defs, then the eleven info lists in order
+- [x] `CRegionDesc::GetSubDataIDs` · 0051dbd0 · legions 0050a580 — ac2-world RegionInfo::sub_data_ids (region/info_lists.rs): game map, autotest map, land defs, then the eleven info lists in order
 - [x] `CRegionDesc::GetCurrentSoundInfo` · 0051de10 · legions 0050a7c0 — ac2-audio/ac2-client: ambient environments, groove
-- [ ] `CRegionDesc::GetCurrentSceneInfo` · 0051de40 · legions 0050a7e0 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
-- [ ] `CRegionDesc::GetCurrentTerrainInfo` · 0051de70 · legions 0050a810 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+- [x] `CRegionDesc::GetCurrentSceneInfo` · 0051de40 · legions 0050a7e0 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+- [x] `CRegionDesc::GetCurrentTerrainInfo` · 0051de70 · legions 0050a810 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
 - [x] `CRegionDesc::GetCurrentSurfaceInfo` · 0051deb0 · legions 0050a840 — crates/ac2-world/src/ac2_world.rs CRegionDesc::GetCurrentSurfaceInfo
 - [x] `CRegionDesc::GetCurrentDetailMapTable` · 0051def0 · legions 0050a870 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [x] `CRegionDesc::GetCurrentWaterInfo` · 0051df30 · legions 0050a8a0 — crates/ac2-world/src/region/ac2_region.rs CRegionDesc::GetCurrentWaterInfo
-- [ ] `CRegionDesc::GetCurrentFogInfo` · 0051df70 · legions 0050a8d0 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
-- [ ] `CRegionDesc::GetCurrentPropertyInfo` · 0051dfb0 · legions 0050a900 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+- [x] `CRegionDesc::GetCurrentFogInfo` · 0051df70 · legions 0050a8d0 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+- [x] `CRegionDesc::GetCurrentPropertyInfo` · 0051dfb0 · legions 0050a900 — ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
 
 ### PFileNode
-- [ ] `PFileNode::GetLeafAsFloat` · 0051dff0 · legions 0050a930 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetLeafAsFloat` · 0051dff0 · legions 0050a930 — FileNode text export (admin/editor tool); the client reads packed DATs
 
 ### CRegionDesc
 - [-] `CRegionDesc::CRegionDesc` · 0051e010 · legions 0050a950 — constructor (struct init; Rust builds it directly)
 - [-] `CRegionDesc::GetDBOType` · 0051e150 — DBO type tag (Rust typed decoders)
-- [ ] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `CRegionDesc::~CRegionDesc` · 0051e160 · legions 0050aaa0 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [-] `CRegionDesc::GetPackSize` · 0051e290 · legions 0050abd0 — write path (client reads DATs only)
 - [~] `CRegionDesc::SetGameTime` · 0051e480 · legions 0050adc0 — ac2-world ac2_region: the first sky's game_time DID (sky_info[current_sky_info] 0), loaded with the region; the script's game-time glue is not wired
-- [ ] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CRegionDesc::GetCurrentSkyInfo` · 0051e540 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CRegionDesc::Allocate` · 0051e580 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0 — ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
-- [ ] `CRegionDesc::SetRegionByGID` · 0051e6c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `CRegionDesc::SetRegion` · 0051e7a0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [x] `CRegionDesc::UnPackInfoList` · 0051e5b0 · legions 0050aee0 — ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
+- [-] `CRegionDesc::SetRegionByGID` · 0051e6c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CRegionDesc::SetRegion` · 0051e7a0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CRegionDesc::LoadCellMaps` · 0051e800 — text source loader, admin build only
 - [-] `CRegionDesc::LoadGameMap` · 0051ec30 — text source loader, admin build only
 - [-] `CRegionDesc::LoadFile` · 0051eeb0 — text source loader, admin build only
@@ -1053,24 +1053,24 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/regionemap.cpp.c` (0/4)
 
 ### RegionEmap
-- [ ] `RegionEmap::GetSceneEnum` · 006bc6f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `RegionEmap::GetSurfaceEnum` · 006bc770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `RegionEmap::GetSkyObjectEnum` · 006bc7f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `RegionEmap::GetSkyObjectName` · 006bc870 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `RegionEmap::GetSceneEnum` · 006bc6f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `RegionEmap::GetSurfaceEnum` · 006bc770 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `RegionEmap::GetSkyObjectEnum` · 006bc7f0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `RegionEmap::GetSkyObjectName` · 006bc870 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
-## `portal/shared/src/region/scene/lscapescene.cpp.c` (0/8)
+## `portal/shared/src/region/scene/lscapescene.cpp.c` (1/8)
 
 ### LScapeScene
 - [-] `LScapeScene::LScapeScene` · 006c32e0 · legions 00654960 — constructor (struct init; Rust builds it directly)
 - [-] `LScapeScene::pack` · 006c3300 · legions 00654980 — write path (client reads DATs only)
-- [ ] `LScapeScene::unpack` · 006c3360 · legions 006549e0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `LScapeScene::unpack` · 006c3360 · legions 006549e0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 
 ### FileNodeName_Int64
 - [-] `FileNodeName_Int64::GetType` · 006c33b0 · legions 00654a30 — FileNode name wrapper (Rust strings)
 
 ### LScapeScene
 - [ ] `LScapeScene::GetSubDataIDs` · 006c33c0 · legions 00654a40 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `LScapeScene::~LScapeScene` · 006c33e0 · legions 00654a60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+- [-] `LScapeScene::~LScapeScene` · 006c33e0 · legions 00654a60 — Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 - [-] `LScapeScene::LoadSceneFile` · 006c3400 — text source loader, admin build only
 - [-] `LScapeScene::Load` · 006c34d0 — admin-only text/file loader (no Legions match)
 
@@ -1095,21 +1095,21 @@ Legend and workflow: [README](README.md).
 - [x] `ObjectClearance::SetClearCylRadius` · 006bd190 · legions 00651f20
 - [x] `ObjectClearance::ApplyClearanceProperty` · 006bd260 · legions 00651ff0
 
-## `portal/shared/src/region/scene/scenedegrade.cpp.c` (0/10)
+## `portal/shared/src/region/scene/scenedegrade.cpp.c` (2/10)
 
 ### SceneDegrade
-- [ ] `SceneDegrade::GetDegradeDist` · 006c2ba0 · legions 00654630 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
+- [x] `SceneDegrade::GetDegradeDist` · 006c2ba0 · legions 00654630 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneDegrade::SceneDegrade` · 006c2be0 · legions 00654670 — constructor (struct init; Rust builds it directly)
 - [-] `SceneDegrade::Destroy` · 006c2c00 · legions 00654690 — DBO release (Drop frees on last drop, AGENTS.md)
 - [ ] `SceneDegrade::GetSubDataIDs` · 006c2c70 · legions 00654700 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 - [-] `SceneDegrade::~SceneDegrade` · 006c2cb0 · legions 00654740 — destructor (Rust Drop)
-- [ ] `SceneDegrade::CopyInto` · 006c2cd0 · legions 00654760 — Rust Clone (derive) copies the plain data
-- [ ] `SceneDegrade::StreamPack` · 006c2d80 · legions 00654810 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [-] `SceneDegrade::CopyInto` · 006c2cd0 · legions 00654760 — Rust Clone (derive) copies the plain data
+- [x] `SceneDegrade::StreamPack` · 006c2d80 · legions 00654810 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `SceneDegrade::ToFileNode` · 006c2ed0 — text source format (admin tools)
 - [-] `SceneDegrade::LoadEntity` · 006c2ff0 — text source loader, admin build only
 - [-] `SceneDegrade::FromFileNode` · 006c3070 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenedesc.cpp.c` (1/14)
+## `portal/shared/src/region/scene/scenedesc.cpp.c` (3/14)
 
 ### CSceneDesc
 - [-] `CSceneDesc::CSceneDesc` · 00523b20 · legions 0050d8a0 — constructor (struct init; Rust builds it directly)
@@ -1118,43 +1118,43 @@ Legend and workflow: [README](README.md).
 - [-] `CSceneDesc::GetPackSize` · 00523bb0 · legions 0050d930 — write path (client reads DATs only)
 - [-] `CSceneDesc::Pack` · 00523bf0 — write path (client reads DATs only)
 - [ ] `CSceneDesc::GetSubDataIDs` · 00523cb0 · legions 0050da30 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `CSceneDesc::FindSceneType` · 00523cf0 · legions 0050da70 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
-- [ ] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+- [x] `CSceneDesc::FindSceneType` · 00523cf0 · legions 0050da70 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+- [x] `CSceneDesc::GetSceneID` · 00523d30 · legions 0050dab0 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [x] `CSceneDesc::GetSoundType` · 00523d70 · legions 0050dad0 — ac2-audio/ac2-client: ambient environments, groove
 - [-] `CSceneDesc::Allocate` · 00523dc0 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CSceneDesc::UnPack` · 00523e10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CSceneDesc::UnPack` · 00523e10 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CSceneDesc::CheckDupAdd` · 00523ef0 — text source format (admin tools)
 - [-] `CSceneDesc::LoadSceneType` · 00523f60 — text source loader, admin build only
 - [-] `CSceneDesc::FromFileNode` · 00523fe0 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/sceneentity.cpp.c` (0/10)
+## `portal/shared/src/region/scene/sceneentity.cpp.c` (3/10)
 
 ### SceneEntity
-- [ ] `SceneEntity::CopyInto` · 006c17d0 · legions 00653ce0 — Rust Clone (derive) copies the plain data
+- [-] `SceneEntity::CopyInto` · 006c17d0 · legions 00653ce0 — Rust Clone (derive) copies the plain data
 - [ ] `SceneEntity::GetSubDataIDs` · 006c1850 · legions 00653d50 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `SceneEntity::GetDataID` · 006c1890 · legions 00653d80 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
-- [ ] `SceneEntity::GetSubGroupPtr` · 006c18b0 · legions 00653da0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
-- [ ] `SceneEntity::StreamPack` · 006c18c0 · legions 00653db0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `SceneEntity::GetDataID` · 006c1890 · legions 00653d80 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `SceneEntity::GetSubGroupPtr` · 006c18b0 · legions 00653da0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `SceneEntity::StreamPack` · 006c18c0 · legions 00653db0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `SceneEntity::~SceneEntity` · 006c1970 · legions 00653e50 — destructor (Rust Drop)
-- [ ] `SceneEntity::PutSubObject` · 006c19c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-- [ ] `SceneEntity::GetSubObject` · 006c1a90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SceneEntity::PutSubObject` · 006c19c0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SceneEntity::GetSubObject` · 006c1a90 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `SceneEntity::ToFileNode` · 006c1be0 — text source format (admin tools)
 - [-] `SceneEntity::FromFileNode` · 006c1c90 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenefile.cpp.c` (1/12)
+## `portal/shared/src/region/scene/scenefile.cpp.c` (2/12)
 
 ### SceneFile
 - [-] `SceneFile::SceneFile` · 006c1d10 · legions 00653e90 — constructor (struct init; Rust builds it directly)
 
 ### AMLook
-- [ ] `AMLook::GetType` · 006c1d40 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `AMLook::GetType` · 006c1d40 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### SceneFile
 - [-] `SceneFile::Destroy` · 006c1d50 · legions 00653ed0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [ ] `SceneFile::GetSubDataIDs` · 006c1dc0 · legions 00653f40 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `SceneFile::GetCorrectDegrade` · 006c1e10 · legions 00653f90 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
+- [x] `SceneFile::GetCorrectDegrade` · 006c1e10 · legions 00653f90 — ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 - [-] `SceneFile::Allocate` · 006c1e60 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `SceneFile::CopyInto` · 006c1eb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SceneFile::CopyInto` · 006c1eb0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `SceneFile::StreamPack` · 006c1fa0 — crates/ac2-world/src/ac2_scene/format.rs SceneFile::StreamPack
 - [-] `SceneFile::ToFileNode` · 006c2150 — text source format (admin tools)
 - [-] `SceneFile::LoadSceneDegrade` · 006c2250 — text source loader, admin build only
@@ -1201,32 +1201,32 @@ Legend and workflow: [README](README.md).
 - [x] `SceneGroup::CheckFinalHeight` · 006be780 · legions 00653100
 - [-] `SceneGroup::~SceneGroup` · 006be9f0 · legions 00653380 — destructor (Rust Drop)
 - [x] `SceneGroup::FinishPlaceAndCheck` · 006bea10 · legions 006533a0
-- [ ] `SceneGroup::CopyInto` · 006beb80 · legions 00653510 — Rust Clone (derive) copies the plain data
+- [-] `SceneGroup::CopyInto` · 006beb80 · legions 00653510 — Rust Clone (derive) copies the plain data
 - [x] `SceneGroup::StreamPack` · 006bee00 · legions 00653790 — crates/ac2-world/src/ac2_scene/format.rs SceneGroup::StreamPack
-- [ ] `SceneGroup::GetCorner` · 006bf350 — FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
+- [-] `SceneGroup::GetCorner` · 006bf350 — FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
 - [-] `SceneGroup::PutRadiusInfo` · 006bf3e0 — scene editor writer (admin-only)
-- [ ] `SceneGroup::GetRadiusInfo` · 006bf560 — FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
+- [-] `SceneGroup::GetRadiusInfo` · 006bf560 — FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
 - [-] `SceneGroup::LoadEntity` · 006bf840 — text source loader, admin build only
 - [-] `SceneGroup::ToFileNode` · 006bf8c0 — text source format (admin tools)
 - [-] `SceneGroup::FromFileNode` · 006c03f0 — text source format (admin tools)
 
-## `portal/shared/src/region/scene/scenetype.cpp.c` (0/12)
+## `portal/shared/src/region/scene/scenetype.cpp.c` (2/12)
 
 ### SceneType
 - [-] `SceneType::Destroy` · 006c24b0 · legions 006542d0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [-] `SceneType::pack` · 006c2500 · legions 00654320 — write path (client reads DATs only)
 - [-] `SceneType::pack_size` · 006c2590 · legions 006543b0 — write path (client reads DATs only)
 - [ ] `SceneType::GetSubDataIDs` · 006c25d0 · legions 006543f0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `SceneType::GetScene` · 006c2610 · legions 00654430 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+- [x] `SceneType::GetScene` · 006c2610 · legions 00654430 — ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 - [-] `SceneType::SceneType` · 006c2690 · legions 006544b0 — constructor (struct init; Rust builds it directly)
 - [-] `SceneType::~SceneType` · 006c26c0 · legions 006544e0 — destructor (Rust Drop)
-- [ ] `SceneType::unpack` · 006c2700 · legions 00654520 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `SceneType::unpack` · 006c2700 · legions 00654520 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `SceneType::LoadName` · 006c2810 — text source loader, admin build only
 - [-] `SceneType::LoadSound` · 006c2880 — text source loader, admin build only
 - [-] `SceneType::LoadLScapeScene` · 006c2970 — text source loader, admin build only
 - [-] `SceneType::Load` · 006c29f0 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/sky/daydesc.cpp.c` (12/38)
+## `portal/shared/src/region/sky/daydesc.cpp.c` (14/38)
 
 ### CelestialPosition
 - [x] `CelestialPosition::CelestialPosition` · 005257a0 · legions 0050e750 — ac2-world region::sky_objects, ac2-render sky
@@ -1238,7 +1238,7 @@ Legend and workflow: [README](README.md).
 - [x] `CDayDesc::CalcLightVector` · 005259e0 · legions 0050e990
 - [-] `CDayDesc::Destroy` · 00525a90 · legions 0050ea40 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `CDayDesc::StreamPack` · 00525af0 · legions 0050eaa0 — crates/ac2-world/src/region/ac2_region.rs CDayDesc::StreamPack
-- [ ] `CDayDesc::GetSubDataIDs` · 00525b60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CDayDesc::GetSubDataIDs` · 00525b60 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CDayDesc::CheckDupAdd` · 00525bd0 — text source format (admin tools)
 - [-] `CDayDesc::SetInterpDir` · 00525c10 — admin day-table editor (no client path)
 - [x] `CDayDesc::GetBeforeTime` · 00525cb0 · legions 0050eb80
@@ -1251,7 +1251,7 @@ Legend and workflow: [README](README.md).
 - [-] `CDayDesc::~CDayDesc` · 00526340 · legions 0050f210 — destructor (Rust Drop)
 
 ### PSmartArray<SkyTimeOfDay>
-- [ ] `PSmartArray<SkyTimeOfDay>::StreamPack` · 005263b0 · legions 0050f280 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+- [x] `PSmartArray<SkyTimeOfDay>::StreamPack` · 005263b0 · legions 0050f280 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::operator=` · 00526460 · legions 0050f330 — copy assignment of plain data (Rust clone/move)
@@ -1287,7 +1287,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<SkyObject>::RemoveOrderedByIndex` · 00526dd0 — SmartArray container operation (Vec replaces it)
 
 ### PSmartArray<SkyObject>
-- [ ] `PSmartArray<SkyObject>::StreamPack` · 00526e20 · legions 0050f720 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+- [x] `PSmartArray<SkyObject>::StreamPack` · 00526e20 · legions 0050f720 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 
 ### CDayDesc
 - [-] `CDayDesc::AddMissingEntries` · 00526fb0 — admin day-table editor (no client path)
@@ -1299,7 +1299,7 @@ Legend and workflow: [README](README.md).
 ## `portal/shared/src/region/sky/skyday.cpp.c` (0/5)
 
 ### DecalFX
-- [~] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+- [ ] `DecalFX::GetSubDataIDs` · 006c8960 · legions 00643980 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 
 ### SkyDay
 - [-] `SkyDay::SkyDay` · 006c8980 — constructor (struct init; Rust builds it directly)
@@ -1307,16 +1307,16 @@ Legend and workflow: [README](README.md).
 - [-] `SkyDay::LoadName` · 006c89c0 — text source loader, admin build only
 - [-] `SkyDay::FromFileNode` · 006c8aa0 — text source format (admin tools)
 
-## `portal/shared/src/region/sky/skydesc.cpp.c` (2/17)
+## `portal/shared/src/region/sky/skydesc.cpp.c` (7/17)
 
 ### CSkyDesc
-- [ ] `CSkyDesc::GetTickSize` · 00524140 · legions 0050dc30 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
-- [ ] `CSkyDesc::GetLightTickSize` · 00524180 · legions 0050dc70 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+- [x] `CSkyDesc::GetTickSize` · 00524140 · legions 0050dc30 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+- [x] `CSkyDesc::GetLightTickSize` · 00524180 · legions 0050dc70 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 - [-] `CSkyDesc::Destroy` · 005241c0 · legions 0050dcb0 — DBO release (Drop frees on last drop, AGENTS.md)
 - [ ] `CSkyDesc::GetSubDataIDs` · 00524220 · legions 0050dd10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `CSkyDesc::GetDayByIndex` · 00524270 · legions 0050dd60 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+- [x] `CSkyDesc::GetDayByIndex` · 00524270 · legions 0050dd60 — ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 - [x] `CSkyDesc::GetCurrentDay` · 00524290 · legions 0050dd80
-- [ ] `CSkyDesc::RecalcFreq` · 00524350 · legions 0050de40 — ac2-world region/ac2_region.rs ac2_day_index sums the day frequencies on each pick, which is RecalcFreq's total
+- [x] `CSkyDesc::RecalcFreq` · 00524350 · legions 0050de40 — ac2-world region/ac2_region.rs ac2_day_index sums the day frequencies on each pick, which is RecalcFreq's total
 - [-] `CSkyDesc::CSkyDesc` · 005243d0 · legions 0050de70 — constructor (struct init; Rust builds it directly)
 - [-] `CSkyDesc::GetDBOType` · 00524430 — DBO type tag (Rust typed decoders)
 - [x] `CSkyDesc::StreamPack` · 00524440 · legions 0050dee0 — crates/ac2-world/src/region/ac2_region.rs CSkyDesc::StreamPack
@@ -1324,7 +1324,7 @@ Legend and workflow: [README](README.md).
 - [-] `CSkyDesc::LoadGameTime` · 00524670 — text source loader, admin build only
 
 ### PSmartArray<SkyDay>
-- [ ] `PSmartArray<SkyDay>::StreamPack` · 00524740 · legions 0050e110 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+- [x] `PSmartArray<SkyDay>::StreamPack` · 00524740 · legions 0050e110 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 
 ### CSkyDesc
 - [-] `CSkyDesc::CheckDupAdd` · 005247e0 — text source format (admin tools)
@@ -1350,10 +1350,10 @@ Legend and workflow: [README](README.md).
 - [ ] `CMapNoteRow::GetSubDataIDs` · 006c81f0 · legions 00509bd0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 
 ### SkyObjectReplace
-- [ ] `SkyObjectReplace::GetDiffuseColor` · 006c8210 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `SkyObjectReplace::GetDiffuseColor` · 006c8210 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### MotionValues
-- [ ] `MotionValues::GetMaxVertVel` · 006c8250 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `MotionValues::GetMaxVertVel` · 006c8250 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::SkyObjectReplace` · 006c8260 — constructor (struct init; Rust builds it directly)
@@ -1367,13 +1367,13 @@ Legend and workflow: [README](README.md).
 ### SkyObjectReplace
 - [-] `SkyObjectReplace::FromFileNode` · 006c86e0 — text source format (admin tools)
 
-## `portal/shared/src/region/sky/skytimeofday.cpp.c` (0/17)
+## `portal/shared/src/region/sky/skytimeofday.cpp.c` (2/17)
 
 ### SkyTimeOfDay
 - [-] `SkyTimeOfDay::Destroy` · 006c8c90 · legions 00656a40 — DBO release (Drop frees on last drop, AGENTS.md)
 - [~] `SkyTimeOfDay::StreamPack` · 006c8d90 · legions 00656b40 — decoded; field order after m_nDirectHeading not re-verified
 - [ ] `SkyTimeOfDay::GetSubDataIDs` · 006c8f10 · legions 00656cc0 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-- [ ] `SkyTimeOfDay::FindReplacement` · 006c8f50 · legions 00656d00 — ac2-world region/sky_objects.rs find_replacement: the first replacement with the object name
+- [x] `SkyTimeOfDay::FindReplacement` · 006c8f50 · legions 00656d00 — ac2-world region/sky_objects.rs find_replacement: the first replacement with the object name
 - [-] `SkyTimeOfDay::SkyTimeOfDay` · 006c8f90 — constructor (struct init; Rust builds it directly)
 - [-] `SkyTimeOfDay::~SkyTimeOfDay` · 006c9070 · legions 00656e20 — destructor (Rust Drop)
 
@@ -1381,7 +1381,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<SkyObjectReplace>::operator=` · 006c90c0 · legions 00656e70 — copy assignment of plain data (Rust clone/move)
 
 ### PSmartArray<SkyObjectReplace>
-- [ ] `PSmartArray<SkyObjectReplace>::StreamPack` · 006c9160 · legions 00656f10 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+- [x] `PSmartArray<SkyObjectReplace>::StreamPack` · 006c9160 · legions 00656f10 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 
 ### SkyTimeOfDay
 - [-] `SkyTimeOfDay::ToFileNode` · 006c9200 — text source format (admin tools)
@@ -1394,7 +1394,7 @@ Legend and workflow: [README](README.md).
 - [-] `SkyTimeOfDay::LoadReplace` · 006ca070 — text source loader, admin build only
 - [-] `SkyTimeOfDay::FromFileNode` · 006ca0e0 — text source format (admin tools)
 
-## `portal/shared/src/region/surface/lscapealphadesc.cpp.c` (0/5)
+## `portal/shared/src/region/surface/lscapealphadesc.cpp.c` (1/5)
 
 ### LScapeAlphaDesc
 - [-] `LScapeAlphaDesc::LScapeAlphaDesc` · 006c4160 — constructor (struct init; Rust builds it directly)
@@ -1403,7 +1403,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeMaterialDesc::~LScapeMaterialDesc` · 006c4180 · legions 00654f80 — destructor (Rust Drop)
 
 ### TimeOfDay
-- [ ] `TimeOfDay::StreamPack` · 006c41a0 · legions 00632ab0 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+- [x] `TimeOfDay::StreamPack` · 006c41a0 · legions 00632ab0 — ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 
 ### LScapeAlphaDesc
 - [-] `LScapeAlphaDesc::LoadTexture` · 006c4200 — text source loader, admin build only
@@ -1417,7 +1417,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeMaterialDesc::LoadMaterial` · 006c3eb0 — text source loader, admin build only
 - [-] `LScapeMaterialDesc::Load` · 006c3f80 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/surface/lscapesurfacetype.cpp.c` (3/11)
+## `portal/shared/src/region/surface/lscapesurfacetype.cpp.c` (4/11)
 
 ### LScapeSurfaceType
 - [x] `LScapeSurfaceType::StreamPack` · 006c5910 · legions 00655c10
@@ -1429,7 +1429,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeSurfaceType::LoadName` · 006c5b30 — text source loader, admin build only
 
 ### PSmartArray<MaterialGroup>
-- [ ] `PSmartArray<MaterialGroup>::StreamPack` · 006c5ca0 · legions 00655e30 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+- [x] `PSmartArray<MaterialGroup>::StreamPack` · 006c5ca0 · legions 00655e30 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 
 ### SmartArray<MaterialGroup>
 - [-] `SmartArray<MaterialGroup>::AddToEnd` · 006c5d50 — SmartArray container operation (Vec replaces it)
@@ -1446,7 +1446,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeVertexColorDesc::StreamPack` · 006c3a20 · legions 00654dd0
 - [-] `LScapeVertexColorDesc::Load` · 006c3b30 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/surface/materialgroup.cpp.c` (6/20)
+## `portal/shared/src/region/surface/materialgroup.cpp.c` (9/20)
 
 ### MaterialGroup
 - [x] `MaterialGroup::GetRandom` · 006c44d0 · legions 00654fa0
@@ -1462,13 +1462,13 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialGroup::LoadPhysicsMaterial` · 006c4ff0 — text source loader, admin build only
 
 ### PSmartArray<LScapeVertexColorDesc>
-- [ ] `PSmartArray<LScapeVertexColorDesc>::StreamPack` · 006c50f0 · legions 00655a30 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+- [x] `PSmartArray<LScapeVertexColorDesc>::StreamPack` · 006c50f0 · legions 00655a30 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 
 ### PSmartArray<LScapeMaterialDesc>
-- [ ] `PSmartArray<LScapeMaterialDesc>::StreamPack` · 006c5190 · legions 00655ad0 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+- [x] `PSmartArray<LScapeMaterialDesc>::StreamPack` · 006c5190 · legions 00655ad0 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 
 ### PSmartArray<LScapeAlphaDesc>
-- [ ] `PSmartArray<LScapeAlphaDesc>::StreamPack` · 006c5230 · legions 00655b70 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+- [x] `PSmartArray<LScapeAlphaDesc>::StreamPack` · 006c5230 · legions 00655b70 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 
 ### SmartArray<LScapeMaterialDesc>
 - [-] `SmartArray<LScapeMaterialDesc>::AddToEnd` · 006c52d0 — SmartArray container operation (Vec replaces it)
@@ -1482,12 +1482,12 @@ Legend and workflow: [README](README.md).
 - [-] `MaterialGroup::LoadAlpha` · 006c54d0 — text source loader, admin build only
 - [-] `MaterialGroup::Load` · 006c5550 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/surface/surfacedesc.cpp.c` (5/24)
+## `portal/shared/src/region/surface/surfacedesc.cpp.c` (6/24)
 
 ### CSurfaceDesc
 - [-] `CSurfaceDesc::Destroy` · 00522360 — DBO release (Drop frees on last drop, AGENTS.md)
 - [x] `CSurfaceDesc::StreamPack` · 00522380 · legions 0050c820
-- [ ] `CSurfaceDesc::GetSubDataIDs` · 00522480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CSurfaceDesc::GetSubDataIDs` · 00522480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CSurfaceDesc::GetVertexInfo` · 00522520 · legions 0050c9c0
 - [x] `CSurfaceDesc::GetRoadInfo` · 00522580 · legions 0050ca20
 - [x] `CSurfaceDesc::GetPhysicsMaterial` · 005225e0 · legions 0050ca80 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
@@ -1502,7 +1502,7 @@ Legend and workflow: [README](README.md).
 - [-] `CSurfaceDesc::~CSurfaceDesc` · 00522780 · legions 0050cc20 — destructor (Rust Drop)
 
 ### PFileNode
-- [ ] `PFileNode::GetSubName` · 00522ad0 · legions 0050cf70 — FileNode text export (admin/editor tool); the client reads packed DATs
+- [-] `PFileNode::GetSubName` · 00522ad0 · legions 0050cf70 — FileNode text export (admin/editor tool); the client reads packed DATs
 
 ### CSurfaceDesc
 - [-] `CSurfaceDesc::Allocate` · 00522af0 — retail free-object pool (DBOCache exception, AGENTS.md)
@@ -1526,7 +1526,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeSurfaceType::operator=` · 00522f00 · legions 0050d3a0 — copy assignment of plain data (Rust clone/move)
 
 ### PSmartArray<LScapeSurfaceType>
-- [ ] `PSmartArray<LScapeSurfaceType>::StreamPack` · 00523020 · legions 0050d4c0 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+- [x] `PSmartArray<LScapeSurfaceType>::StreamPack` · 00523020 · legions 0050d4c0 — ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 
 ### SmartArray<LScapeSurfaceType>
 - [-] `SmartArray<LScapeSurfaceType>::AddToEnd` · 005230c0 — SmartArray container operation (Vec replaces it)
@@ -1548,18 +1548,18 @@ Legend and workflow: [README](README.md).
 - [x] `CTerrainDesc::GetSurfaceType` · 00521c90 · legions 0050c420 — crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::GetSurfaceType
 - [-] `CTerrainDesc::Allocate` · 00521cc0 — retail free-object pool (DBOCache exception, AGENTS.md)
 - [-] `CTerrainDesc::Pack` · 00521cd0 — write path (client reads DATs only)
-- [ ] `CTerrainDesc::GetScene` · 00521de0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CTerrainDesc::GetScene` · 00521de0 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [x] `CTerrainDesc::GetSoundType` · 00521ed0 — ac2-audio/ac2-client: ambient environments, groove
 - [x] `CTerrainDesc::UnPack` · 00522000 — crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::UnPack
 - [-] `CTerrainDesc::CheckDupAdd` · 00522140 — text source format (admin tools)
 - [-] `CTerrainDesc::LoadTerrainType` · 005221b0 — text source loader, admin build only
 - [-] `CTerrainDesc::FromFileNode` · 00522240 — text source format (admin tools)
 
-## `portal/shared/src/region/terrain/terrainsceneinfo.cpp.c` (0/5)
+## `portal/shared/src/region/terrain/terrainsceneinfo.cpp.c` (1/5)
 
 ### TerrainSceneInfo
 - [-] `TerrainSceneInfo::pack` · 006c6900 · legions 006563a0 — write path (client reads DATs only)
-- [ ] `TerrainSceneInfo::unpack` · 006c6950 · legions 006563f0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+- [x] `TerrainSceneInfo::unpack` · 006c6950 · legions 006563f0 — ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 - [-] `TerrainSceneInfo::~TerrainSceneInfo` · 006c69a0 · legions 00656440 — destructor (Rust Drop)
 - [-] `TerrainSceneInfo::LoadSceneName` · 006c69b0 — text source loader, admin build only
 - [-] `TerrainSceneInfo::Load` · 006c6a70 — admin-only text/file loader (no Legions match)
@@ -1578,7 +1578,7 @@ Legend and workflow: [README](README.md).
 - [x] `TerrainType::unpack` · 006c6460 · legions 00656210 — crates/ac2-world/src/ac2_terrain_desc.rs TerrainType::unpack
 - [-] `TerrainType::Load` · 006c65f0 — admin-only text/file loader (no Legions match)
 
-## `portal/shared/src/region/water/waterdesc.cpp.c` (2/21)
+## `portal/shared/src/region/water/waterdesc.cpp.c` (8/21)
 
 ### CWaterDesc
 - [-] `CWaterDesc::CWaterDesc` · 00521060 · legions 0050bcd0 — constructor (struct init; Rust builds it directly)
@@ -1588,22 +1588,22 @@ Legend and workflow: [README](README.md).
 - [-] `CWaterDesc::GetPackSize` · 00521240 · legions 0050beb0 — write path (client reads DATs only)
 - [ ] `CWaterDesc::GetSubDataIDs` · 005212a0 · legions 0050bf10 — needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 - [x] `CWaterDesc::FindWaterType` · 005212f0 · legions 0050bf60 — crates/ac2-world/src/ac2_water.rs CWaterDesc::FindWaterType
-- [ ] `CWaterDesc::HasWater` · 00521340 · legions 0050bfb0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `CWaterDesc::GetTileWidth` · 00521360 · legions 0050bfd0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `CWaterDesc::GetAboveMaterial` · 00521380 · legions 0050bff0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `CWaterDesc::GetBelowMaterial` · 005213a0 · legions 0050c010 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `CWaterDesc::GetWaterLighting` · 005213c0 · legions 0050c030 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `CWaterDesc::GetVertexColor` · 005213f0 · legions 0050c060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::HasWater` · 00521340 · legions 0050bfb0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::GetTileWidth` · 00521360 · legions 0050bfd0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::GetAboveMaterial` · 00521380 · legions 0050bff0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::GetBelowMaterial` · 005213a0 · legions 0050c010 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::GetWaterLighting` · 005213c0 · legions 0050c030 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `CWaterDesc::GetVertexColor` · 005213f0 · legions 0050c060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [x] `CWaterDesc::GetPhysicsMaterial` · 00521410 · legions 0050c080 — Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 - [-] `CWaterDesc::Allocate` · 00521430 — retail free-object pool (DBOCache exception, AGENTS.md)
-- [ ] `CWaterDesc::UnPack` · 00521480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+- [-] `CWaterDesc::UnPack` · 00521480 — admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 - [-] `CWaterDesc::ToFileNode` · 005215f0 — text source format (admin tools)
 - [-] `CWaterDesc::CheckDupAdd` · 00521780 — text source format (admin tools)
 - [-] `CWaterDesc::LoadID` · 005217f0 — text source loader, admin build only
 - [-] `CWaterDesc::LoadWater` · 005218d0 — text source loader, admin build only
 - [-] `CWaterDesc::FromFileNode` · 00521960 — text source format (admin tools)
 
-## `portal/shared/src/region/water/waterlighting.cpp.c` (0/7)
+## `portal/shared/src/region/water/waterlighting.cpp.c` (2/7)
 
 ### WaterLighting
 - [-] `WaterLighting::WaterLighting` · 006ccf30 · legions 00658020 — constructor (struct init; Rust builds it directly)
@@ -1612,13 +1612,13 @@ Legend and workflow: [README](README.md).
 - [-] `FogType::pack` · 006ccf40 · legions 00658030 — write path (client reads DATs only)
 
 ### WaterLighting
-- [ ] `WaterLighting::unpack` · 006ccf70 · legions 00658060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-- [ ] `WaterLighting::GetLight` · 006ccfb0 · legions 006580b0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `WaterLighting::unpack` · 006ccf70 · legions 00658060 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `WaterLighting::GetLight` · 006ccfb0 · legions 006580b0 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [-] `WaterLighting::~WaterLighting` · 006ccfe0 · legions 006580e0 — destructor (Rust Drop)
 - [-] `WaterLighting::FromFileNode` · 006cd000 — text source format (admin tools)
 - [-] `WaterLighting::ToFileNode` · 006cd160 — text source format (admin tools)
 
-## `portal/shared/src/region/water/watertype.cpp.c` (0/14)
+## `portal/shared/src/region/water/watertype.cpp.c` (2/14)
 
 ### WaterLightInfo
 - [-] `WaterLightInfo::WaterLightInfo` · 006cc080 · legions 00657a10 — constructor (struct init; Rust builds it directly)
@@ -1630,10 +1630,10 @@ Legend and workflow: [README](README.md).
 - [-] `WaterType::pack` · 006cc240 · legions 00657bd0 — write path (client reads DATs only)
 - [-] `WaterType::GetPackSize` · 006cc350 · legions 00657ce0 — write path (client reads DATs only)
 - [-] `WaterType::~WaterType` · 006cc450 · legions 00657de0 — destructor (Rust Drop)
-- [ ] `WaterType::unpack` · 006cc470 · legions 00657e00 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `WaterType::unpack` · 006cc470 · legions 00657e00 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 - [-] `WaterType::ToFileNode` · 006cc5e0 — text source format (admin tools)
 - [-] `WaterType::LoadMaterial` · 006cc8a0 — text source loader, admin build only
 - [-] `WaterType::LoadPhysMat` · 006cc9a0 — text source loader, admin build only
 - [-] `WaterType::LoadLight` · 006ccad0 — text source loader, admin build only
 - [-] `WaterType::FromFileNode` · 006ccb30 — text source format (admin tools)
-- [ ] `WaterType::GetWaterLighting` · 006cce80 · legions 00657f70 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+- [x] `WaterType::GetWaterLighting` · 006cce80 · legions 00657f70 — ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset

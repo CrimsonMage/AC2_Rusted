@@ -2529,17 +2529,17 @@ key	status	note
 00479890	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
 004799c0	x	ac2-ui interpreter.rs (ActionHandler, StartAction/StopAction dispatch, double tap, run lock, one-shot purge) and controls.rs (focus, dispatch to movement, behaviours, camera, UI); tests in ac2-ui
 0047b860	-	admin-only dump, save or error report
-0047b870	_	the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
+0047b870	x	the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
 0047b8c0	-	write path (client reads DATs only)
 0047b8f0	-	write path (client reads DATs only)
-0047b930	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047b930	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0047b950	-	constructor (struct init; Rust builds it directly)
 0047b970	-	constructor (struct init; Rust builds it directly)
-0047b9c0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0047b9c0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0047ba10	x	crates/ac2-physics/src/cells.rs CObjCell::GetVisible resident cell
 0047ba40	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047bb10	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0047bb20	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047bb10	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0047bb20	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0047bb40	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bbd0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0047bcb0	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
@@ -2559,10 +2559,10 @@ key	status	note
 0047c560	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 0047c600	-	SmartArray container destructor (Vec drop)
 0047c640	-	hash table container; Rust map replaces it
-0047c8c0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047c8c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0047c8f0	-	constructor (struct init; Rust builds it directly)
-0047c9d0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0047c9e0	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0047c9d0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0047c9e0	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0047ca70	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047cb40	~	ac2-client: CellManager's block changes
 0047cb70	~	ac2-physics objects.rs find_object_collisions: the mover's own entry is skipped (object_info.object test), server objects are tested in the dynamic shadow list, FX objects are ethereal (DoCreateObjectFX); the admin 0x250 branch and the step/missile/temp-ignore lists are not ported
@@ -2582,8 +2582,8 @@ key	status	note
 0047d500	_	needs port: CObjCell::AddFrill (frill entities as cell objects)
 0047d5a0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
 0047d7b0	_	needs port: object cells: membership, detection voyeurs, frills, shadows
-0047d8e0	_	inline |a - b| < epsilon
-0047d900	_	ac2-world cell.rs adjust_to_outside_cell_id (LandDefs::adjust_to_outside on the cell id and block-local origin); ac2-physics landdefs.rs adjust_to_outside is the Position form
+0047d8e0	-	inline |a - b| < epsilon
+0047d900	x	ac2-world cell.rs adjust_to_outside_cell_id (LandDefs::adjust_to_outside on the cell id and block-local origin); ac2-physics landdefs.rs adjust_to_outside is the Position form
 0047d920	x	
 0047d990	x	ac2-physics los (Terrain::los_check)
 0047d9c0	x	ac2-physics los (Terrain::los_check)
@@ -2594,16 +2594,16 @@ key	status	note
 0047db90	x	
 0047dbe0	x	
 0047dc60	-	constructor (struct init; Rust builds it directly)
-0047dca0	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0047dca0	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0047dcc0	_	needs port: landscape cell (terrain polygon) queries and visibility
 0047dce0	x	
 0047dd00	x	
 0047dd60	x	crates/ac2-world/src/ac2_scene/geometry.rs CLandCell::find_terrain_plane
 0047ddc0	x	
-0047de50	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0047dea0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0047deb0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0047dec0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047de50	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047dea0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047deb0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047dec0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0047df20	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 0047df40	x	ac2-physics los (Terrain::los_check)
 0047df80	-	retail free-object pool (DBOCache exception, AGENTS.md)
@@ -2613,12 +2613,12 @@ key	status	note
 0047e400	-	DBO cache grabber (DBOCache exception, AGENTS.md)
 0047e520	x	ac2-physics los (Terrain::los_check)
 0047e570	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
-0047e670	~	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047e670	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0047e7d0	x	ac2-physics los (Terrain::los_check)
 0047ecb0	-	SmartArray container operation (Vec replaces it)
-0047ed10	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0047ee60	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0047eea0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0047ed10	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047ee60	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0047eea0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0047eed0	x	ac2-physics los (Terrain::los_check)
 0047f1a0	-	write path (client reads DATs only)
 0047f1c0	-	retail StreamPack macro dispatch (Rust decoders)
@@ -2629,26 +2629,26 @@ key	status	note
 0047f410	x	
 0047f4b0	x	
 0047f500	x	
-0047f550	_	ac2-math Plane::which_side (geometry.rs)
+0047f550	x	ac2-math Plane::which_side (geometry.rs)
 0047f5a0	-	copy assignment of plain data (Rust clone/move)
-0047f5f0	_	Waveform copy (Rust assignment of the plain Waveform value)
+0047f5f0	-	Waveform copy (Rust assignment of the plain Waveform value)
 0047f650	-	constructor (struct init; Rust builds it directly)
 0047f670	-	copy assignment of plain data (Rust clone/move)
 0047f6b0	-	constructor (struct init; Rust builds it directly)
 0047f6d0	-	destructor (Rust Drop)
-0047f730	_	ac2-world cell.rs culling_plane_check: true only when no corner of the box (BBox::points) is within the culling distance of the camera; unit tested. The visibility culling that calls it (CullCellGroupInternal) is not ported
+0047f730	x	ac2-world cell.rs culling_plane_check: true only when no corner of the box (BBox::points) is within the culling distance of the camera; unit tested. The visibility culling that calls it (CullCellGroupInternal) is not ported
 0047f9b0	-	copy assignment of plain data (Rust clone/move)
 0047fa10	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0047fa50	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0047fa80	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 0047fb70	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-0047fbd0	_	D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
-0047fd00	_	D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
-00480180	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0047fbd0	-	D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
+0047fd00	-	D3D8 DOT3 bump-map tangent-space light vectors written into the vertex buffer; the single modern pass lights per pixel (AGENTS.md)
+00480180	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004801b0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 004801c0	-	SmartArray container operation (Vec replaces it)
-00480320	_	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
-00480390	_	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+00480320	x	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+00480390	x	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 00480400	-	FileNode name wrapper (Rust strings)
 00480430	x	crates/ac2-physics/src/los/mod.rs Ray::Ray (zero point, direction, length)
 00480470	-	constructor (struct init; Rust builds it directly)
@@ -2660,46 +2660,46 @@ key	status	note
 004807b0	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00480800	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00480860	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
-00480890	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00480890	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00480900	~	cell mesh with appearance atoms at the cell frame, point lights cached at 1.5x bbox radius; degrade selection fixed at top
 00480a80	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00480bc0	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00480c00	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00480c40	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-00480f30	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00480fa0	_	D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
-00480ff0	_	D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
+00480f30	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00480fa0	-	D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
+00480ff0	-	D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
 00481030	x	ac2-render object::cell / point_lights
 004813a0	_	needs port: CEnvCell::TraceRayAgainstMesh (exact render-mesh ray trace; physics holds no render mesh)
-00481580	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00481580	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00481630	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00481680	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00481680	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00481710	-	intrusive pointer; Arc replaces it
 00481740	-	intrusive pointer; Arc replaces it
 00481cf0	-	FileNode name wrapper (Rust strings)
 00481d20	-	FileNode name wrapper (Rust strings)
 00481d70	-	FileNode name wrapper (Rust strings)
-00481dc0	_	FileNode text export (admin/editor tool); the client reads packed DATs
-00481e80	_	FileNode text export (admin/editor tool); the client reads packed DATs
-00481ea0	_	FileNode text export (admin/editor tool); the client reads packed DATs
-00481f60	_	FileNode text export (admin/editor tool); the client reads packed DATs
-00482040	_	FileNode text export (admin/editor tool); the client reads packed DATs
+00481dc0	-	FileNode text export (admin/editor tool); the client reads packed DATs
+00481e80	-	FileNode text export (admin/editor tool); the client reads packed DATs
+00481ea0	-	FileNode text export (admin/editor tool); the client reads packed DATs
+00481f60	-	FileNode text export (admin/editor tool); the client reads packed DATs
+00482040	-	FileNode text export (admin/editor tool); the client reads packed DATs
 00482060	x	ac2-physics los (Terrain::los_check)
 004820b0	-	scene tool (admin editor)
 004820d0	-	constructor (struct init; Rust builds it directly)
-004822c0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-004822d0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-004822e0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+004822c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+004822d0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+004822e0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004822f0	-	DBO type tag (Rust typed decoders)
-00482310	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+00482310	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 00482450	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
-00482460	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00482460	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004825c0	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00482710	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
-00482a80	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00482a80	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00482b40	-	SmartArray container operation (Vec replaces it)
-00482c10	_	FileNode text export (admin/editor tool); the client reads packed DATs
+00482c10	-	FileNode text export (admin/editor tool); the client reads packed DATs
 00482c30	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00482c40	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00482c80	~	Cell lights here are the block's static CLightInfo lights (ac2-render scene/interiors.rs object_point_lights). Object FX lights never reach a cell: retail links them with SceneTool::LinkLight(bDynamic=1) into the object-only dynamic list, and CEnvCell lighting reads only CLightInfo. Per-vertex sun and time-of-day baking (CopyDiffuseToVB, LightIndices on the sun indices) is not reproduced by this row
@@ -2721,70 +2721,70 @@ key	status	note
 00484680	x	ac2-world env_cell_markers; drawn by ac2-render scene interiors
 00484710	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00484760	_	needs port: indoor env cell: visibility, lights, portals, rendering
-00484800	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00484800	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004848a0	-	write path (client reads DATs only)
-004848e0	_	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+004848e0	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 00484a30	-	constructor (struct init; Rust builds it directly)
 00484e30	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00484e70	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00485290	_	needs port: indoor env cell: visibility, lights, portals, rendering
-004856b0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-00485770	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-00485800	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+004856b0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00485770	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00485800	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00485890	x	ac2-physics physics_obj_place.rs: SetPosition placement check (Legions identical)
 00485930	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 00486180	-	write path (client reads DATs only)
 004861d0	-	write path (client reads DATs only)
-00486210	_	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+00486210	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 00486360	-	constructor (struct init; Rust builds it directly)
 004863b0	-	write path (client reads DATs only)
-00486400	_	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
-00486560	_	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+00486400	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
+00486560	x	ac2-assets ac2_appearance.rs decodes the appearance atoms (material modifier, opacity, mesh replacement, PGD replacement, icon layers)
 004866a0	-	constructor (struct init; Rust builds it directly)
 004866e0	-	write path (client reads DATs only)
 00486730	-	write path (client reads DATs only)
-00486770	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00486770	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004868f0	-	constructor (struct init; Rust builds it directly)
 00486af0	x	ac2-physics los (Terrain::los_check)
-00486b00	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00486bd0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-00486d10	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00486dd0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-00486ee0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00486f10	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00486b00	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00486bd0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00486d10	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00486dd0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00486ee0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00486f10	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00486f70	-	constructor (struct init; Rust builds it directly)
 00487060	-	destructor (Rust Drop)
 00487180	_	needs port: CEnvCell::BuildAndApplyAtomCollection (only its constants are present)
-00487270	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00487270	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 004873b0	_	needs port: indoor env cell: visibility, lights, portals, rendering
 004876a0	_	needs port: indoor env cell: visibility, lights, portals, rendering
 00487750	~	static diffuse bake (base colour + LightIndices); SumBumpMapVectors not yet
 00488140	x	ac2-physics los (Terrain::los_check)
-00488270	_	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+00488270	x	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 004882c0	x	ac2-physics collision_types.rs: PhysicsTypeMask::set_property (master-table gate, bit below 64) and WeenieTypes::update_from (EtherealWeenieType::Update merge, copy when the source lists are empty)
 004882d0	-	admin-only dump, save or error report
 004882f0	x	crates/ac2-render/src/terrain/heights.rs (Plane::set_height over terrain heights)
-00488330	_	ac2-world ac2_scene/generate.rs: prand2 (the 16-bit placement hash)
-00488390	_	ac2-world ac2_scene/generate.rs: a group checks its radius when check_slope_radius is above 0
-004883b0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488330	x	ac2-world ac2_scene/generate.rs: prand2 (the 16-bit placement hash)
+00488390	x	ac2-world ac2_scene/generate.rs: a group checks its radius when check_slope_radius is above 0
+004883b0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 004883c0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 004883d0	x	ac2-world ac2_scene/road.rs: the sixteen corner-road cases match Legions 0x00481BE0 (admin 0x004883D0 is the same body); the index is x times the reciprocal pixel length, the intermediates are float-rounded, and the road field comes from the DAT LandDefs bit lengths (CLandBlockData::GetRoad). Out-of-block vertices read as no road where retail reads neighbour memory
-004886f0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00488720	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+004886f0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488720	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00488750	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-004887f0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00488b70	_	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
+004887f0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488b70	x	ac2-world land_blocks.rs: inbound_valid_blockid, blockpart_to_blockcoord, get_block_gid, within_block, interpolate (LandDefs); unit tested
 00488bc0	x	crates/ac2-physics/src/los/land.rs LandDefs::GetBlockID neighbour id
-00488c10	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488c10	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00488c60	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00488d00	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00488d90	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-00488e10	_	ac2-physics terrain.rs land_material picks the nearest vertex (LandDefs::GetNearestPixel) inline; no standalone local x / y accessor
-00488e70	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-00488ec0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488e10	~	ac2-physics terrain.rs land_material picks the nearest vertex (LandDefs::GetNearestPixel) inline; no standalone local x / y accessor
+00488e70	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00488ec0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00488f10	x	
 00488f70	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-00489110	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+00489110	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00489160	x	
 004891c0	x	crates/ac2-world/src/ac2_landblock_info.rs frill placements (CLandBlock::ProcFrill)
 00489230	~	ported; CLandCell::CheckRadius per-cell test not re-verified
@@ -2797,19 +2797,19 @@ key	status	note
 00489d70	x	ac2-physics los (Terrain::los_check)
 00489de0	-	constructor (struct init; Rust builds it directly)
 00489e40	-	constructor (struct init; Rust builds it directly)
-00489f70	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0048a060	~	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00489f70	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048a060	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0048a0e0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 0048a160	x	
 0048a330	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048a390	-	SmartArray container operation (Vec replaces it)
 0048a3f0	-	constructor (struct init; Rust builds it directly)
-0048a420	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048a420	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048a460	x	ac2-physics find_cells.rs, terrain.rs: cell search through land cells, touching cells and portals
 0048a620	x	ac2-audio/ac2-client: ambient environments, groove
 0048a7e0	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
 0048a9c0	x	
-0048ab10	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0048ab10	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0048abb0	x	
 0048ace0	x	
 0048ad70	x	
@@ -2823,23 +2823,23 @@ key	status	note
 0048b450	x	
 0048b4c0	x	
 0048b700	x	
-0048b990	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048b990	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048ba30	_	needs port: CLandBlock::GatherObjects (object gather for culling and shadow map)
 0048bcd0	x	ac2-physics los (Terrain::los_check)
 0048bfe0	x	crates/ac2-world/src/ac2_scene/generate.rs procedural scenery and grass
-0048c180	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048c180	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048c240	_	needs port: landblock streaming: scenery, objects, cells, water, sound points
-0048c2f0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0048c320	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048c2f0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048c320	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048c390	-	constructor (struct init; Rust builds it directly)
-0048c440	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
-0048c490	_	ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
-0048c4a0	_	Ac2BlockWater carries the water type's resolved materials, tiling and colour, not the type map index CLandBlockMesh::GetWaterIndex answers
-0048c4b0	_	ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
+0048c440	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048c490	x	ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
+0048c4a0	~	Ac2BlockWater carries the water type's resolved materials, tiling and colour, not the type map index CLandBlockMesh::GetWaterIndex answers
+0048c4b0	x	ac2-world Ac2WorldSource block water (Option<Ac2BlockWater>: surface height and the type's materials), set by the CacheFarValues port
 0048c4d0	x	
 0048c510	_	needs port: landblock terrain mesh build and water
-0048c690	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
-0048c6b0	_	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
+0048c690	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0048c6b0	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 0048c7d0	_	needs port: landblock terrain mesh build and water
 0048ca50	x	
 0048cb40	x	
@@ -2847,22 +2847,22 @@ key	status	note
 0048cca0	x	
 0048d0a0	_	needs port: landblock terrain mesh build and water
 0048d160	x	crates/ac2-script/src/bytestream/mod.rs PackObj::UNPACK_TYPE check
-0048d190	_	the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
+0048d190	x	the shared DBObj header (DID, then the body) every ac2-world decoder checks against the DAT identity (expect_did)
 0048d1c0	-	retail StreamPack macro dispatch (Rust decoders)
-0048d220	_	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
-0048d290	_	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
-0048d300	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0048d220	x	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+0048d290	x	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+0048d300	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0048d310	-	destructor (Rust Drop)
 0048d3d0	x	crates/ac2-world/src/ac2_light_info.rs RLE::Decode
 0048d4c0	-	write or admin-only FileNode import
-0048d660	_	FileNode text export (admin/editor tool); the client reads packed DATs
+0048d660	-	FileNode text export (admin/editor tool); the client reads packed DATs
 0048d710	-	SmartArray container operation (Vec replaces it)
-0048d870	_	ac2-world ac2_light_info.rs read_cells: cell id, index count, RLE byte count, RLE words, 4-byte align, with RLE::Decode
+0048d870	x	ac2-world ac2_light_info.rs read_cells: cell id, index count, RLE byte count, RLE words, 4-byte align, with RLE::Decode
 0048da40	-	DBO release (Drop frees on last drop, AGENTS.md)
-0048db70	_	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
-0048dbc0	_	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+0048db70	x	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
+0048dbc0	x	ac2-world ac2_light_info.rs Ac2LightInfo: lit_indices (GetLitIndices), sun_lit_indices (GetSunLitIndices), num_lights (GetNumLights), light (GetLight); the lookup hash and nine sunlight sets are kept; checked against every landblock light record on the dataset
 0048dc30	x	crates/ac2-world/src/ac2_light_info.rs CLightInfo::StreamPack order
-0048e110	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0048e110	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0048e1c0	-	DBO type tag (Rust typed decoders)
 0048e290	-	write or admin-only FileNode import
 0048e5d0	-	hash table container; Rust map replaces it
@@ -2872,28 +2872,28 @@ key	status	note
 0048ed70	-	retail free-object pool (DBOCache exception, AGENTS.md)
 0048ee70	-	copy assignment of plain data (Rust clone/move)
 0048eef0	x	
-0048ef60	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0048ef60	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0048ef90	-	constructor (struct init; Rust builds it directly)
-0048efc0	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-0048efe0	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-0048f040	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-0048f0a0	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
-0048f100	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048efc0	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048efe0	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048f040	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048f0a0	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048f100	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
 0048f160	x	
-0048f1b0	_	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
+0048f1b0	x	ac2-world cell_info.rs LandBlockCellInfo / CellInfoLayout: set_height, set_terrain, set_scene, set_encounter, set_road, scene (GetScene) over the LandDefs::set_bitlengths layout; ac2_world.rs reads the terrain, road and colour fields through it
 0048f200	x	
 0048f250	x	
 0048f2a0	_	needs port: landblock data: heights, terrain, scene, encounters
 0048f310	x	crates/ac2-world/src/ac2_scene/block.rs CLandBlockData::StreamPack
 0048f3d0	-	DBO cache grabber (DBOCache exception, AGENTS.md)
-0048f560	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0048f560	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0048f600	-	DBO type tag (Rust typed decoders)
 0048f610	x	
 0048f720	x	
 0048f830	x	
 0048f980	x	
-0048fa90	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0048faa0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0048fa90	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0048faa0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0048fb40	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 0048fbd0	-	SmartArray container operation (Vec replaces it)
 0048fc00	-	constructor (struct init; Rust builds it directly)
@@ -2913,28 +2913,28 @@ key	status	note
 00491a20	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00491a30	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00491a50	_	needs port: landblock interior info: cells, lights, properties (post-load init)
-00491e60	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00491ef0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00491f50	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00491ff0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-004920e0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-004922b0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-004922e0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00491e60	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00491ef0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00491f50	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00491ff0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+004920e0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+004922b0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+004922e0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 00492310	-	destructor (Rust Drop)
 004923c0	-	constructor (struct init; Rust builds it directly)
 00492400	-	destructor (Rust Drop)
 00492410	-	destructor (Rust Drop)
 00492590	-	copy assignment of plain data (Rust clone/move)
-00492650	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492680	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492750	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492780	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492650	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492680	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492750	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492780	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 004927b0	-	STL internals
-00492820	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-004929e0	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492a00	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492a50	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
-00492b60	_	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492820	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+004929e0	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492a00	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492a50	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
+00492b60	x	ac2-world quad_tree.rs LandBlockQuadTree: new/add_object/generate/reset (QuadTree Initialize, AddObject, Generate, DoGenerate, GetChildQuad, GetChildCenter, DestroyTree, Reset), the z ranges (UpdateMinMax), cull (DoCull, Cull) and draw (DoDraw, Draw); unit tested. ac2-render still frustum-tests per object (ac2_render::Frustum)
 00492ba0	-	debug error reporting: BaseError/DataError/IError log, dialogs, email, ClientError init
 00492bb0	-	destructor: Rust Drop replaces it
 00492be0	-	singleton accessor: Rust owns the handler directly
@@ -5867,36 +5867,36 @@ key	status	note
 0051d0b0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0051d1f0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0051d6e0	x	crates/ac2-script/src/unpack.rs PackObj::ALIGN_PTR
-0051d730	_	process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
-0051d7a0	_	process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
+0051d730	-	process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
+0051d7a0	-	process-global current region / land defs (CRegionDesc::current_region, LandscapeDefs::current_land_defs); Rust passes the loaded Ac2WorldSource / LandLattice explicitly (set_land_lattice)
 0051d850	x	crates/ac2-world/src/region/ac2_region.rs CRegionDesc::GetGameMap
 0051d920	-	DBO release (Drop frees on last drop, AGENTS.md)
 0051db20	-	write path (client reads DATs only)
-0051dbd0	_	ac2-world RegionInfo::sub_data_ids (region/info_lists.rs): game map, autotest map, land defs, then the eleven info lists in order
+0051dbd0	x	ac2-world RegionInfo::sub_data_ids (region/info_lists.rs): game map, autotest map, land defs, then the eleven info lists in order
 0051de10	x	ac2-audio/ac2-client: ambient environments, groove
-0051de40	_	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
-0051de70	_	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+0051de40	x	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+0051de70	x	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
 0051deb0	x	crates/ac2-world/src/ac2_world.rs CRegionDesc::GetCurrentSurfaceInfo
 0051def0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 0051df30	x	crates/ac2-world/src/region/ac2_region.rs CRegionDesc::GetCurrentWaterInfo
-0051df70	_	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
-0051dfb0	_	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
-0051dff0	_	FileNode text export (admin/editor tool); the client reads packed DATs
+0051df70	x	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+0051dfb0	x	ac2-world RegionInfo::current (region/info_lists.rs): the data id at the info list's current index, none for an empty list; tested on the dataset
+0051dff0	-	FileNode text export (admin/editor tool); the client reads packed DATs
 0051e010	-	constructor (struct init; Rust builds it directly)
 0051e150	-	DBO type tag (Rust typed decoders)
-0051e160	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+0051e160	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 0051e290	-	write path (client reads DATs only)
 0051e480	~	ac2-world ac2_region: the first sky's game_time DID (sky_info[current_sky_info] 0), loaded with the region; the script's game-time glue is not wired
-0051e540	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0051e540	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0051e580	-	retail free-object pool (DBOCache exception, AGENTS.md)
-0051e5b0	_	ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
-0051e6c0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-0051e7a0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0051e5b0	x	ac2-world region/ac2_region.rs Ac2RegionRecord: the eleven DIDLookup lists (data ids, then region indices, 4-byte aligned) are all kept in RegionInfo; checked on the dataset
+0051e6c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+0051e7a0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 0051f030	-	write path (client reads DATs only)
 0051f260	x	crates/ac2-world/src/region/ac2_region.rs CRegionDesc::UnPack
 00520430	-	DBO release (Drop frees on last drop, AGENTS.md)
-00520440	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-005204b0	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+00520440	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+005204b0	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 00520500	-	constructor (struct init; Rust builds it directly)
 00520530	-	DBO type tag (Rust typed decoders)
 00520540	-	destructor (Rust Drop)
@@ -5904,7 +5904,7 @@ key	status	note
 00520900	-	SmartArray container operation (Vec replaces it)
 00520950	-	copy assignment of plain data (Rust clone/move)
 00520b40	-	copy assignment of plain data (Rust clone/move)
-00520cf0	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+00520cf0	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 00521060	-	constructor (struct init; Rust builds it directly)
 00521090	-	DBO type tag (Rust typed decoders)
 005210a0	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -5912,15 +5912,15 @@ key	status	note
 00521240	-	write path (client reads DATs only)
 005212a0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 005212f0	x	crates/ac2-world/src/ac2_water.rs CWaterDesc::FindWaterType
-00521340	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-00521360	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-00521380	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-005213a0	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-005213c0	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-005213f0	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+00521340	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+00521360	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+00521380	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+005213a0	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+005213c0	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+005213f0	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 00521410	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 00521430	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00521480	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00521480	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00521ad0	-	constructor (struct init; Rust builds it directly)
 00521b00	-	DBO type tag (Rust typed decoders)
 00521b10	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -5930,12 +5930,12 @@ key	status	note
 00521c90	x	crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::GetSurfaceType
 00521cc0	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00521cd0	-	write path (client reads DATs only)
-00521de0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00521de0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00521ed0	x	ac2-audio/ac2-client: ambient environments, groove
 00522000	x	crates/ac2-world/src/ac2_terrain_desc.rs CTerrainDesc::UnPack
 00522360	-	DBO release (Drop frees on last drop, AGENTS.md)
 00522380	x	
-00522480	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00522480	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00522520	x	
 00522580	x	
 005225e0	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
@@ -5944,7 +5944,7 @@ key	status	note
 00522710	-	constructor (struct init; Rust builds it directly)
 00522770	-	DBO type tag (Rust typed decoders)
 00522780	-	destructor (Rust Drop)
-00522ad0	_	FileNode text export (admin/editor tool); the client reads packed DATs
+00522ad0	-	FileNode text export (admin/editor tool); the client reads packed DATs
 00522af0	-	retail free-object pool (DBOCache exception, AGENTS.md)
 00522b20	-	copy assignment of plain data (Rust clone/move)
 00522b90	-	copy assignment of plain data (Rust clone/move)
@@ -5952,7 +5952,7 @@ key	status	note
 00522c70	-	copy assignment of plain data (Rust clone/move)
 00522e90	-	copy assignment of plain data (Rust clone/move)
 00522f00	-	copy assignment of plain data (Rust clone/move)
-00523020	_	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+00523020	x	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 005230c0	-	SmartArray container operation (Vec replaces it)
 00523550	-	C++ destructor, constructor, operator= or SmartArray grow/AddToEnd: Rust ownership (Vec and Arc); the decode builds the value; admin tools' text FromFileNode is not in the client.
 00523590	x	ac2-audio ambient_data.rs: SoundDesc::decode_packed reads the CAmbientSoundInfo array with its intermittent and continuous records (StreamPack), and AmbientData::load resolves each record's sound (SoundInfo / MusicInfo 3D flag) by DID.
@@ -5968,34 +5968,34 @@ key	status	note
 00523bb0	-	write path (client reads DATs only)
 00523bf0	-	write path (client reads DATs only)
 00523cb0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-00523cf0	_	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
-00523d30	_	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+00523cf0	x	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+00523d30	x	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 00523d70	x	ac2-audio/ac2-client: ambient environments, groove
 00523dc0	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00523e10	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-00524140	_	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
-00524180	_	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+00523e10	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00524140	x	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+00524180	x	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 005241c0	-	DBO release (Drop frees on last drop, AGENTS.md)
 00524220	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-00524270	_	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
+00524270	x	ac2-world region.rs tick_size / RegionDesc::sky_tick_size, sky_light_tick_size (CSkyDesc::GetTickSize / GetLightTickSize at a quality; WorldRender passes 0.5), sky_day_by_index; SkyEnvironmentCadence::next_tick divides by the time dilation as UpdateTimeOfDay does
 00524290	x	
-00524350	_	ac2-world region/ac2_region.rs ac2_day_index sums the day frequencies on each pick, which is RecalcFreq's total
+00524350	x	ac2-world region/ac2_region.rs ac2_day_index sums the day frequencies on each pick, which is RecalcFreq's total
 005243d0	-	constructor (struct init; Rust builds it directly)
 00524430	-	DBO type tag (Rust typed decoders)
 00524440	x	crates/ac2-world/src/region/ac2_region.rs CSkyDesc::StreamPack
 00524600	-	retail free-object pool (DBOCache exception, AGENTS.md)
-00524740	_	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+00524740	x	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 00524ce0	-	constructor (struct init; Rust builds it directly)
 00524d20	-	DBO type tag (Rust typed decoders)
 00524d30	-	DBO release (Drop frees on last drop, AGENTS.md)
 00524db0	-	write path (client reads DATs only)
 00524f10	-	write path (client reads DATs only)
-00524f70	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-00524fe0	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-00525030	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-00525050	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+00524f70	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+00524fe0	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+00525030	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+00525050	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 00525080	-	retail free-object pool (DBOCache exception, AGENTS.md)
-005250d0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+005250d0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 005257a0	x	ac2-world region::sky_objects, ac2-render sky
 00525800	x	
 005258b0	x	
@@ -6003,7 +6003,7 @@ key	status	note
 005259e0	x	
 00525a90	-	DBO release (Drop frees on last drop, AGENTS.md)
 00525af0	x	crates/ac2-world/src/region/ac2_region.rs CDayDesc::StreamPack
-00525b60	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+00525b60	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 00525c10	-	admin day-table editor (no client path)
 00525cb0	x	
 00525d30	x	
@@ -6013,7 +6013,7 @@ key	status	note
 005262f0	-	constructor (struct init; Rust builds it directly)
 00526330	-	DBO type tag (Rust typed decoders)
 00526340	-	destructor (Rust Drop)
-005263b0	_	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+005263b0	x	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 00526460	-	copy assignment of plain data (Rust clone/move)
 00526590	-	copy assignment of plain data (Rust clone/move)
 00526600	-	retail free-object pool (DBOCache exception, AGENTS.md)
@@ -6024,7 +6024,7 @@ key	status	note
 00526c80	-	admin day-table editor (no client path)
 00526d40	-	admin day-table editor (no client path)
 00526dd0	-	SmartArray container operation (Vec replaces it)
-00526e20	_	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+00526e20	x	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 00526fb0	-	admin day-table editor (no client path)
 00528900	x	ac2-world region::sky_objects, ac2-render sky
 00528e60	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -10957,7 +10957,7 @@ key	status	note
 00618860	x	GameClock::new: day_length * days_per_year as a double
 00618880	-	constructor (struct init; Rust builds it directly)
 00618890	-	constructor (struct init; Rust builds it directly)
-006188a0	_	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+006188a0	x	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
 006188c0	-	constructor (struct init; Rust builds it directly)
 006188d0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00618920	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -10966,8 +10966,8 @@ key	status	note
 00618bd0	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00618c90	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
 00618d40	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
-00618e40	_	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
-00618f30	_	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+00618e40	x	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
+00618f30	x	ac2-world region/game_time.rs GameClock: time_dilation (GetTimeDilation), game_time_from_time_stamp (GetGameTimeFromTimeStamp, with its running-day season/time quirks) and date_time_at (InqGameDateTimeString); unit tested
 00618fb0	x	crates/ac2-world/src/region/game_time.rs GameTime::GameTime clock setup
 00619090	-	destructor (Rust Drop)
 00619130	x	ac2-world region/game_time.rs (GameClock::date_time: YEAR, DAY, YEARSPEC, SEASON, TIME ids), ac2-client ui_sources::game_date_time rendered for the frame, ac2-ui navigation.rs (DateText and TimeText in the macro view, CoordinatesText); tests game_time_real_tests.rs, navigation_tests, navigation_detail_7160.rs
@@ -13725,10 +13725,10 @@ key	status	note
 006bc580	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006bc5a0	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006bc600	x	ac2-db string_meta_text / string_state (CRT C locale classes)
-006bc6f0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-006bc770	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-006bc7f0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-006bc870	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006bc6f0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006bc770	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006bc7f0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006bc870	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006bc900	x	
 006bc940	x	
 006bc960	x	
@@ -13783,49 +13783,49 @@ key	status	note
 006be780	x	
 006be9f0	-	destructor (Rust Drop)
 006bea10	x	
-006beb80	_	Rust Clone (derive) copies the plain data
+006beb80	-	Rust Clone (derive) copies the plain data
 006bee00	x	crates/ac2-world/src/ac2_scene/format.rs SceneGroup::StreamPack
-006bf350	_	FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
+006bf350	-	FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
 006bf3e0	-	scene editor writer (admin-only)
-006bf560	_	FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
-006c17d0	_	Rust Clone (derive) copies the plain data
+006bf560	-	FileNode text loader of the scene tools (admin/editor); the client reads the packed SceneGroup
+006c17d0	-	Rust Clone (derive) copies the plain data
 006c1850	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c1890	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
-006c18b0	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
-006c18c0	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c1890	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c18b0	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c18c0	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 006c1970	-	destructor (Rust Drop)
-006c19c0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-006c1a90	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c19c0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c1a90	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006c1d10	-	constructor (struct init; Rust builds it directly)
-006c1d40	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c1d40	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006c1d50	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c1dc0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c1e10	_	ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
+006c1e10	x	ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 006c1e60	-	retail free-object pool (DBOCache exception, AGENTS.md)
-006c1eb0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c1eb0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006c1fa0	x	crates/ac2-world/src/ac2_scene/format.rs SceneFile::StreamPack
 006c24b0	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c2500	-	write path (client reads DATs only)
 006c2590	-	write path (client reads DATs only)
 006c25d0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c2610	_	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
+006c2610	x	ac2-world ac2_scene/mod.rs + format.rs: the scene type's frequency-weighted pick (freq_count) and the type lookup by scene index in the generator
 006c2690	-	constructor (struct init; Rust builds it directly)
 006c26c0	-	destructor (Rust Drop)
-006c2700	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c2700	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 006c29f0	-	admin-only text/file loader (no Legions match)
-006c2ba0	_	ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
+006c2ba0	x	ac2-world ac2_scene/format.rs Ac2SceneFile::correct_degrade + degrade_dist: the degrade distances are kept and selected as ProcScene does (GetCorrectDegrade(0), quality 0.5)
 006c2be0	-	constructor (struct init; Rust builds it directly)
 006c2c00	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c2c70	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 006c2cb0	-	destructor (Rust Drop)
-006c2cd0	_	Rust Clone (derive) copies the plain data
-006c2d80	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c2cd0	-	Rust Clone (derive) copies the plain data
+006c2d80	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 006c32e0	-	constructor (struct init; Rust builds it directly)
 006c3300	-	write path (client reads DATs only)
-006c3360	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c3360	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 006c33b0	-	FileNode name wrapper (Rust strings)
 006c33c0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c33e0	_	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
+006c33e0	-	Rust ownership: Drop releases the data; the retail unload bookkeeping (world hash, resident state, free list) has no Rust counterpart
 006c34d0	-	admin-only text/file loader (no Legions match)
 006c36d0	x	
 006c39a0	-	constructor (struct init; Rust builds it directly)
@@ -13836,7 +13836,7 @@ key	status	note
 006c3f80	-	admin-only text/file loader (no Legions match)
 006c4160	-	constructor (struct init; Rust builds it directly)
 006c4180	-	destructor (Rust Drop)
-006c41a0	_	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+006c41a0	x	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 006c42e0	-	admin-only text/file loader (no Legions match)
 006c44d0	x	
 006c4530	-	DBO release (Drop frees on last drop, AGENTS.md)
@@ -13848,9 +13848,9 @@ key	status	note
 006c4c80	-	constructor (struct init; Rust builds it directly)
 006c4d70	-	destructor (Rust Drop)
 006c4ed0	x	
-006c50f0	_	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
-006c5190	_	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
-006c5230	_	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+006c50f0	x	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+006c5190	x	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+006c5230	x	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 006c52d0	-	SmartArray container operation (Vec replaces it)
 006c5330	-	SmartArray container operation (Vec replaces it)
 006c5550	-	admin-only text/file loader (no Legions match)
@@ -13860,7 +13860,7 @@ key	status	note
 006c5a50	x	Physics materials: ac2-world reads each vertex's surface or road band material (LScapeSurfaceType band by pitch) and each water type's material; ac2-physics Terrain returns the land vertex, block water and interior cell materials, read by PhysicsBody::contact_materials.
 006c5ab0	-	constructor (struct init; Rust builds it directly)
 006c5ae0	-	destructor (Rust Drop)
-006c5ca0	_	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
+006c5ca0	x	ac2-world surface_desc.rs: the surface descriptor records (surface types, material groups, vertex colour, material and alpha descs) are decoded in stream order and consumed to the last byte on the dataset
 006c5d50	-	SmartArray container operation (Vec replaces it)
 006c5e10	-	admin-only text/file loader (no Legions match)
 006c5fe0	-	write path (client reads DATs only)
@@ -13872,59 +13872,59 @@ key	status	note
 006c6460	x	crates/ac2-world/src/ac2_terrain_desc.rs TerrainType::unpack
 006c65f0	-	admin-only text/file loader (no Legions match)
 006c6900	-	write path (client reads DATs only)
-006c6950	_	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
+006c6950	x	ac2-world ac2_scene/format.rs: the packed record is decoded in stream order and consumed to the last byte (checked on the dataset in ac2_scene/real_data_tests.rs)
 006c69a0	-	destructor (Rust Drop)
 006c6a70	-	admin-only text/file loader (no Legions match)
 006c6c50	-	constructor (struct init; Rust builds it directly)
-006c6c70	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-006c6d10	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c6c70	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c6d10	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 006c6d90	-	constructor (struct init; Rust builds it directly)
 006c6dd0	-	destructor (Rust Drop)
-006c6e60	_	FileNode text export (admin/editor tool); the client reads packed DATs
-006c7070	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-006c7110	_	FileNode text export (admin/editor tool); the client reads packed DATs
-006c71f0	_	FileNode text export (admin/editor tool); the client reads packed DATs
-006c7c10	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c6e60	-	FileNode text export (admin/editor tool); the client reads packed DATs
+006c7070	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c7110	-	FileNode text export (admin/editor tool); the client reads packed DATs
+006c71f0	-	FileNode text export (admin/editor tool); the client reads packed DATs
+006c7c10	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 006c7c50	-	constructor (struct init; Rust builds it directly)
 006c7c90	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c7ce0	-	destructor (Rust Drop)
-006c7e40	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
-006c7ea0	_	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c7e40	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
+006c7ea0	x	ac2-world region/encounter_desc.rs EncounterDesc / EncounterRow / EncounterElem: the packed record in stream order (version, DID, block map, rows of elements with terrain and water exceptions) and the sub-DID lists; the shipped table decodes on the dataset
 006c81f0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c8210	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
-006c8250	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c8210	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006c8250	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006c8260	-	constructor (struct init; Rust builds it directly)
 006c82b0	x	ac2-world region::sky_objects, ac2-render sky
-006c8960	~	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
+006c8960	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 006c8980	-	constructor (struct init; Rust builds it directly)
 006c89a0	-	destructor (Rust Drop)
 006c8c90	-	DBO release (Drop frees on last drop, AGENTS.md)
 006c8d90	~	decoded; field order after m_nDirectHeading not re-verified
 006c8f10	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
-006c8f50	_	ac2-world region/sky_objects.rs find_replacement: the first replacement with the object name
+006c8f50	x	ac2-world region/sky_objects.rs find_replacement: the first replacement with the object name
 006c8f90	-	constructor (struct init; Rust builds it directly)
 006c9070	-	destructor (Rust Drop)
 006c90c0	-	copy assignment of plain data (Rust clone/move)
-006c9160	_	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
+006c9160	x	ac2-world region/ac2_region.rs: the sky records (SkyDay, SkyTimeOfDay, SkyObject, SkyObjectReplace lists and the game time's TimeOfDay) are decoded in StreamPack order and consumed to the last byte on the dataset
 006c9f30	-	copy assignment of plain data (Rust clone/move)
 006ca330	-	constructor (struct init; Rust builds it directly)
-006ca350	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+006ca350	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 006ca3a0	-	write path (client reads DATs only)
-006ca3b0	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
-006ca3c0	_	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+006ca3b0	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
+006ca3c0	x	ac2-world region/fog_desc.rs FogDesc: find_fog_type / has_fog / fogging / sub_data_ids; the record decodes to the last byte on the dataset (region/descs_real_tests.rs)
 006ca3e0	-	destructor (Rust Drop)
 006ca670	-	DBO release (Drop frees on last drop, AGENTS.md)
 006ca6f0	-	constructor (struct init; Rust builds it directly)
 006ca790	-	DBO release (Drop frees on last drop, AGENTS.md)
-006ca810	_	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-006ca870	_	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-006ca8c0	_	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+006ca810	x	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+006ca870	x	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+006ca8c0	x	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
 006ca940	-	destructor (Rust Drop)
-006ca950	_	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
-006cabd0	_	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+006ca950	x	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
+006cabd0	x	ac2-world region/fog_desc.rs LightFogInfo: GetCodePart (code_part), FindCodeType (find_code_type), SetCombine (set_combine), GetCode (code), unpack; unit tested
 006cac30	-	write path (client reads DATs only)
 006caea0	-	write path (client reads DATs only)
-006cb930	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006cb930	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006cc080	-	constructor (struct init; Rust builds it directly)
 006cc0a0	_	needs the ac2-db sub-object pass (DBOCache::GetIfInMemory's GetSubDataIDs); not built yet, so no record lists its dependents except where noted done
 006cc140	-	constructor (struct init; Rust builds it directly)
@@ -13932,41 +13932,41 @@ key	status	note
 006cc240	-	write path (client reads DATs only)
 006cc350	-	write path (client reads DATs only)
 006cc450	-	destructor (Rust Drop)
-006cc470	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-006cce80	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+006cc470	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+006cce80	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 006ccf30	-	constructor (struct init; Rust builds it directly)
 006ccf40	-	write path (client reads DATs only)
-006ccf70	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
-006ccfb0	_	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+006ccf70	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
+006ccfb0	x	ac2-world ac2_water.rs Ac2WaterSource: has_water, tile_width, above_material, below_material, water_lighting (LightFogInfo per depth), vertex_color over FindWaterType; checked on the dataset
 006ccfe0	-	destructor (Rust Drop)
-006cd220	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd240	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd2b0	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd2e0	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd320	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd360	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd3a0	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
-006cd3e0	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006cd220	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd240	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd2b0	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd2e0	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd320	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd360	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd3a0	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cd3e0	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006cd420	-	constructor (struct init; Rust builds it directly)
 006cd450	-	destructor (Rust Drop)
-006cd580	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006cd580	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006ce070	-	admin-only text/file loader (no Legions match)
-006ce4a0	_	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-006ce4f0	_	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-006ce520	_	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-006ce5b0	_	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
-006ce660	_	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+006ce4a0	x	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+006ce4f0	x	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+006ce520	x	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+006ce5b0	x	ac2-world region/property_desc.rs: integer/float/vector/color corner interpolation over land_blocks::interpolate (LandDefs::Interpolate)
+006ce660	x	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 006ce6a0	-	constructor (struct init; Rust builds it directly)
 006ce6d0	-	DBO type tag (Rust typed decoders)
 006ce6e0	-	destructor (Rust Drop)
-006ce760	_	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
-006ceb80	_	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+006ce760	x	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
+006ceb80	x	ac2-world region/property_desc.rs PropertyDesc: sub_data_ids (the block maps), block_property_at (discrete pick or the four-corner blend), passability (first 0x80000004 property's enum, impassable only for 0x80000002); tested on the dataset
 006cec80	-	retail free-object pool (DBOCache exception, AGENTS.md)
-006cecb0	_	ac2-world PropertyDesc::block_properties_at gathers each property's value at the position in table order; folding them into a PhysicsMaterial (PhysicsMaterial::UpdateProperty) is ac2-physics
+006cecb0	~	ac2-world PropertyDesc::block_properties_at gathers each property's value at the position in table order; folding them into a PhysicsMaterial (PhysicsMaterial::UpdateProperty) is ac2-physics
 006ced20	-	copy assignment of plain data (Rust clone/move)
-006cee50	_	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
+006cee50	x	ac2-world region/property_desc.rs: BlockProperty accessors (property_type, get_property, get_integer, get_float, get_vector, get_color, get_enum) over the decoded BaseProperty table; the record decodes on the dataset
 006ceef0	-	SmartArray container operation (Vec replaces it)
-006cf150	_	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
+006cf150	-	admin 7148 only: no Legions body (an inlined getter or tool loader of the admin build)
 006cf200	-	write path (client reads DATs only)
 006cf2c0	x	ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 006cf300	-	constructor (struct init; Rust builds it directly)
