@@ -5781,26 +5781,26 @@ key	status	note
 00519ac0	x	ac2-weenie qualities.rs truncate_int/truncate_long_int/truncate_float, set_weenie_desc, is_mobile; ac2-net Qualities::pack_header
 00519af0	-	admin dump/verify debug helper
 00519ba0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-00519c10	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519c10	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 00519c70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-00519ce0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519ce0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 00519d50	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-00519dc0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519dc0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 00519e20	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-00519e90	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+00519e90	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 00519ef0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-00519f70	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+00519f70	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 00519fe0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-0051a050	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a050	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 0051a0b0	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-0051a130	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
-0051a1a0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051a210	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051a2d0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a130	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+0051a1a0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+0051a210	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
+0051a2d0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 0051a340	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
-0051a3c0	~	WeenieQualities::inq_*: gmWeenieDesc then tables; no m_defaults (class defaults)
+0051a3c0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 0051a430	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
-0051a4a0	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
+0051a4a0	~	WeenieQualities::inq_* (gmWeenieDesc then tables); the script reads (ac2-script glue/repository.rs inq_value: CWRepository Inq*/Get*) then ask the class defaults (m_defaults, ScriptData::class_defaults, one level as retail's DAT records carry none); the non-script reads stop at the tables
 0051a650	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value
 0051a670	~	ac2-weenie qualities.rs tables and description; no class defaults (m_defaults), so the defaults step is absent; Remove does not clear a description field
 0051a690	x	ac2-weenie qualities::remove_in_weenie_desc (gmWeenieDesc::Remove* first, then table); ac2-script glue repository.rs remove_value

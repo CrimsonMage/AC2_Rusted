@@ -249,10 +249,20 @@ fn ret(vm: &mut Vm, ctx: &mut Context, k: K, n: usize, v: V) {
     }
 }
 
+/// `CBaseQualities::Inq*` for the weenie behind `this`: its description and tables, then its
+/// class defaults (`m_defaults`, the DAT qualities of its DID that `InitDefaults` loads; a DAT
+/// record has no defaults of its own, so the chain is one deep).
+fn inq_value(vm: &mut Vm, this: u32, k: K, id: u32) -> Option<V> {
+    if let Some(v) = owner_qualities(vm, this).and_then(|q| get_value(q, k, id)) {
+        return Some(v);
+    }
+    class_defaults(vm, this).and_then(|d| get_value(&d, k, id))
+}
+
 /// `CWRepository::Inq*(stype, out value)`: 1 and the value when present.
 fn inq(vm: &mut Vm, ctx: &mut Context, k: K) -> InterpStatus {
     let (this, id, out) = (word(ctx, 1), word(ctx, 2), word(ctx, 3));
-    let found = owner_qualities(vm, this).and_then(|q| get_value(q, k, id));
+    let found = inq_value(vm, this, k, id);
     match &found {
         Some(V::Native(native)) => {
             // The out reference holds a native of the right type; it is overwritten.
@@ -276,9 +286,7 @@ fn inq(vm: &mut Vm, ctx: &mut Context, k: K) -> InterpStatus {
 fn get(vm: &mut Vm, ctx: &mut Context, k: K) -> InterpStatus {
     let (this, id) = (word(ctx, 1), word(ctx, 2));
     let (default, next) = arg(vm, ctx, k, 3);
-    let v = owner_qualities(vm, this)
-        .and_then(|q| get_value(q, k, id))
-        .unwrap_or(default);
+    let v = inq_value(vm, this, k, id).unwrap_or(default);
     ret(vm, ctx, k, next, v);
     InterpStatus::Success
 }

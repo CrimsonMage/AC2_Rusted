@@ -158,8 +158,9 @@ impl WeenieQualities {
 /// `CBaseQualities::Inq*` (`InqInt`, `InqBool`, ...): the description answers first
 /// (`gmWeenieDesc::Query*Stat` names its fields; `gmWeenieDesc::InqInt`, `InqBool`, `InqFloat`,
 /// `InqDataID`, `InqInstanceID` and `InqStringInfo` answer only a field that was set), then the
-/// quality's table. Retail then asks `m_defaults` (the class defaults),
-/// which the client does not have.
+/// quality's table. Retail then asks `m_defaults` (the class defaults, the DAT qualities of the
+/// weenie's DID): the script glue takes that step (`ac2_script::glue` repository `inq_value`, with
+/// the data source's `class_defaults`); these reads have no data source and stop at the table.
 /// `CBaseQualities::TruncateInt` (Legions 0x00507AE0): a change that wrapped (a decrease
 /// by a positive `modifier` or an increase by a negative one, or no change at all) is pulled
 /// to the bound it wrapped toward, then the result is clamped to `[minimum, maximum]`.

@@ -565,6 +565,47 @@ fn adj_on_an_absent_quality_starts_from_the_class_default() {
     );
 }
 
+/// `CWRepository::GetInt` (`CBaseQualities::InqInt` over the default): a quality the weenie's
+/// table lacks answers from its class defaults (`m_defaults`) before the caller's default.
+#[test]
+fn get_on_an_absent_quality_answers_the_class_default() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut class = ac2_weenie::WeenieQualities::default();
+    class.ints.insert(0x14, 10);
+    let mut host = ScriptHost::new(
+        Arc::new(program),
+        Box::new(OneClassDefault(0x8000_00AB, class)),
+    );
+    let this = host.vm_mut().new_wstring(Vec::new());
+    host.vm_mut().owners.insert(this, 0x5000_0001);
+    let mut own = ac2_weenie::WeenieQualities {
+        did: 0x8000_00AB,
+        ..Default::default()
+    };
+    own.ints.insert(0x16, 3);
+    host.set_qualities(0x5000_0001, own);
+    let get_int = crate::glue::efun_table()
+        .find(|(_, name)| *name == "gCWRepository::CallEFun_GetInt")
+        .map(|(id, _)| id)
+        .expect("GetInt efun");
+    let vm = host.vm_mut();
+    assert_eq!(
+        efun_result(vm, get_int, &[0x14, 99], this, 4),
+        10,
+        "class default"
+    );
+    assert_eq!(
+        efun_result(vm, get_int, &[0x16, 99], this, 4),
+        3,
+        "own table first"
+    );
+    assert_eq!(
+        efun_result(vm, get_int, &[0x15, 99], this, 4),
+        99,
+        "caller's default"
+    );
+}
+
 /// A new native packs the reserved-reference bit retail's `ReservedRefTable::AddReference`
 /// sets (0x04000000 on `CreateNativeObject`'s 0x40000100): exact bytes of a packed wpstring.
 #[test]
