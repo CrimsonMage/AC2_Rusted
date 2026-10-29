@@ -79,6 +79,8 @@ pub const MODE_PEACE: u32 = 0x4000_0001;
 /// creature's). `Melee_Auto1` has combos only in the combat modes, never in `peace`.
 pub const MODE_COMBAT: u32 = 0x4100_0009;
 pub const MODE_COMBAT_MONSTER: u32 = 0x4100_0012;
+/// `combat_missile` (`gmmodes.emp`): the stance a bow or thrown attack is made from.
+pub const MODE_COMBAT_MISSILE: u32 = 0x4100_0010;
 /// `BehaviorParams` bits: the behaviour (0x1) and the mode it enters first (0x2).
 const BEHAVIOR_AND_MODE: u32 = 0x3;
 /// A position stamp past the creatures' starting one (1): a leave-world the object takes.
@@ -88,6 +90,8 @@ const LEAVE_STAMP: u32 = 2;
 /// animation map has no `Melee_Auto` animation, so its tracker refuses that one).
 pub const BEHAVIOR_MELEE_AUTO: u32 = 0x4100_0089;
 pub const BEHAVIOR_MELEE_NORMAL: u32 = 0x4100_0077;
+/// `Missile_Auto1` (`gmbehaviors.emp`): the missile stance's auto attack, a bow's draw and shot.
+pub const BEHAVIOR_MISSILE_AUTO: u32 = 0x4100_00E2;
 /// The attacker's swing story, as servers send one (a retained capture): the attacker, its
 /// behaviour and the basic-attack bit (`0x2 | 0x4 | 0x20`), the behaviour with propagate and
 /// send-event (`0x1 | 0x400 | 0x200`), no hooks.
@@ -256,13 +260,14 @@ impl State {
         self.send_event(&bytes);
     }
 
-    /// A missile attack's story with the attacker's swing (`Melee_Auto1`, the player's): the
-    /// missiles are made and hung at the swing's first story hook (animation hook 0, at once) and
-    /// one is fired at its next (animation hook 1), or when the swing is done.
-    pub fn send_swing_missile_story(&mut self, target: u64, skill: u32) {
+    /// A missile attack's story with the player's attack behaviour `behavior` (a swing such as
+    /// `Melee_Auto1`, a shot such as `Missile_Auto1`): the missiles are made and hung at its first
+    /// story hook (animation hook 0, at once) and one is fired at its next (animation hook 1), or
+    /// when the behaviour is done.
+    pub fn send_swing_missile_story(&mut self, target: u64, skill: u32, behavior: u32) {
         let mut args = vec![STORY_BITS | 0x4];
         args.extend([PLAYER as u32, (PLAYER >> 32) as u32]);
-        args.extend([SWING_BEHAVIOR_BITS, BEHAVIOR_MELEE_AUTO, 1, 0]);
+        args.extend([SWING_BEHAVIOR_BITS, behavior, 1, 0]);
         args.push(skill);
         args.push(2);
         for (kind, anim_hook) in [(PARENT_MISSILES_HOOK, 0), (FIRE_MISSILE_HOOK, 1)] {
@@ -297,7 +302,7 @@ impl State {
     }
 
     /// `ECM_Physics::RecvEvt_DoMode` on `object`.
-    fn send_combat_mode(&mut self, object: u64, mode: u32) {
+    pub fn send_combat_mode(&mut self, object: u64, mode: u32) {
         let bytes = object_event_bytes(Opcode::DO_MODE, object, instance_of(object), &[mode]);
         self.send_event(&bytes);
     }

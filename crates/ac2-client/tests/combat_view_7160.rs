@@ -18,8 +18,9 @@ use ac2_net::Credential;
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent};
 use legions_server_double::{
     addr, double, object_event_bytes, position_bytes, ObjectPosition, Spawn, BEHAVIOR_MELEE_AUTO,
-    BEHAVIOR_MELEE_NORMAL, BOW_AUTO_ATTACK, CREATURE_ONE, DRUDGE_VISUAL, GROUND_ITEM,
-    MODE_COMBAT_MONSTER, PLAYER, SERVER, SWORD_VISUAL, THROW_AUTO_ATTACK,
+    BEHAVIOR_MELEE_NORMAL, BEHAVIOR_MISSILE_AUTO, BOW_AUTO_ATTACK, CREATURE_ONE, DRUDGE_VISUAL,
+    GROUND_ITEM, MODE_COMBAT_MISSILE, MODE_COMBAT_MONSTER, PLAYER, SERVER, SWORD_VISUAL,
+    THROW_AUTO_ATTACK,
 };
 
 /// `gmbehaviors.emp`'s `Damage_Hit1`: a hit's reaction on its target.
@@ -590,9 +591,11 @@ fn a_swing_holds_the_arrow_in_the_hand_until_it_fires() {
     };
     server.borrow_mut().enter_combat(CREATURE_ONE);
     advance(&mut client, &server, 1.0);
-    server
-        .borrow_mut()
-        .send_swing_missile_story(CREATURE_ONE, BOW_AUTO_ATTACK);
+    server.borrow_mut().send_swing_missile_story(
+        CREATURE_ONE,
+        BOW_AUTO_ATTACK,
+        BEHAVIOR_MELEE_AUTO,
+    );
     let (mut held, mut swung, mut fired) = (0, false, false);
     for _ in 0..240 {
         step(&mut client, &server, &FrameInput::default());
@@ -618,4 +621,48 @@ fn a_swing_holds_the_arrow_in_the_hand_until_it_fires() {
         matches!(missiles.first(), Some(&(_, holder, _, true)) if holder != Some(PLAYER)),
         "out of the hand: {missiles:?}"
     );
+}
+
+/// A bow shot from the missile stance (`combat_missile`, `Missile_Auto1`): the player draws, the
+/// arrow waits nocked in the hand while the shot plays, and leaves it when the shot reaches its
+/// story hook or ends; then it strikes the drudge.
+#[test]
+fn a_bow_shot_holds_the_arrow_until_it_looses() {
+    let Some((mut client, server, mut scene)) = setup() else {
+        return;
+    };
+    server
+        .borrow_mut()
+        .send_combat_mode(PLAYER, MODE_COMBAT_MISSILE);
+    advance(&mut client, &server, 1.0);
+    server.borrow_mut().send_swing_missile_story(
+        CREATURE_ONE,
+        BOW_AUTO_ATTACK,
+        BEHAVIOR_MISSILE_AUTO,
+    );
+    let (mut held, mut drew, mut loosed) = (0, false, false);
+    for i in 0..240 {
+        step(&mut client, &server, &FrameInput::default());
+        drew |= client.is_doing_behavior(PLAYER, BEHAVIOR_MISSILE_AUTO);
+        match client.story_missiles().first().map(|m| m.1) {
+            Some(Some(PLAYER)) => {
+                held += 1;
+                if held == 8 {
+                    scene.draw(&client.frame(), "bow_draw.png");
+                }
+            }
+            Some(_) if held > 0 => loosed = true,
+            _ => {}
+        }
+        if loosed {
+            scene.draw(&client.frame(), &format!("bow_loosed_{i}.png"));
+            break;
+        }
+    }
+    assert!(
+        drew,
+        "the player draws the bow (Missile_Auto1 in combat_missile)"
+    );
+    assert!(held > 2, "the arrow waits in the hand: {held} frames");
+    assert!(loosed, "and is loosed");
 }
