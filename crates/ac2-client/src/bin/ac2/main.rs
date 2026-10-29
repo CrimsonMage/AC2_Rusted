@@ -31,7 +31,6 @@
 mod cmdline;
 mod cursor;
 mod instance;
-mod keys;
 mod pregame;
 
 use cmdline::{parse_args, Args};
@@ -360,7 +359,7 @@ impl App {
         let screenshot = messages.iter().any(|message| {
             message.message == ac2_ui::GLOBAL_KEY_RELEASE
                 && message.element.is_none()
-                && message.data as u32 == keys::SCREENSHOT_KEY
+                && message.data as u32 == ac2_client::keys::SCREENSHOT_KEY
         });
         let (actions, characters, _) = state.controls.take_text_input();
         messages.extend(view.text_input(&actions, &characters, modifiers));
@@ -729,8 +728,8 @@ impl ApplicationHandler for App {
                 let pressed = event.state == ElementState::Pressed;
                 // macOS: Cmd+A/C/V/X are the clipboard shortcuts, typed as Ctrl+A/C/V/X would
                 // be on the other platforms; the letter is neither a key nor typed text.
-                let shortcut = keys::clipboard_shortcut(
-                    keys::ShortcutPlatform::current(),
+                let shortcut = ac2_client::keys::clipboard_shortcut(
+                    ac2_client::keys::ShortcutPlatform::current(),
                     state.super_held,
                     &event.logical_key,
                 );
@@ -741,7 +740,7 @@ impl ApplicationHandler for App {
                     return;
                 }
                 if let PhysicalKey::Code(code) = event.physical_key {
-                    if let Some(scan) = keys::dik(code) {
+                    if let Some(scan) = ac2_client::keys::dik(code) {
                         state.input(InputEvent::Key { scan, pressed });
                     }
                 }

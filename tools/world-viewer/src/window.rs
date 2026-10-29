@@ -9,12 +9,9 @@ use ac2_client::view::ClientView;
 use ac2_core::DataId;
 use ac2_gpu::{acquire_frame, Gpu, DEPTH_FORMAT};
 use ac2_render::scene::DAY_SECONDS;
-use ac2_ui::Modifiers;
 use ac2_world::Ac2WorldSource;
 use winit::application::ApplicationHandler;
-use winit::event::{
-    DeviceEvent, DeviceId, ElementState, MouseButton, MouseScrollDelta, WindowEvent,
-};
+use winit::event::{DeviceEvent, DeviceId, ElementState, MouseButton, WindowEvent};
 use winit::event_loop::{ActiveEventLoop, EventLoop};
 use winit::keyboard::{KeyCode, PhysicalKey};
 use winit::window::{Window, WindowId};
@@ -22,6 +19,7 @@ use winit::window::{Window, WindowId};
 use crate::fly::{FlyCamera, FlyInput};
 use crate::frame::client_frame;
 use crate::gui::Gui;
+use crate::hud_input::HudInput;
 use crate::panel::{Command, Mode, Panel, PanelView};
 use crate::races::PlayerModel;
 use crate::session::Session;
@@ -29,10 +27,6 @@ use crate::walk::{actions, Landing, Walk, WalkInput};
 
 /// Frame-thread time a frame spends taking finished scene loads.
 const LOAD_BUDGET: Duration = Duration::from_millis(4);
-/// `UIElementManager::StartInput`'s pointer axes and left button.
-const UI_POINTER_X: u32 = 0x4000_0001;
-const UI_POINTER_Y: u32 = 0x4000_0002;
-const UI_LEFT_BUTTON: u32 = 0x4000_0004;
 
 /// What the window needs from `main`.
 pub struct Setup {
@@ -90,6 +84,9 @@ struct State {
     /// The HUD's session (`session.rs`); `None` when it could not start, and the HUD then runs
     /// only its session-free parts (the guide, the world map, the Tracker).
     session: Option<Session>,
+    /// The HUD's input through the retail key maps (`hud_input.rs`); `None` without an action
+    /// map in the DATs.
+    hud_input: Option<HudInput>,
 }
 
 impl ApplicationHandler for App {
@@ -154,6 +151,7 @@ impl ApplicationHandler for App {
                 None
             }
         };
+        let hud_input = HudInput::load(&setup.store);
         let gui = Gui::new(&window, &gpu, format);
         let panel = Panel::new(setup.models, mode, setup.landing);
         self.state = Some(State {
@@ -178,6 +176,7 @@ impl ApplicationHandler for App {
             map: None,
             map_open: false,
             session,
+            hud_input,
         });
     }
 
@@ -196,20 +195,33 @@ impl ApplicationHandler for App {
                 state.view.resize(state.config.width, state.config.height);
             }
             WindowEvent::CursorMoved { position, .. } => {
-                state.hud_input(&[
-                    (UI_POINTER_X, position.x as f32, true),
-                    (UI_POINTER_Y, position.y as f32, true),
-                ]);
+                if let Some(hud) = &mut state.hud_input {
+                    hud.cursor(position.x, position.y);
+                }
+            }
+            WindowEvent::Focused(focused) => {
+                if let Some(hud) = &mut state.hud_input {
+                    hud.focus(focused);
+                }
+            }
+            WindowEvent::ModifiersChanged(modifiers) => {
+                if let Some(hud) = &mut state.hud_input {
+                    hud.modifiers(modifiers.state().alt_key(), modifiers.state().super_key());
+                }
             }
             WindowEvent::KeyboardInput { event, .. } => {
+                // The HUD's key maps see every key; a HUD text field (the chat's entry, the
+                // guide's search, the Tracker's pattern) keeps the typing from the viewer's keys.
+                if let Some(hud) = &mut state.hud_input {
+                    let typing = hud.text_mode();
+                    hud.key(&event);
+                    if typing {
+                        return;
+                    }
+                }
                 let PhysicalKey::Code(code) = event.physical_key else {
                     return;
                 };
-                // A HUD text field (the guide's search, the Tracker's pattern) takes the typing.
-                if event.state == ElementState::Pressed && state.view.text_mode() {
-                    state.hud_typing(code, event.text.as_deref());
-                    return;
-                }
                 if event.state == ElementState::Pressed {
                     if code == KeyCode::Escape {
                         event_loop.exit();
@@ -232,9 +244,11 @@ impl ApplicationHandler for App {
                 if pressed && (consumed || state.gui.wants_pointer()) {
                     return;
                 }
+                if let Some(hud) = &mut state.hud_input {
+                    hud.button(button, pressed);
+                }
                 match button {
                     MouseButton::Left => {
-                        state.hud_input(&[(UI_LEFT_BUTTON, 1.0, pressed)]);
                         if state.panel.mode == Mode::Fly {
                             state.looking = pressed;
                         }
@@ -245,15 +259,12 @@ impl ApplicationHandler for App {
                     _ => {}
                 }
             }
-            WindowEvent::MouseWheel { delta, .. } if !state.gui.wants_pointer() => {
-                let lines = match delta {
-                    MouseScrollDelta::LineDelta(_, y) => y,
-                    MouseScrollDelta::PixelDelta(position) => position.y as f32 / 40.0,
-                };
-                if lines > 0.0 {
-                    state.walk.camera_action(actions::ZOOM_IN, true);
-                } else if lines < 0.0 {
-                    state.walk.camera_action(actions::ZOOM_OUT, true);
+            // The wheel scrolls the HUD panel under the pointer, else zooms the camera
+            // (`HudInput::frame`).
+            WindowEvent::MouseWheel { delta, phase, .. } if !state.gui.wants_pointer() => {
+                let scale = state.window.scale_factor();
+                if let Some(hud) = &mut state.hud_input {
+                    hud.wheel(delta, phase, scale);
                 }
             }
             // A frame whose HUD confirmed the quit question closes the viewer.
@@ -281,38 +292,6 @@ impl ApplicationHandler for App {
 }
 
 impl State {
-    /// Pointer and button actions for the HUD (`UIElementManager::StartInput` / `StopInput`).
-    fn hud_input(&mut self, actions: &[(u32, f32, bool)]) {
-        self.view.ui_input(actions, Modifiers::default());
-    }
-
-    /// A key typed into the HUD's active text element (`UIElement_Text::CharacterHandler`): its
-    /// characters, or the virtual key of an editing key that types none.
-    fn hud_typing(&mut self, code: KeyCode, text: Option<&str>) {
-        let key = match code {
-            KeyCode::Delete => 0x2E,
-            KeyCode::ArrowLeft => 0x25,
-            KeyCode::ArrowUp => 0x26,
-            KeyCode::ArrowRight => 0x27,
-            KeyCode::ArrowDown => 0x28,
-            KeyCode::Home => 0x24,
-            KeyCode::End => 0x23,
-            _ => 0,
-        };
-        let characters: Vec<(u16, u32)> = match (key, code) {
-            (0, KeyCode::Backspace) => vec![(0x08, 0)],
-            (0, KeyCode::Enter | KeyCode::NumpadEnter) => vec![(0x0D, 0)],
-            (0, _) => text
-                .unwrap_or_default()
-                .encode_utf16()
-                .filter(|&ch| ch >= 0x20)
-                .map(|ch| (ch, 0))
-                .collect(),
-            (key, _) => vec![(0, key)],
-        };
-        self.view.text_input(&[], &characters, Modifiers::default());
-    }
-
     fn key_pressed(&mut self, code: KeyCode) {
         let step = DAY_SECONDS / 24.0;
         match code {
@@ -471,6 +450,9 @@ impl State {
             self.model_visual(),
             self.time_of_day,
         );
+        if let Some(hud) = &mut self.hud_input {
+            hud.frame(&mut self.view, &mut self.walk);
+        }
         let quit = match self.session.as_mut() {
             Some(session) => session.frame(&mut self.view, &mut frame, f64::from(seconds)),
             None => {

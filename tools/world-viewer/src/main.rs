@@ -48,12 +48,15 @@
 //! Tracker's window, both on the HUD as in the client, and a HUD text field takes the typing.
 //! The HUD has a session (`session.rs`): the client logged on to the Legions server double in
 //! process, so the toolbar's panels work with a starter inventory, worn gear, skills and options.
+//! The HUD takes the window's input through the client's key maps (`hud_input.rs`): the toolbar's
+//! keys, Enter for the chat, typing in its fields and the wheel over a panel work as in the client.
 
 mod bench;
 mod crowd;
 mod fly;
 mod frame;
 mod gui;
+mod hud_input;
 mod panel;
 mod races;
 mod session;

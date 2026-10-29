@@ -85,6 +85,8 @@ mod hud_tracker;
 #[cfg(feature = "window")]
 mod hud_view;
 
+#[cfg(feature = "window")]
+pub mod keys;
 mod loader;
 mod motion;
 #[cfg(feature = "window")]
