@@ -346,6 +346,87 @@ fn the_reticle_frames_the_selection_with_its_name_above() {
 }
 
 #[test]
+fn a_selection_behind_the_camera_shows_only_the_off_screen_indicator() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let GameplayHud {
+        mut tree, reticle, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut reticle = reticle.expect("the gameplay layout has the reticle");
+    reticle.selection_changed(&mut tree, Some(7), Some("Gnome"), None);
+    let root = |tree: &UiTree, name: &str| {
+        tree.roots()
+            .iter()
+            .copied()
+            .filter(|&r| tree.get(r).unwrap().id() == tokenize(name))
+            .collect::<Vec<_>>()
+    };
+    let indicator = root(&tree, "OffScreenIndicator")[0];
+    let (w, h) = {
+        let e = tree.get(indicator).unwrap();
+        (e.rect.width(), e.rect.height())
+    };
+    let name_h = tree
+        .get(root(&tree, "SelectionName")[0])
+        .unwrap()
+        .rect
+        .height();
+    let others: Vec<usize> = ["TargettingReticle", "SelectionName", "SelectionStuff"]
+        .iter()
+        .flat_map(|name| root(&tree, name))
+        .collect();
+    // Every corner behind the camera; the box's centre at `at` in clip space.
+    let mut place = |at: [f32; 2]| {
+        let project = move |p: [f32; 3]| ([at[0] + p[0], at[1] + p[1]], false);
+        let target = ReticleTarget {
+            id: 7,
+            bounds: ([-0.1, -0.1, 0.0], [0.1, 0.1, 0.0]),
+            project: &project,
+            planar_distance: Some(10.0),
+        };
+        reticle.update(&mut tree, Some(target), false);
+        let placements = tree.placements();
+        let shown: Vec<usize> = placements
+            .iter()
+            .filter(|p| p.shown)
+            .map(|p| p.root)
+            .collect();
+        let p = placements.iter().find(|p| p.root == indicator).unwrap();
+        (p.x, p.y, p.rotation, shown)
+    };
+    let (max_x, max_y) = (1024 - w, 768 - h);
+    // Far left and level: on the left edge, pointing left; only the indicator shows.
+    let (x, _, rotation, shown) = place([-3.0, 0.0]);
+    assert_eq!((x, rotation), (0, 180));
+    assert!(shown.contains(&indicator));
+    assert!(others.iter().all(|r| !shown.contains(r)), "{others:?}");
+    // Far right and above: the top-right corner (below the name's room), turned 45 back.
+    let (x, y, rotation, _) = place([3.0, 3.0]);
+    assert_eq!((x, y, rotation), (max_x, name_h, 45));
+    // Below and right: the bottom-right corner, turned 45 on.
+    let (x, y, rotation, _) = place([3.0, -3.0]);
+    assert_eq!((x, y, rotation), (max_x, max_y, 315));
+    // A centre on the screen: the bottom's middle, pointing down.
+    let (x, y, rotation, _) = place([0.0, 0.0]);
+    assert_eq!((x, y, rotation), (max_x / 2, max_y, 270));
+    // In front again: the reticle shows and the indicator hides.
+    let project = |p: [f32; 3]| ([p[0], p[1]], true);
+    let target = ReticleTarget {
+        id: 7,
+        bounds: ([-0.1, -0.1, 0.0], [0.1, 0.1, 0.0]),
+        project: &project,
+        planar_distance: Some(10.0),
+    };
+    reticle.update(&mut tree, Some(target), false);
+    assert!(tree
+        .placements()
+        .iter()
+        .any(|p| p.root == indicator && !p.shown));
+}
+
+#[test]
 fn the_toolbar_panels_start_hidden_and_toggle_by_side() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {
         return;

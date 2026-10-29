@@ -661,13 +661,13 @@ key	status	note
 004268a0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00426920	_	Legions has it: vtable slot 90 of gm3DTextUI at 0x004266e0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-00426970	~	ac2-ui reticle.rs; ac2-client SelectionFrame::name_info (display_name(quantity) = GetName(quantity)) rendered in view/overlays.rs; name plates also name GetName(quantity). Not ported: the off-screen indicator
+00426970	x	ac2-ui reticle.rs selection_changed: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it
 00426ae0	x	ac2-ui reticle.rs
 00426b70	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00426d00	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 00426d40	-	plain-data stream writer (BBox::Pack); client reads, never writes, this record
 00426d50	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
-00426d90	~	ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+00426d90	x	ac2-ui reticle.rs Reticle::create: the four TargettingReticle corners, OffScreenIndicator, SelectionName and SelectionStuff as hidden overlay roots, with the reticle's tuning (AverageBBoxFrames, MaxSelectionDistance, name attempts, FloatyTextTravel)
 00426ee0	x	ac2-ui reticle.rs
 00426f60	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00427090	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -678,7 +678,7 @@ key	status	note
 00428e30	x	ac2-ui damage_text.rs Damage entry (Vec; element, object, start, duration, boxes)
 00428e60	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 004291a0	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-00429320	~	ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+00429320	x	ac2-ui reticle.rs update_internal (Legions 0x4290e0): out of range deselects; in front, the corners around the averaged box with the name and meters above; no corner in front, only OffScreenIndicator at the box centre clamped to the edges, rotated to its edge +/-45 at corners, the bottom middle for a centre on screen (show_off_screen, Legions 0x429228)
 00429ab0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00429bd0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00429e20	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
@@ -702,7 +702,7 @@ key	status	note
 0042b510	~	ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 0042b610	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042b6a0	x	ac2-ui name_plates.rs sync: plates follow the radar looks each frame (the per-object notice registration replaced by the sync); the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks over ObjectFrame::stack_name, ac2-weenie ItemStats::stack_name)
-0042b730	~	ac2-ui reticle.rs selection_changed and selection_info via hud_state.rs update_reticle; the radar-look colour of the name and the quantity suffix (CheckName) and the off-screen indicator are not ported
+0042b730	x	ac2-ui reticle.rs selection_changed and selection_info via hud_state.rs update_reticle: the name at its quantity in the radar-look colour; the averaged boxes restart
 0042b7e0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042b840	~	ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 0042ba40	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)

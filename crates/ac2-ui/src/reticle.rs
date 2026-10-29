@@ -14,8 +14,8 @@
 //! A creature's selection info fills the meters under the name (`RecvNotice_UpdateSelectionInfo`,
 //! `DoStuffMeter`): health with PK damage, vigor with PK vigor loss.
 //!
-//! Not modelled yet: the off-screen indicator (hidden), the radar-look colour of the name, damage
-//! text and the name plates over other objects.
+//! With no corner in front of the camera, only `OffScreenIndicator` shows, at the box's centre
+//! clamped to the screen's edge and turned towards it (`show_off_screen`).
 
 use std::collections::VecDeque;
 use std::sync::Arc;
@@ -102,6 +102,17 @@ pub(crate) fn object_to_window(
     lo: [f32; 3],
     hi: [f32; 3],
 ) -> Option<([f32; 2], [f32; 2])> {
+    let (min, max, in_front) = window_box(project, lo, hi);
+    in_front.then_some((min, max))
+}
+
+/// `ConvertObjectToWindow`'s whole answer: the projected corners' extent, kept when none is in
+/// front (the off-screen indicator takes its centre), and whether any is.
+fn window_box(
+    project: &dyn Fn([f32; 3]) -> ([f32; 2], bool),
+    lo: [f32; 3],
+    hi: [f32; 3],
+) -> ([f32; 2], [f32; 2], bool) {
     let mut in_front = false;
     let (mut min, mut max) = ([f32::MAX; 2], [f32::MIN; 2]);
     for i in 0..8 {
@@ -117,7 +128,7 @@ pub(crate) fn object_to_window(
             max[axis] = max[axis].max(clip[axis]);
         }
     }
-    in_front.then_some((min, max))
+    (min, max, in_front)
 }
 
 /// `SceneTool::TransformClipPointToPixel`.
@@ -326,9 +337,11 @@ impl Reticle {
                 return None;
             }
         }
-        // `ConvertObjectToWindow` (the off-screen indicator is not modelled: nothing shows).
         let (lo, hi) = average_box(&mut self.boxes, self.average_frames, target.bounds);
-        let (min, max) = object_to_window(target.project, lo, hi)?;
+        let (min, max, in_front) = window_box(target.project, lo, hi);
+        if !in_front {
+            return self.show_off_screen(tree, min, max);
+        }
         let (display_w, display_h) = tree.display;
         let (x0, bottom) = clip_to_pixel(min, display_w, display_h);
         let (x1, top) = clip_to_pixel(max, display_w, display_h);
@@ -387,6 +400,85 @@ impl Reticle {
         if let Some(off_screen) = self.off_screen {
             tree.show_object(off_screen, false);
         }
+        Some(())
+    }
+
+    /// `UpdateReticleInternal` when no corner is in front of the camera (Legions 0x429228): the
+    /// `OffScreenIndicator` at the box's centre, clamped to the screen less the precluded bottom
+    /// and the room the name and meters take at the top, pointing at the edge it sits on
+    /// (bottom 270, top 90, left 180, right 0 degrees; a corner turns it 45 more). A centre
+    /// within the screen puts it at the bottom's middle. Only the indicator shows.
+    fn show_off_screen(&mut self, tree: &mut UiTree, min: [f32; 2], max: [f32; 2]) -> Option<()> {
+        let indicator = self.off_screen?;
+        let size = |tree: &UiTree, index: usize| {
+            tree.get(index).map(|e| (e.rect.width(), e.rect.height()))
+        };
+        let (w, h) = size(tree, indicator)?;
+        let (display_w, display_h) = tree.display;
+        let max_x = display_w - w;
+        let max_y = display_h - self.precluded_bottom - h;
+        let name_h = if self.has_name {
+            size(tree, self.name).map_or(0, |s| s.1)
+        } else {
+            0
+        };
+        let stuff_h = if self.has_info {
+            size(tree, self.stuff).map_or(0, |s| s.1)
+        } else {
+            0
+        };
+        let min_y = self.precluded_top + name_h + stuff_h;
+        // `BBox::GetCenter`, stored as floats.
+        let center =
+            [0, 1].map(|axis| ((f64::from(min[axis]) + f64::from(max[axis])) * 0.5) as f32);
+        let (mut x, mut y) = clip_to_pixel(center, display_w, display_h);
+        let (mut left, mut right, mut top, mut bottom) = (false, false, false, false);
+        if max_x < x {
+            right = true;
+            x = max_x;
+        } else if x < 0 {
+            left = true;
+            x = 0;
+        }
+        let rotation = if max_y < y {
+            bottom = true;
+            y = max_y;
+            270
+        } else if y < min_y {
+            top = true;
+            y = min_y;
+            if left {
+                180
+            } else {
+                90
+            }
+        } else if left {
+            180
+        } else if right {
+            0
+        } else {
+            x = max_x / 2;
+            bottom = true;
+            y = max_y;
+            270
+        };
+        let turn = if right && bottom {
+            45
+        } else if (left && (bottom || top)) || (right && top) {
+            -45
+        } else {
+            0
+        };
+        for corner in self.corners {
+            tree.show_object(corner, false);
+        }
+        tree.show_object(self.name, false);
+        tree.show_object(self.stuff, false);
+        tree.show_object(indicator, true);
+        tree.set_object_rotation(indicator, rotation + turn);
+        tree.set_object_position(indicator, x, y);
+        // `m_lastSelectionRect`: `Box2D(x, y, width, height)`.
+        self.selection_rect = Some([x, y, x + w - 1, y + h - 1]);
         Some(())
     }
 }

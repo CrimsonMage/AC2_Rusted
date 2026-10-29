@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1294 done, 330 partial, 129 to do, 494 skipped.
+2247 retail functions: 1298 done, 326 partial, 129 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (33/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -17,7 +17,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — Legions has it: vtable slot 90 of gm3DTextUI at 0x004266e0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs; ac2-client SelectionFrame::name_info (display_name(quantity) = GetName(quantity)) rendered in view/overlays.rs; name plates also name GetName(quantity). Not ported: the off-screen indicator
+- [x] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs selection_changed: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -29,7 +29,7 @@ Legend and workflow: [README](README.md).
 - [-] `Position::Position` · 00426d50 · legions 00426b10 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### gm3DTextUI
-- [~] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+- [x] `gm3DTextUI::InitReticle` · 00426d90 · legions 00426b50 — ac2-ui reticle.rs Reticle::create: the four TargettingReticle corners, OffScreenIndicator, SelectionName and SelectionStuff as hidden overlay roots, with the reticle's tuning (AverageBBoxFrames, MaxSelectionDistance, name attempts, FloatyTextTravel)
 - [x] `gm3DTextUI::RecvNotice_UpdateSelectionInfo` · 00426ee0 · legions 00426ca0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::PlaceHere` · 00426f60 · legions 00426d20 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
@@ -52,7 +52,7 @@ Legend and workflow: [README](README.md).
 ### gm3DTextUI
 - [x] `gm3DTextUI::AverageBoundingBox` · 00428e60 · legions 00428c20 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
 - [x] `gm3DTextUI::ConvertObjectToWindow` · 004291a0 · legions 00428f60 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [~] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs: the meters (DoStuffMeter, selection info) and the name are ported; not ported: the off-screen indicator (hidden), the radar-look colour of the selection name (CheckName's InqRadarLook font colour, needs the selection look passed from hud_state) and the name's quantity (GetName(quantity))
+- [x] `gm3DTextUI::UpdateReticleInternal` · 00429320 · legions 004290e0 — ac2-ui reticle.rs update_internal (Legions 0x4290e0): out of range deselects; in front, the corners around the averaged box with the name and meters above; no corner in front, only OffScreenIndicator at the box centre clamped to the edges, rotated to its edge +/-45 at corners, the bottom middle for a centre on screen (show_off_screen, Legions 0x429228)
 - [x] `gm3DTextUI::CalcScreenPosition` · 00429ab0 · legions 00429870 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
 ### _STL::deque<BBox,_STL::allocator<BBox>_>
@@ -92,7 +92,7 @@ Legend and workflow: [README](README.md).
 - [~] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::InitNames` · 0042b610 · legions 0042b3d0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::RecvNotice_ChangeRadarLook` · 0042b6a0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame (the per-object notice registration replaced by the sync); the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks over ObjectFrame::stack_name, ac2-weenie ItemStats::stack_name)
-- [~] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs selection_changed and selection_info via hud_state.rs update_reticle; the radar-look colour of the name and the quantity suffix (CheckName) and the off-screen indicator are not ported
+- [x] `gm3DTextUI::RecvNotice_SelectionChanged` · 0042b730 — ac2-ui reticle.rs selection_changed and selection_info via hud_state.rs update_reticle: the name at its quantity in the radar-look colour; the averaged boxes restart
 - [x] `gm3DTextUI::ToggleNames` · 0042b7e0 · legions 0042b5a0 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [~] `gm3DTextUI::gm3DTextUI` · 0042b840 · legions 0042b600 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
