@@ -50,6 +50,12 @@ const LIFESTONE_OFFSET: [f32; 3] = [-8.0, 8.0, 0.0];
 /// (0x2) and the skill (0x10).
 const STORY_BITS: u32 = 0x2 | 0x10;
 const HOOK_BITS: u32 = 1 | 0x100 | 0x80 | 0x800 | 0x1000;
+/// The missile hooks' types: make and hang the story's missiles (2), fire one (3).
+const PARENT_MISSILES_HOOK: u32 = 2;
+const FIRE_MISSILE_HOOK: u32 = 3;
+/// `Hum_Mi_AutoAttackMissile1` (`MasterSkillList`): the human bow's auto attack, whose one hook
+/// fires an arrow (entity `0x470000BE`) held in holding location 4.
+pub const BOW_AUTO_ATTACK: u32 = 0xC7;
 /// The instance of an object the double makes: the player's is 9 (`create_object`), the radar
 /// creatures' 1.
 fn instance_of(id: u64) -> u16 {
@@ -214,6 +220,23 @@ impl State {
         if self.is_live_creature(creature) && !self.fight.player_dead {
             self.hit(creature, PLAYER, MELEE_AUTO_ATTACK, HIT, CREATURE_DAMAGE);
         }
+    }
+
+    /// A missile attack's story from `attacker` on `target` with `skill`, as a server tells the
+    /// client to show one: no behaviour, so the client runs its hooks at once: the missiles are
+    /// made and hung (`StoryHookData` type 2), then one is fired (type 3). The damage is not part
+    /// of it.
+    pub fn send_missile_story(&mut self, attacker: u64, target: u64, skill: u32) {
+        let mut args = vec![STORY_BITS];
+        args.extend([attacker as u32, (attacker >> 32) as u32]);
+        args.push(skill);
+        args.push(2);
+        for kind in [PARENT_MISSILES_HOOK, FIRE_MISSILE_HOOK] {
+            args.push(kind | 0x100);
+            args.extend([target as u32, (target >> 32) as u32]);
+        }
+        let bytes = object_event_bytes(Opcode::DO_STORY, attacker, instance_of(attacker), &args);
+        self.send_event(&bytes);
     }
 
     /// Queues a combat answer (a test can send one directly).

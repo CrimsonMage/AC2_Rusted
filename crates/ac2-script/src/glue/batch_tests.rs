@@ -518,6 +518,28 @@ fn physics_type_natives_set_get_and_edit_the_words() {
     );
 }
 
+/// `CallEFun_UpdatePhysicsType(name)` takes one word and answers in the slot below it: the slot
+/// past its frame (the caller's local) is left alone.
+#[test]
+fn a_physics_type_update_takes_one_word_and_answers_below_it() {
+    let mut vm = vm();
+    let params = new_native(&mut vm, ntype::COLLISION_PARAMETERS);
+    let mut ctx = Context::new(1, None);
+    ctx.enter(0).unwrap();
+    // The caller's local, then the return slot, the name and `this`.
+    ctx.push(0x6F65, tag::REF).unwrap();
+    ctx.push(7, tag::INT).unwrap();
+    ctx.push(0x7EAD_BEEF, tag::INT).unwrap();
+    ctx.push(params, tag::REF).unwrap();
+    let status = vm.run_efun(
+        id("gCollisionParameters::CallEFun_UpdatePhysicsType"),
+        &mut ctx,
+    );
+    assert_eq!(status, InterpStatus::Success);
+    assert_eq!(ctx.data[0], 0x6F65, "the caller's local is kept");
+    assert_eq!(ctx.data[1], 0, "a name the table lacks answers 0");
+}
+
 #[test]
 fn the_dword_setters_write_one_word_and_sign_extend_the_low_one() {
     let mut vm = vm();

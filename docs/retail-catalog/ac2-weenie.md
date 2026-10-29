@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 961 done, 159 partial, 127 to do, 657 skipped.
+1904 retail functions: 963 done, 157 partial, 127 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -468,7 +468,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCObjMaint::CallEFun_GetPlayerWeenieObjectReference` · 00468250 · legions 00468f00 — ac2-script host/glue.rs get_player_id / get_player_weenie_object_reference (efuns 0x950001/2)
 - [-] `ggmCObjMaint::CallEFun_DumpToString` · 00468280 — admin dump-to-string / dump debug output: not in the client
 
-## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (186/301)
+## `ac2/client/src/weenie/interp/glue/ggmcwinterface.cpp.c` (187/301)
 
 ### PackObj
 - [x] `PackObj::GET_SIZE_LEFT` · 00454060 · legions 004550e0 — implemented: cited at crates/ac2-script/src/bytestream/mod.rs:93
@@ -701,7 +701,7 @@ Legend and workflow: [README](README.md).
 - [x] `ggmCWInterface::CallIFun_GetMaxDurabilityLevel` · 0045a960 · legions 0045b5b0 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 - [~] `ggmCWInterface::CallIFun_GetMaxPurchaseQuantity` · 0045aa00 · legions 0045b650 — IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 - [x] `ggmCWInterface::CallIFun_GetMaxStackSize` · 0045aae0 · legions 0045b730 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
-- [~] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0 — ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+- [x] `ggmCWInterface::CallIFun_GetMissileInformationFromWSL` · 0045ab80 · legions 0045b7d0 — ac2-script InterfaceCalls::missile_info (IFun 0xB400BE, the filled MissileInfo read back); called by ac2-client client_story_missiles.rs for a fire hook with the skill, m_attackHookNumber, the story's attacker and the hook's target; Hum_Mi_AutoAttackMissile1 (0xC7) gives arrow 0x470000BE in holding location 4
 - [x] `ggmCWInterface::CallIFun_GetPotentiallyPluralizedName` · 0045adb0 · legions 0045ba00 — ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 - [x] `ggmCWInterface::CallIFun_GetPreferredInventoryLocation` · 0045ae80 · legions 0045bad0 — ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 - [x] `ggmCWInterface::CallIFun_GetQuantity` · 0045af20 · legions 0045bb70 — ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
@@ -908,7 +908,7 @@ Legend and workflow: [README](README.md).
 - [-] `gmCWAllocator::AllocateEFunDispatcher` · 00454010 · legions 00455090 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 - [-] `gmCWAllocator::AllocateNativeFactory` · 00454030 · legions 004550b0 — engine factory with no runtime effect in Rust: ScriptHost::new/create_weenie build processes from the loaded WLib, glue::efun_table registers the efuns and NativeObject::new_empty makes the natives; the WLib comes from the DAT (load_wlib), not a path
 
-## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (175/249)
+## `ac2/shared/src/weenie/interface/gmwinterface.cpp.c` (176/249)
 
 ### gmCWInterface
 - [-] `gmCWInterface::gmCWInterface` · 0044f9a0 · legions 00450ae0 — constructor of plain data: Rust struct init replaces it
@@ -1118,7 +1118,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCWInterface::DeclineTrade` · 00451df0 · legions 00452f70 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::OfferItemForTrade` · 00451e10 · legions 00452f90 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 - [x] `gmCWInterface::RevokeItemFromTrade` · 00451e40 · legions 00452fc0 — ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-- [~] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0 — ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+- [x] `gmCWInterface::GetMissileInformationFromWSL` · 00451e60 · legions 00452fe0 — ac2-script InterfaceCalls::missile_info (IFun 0xB400BE, the filled MissileInfo read back); called by ac2-client client_story_missiles.rs for a fire hook with the skill, m_attackHookNumber, the story's attacker and the hook's target; Hum_Mi_AutoAttackMissile1 (0xC7) gives arrow 0x470000BE in holding location 4
 - [x] `gmCWInterface::GetFXAndBehaviorInformationFromWsl` · 00451eb0 · legions 00453030 — ac2-client client_story.rs story_fx_info -> ac2-script interface_calls fx_and_behavior_info on the player's process
 - [x] `gmCWInterface::DoUIDamage` · 00451ef0 · legions 00453070 — ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 - [-] `gmCWInterface::SpecialAttackStarted` · 00451f50 · legions 004530d0 — no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does

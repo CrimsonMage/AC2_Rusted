@@ -85,6 +85,50 @@ pub struct MissileInfo {
     pub clone: bool,
 }
 
+impl MissileInfo {
+    /// `MissileInfo::GetMissileParameters` as the physics object takes them
+    /// (`CPhysicsObj::MissileInitialize`); the defaults when the script set none.
+    pub fn physics_parameters(&self) -> ac2_physics::MissileParameters {
+        let params = self.missile_params.clone().unwrap_or_default();
+        ac2_physics::MissileParameters::from_words(params.bitfield, params.fields.iter().copied())
+    }
+
+    /// `MissileInfo::GetTargetingParameters` as the physics object takes them.
+    pub fn physics_targeting(&self) -> ac2_physics::MissileTargetingParameters {
+        let t = &self.targeting_params;
+        let vector = |[x, y, z]: [f32; 3]| ac2_physics::Vector::new(x, y, z);
+        ac2_physics::MissileTargetingParameters {
+            bitfield: t.bitfield,
+            target_id: t.target_id,
+            target_height_adjustment: t.target_height_adjustment,
+            use_target_scale: t.use_target_scale != 0,
+            target_offset: vector(t.target_offset),
+            target_pos: physics_position(&t.target_pos),
+            base_pos: physics_position(&t.base_pos),
+            source_id: t.source_id,
+            source_height_adjustment: t.source_height_adjustment,
+            use_source_scale: t.use_source_scale != 0,
+            source_offset: vector(t.source_offset),
+            initial_velocity: t.initial_velocity,
+            initial_pitch: t.initial_pitch,
+            missile_range: t.missile_range,
+            missile_detonation_chance: t.missile_detonation_chance,
+        }
+    }
+}
+
+fn physics_position(p: &Position) -> ac2_physics::Position {
+    let [w, x, y, z] = p.rotation;
+    let [ox, oy, oz] = p.origin;
+    ac2_physics::Position::new(
+        p.cell,
+        ac2_physics::Frame::new(
+            ac2_physics::Vector::new(ox, oy, oz),
+            ac2_physics::Quaternion { w, x, y, z },
+        ),
+    )
+}
+
 /// `FXAndBehaviorInfo`: the FX ids and behaviours of an attack.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct FxAndBehavior {

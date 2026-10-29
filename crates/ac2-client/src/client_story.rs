@@ -13,6 +13,7 @@ use ac2_ui::{story_scenes, StoryEvent};
 use ac2_weenie::{GameplayNotice, SceneInfo, SessionEvent, NO_SELECTION};
 
 use crate::client::Client;
+use crate::client_story_missiles::{FIRE_MISSILE_HOOK, PARENT_MISSILES_HOOK};
 use crate::scripts_queries::ifun;
 
 /// `StoryHookData`'s type for damage (the hook bitfield's low four bits).
@@ -181,7 +182,7 @@ impl Client {
             } => self.do_story(*object, story),
             // The object's story manager goes with it.
             SessionEvent::ObjectRemoved(object) => {
-                self.stories.remove(object);
+                self.stories.remove_object(*object);
             }
             _ => {}
         }
@@ -191,7 +192,7 @@ impl Client {
     /// story's context, and the hooks already reached run. An object with no body here plays no
     /// behaviour, so its story finishes at once (the hooks still reach the script).
     fn do_story(&mut self, object: u64, story: &PhysicsStory) {
-        let mut manager = self.stories.remove(&object).unwrap_or_default();
+        let mut manager = self.stories.managers.remove(&object).unwrap_or_default();
         let due = match self.story_body(object) {
             Some(body) => manager.do_story(story.clone(), |params, context| {
                 let mut params = crate::motion::behavior(params);
@@ -211,7 +212,7 @@ impl Client {
             }
         };
         if manager.current().is_some() {
-            self.stories.insert(object, manager);
+            self.stories.managers.insert(object, manager);
         }
         self.story_steps(object, due);
     }
@@ -227,11 +228,12 @@ impl Client {
         }
     }
 
-    /// `StoryManager::CleanupStory` of a story that was not null: on the player
-    /// (`CPhysicsObj::IsThePlayer`) the script hears its special attack ended
-    /// (`gmCWInterface::SpecialAttackEnded` with the story's client attack context). The
-    /// pending missiles and faded objects are not made yet, so there are none to undo.
+    /// `StoryManager::CleanupStory` of a story that was not null: the missiles still pending are
+    /// destroyed and the faded weapons fade back ([`Client::cleanup_story_missiles`]); on the
+    /// player (`CPhysicsObj::IsThePlayer`) the script hears its special attack ended
+    /// (`gmCWInterface::SpecialAttackEnded` with the story's client attack context).
     fn cleanup_story(&mut self, object: u64, story: &PhysicsStory) {
+        self.cleanup_story_missiles(object);
         if self.session.player() != Some(object) {
             return;
         }
@@ -241,7 +243,7 @@ impl Client {
     }
 
     /// The body a story plays on: the player's, or a remote object's.
-    fn story_body(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
+    pub(crate) fn story_body(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
         if self.player.as_ref().is_some_and(|p| p.id == object) {
             return self
                 .player
@@ -259,7 +261,7 @@ impl Client {
         events: &[(u64, Option<u32>, Vec<Ac2AnimEvent>)],
     ) {
         for (object, _, events) in events {
-            let Some(mut manager) = self.stories.remove(object) else {
+            let Some(mut manager) = self.stories.managers.remove(object) else {
                 continue;
             };
             let mut due = Vec::new();
@@ -275,7 +277,7 @@ impl Client {
                 }
             }
             if manager.current().is_some() {
-                self.stories.insert(*object, manager);
+                self.stories.managers.insert(*object, manager);
             }
             self.story_steps(*object, due);
         }
@@ -287,7 +289,8 @@ impl Client {
     /// story's `object`, the target's reaction and FX on the hook's target, and the weapon's on
     /// its weapon. Then a damage hook reaches the script as `gmCWInterface::DoUIDamage` with
     /// the story's attacker, and a harmful skill on the player names that attacker in a
-    /// `LastAttacker` notice. Missile hooks (types 2 and 3) are not played.
+    /// `LastAttacker` notice. A missile hook makes and hangs the story's missiles (type 2) or
+    /// fires one (type 3), in [`crate::client_story_missiles`].
     fn do_story_hook(&mut self, object: u64, story: &PhysicsStory, hook: &StoryHook) {
         if let Some(info) = self.story_fx_info(story, hook) {
             if info.attacker_fx != 0 {
@@ -308,8 +311,11 @@ impl Client {
                 }
             }
         }
-        if hook.kind() != DAMAGE_HOOK {
-            return;
+        match hook.kind() {
+            DAMAGE_HOOK => {}
+            PARENT_MISSILES_HOOK => return self.create_and_parent_missiles(object, story),
+            FIRE_MISSILE_HOOK => return self.fire_missile(object, story, hook),
+            _ => return,
         }
         let Some(target) = hook.target else {
             return;
@@ -384,6 +390,25 @@ impl Client {
 
 #[cfg(feature = "test-support")]
 impl Client {
+    /// The story missiles alive: each one's id, the holder it hangs from (`None` once fired),
+    /// its body's position (`None` until the body is in) and whether its body flies under a
+    /// missile manager.
+    pub fn story_missiles(&self) -> Vec<(u64, Option<u64>, Option<ac2_physics::Position>, bool)> {
+        self.stories
+            .missiles()
+            .into_iter()
+            .map(|id| {
+                let body = self.remotes.get(id).and_then(|r| r.body());
+                (
+                    id,
+                    self.stories.missile_parent(id).map(|(holder, _)| holder),
+                    body.map(|b| b.position()),
+                    body.is_some_and(|b| b.has_missile_manager()),
+                )
+            })
+            .collect()
+    }
+
     /// Whether `object`'s body (the player's or a remote's) is playing `behavior`
     /// (`ModeTracker::IsDoingBehavior`).
     pub fn is_doing_behavior(&mut self, object: u64, behavior: u32) -> bool {

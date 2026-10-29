@@ -1592,7 +1592,7 @@ key	status	note
 00451df0	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e10	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
 00451e40	x	ac2-weenie session/trade.rs: open_trade/close_trade/decline_trade/offer_item_for_trade/revoke_item_from_trade send the WM_Trade stubs (0x2F, 0x3E, 0x23, 0x15, 0x3F) as ScriptRequest; trade_7160
-00451e60	~	ac2-script host/interface_calls.rs InterfaceCalls over the player's process (the IFun wrapper's twin gmCWInterface call); see the ggmCWInterface wrapper rows for what runs (no GUN service; no launcher context for the missile call)
+00451e60	x	ac2-script InterfaceCalls::missile_info (IFun 0xB400BE, the filled MissileInfo read back); called by ac2-client client_story_missiles.rs for a fire hook with the skill, m_attackHookNumber, the story's attacker and the hook's target; Hum_Mi_AutoAttackMissile1 (0xC7) gives arrow 0x470000BE in holding location 4
 00451eb0	x	ac2-client client_story.rs story_fx_info -> ac2-script interface_calls fx_and_behavior_info on the player's process
 00451ef0	x	ac2-client client_story.rs calls IFun 0xB400C0 (scripts_queries ifun::DO_UI_DAMAGE) per damage hook; combat_7160 damage tests. Not run: the native StoryManager::DoStoryHook body
 00451f50	-	no route found: CPlayer 0xD (0x1AA4000D) is called by no wlib function (CALL and CALLSTATIC scans, raw word scan); its only callee is CCombatSystem 0x2, which calls the gCM_Combat start efun; no WM_* package, CAgent forwarder or ECM_* event reaches it. A server InterpCEvent naming 0x9AA4000D would still reach it; no retail server message does
@@ -1792,7 +1792,7 @@ key	status	note
 0045a960	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 0045aa00	~	IFun ids 0xB40137/31/2C/30/38/2D (RequestSell is 0xB40138 in admin and Legions; the earlier 0xB4013E was wrong) and the push order (ac2-client scripts.rs; the host pushes the arguments last first, as the glue's declared order). Run on the VM; the stubs' fids and packs traced (WM_Store 0x4D, 0x12, 0x14, 0x4E: the sell's pack is an int, price, quantity, a long item, a long).
 0045aae0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
-0045ab80	~	ac2-script InterfaceCalls fx_and_behavior_info / missile_info (the filled native is read back); fx_and_behavior_info runs on the player script, missile_info faults on an undefined reference without a missile weapon (no launcher context in the double)
+0045ab80	x	ac2-script InterfaceCalls::missile_info (IFun 0xB400BE, the filled MissileInfo read back); called by ac2-client client_story_missiles.rs for a fire hook with the skill, m_attackHookNumber, the story's attacker and the hook's target; Hum_Mi_AutoAttackMissile1 (0xC7) gives arrow 0x470000BE in holding location 4
 0045adb0	x	ac2-script host/item_queries.rs ItemQueries: the IFun on the item's own process (ItemDisplay), asserted by the inventory tests
 0045ae80	x	ac2-weenie ItemStats::preferred_location (Item 0x26: int 282), valid_locations (275), precluded_locations (283)
 0045af20	x	ac2-script item_queries::ItemQueries::item_display (IFun 0xB40064 on the item's process)
@@ -4316,14 +4316,14 @@ key	status	note
 004d7730	x	
 004d7770	x	ac2-weenie World::fade_and_destroy_object (pending deletion at cur_time + destruction, only for an object in the table) with the fade slider in ac2-smartbox missile_follow.rs; FX objects keep their own FxObjects::fade_and_destroy (0.5, 3.0)
 004d77e0	x	ac2-client remote.rs (lost-cell table)
-004d7840	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+004d7840	~	story missiles: ac2-client client_story_missiles.rs destroys one MISSILE_TIMEOUT_TIME after it is made (m_temporaryObjectDestructionQueue); FX objects keep their FX lifetimes
 004d7c10	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 004d7d00	-	STL less/map/rb-tree/deque internals (Rust std replaces)
 004d7dc0	-	STL less/map/rb-tree/deque internals (Rust std replaces)
 004d7e80	x	
 004d7ef0	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 004d80e0	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-004d8310	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+004d8310	~	ac2-smartbox remotes.rs create_local (temporary ids 0x13FF_FE.. for FX objects, 0x13FF_FD.. for story missiles); a temporary object with no appearance draws its entity's visual (ac2-client view.rs, ac2-assets resolve_drawn_groups). No m_used_temporary_ids reuse
 004d8400	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 004d84a0	_	needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 004d86f0	~	table, both queues and the event queue; no weenie or physics teardown hooks
@@ -4798,7 +4798,7 @@ key	status	note
 004e6c40	_	needs port: cite-only physics-object method
 004e6c50	~	ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 004e6d00	_	needs port: cite-only physics-object method
-004e6d20	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+004e6d20	x	ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 004e6d60	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 004e6da0	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 004e6de0	~	ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
@@ -4832,7 +4832,7 @@ key	status	note
 004e8d50	_	needs port: cite-only physics-object method
 004e8d80	x	ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 004e8de0	~	PhysicsBody::recv_retarget_missile ports it. No wire event reaches it: ECM_Physics has no RecvEvt_RetargetMissile in either build, the slot (0x614) has no call site, and its only users are the script efuns (gCWPhysicsObject::CallEFun_MissileRetarget) that no wlib function calls, so there is no opcode to decode
-004e8e40	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+004e8e40	x	ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 004e8ec0	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 004e8f20	~	ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 004e8f80	x	
@@ -5665,16 +5665,16 @@ key	status	note
 005145c0	~	ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
 00514740	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 00514830	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
-005148d0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+005148d0	~	ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID (or the weapon's data id for a clone) at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in. Not yet: a clone's SetVisualDesc(weapon GetLocalVisualDesc)
 005149b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a30	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
-00514a90	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00514b90	~	ac2-physics story.rs cleanup returns StoryStep::Cleanup for a story that was not null (in order with the hooks); ac2-client client_story.rs cleanup_story: SpecialAttackEnded with the client attack context on the player. Not yet: destroying m_pendingMissiles, restoring m_fadedObjects (DoSlider 0x40000015 to 1 over 0.5 s); no story missiles are made
+00514a90	x	ac2-client client_story_missiles.rs fire_missile: a missile with no holding location is made now, else the first pending one is taken; MissilePlaceAndFire (missile_request(true, true)) once its body is in
+00514b90	x	ac2-physics story.rs StoryStep::Cleanup for a story that was not null; ac2-client cleanup_story: pending missiles destroyed, faded weapons back to opacity 1 over 0.5 s (cleanup_story_missiles), SpecialAttackEnded with the client attack context on the player
 00514ca0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00514cd0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00514d20	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
-00514dd0	~	not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-00514ff0	~	ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0) with the story's m_attacker_id, and on the player with a harmful skill SendNotice_E_LastAttacker. Not yet: missile hooks (types 2, 3: CreateAndParentMissiles, FireMissile); combat_view_7160 sees Damage_Hit1 on the target
+00514dd0	x	ac2-client client_story_missiles.rs create_and_parent_missiles: with none pending, each fire hook (type 3) whose MissileInfo names a holding location makes its missile and hangs it from the attacker there; a thrown weapon fades (DoSlider 0x40000015 to 0) and joins the faded list; combat_view_7160 a_bow_story_fires_an_arrow_into_the_drudge
+00514ff0	x	ac2-client client_story.rs do_story_hook: FXAndBehaviorInfo effects on attacker, target and weapon; type 1 DoUIDamage with m_attacker_id and SendNotice_E_LastAttacker on the player; type 2 CreateAndParentMissiles, type 3 FireMissile (client_story_missiles.rs)
 005152e0	x	ac2-physics story.rs current_hooks: the hooks whose m_animHookNumber the animation has reached
 00515370	x	ac2-physics story.rs finish: one animation hook at a time until every hook fired, then cleanup
 005153b0	x	ac2-physics story.rs StoryManager::do_story: finishes a running story, sorts the hooks by m_animHookNumber (multiset order), runs the attacker behaviour with the next context (ac2-client client_story.rs: body.do_behavior, true unless the body is frozen, as CPhysicsObj::DoBehavior returns 1), else finishes; story_tests.rs, combat_view_7160
@@ -7044,12 +7044,12 @@ key	status	note
 005496a0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549710	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549780	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549800	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549880	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549900	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549980	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549a00	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
-00549a80	x	ac2-script glue/collision.rs: the sets on the native; master property existence from ac2_db's table (installed on the preload path); tests in host/tests/collision.rs
+00549800	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
+00549880	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
+00549900	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
+00549980	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
+00549a00	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
+00549a80	x	ac2-script glue/collision.rs update_named: this, the 32-bit name at word 2 (sp-8), the result at word 3 (sp-0xC); the sets on the native; master property existence from ac2_db's table; tests in host/tests/collision.rs and glue/batch_tests.rs
 00549b00	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549bc0	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)
 00549c80	x	ac2-script glue/ethereal.rs over ac2-physics CollisionParameters/PhysicsTypeMask/WeenieTypes raw accessors; EtherealPhysicsType::SetProperty bit is the MasterProperty bool desc's data word (objdump 0x641430/0x64e2d0)

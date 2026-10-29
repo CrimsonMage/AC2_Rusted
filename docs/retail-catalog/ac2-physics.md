@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 836 done, 166 partial, 173 to do, 949 skipped.
+2124 retail functions: 842 done, 160 partial, 173 to do, 949 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (260/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (262/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2572,7 +2572,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::ApplySubtractiveVisualDesc` · 004e6c40 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::DoMode` · 004e6c50 · legions 004d96a0 — ac2-physics do_mode: frozen check, set_animation_active, ModeTracker::DoMode; no weenie mode hook or child propagation
 - [ ] `CPhysicsObj::HandleBehaviorDone` · 004e6d00 · legions 004d9750 — needs port: cite-only physics-object method
-- [~] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [x] `CPhysicsObj::MissilePlaceAndFire` · 004e6d20 · legions 004d9770 — ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 - [~] `CPhysicsObj::MissilePlace` · 004e6d60 · legions 004d97b0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [~] `CPhysicsObj::MissileFire` · 004e6da0 · legions 004d97f0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [~] `CPhysicsObj::MissileInquireDirection` · 004e6de0 — ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
@@ -2606,7 +2606,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CPhysicsObj::GetLocalVisualDesc` · 004e8d50 — needs port: cite-only physics-object method
 - [x] `CPhysicsObj::RecvEvt_InitializeMissile` · 004e8d80 · legions 004db760 — ac2-physics physics_obj_missile.rs: the body owns the CMissileManager; PhysicsObj::{ensure_missile_manager, set_velocity_culled, recv_initialize_missile}; wind from PhysicsBody::set_wind; wired through Remotes::step_quantum and ac2-client apply_remote
 - [~] `CPhysicsObj::RecvEvt_RetargetMissile` · 004e8de0 · legions 004db7c0 — PhysicsBody::recv_retarget_missile ports it. No wire event reaches it: ECM_Physics has no RecvEvt_RetargetMissile in either build, the slot (0x614) has no call site, and its only users are the script efuns (gCWPhysicsObject::CallEFun_MissileRetarget) that no wlib function calls, so there is no opcode to decode
-- [~] `CPhysicsObj::MissileInitialize` · 004e8e40 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
+- [x] `CPhysicsObj::MissileInitialize` · 004e8e40 — ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
 - [~] `CPhysicsObj::MissileInitMissileParameters` · 004e8ec0 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [~] `CPhysicsObj::MissileInitTargetingParameters` · 004e8f20 — ported on PhysicsBody (missile_initialize, missile_request, ...) and tested; the callers are the script glue (gCWPhysicsObject::CallEFun_Missile*), not wired in the client
 - [x] `CPhysicsObj::UpdatePositionInternal` · 004e8f80 · legions 004db960
@@ -3085,10 +3085,10 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsStory::PhysicsStory` · 006ae4d0 · legions 00647760 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
-## `portal/shared/src/physobj/story/storymanager.cpp.c` (5/15)
+## `portal/shared/src/physobj/story/storymanager.cpp.c` (9/15)
 
 ### StoryManager
-- [~] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
+- [~] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID (or the weapon's data id for a clone) at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in. Not yet: a clone's SetVisualDesc(weapon GetLocalVisualDesc)
 
 ### SmartArray<InstanceID>
 - [-] `SmartArray<InstanceID>::RemoveOrderedByIndex` · 005149b0 · legions 005029c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -3097,13 +3097,13 @@ Legend and workflow: [README](README.md).
 - [-] `IntrusiveSmartPointer<SmartPointerData<PhysicsStory>_>::create` · 00514a30 · legions 00502a40 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 
 ### StoryManager
-- [~] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — ac2-physics story.rs cleanup returns StoryStep::Cleanup for a story that was not null (in order with the hooks); ac2-client client_story.rs cleanup_story: SpecialAttackEnded with the client attack context on the player. Not yet: destroying m_pendingMissiles, restoring m_fadedObjects (DoSlider 0x40000015 to 1 over 0.5 s); no story missiles are made
+- [x] `StoryManager::FireMissile` · 00514a90 · legions 00502aa0 — ac2-client client_story_missiles.rs fire_missile: a missile with no holding location is made now, else the first pending one is taken; MissilePlaceAndFire (missile_request(true, true)) once its body is in
+- [x] `StoryManager::CleanupStory` · 00514b90 · legions 00502ba0 — ac2-physics story.rs StoryStep::Cleanup for a story that was not null; ac2-client cleanup_story: pending missiles destroyed, faded weapons back to opacity 1 over 0.5 s (cleanup_story_missiles), SpecialAttackEnded with the client attack context on the player
 - [-] `StoryManager::StoryManager` · 00514ca0 · legions 00502cb0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::~StoryManager` · 00514cd0 · legions 00502ce0 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `StoryManager::StreamPack` · 00514d20 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
-- [~] `StoryManager::CreateAndParentMissiles` · 00514dd0 · legions 00502de0 — not ported: the hooks run on answers from the physics object's weenie (slots 0xac MissileInfo, 0xb0 FXAndBehaviorInfo, 0xb8/0xbc attack context) which are pure virtuals of CWeenieObject (0x69f550 in the Legions vtable) with no body in the client image, so the data a story needs to drive behaviours and client-made missiles is not obtainable; the damage hook (DoStoryHook type 1) already reaches the script as DoUIDamage in ac2-client client_story.rs
-- [~] `StoryManager::DoStoryHook` · 00514ff0 · legions 00503000 — ac2-client client_story.rs do_story_hook: the script's FXAndBehaviorInfo (GetFXAndBehaviorInformationFromWsl with the skill, m_attackHookNumber, m_attack_result): attacker FX on the story's object, the target's reaction behaviour and FX, the weapon's; a damage hook runs DoUIDamage (IFun 0xB400C0) with the story's m_attacker_id, and on the player with a harmful skill SendNotice_E_LastAttacker. Not yet: missile hooks (types 2, 3: CreateAndParentMissiles, FireMissile); combat_view_7160 sees Damage_Hit1 on the target
+- [x] `StoryManager::CreateAndParentMissiles` · 00514dd0 · legions 00502de0 — ac2-client client_story_missiles.rs create_and_parent_missiles: with none pending, each fire hook (type 3) whose MissileInfo names a holding location makes its missile and hangs it from the attacker there; a thrown weapon fades (DoSlider 0x40000015 to 0) and joins the faded list; combat_view_7160 a_bow_story_fires_an_arrow_into_the_drudge
+- [x] `StoryManager::DoStoryHook` · 00514ff0 · legions 00503000 — ac2-client client_story.rs do_story_hook: FXAndBehaviorInfo effects on attacker, target and weapon; type 1 DoUIDamage with m_attacker_id and SendNotice_E_LastAttacker on the player; type 2 CreateAndParentMissiles, type 3 FireMissile (client_story_missiles.rs)
 - [x] `StoryManager::DoCurrentStoryHooks` · 005152e0 · legions 005032f0 — ac2-physics story.rs current_hooks: the hooks whose m_animHookNumber the animation has reached
 - [x] `StoryManager::FinishStory` · 00515370 · legions 00503380 — ac2-physics story.rs finish: one animation hook at a time until every hook fired, then cleanup
 - [x] `StoryManager::DoStory` · 005153b0 · legions 005033c0 — ac2-physics story.rs StoryManager::do_story: finishes a running story, sorts the hooks by m_animHookNumber (multiset order), runs the attacker behaviour with the next context (ac2-client client_story.rs: body.do_behavior, true unless the body is frozen, as CPhysicsObj::DoBehavior returns 1), else finishes; story_tests.rs, combat_view_7160

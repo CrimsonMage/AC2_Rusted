@@ -50,7 +50,8 @@ pub fn total_visual_desc(
     let mut chain = Vec::new();
     let mut current = match local {
         Some(local) => local.parent,
-        None => Some(visual),
+        // An `EntityDesc` takes its template's visual (`ICPhysicsObj::makeObject`).
+        None => Some(crate::resolve_ac2_entity_visual(store, visual)?),
     };
     for _ in 0..MAX_CHAIN {
         let Some(did) = current else {
@@ -241,6 +242,8 @@ pub fn resolve_drawn_groups(
     visual: DataId,
     local: Option<&Ac2VisualDesc>,
 ) -> ResourceResult<Option<Vec<DrawnGroup>>> {
+    // `ICPhysicsObj::makeObject`: an `EntityDesc` (a temporary object's) draws its template's visual.
+    let visual = crate::resolve_ac2_entity_visual(store, visual)?;
     if local.is_none() && visual.raw() & 0xFF00_0000 == SETUP_PREFIX {
         return Ok(Some(vec![DrawnGroup {
             key: 0,

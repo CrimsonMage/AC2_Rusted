@@ -300,9 +300,12 @@ impl ClientView {
         self.scene.time_of_day = frame.server_time;
         for drawn in drawn_objects(frame) {
             let key = drawn.key;
-            let local = ac2_physics::local_visual_desc(drawn.appearance);
+            // An object with no appearance of its own (a temporary one the client made) draws
+            // its visual alone.
+            let local = (drawn.appearance.parent != 0)
+                .then(|| ac2_physics::local_visual_desc(drawn.appearance));
             self.scene
-                .request_object(key, DataId::new(drawn.visual), Some(local));
+                .request_object(key, DataId::new(drawn.visual), local);
         }
         let update = self.scene.poll(budget);
         self.renderer.apply(gpu, update);

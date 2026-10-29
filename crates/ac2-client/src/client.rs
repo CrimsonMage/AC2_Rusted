@@ -190,7 +190,7 @@ pub struct Client {
     /// Streaks a missile's body started or stopped, applied with the next FX events.
     pub(crate) pending_streaks: Vec<(u64, bool)>,
     /// Each physics object's `StoryManager` (retail keeps one on the `CPhysicsObj`), by object.
-    pub(crate) stories: std::collections::HashMap<u64, ac2_physics::StoryManager>,
+    pub(crate) stories: crate::client_story_missiles::Stories,
     /// Session events the story slot made outside a frame (the skip key, the session's end);
     /// they join the next frame's events.
     pub(crate) story_outbox: Vec<SessionEvent>,

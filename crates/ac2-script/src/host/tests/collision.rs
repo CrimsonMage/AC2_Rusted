@@ -348,7 +348,9 @@ fn a_mask_efun_with_an_unknown_property_changes_nothing() {
         ntype::COLLISION_PARAMETERS,
         NativeObject::CollisionParameters(CollisionParameters::default()),
     );
-    let unknown = [0, 0x7EAD_BEEF];
+    // One word, the name; the result in the slot below it (`CallEFun_UpdatePhysicsType` reads
+    // `sp - 8` and writes `sp - 0xC`).
+    let unknown = [0x7EAD_BEEF];
     for id in [
         0x001A_000B,
         0x001A_000C,
@@ -358,7 +360,7 @@ fn a_mask_efun_with_an_unknown_property_changes_nothing() {
         0x001A_0008,
     ] {
         assert_eq!(
-            efun_result(&mut host.vm, id, &unknown, native, 4),
+            efun_result(&mut host.vm, id, &unknown, native, 3),
             0,
             "{id:#010x}"
         );
@@ -392,7 +394,7 @@ fn a_mask_efun_answers_the_master_property_table() {
     for name in [0x4000_0038_u32, 0x4000_001B, 0x4000_0026, 0x4000_001C] {
         // `MasterProperty::GetPropertyDesc` answers only for a bool property.
         let known = ac2_db::ac2_property_type(name) == Some(0x4000_0001);
-        let answer = efun_result(&mut host.vm, 0x001A_000B, &[0, name], native, 4);
+        let answer = efun_result(&mut host.vm, 0x001A_000B, &[name], native, 3);
         assert_eq!(
             answer,
             u32::from(known),

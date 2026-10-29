@@ -507,7 +507,7 @@ impl Client {
 
     /// `PHYSICSOBJREP::GetHoldingLocation`: holding location `location` of the object `holder`,
     /// from the holder's loaded Setup. `None` while its body is not in, or the Setup lacks it.
-    fn holding_point(&self, holder: u64, location: u32) -> Option<HoldPoint> {
+    pub(crate) fn holding_point(&self, holder: u64, location: u32) -> Option<HoldPoint> {
         let visual = self.session.objects().get(holder)?.visual;
         let body = self.remotes.body_data(visual)?;
         ac2_physics::find_holding_point(&body.holding, location)
@@ -542,7 +542,17 @@ impl Client {
                     mode: None,
                     animated_mode: Some(body.mode()),
                     motion: [0.0; 3],
-                    holder: None,
+                    // A story missile hangs from its attacker until it fires (`SetParent`).
+                    holder: self
+                        .stories
+                        .missile_parent(id)
+                        .map(|(holder, location)| Holder {
+                            id: holder,
+                            location,
+                            orientation: None,
+                            point: self.holding_point(holder, location),
+                            offset: ac2_physics::ChildInfo::holding(id, location).offset,
+                        }),
                     fx_follow: remote.fx_follow(),
                     container: None,
                     wielder: None,
@@ -602,9 +612,9 @@ impl Client {
 
     /// `CPhysicsObj::m_posDrawing` of each missile that `HasParent`: where the holder's holding
     /// location puts it, which `CMissileManager::InitPosition` starts the flight from. The child
-    /// graph is the session's object table; a missile without a parent has none.
+    /// graph is the session's object table; a missile without a parent has none. The story
+    /// missiles the client made follow ([`Client::story_missiles_quantum`]).
     pub(crate) fn missile_parent_positions(&mut self) {
-        let scale_of = |body: &ac2_physics::PhysicsBody| body.object_view().scale;
         let launched: Vec<u64> = self
             .remotes
             .iter()
@@ -616,31 +626,38 @@ impl Client {
             let placed = links
                 .parent_of(id)
                 .zip(links.info_of(id))
-                .and_then(|(holder, info)| {
-                    let holder_body = match self.player.as_ref().filter(|p| p.id == holder) {
-                        Some(player) => &player.body.as_ref()?.physics,
-                        None => self.remotes.get(holder)?.body()?,
-                    };
-                    let position = holder_body.drawing_position(self.render_interpolation);
-                    let point = self.holding_point(holder, info.location);
-                    let bone = match info.kind {
-                        ac2_physics::ChildType::BoneIndex => {
-                            holder_body.bone_transform(info.location)
-                        }
-                        _ => None,
-                    }
-                    .unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
-                    ac2_physics::parent_drawing_position(
-                        &position,
-                        scale_of(holder_body),
-                        info,
-                        bone,
-                        point.as_ref(),
-                    )
-                });
+                .and_then(|(holder, info)| self.held_drawing_position(holder, info));
             if let Some(body) = self.remotes.body_mut(id) {
                 body.set_parent_drawing_position(placed);
             }
         }
+        self.story_missiles_quantum();
+    }
+
+    /// Where `holder`'s child `info` is drawn (`CPhysicsObj::UpdateChild` on the holder's drawing
+    /// position): `None` while the holder has no body.
+    pub(crate) fn held_drawing_position(
+        &self,
+        holder: u64,
+        info: &ac2_physics::ChildInfo,
+    ) -> Option<ac2_physics::Position> {
+        let holder_body = match self.player.as_ref().filter(|p| p.id == holder) {
+            Some(player) => &player.body.as_ref()?.physics,
+            None => self.remotes.get(holder)?.body()?,
+        };
+        let position = holder_body.drawing_position(self.render_interpolation);
+        let point = self.holding_point(holder, info.location);
+        let bone = match info.kind {
+            ac2_physics::ChildType::BoneIndex => holder_body.bone_transform(info.location),
+            _ => None,
+        }
+        .unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
+        ac2_physics::parent_drawing_position(
+            &position,
+            holder_body.object_view().scale,
+            info,
+            bone,
+            point.as_ref(),
+        )
     }
 }

@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 94 done, 36 partial, 86 to do, 46 skipped.
+262 retail functions: 94 done, 38 partial, 84 to do, 46 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -113,7 +113,7 @@ Legend and workflow: [README](README.md).
 - [x] `CObjectMaint::DestroyObject` · 004d7730 · legions 004ca1a0
 - [x] `CObjectMaint::FadeAndDestroyObject` · 004d7770 · legions 004ca1e0 — ac2-weenie World::fade_and_destroy_object (pending deletion at cur_time + destruction, only for an object in the table) with the fade slider in ac2-smartbox missile_follow.rs; FX objects keep their own FxObjects::fade_and_destroy (0.5, 3.0)
 - [x] `CObjectMaint::GotoLostCell` · 004d77e0 · legions 004ca250 — ac2-client remote.rs (lost-cell table)
-- [ ] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [~] `CObjectMaint::InitializeTemporaryObject` · 004d7840 · legions 004ca2b0 — story missiles: ac2-client client_story_missiles.rs destroys one MISSILE_TIMEOUT_TIME after it is made (m_temporaryObjectDestructionQueue); FX objects keep their FX lifetimes
 - [ ] `CObjectMaint::AllocateTemporaryID` · 004d7c10 · legions 004ca680 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 
 ### _STL::_Rb_tree<unsigned_long,_STL::pair<unsigned_long_const_,SliderData>,_STL::_Select1st<_STL::pair<unsigned_long_const_,SliderData>_>,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,SliderData>_>_>
@@ -132,7 +132,7 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsDesc::operator=` · 004d80e0 · legions 004cab50 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 
 ### CObjectMaint
-- [ ] `CObjectMaint::CreateTemporaryObject` · 004d8310 · legions 004cad80 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
+- [~] `CObjectMaint::CreateTemporaryObject` · 004d8310 · legions 004cad80 — ac2-smartbox remotes.rs create_local (temporary ids 0x13FF_FE.. for FX objects, 0x13FF_FD.. for story missiles); a temporary object with no appearance draws its entity's visual (ac2-client view.rs, ac2-assets resolve_drawn_groups). No m_used_temporary_ids reuse
 - [ ] `CObjectMaint::DestroyEventQueue` · 004d8400 · legions 004cae70 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 - [ ] `CObjectMaint::StartEntityCreation` · 004d84a0 · legions 004caf10 — needs port (check): object table, creation, temporary ids, event queues and destruction (CObjectMaint); ac2-weenie world.rs covers parts but none is cited here
 - [~] `CObjectMaint::DestroyObjectInternal` · 004d86f0 · legions 004cb160 — table, both queues and the event queue; no weenie or physics teardown hooks

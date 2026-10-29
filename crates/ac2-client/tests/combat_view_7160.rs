@@ -18,7 +18,8 @@ use ac2_net::Credential;
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent};
 use legions_server_double::{
     addr, double, object_event_bytes, position_bytes, ObjectPosition, Spawn, BEHAVIOR_MELEE_AUTO,
-    BEHAVIOR_MELEE_NORMAL, CREATURE_ONE, DRUDGE_VISUAL, MODE_COMBAT_MONSTER, PLAYER, SERVER,
+    BEHAVIOR_MELEE_NORMAL, BOW_AUTO_ATTACK, CREATURE_ONE, DRUDGE_VISUAL, MODE_COMBAT_MONSTER,
+    PLAYER, SERVER,
 };
 
 /// `gmbehaviors.emp`'s `Damage_Hit1`: a hit's reaction on its target.
@@ -393,4 +394,86 @@ fn a_skill_story_plays_the_skills_effects_on_the_attacker() {
             "the skill's particles draw around the player ({systems} systems, {alive} alive)"
         );
     }
+}
+
+/// A bow attack's story (`Hum_Mi_AutoAttackMissile1`): its hooks make the arrow the script names
+/// (`GetMissileInformationFromWSL`: entity `0x470000BE` in holding location 4), hang it from the
+/// player and fire it at the drudge (`StoryManager::CreateAndParentMissiles`, `FireMissile`). The
+/// arrow flies under its missile manager from the player's hand and sticks in the drudge
+/// (`sticks_upon_collide`), drawn on the way.
+#[test]
+fn a_bow_story_fires_an_arrow_into_the_drudge() {
+    let Some((mut client, server, mut scene)) = setup() else {
+        return;
+    };
+    let player = client.frame().player.as_ref().expect("the player").origin;
+    server
+        .borrow_mut()
+        .send_missile_story(PLAYER, CREATURE_ONE, BOW_AUTO_ATTACK);
+    let drudge = client
+        .frame()
+        .objects
+        .iter()
+        .find(|o| o.id == CREATURE_ONE)
+        .map(|o| o.origin)
+        .expect("the drudge is drawn");
+    let flat = |a: [f32; 3], b: [f32; 3]| ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2)).sqrt();
+    let mut distances = Vec::new();
+    for i in 0..24 {
+        step(&mut client, &server, &FrameInput::default());
+        let missiles = client.story_missiles();
+        assert!(missiles.len() <= 1, "one arrow: {missiles:?}");
+        let Some(&(_, _, Some(at), flying)) = missiles.first() else {
+            continue;
+        };
+        let o = at.frame.origin;
+        let at = [o.x, o.y, o.z];
+        // Made at the player; its body loads first, and the next physics quantum gives it its
+        // missile manager, places it at the hand and fires it.
+        if !flying {
+            assert!(flat(at, player) < 0.5, "made at the player: {at:?}");
+            continue;
+        }
+        distances.push(flat(at, drudge));
+        if i % 4 == 0 {
+            scene.draw(&client.frame(), &format!("arrow_{i}.png"));
+        }
+    }
+    assert!(!distances.is_empty(), "the arrow flies");
+    assert!(
+        distances.windows(2).all(|w| w[1] <= w[0] + 0.01),
+        "the arrow closes on the drudge: {distances:?}"
+    );
+    assert!(
+        *distances.last().unwrap() < 1.0,
+        "the arrow sticks in the drudge: {distances:?}"
+    );
+    scene.draw(&client.frame(), "arrow_stuck.png");
+    // Stuck, the arrow is mostly inside the drudge, and in flight it points away from the camera
+    // behind the player. Moved into the open, it draws: a temporary object draws its entity's
+    // visual (`ICPhysicsObj::makeObject`).
+    let mut open = client.frame();
+    let player = open.player.as_ref().expect("the player").clone();
+    let arrow = open
+        .objects
+        .iter_mut()
+        .find(|o| Some(o.id) == client.story_missiles().first().map(|m| m.0))
+        .expect("the arrow is in the frame");
+    arrow.cell = player.cell;
+    // Beside the player and across the view (its shaft north-south), not end-on behind it.
+    arrow.origin = [
+        player.origin[0] + 2.0,
+        player.origin[1] + 1.0,
+        player.origin[2] + 1.5,
+    ];
+    arrow.rotation = [1.0, 0.0, 0.0, 0.0];
+    let with = scene.draw(&open, "arrow_open.png");
+    open.objects.retain(|o| o.id >> 56 != 0x13);
+    let without = scene.draw(&open, "arrow_open_without.png");
+    let changed = with
+        .chunks(4)
+        .zip(without.chunks(4))
+        .filter(|(a, b)| a != b)
+        .count();
+    assert!(changed > 20, "the arrow draws: {changed} pixels");
 }
