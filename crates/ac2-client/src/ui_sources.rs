@@ -30,7 +30,7 @@ pub(crate) struct ClientPlayer<'a> {
 
 impl ClientPlayer<'_> {
     /// The UI text view over the frame's tables.
-    fn ui(&self) -> UiText<'_> {
+    pub(crate) fn ui(&self) -> UiText<'_> {
         UiText::new(self.strings, self.ui_table, self.enums)
     }
 
@@ -275,6 +275,10 @@ impl ShortcutSource for ClientPlayer<'_> {
     /// `CObjectMaint::GetWeenieObject`: the inventory's view of the item.
     fn item(&self, item: u64) -> Option<ac2_ui::ItemSlot> {
         ac2_ui::InventorySource::item(self, item)
+    }
+
+    fn waiting_tooltip(&self) -> Option<String> {
+        ac2_ui::InventorySource::waiting_tooltip(self)
     }
 }
 

@@ -42,6 +42,16 @@ pub struct ItemSlot {
 pub trait InventorySource {
     /// The item, if the client knows it (`CObjectMaint::GetWeenieObject`).
     fn item(&self, item: u64) -> Option<ItemSlot>;
+    /// `ID_Item_TT_WaitingForServer` when the UI table holds it (`StringInfo::IsReady`); none
+    /// by default, and then the icon's `tooltip_entry` shows (`StartTooltip`).
+    fn waiting_tooltip(&self) -> Option<String> {
+        None
+    }
+    /// `GetName(quantity)` (`gmEntity` 0x10B) of a known item, rendered; none by default, and
+    /// then the item's own name shows.
+    fn item_name(&self, _item: u64, _quantity: u32) -> Option<String> {
+        None
+    }
     /// `gmCWInterface::GetContentsInfo`: the container's contents, and the first slot and slot
     /// count of segment `segment`.
     fn contents_info(&self, container: u64, segment: u32) -> (Vec<u64>, u32, u32);
@@ -237,6 +247,9 @@ pub struct ItemDisplay {
     pending: bool,
     draggable: bool,
     waiting: bool,
+    /// `m_quantityExternal` / `m_forceQuantity`: the quantity the name is given at instead of
+    /// the item's own (`SetQuantity`).
+    force_quantity: Option<u32>,
 }
 
 impl ItemDisplay {
@@ -274,6 +287,7 @@ impl ItemDisplay {
             pending: false,
             draggable: true,
             waiting: false,
+            force_quantity: None,
         };
         display.update(tree, s);
         Some(display)
@@ -290,7 +304,7 @@ impl ItemDisplay {
                 tree.clear_image(self.icon);
                 background_state = id("pending");
                 self.waiting = true;
-                tree.set_tooltip(self.icon, None);
+                tree.set_tooltip(self.icon, s.waiting_tooltip());
             }
             Some(slot) => {
                 // `ItemDisplay::Update`: the icon description when the item has one
@@ -302,7 +316,12 @@ impl ItemDisplay {
                 }
                 self.waiting = false;
                 background_state = if pending { id("pending") } else { STATELESS };
-                tree.set_tooltip(self.icon, Some(slot.name));
+                // `GetName` at the forced quantity, else the item's own.
+                let name = self
+                    .force_quantity
+                    .and_then(|quantity| s.item_name(self.item, quantity))
+                    .unwrap_or(slot.name);
+                tree.set_tooltip(self.icon, Some(name));
             }
         }
         tree.set_state(self.background, background_state);
@@ -318,6 +337,12 @@ impl ItemDisplay {
     /// `ItemDisplay::SetPending`.
     pub fn set_pending(&mut self, tree: &mut UiTree, s: &dyn InventorySource, pending: bool) {
         self.pending = pending;
+        self.update(tree, s);
+    }
+
+    /// `ItemDisplay::SetQuantity`: the item is named at `quantity` (a trade's offered count).
+    pub fn set_quantity(&mut self, tree: &mut UiTree, s: &dyn InventorySource, quantity: u32) {
+        self.force_quantity = Some(quantity);
         self.update(tree, s);
     }
 

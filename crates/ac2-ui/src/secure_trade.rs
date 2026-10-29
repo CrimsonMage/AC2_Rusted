@@ -425,9 +425,16 @@ impl SecureTradeUi {
 
     /// `gmSecureTradeUI::AddItem`: an item joins the side's list, unless it is listed already.
     /// Its icon is dragable only on the player's side, and it is not a shortcut (so it cannot be
-    /// dropped back on a list). The offered count is not modelled: retail passes the item's high
-    /// dword to `SetQuantity`, and the icon keeps no count here.
-    fn add_item(&mut self, tree: &mut UiTree, s: &dyn InventorySource, src: u64, item: u64) {
+    /// dropped back on a list). It is named at the offered count (`SetQuantity(num)`: Legions
+    /// 0x42130a passes the fifth argument; the decompile shows the item's high dword).
+    fn add_item(
+        &mut self,
+        tree: &mut UiTree,
+        s: &dyn InventorySource,
+        src: u64,
+        item: u64,
+        num: u32,
+    ) {
         let side = self.side_of(src);
         let Some(field) = self.field else {
             return;
@@ -454,6 +461,7 @@ impl SecureTradeUi {
             return;
         };
         display.set_draggable(tree, s, side == Side::Own);
+        display.set_quantity(tree, s, num);
         display.set_shortcut_type(tree, 0);
         self.items_mut(side).push(display);
     }
@@ -466,10 +474,10 @@ impl SecureTradeUi {
         s: &dyn InventorySource,
         src: u64,
         item: u64,
-        _amount: u32,
+        amount: u32,
     ) {
         if self.shown {
-            self.add_item(tree, s, src, item);
+            self.add_item(tree, s, src, item, amount);
         }
     }
 

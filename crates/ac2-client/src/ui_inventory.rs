@@ -9,6 +9,15 @@ use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
 impl InventorySource for ClientPlayer<'_> {
+    fn waiting_tooltip(&self) -> Option<String> {
+        self.ui().ready_ui_string("ID_Item_TT_WaitingForServer")
+    }
+
+    fn item_name(&self, item: u64, quantity: u32) -> Option<String> {
+        let name = self.client.borrow().item_name_at(item, quantity)?;
+        Some(self.render_info(&name))
+    }
+
     fn item(&self, item: u64) -> Option<ItemSlot> {
         let frame = self.frame.inventory.items.iter().find(|i| i.id == item)?;
         Some(ItemSlot {

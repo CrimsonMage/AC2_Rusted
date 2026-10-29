@@ -92,6 +92,10 @@ pub trait ShortcutSource {
     fn item(&self, _item: u64) -> Option<crate::ItemSlot> {
         None
     }
+    /// `ID_Item_TT_WaitingForServer` when the UI table holds it (`IsReady`; none by default).
+    fn waiting_tooltip(&self) -> Option<String> {
+        None
+    }
     /// `gmCWInterface::IsSkillUsableBasedOnInventoryByEnum`: a skill the inventory does not
     /// allow is kept on a long meter (`CheckSkill`).
     fn skill_usable(&self, _skill: u32) -> bool {
@@ -335,8 +339,8 @@ impl ShortcutUi {
     }
 
     /// `gmShortcutUI::FIXMESetupItemElement`: an item the client does not know yet waits for
-    /// its object (`_pendingCreate`, `pending`, tooltip `ID_Item_TT_WaitingForServer`, missing
-    /// from the DVD string table); a known one shows its icon description, else its icon, and
+    /// its object (`_pendingCreate`, `pending`, tooltip `ID_Item_TT_WaitingForServer`; the DVD's
+    /// UI table lacks it, so `StartTooltip` shows the template's `tooltip_entry`); a known one shows its icon description, else its icon, and
     /// its name at its quantity, `stateless`.
     fn setup_item_element(
         &mut self,
@@ -352,7 +356,7 @@ impl ShortcutUi {
         let state = match source.item(object) {
             None => {
                 self.pending.push((object, index));
-                tree.set_tooltip(element, None);
+                tree.set_tooltip(element, source.waiting_tooltip());
                 "pending"
             }
             Some(slot) => {

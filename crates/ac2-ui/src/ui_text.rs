@@ -247,6 +247,21 @@ impl<'a> UiText<'a> {
         String::from_utf16_lossy(&ac2_db::get_string(self.strings, &info, false))
     }
 
+    /// A string of the UI table when it is ready (`StringInfo::IsReady`: its table holds it),
+    /// as the text shown; `None` when the table lacks it, so a tooltip falls back to the
+    /// element's `tooltip_entry` (`UIElementManager::StartTooltip`).
+    pub fn ready_ui_string(&self, name: &str) -> Option<String> {
+        let info = RenderInfo {
+            string_id: tokenize(name),
+            table_id: self.ui_table,
+            literal: None,
+            variables: Vec::new(),
+        };
+        ac2_db::inq_string(self.strings, &info, false)
+            .ok()
+            .map(|text| String::from_utf16_lossy(&text))
+    }
+
     /// `ID_Inventory_TT_Durability` with `current` and `max`, as the text shown.
     pub fn durability_tooltip(&self, current: i32, max: i32) -> Option<String> {
         let info = RenderInfo {

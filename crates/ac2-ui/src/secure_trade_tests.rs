@@ -57,6 +57,10 @@ impl InventorySource for Pack {
     fn player(&self) -> u64 {
         PLAYER
     }
+
+    fn item_name(&self, item: u64, quantity: u32) -> Option<String> {
+        (item == POTIONS).then(|| format!("{quantity} Healing Potions"))
+    }
 }
 
 /// `ID(name=value)` for each rendered string.
@@ -257,6 +261,16 @@ fn a_pack_item_dropped_on_the_list_asks_offer_and_a_stack_asks_the_stack_dialog_
     // An answer to another stack offers nothing.
     panel.recv_stack_ui_done(context + 1, 3);
     assert!(panel.take_requests().is_empty());
+
+    // Three of the five offered: the slot names the potions at the offered three
+    // (`ItemDisplay::SetQuantity`).
+    panel.recv_trade_be_offered(tree, &Pack, PLAYER, POTIONS, 3);
+    let slot = tree.list_items(own)[1];
+    let icon = tree.child(slot, tokenize("ItemIcon")).expect("the icon");
+    assert_eq!(
+        tree.tooltip_text(icon).as_deref(),
+        Some("3 Healing Potions")
+    );
 }
 
 #[test]

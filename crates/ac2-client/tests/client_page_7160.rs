@@ -468,3 +468,19 @@ fn the_render_verification_question_is_the_one_the_ui_table_lacks() {
         .string(table, tokenize("ID_Option_RenderText"))
         .is_none());
 }
+
+/// `ID_Item_TT_WaitingForServer` (`FIXMESetupItemElement`, `ItemDisplay::Update`) is not in the
+/// DVD's UI table either, so `StringInfo::IsReady` fails and a waiting item's tooltip is the
+/// element's own `tooltip_entry` (`UIElementManager::StartTooltip`).
+#[test]
+fn the_waiting_for_server_tooltip_is_not_in_the_ui_table() {
+    let Some(store) = dataset_store() else {
+        return;
+    };
+    let hud = build_gameplay_hud(&store, 1024, 768).expect("the HUD");
+    let text = hud.tree.text_data().expect("the text data");
+    let table = hud.ui_table.expect("the UI string table");
+    assert!(text
+        .string(table, tokenize("ID_Item_TT_WaitingForServer"))
+        .is_none());
+}

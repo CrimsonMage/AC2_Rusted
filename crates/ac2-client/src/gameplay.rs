@@ -873,6 +873,17 @@ impl Client {
         }
     }
 
+    /// `GetName(quantity)` (`gmEntity` 0x10B) of a known object at `quantity`.
+    pub(crate) fn item_name_at(
+        &self,
+        item: u64,
+        quantity: u32,
+    ) -> Option<ac2_net::protocol::StringInfo> {
+        let object = self.session.objects().get(item)?;
+        let tables = self.session.player_script().string_tables();
+        Some(ac2_weenie::ItemStats::of(&object.qualities).display_name(quantity, tables))
+    }
+
     /// The selection for [`crate::ClientFrame::selection`].
     pub(crate) fn selection_frame(&self) -> Option<SelectionFrame> {
         let selection = self.session.progress().selection;

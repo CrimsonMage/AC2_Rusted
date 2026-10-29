@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1291 done, 332 partial, 130 to do, 494 skipped.
+2247 retail functions: 1294 done, 330 partial, 129 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (33/53)
@@ -412,7 +412,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [x] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
-## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (24/27)
+## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (25/27)
 
 ### gmSecureTradeUI
 - [x] `gmSecureTradeUI::Show` · 00420a90 · legions 004208c0 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
@@ -437,7 +437,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSecureTradeUI::RecvNotice_CloseConfirmationDialog` · 00421230 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
 - [x] `gmSecureTradeUI::MakeAcceptTradeDialog` · 00421250 · legions 00421080 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeRegistered` · 004212d0 — ac2-ui secure_trade.rs: recv_* notice methods (StackUIDone, BeAcceptanceCleared, BeAccepted, BeDeclined, BeOpened, DoAcceptTrade, HandleListBoxDrop, CloseConfirmationDialog, MakeAcceptTradeDialog, BeRegistered); client ui_inventory::secure_trade_notice
-- [~] `gmSecureTradeUI::AddItem` · 00421380 · legions 004211b0 — ac2-ui secure_trade.rs add_item: the list, the draggable test (src == player) and the no-shortcut icon are as retail; the SetQuantity count (retail passes the item's high dword) is not modelled
+- [x] `gmSecureTradeUI::AddItem` · 00421380 · legions 004211b0 — ac2-ui secure_trade.rs add_item (Legions 0x4211b0): the list, the draggable test (src == player), named at the offered count (SetQuantity(num): Legions 0x42130a pushes the fifth argument; the decompile mislabels it the item's high dword) and the no-shortcut icon
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeOffered` · 00421550 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RemoveItem` · 00421590 · legions 004213c0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeRevoked` · 00421690 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (10/15)
+## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (12/15)
 
 ### ItemDisplay
 - [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
@@ -797,11 +797,11 @@ Legend and workflow: [README](README.md).
 - [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
 - [ ] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — Legions has it: ItemDisplay notice vtable slot 146 at 0x0042eb10 (admin slot 145, shifted by one; same size and calls)
-- [~] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [x] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — ac2-ui item_display.rs update: waiting (ID_Item_TT_WaitingForServer when the UI table holds it, else the icon's tooltip_entry as StartTooltip falls back), icon description or icon, GetName at the forced or own quantity, pending/stateless background, dragable, selected; the object's notice registration is the session's routing
 - [x] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::SetDraggable` · 0042ef30 · legions 0042ee30 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40 — needs port (check): ItemDisplay::SetQuantity behaviour; implemented area ac2-ui item_display.rs but uncited
+- [x] `ItemDisplay::SetQuantity` · 0042ef40 · legions 0042ee40 — ac2-ui item_display.rs set_quantity: the name at the forced quantity (InventorySource::item_name, ac2-client Client::item_name_at)
 - [x] `ItemDisplay::SetShortcutType` · 0042ef60 · legions 0042ee60 — ItemDisplay::SetShortcutType done: item_display.rs set_shortcut_type cites it
 - [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
@@ -1144,7 +1144,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [ ] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — Legions has it: vtable slot 10 of gmShortcutUI at 0x004377c0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
-- [x] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — ac2-ui shortcut.rs setup_item_element (Legions 0x437830): unknown weenie queued pending (ID_Item_TT_WaitingForServer is missing from the DVD string table, so no tooltip); else icon desc (set_icon_desc) or icon, name at quantity tooltip, stateless
+- [x] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — ac2-ui shortcut.rs setup_item_element (Legions 0x437830): unknown weenie queued pending with ID_Item_TT_WaitingForServer when the UI table holds it (the DVD's lacks it: IsReady fails and StartTooltip shows the template's tooltip_entry); else icon desc (set_icon_desc) or icon, name at quantity tooltip, stateless
 - [-] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — ac2-ui shortcut.rs create_object (Legions 0x437ae0), routed by shortcut_checks_of(GameplayNotice::CreateObject): each slot waiting on the object set up again; the per-object 0x1040c handler registration is the session's notice routing
 - [x] `gmShortcutUI::MakeElement` · 00437320 · legions 00437b70 — ac2-ui shortcut.rs make_element (Legions 0x437b70): type/index/data attributes, dragable, number, alias text, InqShortcutInfo tooltip and icon, item setup (FIXMESetupItemElement), ghosted past 100
