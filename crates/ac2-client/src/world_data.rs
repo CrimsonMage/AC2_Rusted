@@ -78,12 +78,18 @@ pub struct DatWorld {
 
 impl DatWorld {
     pub fn new(store: Arc<ResourceStore>) -> Result<Self, String> {
-        // `MasterProperty` names for the collision sets (`MasterProperty::GetPropertyDesc`),
-        // read here on the preload path, never on the frame thread.
-        ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
         let world = Ac2WorldSource::open(Arc::clone(&store))
             .map_err(|e| e.to_string())?
             .ok_or("no AC2 landscape in the DATs")?;
+        Self::with_world(store, world)
+    }
+
+    /// As [`DatWorld::new`] over a landscape source already open on `store` (the world viewer's,
+    /// which its session shares).
+    pub fn with_world(store: Arc<ResourceStore>, world: Arc<Ac2WorldSource>) -> Result<Self, String> {
+        // `MasterProperty` names for the collision sets (`MasterProperty::GetPropertyDesc`),
+        // read here on the preload path, never on the frame thread.
+        ac2_db::install_ac2_property_types(&store).map_err(|e| e.to_string())?;
         Ok(Self {
             store,
             world,

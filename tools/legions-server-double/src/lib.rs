@@ -63,8 +63,9 @@ pub use effects::{
     EFFECT_TIMED, REMOVE_EFFECT,
 };
 pub use items::{
-    item_object_bytes, segments, starter_items, ItemSpawn, MAIN_PACK_CAPACITY, PACK, POTIONS,
-    PRIMARY_HAND, RATIONS, SECONDARY_HAND, STARTER_MONEY, SWORD,
+    item_object_bytes, segments, starter_items, ItemSpawn, ICON_COIN, ICON_PACK, ICON_POTION,
+    ICON_RATION, ICON_SHIELD, ICON_SWORD, MAIN_PACK_CAPACITY, PACK, POTIONS, PRIMARY_HAND,
+    RATIONS, SECONDARY_HAND, SHIELD, STARTER_MONEY, SWORD,
 };
 pub use lossy::LossyTransport;
 pub use objects::{

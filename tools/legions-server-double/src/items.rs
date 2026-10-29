@@ -16,6 +16,18 @@ pub const PACK: u64 = 0x8000_0000_0000_0101;
 pub const POTIONS: u64 = 0x8000_0000_0000_0102;
 pub const SWORD: u64 = 0x8000_0000_0000_0103;
 pub const RATIONS: u64 = 0x8000_0000_0000_0104;
+/// The worn starter shield ([`State::give_starter_gear`]).
+pub const SHIELD: u64 = 0x8000_0000_0000_0105;
+
+/// The starter items' icons: real RenderSurfaces of the Legions portal DAT, so the inventory
+/// draws them (`icon_it_uncoverpast_satchel`, `icon_it_potion`, `icon_it_swordbasicggw`,
+/// `icon_it_flatbread_siege_stores`, `icon_it_pyrealblue`, `icon_it_hum_shield_basicroundshield_pri`).
+pub const ICON_PACK: u32 = 0x4100_7F6F;
+pub const ICON_POTION: u32 = 0x4100_6F03;
+pub const ICON_SWORD: u32 = 0x4100_829F;
+pub const ICON_RATION: u32 = 0x4100_A146;
+pub const ICON_COIN: u32 = 0x4100_A21E;
+pub const ICON_SHIELD: u32 = 0x4100_441B;
 /// The player's own pack's slots (int 280 on the player).
 pub const MAIN_PACK_CAPACITY: i32 = 24;
 /// The money the starter inventory comes with.
@@ -112,14 +124,14 @@ pub fn item_object_bytes(item: &ItemSpawn) -> Vec<u8> {
 pub fn starter_items() -> Vec<ItemSpawn> {
     vec![
         ItemSpawn {
-            icon: 0x0600_1000,
+            icon: ICON_PACK,
             value: 10,
             capacity: Some(24),
             ..ItemSpawn::new(PACK, CONTAINER_PACKAGE, "Pack", PLAYER)
         },
         ItemSpawn {
             plural: Some("Healing Potions"),
-            icon: 0x0600_1001,
+            icon: ICON_POTION,
             quantity: Some(5),
             value: 20,
             stackable: true,
@@ -127,7 +139,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
             ..ItemSpawn::new(POTIONS, 0x1AA9, "Healing Potion", PLAYER)
         },
         ItemSpawn {
-            icon: 0x0600_1002,
+            icon: ICON_SWORD,
             value: 50,
             durability: Some((40, 50)),
             locations: Some((PRIMARY_HAND | SECONDARY_HAND, PRIMARY_HAND)),
@@ -135,7 +147,7 @@ pub fn starter_items() -> Vec<ItemSpawn> {
         },
         ItemSpawn {
             plural: Some("Rations"),
-            icon: 0x0600_1003,
+            icon: ICON_RATION,
             quantity: Some(3),
             value: 2,
             stackable: true,
@@ -185,33 +197,7 @@ impl State {
     pub fn give_starter_items(&mut self) {
         let items = starter_items();
         for item in &items {
-            self.send_event(&item_object_bytes(item));
-            let object = Some(InstanceIdWithStamp {
-                id: item.id,
-                instance: 1,
-                other: 0,
-            });
-            let mut qualities = Vec::new();
-            if item.stackable {
-                qualities.push((700, QualityValue::Bool(1)));
-            }
-            if let Some(max) = item.max_stack {
-                qualities.push((261, QualityValue::Int(max)));
-            }
-            if let Some(capacity) = item.capacity {
-                qualities.push((280, QualityValue::Int(capacity)));
-            }
-            if let Some((valid, preferred)) = item.locations {
-                qualities.push((275, QualityValue::Int(valid as i32)));
-                qualities.push((282, QualityValue::Int(preferred as i32)));
-            }
-            for (quality, value) in qualities {
-                self.send_quality(&QualityUpdate {
-                    object,
-                    quality,
-                    value,
-                });
-            }
+            self.send_item(item);
         }
         self.send_private(280, QualityValue::Int(MAIN_PACK_CAPACITY));
         let player = self.player();
@@ -229,6 +215,55 @@ impl State {
         self.give_money(STARTER_MONEY);
     }
 
+    /// An item's object and its stackable, stack, capacity and equip-location qualities.
+    fn send_item(&mut self, item: &ItemSpawn) {
+        self.send_event(&item_object_bytes(item));
+        let object = Some(InstanceIdWithStamp {
+            id: item.id,
+            instance: 1,
+            other: 0,
+        });
+        let mut qualities = Vec::new();
+        if item.stackable {
+            qualities.push((700, QualityValue::Bool(1)));
+        }
+        if let Some(max) = item.max_stack {
+            qualities.push((261, QualityValue::Int(max)));
+        }
+        if let Some(capacity) = item.capacity {
+            qualities.push((280, QualityValue::Int(capacity)));
+        }
+        if let Some((valid, preferred)) = item.locations {
+            qualities.push((275, QualityValue::Int(valid as i32)));
+            qualities.push((282, QualityValue::Int(preferred as i32)));
+        }
+        for (quality, value) in qualities {
+            self.send_quality(&QualityUpdate {
+                object,
+                quality,
+                value,
+            });
+        }
+    }
+
+    /// The starter gear, after [`State::give_starter_items`] and before the player's login state
+    /// ([`State::send_init_player`]): a round shield worn in the off hand and the practice sword
+    /// wielded, so the paper doll's slots show worn items (the world viewer's session).
+    pub fn give_starter_gear(&mut self) {
+        let shield = ItemSpawn {
+            icon: ICON_SHIELD,
+            value: 30,
+            durability: Some((60, 60)),
+            locations: Some((SECONDARY_HAND, SECONDARY_HAND)),
+            ..ItemSpawn::new(SHIELD, 0x1AAB, "Round Shield", self.player())
+        };
+        self.send_item(&shield);
+        self.inventory_move(SWORD, 0, -1);
+        let world = &mut self.script_world;
+        world.equipped.push((PRIMARY_HAND, SWORD));
+        world.equipped.push((SECONDARY_HAND, SHIELD));
+    }
+
     /// The coin stack of `amount` coins the double makes for `DragFromMoneyBag`: its object and
     /// stackable and maximum-stack qualities, then the container listed with it at `slot` (-1:
     /// the end). Returns its id.
@@ -237,7 +272,7 @@ impl State {
         c.coins_made += 1;
         let coin = ItemSpawn {
             plural: Some("Coins"),
-            icon: 0x0600_1006,
+            icon: ICON_COIN,
             quantity: Some(amount),
             stackable: true,
             max_stack: Some(COIN_MAX_STACK),

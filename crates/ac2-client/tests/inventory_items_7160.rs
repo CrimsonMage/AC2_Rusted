@@ -20,7 +20,7 @@ use ac2_script::{load_wlib, LEGIONS_WLIB_DID};
 use ac2_weenie::GameplayNotice;
 use common::*;
 use legions_server_double::{
-    Spawn, State, PACK, PLAYER, POTIONS, PRIMARY_HAND, RATIONS, SECONDARY_HAND, SWORD,
+    Spawn, State, ICON_POTION, PACK, PLAYER, POTIONS, PRIMARY_HAND, RATIONS, SECONDARY_HAND, SWORD,
 };
 
 /// Gives the starter items and opens the pack.
@@ -84,7 +84,7 @@ fn the_frame_carries_what_the_panels_show() {
     let stats = &potions.stats;
     assert_eq!(
         (stats.quantity, stats.stackable, stats.max_stack, stats.icon),
-        (5, true, Some(10), 0x0600_1001)
+        (5, true, Some(10), ICON_POTION)
     );
     assert_eq!((stats.value, stats.durability), (20, None));
     assert_eq!(stats.name.literal.as_deref(), Some("Healing Potion"));
@@ -138,7 +138,7 @@ fn the_items_processes_answer_from_their_tables() {
     let potions = client.item_display(POTIONS).unwrap();
     assert_eq!((potions.stackable, potions.max_stack), (true, 10));
     assert_eq!(potions.value, Some(20));
-    assert_eq!((potions.quantity, potions.icon), (5, 0x0600_1001));
+    assert_eq!((potions.quantity, potions.icon), (5, ICON_POTION));
     assert_eq!(potions.durability, None);
     let sword = client.item_display(SWORD).unwrap();
     assert!(!sword.stackable);

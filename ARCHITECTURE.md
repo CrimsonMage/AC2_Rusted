@@ -8,9 +8,10 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 - `crates/` is the client: libraries plus the `ac2-client` program.
 - `tools/` is test tooling only. `world-viewer` is an offline harness that drives the client's own
   view (`ac2_client::view::ClientView`) with a synthetic `ClientFrame` built from the DATs, so it
-  draws what the client draws (terrain, frills, water, sky, objects, the HUD) without a session:
+  draws what the client draws (terrain, frills, water, sky, objects, the HUD) without a server:
   it walks the world under the player camera (`ac2-smartbox`, `ac2-physics`) with an egui panel,
-  never opens a socket, and changes no client crate. `race-table` runs the `CharacterGenSystem`
+  and the HUD's session is the client logged on to `legions-server-double` in process (starter
+  inventory, worn gear, skills), so the toolbar's panels work. It never opens a socket. `race-table` runs the `CharacterGenSystem`
   script once and writes the playable race and sex models the viewer reads. `ac2hero-guide`
   and `ac2hero-map` are standalone egui tools for the in-client quest guide: the guide `ac2-guide`
   bakes from the AC2Hero site mirror (`AC2HERO_DIR`; nothing from it is committed), browsed with

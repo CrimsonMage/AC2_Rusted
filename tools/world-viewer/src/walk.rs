@@ -67,15 +67,20 @@ pub struct Landing {
 }
 
 impl Landing {
-    /// The outdoor cell and the position at the landing's ground (z is set once the terrain is
-    /// resident).
-    fn position(&self) -> Position {
+    /// The outdoor land cell the landing is in.
+    pub fn cell(&self) -> u32 {
         let square = ac2_physics::landdefs::SQUARE_LENGTH;
         let side = ac2_physics::landdefs::LBLOCK_SIDE;
         let cell_x = i32::from(self.block.0) * side + ((self.x / square) as i32).clamp(0, side - 1);
         let cell_y = i32::from(self.block.1) * side + ((self.y / square) as i32).clamp(0, side - 1);
+        lcoord_to_gid(cell_x, cell_y)
+    }
+
+    /// The outdoor cell and the position at the landing's ground (z is set once the terrain is
+    /// resident).
+    fn position(&self) -> Position {
         Position::new(
-            lcoord_to_gid(cell_x, cell_y),
+            self.cell(),
             Frame::new(Vector::new(self.x, self.y, 0.0), Quaternion::IDENTITY),
         )
     }

@@ -24,6 +24,7 @@ use crate::frame::client_frame;
 use crate::gui::Gui;
 use crate::panel::{Command, Mode, Panel, PanelView};
 use crate::races::PlayerModel;
+use crate::session::Session;
 use crate::walk::{actions, Landing, Walk, WalkInput};
 
 /// Frame-thread time a frame spends taking finished scene loads.
@@ -86,6 +87,9 @@ struct State {
     /// The world map under test, made on its first opening; whether its window is open.
     map: Option<ac2hero_map::WorldMap>,
     map_open: bool,
+    /// The HUD's session (`session.rs`); `None` when it could not start, and the HUD then runs
+    /// only its session-free parts (the guide, the world map, the Tracker).
+    session: Option<Session>,
 }
 
 impl ApplicationHandler for App {
@@ -143,6 +147,13 @@ impl ApplicationHandler for App {
             walk.set_model(model.visual);
             walk.teleport(setup.landing);
         }
+        let session = match Session::start(&setup.store, &setup.world, setup.landing) {
+            Ok(session) => Some(session),
+            Err(error) => {
+                eprintln!("world-viewer: no HUD session: {error}");
+                None
+            }
+        };
         let gui = Gui::new(&window, &gpu, format);
         let panel = Panel::new(setup.models, mode, setup.landing);
         self.state = Some(State {
@@ -166,6 +177,7 @@ impl ApplicationHandler for App {
             dat_dir: setup.dat_dir,
             map: None,
             map_open: false,
+            session,
         });
     }
 
@@ -244,7 +256,8 @@ impl ApplicationHandler for App {
                     state.walk.camera_action(actions::ZOOM_OUT, true);
                 }
             }
-            WindowEvent::RedrawRequested => state.frame(),
+            // A frame whose HUD confirmed the quit question closes the viewer.
+            WindowEvent::RedrawRequested if state.frame() => event_loop.exit(),
             _ => {}
         }
     }
@@ -418,7 +431,8 @@ impl State {
         }
     }
 
-    fn frame(&mut self) {
+    /// One frame; returns whether the HUD's quit question was confirmed.
+    fn frame(&mut self) -> bool {
         let now = Instant::now();
         let seconds = (now - self.last_frame).as_secs_f32().min(0.1);
         self.last_frame = now;
@@ -450,17 +464,23 @@ impl State {
         self.walk.speed = self.panel.speed;
         self.walk.update(seconds, time, input);
 
-        let frame = client_frame(
+        let mut frame = client_frame(
             self.panel.mode,
             &self.walk,
             &self.fly,
             self.model_visual(),
             self.time_of_day,
         );
+        let quit = match self.session.as_mut() {
+            Some(session) => session.frame(&mut self.view, &mut frame, f64::from(seconds)),
+            None => {
+                self.view.offline_frameworks(&frame);
+                false
+            }
+        };
         self.view.update(&self.gpu, &frame, LOAD_BUDGET);
-        self.view.offline_frameworks(&frame);
         let Some(output) = acquire_frame(&self.surface, &self.gpu.device, &self.config) else {
-            return;
+            return quit;
         };
         let target = output.texture.create_view(&Default::default());
         let aspect = self.config.width as f32 / self.config.height as f32;
@@ -528,6 +548,7 @@ impl State {
         for command in commands {
             self.apply(command);
         }
+        quit
     }
 }
 

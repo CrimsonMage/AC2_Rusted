@@ -10,8 +10,9 @@ workspace = true
 
 # Offline dev harness: drives the client's own view (`ac2_client::view::ClientView`) with a
 # synthetic `ClientFrame` built from the DATs alone, so it draws what the client draws (terrain,
-# frills, water, sky, interiors, objects, the HUD) without a session. It links the client's
-# libraries, never opens a socket and takes no server flag; it changes no client crate.
+# frills, water, sky, interiors, objects, the HUD) without a server. The HUD's session is the
+# client logged on to the Legions server double in process. It links the client's libraries,
+# never opens a socket and takes no server flag.
 [dependencies]
 ac2-client = { path = "../../crates/ac2-client" }
 ac2-core = { path = "../../crates/ac2-core" }
@@ -26,6 +27,10 @@ ac2-weenie = { path = "../../crates/ac2-weenie" }
 ac2-world = { path = "../../crates/ac2-world" }
 ac2-render = { path = "../../crates/ac2-render" }
 ac2-gpu = { path = "../../crates/ac2-gpu" }
+ac2-net = { path = "../../crates/ac2-net" }
+ac2-script = { path = "../../crates/ac2-script" }
+# The HUD's session: the client logged on to the double in process, never over a socket.
+legions-server-double = { path = "../legions-server-double" }
 # The world map under test (M): the quest guide's map widget over the landscape.
 ac2-guide = { path = "../../crates/ac2-guide" }
 ac2hero-map = { path = "../ac2hero-map" }
@@ -35,3 +40,6 @@ winit = "0.30"
 egui = { version = "0.37", features = ["default_fonts"] }
 egui-wgpu = { version = "0.37", default-features = false, features = ["wayland", "x11"] }
 egui-winit = { version = "0.37", default-features = false, features = ["clipboard", "links", "wayland", "x11"] }
+
+[dev-dependencies]
+ac2-dat = { path = "../../crates/ac2-dat", features = ["test-support"] }

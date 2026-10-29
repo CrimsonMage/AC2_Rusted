@@ -46,6 +46,8 @@
 //! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
 //! M opens the egui world map; G opens the client's quest guide (its In-Game Wiki) and T the
 //! Tracker's window, both on the HUD as in the client, and a HUD text field takes the typing.
+//! The HUD has a session (`session.rs`): the client logged on to the Legions server double in
+//! process, so the toolbar's panels work with a starter inventory, worn gear, skills and options.
 
 mod bench;
 mod crowd;
@@ -54,6 +56,7 @@ mod frame;
 mod gui;
 mod panel;
 mod races;
+mod session;
 mod walk;
 mod window;
 
