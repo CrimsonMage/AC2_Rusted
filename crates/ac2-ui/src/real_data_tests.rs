@@ -373,6 +373,8 @@ fn a_selection_behind_the_camera_shows_only_the_off_screen_indicator() {
         .unwrap()
         .rect
         .height();
+    // The top keeps the status bar's preclude and the name's room.
+    let top = reticle.precluded_top + name_h;
     let others: Vec<usize> = ["TargettingReticle", "SelectionName", "SelectionStuff"]
         .iter()
         .flat_map(|name| root(&tree, name))
@@ -402,9 +404,10 @@ fn a_selection_behind_the_camera_shows_only_the_off_screen_indicator() {
     assert_eq!((x, rotation), (0, 180));
     assert!(shown.contains(&indicator));
     assert!(others.iter().all(|r| !shown.contains(r)), "{others:?}");
-    // Far right and above: the top-right corner (below the name's room), turned 45 back.
+    // Far right and above: the top-right corner (below the status bar and the name's room),
+    // turned 45 back.
     let (x, y, rotation, _) = place([3.0, 3.0]);
-    assert_eq!((x, y, rotation), (max_x, name_h, 45));
+    assert_eq!((x, y, rotation), (max_x, top, 45));
     // Below and right: the bottom-right corner, turned 45 on.
     let (x, y, rotation, _) = place([3.0, -3.0]);
     assert_eq!((x, y, rotation), (max_x, max_y, 315));
