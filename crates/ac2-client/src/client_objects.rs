@@ -407,8 +407,42 @@ impl Client {
         visual: Option<u32>,
         body: Result<BodyData, String>,
     ) {
+        let waiting: Vec<u64> = self
+            .remotes
+            .iter()
+            .filter(|(_, r)| r.body().is_none())
+            .map(|(id, _)| id)
+            .collect();
         let (remotes, mut cx) = self.remote_context();
         remotes.body_loaded(visual, body, &mut cx);
+        // `CPhysicsObj::set_parent` ran with the physics object there in retail; a body made after
+        // the parent event takes its holder's mode now, and a holder's new body passes its mode
+        // to the children it already holds.
+        let made: Vec<u64> = waiting
+            .into_iter()
+            .filter(|id| self.remotes.get(*id).is_some_and(|r| r.body().is_some()))
+            .collect();
+        for id in made {
+            if let Some(holder) = self.session.objects().links().parent_of(id) {
+                self.take_holder_mode(id, holder);
+            }
+            self.children_take_holder_mode(id);
+        }
+    }
+
+    /// A holder's body was made after its children were parented to it: each takes its mode
+    /// (`CPhysicsObj::set_parent`'s `DoMode`, which retail ran with both objects there).
+    pub(crate) fn children_take_holder_mode(&mut self, holder: u64) {
+        let children: Vec<u64> = self
+            .session
+            .objects()
+            .links()
+            .children_of(holder)
+            .map(|c| c.id)
+            .collect();
+        for child in children {
+            self.take_holder_mode(child, holder);
+        }
     }
 
     /// `CObjCell::ReleaseDynamicObjects` / `InitDynamicObjects` for the blocks that left or

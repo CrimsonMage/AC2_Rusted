@@ -576,6 +576,8 @@ impl Client {
         if let Some(subject) = self.camera_subject(false) {
             self.camera.set_player(&subject, INITIAL_CAMERA_HEIGHT);
         }
+        let id = self.player.as_ref().map(|p| p.id);
+        self.children_take_holder_mode(id.unwrap_or_default());
     }
 
     /// `PlayerMovementModule::UseTime`.
