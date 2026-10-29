@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 849 done, 159 partial, 168 to do, 948 skipped.
+2124 retail functions: 850 done, 158 partial, 168 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (12/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (13/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1269,7 +1269,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
-- [~] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: applied for a new FX and a running one taking a new scalar (DoTargettedFX), at full scalar for startup FX (DoStartupFX), removed by StopFX and expiry; ac2-assets decodes m_apr_id and m_apr_key. Not yet: UseTime's re-application while a ramping FX's scalar changes
+- [x] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: a new FX applies each node's appearance at its starting scalar (0 for a ramping node), a running one at the current scalar after an instant node's jump (DoTargettedFX), startup FX at full scalar (DoStartupFX); UseTime re-applies it as the scalar ramps; removed by StopFX and expiry
 
 ### DBObjGrabber<FxScript>
 - [x] `DBObjGrabber<FxScript>::DBObjGrabber<FxScript>` · 00505ca0 · legions 004f3f70 — ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
@@ -1309,7 +1309,7 @@ Legend and workflow: [README](README.md).
 - [~] `FXManager::StopFX` · 00507650 · legions 004f5870 — ac2-smartbox fx_objects.rs stop: startup FX kept (m_bStartupFX), objects faded, targets unhidden, colour restored; sound and particle stop as before (client_audio). Not ported: streak stop (ac2-render fx_streaks.rs runs it), appearance removal, camera FX, target FX on the target
 - [-] `FXManager::FXManager` · 00507d10 · legions 004f5e80 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [-] `FXManager::Destroy` · 00507db0 · legions 004f5f20 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-smartbox fx_objects.rs expire: an FX whose end came tears down as StopFX does (objects, hides, colour); sound and particle ends keep their existing approximation
+- [~] `FXManager::UseTime` · 00507df0 · legions 004f5f60 — ac2-smartbox fx_objects.rs use_time ramps each FX's current scalar toward the desired one once per node (quantum / m_ramp_time, instant below 0.0002) and re-applies its appearances; expire tears down an FX whose end came as StopFX does (objects, hides, colour); ac2-client client_audio FxSounds::use_time ramps the sound volumes. Particle system scalars do not follow the ramp
 
 ### _STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>
 - [-] `_STL::map<unsigned_long,FXScalarAndTarget,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXScalarAndTarget>_>_>::operator[]` · 00508360 · legions 004f6490 — STL/MSVC or archive template helper; Rust collections replace it

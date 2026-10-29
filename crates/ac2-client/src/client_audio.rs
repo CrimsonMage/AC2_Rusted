@@ -571,7 +571,9 @@ impl Client {
                 }
             }
         }
-        // `FXManager::UseTime`'s expired FX stop.
+        // `FXManager::UseTime`: the running FX's scalars ramp (their appearances follow), then
+        // the expired FX stop.
+        self.fx_objects.use_time(step);
         self.fx_objects.expire(now);
         if let Some(locked) = lock {
             self.lock_player_actions(locked);

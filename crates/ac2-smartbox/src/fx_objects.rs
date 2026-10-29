@@ -48,7 +48,41 @@ pub struct FxRecord {
     /// The appearances the FX's nodes apply (`m_apr_id`, `m_apr_key`'s key), which `StopFX`
     /// removes from the emitter.
     pub appearances: Vec<(u32, u32)>,
+    /// `m_current_scalar` and `m_desired_scalar`: `UseTime` ramps the one to the other.
+    pub current: f32,
+    pub desired: f32,
+    /// The FX's nodes as `UseTime` walks them: each one's `m_ramp_time`, and its appearance.
+    ramps: Vec<RampNode>,
 }
+
+/// One FX node as `FXManager::UseTime` reads it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct RampNode {
+    ramp_time: f32,
+    /// `m_apr_id`, `m_apr_key`'s key and scalar (`apr_id` 0 for none).
+    appearance: (u32, u32, f32),
+}
+
+impl RampNode {
+    fn new(node: &Ac2FxObject) -> Self {
+        Self {
+            ramp_time: node.ramp_time,
+            appearance: (
+                node.appearance,
+                node.appearance_key.0,
+                node.appearance_key.1,
+            ),
+        }
+    }
+
+    /// `FXNode::m_ramp_time < 0.0002`: the node takes a new scalar at once.
+    fn is_instant(&self) -> bool {
+        self.ramp_time < MIN_RAMP_TIME
+    }
+}
+
+/// The shortest ramp `FXManager` ramps over; a shorter one jumps to the new scalar.
+const MIN_RAMP_TIME: f32 = 0.0002;
 
 /// A colour channel set in motion (`PHYSICSOBJREP::SetProperty` with a ramp): linear from
 /// `from` to `to` over `seconds` from `start`.
@@ -149,13 +183,38 @@ impl FxObjects {
         scalar: f32,
         ids: &mut dyn FnMut() -> Option<u64>,
     ) {
-        // `DoAppearanceFX` runs for a new FX and for a running one taking a new scalar.
-        let appearances = self.appearance_fx(emitter, nodes, scalar);
-        if !nodes.iter().any(Ac2FxObject::is_active) || self.record(emitter, fx).is_some() {
+        let ramps: Vec<RampNode> = nodes.iter().map(RampNode::new).collect();
+        if let Some(record) = self
+            .records
+            .get_mut(&emitter)
+            .and_then(|fxs| fxs.get_mut(&fx))
+        {
+            // A running FX takes the new scalar as its desired one; an instant node sets the
+            // current one too, and each appearance follows the current one (`DoAppearanceFX`).
+            record.desired = scalar;
+            for node in &ramps {
+                if node.is_instant() {
+                    record.current = scalar;
+                }
+                appearance_fx(&mut self.appearances, emitter, node, record.current);
+            }
             return;
         }
+        if !nodes.iter().any(Ac2FxObject::is_active) {
+            return;
+        }
+        // A new FX: each node starts its current scalar over, at 0 when it ramps, so a ramping
+        // appearance starts removed and comes in through `use_time`.
+        let mut current = 0.0;
+        for node in &ramps {
+            current = if node.is_instant() { scalar } else { 0.0 };
+            appearance_fx(&mut self.appearances, emitter, node, current);
+        }
         let mut record = FxRecord {
-            appearances,
+            appearances: appearance_names(&ramps),
+            current,
+            desired: scalar,
+            ramps,
             ..FxRecord::default()
         };
         let mut end = None;
@@ -212,10 +271,16 @@ impl FxObjects {
             return;
         }
         // `FXManager::DoStartupFX` applies the appearances at full scalar.
-        let appearances = self.appearance_fx(emitter, nodes, 1.0);
+        let ramps: Vec<RampNode> = nodes.iter().map(RampNode::new).collect();
+        for node in &ramps {
+            appearance_fx(&mut self.appearances, emitter, node, 1.0);
+        }
         let mut record = FxRecord {
             startup: true,
-            appearances,
+            appearances: appearance_names(&ramps),
+            current: 1.0,
+            desired: 1.0,
+            ramps,
             ..FxRecord::default()
         };
         for node in nodes.iter().filter(|node| node.vdesc != 0) {
@@ -311,43 +376,34 @@ impl FxObjects {
         }
     }
 
-    /// `FXManager::DoAppearanceFX` for each node with an appearance: applied at the node key's
-    /// scalar times `scalar` while that is positive (`CPhysicsObj::DoAppearanceFX` on the
-    /// emitter's effects description), removed otherwise. The appearances the nodes name.
-    fn appearance_fx(
-        &mut self,
-        emitter: u64,
-        nodes: &[Ac2FxObject],
-        scalar: f32,
-    ) -> Vec<(u32, u32)> {
-        let mut named = Vec::new();
-        for node in nodes.iter().filter(|node| node.appearance != 0) {
-            let (key, key_scalar) = node.appearance_key;
-            named.push((node.appearance, key));
-            match crate::fx_manager::appearance_fx_step(node.appearance, key_scalar, scalar) {
-                crate::fx_manager::AppearanceFxStep::Apply { scalar } => {
-                    self.appearances
-                        .entry(emitter)
-                        .or_default()
-                        .add_appearance_mod(node.appearance, (key, scalar));
+    /// `FXManager::UseTime`'s ramp: each running FX whose current scalar is not its desired one
+    /// steps toward it once per node (`quantum / m_ramp_time`, or at once for an instant node),
+    /// and each node's appearance is applied again at the new current scalar.
+    pub fn use_time(&mut self, quantum: f32) {
+        for (&emitter, fxs) in &mut self.records {
+            for record in fxs.values_mut() {
+                if record.current == record.desired {
+                    continue;
                 }
-                crate::fx_manager::AppearanceFxStep::Remove => {
-                    self.remove_appearance(emitter, node.appearance, key);
+                for node in &record.ramps {
+                    record.current = if node.is_instant() {
+                        record.desired
+                    } else {
+                        let step = quantum / node.ramp_time;
+                        if record.desired <= record.current {
+                            (record.current - step).max(record.desired)
+                        } else {
+                            (record.current + step).min(record.desired)
+                        }
+                    };
+                    appearance_fx(&mut self.appearances, emitter, node, record.current);
                 }
-                crate::fx_manager::AppearanceFxStep::None => {}
             }
         }
-        named
     }
 
-    /// `CPhysicsObj::RemoveAppearanceFX`: the key leaves the emitter's effects description.
     fn remove_appearance(&mut self, emitter: u64, table: u32, key: u32) {
-        if let Some(effects) = self.appearances.get_mut(&emitter) {
-            effects.remove_appearance_mod(table, key);
-            if effects.is_empty() {
-                self.appearances.remove(&emitter);
-            }
-        }
+        remove_appearance(&mut self.appearances, emitter, table, key);
     }
 
     /// The emitter's effects description (`m_effects_vdesc`), while its FX apply any appearance:
@@ -486,6 +542,54 @@ impl FxObjects {
 /// its animation colour scale (the colour and opacity sliders). Computed in f64, rounded once.
 pub fn drawn_tint(colour: [f32; 4], anim: [f32; 4]) -> [f32; 4] {
     std::array::from_fn(|i| (f64::from(colour[i]) * f64::from(anim[i])) as f32)
+}
+
+/// The appearances the nodes name (`m_apr_id`, `m_apr_key`'s key), which `StopFX` removes.
+fn appearance_names(nodes: &[RampNode]) -> Vec<(u32, u32)> {
+    nodes
+        .iter()
+        .filter(|node| node.appearance.0 != 0)
+        .map(|node| (node.appearance.0, node.appearance.1))
+        .collect()
+}
+
+/// `FXManager::DoAppearanceFX` for one node: its appearance applied at the key's scalar times
+/// `scalar` while that is positive (`CPhysicsObj::DoAppearanceFX` on the emitter's effects
+/// description), removed otherwise.
+fn appearance_fx(
+    appearances: &mut HashMap<u64, ac2_physics::Appearance>,
+    emitter: u64,
+    node: &RampNode,
+    scalar: f32,
+) {
+    let (table, key, key_scalar) = node.appearance;
+    match crate::fx_manager::appearance_fx_step(table, key_scalar, scalar) {
+        crate::fx_manager::AppearanceFxStep::Apply { scalar } => {
+            appearances
+                .entry(emitter)
+                .or_default()
+                .add_appearance_mod(table, (key, scalar));
+        }
+        crate::fx_manager::AppearanceFxStep::Remove => {
+            remove_appearance(appearances, emitter, table, key);
+        }
+        crate::fx_manager::AppearanceFxStep::None => {}
+    }
+}
+
+/// `CPhysicsObj::RemoveAppearanceFX`: the key leaves the emitter's effects description.
+fn remove_appearance(
+    appearances: &mut HashMap<u64, ac2_physics::Appearance>,
+    emitter: u64,
+    table: u32,
+    key: u32,
+) {
+    if let Some(effects) = appearances.get_mut(&emitter) {
+        effects.remove_appearance_mod(table, key);
+        if effects.is_empty() {
+            appearances.remove(&emitter);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -646,5 +750,39 @@ mod tests {
         fx.stop(7, 9, &[node], 1.0);
         assert_eq!(applied(&fx), None, "StopFX removes it");
         assert!(fx.appearance_effects(7).is_none());
+    }
+
+    /// `FXManager::UseTime`: a ramping node starts its appearance removed (the new FX's current
+    /// scalar is 0), and each step moves the current scalar `quantum / m_ramp_time` toward the
+    /// desired one and applies the appearance again at it; a lower desired scalar ramps it down.
+    #[test]
+    fn a_ramping_appearance_follows_the_fx_scalar() {
+        let mut fx = FxObjects::default();
+        let node = Ac2FxObject {
+            appearance: 0x2500_0010,
+            appearance_key: (0x1000_0003, 1.0),
+            ramp_time: 2.0,
+            ..Ac2FxObject::default()
+        };
+        let applied = |fx: &FxObjects| {
+            fx.appearance_effects(7).and_then(|e| {
+                e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
+            })
+        };
+        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        assert_eq!(applied(&fx), None, "a ramping node starts at 0");
+        fx.use_time(0.5);
+        assert_eq!(applied(&fx), Some(0.25));
+        fx.use_time(1.0);
+        assert_eq!(applied(&fx), Some(0.75));
+        fx.use_time(1.0);
+        assert_eq!(applied(&fx), Some(1.0), "held at the desired scalar");
+        // A lower scalar on the running FX ramps down; the ramp keeps the current one.
+        fx.start(7, 9, &[node], 0.0, 0.0, &mut ids());
+        assert_eq!(applied(&fx), Some(1.0));
+        fx.use_time(1.0);
+        assert_eq!(applied(&fx), Some(0.5));
+        fx.use_time(1.0);
+        assert_eq!(applied(&fx), None, "ramped to nothing: removed");
     }
 }
