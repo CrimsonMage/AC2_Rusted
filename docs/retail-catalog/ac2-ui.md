@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1321 done, 313 partial, 117 to do, 496 skipped.
+2247 retail functions: 1325 done, 309 partial, 117 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
@@ -496,20 +496,20 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (18/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (22/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
 
 ### gmShopConsignmentUI
-- [~] `gmShopConsignmentUI::UpdatePortraitPosition` · 0041b0b0 · legions 004424c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [x] `gmShopConsignmentUI::UpdatePortraitPosition` · 0041b0b0 · legions 004424c0 — ac2-ui paper_doll_scene.rs portrait_position (Legions 0x41af10; the index pairs it with the doll's): the avatar at -0.875 of its race-scaled height (0.9 races 1/2/8/16, 0.75 race 4), the camera's vertical scale a quarter; ac2-client paper_doll_scene.rs frames the consignment's viewport with it
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240 — ac2-ui consignment.rs ConsignmentUi::recv_update_mount_state keeps the flag (retail reads it only to redraw the player portrait in RecvNotice_LocalVisualDescUpdate, which is not modelled); routed by shop_notices.rs consignment_notice
 
 ### gmShopUI
 - [x] `gmShopUI::RecvNotice_LeaveStore` · 0041b250 — ac2-ui shop.rs recv_leave_store: Show(0) (Legions/admin 0x41b25e: the primary framework's vtable +0x20 with 0, a tail call)
 
 ### gmShopConsignmentUI
-- [~] `gmShopConsignmentUI::SyncPortrait` · 0041b270 · legions 0041b0d0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
+- [x] `gmShopConsignmentUI::SyncPortrait` · 0041b270 · legions 0041b0d0 — ac2-ui consignment.rs sync_portrait: Portrait at relative_x/y_position from the panel's screen origin, on show and each global loop (a moved panel carries it, AGENTS.md)
 
 ### (free functions)
 - [-] `gmShopConsignmentUI_DDCB` · 0041b320 — scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
@@ -517,10 +517,10 @@ Legend and workflow: [README](README.md).
 ### gmShopConsignmentUI
 - [x] `gmShopConsignmentUI::RecvNotice_StackUIDone` · 0041b390 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog` · 0041b550 · legions 0041b3b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [x] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with (Legions 0x41b430): the item stackable with a max stack over 1, the sale not sold (status 3, was 2) and its item DID the item's WInitData::m_did (ac2-client hud_shop.rs item_did -> Client::object_entity, the weenie description's entity DID)
-- [~] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
-- [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
-- [~] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — the 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera) is not modelled in ac2-ui; the mount flag it reads is kept (recv_update_mount_state)
+- [x] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with (Legions 0x41b430): the item stackable with a max stack over 1, the sale not sold (status 3) and its item DID the item's WInitData::m_did (ac2-client hud_shop.rs item_did -> Client::object_entity)
+- [x] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — ac2-ui consignment.rs create_managed makes the Portrait root (a scene viewport); ac2-client view.rs/paper_doll_scene.rs draw the player's total appearance in it (the doll's avatar figure) and frame it (portrait_position)
+- [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — the portrait follows the appearance each frame (ac2-client paper_doll_scene.rs) and is reframed; not ported: the two physics object calls after SetVisualDesc (vtable +0x110 with 1e-4, +0x114 with the double 1e-4), untraced
+- [x] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — ac2-ui consignment.rs portrait_held (the mount flag): while mounted the client keeps the avatar's look (ac2-client view.rs hold), else it follows the appearance
 - [x] `gmShopConsignmentUI::UpdatePosition` · 0041b7e0 · legions 0041b640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::CreateManagedElements` · 0041b8b0 · legions 0041b710 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::Show` · 0041b950 · legions 0041b7b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs

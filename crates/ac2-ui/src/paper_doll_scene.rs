@@ -54,6 +54,19 @@ pub fn figures(scene: u32, data: &SceneData, avatar: Option<(u32, &Ac2VisualDesc
 /// it, a head-and-shoulders portrait; a deliberate deviation (AGENTS.md) keeps the full figure.
 /// The race factors are Legions'.
 pub fn position(setup: &mut ViewSetup<'_>, race: Option<i32>) {
+    frame_avatar(setup, race, -0.5, 1.0);
+}
+
+/// `gmShopConsignmentUI::UpdatePortraitPosition` (Legions 0x41af10): the consignment's portrait
+/// of the player, head and shoulders: the avatar at -0.875 of its height (the race's factor
+/// applied) and the camera a quarter of that height tall.
+pub fn portrait_position(setup: &mut ViewSetup<'_>, race: Option<i32>) {
+    frame_avatar(setup, race, -0.875, 0.25);
+}
+
+/// The avatar `offset` of its (race-scaled) height below the scene's origin, and the camera's
+/// vertical scale `scale` of that height.
+fn frame_avatar(setup: &mut ViewSetup<'_>, race: Option<i32>, offset: f64, scale: f64) {
     let key = avatar_key(setup.viewport.scene);
     let Some(avatar) = setup.figures.iter_mut().find(|p| p.key == key) else {
         return;
@@ -61,14 +74,51 @@ pub fn position(setup: &mut ViewSetup<'_>, race: Option<i32>) {
     let Some(height) = avatar.height() else {
         return;
     };
-    // `float` stores: the scaled height, then its offset below the origin.
-    let height = (f64::from(height) * race_factor(race)) as f32;
+    let (z, vertical_scale) = avatar_framing(height, race, offset, scale);
     let mut frame = Frame::IDENTITY;
-    frame.origin.z = (f64::from(height) * -0.5) as f32;
+    frame.origin.z = z;
     avatar.move_to(frame);
     let mut base = setup.base.clone();
-    base.vertical_scale = height;
+    base.vertical_scale = vertical_scale;
     let (view, offset) = camera::scene_camera(&base);
     setup.camera = view;
     setup.eye_offset = offset;
+}
+
+/// The avatar's place below the origin and the camera's vertical scale for a box `height` tall:
+/// `float` stores of the race-scaled height, then its `offset` and `scale` products.
+pub(crate) fn avatar_framing(
+    height: f32,
+    race: Option<i32>,
+    offset: f64,
+    scale: f64,
+) -> (f32, f32) {
+    let height = (f64::from(height) * race_factor(race)) as f32;
+    (
+        (f64::from(height) * offset) as f32,
+        (f64::from(height) * scale) as f32,
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::avatar_framing;
+
+    #[test]
+    fn the_doll_shows_the_whole_figure_and_the_portrait_head_and_shoulders() {
+        // The doll (admin's framing): half the height below, the camera the height tall.
+        assert_eq!(avatar_framing(2.0, Some(3), -0.5, 1.0), (-1.0, 2.0));
+        // The consignment's portrait (Legions 0x41af10): -0.875 and a quarter, with the race's
+        // factor (0.9 for races 1, 2, 8 and 16; 0.75 for race 4).
+        assert_eq!(avatar_framing(2.0, Some(3), -0.875, 0.25), (-1.75, 0.5));
+        let scaled = (2.0f64 * 0.9) as f32;
+        assert_eq!(
+            avatar_framing(2.0, Some(8), -0.875, 0.25),
+            (
+                (f64::from(scaled) * -0.875) as f32,
+                (f64::from(scaled) * 0.25) as f32
+            )
+        );
+        assert_eq!(avatar_framing(2.0, Some(4), -0.875, 0.25), (-1.3125, 0.375));
+    }
 }

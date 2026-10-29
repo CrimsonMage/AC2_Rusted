@@ -525,3 +525,35 @@ fn a_stack_restocks_a_sale_of_its_kind_unless_the_sale_is_sold() {
     panel.recv_update_consignment(&mut hud.tree, &Pack, &active);
     assert!(!panel.can_stack_with(&Pack, POTION_SALE, POTIONS));
 }
+
+#[test]
+fn the_portrait_shows_with_the_panel_at_its_place() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    open(&mut hud, &mut panel);
+    let portrait = panel.portrait().expect("the Portrait root");
+    // A 3D viewport of its own (`UIElement_Viewport`): the client draws the player in it.
+    let viewport = crate::scene_viewports(&hud.tree)
+        .into_iter()
+        .find(|v| v.root == portrait)
+        .expect("the portrait is a scene viewport while shown");
+    // `SyncPortrait`: the panel's origin plus the portrait's relative position.
+    let attribute = |name: &str| match hud.tree.get(portrait).unwrap().attribute(tokenize(name)) {
+        Some(crate::AttributeValue::Int(v)) => *v,
+        _ => 0,
+    };
+    let origin = hud.tree.screen_box(panel.field().unwrap());
+    assert_eq!(
+        (viewport.x, viewport.y),
+        (
+            origin.x0 + attribute("relative_x_position"),
+            origin.y0 + attribute("relative_y_position")
+        )
+    );
+    // It hides with the panel.
+    panel.show(&mut hud.tree, &mut hud.dialogs, false, 1.0);
+    assert!(crate::scene_viewports(&hud.tree)
+        .iter()
+        .all(|v| v.root != portrait));
+}

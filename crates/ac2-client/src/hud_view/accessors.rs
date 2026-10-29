@@ -263,6 +263,15 @@ impl HudView {
         self.overlay.layers()
     }
 
+    /// The consignment's portrait viewport (`gmShopConsignmentUI::m_pPortrait`) while it shows.
+    pub(crate) fn consignment_portrait(&self) -> Option<ac2_ui::SceneViewport> {
+        let (tree, _) = self.hud.as_ref()?;
+        let root = self.panels.consignment.as_ref()?.portrait()?;
+        ac2_ui::scene_viewports(tree)
+            .into_iter()
+            .find(|v| v.root == root)
+    }
+
     /// The paper doll's viewport while it shows.
     pub(crate) fn doll_viewport(&self) -> Option<ac2_ui::SceneViewport> {
         let (tree, _) = self.hud.as_ref()?;

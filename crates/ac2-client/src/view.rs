@@ -319,17 +319,29 @@ impl ClientView {
 
     /// The paper doll's scene while its viewport shows, with the player's appearance.
     fn update_doll(&mut self, gpu: &Gpu, frame: &ClientFrame, wait: bool) {
-        let viewports: Vec<_> = self.hud.doll_viewport().into_iter().collect();
-        let race = self.hud.panels.player_race;
-        let hold = self
+        // The doll's viewport and the consignment's portrait of the player.
+        let portrait = self.hud.consignment_portrait();
+        let portrait_root = portrait.as_ref().map(|v| v.root);
+        let viewports: Vec<_> = self
             .hud
-            .panels
+            .doll_viewport()
+            .into_iter()
+            .chain(portrait)
+            .collect();
+        let race = self.hud.panels.player_race;
+        // Mounted, both keep the look they had (`m_ignoreVDescChanges`, the consignment's own).
+        let panels = &self.hud.panels;
+        let hold = panels
             .paper_doll
             .as_ref()
-            .is_some_and(|doll| doll.ignores_visual_desc_changes());
+            .is_some_and(|doll| doll.ignores_visual_desc_changes())
+            || panels
+                .consignment
+                .as_ref()
+                .is_some_and(|c| c.portrait_held());
         self.doll.update(
             gpu,
-            viewports,
+            (viewports, portrait_root),
             frame.player.as_ref(),
             race,
             frame.server_time,

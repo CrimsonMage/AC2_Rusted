@@ -16,8 +16,14 @@
 //! (the dialogs' answers) and [`ConsignmentUi::tick`] (the global loop). The requests go to
 //! [`ConsignmentUi::take_requests`].
 //!
-//! Not modelled: the 3D portrait of the player (`InitPortrait`, `SyncPortrait`, the viewport's
-//! camera), the mount state, the help page, and the examination panel's own state (the request is
+//! The player's portrait is its own root, `Portrait` (`CreateManagedElements`), a 3D viewport that
+//! shows and hides with the panel and sits at its `relative_x_position` / `relative_y_position`
+//! from the panel's origin (`SyncPortrait`). It follows the panel each global loop, as a moved
+//! window carries it (retail placed it on show only, its windows not moving). The client draws the
+//! player's avatar in it ([`crate::paper_doll_scene::portrait_position`], `InitPortrait`,
+//! `UpdatePortraitPosition`).
+//!
+//! Not modelled: the help page and the examination panel's own state (the request is
 //! [`ConsignmentRequest::OpenExamination`]). A page is seven rows (`UpdatePosition`'s count).
 
 use std::sync::Arc;
@@ -106,9 +112,11 @@ pub struct ConsignmentUi {
     pub(crate) confirm_context: u32,
     /// `m_timeDormant`, on the global loop's clock.
     pub(crate) dormant_since: f64,
-    /// The mount state (`RecvNotice_UpdateMountState`); retail reads it only to redraw the
-    /// player's portrait (`RecvNotice_LocalVisualDescUpdate`), which is not modelled.
+    /// The mount state (`RecvNotice_UpdateMountState`): while mounted the portrait keeps its look
+    /// (`RecvNotice_LocalVisualDescUpdate` updates it only when not mounted).
     pub(crate) mounted: bool,
+    /// `m_pPortrait`: the player's portrait viewport, a root of its own.
+    portrait: Option<usize>,
     requests: Vec<ConsignmentRequest>,
     stack_calls: Vec<ShopStackCall>,
 }
@@ -130,6 +138,7 @@ impl ConsignmentUi {
             confirm_context: 0,
             dormant_since: 0.0,
             mounted: false,
+            portrait: None,
             requests: Vec::new(),
             stack_calls: Vec::new(),
         }
@@ -138,6 +147,16 @@ impl ConsignmentUi {
     /// The panel's root, while its managed elements exist.
     pub fn field(&self) -> Option<usize> {
         self.field
+    }
+
+    /// The player's portrait viewport (`m_pPortrait`), while the managed elements exist.
+    pub fn portrait(&self) -> Option<usize> {
+        self.portrait
+    }
+
+    /// Whether the portrait keeps its look (the player is mounted).
+    pub fn portrait_held(&self) -> bool {
+        self.mounted
     }
 
     /// `IsShown`.
@@ -174,18 +193,45 @@ impl ConsignmentUi {
         tree.child_recursive(self.field?, id(name))
     }
 
-    /// `gmShopConsignmentUI::CreateManagedElements`: the `Consignment` root, once.
+    /// `gmShopConsignmentUI::CreateManagedElements`: the `Consignment` root and the `Portrait`
+    /// viewport, once.
     fn create_managed(&mut self, tree: &mut UiTree) -> bool {
         if self.field.is_none() {
             self.field = tree.create_root(Arc::clone(&self.layout), id("Consignment"));
         }
-        self.field.is_some()
+        if self.field.is_some() && self.portrait.is_none() {
+            self.portrait = tree.create_root(Arc::clone(&self.layout), id("Portrait"));
+            // The portrait belongs to the panel: it does not move alone.
+            if let Some(portrait) = self.portrait {
+                tree.set_overlay_root(portrait);
+            }
+        }
+        self.field.is_some() && self.portrait.is_some()
+    }
+
+    /// `gmShopConsignmentUI::SyncPortrait`: the portrait at its `relative_x_position` and
+    /// `relative_y_position` from the panel's screen origin.
+    fn sync_portrait(&self, tree: &mut UiTree) {
+        let (Some(field), Some(portrait)) = (self.field, self.portrait) else {
+            return;
+        };
+        let x = tree
+            .int_attribute(portrait, id("relative_x_position"))
+            .unwrap_or(0);
+        let y = tree
+            .int_attribute(portrait, id("relative_y_position"))
+            .unwrap_or(0);
+        let origin = tree.screen_box(field);
+        tree.set_object_position(portrait, origin.x0 + x, origin.y0 + y);
     }
 
     /// `gmShopConsignmentUI::DestroyManagedElements`: the root and the rows go.
     fn destroy_managed(&mut self, tree: &mut UiTree) {
         if let Some(field) = self.field.take() {
             tree.remove_root(field);
+        }
+        if let Some(portrait) = self.portrait.take() {
+            tree.remove_root(portrait);
         }
         self.selected = None;
         self.rows.clear();
@@ -198,9 +244,10 @@ impl ConsignmentUi {
         self.shown = shown;
         if shown {
             if self.create_managed(tree) {
-                if let Some(field) = self.field {
-                    tree.set_visible(field, true);
-                }
+                self.sync_portrait(tree);
+            }
+            for root in [self.field, self.portrait].into_iter().flatten() {
+                tree.set_visible(root, true);
             }
             return;
         }
@@ -213,8 +260,8 @@ impl ConsignmentUi {
             dialogs.close_dialog(tree, self.confirm_context);
             self.confirm_context = 0;
         }
-        if let Some(field) = self.field {
-            tree.set_visible(field, false);
+        for root in [self.field, self.portrait].into_iter().flatten() {
+            tree.set_visible(root, false);
         }
         self.dormant_since = now;
     }
@@ -622,10 +669,14 @@ impl ConsignmentUi {
         self.update_position(tree);
     }
 
-    /// `ListenToMessage` for the global loop (`now`): a hidden panel is destroyed after its time.
+    /// `ListenToMessage` for the global loop (`now`): a hidden panel is destroyed after its time;
+    /// a shown one keeps its portrait on it (`SyncPortrait`).
     pub fn tick(&mut self, tree: &mut UiTree, now: f64) {
         if !self.shown && self.field.is_some() && DORMANT_LIMIT < now - self.dormant_since {
             self.destroy_managed(tree);
+        }
+        if self.shown {
+            self.sync_portrait(tree);
         }
     }
 }

@@ -1,13 +1,14 @@
 //! The paper doll's 3D scene (`window` feature) over [`UiScenes`]: the player's avatar in
-//! `PaperDollViewport`'s scene, remade when the appearance changes and framed by its race
-//! ([`ac2_ui::paper_doll_scene`] builds the figures and places them). A pick answers the mesh
-//! type of the avatar's part under the pointer (`FinishPaperDollClick`).
+//! `PaperDollViewport`'s scene and in the consignment's `Portrait` (`InitPortrait`), remade when
+//! the appearance changes and framed by its race ([`ac2_ui::paper_doll_scene`] builds the figures
+//! and places them; the portrait head and shoulders). A pick answers the mesh type of the avatar's
+//! part under the pointer (`FinishPaperDollClick`).
 
 use std::sync::Arc;
 
 use ac2_db::ResourceStore;
 use ac2_gpu::Gpu;
-use ac2_ui::paper_doll_scene::{avatar_key, figures, position};
+use ac2_ui::paper_doll_scene::{avatar_key, figures, portrait_position, position};
 use ac2_ui::SceneViewport;
 use ac2_world::Ac2WorldSource;
 
@@ -33,14 +34,14 @@ impl PaperDollScene {
         &self.scenes
     }
 
-    /// Follows the doll's viewport (when shown) at `now` seconds with the player's appearance
-    /// and race. While `hold` (`m_ignoreVDescChanges`, the player on a mount) the avatar keeps
+    /// Follows the doll's viewport and the consignment's `portrait` (when shown) at `now`
+    /// seconds with the player's appearance and race. While `hold` (`m_ignoreVDescChanges`, the player on a mount) the avatar keeps
     /// the appearance it had (`RecvNotice_LocalVisualDescUpdate` skips `UpdatePaperDoll`).
     #[allow(clippy::too_many_arguments)]
     pub(crate) fn update(
         &mut self,
         gpu: &Gpu,
-        viewports: Vec<SceneViewport>,
+        (viewports, portrait): (Vec<SceneViewport>, Option<usize>),
         player: Option<&PlayerFrame>,
         race: Option<i32>,
         now: f64,
@@ -61,7 +62,14 @@ impl PaperDollScene {
                 avatar.as_ref().map(|(visual, local)| (*visual, local)),
             )
         };
-        let mut direct = |setup: &mut ViewSetup<'_>| position(setup, race);
+        // The consignment's portrait is framed head and shoulders (`UpdatePortraitPosition`).
+        let mut direct = |setup: &mut ViewSetup<'_>| {
+            if Some(setup.viewport.root) == portrait {
+                portrait_position(setup, race)
+            } else {
+                position(setup, race)
+            }
+        };
         self.scenes
             .update(gpu, viewports, now, wait, &mut figures, &mut direct);
     }
