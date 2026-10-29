@@ -12,6 +12,10 @@ pub struct HoldPoint {
     /// The part group whose Setup lists the location (`CPartGroup::GetHoldingLocation`): an index
     /// into the holder's drawn groups.
     pub group: usize,
+    /// The part group's key (`CPartGroup::m_key`) when `group` is the physics tree's index: the
+    /// drawn groups can be ordered otherwise after an appearance change, so the view finds the
+    /// group by its key. `None` when `group` already indexes the drawn groups.
+    pub group_key: Option<u32>,
     pub bone: usize,
     pub transform: ac2_anim::Ac2Transform,
 }
@@ -38,6 +42,7 @@ pub fn find_holding_point(holding: &[GroupHolding], location: u32) -> Option<Hol
         .find(|entry| entry.location.id == location)
         .map(|entry| HoldPoint {
             group: entry.group,
+            group_key: None,
             bone: entry.location.bone,
             transform: entry.location.transform,
         })
@@ -226,6 +231,7 @@ mod tests {
     fn point(bone: usize, offset: Vec3) -> HoldPoint {
         HoldPoint {
             group: 0,
+            group_key: None,
             bone,
             transform: translated(offset),
         }

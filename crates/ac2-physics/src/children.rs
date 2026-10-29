@@ -427,6 +427,7 @@ mod tests {
     fn point(offset: Vec3) -> HoldPoint {
         HoldPoint {
             group: 0,
+            group_key: None,
             bone: 0,
             transform: Ac2Transform {
                 offset,

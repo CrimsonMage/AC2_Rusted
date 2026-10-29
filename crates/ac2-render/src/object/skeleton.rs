@@ -197,6 +197,8 @@ fn rest_matrices(setup: &Ac2Setup) -> Option<Vec<Matrix4>> {
 /// One `CPartGroup` of a visual.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SkeletonGroup {
+    /// The drawn group's key (`CPartGroup::m_key`; 0 until the model sets it).
+    pub key: u32,
     pub setup: DataId,
     /// Mesh count of the Setup (`m_numParts`).
     pub parts: usize,
@@ -262,6 +264,7 @@ impl SkeletonGroup {
             }
         });
         Self {
+            key: 0,
             setup: setup_did,
             parts: setup.meshes.len(),
             parents: setup.bones.iter().map(|bone| bone.parent).collect(),

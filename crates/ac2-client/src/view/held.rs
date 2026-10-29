@@ -9,6 +9,8 @@ use ac2_math::{Frame, Mat4};
 use ac2_physics::{held_place_offset, placement_order, scaled_by_parent};
 use ac2_render::object::ObjectPose;
 
+use crate::frame::HoldPoint;
+
 use super::{world_matrix, ClientView, Drawn};
 
 impl ClientView {
@@ -55,8 +57,7 @@ impl ClientView {
             let bone = holder_pose
                 .2
                 .as_ref()
-                .and_then(|pose| pose.group_bones.get(point.group)?.get(point.bone))
-                .copied()
+                .and_then(|pose| held_bone(pose, &point))
                 .unwrap_or(Ac2Transform::IDENTITY);
             let at = held_place_offset(frames[holder], holder_scale, bone, &point, offset);
             frames[i] = at;
@@ -68,6 +69,17 @@ impl ClientView {
             };
         }
     }
+}
+
+/// The holder's bone a held child hangs from (`CPartGroup::GetHoldingLocation`'s bone matrix):
+/// the point's group among the drawn groups, found by its key when the point names the physics
+/// tree's group (the two orders can differ after an appearance change), else by its index.
+fn held_bone(pose: &ObjectPose, point: &HoldPoint) -> Option<Ac2Transform> {
+    let group = point
+        .group_key
+        .and_then(|key| pose.group_keys.iter().position(|&k| k == key))
+        .unwrap_or(point.group);
+    pose.group_bones.get(group)?.get(point.bone).copied()
 }
 
 #[cfg(test)]
@@ -91,6 +103,7 @@ mod tests {
     fn point(bone: usize, offset: Vec3) -> HoldPoint {
         HoldPoint {
             group: 0,
+            group_key: None,
             bone,
             transform: translated(offset),
         }
@@ -178,6 +191,35 @@ mod tests {
 
     /// `AvatarVisibleInFirstPerson`: a first-person camera that hides the avatar hides what it
     /// holds; other objects still draw.
+    /// The physics tree's group is found among the drawn groups by its key, whatever its index.
+    #[test]
+    fn a_held_child_finds_its_holders_group_by_key() {
+        let bone = |x: f32| Ac2Transform {
+            offset: Vec3::new(x, 0.0, 0.0),
+            ..Ac2Transform::IDENTITY
+        };
+        let pose = super::ObjectPose {
+            parts: Vec::new(),
+            skins: Vec::new(),
+            palette: Vec::new(),
+            bones: vec![bone(0.0)],
+            group_bones: vec![vec![bone(0.0)], vec![bone(1.0)], vec![bone(2.0)]],
+            group_keys: vec![0, 0x20, 0x10],
+            named_bones: Vec::new(),
+        };
+        let tree = HoldPoint {
+            group: 1,
+            group_key: Some(0x10),
+            ..point(0, Vec3::ZERO)
+        };
+        assert_eq!(super::held_bone(&pose, &tree), Some(bone(2.0)));
+        let drawn = HoldPoint {
+            group: 1,
+            ..point(0, Vec3::ZERO)
+        };
+        assert_eq!(super::held_bone(&pose, &drawn), Some(bone(1.0)));
+    }
+
     #[test]
     fn a_hidden_first_person_avatar_hides_its_wielded_item() {
         let frame = ClientFrame {

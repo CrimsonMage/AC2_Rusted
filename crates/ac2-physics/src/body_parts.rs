@@ -146,9 +146,11 @@ impl PhysicsBody {
     /// places a child (the same point [`crate::find_holding_point`] finds in the groups'
     /// holding list).
     pub fn holding_point_in_parts(&self, location: u32) -> Option<HoldPoint> {
-        let found = self.part_group()?.get_holding_location(0, location)?;
+        let tree = self.part_group()?;
+        let found = tree.get_holding_location(0, location)?;
         Some(HoldPoint {
             group: found.group,
+            group_key: tree.group(found.group).map(|group| group.key),
             bone: found.location.bone,
             transform: found.location.transform,
         })
@@ -169,6 +171,7 @@ impl PhysicsBody {
         let (_, rotation, offset) = matrix.to_scale_rotation_translation();
         let point = HoldPoint {
             group: found.group,
+            group_key: Some(tree.group(found.group)?.key),
             bone: found.location.bone,
             transform: found.location.transform,
         };

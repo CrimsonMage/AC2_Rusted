@@ -158,6 +158,8 @@ pub struct ObjectPose {
     /// Every part group's model-space bones, group 0 first (`ObjectSkeleton::group_bones`), for
     /// the holding locations a child group lists (`CPartGroup::GetHoldingLocation`).
     pub group_bones: Vec<Vec<Ac2Transform>>,
+    /// Each part group's key, in `group_bones`' order (`CPartGroup::m_key`).
+    pub group_keys: Vec<u32>,
     /// Every part group's bones by name, in `CPartGroup::FindBoneType`'s order
     /// (`ObjectSkeleton::named_bones`), for the particle systems that attach to a bone.
     pub named_bones: Vec<(u32, Ac2Transform)>,
@@ -261,6 +263,7 @@ impl PoseRig {
             palette,
             bones,
             group_bones,
+            group_keys: self.skeleton.groups.iter().map(|g| g.key).collect(),
             named_bones,
         })
     }
@@ -327,9 +330,9 @@ pub fn load_object_model_with(
                 Some((parent, parent_setup, connection))
             }
         };
-        skeleton
-            .groups
-            .push(SkeletonGroup::new(group.setup, &setup, weighted, parent));
+        let mut skeleton_group = SkeletonGroup::new(group.setup, &setup, weighted, parent);
+        skeleton_group.key = group.key;
+        skeleton.groups.push(skeleton_group);
         setups.push(setup);
         meshes.push((group_index, group_meshes));
     }

@@ -485,6 +485,7 @@ impl Client {
                         point: match info.kind {
                             ac2_physics::ChildType::BoneIndex => Some(HoldPoint {
                                 group: 0,
+                                group_key: None,
                                 bone: info.location as usize,
                                 transform: ac2_anim::Ac2Transform::IDENTITY,
                             }),
@@ -596,6 +597,7 @@ impl Client {
                             point: match info.kind {
                                 ac2_physics::ChildType::BoneIndex => Some(HoldPoint {
                                     group: 0,
+                                    group_key: None,
                                     bone: info.location as usize,
                                     transform: ac2_anim::Ac2Transform::IDENTITY,
                                 }),
