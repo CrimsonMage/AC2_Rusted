@@ -577,3 +577,45 @@ fn a_thrown_weapons_story_throws_a_clone_of_the_wielded_item() {
     advance(&mut client, &server, 1.0);
     assert_eq!(sword(&client).anim_scale[3], 1.0, "and fades back in");
 }
+
+/// A bow attack's story with the player's swing: the arrow is made and hung in the player's hand
+/// at the swing's start (`CreateAndParentMissiles` on animation hook 0) and waits there while
+/// the swing plays, until the swing reaches its next story hook or ends (`HandleAnimHook`,
+/// `FinishStory`): then it is fired (`FireMissile`), lets go of the hand and sticks in the
+/// drudge.
+#[test]
+fn a_swing_holds_the_arrow_in_the_hand_until_it_fires() {
+    let Some((mut client, server, _scene)) = setup() else {
+        return;
+    };
+    server.borrow_mut().enter_combat(CREATURE_ONE);
+    advance(&mut client, &server, 1.0);
+    server
+        .borrow_mut()
+        .send_swing_missile_story(CREATURE_ONE, BOW_AUTO_ATTACK);
+    let (mut held, mut swung, mut fired) = (0, false, false);
+    for _ in 0..240 {
+        step(&mut client, &server, &FrameInput::default());
+        swung |= client.is_doing_behavior(PLAYER, BEHAVIOR_MELEE_AUTO);
+        match client.story_missiles().first().map(|m| m.1) {
+            Some(Some(PLAYER)) => {
+                assert!(!fired, "back in the hand after it was fired");
+                held += 1;
+            }
+            // In flight, or stuck in what it hit.
+            Some(_) if held > 0 => fired = true,
+            _ => {}
+        }
+        if fired {
+            break;
+        }
+    }
+    assert!(swung, "the player swings");
+    assert!(held > 2, "the arrow waits in the hand: {held} frames");
+    assert!(fired, "and is fired");
+    let missiles = client.story_missiles();
+    assert!(
+        matches!(missiles.first(), Some(&(_, holder, _, true)) if holder != Some(PLAYER)),
+        "out of the hand: {missiles:?}"
+    );
+}

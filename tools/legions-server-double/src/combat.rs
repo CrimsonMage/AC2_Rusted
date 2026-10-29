@@ -256,6 +256,24 @@ impl State {
         self.send_event(&bytes);
     }
 
+    /// A missile attack's story with the attacker's swing (`Melee_Auto1`, the player's): the
+    /// missiles are made and hung at the swing's first story hook (animation hook 0, at once) and
+    /// one is fired at its next (animation hook 1), or when the swing is done.
+    pub fn send_swing_missile_story(&mut self, target: u64, skill: u32) {
+        let mut args = vec![STORY_BITS | 0x4];
+        args.extend([PLAYER as u32, (PLAYER >> 32) as u32]);
+        args.extend([SWING_BEHAVIOR_BITS, BEHAVIOR_MELEE_AUTO, 1, 0]);
+        args.push(skill);
+        args.push(2);
+        for (kind, anim_hook) in [(PARENT_MISSILES_HOOK, 0), (FIRE_MISSILE_HOOK, 1)] {
+            args.push(kind | 0x100 | 0x200);
+            args.extend([target as u32, (target >> 32) as u32]);
+            args.push(anim_hook);
+        }
+        let bytes = object_event_bytes(Opcode::DO_STORY, PLAYER, instance_of(PLAYER), &args);
+        self.send_event(&bytes);
+    }
+
     /// Queues a combat answer (a test can send one directly).
     pub fn send_combat(&mut self, message: &CombatMessage) {
         self.send_script_call(message.function(), &message.arguments());
@@ -273,7 +291,7 @@ impl State {
 
     /// The fight's stances: the player and its target go into their combat modes (`DoMode`), the
     /// ones their swings play in.
-    fn enter_combat(&mut self, target: u64) {
+    pub fn enter_combat(&mut self, target: u64) {
         self.send_combat_mode(PLAYER, MODE_COMBAT);
         self.send_combat_mode(target, MODE_COMBAT_MONSTER);
     }
