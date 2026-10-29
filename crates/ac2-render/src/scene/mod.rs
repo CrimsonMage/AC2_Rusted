@@ -23,7 +23,7 @@ use ac2_core::{DataId, Random};
 use ac2_math::{Frame, Mat4, Vec3};
 use ac2_world::Ac2WorldSource;
 
-pub use interiors::{load_block_interiors, BlockInteriors};
+pub use interiors::{load_block_interiors, BlockInteriors, CellCorona};
 pub use loader::{
     BlockKey, CloudShadow, Images, Loaded, LoadedBlock, LoadedFar, LoadedObject,
     LoadedObjectParticle, ParticleSource, Placement,
@@ -104,6 +104,9 @@ pub struct SceneFrame {
     pub far_chunks: Vec<usize>,
     /// The entities' particles, merged per material (`PSManager::RenderParticleSystems`).
     pub particles: Vec<ParticleBatch>,
+    /// The coronas of the lights of the interior cells that draw (`CEnvCell::DrawPostEffects`,
+    /// `RenderLightCoronas`), with their block.
+    pub coronas: Vec<(BlockKey, CellCorona)>,
 }
 
 /// What changed since the last drain: loads to upload and blocks that left the ring.
@@ -134,6 +137,7 @@ struct BlockInfo {
     water: bool,
     interiors: bool,
     cull: Option<Arc<BlockCull>>,
+    coronas: Option<Arc<[CellCorona]>>,
 }
 
 /// The resident world around a centre block.
@@ -389,6 +393,7 @@ impl WorldScene {
                         water: block.water.is_some(),
                         interiors: block.interiors.is_some(),
                         cull: block.interiors.as_ref().map(|i| Arc::clone(&i.cull)),
+                        coronas: block.interiors.as_ref().map(|i| Arc::clone(&i.coronas)),
                     },
                 );
             }
@@ -786,6 +791,7 @@ impl WorldScene {
             );
         }
         particles.extend(self.decal_batches());
+        let coronas = self.frame_coronas(&interiors, &interior_cells);
         SceneFrame {
             lighting,
             sky,
@@ -796,7 +802,30 @@ impl WorldScene {
             interior_cells,
             far_chunks,
             particles,
+            coronas,
         }
+    }
+
+    /// The coronas of the lights whose cells draw (`CEnvCell::RenderLightCoronas` from each
+    /// drawn cell); a block without a visibility decision draws all of its cells.
+    fn frame_coronas(
+        &self,
+        blocks: &[BlockKey],
+        cells: &HashMap<BlockKey, Vec<u32>>,
+    ) -> Vec<(BlockKey, CellCorona)> {
+        let mut coronas = Vec::new();
+        for key in blocks {
+            let Some(all) = self.blocks.get(key).and_then(|b| b.coronas.as_deref()) else {
+                continue;
+            };
+            let drawn = cells.get(key);
+            coronas.extend(
+                all.iter()
+                    .filter(|corona| drawn.is_none_or(|ids| ids.contains(&corona.cell)))
+                    .map(|corona| (*key, corona.clone())),
+            );
+        }
+        coronas
     }
 
     /// Which env cells of `blocks` draw (`WorldRender::Render`'s gather): from the camera's own

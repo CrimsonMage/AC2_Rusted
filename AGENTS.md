@@ -78,7 +78,10 @@ game rules and server-visible behaviour exactly retail.
   depth (`ac2_gpu` `lens_flare.rs`), on the GPU, and the sprites read it a frame late as retail's
   did. The screen falloff stays at its fifth for a light past the screen's corners (retail's
   square rose again there while the flare faded), and a sky light's direction is taken from the
-  viewer (retail transformed the point 1000 out without the viewer's origin).
+  viewer (retail transformed the point 1000 out without the viewer's origin). A cell light's
+  corona (`CEnvCell::RenderLightCoronas`) is seen where nothing is nearer than the light, moved
+  0.2 m towards the camera (retail's scan triangle sat at a fixed depth of 0.9999); the 64
+  nearest flares in view draw, each keeping its fade while it stays in view.
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

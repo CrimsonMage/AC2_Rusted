@@ -1,5 +1,6 @@
-//! `LensFlareEffect::Draw`: the sprites of each sky light's flare (`LScapeSky::Draw(1)`), drawn
-//! last in the world pass, white at an alpha that falls off from the screen's centre, blended
+//! `LensFlareEffect::Draw`: the sprites of each sky light's flare (`LScapeSky::Draw(1)`) and of
+//! each drawn interior cell's light coronas (`CEnvCell::RenderLightCoronas`), drawn last in the
+//! world pass, white at an alpha that falls off from the screen's centre, blended
 //! SRCALPHA, ONE. Each sprite sits on the axis from the light through the screen centre at
 //! `-axis_pos` times the light's position, `size` wide and square in pixels.
 //!
@@ -7,31 +8,56 @@
 //! read back from the back buffer the next frame (`SceneTool::RequestPixelScan`,
 //! `GetPixelScanResult`); while it showed, `m_fOpacity` rose by the elapsed time times
 //! `m_fFadeSpeed`, otherwise it fell. Here a scan pass after the world pass reads the scene's
-//! depth around the light (the sky draws no depth, so the cleared far depth is the sky) and
-//! steps the opacity towards the fraction it sees, on the GPU, into one of two small textures; the
-//! next frame's sprites read it, a frame late as retail's were.
+//! depth around the light (nothing nearer than the light; for a light at infinity the cleared far
+//! depth, as the sky draws no depth) and steps the opacity towards the fraction it sees, on the
+//! GPU, into one of two small textures; the next frame's sprites read it, a frame late as retail's
+//! were. Each light keeps its slot in those textures while it is drawn, so it keeps its fade.
 
 use std::cell::Cell;
 use std::collections::HashMap;
 
 use ac2_math::{Mat4, Vec3, Vec4};
-use ac2_render::sky::SkyFlare;
+use ac2_render::sky::LensFlare;
 use ac2_render::{Camera, Image, TextureKey};
 
 use crate::{Gpu, TextureCache, DEPTH_FORMAT};
 
-/// Flares one frame draws (the shipped region has one, the sun's).
-const MAX_FLARES: usize = 4;
-/// Sprites across them (the sun's flare has 8).
-const MAX_POINTS: usize = 32;
+/// Flares one frame draws: the sky's (the shipped region has one, the sun's) and the nearest
+/// coronas in view.
+const MAX_FLARES: usize = 64;
+/// Sprites across them (the sun's flare has 8, a corona 1).
+const MAX_POINTS: usize = 128;
+/// How far a corona's light is moved towards the camera before its depth is compared (the lamp
+/// around it does not hide it), in metres.
+const CORONA_DEPTH_BIAS: f32 = 0.2;
 const OPACITY_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Rgba16Float;
 /// The longest step the fade takes at once, in seconds (a stalled frame does not jump it).
 const MAX_STEP: f64 = 0.25;
 
-/// `Flares` in `lens_flare.wgsl`: the lights, the sprites, then the frame's values.
-type Uniform = [[f32; 4]; MAX_FLARES + MAX_POINTS + 1];
+/// `Flares` in `lens_flare.wgsl`: the lights, the slots, the sprites, then the frame's values.
+type Uniform = [[f32; 4]; 2 * MAX_FLARES + MAX_POINTS + 1];
 
-/// The lens flares of the world's sky lights.
+/// Where a flare's light is.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum FlareOrigin {
+    /// A sky light at infinity, in this direction from the viewer
+    /// (`LensFlareEffect::Draw(.., bInfiniteDistance = 1)`).
+    Infinite(Vec3),
+    /// A light at this place in the scene.
+    Point(Vec3),
+}
+
+/// One light's flare for a frame: `key` names the light from frame to frame (it keeps its fade),
+/// `start_opacity` is the opacity it starts from when it is new.
+#[derive(Debug, Clone, Copy)]
+pub struct FlareSource<'a> {
+    pub key: u64,
+    pub origin: FlareOrigin,
+    pub start_opacity: f32,
+    pub flare: &'a LensFlare,
+}
+
+/// The lens flares of the world's lights.
 pub struct LensFlares {
     scan_pipeline: wgpu::RenderPipeline,
     sprite_pipeline: wgpu::RenderPipeline,
@@ -51,6 +77,8 @@ pub struct LensFlares {
     sprites: HashMap<TextureKey, wgpu::BindGroup>,
     /// The frame's sprites: their texture and their index in the uniform.
     draws: Vec<(TextureKey, u32)>,
+    /// The slot each drawn light holds, by key.
+    slots: HashMap<u64, usize>,
     flare_count: usize,
     last_time: Option<f64>,
     /// `Render::m_Prefs.LightCoronas`: no flare draws while it is off.
@@ -273,6 +301,7 @@ impl LensFlares {
             textures: TextureCache::new(device, &gpu.queue),
             sprites: HashMap::new(),
             draws: Vec::new(),
+            slots: HashMap::new(),
             flare_count: 0,
             last_time: None,
             enabled: true,
@@ -284,15 +313,17 @@ impl LensFlares {
         self.enabled = enabled;
     }
 
-    /// Writes the frame's flares seen by `camera` at client `time` (seconds); `load` hands over
-    /// the sprites' images once the loader has decoded them (a sprite waits until then).
+    /// Writes the frame's flares seen by `camera` at client `time` (seconds): every infinite
+    /// light's, and the nearest point lights' that are in the view, up to the slots there are;
+    /// `load` hands over the sprites' images once the loader has decoded them (a sprite waits until
+    /// then).
     pub fn prepare(
         &mut self,
         gpu: &Gpu,
         camera: &Camera,
         aspect: f32,
         time: f64,
-        flares: &[SkyFlare],
+        sources: &[FlareSource<'_>],
         load: &mut dyn FnMut(TextureKey) -> Option<Image>,
     ) {
         let dt = self
@@ -300,22 +331,49 @@ impl LensFlares {
             .map_or(0.0, |last| (time - last).clamp(0.0, MAX_STEP));
         self.last_time = Some(time);
         self.draws.clear();
-        let flares = if self.enabled { flares } else { &[] };
-        let flares = &flares[..flares.len().min(MAX_FLARES)];
-        self.flare_count = flares.len();
-        let mut uniform: Uniform = [[0.0; 4]; MAX_FLARES + MAX_POINTS + 1];
         let view_projection = camera.view_projection(aspect);
-        for (index, flare) in flares.iter().enumerate() {
-            let (ndc, in_view) = light_ndc(view_projection, flare.direction);
-            uniform[index] = [
-                ndc[0],
-                ndc[1],
-                if in_view { 1.0 } else { 0.0 },
-                flare.flare.fade_speed,
-            ];
-            for point in flare.flare.points.iter() {
-                let slot = self.draws.len();
-                if slot == MAX_POINTS {
+        // (source, where it is on the screen, the depth it is seen at, distance)
+        let mut chosen: Vec<(&FlareSource<'_>, [f32; 2], f32, f32)> = Vec::new();
+        if self.enabled {
+            for source in sources {
+                match source.origin {
+                    FlareOrigin::Infinite(direction) => {
+                        let (ndc, in_view) = light_ndc(view_projection, direction);
+                        chosen.push((source, ndc, if in_view { 1.0 } else { -1.0 }, 0.0));
+                    }
+                    FlareOrigin::Point(origin) => {
+                        if let Some((ndc, depth)) = point_ndc(view_projection, camera.eye, origin) {
+                            chosen.push((source, ndc, depth, camera.eye.distance(origin)));
+                        }
+                    }
+                }
+            }
+        }
+        chosen.sort_by(|a, b| a.3.total_cmp(&b.3));
+        chosen.truncate(MAX_FLARES);
+        // Lights drawn last frame keep their slots; new ones take the free slots.
+        let kept: HashMap<u64, usize> = chosen
+            .iter()
+            .filter_map(|(source, ..)| Some((source.key, *self.slots.get(&source.key)?)))
+            .collect();
+        let mut free = (0..MAX_FLARES).filter(|slot| !kept.values().any(|s| s == slot));
+        let mut slots = HashMap::with_capacity(chosen.len());
+        let mut uniform: Uniform = [[0.0; 4]; 2 * MAX_FLARES + MAX_POINTS + 1];
+        for (source, ndc, depth, _) in &chosen {
+            let (slot, start) = match kept.get(&source.key) {
+                Some(slot) => (*slot, -1.0),
+                None => match free.next() {
+                    Some(slot) => (slot, source.start_opacity.clamp(0.0, 1.0)),
+                    None => continue,
+                },
+            };
+            slots.insert(source.key, slot);
+            let finite = matches!(source.origin, FlareOrigin::Point(_));
+            uniform[slot] = [ndc[0], ndc[1], *depth, source.flare.fade_speed];
+            uniform[MAX_FLARES + slot] = [start, if finite { 1.0 } else { 0.0 }, 1.0, 0.0];
+            for point in source.flare.points.iter() {
+                let index = self.draws.len();
+                if index == MAX_POINTS {
                     break;
                 }
                 let Some(key) = point.texture.map(TextureKey::Texture) else {
@@ -344,11 +402,13 @@ impl LensFlares {
                     });
                     self.sprites.insert(key, group);
                 }
-                uniform[MAX_FLARES + slot] = [point.axis_pos, point.size, index as f32, 0.0];
-                self.draws.push((key, slot as u32));
+                uniform[2 * MAX_FLARES + index] = [point.axis_pos, point.size, slot as f32, 0.0];
+                self.draws.push((key, index as u32));
             }
         }
-        uniform[MAX_FLARES + MAX_POINTS] = [dt as f32, aspect, flares.len() as f32, 0.0];
+        self.flare_count = slots.len();
+        self.slots = slots;
+        uniform[2 * MAX_FLARES + MAX_POINTS] = [dt as f32, aspect, 0.0, 0.0];
         gpu.queue
             .write_buffer(&self.uniform, 0, bytemuck::cast_slice(&uniform));
     }
@@ -416,6 +476,29 @@ impl LensFlares {
         }
         self.current.set(1 - read);
     }
+}
+
+/// Where a light at `origin` falls in normalised device coordinates and the depth it is seen at
+/// (moved `CORONA_DEPTH_BIAS` towards the camera), or `None` when it is behind the camera or off
+/// the screen (no scan is asked for it and its sprite would not show).
+fn point_ndc(view_projection: Mat4, eye: Vec3, origin: Vec3) -> Option<([f32; 2], f32)> {
+    let clip = view_projection * origin.extend(1.0);
+    if clip.w <= 1e-4 {
+        return None;
+    }
+    let ndc = [clip.x / clip.w, clip.y / clip.w];
+    if ndc.iter().any(|c| c.abs() > 1.0) {
+        return None;
+    }
+    let toward = eye - origin;
+    let bias = CORONA_DEPTH_BIAS.min(toward.length() * 0.5);
+    let near = view_projection * (origin + toward.normalize_or_zero() * bias).extend(1.0);
+    let depth = if near.w > 1e-4 {
+        near.z / near.w
+    } else {
+        clip.z / clip.w
+    };
+    Some((ndc, depth.clamp(0.0, 1.0)))
 }
 
 /// Where a light at infinity in `direction` falls in normalised device coordinates, and whether

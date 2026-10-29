@@ -1,6 +1,7 @@
 //! The interior cells a landblock shows to the outside (`CLandBlockInfo`'s outside stab list),
 //! as `WorldRender` draws visible env cells from outdoors: each cell mesh with its baked static
-//! light and up to four point lights, under the block's inside environment.
+//! light and up to four point lights, under the block's inside environment, and the coronas
+//! of the lights that belong to its cells.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -8,7 +9,7 @@ use std::sync::Arc;
 use ac2_core::{CellId, DataId};
 use ac2_db::ResourceStore;
 use ac2_math::{BBox, Mat4, Vec3};
-use ac2_world::{Ac2CellStruct, Ac2EnvCell, Ac2WorldSource};
+use ac2_world::{Ac2CellStruct, Ac2EnvCell, Ac2WorldSource, LensFlare, LensFlarePoint};
 
 use crate::interior_cull::{compute_cell_groups, BlockCull, CullCell, CullPortal};
 
@@ -36,6 +37,25 @@ pub struct BlockInteriors {
     pub object_cells: Vec<u32>,
     /// What decides which of them draw (`CEnvCell::CullCells`).
     pub cull: Arc<BlockCull>,
+    /// The coronas of the block's cell lights.
+    pub coronas: Arc<[CellCorona]>,
+}
+
+/// A static light's corona (`CEnvCell::CreateLightSource`): drawn while the cell the light
+/// belongs to draws (`CEnvCell::RenderLightCoronas`), as a lens flare of one sprite on the light.
+#[derive(Debug, Clone, PartialEq)]
+pub struct CellCorona {
+    /// The env cell the light belongs to.
+    pub cell: u32,
+    /// The light's index in the block's `CLightInfo`.
+    pub light: u32,
+    /// The light's place in the scene.
+    pub origin: Vec3,
+    /// The flare's opacity when the cell loads (`LensFlareEffect::InitNew`'s `m_fCoronaOpacity`).
+    pub opacity: f32,
+    /// `m_fCoronaFadeSpeed` and one point at axis -1 of `m_CoronaTextureDID`, `m_fCoronaSize`
+    /// (`LensFlareEffect::AddPoint`).
+    pub flare: LensFlare,
 }
 
 /// `CEnvCell::m_boundingBox`: the cell mesh's bounds turned into the scene's space.
@@ -172,6 +192,28 @@ pub fn load_block_interiors(
         (Some(FOG_NONE), _) | (_, None) => -1.0,
         (_, Some(far)) => far,
     };
+    let coronas = lights
+        .iter()
+        .flat_map(|info| info.lights.iter().enumerate())
+        .filter(|(_, light)| light.cell.raw() & 0xFFFF >= 0x100)
+        .filter_map(|(index, light)| {
+            let corona = light.corona?;
+            Some(CellCorona {
+                cell: light.cell.raw(),
+                light: index as u32,
+                origin: block_origin + light.origin,
+                opacity: corona.opacity,
+                flare: LensFlare {
+                    fade_speed: corona.fade_speed,
+                    points: Arc::from([LensFlarePoint {
+                        axis_pos: -1.0,
+                        texture: Some(corona.texture),
+                        size: corona.size,
+                    }]),
+                },
+            })
+        })
+        .collect();
     let groups = compute_cell_groups(&cull_cells);
     let cull = BlockCull {
         cells: cull_cells,
@@ -190,5 +232,6 @@ pub fn load_block_interiors(
         cell_ids,
         object_cells,
         cull: Arc::new(cull),
+        coronas,
     })
 }

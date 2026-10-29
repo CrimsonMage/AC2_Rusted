@@ -73,11 +73,11 @@ fn depth_view(gpu: &Gpu, depth: f32) -> wgpu::TextureView {
     view
 }
 
-/// The first flare's opacity as the last scan left it.
-fn opacity(gpu: &Gpu, flares: &LensFlares) -> f32 {
+/// The opacity of `slot` as the last scan left it.
+fn opacity(gpu: &Gpu, flares: &LensFlares, slot: usize) -> f32 {
     let buffer = gpu.device.create_buffer(&wgpu::BufferDescriptor {
         label: Some("lens flare test read-back"),
-        size: 256,
+        size: 512,
         usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
         mapped_at_creation: false,
     });
@@ -88,7 +88,7 @@ fn opacity(gpu: &Gpu, flares: &LensFlares) -> f32 {
             buffer: &buffer,
             layout: wgpu::TexelCopyBufferLayout {
                 offset: 0,
-                bytes_per_row: Some(256),
+                bytes_per_row: Some(512),
                 rows_per_image: Some(1),
             },
         },
@@ -102,7 +102,8 @@ fn opacity(gpu: &Gpu, flares: &LensFlares) -> f32 {
     buffer.slice(..).map_async(wgpu::MapMode::Read, |_| {});
     let _ = gpu.device.poll(wgpu::PollType::wait_indefinitely());
     let mapped = buffer.slice(..).get_mapped_range().expect("mapped");
-    half_to_f32(u16::from_le_bytes([mapped[0], mapped[1]]))
+    // Four halves (RGBA) a texel.
+    half_to_f32(u16::from_le_bytes([mapped[slot * 8], mapped[slot * 8 + 1]]))
 }
 
 /// An IEEE half (the opacity texture's red) as f32.
@@ -120,32 +121,45 @@ fn half_to_f32(bits: u16) -> f32 {
     }
 }
 
+fn one_sprite(fade_speed: f32) -> ac2_render::sky::LensFlare {
+    ac2_render::sky::LensFlare {
+        fade_speed,
+        points: std::sync::Arc::from(vec![ac2_render::sky::LensFlarePoint {
+            axis_pos: -1.0,
+            texture: None,
+            size: 1.0,
+        }]),
+    }
+}
+
+/// One frame at `time` over a world whose depth is `depth`: the flares laid out, then the scan.
+fn step(
+    gpu: &Gpu,
+    flares: &mut LensFlares,
+    time: f64,
+    depth: &wgpu::TextureView,
+    sources: &[FlareSource<'_>],
+) {
+    flares.prepare(gpu, &camera(), 1.0, time, sources, &mut |_| None);
+    let mut encoder = gpu.device.create_command_encoder(&Default::default());
+    flares.scan(gpu, &mut encoder, depth);
+    gpu.queue.submit([encoder.finish()]);
+}
+
 #[test]
 fn the_opacity_fades_in_while_the_sky_shows_and_out_while_it_is_hidden() {
     let Ok(gpu) = Gpu::headless() else {
         return;
     };
     let mut flares = LensFlares::new(&gpu, crate::HDR_FORMAT);
-    let sun = SkyFlare {
-        direction: Vec3::Y,
-        flare: ac2_world::LensFlare {
-            fade_speed: 4.0,
-            points: std::sync::Arc::from(vec![ac2_world::LensFlarePoint {
-                axis_pos: -1.0,
-                texture: None,
-                size: 1.0,
-            }]),
-        },
+    let flare = one_sprite(4.0);
+    let sun = FlareSource {
+        key: 1,
+        origin: FlareOrigin::Infinite(Vec3::Y),
+        start_opacity: 0.0,
+        flare: &flare,
     };
     let (sky, hidden) = (depth_view(&gpu, 1.0), depth_view(&gpu, 0.5));
-    let step = |flares: &mut LensFlares, time: f64, depth: &wgpu::TextureView, light| {
-        let lights = std::slice::from_ref(light);
-        flares.prepare(&gpu, &camera(), 1.0, time, lights, &mut |_| None);
-        let mut encoder = gpu.device.create_command_encoder(&Default::default());
-        flares.scan(&gpu, &mut encoder, depth);
-        gpu.queue.submit([encoder.finish()]);
-        opacity(&gpu, flares)
-    };
     // `m_fOpacity` moves by the elapsed time times the fade speed (4 per second), within 0..1.
     let mut seen = Vec::new();
     for (time, depth) in [
@@ -157,18 +171,59 @@ fn the_opacity_fades_in_while_the_sky_shows_and_out_while_it_is_hidden() {
         (0.5, &hidden),
         (0.6, &hidden),
     ] {
-        seen.push(step(&mut flares, time, depth, &sun));
+        step(&gpu, &mut flares, time, depth, &[sun]);
+        seen.push(opacity(&gpu, &flares, 0));
     }
     let expected = [0.0, 0.4, 0.8, 1.0, 0.6, 0.2, 0.0];
     for (got, want) in seen.iter().zip(expected) {
         assert!((got - want).abs() < 2e-3, "{seen:?}");
     }
     // A light behind the camera is out of view: no scan sees it, and it fades.
-    let behind = SkyFlare {
-        direction: -Vec3::Y,
-        ..sun.clone()
+    let behind = FlareSource {
+        origin: FlareOrigin::Infinite(-Vec3::Y),
+        ..sun
     };
-    step(&mut flares, 1.0, &sky, &sun);
-    let faded = step(&mut flares, 1.1, &sky, &behind);
+    step(&gpu, &mut flares, 1.0, &sky, &[sun]);
+    step(&gpu, &mut flares, 1.1, &sky, &[behind]);
+    let faded = opacity(&gpu, &flares, 0);
     assert!((faded - 0.6).abs() < 2e-3, "{faded}");
+}
+
+#[test]
+fn a_corona_starts_at_its_opacity_and_hides_behind_what_is_nearer_than_its_light() {
+    let Ok(gpu) = Gpu::headless() else {
+        return;
+    };
+    let mut flares = LensFlares::new(&gpu, crate::HDR_FORMAT);
+    let (sun_flare, corona_flare) = (one_sprite(4.0), one_sprite(2.0));
+    let sun = FlareSource {
+        key: 1,
+        origin: FlareOrigin::Infinite(Vec3::Y),
+        start_opacity: 0.0,
+        flare: &sun_flare,
+    };
+    // A light 10 m ahead of the camera; a wall 990 m away (depth 0.9995) is behind it, one at
+    // depth 0.5 (under a metre away) in front of it.
+    let corona = FlareSource {
+        key: 2,
+        origin: FlareOrigin::Point(camera().eye + Vec3::new(0.0, 10.0, 0.0)),
+        start_opacity: 0.5,
+        flare: &corona_flare,
+    };
+    let (behind, in_front) = (depth_view(&gpu, 0.9995), depth_view(&gpu, 0.5));
+    // `LensFlareEffect::InitNew`: it starts from its own opacity (no time has passed yet).
+    step(&gpu, &mut flares, 0.0, &behind, &[sun, corona]);
+    assert!((opacity(&gpu, &flares, 1) - 0.5).abs() < 2e-3);
+    // The sun at infinity is hidden by the wall; the corona in front of it is not.
+    step(&gpu, &mut flares, 0.1, &behind, &[sun, corona]);
+    assert!(opacity(&gpu, &flares, 0) < 1e-3);
+    assert!((opacity(&gpu, &flares, 1) - 0.7).abs() < 2e-3);
+    step(&gpu, &mut flares, 0.2, &in_front, &[sun, corona]);
+    assert!((opacity(&gpu, &flares, 1) - 0.5).abs() < 2e-3);
+    // A light that leaves gives its slot up; one that comes back starts over from its opacity
+    // (and steps by the frame's time at once).
+    step(&gpu, &mut flares, 0.3, &behind, &[sun]);
+    step(&gpu, &mut flares, 0.4, &behind, &[corona, sun]);
+    assert_eq!(flares.slots.get(&1), Some(&0), "the sun keeps its slot");
+    assert!((opacity(&gpu, &flares, 1) - 0.7).abs() < 2e-3);
 }

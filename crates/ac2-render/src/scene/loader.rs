@@ -382,6 +382,13 @@ impl Worker {
                 .flat_map(|interiors| interiors.cells.iter())
                 .flat_map(|(model, _)| model.texture_keys()),
         );
+        keys.extend(
+            interiors
+                .iter()
+                .flat_map(|interiors| interiors.coronas.iter())
+                .flat_map(|corona| corona.flare.points.iter())
+                .filter_map(|point| point.texture.map(TextureKey::Texture)),
+        );
         let images = self.images(keys);
         LoadedBlock {
             key,

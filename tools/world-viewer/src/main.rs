@@ -8,11 +8,12 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1]
-//! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS]
+//! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
-//! degrees above the horizon (the sky: `--look 0,60`).
+//! degrees above the horizon (the sky: `--look 0,60`). `--height Z` puts the `--fly` camera at
+//! that height in the block instead (inside a dungeon's cells).
 //! `--model-detail` and `--scenery-distance` set the headless scene's `ModelDetail` and
 //! `SceneryDrawDistance` (object degrades and distances); both default to the preference default,
 //! medium. `--object-shadows` sets its `DynamicObjectShadows` level (default 2, medium; 0 none).
@@ -90,6 +91,8 @@ struct Args {
     object_shadows: ac2_render::prefs::ObjectShadows,
     /// The headless scene's `LightCoronas` (the sky's lens flares).
     light_coronas: bool,
+    /// The `--fly` camera's height in the block, over the ground's.
+    height: Option<f32>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -115,6 +118,7 @@ fn parse_args() -> Result<Args, String> {
         degrade: ac2_render::object::DegradeOptions::default(),
         object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
         light_coronas: ac2_render::prefs::SceneOptions::default().light_coronas,
+        height: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -153,6 +157,9 @@ fn parse_args() -> Result<Args, String> {
                     yaw.parse().map_err(|e| format!("--look: {e}"))?,
                     pitch.parse().map_err(|e| format!("--look: {e}"))?,
                 ));
+            }
+            "--height" => {
+                args.height = Some(value()?.parse().map_err(|e| format!("--height: {e}"))?);
             }
             "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
             "--model-detail" => {
@@ -340,6 +347,9 @@ fn snapshot(
         (true, Some(at)) => ground_camera(&world, args.block, at),
         _ => start_camera(&world, args.block),
     };
+    if let Some(height) = args.height {
+        fly.position.z = height;
+    }
     if let Some((yaw, pitch)) = args.look {
         fly.yaw = yaw.to_radians();
         fly.pitch = pitch.to_radians();

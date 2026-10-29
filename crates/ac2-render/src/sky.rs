@@ -6,7 +6,8 @@
 
 use ac2_core::DataId;
 use ac2_math::{Frame, Mat4, Vec3};
-use ac2_world::{CelestialPosition, LensFlare};
+use ac2_world::CelestialPosition;
+pub use ac2_world::{LensFlare, LensFlarePoint};
 
 /// `Draw` skips the before-world objects when the sky is fogged out (`|fog_sky - 1| < 0.0002`).
 const FOG_SKY_EPSILON: f32 = 0.0002;

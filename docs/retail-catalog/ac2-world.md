@@ -1,9 +1,9 @@
 # ac2-world: Cells, landblocks, regions, terrain, sky, water, game time
 
-989 retail functions: 351 done, 34 partial, 20 to do, 584 skipped.
+989 retail functions: 352 done, 34 partial, 19 to do, 584 skipped.
 Legend and workflow: [README](README.md).
 
-## `portal/shared/src/cell/envcell.cpp.c` (37/140)
+## `portal/shared/src/cell/envcell.cpp.c` (38/140)
 
 ### PackObj
 - [-] `PackObj::Pack` · 0047f1a0 — write path (client reads DATs only)
@@ -97,7 +97,7 @@ Legend and workflow: [README](README.md).
 - [~] `CEnvCell::CullObjects` · 00480a80 · legions 0047a940 — ac2-render: the objects standing in a visible cell draw with it (scene/interiors.rs object_cells, ac2-gpu interior_instances); the per-object frustum test that sets m_nVisibleTimestamp is not ported
 - [~] `CEnvCell::LinkStaticLights` · 00480bc0 · legions 0047aa80 — interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
 - [~] `CEnvCell::LinkDynamicLights` · 00480c00 · legions 0047aac0 — interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
-- [ ] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00 — needs port: indoor env cell: visibility, lights, portals, rendering
+- [x] `CEnvCell::RenderLightCoronas` · 00480c40 · legions 0047ab00 — ac2-render scene frame_coronas: the coronas of the lights of the cells the cull draws (Legions calls it from CEnvCell::CullCellsInternal, 0x0047F034/0x0047F097); drawn by ac2-gpu lens_flare.rs
 - [x] `CEnvCell::FindTransitCellsInternal` · 00480cb0 · legions 0047ab70 — ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 - [-] `CEnvCell::ReleaseSubObjects` · 00480f30 · legions 0047adf0 — retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 - [-] `CEnvCell::CopyDiffuseToVB` · 00480fa0 · legions 0047ae60 — D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu

@@ -16,7 +16,7 @@ use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneObject, Scene
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
-use crate::lens_flare::LensFlares;
+use crate::lens_flare::{FlareOrigin, FlareSource, LensFlares};
 use crate::sky::{SkyLook, SkyRenderer};
 use crate::sun_shadow::{fit_cascades, SunShadows};
 use crate::{
@@ -48,7 +48,7 @@ pub struct SceneRenderer {
     fog_quad: ScreenQuad,
     /// The sky under the DAT sky objects.
     sky: SkyRenderer,
-    /// The sky lights' lens flares over the world.
+    /// The sky lights' lens flares and the light coronas over the world.
     flares: LensFlares,
     /// The near landscape's static shadow map.
     shadow_map: StaticShadowMap,
@@ -92,7 +92,8 @@ impl SceneRenderer {
         self.object_shadows = level;
     }
 
-    /// Whether the sky lights draw their lens flares (`LightCoronas`), from the next `prepare`.
+    /// Whether the sky lights draw their lens flares and the cell lights their coronas
+    /// (`LightCoronas`), from the next `prepare`.
     pub fn set_light_coronas(&mut self, enabled: bool) {
         self.flares.set_enabled(enabled);
     }
@@ -295,10 +296,14 @@ impl SceneRenderer {
         self.sky
             .set_frame(&gpu.queue, camera, aspect, &lighting, &look);
         let images = &self.images;
-        self.flares
-            .prepare(gpu, camera, aspect, time, &frame.sky.flares, &mut |key| {
-                images.get(&key).cloned()
-            });
+        self.flares.prepare(
+            gpu,
+            camera,
+            aspect,
+            time,
+            &flare_sources(frame),
+            &mut |key| images.get(&key).cloned(),
+        );
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect, time);
         let all_world = world_instances(models, placed, blocks, far, frame);
@@ -473,11 +478,35 @@ impl SceneRenderer {
         }
         self.objects
             .draw(pass, 2, &sky_instances(models, &frame.sky.after));
-        // `LScapeSky::Draw(1)`: then each sky light's `LensFlareEffect::Draw`.
-        if landscape_sky(&frame.sky) {
-            self.flares.draw(pass);
-        }
+        // `LScapeSky::Draw(1)`: then each sky light's `LensFlareEffect::Draw`, with the drawn
+        // cells' coronas (`CEnvCell::DrawPostEffects`), indoors as well.
+        self.flares.draw(pass);
     }
+}
+
+/// The frame's lens flares: the sky lights' (`LScapeSky::Draw(1)`, starting unseen as
+/// `LensFlareEffect::LensFlareEffect` does) and the drawn cells' light coronas, each named by its
+/// block and light so it keeps its fade.
+fn flare_sources(frame: &SceneFrame) -> Vec<FlareSource<'_>> {
+    const SKY: u64 = 1 << 63;
+    let sky = frame
+        .sky
+        .flares
+        .iter()
+        .enumerate()
+        .map(|(index, flare)| FlareSource {
+            key: SKY | index as u64,
+            origin: FlareOrigin::Infinite(flare.direction),
+            start_opacity: 0.0,
+            flare: &flare.flare,
+        });
+    let coronas = frame.coronas.iter().map(|((x, y), corona)| FlareSource {
+        key: (u64::from(*x) << 40) | (u64::from(*y) << 32) | u64::from(corona.light),
+        origin: FlareOrigin::Point(corona.origin),
+        start_opacity: corona.opacity,
+        flare: &corona.flare,
+    });
+    sky.chain(coronas).collect()
 }
 
 /// Whether the frame has a landscape sky (`LScapeSky`): sky objects, or the fog quad that

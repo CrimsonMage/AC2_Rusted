@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 152 done, 54 partial, 217 to do, 358 skipped.
+781 retail functions: 155 done, 53 partial, 215 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -485,7 +485,7 @@ Legend and workflow: [README](README.md).
 - [x] `DecalEffectManager::Render` · 005c3a30 · legions 0058ab40 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 - [x] `DecalEffectManager::CreateDecalEffect` · 005c3c10 · legions 0058ad20 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
-## `portal/client/src/render/flare/lensflareeffect.cpp.c` (4/14)
+## `portal/client/src/render/flare/lensflareeffect.cpp.c` (6/14)
 
 ### LensFlarePoint
 - [-] `LensFlarePoint::LensFlarePoint` · 005b6050 · legions 005809f0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -495,7 +495,7 @@ Legend and workflow: [README](README.md).
 - [x] `LensFlareEffect::LensFlareEffect` · 005b6090 · legions 00580a30 — ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 - [-] `LensFlareEffect::~LensFlareEffect` · 005b60c0 · legions 00580a60 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [-] `LensFlareEffect::Destroy` · 005b60f0 · legions 00580a90 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-- [ ] `LensFlareEffect::InitNew` · 005b6130 · legions 00580ad0 — needs port: lens flare (flare points, fade, sprite draw)
+- [x] `LensFlareEffect::InitNew` · 005b6130 · legions 00580ad0 — ac2-render scene/interiors.rs CellCorona: m_fCoronaOpacity start, m_fCoronaFadeSpeed, one point at axis -1 (CEnvCell::CreateLightSource's corona); corona properties decoded in ac2-world ac2_light_info.rs
 - [x] `LensFlareEffect::GetSubDataIDs` · 005b6160 · legions 00580b00 — ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 - [x] `LensFlareEffect::StreamPack` · 005b61f0 · legions 00580b90 — ac2-world ac2_region.rs read_lens_flare: fade speed and counted points kept on SkyObject/CelestialPosition
 - [-] `LensFlareEffect::CopyInto` · 005b62f0 · legions 00580c90 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -505,7 +505,7 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<LensFlarePoint>::AddToEnd` · 005b6980 · legions 00581320 — SmartArray/STL container internals; Vec replaces
 
 ### LensFlareEffect
-- [ ] `LensFlareEffect::AddPoint` · 005b69e0 · legions 00581380 — needs port: lens flare (flare points, fade, sprite draw)
+- [x] `LensFlareEffect::AddPoint` · 005b69e0 · legions 00581380 — ac2-render scene/interiors.rs CellCorona: m_fCoronaOpacity start, m_fCoronaFadeSpeed, one point at axis -1 (CEnvCell::CreateLightSource's corona); corona properties decoded in ac2-world ac2_light_info.rs
 - [-] `LensFlareEffect::FromFileNode` · 005b6a20 — text source format (admin tools)
 - [-] `LensFlareEffect::ToFileNode` · 005b6d30 — text source format (admin tools)
 
@@ -1057,14 +1057,14 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeRender::FillRainVertices` · 00584d70 · legions 00554490 — ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 - [x] `LScapeRender::UpdateRain` · 005856f0 · legions 00554de0 — ac2-render rain.rs RainField (streaks, splashes and near-water ripples) + scene rain_frame discharging WorldRender's rain particle systems
 
-## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (3/9)
+## `portal/client/src/smartbox/worldrender/lscapesky.cpp.c` (4/9)
 
 ### LScapeSky
 - [x] `LScapeSky::SetSkyFog` · 005857b0 · legions 00554ea0 — ac2-world region::sky_objects, ac2-render sky
 - [x] `LScapeSky::CalcFrame` · 005857f0 · legions 00554ee0 — ac2-world region::sky_objects, ac2-render sky
 - [ ] `LScapeSky::Clear` · 00585870 · legions 00554f60 — needs port: landscape sky state (sky clear/fog)
 - [x] `LScapeSky::SetViewerPosition` · 005858b0 · legions 00554fa0 — ac2-world region::sky_objects, ac2-render sky
-- [~] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod not yet
+- [x] `LScapeSky::Draw` · 00585980 · legions 00555070 — sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod are carried but retail's sky drawing never reads them (CalcFrame, SetViewerPosition)
 - [ ] `LScapeSky::LScapeSky` · 00585b30 · legions 00555220 — needs port: landscape sky state (sky clear/fog)
 - [-] `LScapeSky::~LScapeSky` · 00585b50 · legions 00555240 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet

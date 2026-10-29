@@ -2665,7 +2665,7 @@ key	status	note
 00480a80	~	ac2-render: the objects standing in a visible cell draw with it (scene/interiors.rs object_cells, ac2-gpu interior_instances); the per-object frustum test that sets m_nVisibleTimestamp is not ported
 00480bc0	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
 00480c00	~	interior lights are bound per cell at load (CLightInfo lights cached in scene/interiors.rs, up to four per cell model) and only the cells the cull finds visible draw, so only their lights light the frame; retail's global static-light set and LinkLight limits are not reproduced
-00480c40	_	needs port: indoor env cell: visibility, lights, portals, rendering
+00480c40	x	ac2-render scene frame_coronas: the coronas of the lights of the cells the cull draws (Legions calls it from CEnvCell::CullCellsInternal, 0x0047F034/0x0047F097); drawn by ac2-gpu lens_flare.rs
 00480cb0	x	ac2-physics envcell.rs, find_cells.rs: interior collision, containment and portal walk (Legions identical)
 00480f30	-	retail C++ cell-object lifecycle (refcounted visible-cell lists, world-hash registration, free list, sub-object release); residency is ac2-smartbox and loaded records are immutable Arcs
 00480fa0	-	D3D vertex-buffer copies of the cell diffuse; the baked colours are packed D3DCOLORs from ac2-render object/cell.rs bake_cell_colors and uploaded by ac2-gpu
@@ -8401,7 +8401,7 @@ key	status	note
 005857f0	x	ac2-world region::sky_objects, ac2-render sky
 00585870	_	needs port: landscape sky state (sky clear/fog)
 005858b0	x	ac2-world region::sky_objects, ac2-render sky
-00585980	~	sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod not yet
+00585980	x	sky objects drawn as tinted object instances before/after the world in CDayDesc::GetSky list order with the fog_sky quad, then each up object's lens flare (ac2-gpu lens_flare.rs); only viewer-centred domes tint the modern atmosphere (ac2-gpu SkyRole); fixed_pos/height_mod are carried but retail's sky drawing never reads them (CalcFrame, SetViewerPosition)
 00585b30	_	needs port: landscape sky state (sky clear/fog)
 00585b50	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00585ba0	~	sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
@@ -8984,13 +8984,13 @@ key	status	note
 005b6090	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 005b60c0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b60f0	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-005b6130	_	needs port: lens flare (flare points, fade, sprite draw)
+005b6130	x	ac2-render scene/interiors.rs CellCorona: m_fCoronaOpacity start, m_fCoronaFadeSpeed, one point at axis -1 (CEnvCell::CreateLightSource's corona); corona properties decoded in ac2-world ac2_light_info.rs
 005b6160	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 005b61f0	x	ac2-world ac2_region.rs read_lens_flare: fade speed and counted points kept on SkyObject/CelestialPosition
 005b62f0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005b63d0	x	ac2-gpu lens_flare.rs: sky flares (LScapeSky::Draw(1)) with fade by a depth scan; sprite textures requested by ac2-render WorldScene; AGENTS.md exception
 005b6980	-	SmartArray/STL container internals; Vec replaces
-005b69e0	_	needs port: lens flare (flare points, fade, sprite draw)
+005b69e0	x	ac2-render scene/interiors.rs CellCorona: m_fCoronaOpacity start, m_fCoronaFadeSpeed, one point at axis -1 (CEnvCell::CreateLightSource's corona); corona properties decoded in ac2-world ac2_light_info.rs
 005b6f90	-	D3D device/resource plumbing; wgpu replaces
 005b6fb0	-	D3D device/resource plumbing; wgpu replaces
 005b6fd0	-	D3D device/resource plumbing; wgpu replaces
