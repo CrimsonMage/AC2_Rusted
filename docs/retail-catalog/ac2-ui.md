@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1304 done, 327 partial, 120 to do, 496 skipped.
+2247 retail functions: 1306 done, 327 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -1357,14 +1357,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmChatOptionsUI::RecvNotice_ReloadOptions` · 00444cb0 — hud_player.rs refreshes the chat page on CM_Character::SendNotice_ReloadOptions (the page's refresh); Legions 7160 has no matched handler of this name
 - [x] `gmChatOptionsUI::gmChatOptionsUI` · 00444cc0 · legions 00445800 — ChatOptionsUi::create over the ChatPage (hud.rs): the expanders, the refresh at login (hud_player.rs). Legions registers the same notices; the tooltips are not set
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmclientui.cpp.c` (11/18)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmclientui.cpp.c` (13/18)
 
 ### gmClientUI
 - [x] `gmClientUI::ConfirmRecall` · 00446710 · legions 00447250 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ConfirmDefault` · 00446770 · legions 004472b0 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ClearConfirmations` · 004467d0 · legions 00447310 — ac2-ui client_page.rs ClientPage::clear_confirmations; client_page tests
 - [x] `gmClientUI::VerifyRenderOptions` · 00446830 · legions 00447370 — ac2-ui client_page.rs verify_render_options: a timed dialog (type 0x40000005) once while open, text ID_Option_RenderText (DAT_00a4f870 = Tokenize string of the admin initializer). The DVD UI string table has no such entry (client_page_7160 test), so the port asks its own question
-- [ ] `gmClientUI::MonitorChange` · 00446890 — Legions has it: gmClientUI IPreferenceMonitor vtable slot 1 at 0x004473d0 (vtable audit)
+- [x] `gmClientUI::MonitorChange` · 00446890 — ac2-ui options_pages.rs run (each tick from hud_tick.rs) refreshes every row from the PreferenceBank (ClientOptionsUi::refresh, sync_row), so a changed preference's widget shows it as MonitorChange's OptionBase update did (Legions 0x4473d0)
 - [x] `gmClientUI::Changed` · 004468d0 · legions 00447410 — ac2-ui client_options_page.rs update_buttons (Apply and Recall ghost while the bank holds no change, over ClientPage::buttons); ac2-client client_options.rs options_changed
 - [x] `gmClientUI::LookupExpander` · 00446910 · legions 00447450 — ac2-ui client_page.rs ClientPage::lookup_expander over SECTION_ORDER; client_page tests
 - [x] `gmClientUI::Dismantle` · 004469d0 · legions 00447510 — ac2-ui client_page.rs ClientPage::dismantle (expanders gone, questions closed); no monitors to detach in the port
@@ -1373,7 +1373,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmClientUI::Apply` · 00446bf0 · legions 00447730 — ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
 - [x] `gmClientUI::Recall` · 00446ce0 · legions 00447820 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [~] `gmClientUI::Default` · 00446d10 · legions 00447850 — ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
-- [ ] `gmClientUI::MonitorReload` · 00446d50 — Legions has it: gmClientUI IPreferenceMonitor vtable slot 0 at 0x00447890 (vtable audit)
+- [x] `gmClientUI::MonitorReload` · 00446d50 — ac2-ui client_options_page.rs build_list makes each section's OptionFlag/OptionValue/OptionChoice rows from the bank (PreferenceBank::list, kinds 0x40000003/2/1); the registrations are fixed after startup, so MonitorReload's rebuild (Legions 0x447890) gives the same rows and the per-tick refresh shows the reloaded values
 - [x] `gmClientUI::RecvNotice_CloseConfirmationDialog` · 00446e80 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [x] `gmClientUI::ListenToMessage` · 00446f40 · legions 00447a80 — ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 - [~] `gmClientUI::Construct` · 004470c0 · legions 00447c00 — ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
