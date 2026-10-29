@@ -939,6 +939,7 @@ pub struct Tuning {
 
 #[path = "body_access.rs"]
 mod access;
+pub use access::is_moving_velocity;
 
 #[path = "body_anim.rs"]
 mod anim;

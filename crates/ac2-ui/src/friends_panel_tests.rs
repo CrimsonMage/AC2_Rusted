@@ -196,3 +196,41 @@ fn the_server_local_status_selects_the_drop_down_and_sends_its_status() {
     panel.recv_local_status(tree, 99);
     assert_eq!(tree.menu_selected_index(menu), Some(1));
 }
+
+/// `gmFriendsUI::ListenToMessage`'s global loop: away from the keyboard ends when the player
+/// moves; the drop-down goes back to available and its broadcast sends that status. Standing
+/// still, or another status, keeps the selection.
+#[test]
+fn moving_while_away_from_the_keyboard_sets_the_status_back_to_available() {
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let mut panel: FriendsPanel = hud.friends.take().expect("FriendsPage");
+    let tree = &mut hud.tree;
+    let menu = find(tree, "StatusDropDownMenu");
+    panel.recv_local_status(tree, MODE_AWAY);
+    tree.take_messages();
+    panel.global_loop(tree, false);
+    assert_eq!(tree.menu_selected_index(menu), Some(2), "standing still");
+    panel.global_loop(tree, true);
+    assert_eq!(tree.menu_selected_index(menu), Some(0));
+    let requests: Vec<FriendsRequest> = tree
+        .take_messages()
+        .iter()
+        .flat_map(|m| panel.message(tree, m, None))
+        .collect();
+    assert_eq!(
+        requests,
+        [FriendsRequest::Status {
+            flags: 1,
+            emote: Some("ID_EmoteYawnCmd")
+        }]
+    );
+    panel.recv_local_status(tree, MODE_DO_NOT_DISTURB);
+    panel.global_loop(tree, true);
+    assert_eq!(
+        tree.menu_selected_index(menu),
+        Some(1),
+        "do not disturb stays"
+    );
+}

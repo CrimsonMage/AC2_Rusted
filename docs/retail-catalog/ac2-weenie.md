@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 967 done, 156 partial, 124 to do, 657 skipped.
+1904 retail functions: 968 done, 156 partial, 123 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (19/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (20/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2924,7 +2924,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWPhysicsObject::GetRadius` · 00530b40 · legions 00514ae0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::GetTopLevelRadius` · 00530b60 · legions 00514b00 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::GetTopLevelHeight` · 00530b80 · legions 00514b20 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
-- [ ] `CWPhysicsObject::IsMoving` · 00530ba0 · legions 00514b40 — needs port: physics object is moving; no citation in crates/
+- [x] `CWPhysicsObject::IsMoving` · 00530ba0 · legions 00514b40 — ac2-physics body_access.rs is_moving_velocity (CPhysicsObj::IsMoving through the weenie's physics object: squared speed over 0.0002) over the frame's player velocity; the friends page's away reset (ac2-ui friends_panel.rs global_loop)
 - [-] `CWPhysicsObject::IsUndetectable` · 00530bc0 · legions 00514b60 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWPhysicsObject::IsMovementFrozen` · 00530be0 · legions 00514b80 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetMovementFrozen` · 00530c00 · legions 00514ba0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state

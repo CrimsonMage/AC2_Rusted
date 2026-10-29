@@ -83,6 +83,8 @@ pub struct FrameInputs<'a> {
     pub player_cell: Option<u32>,
     /// `CPhysicsObj::IsInWorld` for the player: the frame's passes run only in the world.
     pub in_world: bool,
+    /// `CWPhysicsObject::IsMoving` for the player (`ac2_physics::is_moving_velocity`).
+    pub player_moving: bool,
     /// The selected object's id (`gmSelectionUI`), for the fellowship and pet panels.
     pub selection: Option<u64>,
     pub player_vitals: &'a PlayerVitals,
@@ -229,6 +231,10 @@ impl Hud {
             }
         }
         self.addition_pass(tree, dirty, &messages, &mut requests);
+        // `gmFriendsUI`'s global loop: away from the keyboard ends when the player moves.
+        if let Some(friends) = self.friends.as_mut() {
+            friends.global_loop(tree, input.player_moving);
+        }
         // `gmSecureTradeUI`, `gmPetUI`, `gmShopUI`, `gmSkillTreeUI`, `gmShortcutUI`'s ticks.
         let tick_inputs = TickInputs {
             server_time: input.server_time,

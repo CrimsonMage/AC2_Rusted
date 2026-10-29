@@ -83,6 +83,10 @@ impl HudView {
             player: frame.player.as_ref().map(|p| p.id),
             player_cell: frame.player.as_ref().map(|p| p.cell),
             in_world: frame.in_world,
+            player_moving: frame
+                .player
+                .as_ref()
+                .is_some_and(|p| ac2_physics::is_moving_velocity(p.velocity)),
             selection: frame.selection.as_ref().map(|s| s.id),
             player_vitals: &frame.player_vitals,
             money: frame.inventory.money.max(0) as u32,

@@ -16,8 +16,8 @@
 //! when the page is made; a new selection in it is the status request ([`status_request`]).
 //!
 //! The server's own status (`CM_Friends::SendNotice_LocalStatus`) selects the drop-down entry
-//! ([`FriendsPanel::recv_local_status`]). Not modelled yet: the IsMoving reset of the drop-down
-//! (`ListenToMessage`'s global 0xFFFF0005), and the row tooltips.
+//! ([`FriendsPanel::recv_local_status`]). Away from the keyboard lasts until the player moves
+//! ([`FriendsPanel::global_loop`]). Not modelled yet: the row tooltips.
 
 use std::sync::Arc;
 
@@ -250,6 +250,22 @@ impl FriendsPanel {
             });
         if let Some(add) = self.add {
             tree.set_bool(add, BUTTON_GHOSTED, !addable);
+        }
+    }
+
+    /// `gmFriendsUI::ListenToMessage`'s global loop (0xFFFF0005): while the status is away from
+    /// the keyboard (GUN mode 2) and the player moves (`CWPhysicsObject::IsMoving`), the drop-down
+    /// goes back to its first entry, available; its new selection then sends that status.
+    pub fn global_loop(&mut self, tree: &mut UiTree, player_moving: bool) {
+        let Some(menu) = self.status else {
+            return;
+        };
+        let away = tree
+            .menu_selected_index(menu)
+            .and_then(|index| STATUS_TABLE.get(index))
+            .is_some_and(|(mode, _)| *mode == MODE_AWAY);
+        if away && player_moving {
+            tree.menu_set_selected_index(menu, Some(0));
         }
     }
 

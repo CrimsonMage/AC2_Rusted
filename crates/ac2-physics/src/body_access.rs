@@ -279,8 +279,7 @@ impl PhysicsBody {
     /// `CPhysicsObj::IsMoving`: the squared speed is over `0.0002`.
     pub fn is_moving(&self) -> bool {
         let v = self.object.velocity;
-        let (x, y, z) = (ld(v.x), ld(v.y), ld(v.z));
-        ld(MOVING_SPEED_SQUARED) < z * z + y * y + x * x
+        is_moving_velocity([v.x, v.y, v.z])
     }
 
     /// `PHYSICSOBJREP::GetOmegaVelocity` (`CPhysicsObj::m_vOmegaVelocity`).
@@ -458,6 +457,13 @@ impl PhysicsBody {
     pub fn physics_collide_mask(&self) -> u64 {
         self.object.blocking.bits()
     }
+}
+
+/// `CPhysicsObj::IsMoving` over a body's velocity (`m_velocityVector`, as a frame carries it): the
+/// squared speed is over `0.0002`.
+pub fn is_moving_velocity(v: [f32; 3]) -> bool {
+    let (x, y, z) = (ld(v[0]), ld(v[1]), ld(v[2]));
+    ld(MOVING_SPEED_SQUARED) < z * z + y * y + x * x
 }
 
 #[cfg(test)]

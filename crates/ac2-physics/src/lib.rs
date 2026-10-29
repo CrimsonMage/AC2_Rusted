@@ -105,8 +105,8 @@ pub use anim_rep::BodyAnimation;
 pub use appearance::{Appearance, PartGroupAppearance, GLOBAL_PART_GROUP};
 pub use appearance_delta::local_visual_desc;
 pub use body::{
-    AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock, Tuning, ANIM_QUANTUM,
-    PHYSICS_QUANTUM,
+    is_moving_velocity, AnimationClock, MovementInput, MovementState, PhysicsBody, PhysicsClock,
+    Tuning, ANIM_QUANTUM, PHYSICS_QUANTUM,
 };
 pub use bsp::{BspTree, Polygon};
 pub use cells::{CellSource, LandCell, TerrainPolygon};
