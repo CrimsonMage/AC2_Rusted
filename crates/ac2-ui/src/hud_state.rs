@@ -36,6 +36,9 @@ pub struct Hud {
     now: f64,
     /// The selection info the reticle's meters last took.
     reticle_info: Option<SelectionInfo>,
+    /// `SmartBox::InPortalSpace` for the frame: `gm3DTextUI::Update` passes it to the reticle,
+    /// the damage texts and the name plates, which all hide while it is set.
+    overlays_hidden: bool,
     /// `gmSkillUI`'s `gmSkillTreeUI`.
     pub skills: Option<SkillTreeUi>,
     /// `gmCraftUI`, over `CraftPage`.
@@ -220,6 +223,12 @@ impl Hud {
         self.damage.as_ref().map_or(Vec::new(), |d| d.objects())
     }
 
+    /// `gm3DTextUI::Update`'s `hidden` (`SmartBox::InPortalSpace`) for this frame's reticle,
+    /// damage texts and name plates.
+    pub fn set_overlays_hidden(&mut self, hidden: bool) {
+        self.overlays_hidden = hidden;
+    }
+
     /// `gm3DTextUI::Update`'s reticle for this frame: the selection (id and name) and, when it is
     /// drawn, its box and projection. `info` is taken once per new selection info
     /// (`RecvNotice_UpdateSelectionInfo`).
@@ -243,7 +252,7 @@ impl Hud {
             reticle.selection_info(tree, info);
             self.reticle_info = Some(*info);
         }
-        reticle.update(tree, target, false)
+        reticle.update(tree, target, self.overlays_hidden)
     }
 
     /// `gm3DTextUI::UpdateDamage`: the damage texts over `places` at the HUD's clock, rising above
@@ -265,7 +274,7 @@ impl Hud {
             (selection, offset),
             precluded,
             self.now,
-            false,
+            self.overlays_hidden,
         );
     }
 
@@ -291,7 +300,7 @@ impl Hud {
             rect,
             range * range,
             precluded,
-            false,
+            self.overlays_hidden,
         );
     }
 }

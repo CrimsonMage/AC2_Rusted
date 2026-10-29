@@ -48,9 +48,10 @@ impl Hud {
         self.update_reticle(tree, selection, info, color, target)
     }
 
-    /// `gm3DTextUI::UpdateNames` and then `UpdateDamage` over the boxes the client projected:
-    /// the plates of the named objects that have a radar blip, and the damage texts of the
-    /// objects they hang over. A box the client did not draw places nothing.
+    /// `gm3DTextUI::Update`'s `UpdateDamage` and then `UpdateNames` (retail's order, after the
+    /// reticle) over the boxes the client projected: the damage texts of the objects they hang
+    /// over, and the plates of the named objects that have a radar blip. A box the client did not
+    /// draw places nothing.
     pub fn update_overlays(
         &mut self,
         tree: &mut UiTree,
@@ -59,6 +60,30 @@ impl Hud {
         selection: u64,
         range: f32,
     ) {
+        let objects = self.damage_objects();
+        if !objects.is_empty() {
+            let found: Vec<&OverlayBox> = objects
+                .iter()
+                .filter_map(|id| boxes.iter().find(|b| b.id == *id))
+                .collect();
+            let projectors: Vec<_> = found
+                .iter()
+                .map(|b| {
+                    let projector = b.projector;
+                    move |p: [f32; 3]| projector.project(p)
+                })
+                .collect();
+            let places: Vec<_> = found
+                .iter()
+                .zip(&projectors)
+                .map(|(b, project)| DamagePlace {
+                    id: b.id,
+                    bounds: (b.min, b.max),
+                    project,
+                })
+                .collect();
+            self.update_damage(tree, &places, selection);
+        }
         let named = self.named();
         if !named.is_empty() {
             let mut found = Vec::new();
@@ -91,30 +116,6 @@ impl Hud {
                 })
                 .collect();
             self.update_names(tree, &places, selection, range);
-        }
-        let objects = self.damage_objects();
-        if !objects.is_empty() {
-            let found: Vec<&OverlayBox> = objects
-                .iter()
-                .filter_map(|id| boxes.iter().find(|b| b.id == *id))
-                .collect();
-            let projectors: Vec<_> = found
-                .iter()
-                .map(|b| {
-                    let projector = b.projector;
-                    move |p: [f32; 3]| projector.project(p)
-                })
-                .collect();
-            let places: Vec<_> = found
-                .iter()
-                .zip(&projectors)
-                .map(|(b, project)| DamagePlace {
-                    id: b.id,
-                    bounds: (b.min, b.max),
-                    project,
-                })
-                .collect();
-            self.update_damage(tree, &places, selection);
         }
     }
 

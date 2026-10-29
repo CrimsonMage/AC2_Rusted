@@ -643,3 +643,53 @@ fn the_spew_box_sits_in_the_status_bar_and_takes_no_presses() {
         "the spew box took the press: {top:?}"
     );
 }
+
+#[test]
+fn in_portal_space_the_reticle_hides() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let GameplayHud {
+        mut tree, reticle, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut hud = crate::Hud::default();
+    hud.set_overlays(reticle, None, None);
+    let project = |p: [f32; 3]| ([p[0], p[1]], true);
+    let target = || ReticleTarget {
+        id: 7,
+        bounds: ([-0.1, -0.1, 0.0], [0.1, 0.1, 0.0]),
+        project: &project,
+        planar_distance: Some(10.0),
+    };
+    let corners: Vec<usize> = tree
+        .roots()
+        .iter()
+        .copied()
+        .filter(|&r| tree.get(r).unwrap().id() == tokenize("TargettingReticle"))
+        .collect();
+    let shown = |tree: &UiTree| {
+        tree.placements()
+            .iter()
+            .filter(|p| corners.contains(&p.root) && p.shown)
+            .count()
+    };
+    hud.update_reticle(
+        &mut tree,
+        Some((7, Some("Gnome"))),
+        None,
+        None,
+        Some(target()),
+    );
+    assert_eq!(shown(&tree), 4);
+    // `gm3DTextUI::Update(hidden = InPortalSpace)`: everything hides.
+    hud.set_overlays_hidden(true);
+    hud.update_reticle(
+        &mut tree,
+        Some((7, Some("Gnome"))),
+        None,
+        None,
+        Some(target()),
+    );
+    assert_eq!(shown(&tree), 0);
+}

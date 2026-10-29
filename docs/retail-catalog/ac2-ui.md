@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1312 done, 321 partial, 118 to do, 496 skipped.
+2247 retail functions: 1313 done, 320 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -82,7 +82,7 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::CleanUp` · 0042ad00 · legions 0042aac0 — ac2-ui DamageTexts::clear (destroys every damage text); not yet called on a world reset
-- [~] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui hud_state.rs update_reticle, update_damage, update_names (per frame from ac2-client view.rs). Order differs: retail UpdateReticle, UpdateDamage, UpdateNames; view.rs runs names before damage (no shared state, not changed). Off-screen indicator, radar-look colour and quantity not ported
+- [x] `gm3DTextUI::Update` · 0042adf0 · legions 0042abb0 — ac2-ui hud_state.rs/world_overlays.rs per frame from ac2-client view.rs: UpdateReticle, then UpdateDamage, then UpdateNames (retail's order), each with hidden = in portal space (Hud::set_overlays_hidden from PortalFrame::in_portal_space); the off-screen indicator, radar-look colour and quantity are ported
 - [x] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs add_name (Legions 0x42ac00): skipped when the object has a plate or its radar shape is 0x4000000b; the look's colour, sized to its name with margins; the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks, ObjectFrame::stack_name)
 - [x] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame (the per-object notice registration replaced by the sync); the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks over ObjectFrame::stack_name, ac2-weenie ItemStats::stack_name)
 - [x] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150 — ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)

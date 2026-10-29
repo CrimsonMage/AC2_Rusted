@@ -426,6 +426,11 @@ impl ClientView {
         self.position_external_container(&boxes);
         self.hud.update_radar(radar_view(frame));
         self.hud.update_navigation(frame);
+        // `gm3DTextUI::Update`: the reticle, damage texts and name plates hide in portal space
+        // (`SmartBox::InPortalSpace`).
+        self.hud
+            .panels
+            .set_overlays_hidden(frame.portal.in_portal_space);
         self.update_reticle(frame, &boxes);
         self.update_overlays(frame, &boxes);
         self.hud.finish_frame(gpu);
