@@ -8,7 +8,7 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
-//! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N]
+//! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
@@ -25,7 +25,7 @@
 //! `--shore-effects` `LandscapeShoreEffects` (default 2: breaking water on the shores).
 //! `--flash` draws a camera effect's screen flash of that colour over the snapshot (0..1 each, as
 //! `CameraFxManager`'s sum: `--flash 0,0,0,1` is a full fade to black).
-//! `--grass-copies N` draws each near grass frill N times (1: retail's frills only; default 4,
+//! `--size` sets the headless frame's size (default 1280x720). `--grass-copies N` draws each near grass frill N times (1: retail's frills only; default 4,
 //! draw distance 2's).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
@@ -113,6 +113,8 @@ struct Args {
     flash: [f32; 4],
     /// Copies of each near grass frill (`FrillSettings::copies`).
     grass_copies: u32,
+    /// The headless frame's size in pixels.
+    size: (u32, u32),
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -145,6 +147,7 @@ fn parse_args() -> Result<Args, String> {
         shore_effects: ac2_render::prefs::SceneOptions::default().shore_effects,
         flash: [0.0; 4],
         grass_copies: ac2_render::prefs::SceneOptions::default().frill.copies,
+        size: (1280, 720),
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -158,6 +161,14 @@ fn parse_args() -> Result<Args, String> {
             }
             "--radius" => args.radius = value()?.parse().map_err(|e| format!("--radius: {e}"))?,
             "--snapshot" => args.snapshot = Some(value()?.into()),
+            "--size" => {
+                let text = value()?;
+                let (w, h) = text.split_once('x').ok_or("--size: WIDTHxHEIGHT")?;
+                args.size = (
+                    w.parse().map_err(|e| format!("--size: {e}"))?,
+                    h.parse().map_err(|e| format!("--size: {e}"))?,
+                );
+            }
             "--grass-copies" => {
                 args.grass_copies = value()?
                     .parse()
@@ -381,7 +392,7 @@ fn snapshot(
     models: &[races::PlayerModel],
     args: &Args,
 ) {
-    let (width, height) = (1280, 720);
+    let (width, height) = args.size;
     // Only `--gpu-times` asks the device for timestamp queries.
     let gpu = if args.gpu_times {
         Gpu::headless_timed()

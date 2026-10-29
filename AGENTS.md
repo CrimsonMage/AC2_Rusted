@@ -156,7 +156,12 @@ game rules and server-visible behaviour exactly retail.
   Retail drew each DAT frill once. Every frill sways in a wind by the square of its height
   (`grass_wind`), and discards fragments whose alpha is at most 0.2 (`GRASS_ALPHA_CUT`): the
   DAT's grass layers blend with depth writes and an alpha test above 0, so overlapping copies'
-  faint fringes hid the blades behind them.
+  faint fringes hid the blades behind them. The frills within 12 m of the camera draw back to
+  front among themselves (`FRILL_SORT_DISTANCE`), so a near blade's soft edge no longer keeps
+  out the blades and the body behind it. The grass parts around the nearest eight posed bodies
+  within 60 m (`frill::grass_pushers`, `grass_push` in `object.wgsl`): the part of a blade within
+  0.75 m (times the body's scale) of a body's feet is carried out to that reach and sinks as it
+  bends, its base planted. Retail's frills stood still and the bodies walked through them.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).

@@ -122,6 +122,8 @@ pub struct SceneFrame {
     /// The breaking water on the shores, drawn after the water (`LScapeTerrainMesh::DrawWater`
     /// then `DrawShore(true)`).
     pub shore: Option<ParticleBatch>,
+    /// The bodies the grass bends away from (`frill::grass_pushers`), `[x, y, z, radius]`.
+    pub grass_pushers: Vec<[f32; 4]>,
 }
 
 /// The frame's reflecting water: its height, the `WaterReflections` level, and the resident
@@ -830,6 +832,14 @@ impl WorldScene {
         particles.extend(self.decal_batches());
         let coronas = self.frame_coronas(&interiors, &interior_cells);
         let reflection = self.reflection_plane(eye);
+        // The posed bodies (creatures and players) part the grass they stand in.
+        let grass_pushers = crate::frill::grass_pushers(
+            self.bodies
+                .iter()
+                .filter(|b| !b.bones.is_empty())
+                .map(|b| (b.frame.origin, b.scale.z)),
+            eye,
+        );
         SceneFrame {
             lighting,
             sky,
@@ -843,6 +853,7 @@ impl WorldScene {
             coronas,
             reflection,
             shore,
+            grass_pushers,
         }
     }
 

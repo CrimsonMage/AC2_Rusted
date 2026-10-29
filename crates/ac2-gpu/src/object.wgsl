@@ -25,6 +25,10 @@ struct Frame {
     shading: vec4<f32>,
     // World to the landscape's static shadow map.
     shadow: mat4x4<f32>,
+    // The bodies the grass bends away from (x, y, z at the feet, w the reach); x of `push_count`
+    // is how many.
+    pushers: array<vec4<f32>, 8>,
+    push_count: vec4<f32>,
 };
 
 // What the instances of one draw share: the layer's material, stages and the point lights.
@@ -86,6 +90,34 @@ fn grass_wind(origin: vec3<f32>, z: f32) -> vec3<f32> {
     let flutter = sin(t * 1.9 + phase) + 0.35 * sin(t * 4.3 + phase * 1.7);
     let bend = h * h * 0.06 * gust * (0.6 + 0.4 * flutter);
     return vec3(vec2(0.8, 0.6) * bend, 0.0);
+}
+
+// The client's grass parts around the bodies standing in it (`AGENTS.md`): the part of a blade
+// within a body's reach is carried out to the reach's edge and sinks as it bends, so the body
+// walks through a parting instead of through the blades (whose crossings with the skin speckled
+// the legs).
+fn grass_push(origin: vec3<f32>, world: vec3<f32>) -> vec3<f32> {
+    let h = max(world.z - origin.z, 0.0);
+    // The blade's base stays planted; from a hand's width up it is carried to the reach's edge.
+    let carried = smoothstep(0.0, 0.25, h);
+    var out = world;
+    for (var i = 0u; i < u32(frame.push_count.x); i = i + 1u) {
+        let p = frame.pushers[i];
+        if abs(out.z - p.z) > 2.5 {
+            continue;
+        }
+        let d = out.xy - p.xy;
+        let dist = length(d);
+        let reach = p.w;
+        if dist >= reach {
+            continue;
+        }
+        let away = select(vec2(1.0, 0.0), d / max(dist, 1e-4), dist > 1e-4);
+        let moved = mix(dist, reach, carried);
+        // A blade carried out bends over, so it also sinks by part of the way it moved.
+        out = vec3(p.xy + away * moved, out.z - (moved - dist) * 0.5);
+    }
+    return out;
 }
 
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
@@ -347,6 +379,7 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
     var world = inst.model * vec4(position, 1.0);
     if inst.frill.w > 0.5 {
         world = vec4(world.xyz + grass_wind(inst.model[3].xyz, world.z), 1.0);
+        world = vec4(grass_push(inst.model[3].xyz, world.xyz), 1.0);
     }
     out.clip = frame.view_proj * world;
     let view_pos = (frame.view * world).xyz;

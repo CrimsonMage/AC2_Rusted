@@ -207,6 +207,33 @@ pub fn select_far_frills(
     refs.into_iter().map(|(_, index)| index).collect()
 }
 
+/// The most bodies the grass bends away from in one frame (`object.wgsl`'s `grass_push`).
+pub const GRASS_PUSHERS: usize = 8;
+/// How far from the camera a body still bends the grass, in metres.
+const PUSH_REACH: f32 = 60.0;
+/// A body's reach into the grass at scale 1, in metres.
+const PUSH_RADIUS: f32 = 0.75;
+
+/// The bodies the grass bends away from (`AGENTS.md`): each body's origin (at its feet) and its
+/// reach, `[x, y, z, radius]`, the nearest `GRASS_PUSHERS` within `PUSH_REACH` of `eye`. Retail's
+/// frills stood still, so a body walked through them and their blades showed through its legs.
+pub fn grass_pushers(bodies: impl Iterator<Item = (Vec3, f32)>, eye: Vec3) -> Vec<[f32; 4]> {
+    let mut near: Vec<(f32, [f32; 4])> = bodies
+        .filter_map(|(origin, scale)| {
+            let distance = origin.distance(eye);
+            (distance < PUSH_REACH).then_some((
+                distance,
+                [origin.x, origin.y, origin.z, PUSH_RADIUS * scale.max(0.1)],
+            ))
+        })
+        .collect();
+    near.sort_by(|a, b| a.0.total_cmp(&b.0));
+    near.into_iter()
+        .take(GRASS_PUSHERS)
+        .map(|(_, pusher)| pusher)
+        .collect()
+}
+
 /// The normal every vertex of a frill takes: its world transform's up axis, normalised.
 pub fn frill_normal(world: &Mat4) -> Vec3 {
     world.z_axis.truncate().normalize_or_zero()
@@ -315,6 +342,21 @@ mod tests {
         }
         assert_eq!(grass_copies_for_draw_distance(0), 1, "level 1 is retail's");
         assert_eq!(grass_copies_for_draw_distance(9), 12);
+    }
+
+    #[test]
+    fn the_grass_bends_from_the_nearest_bodies() {
+        let eye = Vec3::new(0.0, 0.0, 0.0);
+        let bodies = (0..20).map(|i| (Vec3::new(i as f32 * 4.0, 0.0, 0.0), 1.0));
+        let pushers = grass_pushers(bodies, eye);
+        assert_eq!(pushers.len(), GRASS_PUSHERS);
+        assert_eq!(pushers[0], [0.0, 0.0, 0.0, PUSH_RADIUS]);
+        assert!(
+            pushers.windows(2).all(|w| w[0][0] < w[1][0]),
+            "nearest first"
+        );
+        let far = grass_pushers([(Vec3::new(100.0, 0.0, 0.0), 1.0)].into_iter(), eye);
+        assert!(far.is_empty(), "past the reach");
     }
 
     #[test]

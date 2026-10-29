@@ -2,6 +2,9 @@
 
 use super::*;
 
+/// How near the camera, in metres, frills draw back to front (`lay_out_group`).
+const FRILL_SORT_DISTANCE: f32 = 12.0;
+
 impl ObjectRenderer {
     /// Writes the frame's camera, lights and fog, re-evaluates animated or tinted layers at
     /// client time `time`, and lays out each group's draws. A group in draw order keeps its
@@ -167,7 +170,7 @@ impl ObjectRenderer {
                         };
                         if group.ordered || pass.depth_write {
                             if instance.frill_normal.is_some() && !group.ordered {
-                                self.scratch_frills.push(entry);
+                                self.scratch_frills.push((distance, entry));
                             } else {
                                 self.scratch_opaque.push(entry);
                             }
@@ -187,7 +190,19 @@ impl ObjectRenderer {
         // and before the translucent ones. The grass blends with depth writes, so a blade drawn
         // first in front of a body left the body failing the depth test under the blade's soft
         // edge: ragged holes in the body where it walked through grass.
-        self.scratch_entries.append(&mut self.scratch_frills);
+        // Near the camera, back to front among themselves: a near blade's soft edge is drawn
+        // over the blades behind it rather than keeping them out by its depth (the dense grass
+        // showed skin-coloured blade shapes over a body). Farther ones, where that cannot be
+        // seen, draw first and stay grouped by model so they batch.
+        let near = FRILL_SORT_DISTANCE * FRILL_SORT_DISTANCE;
+        self.scratch_frills
+            .sort_by_key(|(distance, _)| *distance < near);
+        let split = self
+            .scratch_frills
+            .partition_point(|(distance, _)| *distance >= near);
+        self.scratch_frills[split..].sort_by(|a, b| b.0.total_cmp(&a.0));
+        self.scratch_entries
+            .extend(self.scratch_frills.drain(..).map(|(_, entry)| entry));
         self.scratch_translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
         self.scratch_entries
             .extend(self.scratch_translucent.drain(..).map(|(_, entry)| entry));
@@ -375,6 +390,12 @@ impl ObjectRenderer {
             fog: [start, end, 1.0 / (end - start).max(1e-3), fog_on],
             shading: FRAME_SHADING,
             shadow: self.shadow_matrix.to_cols_array_2d(),
+            pushers: {
+                let mut pushers = [[0.0; 4]; GRASS_PUSHERS];
+                pushers[..self.grass_pushers.len()].copy_from_slice(&self.grass_pushers);
+                pushers
+            },
+            push_count: [self.grass_pushers.len() as f32, 0.0, 0.0, 0.0],
         };
         queue.write_buffer(
             &self.frame_buffer,

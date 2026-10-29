@@ -10,6 +10,7 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use ac2_math::{Mat4, Vec3};
+use ac2_render::frill::GRASS_PUSHERS;
 use ac2_render::object::{
     DrawDetail, LayerPass, ObjectEnvironment, ObjectMaterial, ObjectModel, ObjectPose,
     ObjectVertex, PartDegrades, PointLight,
@@ -88,10 +89,14 @@ struct FrameUniform {
     shading: [f32; 4],
     /// World to the landscape's static shadow map (`crate::StaticShadowMap`).
     shadow: [[f32; 4]; 4],
+    /// The bodies the grass bends away from, `[x, y, z, radius]` (`ac2_render::frill`), and
+    /// their count in `push_count.x`.
+    pushers: [[f32; 4]; GRASS_PUSHERS],
+    push_count: [f32; 4],
 }
 
 /// Byte stride of one draw group's frame uniform (the dynamic-offset alignment; the frame
-/// uniform is 272 bytes).
+/// uniform is 416 bytes).
 const FRAME_STRIDE: u64 = 512;
 /// Draw groups one `prepare` lays out.
 const MAX_GROUPS: usize = 16;
@@ -281,6 +286,8 @@ pub struct ObjectRenderer {
     shadow_sampler: wgpu::Sampler,
     /// World to the static shadow map, for the frills' landscape shadow colour.
     shadow_matrix: Mat4,
+    /// The frame's grass pushers (`set_grass_pushers`).
+    grass_pushers: Vec<[f32; 4]>,
     draw_layout: wgpu::BindGroupLayout,
     texture_layout: wgpu::BindGroupLayout,
     draws: DrawStorage,
@@ -311,7 +318,7 @@ pub struct ObjectRenderer {
     scratch_entries: Vec<DrawEntry>,
     scratch_opaque: Vec<DrawEntry>,
     /// The group's merged frills (`WorldRender::Render` draws them after the opaque objects).
-    scratch_frills: Vec<DrawEntry>,
+    scratch_frills: Vec<(f32, DrawEntry)>,
     scratch_translucent: Vec<(f32, DrawEntry)>,
     scratch_instances: Vec<InstanceData>,
     /// Each model's rank by first appearance in the group being laid out.

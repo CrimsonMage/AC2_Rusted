@@ -396,6 +396,7 @@ impl SceneRenderer {
             environment: None,
             sky: false,
         });
+        self.objects.set_grass_pushers(&frame.grass_pushers);
         self.objects.prepare(
             gpu,
             camera,

@@ -140,6 +140,7 @@ impl ObjectRenderer {
             frame_layout,
             shadow_sampler,
             shadow_matrix: Mat4::ZERO,
+            grass_pushers: Vec::new(),
             draw_layout,
             texture_layout,
             draws,
@@ -200,6 +201,13 @@ impl ObjectRenderer {
     }
 
     /// The world-to-shadow-map transform for the next `prepare` (zero without a map).
+    /// The bodies the grass bends away from this frame (`SceneFrame::grass_pushers`).
+    pub fn set_grass_pushers(&mut self, pushers: &[[f32; 4]]) {
+        self.grass_pushers.clear();
+        self.grass_pushers
+            .extend(pushers.iter().take(GRASS_PUSHERS).copied());
+    }
+
     pub fn set_shadow_matrix(&mut self, matrix: Mat4) {
         self.shadow_matrix = matrix;
     }
