@@ -11,7 +11,12 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
   draws what the client draws (terrain, frills, water, sky, objects, the HUD) without a session:
   it walks the world under the player camera (`ac2-smartbox`, `ac2-physics`) with an egui panel,
   never opens a socket, and changes no client crate. `race-table` runs the `CharacterGenSystem`
-  script once and writes the playable race and sex models the viewer reads.
+  script once and writes the playable race and sex models the viewer reads. `ac2hero-guide`
+  and `ac2hero-map` are standalone egui tools for the in-client quest guide: the guide `ac2-guide`
+  bakes from the AC2Hero site mirror (`AC2HERO_DIR`; nothing from it is committed), browsed with
+  clickable map coordinates, a target arrow and route, and shown as icons on a world map drawn
+  from the landscape (`AC2_DAT_DIR`: per-vertex far colours, normals, water and roads, finer as
+  you zoom). They only read the client's crates.
 
 ## Crates
 
@@ -35,6 +40,8 @@ brought over from Vitaeum-AC2 (commit `b2963be`) into the crate that owns it.
 | `ac2-script` | WSL interpreter (10) | `WLib`/`ByteStream` and `WState` decode, the script VM and native glue (AC2 UI and much gameplay run on it) | rebuilt from the decompile |
 | `ac2-gameplay` | Gameplay (11) | characters, quests, fellowships, crafting, examination; `quest` (`gmQuestInfo` status, time and extra-text rules) so far | started |
 | `ac2-audio` | Audio (16) | sound records (`SoundInfo`, `MusicInfo`, `DBWave`) decoded on a loader thread, `SoundManager` (play requests, budget, channel volumes), the music queue (`DXMusicMessageThread`: primary and secondary segments over `MusicPerformance` and `StylePerformance`, events to an `EventSink`), the DLS software synthesizer (`synth`: voices from the band collections or the user's GM file, an `EventSink` that renders), the mixer and speaker output (cpal), the ambient driver, rain and thunder, the portal space's sounds and the screens' music (`SoundSpace`: the client answers the place questions over physics, so this crate names no physics or world type) | rebuilt from the decompile |
+| `ac2-guide` | Quest guide (no retail subsystem: the AC2Hero site, a modern addition) | the AC2Hero mirror baked in at build time (`AC2HERO_DIR`, nothing from it committed): pages, quest facts, reward items, images and their decoding, map coordinates (`Position::FromRealMapCoords` forms), steering to them, map markers, browsing (tabs, search, chat share tokens) | new |
+| `ac2-macro` | Player automation tools (no retail subsystem: a modern addition) | pure policy the client feeds and acts on: the Tracker (name patterns over the objects the client sees, Virindi Sense's `patterns.txt`; matches announced in chat, listed with distances, picked for the arrow); no files, drawing or network | new |
 | `ac2-client` | Client entry (09 `main`) | the program: window, input, login screen, world loop | new |
 
 ## Dependency order
@@ -58,6 +65,10 @@ script's native layout, `ac2_ui::window_locations`); script sits before ui in th
 `ac2-ui` also depends on `ac2-gameplay` (the quest journal's rules, `ac2_gameplay::quest`).
 `ac2-ui` also depends on `ac2-render` (the client options page's scene options, `ac2_ui::OptionsPages`);
 render sits before ui in the order.
+`ac2-guide` depends only on `ac2-physics` (`LandDefs` cell addressing for its coordinates) and the
+`image` decoder (the site's pictures), and sits after it; `ac2-ui` takes the guide from it (the navigation map's guide layers, the quest guide window).
+`ac2-macro` depends only on `ac2-physics` (`LandDefs` offsets and map coordinates) and sits after it;
+`ac2-ui` (the Tracker window) and `ac2-client` (observations and effects) take it.
 
 ## Milestones
 

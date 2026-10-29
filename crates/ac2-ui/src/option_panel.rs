@@ -4,10 +4,15 @@
 //! Quit button `ID_Option_QuitText`; while one of those is up the three buttons are ghosted
 //! (`UpdateButtons`). A yes to the quit question is `CM_UI::SendNotice_Logoff` (upload the game
 //! options, close the client), a yes to the leave question
-//! `CM_UI::SendNotice_EndCharacterSession` (the gameplay UI ends the session). The Assistance
-//! button opens the `AssistanceTab` page, the `CommandTab`'s messages close both questions, and
+//! `CM_UI::SendNotice_EndCharacterSession` (the gameplay UI ends the session). Retail's Assistance
+//! button opened the `AssistanceTab` page, the `CommandTab`'s messages close both questions, and
 //! the drop-down menus of the pages open up or down by their place in the panel
 //! (`DropDownMenu` `mouse_over`).
+//!
+//! The client's change: the Assistance button is the In-Game Wiki button. Its label says so and a
+//! press opens the quest guide ([`OptionPanel::take_wiki`]). The assistance page it opened has no
+//! tab of its own (`AssistanceTab` sits off the panel), so it is no longer reached: the servers
+//! the client plays on do not answer assistance calls.
 
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
@@ -33,10 +38,24 @@ pub struct OptionPanel {
     leave: usize,
     quit: usize,
     assistance: usize,
+    /// The In-Game Wiki button was pressed since the HUD last asked.
+    wiki: bool,
     confirm: u32,
     quit_context: u32,
     logout_context: u32,
     shown: bool,
+}
+
+/// The button's label (its first text descendant) set to `text`.
+fn set_label(tree: &mut UiTree, button: usize, text: &str) {
+    let mut stack = vec![button];
+    while let Some(element) = stack.pop() {
+        if tree.get(element).is_some_and(|e| e.text().is_some()) {
+            tree.set_text(element, text);
+            return;
+        }
+        stack.extend(tree.children(element).iter().copied());
+    }
 }
 
 fn find(tree: &UiTree, name: &str) -> Option<usize> {
@@ -55,11 +74,22 @@ impl OptionPanel {
             leave: tree.child_recursive(field, tokenize("LeaveButton"))?,
             quit: tree.child_recursive(field, tokenize("QuitButton"))?,
             assistance: tree.child_recursive(field, tokenize("AssistanceButton"))?,
+            wiki: false,
             confirm: 0,
             quit_context: 0,
             logout_context: 0,
             shown: false,
         })
+    }
+
+    /// The Assistance button relabelled as the In-Game Wiki button.
+    pub fn label_wiki(&self, tree: &mut UiTree) {
+        set_label(tree, self.assistance, "In-Game Wiki");
+    }
+
+    /// Whether the In-Game Wiki button was pressed since the last call.
+    pub fn take_wiki(&mut self) -> bool {
+        std::mem::take(&mut self.wiki)
     }
 
     pub fn confirm_context(&self) -> u32 {
@@ -147,9 +177,7 @@ impl OptionPanel {
                 self.quit_context = Self::ask(tree, dialogs, strings, "ID_Option_QuitText");
                 self.update_buttons(tree);
             } else if id == tokenize("AssistanceButton") {
-                if let Some(tab) = find(tree, "AssistanceTab") {
-                    tree.set_state(tab, crate::panel::PAGE_OPEN);
-                }
+                self.wiki = true;
             }
         }
         if id == tokenize("CommandTab") {

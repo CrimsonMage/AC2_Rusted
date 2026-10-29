@@ -123,6 +123,14 @@ pub struct Hud {
     pub help: Option<HelpWindow>,
     /// The help pages, read once on the HUD's worker.
     pub help_pages: Option<HelpPages>,
+    /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`).
+    pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The floating arrow (`guide_arrow`).
+    pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
+    /// The world map in the navigation panel (`world_map`).
+    pub world_map: Option<crate::world_map::WorldMap>,
+    /// The quest guide's window (`guide_window`).
+    pub guide: Option<crate::guide_window::GuideWindow>,
     /// `gmStoryUI`'s background and story fields, shown while a story holds the slot.
     pub story: Option<StoryView>,
     /// `gmChatUI`, the chat window.

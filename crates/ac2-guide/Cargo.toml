@@ -1,0 +1,17 @@
+[package]
+name = "ac2-guide"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# The quest guide: the AC2Hero site mirror baked in at build time (`AC2HERO_DIR`, the mirror's
+# `ac2hero.e5i5o.com` folder; empty when unset, and nothing from it is ever committed), its pages,
+# quest facts, reward items and images, the map coordinates in them, and steering towards them.
+[dependencies]
+ac2-physics = { path = "../ac2-physics" }
+# The site's pictures as pixels for the guide window (the formats the mirror holds).
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "bmp"] }

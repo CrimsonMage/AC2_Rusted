@@ -768,6 +768,9 @@ impl OnlineSession {
                 self.world.leave_world();
                 self.reporter = None;
                 self.entered = false;
+                // Back at character selection the player picks the next character: the set the
+                // server sends after the exit does not enter the configured one again.
+                self.choice = CharacterChoice::Wait;
                 out.push(SessionEvent::LeftWorld);
             }
             _ => {}

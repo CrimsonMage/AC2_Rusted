@@ -151,7 +151,7 @@ key	status	note
 00407910	~	ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
 00407940	x	ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 00407980	x	ac2-ui game_dialogs.rs logout_key (the Leave question's yes)
-00407990	x	ac2-ui HudRequest::Quit: UploadGameOptions, then the window closes (ac2-client hud_request.rs, main.rs quitting)
+00407990	x	ac2-ui HudRequest::Quit: UploadGameOptions (ac2-client hud_request.rs), then main.rs logs the character off (session log_off, ClientNet::LogOffServer, up to 3 s) and closes the window (Device::Done)
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
 004079c0	x	only CWeenieObject::UnRegisterAllNoticeHandlers (Legions 0x4076d0): notices are routed per frame in Rust, there is no per-object handler table to leave
 004079e0	x	ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
@@ -1211,7 +1211,7 @@ key	status	note
 00446bf0	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
 00446ce0	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 00446d10	~	ac2-client hud_options.rs run: options_apply / options_default, then live sound (ac2-audio prefs), camera (CameraManager::apply_prefs), scene (view set_scene_options, which also sizes the sun shadows from DynamicObjectShadows) and the window for a verified FullScreen; D3D-only options (texture, anisotropic and trilinear filters, LandscapeStaticObjectShadows, water) are stored, not applied
-00446d50	x	ac2-ui client_options_page.rs build_list makes each section's OptionFlag/OptionValue/OptionChoice rows from the bank (PreferenceBank::list, kinds 0x40000003/2/1); the registrations are fixed after startup, so MonitorReload's rebuild (Legions 0x447890) gives the same rows and the per-tick refresh shows the reloaded values
+00446d50	x	ac2-ui client_options_page.rs builds each section's OptionFlag/OptionValue/OptionChoice rows from the bank and fills each choice's menu (OptionChoice::Merge: flush, AddChoice per choice) with the current choice selected; labels are ID_Graphics_Value_/ID_Avatar_Value_/ID_Sound_<mapper name>, falling back to the spaced mapper name (the DVD's label table lacks them)
 00446e80	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 00446f40	x	ac2-ui client_options_page.rs (ClientOptionsUi: tab, widgets, Apply/Recall/Default presses, confirmations); ac2-client hud_options.rs run (options_page_answer, Recall, Default); tests client_page_7160.rs default_asks_first_and_a_yes_resets_the_page
 004470c0	~	ac2-ui client_options_page.rs: an expander per section in Construct order, rows from the bank's preferences labelled ID_<section>_<key>; section headers are the section names as text (their string IDs are not identified); the FX and Misc sections register no preferences yet
@@ -1336,7 +1336,7 @@ key	status	note
 0044e370	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries
 0044e3a0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
 0044e3c0	x	character_options.rs / character.rs: the choice's default, current, changed, apply, recall, default and refresh (tested)
-0044e590	~	ac2-ui character_options.rs: the menu's new selection is read into the page's value (ListenToMessage's selection); PreferenceBank::Change and Merge's preference copy are not modelled, the page's Apply sends the setter instead
+0044e590	~	ac2-ui character_options.rs fill_choices (flush + AddChoice in number order) on the Game, Chat and Client pages; the menu's new selection is read into the value; PreferenceBank::Change and Merge's preference copy are not modelled, Apply sends the setter instead
 0044e6d0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
 0044e760	-	C++ downcast (Cast) and scalar deleter: the page keeps typed entries; no runtime cast needed
 0044e7a0	~	the checkbox, its value and the messages are ported; PreferenceBank::Change / ConnectSource (the bank's handlers) are not modelled
@@ -6403,7 +6403,7 @@ key	status	note
 005352d0	-	Win32 window creation; winit
 005356e0	~	bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.jpg (first free N, create_new); not re-rendered
 00535aa0	-	launches retail's external config tool (ShellExecute); prefs edited in-client
-00535e20	~	ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
+00535e20	x	ac2-render prefs::register_device (five display flags, section 0x4000000B) and register_display_resolution: the monitor's modes over 799x599, 1024x768 always listed and the default, each valued by nModeDesc (w<<16|h), labelled 'W x H'; the client registers it at window creation and sizes the window (AGENTS.md exception)
 005362f0	_	needs port (check): Device::Init window and size (--width/--height); main.rs window setup uncited
 005366d0	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
 00536740	_	no call site in the Legions wlib (scan: host::tests::efun_coverage); lower priority
@@ -11097,7 +11097,7 @@ key	status	note
 00620230	x	ac2-script glue::position (ported beside the gPosition glue)
 00620260	_	needs port: ray from a position
 006202c0	x	ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
-00620350	x	ac2-script glue::position (ported beside the gPosition glue)
+00620350	x	ac2-physics landdefs.rs (used by ac2-script glue::position and tools/ac2hero-guide)
 006203e0	x	ac2-script glue::position (ported beside the gPosition glue)
 00620480	-	accessor or type constant: Rust field or enum provides it
 00620490	-	admin file-node source reader (PFileNode tree)
@@ -14758,7 +14758,7 @@ key	status	note
 00723770	_	needs port: notice GunReconnected to the UI/client; no citation in crates/
 00723800	x	ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 007238a0	x	implemented: cited at crates/ac2-ui/src/money_bag.rs:4
-00723980	_	needs port: notice Logoff to the UI/client; no citation in crates/
+00723980	x	ac2-ui option_panel.rs OptionAction::Logoff (the quit question's yes) is the notice; hud_tick.rs turns it into HudRequest::Quit, gmGamePlayUI::RecvNotice_Logoff's handler
 00723a10	x	implemented: cited at crates/ac2-ui/src/consignment.rs:63
 00723aa0	x	implemented: cited at crates/ac2-weenie/src/notice.rs:257
 00723b30	x	implemented: cited at crates/ac2-client/src/hud_view.rs:374

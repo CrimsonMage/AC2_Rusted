@@ -76,3 +76,44 @@ fn a_second_logoff_after_the_character_left_sends_nothing() {
     }
     assert_eq!(server.borrow().blobs.len(), after_first);
 }
+
+#[test]
+fn the_character_set_sent_after_logoff_carries_the_look_from_the_world() {
+    let spawn = Spawn {
+        cell: CELL,
+        origin: [70.0, 70.0, GROUND],
+        rotation: [1.0, 0.0, 0.0, 0.0],
+    };
+    let (mut client, server) = entered(spawn);
+    client.take_notices();
+    let before = client.session().characters().cloned().expect("the set");
+    assert_eq!(before.characters[0].visual.scale, None);
+    // While the character is in the world its look changes (a larger figure, say).
+    let changed = ac2_net::protocol::VisualDesc {
+        parent: Some(0x1F00_0023),
+        scale: Some([1.25, 1.25, 1.25]),
+        ..Default::default()
+    };
+    server
+        .borrow_mut()
+        .set_explorer_visual(legions_server_double::visual_desc_bytes(&changed));
+
+    client.session_mut().log_off_character();
+    let idle = FrameInput::default();
+    let (mut left, mut sets) = (false, 0);
+    for _ in 0..200 {
+        for event in step(&mut client, &server, &idle) {
+            left |= event == SessionEvent::LeftWorld;
+            sets += usize::from(matches!(event, SessionEvent::Characters(_)) && left);
+        }
+        if sets > 0 {
+            break;
+        }
+    }
+    assert!(left, "CharExitGame");
+    assert_eq!(sets, 1, "the characters again after leaving");
+    // The set character selection resumes with (`back_to_character_selection` reads it) has the
+    // new look: the select screen builds its figure from this `VisualDesc`.
+    let after = client.session().characters().expect("the set");
+    assert_eq!(after.characters[0].visual.scale, Some([1.25, 1.25, 1.25]));
+}

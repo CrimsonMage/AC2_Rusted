@@ -758,3 +758,32 @@ pub(super) fn a_resumed_ui_lists_the_kept_set_at_character_selection() {
         .collect();
     assert_eq!(texts, ["Alpha", "Beta"]);
 }
+
+/// Back from the world, the character selection resumes with the set the session kept, and the
+/// set the server sends after the exit (the looks the characters have now) runs `Update` again:
+/// a character with no look (the `nologininfo` stand-in) stands as its figure once it has one.
+#[test]
+pub(super) fn a_set_after_resuming_gives_the_figures_their_new_look() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    ui.resume_at_character_selection(set());
+    ui.use_time(0.0);
+    assert_eq!(ui.mode(), MODE_CHARACTER_SELECTION);
+    let stand_in = |ui: &PregameUi| {
+        ui.character_selection()
+            .expect("character selection")
+            .occupants()[0]
+            .stand_in
+    };
+    assert!(stand_in(&ui).is_some(), "no look yet: the stand-in");
+    let mut again = set();
+    again.characters[0].visual.parent = Some(0x1F00_0023);
+    ui.character_set(again);
+    ui.use_time(0.0);
+    assert_eq!(stand_in(&ui), None, "the figure from its look");
+    assert_eq!(
+        ui.data().characters().unwrap().characters[0].visual.parent,
+        Some(0x1F00_0023)
+    );
+}

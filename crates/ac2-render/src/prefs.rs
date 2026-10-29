@@ -5,8 +5,8 @@
 //!
 //! The keys are the IDs the retail code passes to `PreferenceBank::Create` and `Bless`, in the
 //! order it registers them. Each enum's labels are the IDs of its choices in the render mapper
-//! `0x4000004A`. Retail's `DisplayResolution` (`0x40000047`) is not registered here: its default
-//! comes from the display modes the device lists at run time.
+//! `0x4000004A`. `DisplayResolution` (`0x40000047`) is registered apart
+//! ([`register_display_resolution`]), once the window's monitor has listed its modes.
 //!
 //! `HighQualityUI` (a bool whose default the function sets to 1) has no `Create` in
 //! `Render::InitRenderingPreferences`, so it is not in the bank and is not registered here.
@@ -44,6 +44,11 @@ pub const STREAK_EFFECTS: u32 = 0x4000_0063;
 pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
 /// `ID_Rendering_FullScreen`.
 pub const FULL_SCREEN: u32 = 0x4000_0003;
+/// `ID_Rendering_DisplayResolution`: a display mode, valued (and labelled) by its
+/// `PrefDisplayModeType::nModeDesc`, the width over the height ([`mode_desc`]).
+pub const DISPLAY_RESOLUTION: u32 = 0x4000_0047;
+/// The mode `Device::InitializeRenderingPreferences` always lists and takes as the default.
+pub const DEFAULT_MODE: (u32, u32) = (1024, 768);
 
 /// The render mapper: the labels of the graphics enums are its IDs.
 const RENDER_MAP: u32 = 0x4000_004A;
@@ -283,8 +288,8 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
 }
 
 /// Registers the display preferences (`Device::InitializeRenderingPreferences`, section
-/// `0x4000000B`) and links them to the device. `DisplayResolution` is left out (see the module
-/// docs). Returns how many were registered.
+/// `0x4000000B`) and links them to the device. `DisplayResolution` waits for the monitor's modes
+/// ([`register_display_resolution`]). Returns how many were registered.
 pub fn register_device(bank: &mut PreferenceBank, names: &dyn NameTable) -> usize {
     let flag = |key, default| Pref::boolean(DEVICE_SECTION, key, default);
     let defs = [
@@ -295,6 +300,67 @@ pub fn register_device(bank: &mut PreferenceBank, names: &dyn NameTable) -> usiz
         flag(0x4000_0060, false),
     ];
     register_all(bank, names, defs, "Device")
+}
+
+/// `PrefDisplayModeType::nModeDesc`: the width in the high 16 bits, the height in the low.
+pub fn mode_desc((width, height): (u32, u32)) -> i32 {
+    ((width << 16) | (height & 0xFFFF)) as i32
+}
+
+/// The width and height of a `nModeDesc`.
+pub fn mode_of(desc: i32) -> (u32, u32) {
+    let desc = desc as u32;
+    (desc >> 16, desc & 0xFFFF)
+}
+
+/// `Device::InitializeRenderingPreferences`'s list: the modes over 799 x 599 (retail also wanted
+/// 32 bits a pixel, which every mode here is), each size once, with 1024 x 768 always in it,
+/// smallest first (by pixels, then width).
+pub fn display_modes(modes: impl IntoIterator<Item = (u32, u32)>) -> Vec<(u32, u32)> {
+    let mut list: Vec<(u32, u32)> = modes
+        .into_iter()
+        .filter(|&(w, h)| w > 799 && h > 599 && w < 0x8000 && h < 0x1_0000)
+        .chain(std::iter::once(DEFAULT_MODE))
+        .collect();
+    list.sort_by_key(|&(w, h)| (u64::from(w) * u64::from(h), w, h));
+    list.dedup();
+    list
+}
+
+/// Registers `DisplayResolution` (section `0x4000000B`) over `modes` (a [`display_modes`] list):
+/// each mode a choice valued and labelled by its `nModeDesc`, 1024 x 768 the default. A value
+/// saved for a mode this monitor does not list falls back to the default. Returns whether it was
+/// registered.
+pub fn register_display_resolution(
+    bank: &mut PreferenceBank,
+    names: &dyn NameTable,
+    modes: &[(u32, u32)],
+) -> bool {
+    let choices = modes
+        .iter()
+        .map(|&mode| Choice {
+            value: mode_desc(mode),
+            label: mode_desc(mode) as u32,
+        })
+        .collect();
+    let Some(def) = Pref::enumeration(
+        DEVICE_SECTION,
+        DISPLAY_RESOLUTION,
+        None,
+        choices,
+        mode_desc(DEFAULT_MODE),
+    ) else {
+        return false;
+    };
+    register_all(bank, names, [def], "Device") == 1
+}
+
+/// The display mode the bank's `DisplayResolution` holds, once it is registered.
+pub fn display_resolution(bank: &PreferenceBank) -> Option<(u32, u32)> {
+    match bank.find(DISPLAY_RESOLUTION)?.value {
+        Value::Int(desc) => Some(mode_of(desc)),
+        _ => None,
+    }
 }
 
 fn register_all(

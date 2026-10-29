@@ -68,6 +68,14 @@ pub fn gid_to_game_map_coords(cell_id: u32) -> Option<(f32, f32)> {
     Some((map(x), map(y)))
 }
 
+/// `LandDefs::game_map_coords_to_gid`: the land cell at map coordinates (east, north percent of
+/// the half map); 0 off the map.
+pub fn game_map_coords_to_gid(x: f32, y: f32) -> u32 {
+    let w = f64::from(LAND_WIDTH);
+    let to_cell = |v: f32| (ld(v) * 0.01 * w * 0.5 + w * 0.5 + 0.5).floor() as i64 as i32;
+    lcoord_to_gid(to_cell(x), to_cell(y))
+}
+
 /// `LandDefs::lcoord_to_gid`: 0 off the map.
 pub fn lcoord_to_gid(x: i32, y: i32) -> u32 {
     if !(0..LAND_WIDTH).contains(&x) || !(0..LAND_WIDTH).contains(&y) {

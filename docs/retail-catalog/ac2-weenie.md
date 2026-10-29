@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 966 done, 156 partial, 125 to do, 657 skipped.
+1904 retail functions: 967 done, 156 partial, 124 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -188,7 +188,7 @@ Legend and workflow: [README](README.md).
 - [x] `CM_Trade::SendNotice_Trade_BeReset` · 00726770 — raised by CPlayer's WM_Trade forwarders on the VM (package 0x215, ac2-net gameplay/trade.rs), typed in ac2-script notices_typed.rs, shown by ac2-ui secure_trade.rs; client tests/trade_script_7160.rs covers Registered/Opened/Offered/Accepted/Closed and (partner_revoke) Revoked
 - [x] `CM_Trade::SendNotice_Trade_BeRevoked` · 00726800 — raised by CPlayer's WM_Trade forwarders on the VM (package 0x215, ac2-net gameplay/trade.rs), typed in ac2-script notices_typed.rs, shown by ac2-ui secure_trade.rs; client tests/trade_script_7160.rs covers Registered/Opened/Offered/Accepted/Closed and (partner_revoke) Revoked
 
-## `ac2/client/src/events/cm_ui.cpp.c` (15/21)
+## `ac2/client/src/events/cm_ui.cpp.c` (16/21)
 
 ### CM_UI
 - [x] `CM_UI::SendNotice_CloseConfirmationDialog` · 007232e0 — implemented: cited at crates/ac2-ui/src/dialog.rs:10
@@ -202,7 +202,7 @@ Legend and workflow: [README](README.md).
 - [ ] `CM_UI::SendNotice_GunReconnected` · 00723770 — needs port: notice GunReconnected to the UI/client; no citation in crates/
 - [x] `CM_UI::SendNotice_HandleDragFrom` · 00723800 · legions 006a3880 — ac2-ui item_display.rs ContainerDisplay::message: a dropped copy with Token_SourceContext on the player's own pack is ItemRequest::DragFrom {item (ShortcutData), slot (GetNewIndex), context}; hud_message.rs hands it to the shop's and the consignment's recv_handle_drag_from (the notice's two handlers); backpack_tests a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it
 - [x] `CM_UI::SendNotice_InitStackUI` · 007238a0 · legions 006a38e0 — implemented: cited at crates/ac2-ui/src/money_bag.rs:4
-- [ ] `CM_UI::SendNotice_Logoff` · 00723980 — needs port: notice Logoff to the UI/client; no citation in crates/
+- [x] `CM_UI::SendNotice_Logoff` · 00723980 — ac2-ui option_panel.rs OptionAction::Logoff (the quit question's yes) is the notice; hud_tick.rs turns it into HudRequest::Quit, gmGamePlayUI::RecvNotice_Logoff's handler
 - [x] `CM_UI::SendNotice_OpenExaminationPanel` · 00723a10 · legions 006a39b0 — implemented: cited at crates/ac2-ui/src/consignment.rs:63
 - [x] `CM_UI::SendNotice_PortalSpace` · 00723aa0 — implemented: cited at crates/ac2-weenie/src/notice.rs:257
 - [x] `CM_UI::SendNotice_PrecludeFromBottom` · 00723b30 — implemented: cited at crates/ac2-client/src/hud_view.rs:374

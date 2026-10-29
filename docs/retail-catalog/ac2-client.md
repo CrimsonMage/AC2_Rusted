@@ -1,6 +1,6 @@
 # ac2-client: Client entry, shell, preferences, platform devices
 
-354 retail functions: 126 done, 51 partial, 70 to do, 107 skipped.
+354 retail functions: 127 done, 50 partial, 70 to do, 107 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/main/billingmigration.cpp.c` (0/6)
@@ -246,7 +246,7 @@ Legend and workflow: [README](README.md).
 - [ ] `DevAVI::DevAVI` · 00733590 · legions 006afa40 — needs port: intro AVI playback (DevAVI); crates/ac2-ui/src/media.rs skips Avi media
 - [ ] `DevAVI::~DevAVI` · 007337a0 · legions 006afc50 — needs port: intro AVI playback (DevAVI); crates/ac2-ui/src/media.rs skips Avi media
 
-## `portal/client/src/device/win95/wdevice.cpp.c` (2/26)
+## `portal/client/src/device/win95/wdevice.cpp.c` (3/26)
 
 ### RenderDevicePresentation
 - [-] `RenderDevicePresentation::RenderDevicePresentation` · 00533d40 · legions 00517ce0 — ctor of plain data (presentation, event, dialog gateway)
@@ -279,7 +279,7 @@ Legend and workflow: [README](README.md).
 - [-] `Device::InitWindow` · 005352d0 · legions 005191d0 — Win32 window creation; winit
 - [~] `Device::SaveScreenshot` · 005356e0 · legions 005195e0 — bin/ac2/screenshot.rs: copies the presented frame to the AC2 dir as capN.jpg (first free N, create_new); not re-rendered
 - [-] `Device::RunConfigTool` · 00535aa0 · legions 005199a0 — launches retail's external config tool (ShellExecute); prefs edited in-client
-- [~] `Device::InitializeRenderingPreferences` · 00535e20 · legions 00519d20 — ac2-render prefs::register_device: five display flags (section 0x4000000B); DisplayResolution (0x40000047, a float-free enum whose default comes from the device's display modes at run time) is not registered
+- [x] `Device::InitializeRenderingPreferences` · 00535e20 · legions 00519d20 — ac2-render prefs::register_device (five display flags, section 0x4000000B) and register_display_resolution: the monitor's modes over 799x599, 1024x768 always listed and the default, each valued by nModeDesc (w<<16|h), labelled 'W x H'; the client registers it at window creation and sizes the window (AGENTS.md exception)
 - [ ] `Device::Init` · 005362f0 · legions 0051a1f0 — needs port (check): Device::Init window and size (--width/--height); main.rs window setup uncited
 
 ## `portal/client/src/initcli/initcli.cpp.c` (0/6)

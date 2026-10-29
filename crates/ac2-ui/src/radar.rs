@@ -83,6 +83,9 @@ pub struct RadarUi {
     last_under_mouse: u64,
     /// The pixels the last `Update` plots: (x, y, colour).
     pixels: Vec<(i32, i32, [u8; 4])>,
+    /// The objects the Tracker found (`ac2_macro::tracker`, a modern addition): their blips get
+    /// green corner brackets, four pixels out (outside retail's selection box).
+    tracked: Vec<u64>,
 }
 
 fn int_attr(tree: &UiTree, index: usize, name: &str) -> i32 {
@@ -123,6 +126,7 @@ impl RadarUi {
             old_tooltip: None,
             old_coordinates: None,
             last_under_mouse: 0,
+            tracked: Vec::new(),
             pixels: Vec::new(),
         }
     }
@@ -202,6 +206,9 @@ impl RadarUi {
                 tooltip = Some(dot.name.clone());
             }
             self.draw_blip(dot, x, y, dot.id == view.selection && dot.id != 0);
+            if dot.id != 0 && self.tracked.contains(&dot.id) {
+                self.draw_tracked(x, y);
+            }
         }
         if tooltip != self.old_tooltip {
             if let Some(base) = self.base {
@@ -286,6 +293,25 @@ impl RadarUi {
     fn corners(&mut self, c: [u8; 4], x: i32, y: i32) {
         for (dx, dy) in [(1, 1), (-1, -1), (-1, 1), (1, -1)] {
             self.point(c, x + dx, y + dy);
+        }
+    }
+
+    /// The Tracker's found objects (their blips are bracketed); whether the list changed.
+    pub fn set_tracked(&mut self, objects: &[u64]) -> bool {
+        if self.tracked == objects {
+            return false;
+        }
+        self.tracked = objects.to_vec();
+        true
+    }
+
+    /// A tracked blip's brackets: an L at each corner, four pixels out, in the Tracker's green.
+    fn draw_tracked(&mut self, x: i32, y: i32) {
+        const GREEN: [u8; 4] = [90, 230, 110, 255];
+        for (sx, sy) in [(-1, -1), (1, -1), (-1, 1), (1, 1)] {
+            let (cx, cy) = (x + 4 * sx, y + 4 * sy);
+            self.fill(GREEN, cx.min(cx - sx), cy, cx.max(cx - sx), cy);
+            self.fill(GREEN, cx, cy.min(cy - sy), cx, cy.max(cy - sy));
         }
     }
 

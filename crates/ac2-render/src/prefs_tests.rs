@@ -306,3 +306,36 @@ fn light_coronas_turn_the_lens_flares_on_from_quality_4() {
         assert_eq!(scene_options(&bank).light_coronas, on, "level {level}");
     }
 }
+
+#[test]
+fn the_resolution_lists_the_modes_over_800_by_600_with_1024_by_768_the_default() {
+    use super::{display_modes, display_resolution, mode_desc, register_display_resolution};
+    // Retail's filter: over 799 x 599, each size once, 1024 x 768 always listed; smallest first.
+    let modes = display_modes([
+        (1920, 1080),
+        (640, 480),
+        (800, 600),
+        (1280, 720),
+        (1920, 1080),
+        (800, 599),
+    ]);
+    assert_eq!(
+        modes,
+        vec![(800, 600), (1024, 768), (1280, 720), (1920, 1080)]
+    );
+    assert_eq!(display_modes([]), vec![(1024, 768)]);
+    assert_eq!(mode_desc((1024, 768)), 0x0400_0300);
+
+    let mut bank = bank();
+    assert!(register_display_resolution(&mut bank, &Names, &modes));
+    assert_eq!(display_resolution(&bank), Some((1024, 768)));
+    let pref = bank.find(0x4000_0047).expect("registered");
+    assert_eq!(pref.choices.len(), 4);
+    // A saved mode this monitor lists is kept; one it does not list falls back to the default.
+    let mut saved = PreferenceBank::new(b"[Rendering]\nKey40000047=125830200\n");
+    assert!(register_display_resolution(&mut saved, &Names, &modes));
+    assert_eq!(display_resolution(&saved), Some((1920, 1080)));
+    let mut stale = PreferenceBank::new(b"[Rendering]\nKey40000047=1\n");
+    assert!(register_display_resolution(&mut stale, &Names, &modes));
+    assert_eq!(display_resolution(&stale), Some((1024, 768)));
+}

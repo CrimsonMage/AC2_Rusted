@@ -23,9 +23,11 @@ use crate::{
     OptionsPrefs, UiMessage, UiTree,
 };
 
-/// The display keys whose change the window and the surface take: FullScreen, TripleBuffering,
-/// SyncToDisplayRefresh, OptimalRefreshRate and Antialiasing (`Device::ChangePresentation`).
-pub const DISPLAY_KEYS: [u32; 5] = [
+/// The display keys whose change the window and the surface take: DisplayResolution,
+/// FullScreen, TripleBuffering, SyncToDisplayRefresh, OptimalRefreshRate and Antialiasing
+/// (`Device::ChangePresentation`).
+pub const DISPLAY_KEYS: [u32; 6] = [
+    ac2_render::prefs::DISPLAY_RESOLUTION,
     ac2_render::prefs::FULL_SCREEN,
     0x4000_0005,
     0x4000_0006,

@@ -129,7 +129,7 @@ impl Hud {
         hosts: Option<FrameHosts<'_, P>>,
         input: &FrameInputs<'_>,
     ) -> Vec<HudRequest> {
-        let messages = std::mem::take(&mut self.player_messages);
+        let mut messages = std::mem::take(&mut self.player_messages);
         // `gmCWInterface::PopupYesNoDialog` raises its question at once, whether or not the HUD
         // is up yet: the dialogs are the game's own, always there in retail. A question that
         // comes before the HUD's dialogs waits in the backlog and is asked when they are.
@@ -214,6 +214,7 @@ impl Hud {
             consignment_charge: &mut charge,
             options_host: &mut *options,
         };
+        self.tracker_enter(tree, dirty, &mut messages, &mut requests);
         requests.extend(crate::message_pass(
             self,
             tree,
@@ -227,6 +228,7 @@ impl Hud {
                 *dirty = true;
             }
         }
+        self.addition_pass(tree, dirty, &messages, &mut requests);
         // `gmSecureTradeUI`, `gmPetUI`, `gmShopUI`, `gmSkillTreeUI`, `gmShortcutUI`'s ticks.
         let tick_inputs = TickInputs {
             server_time: input.server_time,

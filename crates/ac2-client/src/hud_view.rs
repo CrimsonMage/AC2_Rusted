@@ -46,6 +46,8 @@ pub(crate) struct HudView {
     pub(crate) dirty: bool,
     /// The sounds the UI's media played (`MD_Data_Sound`) until the audio sink takes them.
     pub(crate) sounds: Vec<u32>,
+    /// The Tracker and its file work (`hud_tracker`).
+    pub(crate) tracker: crate::hud_tracker::TrackerHost,
 }
 
 impl HudView {

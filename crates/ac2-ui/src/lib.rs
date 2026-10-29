@@ -6,6 +6,7 @@
 //! consumes (`ActionInterpreter`); and the UI: layouts (`LayoutDesc`), the element tree built
 //! from them (`UIElementManager`, `UIElement`) and its software compositor (`UIRegion::DrawHere`).
 
+mod addition_passes;
 mod allegiance;
 mod assistance;
 mod backpack;
@@ -210,7 +211,11 @@ mod story_view;
 #[cfg(test)]
 mod story_view_tests;
 pub use story_view::{subtitle_text, StoryView};
+mod book_rows;
 pub mod chat_text;
+pub mod guide_arrow;
+mod guide_page;
+pub mod guide_window;
 pub mod help;
 #[cfg(test)]
 mod help_buttons_tests;
@@ -235,6 +240,12 @@ mod scroll_coverage_tests;
 mod scroll_wheel_tests;
 mod target_cycle;
 mod target_select;
+pub mod tracker_ui;
+mod window_parts;
+pub mod world_map;
+pub mod world_map_layers;
+pub mod world_map_sidecar;
+pub mod world_map_tiles;
 pub use target_select::{
     frame_selection_calls, select_key_calls, SelectionCall, SelectionObject, SelectionSource,
 };
@@ -247,6 +258,7 @@ mod text_clip;
 mod text_clipboard;
 mod text_data;
 mod text_edit;
+pub use text_edit::TextPress;
 mod text_scroll;
 mod token;
 mod toolbar;
@@ -306,7 +318,7 @@ pub use chat::{
 };
 pub use chat_options::{ChatOptionRequest, ChatOptionSetting, ChatOptionsUi};
 pub use chat_text::ChatText;
-pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES};
+pub use chat_window::{chat_window_id, ChatMessageInfo, CHAT_TEXT_TYPES, TEXT_TYPE_STANDARD};
 pub use client_options_page::{ClientOptionsUi, ClientRequest};
 pub use client_page::{
     ButtonStates, ClientPage, ClientPageText, PageAction, RENDERING_SECTION, SECTION_ORDER,

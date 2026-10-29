@@ -4,7 +4,8 @@
 //! x87 arithmetic is f64 here with f32 at retail's stores (53-bit precision control).
 
 use ac2_physics::landdefs::{
-    adjust_to_outside, get_block_offset, gid_to_lcoord, lcoord_to_gid, LAND_WIDTH, SQUARE_LENGTH,
+    adjust_to_outside, game_map_coords_to_gid, get_block_offset, gid_to_lcoord, lcoord_to_gid,
+    LAND_WIDTH, SQUARE_LENGTH,
 };
 use ac2_physics::{Frame, Heading, Position as PhysPosition, Quaternion, Vector};
 
@@ -230,13 +231,6 @@ fn place_in_cell(p: &mut Position, cell: u32) -> bool {
 /// `LandDefs::gid_to_game_map_coords`: percent of the half map from its middle (x, y).
 fn game_map_coords(cell: u32) -> Option<(f32, f32)> {
     ac2_physics::landdefs::gid_to_game_map_coords(cell)
-}
-
-/// `LandDefs::game_map_coords_to_gid`.
-fn game_map_coords_to_gid(x: f32, y: f32) -> u32 {
-    let w = f64::from(LAND_WIDTH);
-    let to_cell = |v: f32| (ld(v) * 0.01 * w * 0.5 + w * 0.5 + 0.5).floor() as i64 as i32;
-    lcoord_to_gid(to_cell(x), to_cell(y))
 }
 
 /// `swscanf`'s `%f` / `%d` over a word stream (leading whitespace skipped).

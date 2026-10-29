@@ -1,0 +1,17 @@
+[package]
+name = "ac2hero-guide"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# Standalone test tool for the in-client quest guide: the guide `ac2-guide` bakes (`AC2HERO_DIR`)
+# browsed in egui with clickable map coordinates, a target arrow and a route map.
+[dependencies]
+ac2-guide = { path = "../../crates/ac2-guide" }
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "wgpu", "wayland", "x11", "clipboard", "links"] }
+egui_extras = { version = "0.37", default-features = false, features = ["image"] }
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "bmp"] }

@@ -248,6 +248,12 @@ impl State {
 
     /// `Explorer`'s `VisualDesc` bytes: the default human male's appearance when the rules make
     /// one (`explorer_visual_of`), else the bare parent.
+    /// `Explorer`'s appearance from now on (the next character set lists it): a test's change
+    /// made while the character is in the world.
+    pub fn set_explorer_visual(&mut self, visual: Vec<u8>) {
+        self.explorer_visual = visual;
+    }
+
     pub(crate) fn explorer_visual(&self) -> Vec<u8> {
         if self.explorer_visual.is_empty() {
             let explorer = VisualDesc {

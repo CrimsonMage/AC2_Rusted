@@ -4,7 +4,10 @@
 //! `RenderDeviceD3D::ResetDevice` turned into the D3D presentation parameters: `Windowed`,
 //! `BackBufferCount`, `PresentationInterval`, `FullScreen_RefreshRateInHz` and `MultiSampleType`.
 //!
-//! Here the window and the surface take the first three. FullScreen is borderless fullscreen on
+//! Here the window and the surface take the first three, and DisplayResolution
+//! (`Device::InitializeRenderingPreferences`' list of the monitor's modes) is the window's inner
+//! size while it is not fullscreen, set when the player picks a mode (a window resized by hand
+//! keeps its size until then). FullScreen is borderless fullscreen on
 //! the window's monitor (`Device::ToggleFullScreenMode`'s display change has no portable form, see
 //! the module's skips below). TripleBuffering is the swap chain's frame latency: `BackBufferCount`
 //! of 2 is three images (latency 2), 1 is two images (latency 1), as wgpu counts them. A
@@ -27,9 +30,12 @@ pub const TRIPLE_BUFFERING: u32 = 0x4000_0005;
 /// `ID_Rendering_SyncToDisplayRefresh`.
 pub const SYNC_TO_DISPLAY_REFRESH: u32 = 0x4000_0006;
 
-/// The window's fullscreen state, the surface's vertical sync and its frame latency.
+/// The window's size and fullscreen state, the surface's vertical sync and its frame latency.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WindowPresentation {
+    /// The display mode (`DisplayResolution`): the window's inner size in pixels while it is not
+    /// fullscreen. `None` before the monitor's modes are registered.
+    pub size: Option<(u32, u32)>,
     /// Borderless fullscreen on the window's current monitor (`Windowed = !FullScreen`).
     pub fullscreen: bool,
     /// Vertical sync: FIFO when on, immediate presentation when off.
@@ -43,6 +49,7 @@ impl WindowPresentation {
     /// The presentation for the three flags (`Device::ChangePresentation`'s mapping).
     pub fn from_flags(fullscreen: bool, triple_buffering: bool, sync_to_refresh: bool) -> Self {
         Self {
+            size: None,
             fullscreen,
             vsync: sync_to_refresh,
             frame_latency: if triple_buffering { 2 } else { 1 },
@@ -57,11 +64,14 @@ impl WindowPresentation {
             bank.find(key)
                 .map_or(default, |pref| matches!(pref.value, Value::Bool(true)))
         };
-        Self::from_flags(
-            flag(FULL_SCREEN, true),
-            flag(TRIPLE_BUFFERING, false),
-            flag(SYNC_TO_DISPLAY_REFRESH, true),
-        )
+        Self {
+            size: ac2_render::prefs::display_resolution(bank),
+            ..Self::from_flags(
+                flag(FULL_SCREEN, true),
+                flag(TRIPLE_BUFFERING, false),
+                flag(SYNC_TO_DISPLAY_REFRESH, true),
+            )
+        }
     }
 }
 
@@ -96,6 +106,7 @@ mod tests {
         assert_eq!(
             default,
             WindowPresentation {
+                size: None,
                 fullscreen: true,
                 vsync: true,
                 frame_latency: 1,
@@ -106,6 +117,7 @@ mod tests {
         assert_eq!(
             windowed,
             WindowPresentation {
+                size: None,
                 fullscreen: false,
                 vsync: false,
                 frame_latency: 2,
@@ -134,6 +146,12 @@ mod tests {
             WindowPresentation::from_bank(&bank),
             WindowPresentation::from_flags(false, true, true)
         );
+        // With the monitor's modes registered, the mode is the window's size (1024 x 768 first).
+        let modes = ac2_render::prefs::display_modes([(1920, 1080), (1280, 720)]);
+        assert!(ac2_render::prefs::register_display_resolution(
+            &mut bank, &Named, &modes
+        ));
+        assert_eq!(WindowPresentation::from_bank(&bank).size, Some((1024, 768)));
     }
 
     #[test]

@@ -408,11 +408,10 @@ impl Client {
         events.extend(dispatched);
         // The script notices of this frame reach the story slot (`CM_Quest`, `CM_UI`).
         let mut story = self.apply_story_notices(&events);
-        // `gmGamePlayUI::EndSession`: the story slot is deleted when the session drops.
-        if events
-            .iter()
-            .any(|event| matches!(event, SessionEvent::Disconnected(_)))
-        {
+        // `gmGamePlayUI::EndSession`: the story slot goes when the character leaves or drops.
+        let ended =
+            |e: &SessionEvent| matches!(e, SessionEvent::LeftWorld | SessionEvent::Disconnected(_));
+        if events.iter().any(ended) {
             self.story_session_end();
         }
         {

@@ -125,11 +125,17 @@ impl BookUi {
         Self::from_field(tree, field)
     }
 
-    /// A second `Book` made as its own HUD root, so the window moves and keeps its place like any
-    /// other window (the help window reuses the book's frame and text area this way). The
-    /// layout's top-level `Book` is the root; `None` when the layout has none.
-    pub fn create_window(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
-        let field = tree.create_root(Arc::clone(gameplay), tokenize("Book"))?;
+    /// Another `Book` made as its own HUD root under the client's id `id`, so the window moves and
+    /// keeps its place like any other window (the help window, the Tracker, the guide and the map
+    /// layers reuse the book's frame and text area this way). A copy of the layout's top-level
+    /// `Book`; each copy's place is kept locally under its own id, and none uploads a location to
+    /// the server (`save_loc` cleared: the book's own location is the retail one, and
+    /// `UISaveLocations` lists a window once). `None` when the layout has no `Book`.
+    pub fn create_window(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>, id: &str) -> Option<Self> {
+        let mut desc = (**gameplay.element(tokenize("Book"))?).clone();
+        desc.id = tokenize(id);
+        let field = tree.create_root_from(Arc::clone(gameplay), Arc::new(desc))?;
+        tree.set_bool(field, crate::token::SAVE_LOC, false);
         Self::from_field(tree, field)
     }
 

@@ -75,6 +75,13 @@ impl ResourceStore {
         Self::with_cache_config(dataset, ResourceCacheConfig::default())
     }
 
+    /// A store that keeps at most `free_byte_budget` bytes of released values
+    /// (`ResourceCacheConfig::free_byte_budget`; `new` keeps `DEFAULT_FREE_CACHE_BUDGET_BYTES`),
+    /// for readers that sweep many records once, such as a world map drawn from every landblock.
+    pub fn with_free_cache_budget(dataset: Arc<DatDataset>, free_byte_budget: usize) -> Self {
+        Self::with_cache_config(dataset, ResourceCacheConfig::new(free_byte_budget))
+    }
+
     /// The DATs the store reads.
     pub fn dataset(&self) -> &Arc<DatDataset> {
         &self.dataset

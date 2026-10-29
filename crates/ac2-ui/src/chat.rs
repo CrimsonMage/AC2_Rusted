@@ -415,6 +415,15 @@ impl ChatUi {
         self.windows[i].prefill_entry(tree, &units);
     }
 
+    /// The entry line of the window chat would send from shows `text`, ready to send or edit (the
+    /// guide's Share).
+    pub fn prefill(&mut self, tree: &mut UiTree, text: &str) {
+        let Some(i) = self.determine_target_window(tree, false) else {
+            return;
+        };
+        self.windows[i].prefill_entry(tree, &utf16(text));
+    }
+
     /// `gmChatUI::RecvNotice_DoAssistedTell` / `ChatWindow::DoAssistedTell`: the entry line
     /// becomes a tell to `target` (`ID_Chat_AssistedTell` with `prefix` and `target`).
     pub fn assisted_tell(&mut self, tree: &mut UiTree, target: &str) {

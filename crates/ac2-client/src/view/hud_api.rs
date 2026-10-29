@@ -76,6 +76,23 @@ impl ClientView {
         commands
     }
 
+    /// The modern additions' frame without a session (the world viewer): the quest guide, the
+    /// world map and the Tracker over the frame's objects. Their gameplay commands (a Tracker
+    /// pick's selection) have no session to go to and are dropped.
+    pub fn offline_frameworks(&mut self, frame: &crate::ClientFrame) {
+        self.hud.offline_frameworks(frame);
+    }
+
+    /// Opens or closes the quest guide (the In-Game Wiki button).
+    pub fn toggle_guide(&mut self) {
+        self.hud.toggle_addition(ac2_ui::Hud::toggle_guide);
+    }
+
+    /// Opens or closes the Tracker's window (its radar eyeball).
+    pub fn toggle_tracker(&mut self) {
+        self.hud.toggle_addition(ac2_ui::Hud::toggle_tracker);
+    }
+
     /// Whether the player confirmed the quit question (`gmGamePlayUI::RecvNotice_Logoff`); the
     /// window closes after the frame that sends `UploadGameOptions`.
     pub fn take_quit_request(&mut self) -> bool {
@@ -175,6 +192,12 @@ impl ClientView {
     /// locking zooms to the character, unlocking leaves the window where it is.
     pub fn navigation_lock(&mut self, locked: bool) {
         self.hud.navigation_lock(locked);
+    }
+
+    /// The navigation panel's world map window (its centre in land cells and its zoom), when the
+    /// panel draws the world map.
+    pub fn world_map_window(&self) -> Option<ac2_ui::world_map_tiles::MapWindow> {
+        self.hud.world_map_window()
     }
 
     /// The navigation panel and the tree it lives in, once the HUD is built.

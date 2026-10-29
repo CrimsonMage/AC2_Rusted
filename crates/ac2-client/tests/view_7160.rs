@@ -243,10 +243,12 @@ fn the_client_walks_with_w_and_draws_its_character() {
         1,
         "the player's character model loads"
     );
+    // The floating arrow's two overlays (`guide_arrow`: copies of the reticle's own indicator and
+    // name) compose with the reticle's objects.
     assert_eq!(
         view.hud_layers(),
-        16,
-        "every HUD root (and the reticle's objects, the shortcut bar and the first chat window) is drawn"
+        18,
+        "every HUD root (and the reticle's and the floating arrow's objects, the shortcut bar and the first chat window) is drawn"
     );
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
     let target = FrameTarget::new(&gpu.device, SIZE.0, SIZE.1);

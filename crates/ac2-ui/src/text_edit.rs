@@ -45,6 +45,15 @@ fn message(name: &str) -> u32 {
     tokenize(name)
 }
 
+/// A press on read-only text: the line it landed on, the column (in characters) within it, and
+/// the map coordinate under it (north, east).
+#[derive(Debug, Clone, PartialEq)]
+pub struct TextPress {
+    pub line: String,
+    pub column: usize,
+    pub coordinate: Option<(f32, f32)>,
+}
+
 impl UiTree {
     /// The active element (`m_activeElement`).
     pub fn active(&self) -> Option<usize> {
@@ -511,6 +520,14 @@ impl UiTree {
             .text
             .as_ref()
             .map_or(0, |t| t.position_at(local_x, local_y));
+        // A press on read-only text (the chat log) is kept for the HUD: a coordinate under it
+        // points the floating arrow there, and a Tracker line's name selects what it found (modern
+        // additions; the press still places the cursor for a drag selection).
+        if !editable {
+            self.text_press = self
+                .text_press_at(index, position)
+                .or(self.text_press.take());
+        }
         // The pointer's shift state (`set_shift`, shared with the drag).
         let shift = self.drag.shift;
         self.set_cursor(index, position as isize, shift);
@@ -518,6 +535,51 @@ impl UiTree {
         if editable {
             self.activate(index);
         }
+    }
+
+    /// The map coordinate around character `position` of text element `index`, if one is there.
+    /// The press at character `position` of text element `index`: the line it is on, its column
+    /// in that line, and the map coordinate it landed on.
+    pub(crate) fn text_press_at(&self, index: usize, position: usize) -> Option<TextPress> {
+        let units = self.el(index).text.as_ref()?.text();
+        let text = String::from_utf16_lossy(&units);
+        let chars: Vec<char> = text.chars().collect();
+        let position = position.min(chars.len());
+        let start = chars[..position]
+            .iter()
+            .rposition(|&c| c == '\n')
+            .map_or(0, |i| i + 1);
+        let end = chars[position..]
+            .iter()
+            .position(|&c| c == '\n')
+            .map_or(chars.len(), |i| position + i);
+        let line: String = chars[start..end].iter().collect();
+        let column = position - start;
+        // The coordinate search works on bytes: the column's byte offset in the line.
+        let byte = line
+            .char_indices()
+            .nth(column)
+            .map_or(line.len(), |(at, _)| at);
+        let coordinate = ac2_guide::coord::find(&line)
+            .into_iter()
+            .find(|(range, _)| range.contains(&byte))
+            .map(|(_, at)| (at.north, at.east));
+        Some(TextPress {
+            line,
+            column,
+            coordinate,
+        })
+    }
+
+    /// The map coordinate under character `position` of text element `index`, if one is there.
+    #[cfg(test)]
+    pub(crate) fn coordinate_at(&self, index: usize, position: usize) -> Option<(f32, f32)> {
+        self.text_press_at(index, position)?.coordinate
+    }
+
+    /// The last press on read-only text, once.
+    pub fn take_text_press(&mut self) -> Option<TextPress> {
+        self.text_press.take()
     }
 
     /// `UIElement_Text::Global_Loop`'s cursor flash on an editable element: shown while it moved

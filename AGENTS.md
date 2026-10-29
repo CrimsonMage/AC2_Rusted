@@ -41,8 +41,13 @@ game rules and server-visible behaviour exactly retail.
   related code, and record the findings here.
 - Exception: the window resizes freely (a modern client). Retail drew its UI pixel for pixel on a
   fixed window authored at 1024 x 768; here `ac2_client::ui_scale::UiScale` lays the UI out on a
-  logical display and draws it scaled by `min(width / 1024, height / 768)`. The HUD fills the
-  window and the pregame screens stay 1024 x 768, centred. Layout and anchoring code stays retail.
+  logical display and draws it scaled by `min(width / 1024, height / 768)`. Retail's
+  `DisplayResolution` (`Device::InitializeRenderingPreferences`: the device's modes over 799 x
+  599, 1024 x 768 always listed and the default) switched the display mode; here it lists the
+  monitor's modes the same way and sets the window's inner size, at start and when the player
+  picks a mode (a window resized by hand keeps its size until then; FullScreen stays the
+  borderless switch). The HUD fills the window and the pregame screens stay 1024 x 768,
+  centred. Layout and anchoring code stays retail.
 - Exception: one modern shading pass, no retail look beside it. What is drawn, its colours,
   order, blend, fog and baked light come from the DATs and the decompile (`LScapeSky::Draw`,
   `CPartArray` colours, `CEnvCell` vertex light); the shading turns that into linear light.
@@ -165,6 +170,56 @@ game rules and server-visible behaviour exactly retail.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).
+- Exception: the Tracker (`ac2_macro::tracker`, a modern addition with no retail counterpart;
+  Virindi Sense's behaviour). An eyeball button on the radar's edge (a copy of `CoordBoxButton`
+  mirrored across the ring, with the `icon_it_blowgunsniper_eyeball` icon) opens the Tracker
+  window (`ac2_ui::tracker_ui`): another `Book` of the gameplay layout made as its own root, with a
+  pattern field and text buttons copied from the DAT layouts. Its name patterns (`patterns.txt` in
+  the config directory's `tracker` folder; an older Vitaeum or Virindi list is imported once) are
+  matched against the frame's world objects (`ac2_client::hud_tracker`); a match is announced in
+  chat once, listed with its distance and coordinates, and picking it selects it and points the
+  floating arrow at it; the radar brackets the matches in green, four pixels out (outside
+  retail's selection box), and Enter in the pattern field adds the pattern (the chat does not take
+  that Enter). The floating arrow (`ac2_ui::guide_arrow`: a second `OffScreenIndicator` and
+  `SelectionName` from the gameplay layout, as overlays) turns at the screen's top towards its
+  target relative to the camera's view, labelled with the target's coordinates and distance; a
+  press on a map coordinate in read-only text (the chat log; the forms `Position::FromRealMapCoords`
+  reads) points it at that place, which clears on arrival. It sends nothing to the server.
+  Windows the client makes may draw a frame in nine pieces
+  (`ac2_ui::compose::NINE_SLICE`: corners kept, edges and middle stretched) where retail drew a
+  frame image only at its own size, stretched or tiled.
+- Exception: the quest guide (`ac2_guide`, a modern addition: the AC2Hero site baked in at build
+  time from `AC2HERO_DIR`, nothing of it committed). The option panel's Assistance button
+  (`gmOptionUI`, which opened the hidden `AssistanceTab` page for `gmAssistanceUI`'s calls) is
+  the In-Game Wiki button: it opens and closes the guide window (`ac2_ui::guide_window`), and the
+  assistance page is no longer reached (the servers do not answer its calls). The window is another
+  `Book` of the gameplay layout made as its own root, its frame in nine pieces, resized by a copy
+  of the chat strip's grip dragging two edges (the DATs' diagonal cursor, a drawn grip mark) and
+  kept at its size with its place; its panes scroll by copies of the layouts' vertical scrollbar
+  (`0x413DE718`). Tabs list quests (by level band; the search also matches rewards), NPCs,
+  monsters, guides and reward items; a page shows its facts, rewards with their item icons, text
+  with coloured runs (the book's text area drew one colour), links, map coordinates that point the
+  floating arrow, and its pictures, decoded on a worker and dropped with the guide when the window
+  closes. Share puts `Title [wiki:slug]` in the chat entry line (the player sends it, plain text
+  to every other client); a press on such a token in read-only text opens the guide at that page.
+  It sends nothing to the server itself.
+- Exception: the navigation panel's map is drawn from the terrain. Retail's `gmNavigationUI`
+  showed the painted region art (`CDetailMapDesc`): an overview image and fixed detail tiles picked
+  by the overview's buttons, with the map notes (`AddMapNotes`), the server's markers and the
+  player marker over them, and a return-to-overview X. Here `ac2_ui::world_map` draws the world
+  from the landblocks' terrain (`ac2_world::map_raster`) into the same map area, zooming with the
+  wheel (more detail as it zooms: per-block tiles past 4 pixels a cell) and panning by drag; the
+  overview buttons, scroll buttons and X are hidden. The map area is taller (289 pixels; the
+  panel's lower rows move down) and the time and date share one line. The retail notes are the
+  default layers, denser kinds appearing as it zooms, with the server's markers and the player
+  marker kept. A layers button in the coordinates row opens a list beside the panel
+  (`ac2_ui::world_map_sidecar`, another `Book`, right of the panel or left when the right would
+  leave the screen) that toggles each note kind, the AC2Hero guide's places and zone levels
+  (`ac2_guide`, baked at build time; zone levels are the levels of the guide's quests starting in
+  each 16 x 16 block square, as the game data has none), all off by default, and the painted region
+  art as a background, also off. The terrain is read on its own store with an 8 MB free-object
+  budget by fixed map threads (`crates/ac2-db/src/loader_pool.rs`), only once the panel is first
+  shown. It sends nothing to the server.
 - No admin tools in the client. The admin 7148 build is a reference for names and code, not for
   features: do not port its admin-only commands, debuggers, account overrides, admin entities
   (e.g. `wsl_butcherytool`) or admin UI; mark those catalog rows `skip` with the reason.

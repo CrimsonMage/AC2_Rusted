@@ -28,6 +28,9 @@ fn help_pages(store: &ac2_db::ResourceStore) -> ac2_db::ResourceResult<Option<ac
     }
 }
 
+/// Released records the world map's own store keeps (it reads every landblock once, then the
+/// ones in view).
+const MAP_CACHE_BYTES: usize = 8 * 1024 * 1024;
 impl HudView {
     pub(crate) fn new(
         store: Arc<ResourceStore>,
@@ -76,7 +79,22 @@ impl HudView {
                         // `KeyStone::OpenHelp`'s pages: the content directory's KSML files, read here
                         // so the window never reads a file on the frame thread.
                         hud.help_pages = help_pages(&store)?;
-                        let images = ac2_ui::load_ui_images(&store, &hud.tree)?;
+                        // The world map's landscape: a store of its own with a small cache, so its
+                        // sweep of every landblock never flushes the world's.
+                        if let Some(map) = hud.world_map.as_mut() {
+                            let map_store = ac2_db::ResourceStore::with_free_cache_budget(
+                                std::sync::Arc::clone(store.dataset()),
+                                MAP_CACHE_BYTES,
+                            );
+                            if let Ok(Some(world)) =
+                                ac2_world::Ac2WorldSource::open(std::sync::Arc::new(map_store))
+                            {
+                                map.set_world(world);
+                            }
+                        }
+                        let mut images = ac2_ui::load_ui_images(&store, &hud.tree)?;
+                        // The Tracker button's round eye, made from the loaded icon.
+                        ac2_ui::tracker_ui::bake_eye(&mut hud.tree, &mut images);
                         Ok((hud, images))
                     });
                 let _ = send.send(built);
@@ -92,6 +110,7 @@ impl HudView {
             },
             gameplay_shown: true,
             story_hid_gameplay: None,
+            tracker: Default::default(),
             chat_text,
             images,
             overlay: {
@@ -154,6 +173,10 @@ impl HudView {
                     book,
                     help,
                     help_pages,
+                    tracker,
+                    guide_arrow,
+                    world_map,
+                    guide,
                     story,
                 },
                 images,
@@ -217,6 +240,10 @@ impl HudView {
                 self.panels.book = book;
                 self.panels.help = help;
                 self.panels.help_pages = help_pages;
+                self.panels.tracker = tracker;
+                self.panels.guide_arrow = guide_arrow;
+                self.panels.world_map = world_map;
+                self.panels.guide = guide;
                 self.panels.story = story;
                 self.dirty = true;
             }

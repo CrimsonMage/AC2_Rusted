@@ -93,6 +93,9 @@ fn new_pregame_view(
 /// Everything the program owns once the window exists.
 struct State {
     window: Arc<Window>,
+    /// The display mode last given to the window (`DisplayResolution`): a verified display change
+    /// resizes the window only when the mode changed, so one resized by hand keeps its size.
+    applied_size: Option<(u32, u32)>,
     gpu: Gpu,
     surface: wgpu::Surface<'static>,
     config: wgpu::SurfaceConfiguration,
@@ -169,6 +172,14 @@ impl State {
     fn apply_presentation(&mut self, presentation: WindowPresentation) {
         self.window
             .set_fullscreen(presentation.fullscreen.then(borderless));
+        if presentation.size != self.applied_size {
+            if let (Some((width, height)), false) = (presentation.size, presentation.fullscreen) {
+                let _ = self
+                    .window
+                    .request_inner_size(winit::dpi::PhysicalSize::new(width, height));
+            }
+            self.applied_size = presentation.size;
+        }
         self.config.present_mode = present_mode(presentation.vsync);
         self.config.desired_maximum_frame_latency = presentation.frame_latency;
         self.surface.configure(&self.gpu.device, &self.config);
@@ -400,8 +411,10 @@ impl App {
                 return;
             }
         };
-        // `Device::Done` after `RecvNotice_Logoff`'s `UploadGameOptions` went out.
+        // `Device::Done` after `RecvNotice_Logoff`'s `UploadGameOptions` went out; the character
+        // logs off first (`ClientNet::LogOffServer`), as closing the window does.
         if state.quitting {
+            self.client.session_mut().log_off(Duration::from_secs(3));
             event_loop.exit();
             return;
         }
@@ -552,8 +565,32 @@ impl ApplicationHandler for App {
             return;
         }
         let mut attributes = Window::default_attributes().with_title("Asheron's Call 2");
-        if let Some(size) = self.window_size {
-            attributes = attributes.with_inner_size(size);
+        // `Device::InitializeRenderingPreferences`: the monitor's modes become DisplayResolution's
+        // choices, and the window opens at the saved mode (the command line's size wins).
+        let monitor = event_loop
+            .primary_monitor()
+            .or_else(|| event_loop.available_monitors().next());
+        if let (Some(monitor), Some(prefs)) = (monitor, self.client.prefs_mut()) {
+            let sizes = monitor
+                .video_modes()
+                .map(|mode| mode.size())
+                .chain(std::iter::once(monitor.size()))
+                .map(|size| (size.width, size.height));
+            let modes = ac2_render::prefs::display_modes(sizes);
+            let (bank, names) = prefs.parts_mut();
+            ac2_render::prefs::register_display_resolution(bank, names, &modes);
+        }
+        let saved_size = self
+            .client
+            .prefs()
+            .and_then(|prefs| ac2_render::prefs::display_resolution(prefs.bank()));
+        match (self.window_size, saved_size) {
+            (Some(size), _) => attributes = attributes.with_inner_size(size),
+            (None, Some((width, height))) => {
+                attributes =
+                    attributes.with_inner_size(winit::dpi::PhysicalSize::new(width, height));
+            }
+            (None, None) => {}
         }
         // The display section's FullScreen and the surface's presentation, as the player saved
         // them (`Device::ChangePresentation` at the start of the session).
@@ -614,6 +651,7 @@ impl ApplicationHandler for App {
             )
         });
         self.state = Some(State {
+            applied_size: saved_size,
             window,
             gpu,
             surface,

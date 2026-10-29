@@ -44,6 +44,8 @@
 //! V first person, Home resets the camera; the numpad drives the camera as retail's key map
 //! does (8/2 tilt, 4/6 turn, 5 reset, +/- zoom, 0 shoulder, . first person). Fly (Tab): drag with the left button to look, WASD,
 //! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
+//! M opens the egui world map; G opens the client's quest guide (its In-Game Wiki) and T the
+//! Tracker's window, both on the HUD as in the client, and a HUD text field takes the typing.
 
 mod bench;
 mod crowd;
@@ -303,6 +305,7 @@ fn main() {
         let fly = start_camera(&world, args.block);
         let time_of_day = args.time.unwrap_or_else(|| daytime(&world));
         window::run(window::Setup {
+            dat_dir: args.dat_dir.clone(),
             world,
             store,
             models,

@@ -35,6 +35,12 @@ pub enum HudRequest {
     Friends(FriendsRequest),
     /// `gmRadarUI`: a blip selected, or the coordinates shown or hidden.
     Radar(RadarRequest),
+    /// The Tracker window: a pattern added or removed, a match picked or dismissed, a reload.
+    Tracker(crate::tracker_ui::TrackerRequest),
+    /// A press on a map coordinate in chat: the floating arrow points there (north, east).
+    PointAt { north: f32, east: f32 },
+    /// A press on read-only text (the chat log): the line and the column it landed on.
+    TextPress(crate::text_edit::TextPress),
     /// A slot's request (`gmInventoryUI`, the money bag, the paper doll, the 3D items).
     Item(ItemRequest),
     /// `gmExternalContainerUI`'s close, loot-all and transmute-all (its item requests are

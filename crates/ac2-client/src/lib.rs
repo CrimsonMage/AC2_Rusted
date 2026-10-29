@@ -58,6 +58,7 @@ mod friends;
 mod hud_friends;
 pub use friends::{FriendEvent, FriendResult};
 mod gameplay;
+mod hud_arrow;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]
 mod hud_character;
@@ -79,6 +80,7 @@ mod hud_player_message;
 #[cfg(feature = "window")]
 mod hud_request;
 mod hud_shop;
+mod hud_tracker;
 #[cfg(feature = "window")]
 #[cfg(feature = "window")]
 mod hud_view;

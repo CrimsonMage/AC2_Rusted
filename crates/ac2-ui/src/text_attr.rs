@@ -324,6 +324,21 @@ impl UiTree {
         }
     }
 
+    /// Text at the end in the current font, in `rgb` (the client's own colour, for windows it
+    /// makes) or, for `None`, the element's colour; the element's colour is kept for what follows.
+    pub(crate) fn append_text_rgb(&mut self, index: usize, text: &str, rgb: Option<[f32; 3]>) {
+        let units: Vec<u16> = text.encode_utf16().collect();
+        if let Some(state) = self.el_mut(index).text.as_mut() {
+            let own = state.color;
+            if let Some([r, g, b]) = rgb {
+                state.color = [r, g, b, own[3]];
+            }
+            state.add_text(&units);
+            state.color = own;
+            self.changed = true;
+        }
+    }
+
     /// `UIElement_Text::RecalculateGlyphList` then `GetTotalLines`: the display lines.
     pub(crate) fn text_line_count(&mut self, index: usize) -> usize {
         self.text_paper_height(index);

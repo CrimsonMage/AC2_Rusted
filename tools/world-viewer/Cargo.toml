@@ -26,6 +26,9 @@ ac2-weenie = { path = "../../crates/ac2-weenie" }
 ac2-world = { path = "../../crates/ac2-world" }
 ac2-render = { path = "../../crates/ac2-render" }
 ac2-gpu = { path = "../../crates/ac2-gpu" }
+# The world map under test (M): the quest guide's map widget over the landscape.
+ac2-guide = { path = "../../crates/ac2-guide" }
+ac2hero-map = { path = "../ac2hero-map" }
 png = "0.18"
 wgpu = { version = "30.0.1", default-features = false }
 winit = "0.30"

@@ -12,10 +12,12 @@
 //! the scene picks the figure under the pointer (`Start3DSelection`, `Finish3DSelection`); a
 //! double click enters with it.
 //!
-//! Not modelled yet: the 3D scene itself (the client renders [`CharacterSelectionUi::occupants`]
-//! on [`CharacterSelectionUi::arms`] and answers the pick), the name's ellipsis
-//! (`TruncateText`), and the portal and torch viewports' scenes. The background's music plays
-//! when the screen opens ([`PregameRequest::Music`]).
+//! The 3D scene is `pregame::scene` (each occupant's figure from its identity's `VisualDesc`,
+//! `AddPhysObjToArm`), drawn by the client, which answers the pick. A character set that arrives
+//! again (after leaving the world, with the looks the character has now) runs `Update` again, so
+//! the figures follow it. Not modelled yet: the name's ellipsis (`TruncateText`), and the portal
+//! and torch viewports' scenes. The background's music plays when the screen opens
+//! ([`PregameRequest::Music`]).
 
 use ac2_net::protocol::CharacterIdentity;
 

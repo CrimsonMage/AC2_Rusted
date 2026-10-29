@@ -17,6 +17,7 @@
 //! also what the wheel reaches over the bar.
 
 use crate::book::BookUi;
+use crate::book_rows::{line_height, margin_left, margins, position_to_pixels, text_width};
 use crate::element::UiTree;
 use crate::help::{help_button_topic, HelpPages, KEYSTONE_PANEL_KEY};
 use crate::help_view::{
@@ -26,7 +27,7 @@ use crate::ksml::{KsmlDocument, KsmlFrame, KsmlNode};
 use crate::layout::LayoutDesc;
 use crate::mouse::{UiMessage, GLOBAL_KEY_PRESS, GLOBAL_MOUSE_DOWN, UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::scrollbar::MSG_NEW_POSITION;
-use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP, TEXT_LEFT_MARGIN};
+use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
 use std::sync::Arc;
 
 /// The gap between two tabs in a row, in spaces.
@@ -95,7 +96,7 @@ impl HelpWindow {
     /// The window, made hidden as a HUD root over the gameplay layout's `Book`. `None` when the
     /// layout has no `Book`.
     pub fn create(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
-        let book = BookUi::create_window(tree, gameplay)?;
+        let book = BookUi::create_window(tree, gameplay, "HelpPagesBook")?;
         // The page's image is the book's, and the window has none: its foreground is hidden, so a
         // press on the text reaches it.
         if let Some(foreground) = child(tree, &book, "BookForeground") {
@@ -490,34 +491,6 @@ fn meta<'a>(document: &'a KsmlDocument, key: &str) -> Option<&'a str> {
         .filter(|v| !v.is_empty())
 }
 
-/// The text element's left margin, in pixels.
-fn margin_left(tree: &UiTree, text: usize) -> i32 {
-    match tree.get(text).and_then(|e| e.attribute(TEXT_LEFT_MARGIN)) {
-        Some(crate::layout::AttributeValue::Int(margin)) => *margin,
-        _ => 0,
-    }
-}
-
-/// The text element's horizontal margins together (what its text box loses).
-fn margins(tree: &UiTree, text: usize) -> i32 {
-    tree.text_size_with_margins(text, "").map_or(0, |(w, _)| w)
-}
-
-/// The width of `s` in the text element's font, without its margins.
-fn text_width(tree: &UiTree, text: usize, s: &str) -> i32 {
-    let with = tree.text_size_with_margins(text, s).map_or(0, |(w, _)| w);
-    with - margins(tree, text)
-}
-
-/// The text element's line height in pixels, without its margins.
-fn line_height(tree: &UiTree, text: usize) -> i32 {
-    let with = tree
-        .text_size_with_margins(text, "Ag")
-        .map_or(0, |(_, h)| h);
-    let margin = tree.text_size_with_margins(text, "").map_or(0, |(_, h)| h);
-    (with - margin).max(1)
-}
-
 /// The window's rows from the laid-out blocks: a text line is a row, a tab row is a row of its
 /// tabs, and a frame without a page is as many blank rows as its height takes.
 fn rows_of(layout: &HelpLayout, line: i32) -> Vec<Row> {
@@ -561,9 +534,4 @@ fn rows_of(layout: &HelpLayout, line: i32) -> Vec<Row> {
 fn row_text(row: &Row) -> String {
     let parts: Vec<&str> = row.pieces.iter().map(|p| p.text.as_str()).collect();
     parts.join(if row.tabs { TAB_GAP } else { "" })
-}
-
-/// The scroll position for a slider position in `[0, 1]` over `max` pixels.
-fn position_to_pixels(position: f32, max: i32) -> i32 {
-    (position.clamp(0.0, 1.0) * max as f32).round() as i32
 }

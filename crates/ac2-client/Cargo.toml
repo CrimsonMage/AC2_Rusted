@@ -42,6 +42,7 @@ ac2-script = { path = "../ac2-script" }
 ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
 ac2-ui = { path = "../ac2-ui" }
+ac2-macro = { path = "../ac2-macro" }
 ac2-render = { path = "../ac2-render" }
 ac2-gpu = { path = "../ac2-gpu", optional = true }
 winit = { version = "0.30", optional = true }

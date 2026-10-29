@@ -150,6 +150,91 @@ fn the_page_lists_each_preference_under_its_label_in_retail_order() {
 }
 
 #[test]
+fn every_drop_down_lists_its_choices_and_a_pick_sets_the_preference() {
+    let Some(store) = dataset_store() else {
+        return;
+    };
+    let (mut prefs, _) = load_prefs(&store, "choices");
+    let (mut hud, mut page) = page_over_hud(&store, &prefs);
+    let mut dialogs = dialogs_over(&store);
+    // Each drop-down of `Render::InitRenderingPreferences` and `SoundManager::InitPrefs`, with
+    // its choices' names in the render mapper (the DVD has no `ID_Graphics_Value_*` strings, so
+    // the names show, spaced).
+    let expected: [(&str, &[&str]); 11] = [
+        (
+            "ID_Graphics_TextureDetail",
+            &["Very Low", "Low", "Medium", "High", "Very High"],
+        ),
+        ("ID_Graphics_MaterialDetail", &["Low", "Medium", "High"]),
+        ("ID_Graphics_ModelDetail", &["Low", "Medium", "High"]),
+        ("ID_Graphics_WaterReflections", &["Disabled", "Low", "High"]),
+        (
+            "ID_Graphics_LandscapeShoreEffects",
+            &["Disabled", "Medium", "High"],
+        ),
+        (
+            "ID_Graphics_DynamicObjectShadows",
+            &["Disabled", "Simple", "Volumetric", "Self Shadowing"],
+        ),
+        (
+            "ID_Graphics_SceneryDrawDistance",
+            &["Low", "Medium", "High"],
+        ),
+        (
+            "ID_Graphics_LandscapeDrawDistance",
+            &["Very Low", "Low", "Medium", "High", "Very High"],
+        ),
+        (
+            "ID_Graphics_LandscapeFrillDistance",
+            &["Disabled", "Low", "Medium", "High"],
+        ),
+        (
+            "ID_Avatar_VisibleInFirstPerson",
+            &["Never", "Always", "During Combat"],
+        ),
+        ("ID_Sound_SoundFeatures", &["Software", "Hardware", "EAX"]),
+    ];
+    for (name, labels) in expected {
+        let menu = page
+            .row_control(name)
+            .unwrap_or_else(|| panic!("{name} has a drop-down"));
+        let items: Vec<String> = hud
+            .tree
+            .menu_items(menu)
+            .iter()
+            .map(|&item| {
+                hud.tree
+                    .get(item)
+                    .and_then(|e| e.text())
+                    .unwrap_or_default()
+            })
+            .collect();
+        assert_eq!(items, labels, "{name}'s menu");
+        // The current choice is selected and its label shown.
+        let current = page.value(prefs.bank(), name).expect("a value") as usize;
+        assert_eq!(
+            hud.tree.menu_selected_index(menu),
+            Some(current - 1),
+            "{name}'s current choice is selected"
+        );
+    }
+    // Picking the last texture detail sets the preference to that choice.
+    let menu = page.row_control("ID_Graphics_TextureDetail").unwrap();
+    hud.tree.menu_set_selected_index(menu, Some(4));
+    page.message(
+        &mut hud.tree,
+        &mut dialogs,
+        prefs.bank_mut(),
+        &message("DropDownMenu", Some(menu), tokenize("new_selection")),
+    );
+    assert_eq!(
+        page.value(prefs.bank(), "ID_Graphics_TextureDetail"),
+        Some(5.0)
+    );
+    assert!(page.changed(prefs.bank()), "the pick is a change to apply");
+}
+
+#[test]
 fn apply_reaches_the_scene_the_sound_and_the_camera() {
     let Some(store) = dataset_store() else {
         return;

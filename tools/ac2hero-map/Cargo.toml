@@ -1,0 +1,23 @@
+[package]
+name = "ac2hero-map"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# Standalone test tool for the in-client world map overlay: the quest guide's places (quest
+# starts, quest steps, NPCs, guide points) as icons on a zoomable map of the world, from the
+# guide `ac2hero-guide` bakes (`AC2HERO_DIR`), over the world drawn from its own landscape in the
+# DATs (`AC2_DAT_DIR`, optional), with more detail as you zoom. It changes no client crate.
+[dependencies]
+ac2-guide = { path = "../../crates/ac2-guide" }
+ac2-assets = { path = "../../crates/ac2-assets" }
+ac2-core = { path = "../../crates/ac2-core" }
+ac2-dat = { path = "../../crates/ac2-dat" }
+ac2-db = { path = "../../crates/ac2-db" }
+ac2-world = { path = "../../crates/ac2-world" }
+image = { version = "0.25", default-features = false, features = ["png"] }
+eframe = { version = "0.37", default-features = false, features = ["default_fonts", "wgpu", "wayland", "x11", "clipboard", "links"] }

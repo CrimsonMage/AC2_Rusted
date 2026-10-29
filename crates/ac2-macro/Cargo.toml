@@ -1,0 +1,17 @@
+[package]
+name = "ac2-macro"
+edition.workspace = true
+version.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+# Player automation tools (no retail subsystem; a modern addition): the Tracker (named-object
+# detection over what the client already sees). Pure policy: the client supplies observations and
+# carries out the effects (files, chat, selection); nothing here reads files, draws or sends.
+[dependencies]
+ac2-physics = { path = "../ac2-physics" }
+fancy-regex = "0.14"
+regex = "1"

@@ -115,6 +115,16 @@ impl HudView {
             }
         };
         let mut out = PassOut::default();
+        // The Tracker's requests run against the Tracker here; the rest become commands.
+        let (tracker, requests): (Vec<_>, Vec<_>) = requests.into_iter().partition(|r| {
+            matches!(
+                r,
+                ac2_ui::HudRequest::Tracker(_)
+                    | ac2_ui::HudRequest::PointAt { .. }
+                    | ac2_ui::HudRequest::TextPress(_)
+            )
+        });
+        self.tracker_frame(frame, tracker, &mut out.commands);
         hud_request_commands(requests, &mut out);
         self.panels.quit_requested |= out.quit;
         // The examination panel, the help topics and the tells (`FellowshipHelper`).
@@ -131,6 +141,24 @@ impl HudView {
             self.set_story_gameplay_shown(shown);
         }
         out.commands
+    }
+}
+
+impl HudView {
+    /// [`crate::view::ClientView::offline_frameworks`]: the additions' passes
+    /// (`ac2_ui::Hud::offline_frame`), then the Tracker.
+    pub(crate) fn offline_frameworks(&mut self, frame: &ClientFrame) {
+        let tree = self.hud.as_mut().map(|(tree, _)| tree);
+        let requests = self.panels.offline_frame(tree, &mut self.dirty);
+        self.tracker_frame(frame, requests, &mut Vec::new());
+    }
+
+    /// Runs `toggle` on the HUD's panels and tree, once the HUD is built.
+    pub(crate) fn toggle_addition(&mut self, toggle: fn(&mut ac2_ui::Hud, &mut ac2_ui::UiTree)) {
+        if let Some((tree, _)) = self.hud.as_mut() {
+            toggle(&mut self.panels, tree);
+            self.dirty = true;
+        }
     }
 }
 

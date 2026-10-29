@@ -169,6 +169,15 @@ pub struct GameplayHud {
     pub book: Option<BookUi>,
     /// The help window (`KeyStone::OpenHelp`), a second book frame, hidden until a help page opens.
     pub help: Option<crate::help_window::HelpWindow>,
+    /// The Tracker's eyeball on the radar and its window (`ac2_macro::tracker`), hidden until the
+    /// eyeball opens it.
+    pub tracker: Option<crate::tracker_ui::TrackerUi>,
+    /// The floating arrow towards the Tracker's pick or a clicked coordinate, hidden until one.
+    pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
+    /// The world map in the navigation panel (its notes read here, on the HUD's worker).
+    pub world_map: Option<crate::world_map::WorldMap>,
+    /// The quest guide's window (`guide_window`), hidden until the In-Game Wiki button opens it.
+    pub guide: Option<crate::guide_window::GuideWindow>,
     /// The help pages, loaded by the client's worker (`None` until they load, or without them).
     pub help_pages: Option<crate::help::HelpPages>,
     /// `gmShopUI`, the vendor's panel (its managed elements are made when a store opens).
@@ -293,6 +302,9 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(|toolbar| ExaminationUi::create(&mut tree, toolbar));
     let option_panel = crate::OptionPanel::create(&tree);
+    if let Some(panel) = &option_panel {
+        panel.label_wiki(&mut tree);
+    }
     let allegiance = layouts[&LAYOUT_TOOLBAR]
         .as_ref()
         .map(|toolbar| AllegianceUi::create(&tree, toolbar, 0));
@@ -375,6 +387,29 @@ pub fn build_gameplay_hud(
     let story = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .and_then(|gameplay| StoryView::create(&mut tree, gameplay));
+    // The radar's top image holds the coordinates button (two levels down); the eyeball goes there.
+    let radar_top = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("CoordBoxButton")))
+        .and_then(|button| tree.get(button)?.parent_index())
+        .and_then(|holder| tree.get(holder)?.parent_index());
+    let all_layouts: Vec<&Arc<LayoutDesc>> = layouts.values().flatten().collect();
+    let world_map = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
+        crate::world_map::WorldMap::new(
+            Arc::clone(gameplay),
+            crate::world_map_layers::load_notes(store),
+        )
+    });
+    let guide_arrow = layouts[&LAYOUT_GAMEPLAY]
+        .as_ref()
+        .and_then(|gameplay| crate::guide_arrow::GuideArrow::create(&mut tree, gameplay));
+    let tracker = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
+        crate::tracker_ui::TrackerUi::create(&mut tree, gameplay, &all_layouts, radar_top)
+    });
+    let guide = layouts[&LAYOUT_GAMEPLAY].as_ref().and_then(|gameplay| {
+        crate::guide_window::GuideWindow::create(&mut tree, gameplay, &all_layouts)
+    });
     for layout in layouts.values().flatten() {
         crate::tooltip::prefetch_tooltip_strings(&*text_data, layout);
     }
@@ -421,6 +456,10 @@ pub fn build_gameplay_hud(
         consignment,
         book,
         help,
+        tracker,
+        guide_arrow,
+        world_map,
+        guide,
         help_pages: None,
         story,
     })

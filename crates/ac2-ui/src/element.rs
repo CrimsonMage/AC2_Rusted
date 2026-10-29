@@ -279,6 +279,9 @@ pub struct UiTree {
     /// (Ctrl+A / Ctrl+C) without becoming the active element, which only editable text does
     /// (`UIElement_Text::MouseDown` activates an editable element alone).
     pub(crate) copy_focus: Option<usize>,
+    /// The last press on read-only text (the line under it, the column, and a map coordinate it
+    /// landed on), until the HUD takes it.
+    pub(crate) text_press: Option<crate::text_edit::TextPress>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -345,6 +348,7 @@ impl UiTree {
             positions_changed: false,
             saved_positions: Vec::new(),
             copy_focus: None,
+            text_press: None,
         }
     }
 
@@ -449,6 +453,22 @@ impl UiTree {
         self.update_size_and_position(index);
         self.add_root(index);
         // A window the player left somewhere else opens there (`window_positions`).
+        self.apply_saved_position(index);
+        Some(index)
+    }
+
+    /// A root made from `desc` (a copy of a layout element under an id of the client's own), placed
+    /// as [`Self::create_root`] places one.
+    pub(crate) fn create_root_from(
+        &mut self,
+        layout: Arc<LayoutDesc>,
+        desc: Arc<crate::layout::ElementDesc>,
+    ) -> Option<usize> {
+        let index = self.create_element(layout, desc, true)?;
+        self.initialize_panel_pages(index);
+        self.set_bool(index, ROOT_MOVER, true);
+        self.update_size_and_position(index);
+        self.add_root(index);
         self.apply_saved_position(index);
         Some(index)
     }

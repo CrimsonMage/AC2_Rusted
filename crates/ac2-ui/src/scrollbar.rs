@@ -137,6 +137,15 @@ impl UiTree {
     }
 
     /// `SetAttribute_Int(num_stop_locations)`.
+    /// A `proportional` vertical bar's widget sized to `share` of the track (what
+    /// `UIElement_Text::UpdateScrollbar` sets for a bound text), for a bar a window drives itself.
+    pub(crate) fn scrollbar_set_widget_share(&mut self, index: usize, share: f32) {
+        self.el_mut(index)
+            .attributes
+            .insert(tokenize("y_widget_size"), AttributeValue::Float(share));
+        self.scrollbar_update_layout(index);
+    }
+
     pub fn scrollbar_set_stops(&mut self, index: usize, stops: i32) {
         self.el_mut(index)
             .attributes

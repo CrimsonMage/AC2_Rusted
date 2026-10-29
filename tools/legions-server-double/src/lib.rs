@@ -743,9 +743,14 @@ impl State {
                         self.deletions.push(id);
                     }
                 }
-                // `Proto_UI::LogOffCharacter`.
+                // `Proto_UI::LogOffCharacter`: `CharExitGame`, then the account's characters again
+                // with their visuals as they are now (as the Pyrealium server answers), for
+                // character selection.
                 0x0001_0027 => {
-                    self.reliable_blob(0x2300_0006_0000_0005, 1, &0x0001_0027u32.to_le_bytes())
+                    self.reliable_blob(0x2300_0006_0000_0005, 1, &0x0001_0027u32.to_le_bytes());
+                    self.next_object_blob += 1;
+                    let blob = 0x2300_0008_0000_0000 | u64::from(self.next_object_blob);
+                    self.send_character_set(blob);
                 }
                 _ => {}
             }

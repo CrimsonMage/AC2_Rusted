@@ -35,6 +35,7 @@ mod land_block_data;
 mod land_blocks;
 mod land_lattice;
 mod landblock;
+pub mod map_raster;
 mod quad_tree;
 mod region;
 mod surface_desc;

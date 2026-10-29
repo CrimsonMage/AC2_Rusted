@@ -1,10 +1,9 @@
-//! The navigation panel's detail view through the client on the real DATs (`AC2_DAT_DIR`): the
-//! panel opened from its button, the player's marker pressed in the macro view to zoom to the
-//! character, the lock to the character and the pan. The expected numbers are written out here
-//! from the retail formulas: the 128-cell window around the player (`InitDetailMapFromCellCoords`,
-//! clamped to the land), the corners' tiles (the block `cell >> 3` in the region's detail map),
-//! the detail frame's pixel (`ConvertLandscapeToPixel`, scale 250 over the 128 cells) and the
-//! marker's centre (`CenterMarker`). Skipped without a GPU adapter.
+//! The navigation panel through the client on the real DATs (`AC2_DAT_DIR`): the panel opened
+//! from its button draws the world map (`ac2_ui::world_map`, which replaces the painted macro and
+//! detail views) with the player's marker on the player's land cell, and shows the game's time and
+//! date on one line. Retail's detail-view formulas (`InitDetailMapFromCellCoords`,
+//! `ConvertLandscapeToPixel`, the pan and the lock) stay covered by `ac2_ui::navigation`'s tests.
+//! Skipped without a GPU adapter.
 
 #![cfg(feature = "window")]
 
@@ -23,49 +22,6 @@ use legions_server_double::{addr, double, Spawn, State, SERVER};
 const STEP: f64 = 1.0 / 64.0;
 /// The smallest display retail ran at; the HUD layouts are authored for 1024 x 768.
 const SIZE: (u32, u32) = (800, 600);
-/// The land's cells (255 blocks of 8) and the detail window's side.
-const LAND: i32 = 2040;
-const WINDOW: i32 = 128;
-/// `ConvertLandscapeToPixel`'s detail scale (`0xa53500`, 250.0f).
-const DETAIL_SCALE: f64 = 250.0;
-
-/// The window's origin: the cell minus 64 on each axis, kept on the land.
-fn window(cell: (i32, i32)) -> (i32, i32) {
-    let origin = |v: i32| (v - WINDOW / 2).clamp(0, LAND - WINDOW);
-    (origin(cell.0), origin(cell.1))
-}
-
-/// `ConvertLandscapeToPixel` in the detail view: `(lX - MapX) * 250 / 128` and `250 - (lY -
-/// MapY) * 250 / 128`, each stored as a float.
-fn detail_pixel(origin: (i32, i32), cell: (i32, i32)) -> (f32, f32) {
-    let x = (f64::from(cell.0 - origin.0) * DETAIL_SCALE / f64::from(WINDOW)) as f32;
-    let y_up = (f64::from(cell.1 - origin.1) * DETAIL_SCALE / f64::from(WINDOW)) as f32;
-    (x, (DETAIL_SCALE - f64::from(y_up)) as f32)
-}
-
-/// A block's row in the detail map from the tile rectangles (the structure, not the lookup).
-fn tile_containing(rows: &[ac2_world::DetailMapRow], block: (i32, i32)) -> Option<u32> {
-    rows.iter()
-        .find(|r| {
-            (r.x0 as i32..(r.x0 + r.width) as i32).contains(&block.0)
-                && (r.y0 as i32..(r.y0 + r.height) as i32).contains(&block.1)
-        })
-        .map(|r| r.value)
-}
-
-/// The corners' blocks of a window: top left, top right, bottom left, bottom right in the
-/// `InitDetailMapFromCellCoords` order (top is `MapY + 128`).
-fn corner_blocks(origin: (i32, i32)) -> [(i32, i32); 4] {
-    let (x, y) = origin;
-    [
-        (x, y + WINDOW),
-        (x + WINDOW, y + WINDOW),
-        (x, y),
-        (x + WINDOW, y),
-    ]
-    .map(|(cx, cy)| (cx >> 3, cy >> 3))
-}
-
 /// Runs one frame: the views' frameworks answer the messages, the frame is prepared (the panel
 /// follows the frame in `prepare`), then the client steps.
 fn pump(gpu: &Gpu, view: &mut ClientView, client: &mut Client, server: &Rc<RefCell<State>>) {
@@ -90,7 +46,6 @@ struct Scene {
     view: ClientView,
     client: Client,
     server: Rc<RefCell<State>>,
-    store: Arc<ac2_db::ResourceStore>,
 }
 
 fn scene() -> Option<Scene> {
@@ -168,133 +123,53 @@ fn scene() -> Option<Scene> {
         view,
         client,
         server,
-        store,
     })
 }
 
 #[test]
-fn the_panel_zooms_to_the_character_and_pans_the_detail_view() {
+fn the_panel_draws_the_world_map_with_the_player_on_it() {
     let Some(Scene {
         gpu,
         mut view,
         mut client,
         server,
-        store,
+        ..
     }) = scene()
     else {
         return;
     };
     let frame = client.frame();
-    let player_cell = frame.player.as_ref().expect("the player").cell;
-    let land =
-        ac2_physics::landdefs::gid_to_lcoord(player_cell).expect("the player is on the land");
+    let player = frame.player.as_ref().expect("the player");
+    // The player's place in land cells: the landblock's corner plus the origin over 20 m.
+    let land = (
+        f64::from((player.cell >> 24) & 0xFF) * 8.0 + f64::from(player.origin[0]) / 20.0,
+        f64::from((player.cell >> 16) & 0xFF) * 8.0 + f64::from(player.origin[1]) / 20.0,
+    );
 
-    // The detail map the region names, read from the DAT for the expectations.
-    let table = ac2_world::ac2_region_detail_map_table(&store)
-        .unwrap()
-        .expect("the region's detail map");
-    let detail = ac2_world::ac2_detail_map(&store, table)
-        .unwrap()
-        .expect("the detail map");
-
-    // The button shows the panel (`NavigationButton`).
+    // The button shows the panel (`NavigationButton`), and the world map takes its map area.
     assert!(view.navigation_press("NavigationButton", false));
     pump(&gpu, &mut view, &mut client, &server);
-    {
-        let (tree, nav) = view.navigation().expect("the navigation panel");
-        assert!(nav.is_shown(tree));
-        assert!(!nav.is_detail(), "the panel opens in the macro view");
+    pump(&gpu, &mut view, &mut client, &server);
+    let window = view
+        .world_map_window()
+        .expect("the panel draws the world map");
+    let (tree, nav) = view.navigation().expect("the navigation panel");
+    assert!(nav.is_shown(tree));
+    // The painted views' scroll buttons are hidden: the map pans by dragging.
+    for button in nav.scroll_buttons().into_iter().flatten() {
+        assert!(!tree.get(button).unwrap().visible());
     }
-
-    // The player's marker pressed in the macro view zooms to the character (`ZoomToCharPos`).
-    assert!(view.navigation_map_press("PlayerMarker", 0, (0, 0)));
-    pump(&gpu, &mut view, &mut client, &server);
-    let origin = window(land);
-    {
-        let (tree, nav) = view.navigation().unwrap();
-        assert!(nav.is_detail());
-        assert_eq!(nav.map_frame().origin, origin);
-        let expected = corner_blocks(origin).map(|block| tile_containing(detail.rows(), block));
-        for (tile, want) in expected.into_iter().enumerate() {
-            assert_eq!(
-                nav.tile_row(tile).map(|r| r.value),
-                want,
-                "tile {tile} shows the row of its corner"
-            );
-        }
-        assert!(
-            expected.iter().any(Option::is_some),
-            "the character's window has tiles"
-        );
-        // The marker's centre at the detail pixel: its rectangle starts half its size before.
-        let marker = nav.player_marker().unwrap();
-        let rect = tree.get(marker).unwrap().rect();
-        let (size_w, size_h) = (rect.width(), rect.height());
-        let (px, py) = detail_pixel(origin, land);
-        assert_eq!(
-            (rect.x0, rect.y0),
-            (
-                px as i32 - (f64::from(size_w) * 0.5) as i32,
-                py as i32 - (f64::from(size_h) * 0.5) as i32
-            )
-        );
-        // The scroll buttons show in the detail view without the lock.
-        for button in nav.scroll_buttons().into_iter().flatten() {
-            assert!(tree.get(button).unwrap().visible());
-        }
-    }
-
-    // Unlocked, the right button pans nine cells; with Shift held, three.
-    assert!(view.navigation_press("NavigateRightButton", false));
-    pump(&gpu, &mut view, &mut client, &server);
+    // The player's marker is centred on the player's land cell in the map's window.
+    let marker = nav.player_marker().expect("the player's marker");
+    let element = tree.get(marker).unwrap();
+    assert!(element.visible());
+    let rect = element.rect();
+    let area = tree.screen_box(element.parent_index().expect("the map area"));
+    let at = window.pixel_of(area.width(), area.height(), land.0, land.1);
     assert_eq!(
-        view.navigation().unwrap().1.map_frame().origin,
-        (origin.0 + 9, origin.1)
+        (rect.x0 + rect.width() / 2, rect.y0 + rect.height() / 2),
+        (at.0 as i32, at.1 as i32)
     );
-    assert!(view.navigation_press("NavigateDownButton", true));
-    pump(&gpu, &mut view, &mut client, &server);
-    assert_eq!(
-        view.navigation().unwrap().1.map_frame().origin,
-        (origin.0 + 9, origin.1 - 3)
-    );
-
-    // The lock: on, the view goes back to the character and stays there; the pan does nothing
-    // and the scroll buttons hide.
-    view.navigation_lock(true);
-    pump(&gpu, &mut view, &mut client, &server);
-    assert!(view.navigation().unwrap().1.is_locked());
-    assert_eq!(view.navigation().unwrap().1.map_frame().origin, origin);
-    assert!(view.navigation_press("NavigateLeftButton", false));
-    pump(&gpu, &mut view, &mut client, &server);
-    assert_eq!(view.navigation().unwrap().1.map_frame().origin, origin);
-    {
-        let (tree, nav) = view.navigation().unwrap();
-        for button in nav.scroll_buttons().into_iter().flatten() {
-            assert!(
-                !tree.get(button).unwrap().visible(),
-                "scroll buttons hide when locked"
-            );
-        }
-    }
-
-    // Unlocked again: the buttons show and the pan moves the window.
-    view.navigation_lock(false);
-    pump(&gpu, &mut view, &mut client, &server);
-    assert!(!view.navigation().unwrap().1.is_locked());
-    assert!(view.navigation_press("NavigateLeftButton", false));
-    pump(&gpu, &mut view, &mut client, &server);
-    assert_eq!(
-        view.navigation().unwrap().1.map_frame().origin,
-        (origin.0 - 9, origin.1)
-    );
-
-    // The parent's press with the switch's data code goes back to the macro view on the next
-    // frame (the Legions layout has no macro button).
-    assert!(view.navigation_map_press("MapParentField", 0x4000_0005, (0, 0)));
-    pump(&gpu, &mut view, &mut client, &server);
-    let (_, nav) = view.navigation().unwrap();
-    assert!(!nav.is_detail());
-    assert_eq!(nav.map_frame().origin, (321, 195));
 }
 
 #[test]
@@ -331,8 +206,11 @@ fn the_panel_shows_the_game_date_and_time_of_the_calendar() {
         let element = nav.child(tree, name)?;
         tree.get(element)?.text()
     };
-    let date = text("DateText").expect("the date text");
-    let time = text("TimeText").expect("the time text");
+    // The world map puts the time and the date on one line (`time \u{2022} date`).
+    let line = text("TimeText").expect("the time text");
+    let (time, date) = line
+        .split_once(" \u{2022} ")
+        .expect("the time and the date");
     assert!(
         date.contains(&format!(" {}, {}", date_time.day, date_time.year)),
         "{date}"

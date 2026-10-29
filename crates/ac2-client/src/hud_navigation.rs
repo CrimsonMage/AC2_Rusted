@@ -23,8 +23,38 @@ impl HudView {
             date,
             time,
         );
-        if let (Some((tree, images)), Some(nav)) = (&mut self.hud, &mut self.panels.navigation) {
-            nav.update(tree, &view, images);
+        let Some((tree, images)) = &mut self.hud else {
+            return;
+        };
+        let Some(nav) = &mut self.panels.navigation else {
+            return;
+        };
+        // The world map replaces the painted views (`ac2_ui::world_map`); without it, retail's.
+        match self.panels.world_map.as_mut() {
+            Some(map) => {
+                let map_view = ac2_ui::world_map::WorldMapView {
+                    player: frame
+                        .player
+                        .as_ref()
+                        .map(|p| land_position(p.cell, p.origin)),
+                    coordinates: view.coordinates.clone(),
+                    time: view.time.clone(),
+                    date: view.date.clone(),
+                    markers: view.notes.clone(),
+                };
+                if nav.is_shown(tree) {
+                    map.frame(tree, nav, images, &map_view);
+                }
+            }
+            None => nav.update(tree, &view, images),
+        }
+    }
+
+    /// The quest guide's frame (`ac2_ui::guide_window`): its decoded pictures go into the HUD's
+    /// images, and a closed guide lets its pictures go.
+    pub(crate) fn update_guide(&mut self) {
+        if let (Some((tree, images)), Some(guide)) = (&mut self.hud, &mut self.panels.guide) {
+            guide.frame(tree, images);
         }
     }
 
@@ -63,6 +93,11 @@ impl HudView {
         }
     }
 
+    /// The world map's window (centre and zoom), when the panel has the world map.
+    pub(crate) fn world_map_window(&self) -> Option<ac2_ui::world_map_tiles::MapWindow> {
+        self.panels.world_map.as_ref().map(|map| map.window())
+    }
+
     /// The panel and the tree it lives in.
     pub(crate) fn navigation_parts(
         &mut self,
@@ -72,6 +107,17 @@ impl HudView {
             _ => None,
         }
     }
+}
+
+/// A position in land cells east and north of the world's south-west corner (a landblock is 8
+/// cells of 20 m; the origin is relative to the cell's landblock).
+fn land_position(cell: u32, origin: [f32; 3]) -> (f64, f64) {
+    let bx = f64::from((cell >> 24) & 0xFF);
+    let by = f64::from((cell >> 16) & 0xFF);
+    (
+        bx * 8.0 + f64::from(origin[0]) / 20.0,
+        by * 8.0 + f64::from(origin[1]) / 20.0,
+    )
 }
 
 /// The panel's input from the frame. A marker's tooltip is its rendered text (`tooltips`, one

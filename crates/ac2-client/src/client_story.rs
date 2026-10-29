@@ -136,8 +136,8 @@ impl Client {
         self.story_step(events);
     }
 
-    /// `gmGamePlayUI::EndSession` on a disconnect: the slot's story is deleted and its events join
-    /// the next frame.
+    /// `gmGamePlayUI::EndSession` when the character leaves the world or the session drops: the
+    /// slot's story is deleted and its events join the next frame.
     pub(crate) fn story_session_end(&mut self) {
         let events = self.story.end_session();
         self.story_step(events);

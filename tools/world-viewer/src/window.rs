@@ -35,6 +35,8 @@ const UI_LEFT_BUTTON: u32 = 0x4000_0004;
 
 /// What the window needs from `main`.
 pub struct Setup {
+    /// The DATs, which the world map (M) opens with a store of its own.
+    pub dat_dir: std::path::PathBuf,
     pub world: Arc<Ac2WorldSource>,
     pub store: Arc<ac2_db::ResourceStore>,
     pub models: Vec<PlayerModel>,
@@ -80,6 +82,10 @@ struct State {
     started: Instant,
     fps: f32,
     models_error: Option<String>,
+    dat_dir: std::path::PathBuf,
+    /// The world map under test, made on its first opening; whether its window is open.
+    map: Option<ac2hero_map::WorldMap>,
+    map_open: bool,
 }
 
 impl ApplicationHandler for App {
@@ -157,6 +163,9 @@ impl ApplicationHandler for App {
             started: Instant::now(),
             fps: 0.0,
             models_error: setup.models_error,
+            dat_dir: setup.dat_dir,
+            map: None,
+            map_open: false,
         });
     }
 
@@ -184,6 +193,11 @@ impl ApplicationHandler for App {
                 let PhysicalKey::Code(code) = event.physical_key else {
                     return;
                 };
+                // A HUD text field (the guide's search, the Tracker's pattern) takes the typing.
+                if event.state == ElementState::Pressed && state.view.text_mode() {
+                    state.hud_typing(code, event.text.as_deref());
+                    return;
+                }
                 if event.state == ElementState::Pressed {
                     if code == KeyCode::Escape {
                         event_loop.exit();
@@ -259,12 +273,42 @@ impl State {
         self.view.ui_input(actions, Modifiers::default());
     }
 
+    /// A key typed into the HUD's active text element (`UIElement_Text::CharacterHandler`): its
+    /// characters, or the virtual key of an editing key that types none.
+    fn hud_typing(&mut self, code: KeyCode, text: Option<&str>) {
+        let key = match code {
+            KeyCode::Delete => 0x2E,
+            KeyCode::ArrowLeft => 0x25,
+            KeyCode::ArrowUp => 0x26,
+            KeyCode::ArrowRight => 0x27,
+            KeyCode::ArrowDown => 0x28,
+            KeyCode::Home => 0x24,
+            KeyCode::End => 0x23,
+            _ => 0,
+        };
+        let characters: Vec<(u16, u32)> = match (key, code) {
+            (0, KeyCode::Backspace) => vec![(0x08, 0)],
+            (0, KeyCode::Enter | KeyCode::NumpadEnter) => vec![(0x0D, 0)],
+            (0, _) => text
+                .unwrap_or_default()
+                .encode_utf16()
+                .filter(|&ch| ch >= 0x20)
+                .map(|ch| (ch, 0))
+                .collect(),
+            (key, _) => vec![(0, key)],
+        };
+        self.view.text_input(&[], &characters, Modifiers::default());
+    }
+
     fn key_pressed(&mut self, code: KeyCode) {
         let step = DAY_SECONDS / 24.0;
         match code {
             KeyCode::BracketLeft => self.time_of_day -= step,
             KeyCode::BracketRight => self.time_of_day += step,
             KeyCode::F1 => self.panel.visible = !self.panel.visible,
+            KeyCode::KeyM => self.map_open = !self.map_open,
+            KeyCode::KeyG => self.view.toggle_guide(),
+            KeyCode::KeyT => self.view.toggle_tracker(),
             KeyCode::Tab => {
                 let mode = match self.panel.mode {
                     Mode::Walk => Mode::Fly,
@@ -414,6 +458,7 @@ impl State {
             self.time_of_day,
         );
         self.view.update(&self.gpu, &frame, LOAD_BUDGET);
+        self.view.offline_frameworks(&frame);
         let Some(output) = acquire_frame(&self.surface, &self.gpu.device, &self.config) else {
             return;
         };
@@ -432,6 +477,11 @@ impl State {
         let fps = self.fps;
         let mut day = self.time_of_day;
         let panel = &mut self.panel;
+        let (map, map_open, dat_dir) = (&mut self.map, &mut self.map_open, &self.dat_dir);
+        let player = status
+            .as_ref()
+            .map(|s| ac2hero_map::player_at(s.cell, s.origin, s.heading_degrees));
+        let mut travel = None;
         self.gui.frame(
             &self.window,
             &self.gpu,
@@ -448,8 +498,31 @@ impl State {
                         particle_count: 0,
                     },
                 );
+                if *map_open {
+                    let map = map.get_or_insert_with(|| {
+                        let world = ac2hero_map::open_world(dat_dir).ok().flatten();
+                        let mut map =
+                            ac2hero_map::WorldMap::new(ui.ctx(), ac2_guide::baked(), world);
+                        map.set_travel(true);
+                        map
+                    });
+                    let size = ui.ctx().content_rect().size();
+                    egui::Window::new("World map")
+                        .open(map_open)
+                        .default_size(size * 0.8)
+                        .default_pos(egui::pos2(size.x * 0.1, size.y * 0.08))
+                        .show(ui.ctx(), |ui| {
+                            if let Some(ac2hero_map::MapAction::Travel(at)) = map.ui(ui, player) {
+                                travel = Some(at);
+                            }
+                        });
+                }
             },
         );
+        if let Some(at) = travel {
+            let (x, y) = ac2hero_map::world_metres(at);
+            commands.push(Command::Teleport(self.landing_at(x, y)));
+        }
         self.time_of_day = day;
         self.gpu.queue.present(output);
         for command in commands {

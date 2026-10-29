@@ -9,25 +9,35 @@
 //!
 //! A preference's label is the name the caller gives it (`label_of`: the registration's
 //! `Tokenize`d name, with `_Help` for its tooltip), read from the preferences' label table; where
-//! that table has no string, the row shows the preference's INI key name. A preference with no
-//! name shows no row. A choice's label is its own string ID. An expander's header is its section's name from the DAT's
-//! enum tables through a [`NameTable`], as text (the section string IDs are not identified).
+//! that table has no string, the row shows the preference's INI key name, its words spaced. A
+//! preference with no name shows no row. An expander's header is its section's name from the
+//! DAT's enum tables through a [`NameTable`], as text (the section string IDs are not identified).
 //! Preferences that are text show no row.
 //!
-//! Not modelled: the drop-down's menu (`UIElement_Menu`: the choice changes through
-//! [`ClientOptionsUi::set_value`] only, its label shows on `DropDownMenu`) and the expanders'
-//! `Refit` sizes.
+//! A drop-down (`OptionChoice`) lists its choices in its menu (`OptionChoice::Merge`, run when
+//! `gmClientUI::MonitorReload` builds the rows: the menu flushed, then `AddChoice` per choice) with
+//! the current one selected; picking an item sets the preference. A choice's label is the string
+//! retail's registration gave it (`Render::InitRenderingPreferences`: `ID_Graphics_Value_<name>`
+//! and `ID_Avatar_Value_<name>`; `SoundManager::InitPrefs`: `ID_Sound_<name>`, where `<name>` is
+//! the choice's name in the enum's mapper). The DVD's label table has none of these strings (nor
+//! the rows' names), so the label falls back to the mapper's name, its words spaced. A display
+//! mode's label is its size (`1280 x 720`), as `Device::InitializeRenderingPreferences` wrote it.
+//!
+//! Not modelled: the expanders' `Refit` sizes.
 
 use std::sync::Arc;
 
-use ac2_prefs::{NameTable, Pref, PreferenceBank, Value};
+use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, Value};
 
 use crate::character::{describe, Labels};
-use crate::character_options::{sync_control_of, template_name, Kind};
+use crate::character_options::{
+    fill_choices, selected_choice, sync_control_of, sync_option, template_name, Kind,
+};
 use crate::client_page::{ClientPage, ClientPageText, PageAction, SECTION_ORDER};
 use crate::dialog::{DialogFactory, DialogOutcome};
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, LayoutDesc};
+use crate::menu::MSG_MENU_NEW_SELECTION;
 use crate::mouse::UiMessage;
 use crate::panel::MSG_OPENED;
 use crate::scrollbar::MSG_NEW_POSITION;
@@ -42,6 +52,11 @@ const MSG_CLOSED: u32 = tokenize("closed");
 /// The string table enum the preferences' labels are in (`Preference::Describe` sets
 /// `mStringTable = 0x40000008`), under the string table group `STRING_TABLE_GROUP`.
 pub const PREF_LABEL_TABLE: u32 = 0x4000_0008;
+/// The sections whose choices retail named (`Render::InitRenderingPreferences`'s graphics and
+/// avatar, `SoundManager::InitPrefs`'s sound).
+const GRAPHICS_SECTION: u32 = 0x4000_0004;
+const AVATAR_SECTION: u32 = 0x4000_000D;
+const SOUND_SECTION: u32 = 0x4000_0007;
 /// The confirmations' texts (`ID_Option_RecallText`, `ID_Option_DefaultText`).
 const RECALL_TEXT: &str = "ID_Option_RecallText";
 const DEFAULT_TEXT: &str = "ID_Option_DefaultText";
@@ -249,9 +264,12 @@ impl ClientOptionsUi {
                 row.labels = pref
                     .choices
                     .iter()
-                    .map(|c| labels.get_id(c.label))
+                    .map(|c| choice_label(labels, names, pref, c))
                     .collect();
                 row.choice_values = pref.choices.iter().map(|c| c.value).collect();
+                // `OptionChoice::Merge`: the menu flushed, then each choice added in order.
+                let numbered: Vec<(u32, String)> = (1..).zip(row.labels.iter().cloned()).collect();
+                fill_choices(tree, row.control, &numbered);
             }
         }
         describe(tree, labels, element, &name, Some(&format!("{name}_Help")));
@@ -261,7 +279,7 @@ impl ClientOptionsUi {
                 tree.child_recursive(element, tokenize("OptionText")),
                 names.key_name(pref.key),
             ) {
-                tree.set_text(text, &key);
+                tree.set_text(text, &spaced(&key));
             }
         }
         sync_row(tree, &row, pref);
@@ -386,7 +404,7 @@ impl ClientOptionsUi {
     }
 
     /// Reads a control's own state into its preference (a checkbox's highlight, a slider's
-    /// position); a drop-down changes only through [`ClientOptionsUi::set_value`].
+    /// position, a drop-down's picked item).
     fn read_control(&self, tree: &UiTree, bank: &mut PreferenceBank, index: usize) {
         let row = &self.rows[index];
         let Some(control) = row.control else {
@@ -408,7 +426,14 @@ impl ClientOptionsUi {
                 let position = f64::from(tree.scrollbar_position(control));
                 pref.set_float((position * (upper - lower) + lower) as f32);
             }
-            Kind::Choice { .. } => {}
+            // `OptionChoice::GetCurrent`: the picked item's choice number.
+            Kind::Choice { .. } => {
+                let picked = selected_choice(tree, Some(control))
+                    .and_then(|n| row.choice_values.get((n as usize).checked_sub(1)?));
+                if let Some(&value) = picked {
+                    pref.set_choice(value);
+                }
+            }
         }
     }
 
@@ -537,6 +562,7 @@ impl ClientOptionsUi {
             }
         } else if message.message == MSG_HIGHLIGHT_STATE_CHANGE
             || message.message == MSG_NEW_POSITION
+            || message.message == MSG_MENU_NEW_SELECTION
         {
             if let Some(index) = self.control_at(message.element) {
                 self.read_control(tree, bank, index);
@@ -587,6 +613,12 @@ impl ClientOptionsUi {
         tree.get(label)?.text()
     }
 
+    /// The control (checkbox, slider or drop-down menu) of the row for the preference named
+    /// `name`.
+    pub fn row_control(&self, name: &str) -> Option<usize> {
+        self.rows[self.row_index(name)?].control
+    }
+
     /// The page element (`ClientPage`).
     pub fn page_element(&self) -> usize {
         self.page_element
@@ -635,8 +667,60 @@ fn shown_value(pref: &Pref, row: &Row) -> f64 {
     }
 }
 
-/// Shows a preference's value on its row's control.
+/// Shows a preference's value on its row's control: a drop-down selects the choice's item and
+/// shows its label.
 fn sync_row(tree: &mut UiTree, row: &Row, pref: &Pref) {
     let current = shown_value(pref, row);
+    if let Kind::Choice { .. } = row.kind {
+        sync_option(tree, row.control, row.kind, current);
+    }
     sync_control_of(tree, row.control, row.kind, current, &row.labels);
+}
+
+/// The label of `choice` of `pref`: the string retail's registration gave it (see the module
+/// docs) when the label table has it, else the choice's name in the enum's mapper, spaced, else
+/// the string with the choice's label ID.
+fn choice_label(labels: Labels, names: &dyn NameTable, pref: &Pref, choice: &Choice) -> String {
+    // `Device::InitializeRenderingPreferences`: a display mode's label is its size as text.
+    if pref.key == ac2_render::prefs::DISPLAY_RESOLUTION {
+        let (width, height) = ac2_render::prefs::mode_of(choice.value);
+        return format!("{width} x {height}");
+    }
+    let name = pref.map.and_then(|map| names.enum_name(map, choice.label));
+    if let Some(name) = &name {
+        let prefix = match pref.section {
+            GRAPHICS_SECTION => Some("ID_Graphics_Value_"),
+            AVATAR_SECTION => Some("ID_Avatar_Value_"),
+            SOUND_SECTION => Some("ID_Sound_"),
+            _ => None,
+        };
+        if let Some(prefix) = prefix {
+            let text = labels.get(&format!("{prefix}{name}"));
+            if !text.is_empty() {
+                return text;
+            }
+        }
+        return spaced(name);
+    }
+    labels.get_id(choice.label)
+}
+
+/// A name's words spaced (`VeryLow` reads `Very Low`, `FXVolume` reads `FX Volume`).
+pub(crate) fn spaced(name: &str) -> String {
+    let chars: Vec<char> = name.chars().collect();
+    let mut out = String::with_capacity(name.len() + 4);
+    for (i, &c) in chars.iter().enumerate() {
+        if i > 0 && c.is_ascii_uppercase() {
+            let before = chars[i - 1];
+            let after = chars.get(i + 1).copied();
+            let word = before.is_ascii_lowercase()
+                || before.is_ascii_digit()
+                || (before.is_ascii_uppercase() && after.is_some_and(|a| a.is_ascii_lowercase()));
+            if word {
+                out.push(' ');
+            }
+        }
+        out.push(c);
+    }
+    out
 }

@@ -24,6 +24,9 @@ pub struct UiPixels {
     pub rgba: Arc<[u8]>,
 }
 
+/// An element's image drawn in nine pieces with corners this many pixels square (`draw_nine`).
+pub const NINE_SLICE: u32 = crate::token::tokenize("nine_slice");
+
 /// One root's surface and where it sits on the screen.
 #[derive(Debug, Clone, PartialEq)]
 pub struct UiSurface {
@@ -157,6 +160,69 @@ impl UiSurface {
     }
 }
 
+impl UiSurface {
+    /// An image drawn in nine pieces (an improvement over retail, which stretched or tiled a
+    /// window's frame whole): the corners `border` pixels square at their size, the edges stretched
+    /// along their length, the middle stretched both ways, so a frame keeps its corners at any
+    /// size. Blended as `draw_graphic` blends the mode.
+    fn draw_nine(
+        &mut self,
+        image: &UiPixels,
+        mode: UiImage,
+        border: i32,
+        alpha_value: f32,
+        me: UiBox,
+        dirty: UiBox,
+    ) {
+        let (iw, ih) = (image.width as i32, image.height as i32);
+        let b = border
+            .min(iw / 2)
+            .min(ih / 2)
+            .min(me.width() / 2)
+            .min(me.height() / 2)
+            .max(0);
+        if iw <= 0 || ih <= 0 || me.width() <= 0 || me.height() <= 0 {
+            return;
+        }
+        let op = match mode.draw_mode {
+            1 | 2 => BlitOp::Channel,
+            3 => BlitOp::Value(alpha_value),
+            _ => BlitOp::Copy,
+        };
+        // Source and destination cuts along each axis: [start, border, far border, end).
+        let sx = [0, b, iw - b, iw];
+        let sy = [0, b, ih - b, ih];
+        let dx = [me.x0, me.x0 + b, me.x1 + 1 - b, me.x1 + 1];
+        let dy = [me.y0, me.y0 + b, me.y1 + 1 - b, me.y1 + 1];
+        for col in 0..3 {
+            for row in 0..3 {
+                let (s0x, s1x, s0y, s1y) = (sx[col], sx[col + 1], sy[row], sy[row + 1]);
+                let (d0x, d1x, d0y, d1y) = (dx[col], dx[col + 1], dy[row], dy[row + 1]);
+                if s1x <= s0x || s1y <= s0y || d1x <= d0x || d1y <= d0y {
+                    continue;
+                }
+                let piece = UiBox::new(d0x, d0y, d1x - 1, d1y - 1);
+                let Some(clip) = dirty.intersection(&piece) else {
+                    continue;
+                };
+                // The clipped part's source, in proportion to where it sits in the piece.
+                let map = |v: i32, d0: i32, d1: i32, s0: i32, s1: i32| {
+                    s0 + ((i64::from(v - d0) * i64::from(s1 - s0)) / i64::from(d1 - d0)) as i32
+                };
+                let src = UiBox::new(
+                    map(clip.x0, d0x, d1x, s0x, s1x),
+                    map(clip.y0, d0y, d1y, s0y, s1y),
+                    (map(clip.x1 + 1, d0x, d1x, s0x, s1x) - 1)
+                        .max(map(clip.x0, d0x, d1x, s0x, s1x)),
+                    (map(clip.y1 + 1, d0y, d1y, s0y, s1y) - 1)
+                        .max(map(clip.y0, d0y, d1y, s0y, s1y)),
+                );
+                self.blit(image, src, clip, op);
+            }
+        }
+    }
+}
+
 /// `SurfaceWindow::Blit`'s flags as `Graphic::Draw` sets them.
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum BlitOp {
@@ -196,7 +262,12 @@ impl UiTree {
                     surface.draw_graphic(&icon, mode, scale, el.alpha_value, me, clip);
                 }
             } else if let Some(image) = images.get(&mode.file) {
-                surface.draw_graphic(image, mode, scale, el.alpha_value, me, clip);
+                match el.attributes.get(&NINE_SLICE) {
+                    Some(crate::layout::AttributeValue::Int(border)) => {
+                        surface.draw_nine(image, mode, *border, el.alpha_value, me, clip)
+                    }
+                    _ => surface.draw_graphic(image, mode, scale, el.alpha_value, me, clip),
+                }
             }
         }
         if let Some(text) = &el.text {

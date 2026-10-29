@@ -399,7 +399,7 @@ Legend and workflow: [README](README.md).
 
 ### LandDefs
 - [x] `LandDefs::gid_to_game_map_coords` · 006202c0 · legions 005dbc00 — ac2-physics landdefs.rs + ac2-client ui_sources.rs map_coords_string (the radar) + ac2-script glue
-- [x] `LandDefs::game_map_coords_to_gid` · 00620350 · legions 005dbc90 — ac2-script glue::position (ported beside the gPosition glue)
+- [x] `LandDefs::game_map_coords_to_gid` · 00620350 · legions 005dbc90 — ac2-physics landdefs.rs (used by ac2-script glue::position and tools/ac2hero-guide)
 - [x] `LandDefs::GetCellDistanceSquared` · 006203e0 · legions 005dbd20 — ac2-script glue::position (ported beside the gPosition glue)
 
 ### LM_UVRotate

@@ -20,8 +20,14 @@
 //! - Single-thread one-off or bursty readers: `ac2 ui images`, `ac2 chat text` (`ac2_ui`),
 //!   `ac2 ui strings`, `ac2 hud`, `ac2 pregame`, `ac2 pregame scenes` (`ac2_client`).
 //!
-//! In the world that is four steady readers (two loaders, scene, sound); the one-off readers run
-//! at startup and login. The frame helpers (`install_frame_workers`, `frame_worker_count`) are
+//! - `ac2 map overview` with its `RASTER_THREADS` (4) column workers, once while the world map
+//!   draws the whole world at one pixel per cell, then gone; `ac2 map detail` (`DETAIL_THREADS`,
+//!   2, `ac2_ui::world_map_tiles`): the landblocks the navigation map shows close up, only while
+//!   it is zoomed in. They read through their own store with a small cache, so the sweep does not
+//!   flush the world's.
+//!
+//! In the world that is four steady readers (two loaders, scene, sound), plus the map's two while
+//! it shows a close view; the one-off readers run at startup and login. The frame helpers (`install_frame_workers`, `frame_worker_count`) are
 //! for frame work and never read DATs. The world viewer's block pool uses
 //! [`WORLD_LOADER_THREADS`] as the client does.
 
