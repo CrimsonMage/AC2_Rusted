@@ -153,7 +153,7 @@ key	status	note
 00407980	x	ac2-ui game_dialogs.rs logout_key (the Leave question's yes)
 00407990	x	ac2-ui HudRequest::Quit: UploadGameOptions, then the window closes (ac2-client hud_request.rs, main.rs quitting)
 004079b0	x	OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
-004079c0	_	Legions has it: gmGamePlayUI notice vtable slot 10 at 0x004076d0 (vtable audit)
+004079c0	x	only CWeenieObject::UnRegisterAllNoticeHandlers (Legions 0x4076d0): notices are routed per frame in Rust, there is no per-object handler table to leave
 004079e0	x	ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 00407a40	x	ac2-ui death.rs: MakeResurrectDialog's prompt (ID_ResurrectionPrompt with the resurrecter's name, 0x4100000a) or the death dialog (0x41000018), closing the dialog up first (DeathPanel::offer / death dialog); tested in death tests
 00407b80	x	ac2-audio/ac2-client: 3D emitters and FX sounds
@@ -789,7 +789,7 @@ key	status	note
 0042eff0	x	ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
 0042f020	~	icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
 0042f0f0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
-0042f180	_	Legions has it: vtable slot 10 of ItemDisplay at 0x0042eaf0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+0042f180	x	only CWeenieObject::UnRegisterAllNoticeHandlers (Legions 0x42eaf0): notices are routed per frame in Rust, there is no per-object handler table to leave
 0042f1a0	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 0042f2c0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0042f300	x	ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -934,7 +934,7 @@ key	status	note
 00436f00	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436f40	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 00436f60	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
-00436f70	_	Legions has it: vtable slot 10 of gmShortcutUI at 0x004377c0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+00436f70	x	ac2-ui shortcut_notices.rs removal_check from hud_notices.rs on SessionEvent::ObjectRemoved (Legions 0x4377c0): another object than the player checks its slots (CheckItem(id, false)); objects leave one at a time from the destruction queue, never in a shutdown; the handler unregistering is routing
 00436fe0	x	ac2-ui shortcut.rs setup_item_element (Legions 0x437830): unknown weenie queued pending with ID_Item_TT_WaitingForServer when the UI table holds it (the DVD's lacks it: IsReady fails and StartTooltip shows the template's tooltip_entry); else icon desc (set_icon_desc) or icon, name at quantity tooltip, stateless
 004371c0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 00437290	x	ac2-ui shortcut.rs create_object (Legions 0x437ae0), routed by shortcut_checks_of(GameplayNotice::CreateObject): each slot waiting on the object set up again; the per-object 0x1040c handler registration is the session's notice routing
@@ -1125,7 +1125,7 @@ key	status	note
 00441d20	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441db0	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441e50	x	ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
-00441e90	_	Legions has it: vtable slot 45 of gmPaperDollUI at 0x004427e0 (vtable audit); was skip: admin-only mount flag (sets the paper doll token count); no 
+00441e90	x	ac2-ui paper_doll.rs update_mount_state (Legions 0x4427e0 writes m_ignoreVDescChanges, +0xdc): via inventory_notices.rs; ac2-client view.rs/paper_doll_scene.rs keep the last avatar while it is set (RecvNotice_LocalVisualDescUpdate skips UpdatePaperDoll)
 00441ea0	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 00441f10	x	step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 00441fd0	~	the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled

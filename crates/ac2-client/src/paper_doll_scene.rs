@@ -17,12 +17,15 @@ use crate::ui_scene::{SceneData, UiScenes, ViewSetup};
 /// The paper doll's scene.
 pub(crate) struct PaperDollScene {
     scenes: UiScenes,
+    /// The avatar last drawn: kept while the doll ignores appearance changes.
+    avatar: Option<(u32, ac2_assets::Ac2VisualDesc)>,
 }
 
 impl PaperDollScene {
     pub(crate) fn new(store: Arc<ResourceStore>, world: Arc<Ac2WorldSource>) -> Self {
         Self {
             scenes: UiScenes::new(store, world),
+            avatar: None,
         }
     }
 
@@ -31,7 +34,9 @@ impl PaperDollScene {
     }
 
     /// Follows the doll's viewport (when shown) at `now` seconds with the player's appearance
-    /// and race.
+    /// and race. While `hold` (`m_ignoreVDescChanges`, the player on a mount) the avatar keeps
+    /// the appearance it had (`RecvNotice_LocalVisualDescUpdate` skips `UpdatePaperDoll`).
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn update(
         &mut self,
         gpu: &Gpu,
@@ -40,11 +45,15 @@ impl PaperDollScene {
         race: Option<i32>,
         now: f64,
         wait: bool,
+        hold: bool,
     ) {
-        let avatar = player.and_then(|p| {
-            let visual = p.visual?;
-            Some((visual, ac2_physics::local_visual_desc(&p.appearance)))
-        });
+        if !hold || self.avatar.is_none() {
+            self.avatar = player.and_then(|p| {
+                let visual = p.visual?;
+                Some((visual, ac2_physics::local_visual_desc(&p.appearance)))
+            });
+        }
+        let avatar = &self.avatar;
         let mut figures = |viewport: &SceneViewport, scene: &SceneData| {
             figures(
                 viewport.scene,

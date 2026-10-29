@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1300 done, 327 partial, 124 to do, 496 skipped.
+2247 retail functions: 1304 done, 327 partial, 120 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (25/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (26/58)
 
 ### gmGamePlayUI
 - [~] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
@@ -160,7 +160,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_EndCharacterSession` · 00407980 — ac2-ui game_dialogs.rs logout_key (the Leave question's yes)
 - [x] `gmGamePlayUI::RecvNotice_Logoff` · 00407990 — ac2-ui HudRequest::Quit: UploadGameOptions, then the window closes (ac2-client hud_request.rs, main.rs quitting)
 - [x] `gmGamePlayUI::RecvNotice_NextFrameDrawn` · 004079b0 — OnlineSession::scene_ready (SceneRenderingComplete) on the frame drawn after each PlayerReadyToEnterWorld
-- [ ] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — Legions has it: gmGamePlayUI notice vtable slot 10 at 0x004076d0 (vtable audit)
+- [x] `gmGamePlayUI::RecvNotice_BeingDeleted` · 004079c0 — only CWeenieObject::UnRegisterAllNoticeHandlers (Legions 0x4076d0): notices are routed per frame in Rust, there is no per-object handler table to leave
 - [x] `gmGamePlayUI::MakePleaseWaitDialog` · 004079e0 · legions 004076f0 — ac2-ui game_dialogs.rs end_session raises it (ID_Wait_PleaseWait, wait type); ac2-client hud_game_dialogs.rs game_dialog_logout runs it on the logout key; logout_hud_7160 and the game_dialogs unit tests
 - [x] `gmGamePlayUI::MakeResurrectDialog` · 00407a40 · legions 00407750 — ac2-ui death.rs: MakeResurrectDialog's prompt (ID_ResurrectionPrompt with the resurrecter's name, 0x4100000a) or the death dialog (0x41000018), closing the dialog up first (DeathPanel::offer / death dialog); tested in death tests
 
@@ -743,13 +743,13 @@ Legend and workflow: [README](README.md).
 - [x] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (13/24)
+## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (14/24)
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
 ### ItemDisplay
-- [ ] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180 — Legions has it: vtable slot 10 of ItemDisplay at 0x0042eaf0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+- [x] `ItemDisplay::RecvNotice_BeingDeleted` · 0042f180 — only CWeenieObject::UnRegisterAllNoticeHandlers (Legions 0x42eaf0): notices are routed per frame in Rust, there is no per-object handler table to leave
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::ListenToMessage` · 0042f1a0 · legions 0042f080 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1093,7 +1093,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmNavigationUI::UpdatePlayerPos` · 004341b0 · legions 00434980 — ac2-ui navigation_detail.rs (window, corners, tiles, set_lock, pan, switch); navigation.rs (SizeMap detail branch via tile_position); tests navigation_detail_tests.rs and ac2-client tests/navigation_detail_7160.rs
 - [~] `gmNavigationUI::ListenToMessage` · 00434280 · legions 00434a50 — ac2-ui overview_map.rs map_for_button/message: the four zoom buttons (Osteth, Omishan, Arramora, LinvakMassif) call show_map with their map state; the close button hides. Client routes UiMessage to it (ac2-client hud_player_message.rs). Not: KnorrMap (its button id is not bound: Legions binds DAT_00a4b640 as both the coordinates text and the Knorr-style message), the help page (KeyStone::OpenHelp)
 
-## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (34/46)
+## `ac2/client/src/ui/gameplay/toolbar/gmshortcutui.cpp.c` (35/46)
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::Show` · 00435cd0 · legions 00436520 — ac2-ui shortcut.rs show: the bar's field shows or hides; ac2-client show_toolbar calls it from the toolbar's Show
@@ -1143,7 +1143,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_UpdateContainer` · 00436f00 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateSkill` · 00436f40 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
 - [x] `gmShortcutUI::RecvNotice_UpdateResetTime` · 00436f60 — ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
-- [ ] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — Legions has it: vtable slot 10 of gmShortcutUI at 0x004377c0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+- [x] `gmShortcutUI::RecvNotice_BeingDeleted` · 00436f70 — ac2-ui shortcut_notices.rs removal_check from hud_notices.rs on SessionEvent::ObjectRemoved (Legions 0x4377c0): another object than the player checks its slots (CheckItem(id, false)); objects leave one at a time from the destruction queue, never in a shutdown; the handler unregistering is routing
 - [x] `gmShortcutUI::FIXMESetupItemElement` · 00436fe0 · legions 00437830 — ac2-ui shortcut.rs setup_item_element (Legions 0x437830): unknown weenie queued pending with ID_Item_TT_WaitingForServer when the UI table holds it (the DVD's lacks it: IsReady fails and StartTooltip shows the template's tooltip_entry); else icon desc (set_icon_desc) or icon, name at quantity tooltip, stateless
 - [-] `gmShortcutUI::~gmShortcutUI` · 004371c0 · legions 00437a10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmShortcutUI::RecvNotice_CreateObject` · 00437290 — ac2-ui shortcut.rs create_object (Legions 0x437ae0), routed by shortcut_checks_of(GameplayNotice::CreateObject): each slot waiting on the object set up again; the per-object 0x1040c handler registration is the session's notice routing
@@ -1254,7 +1254,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (23/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (24/31)
 
 ### gmMiniFellowUI
 - [x] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260 — ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
@@ -1269,7 +1269,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI_DDCB` · 00441e50 — ac2-ui drag.rs DragCheck::ItemDrop on each paper doll slot (InitSlots): only an item
 
 ### gmPaperDollUI
-- [ ] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — Legions has it: vtable slot 45 of gmPaperDollUI at 0x004427e0 (vtable audit); was skip: admin-only mount flag (sets the paper doll token count); no 
+- [x] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — ac2-ui paper_doll.rs update_mount_state (Legions 0x4427e0 writes m_ignoreVDescChanges, +0xdc): via inventory_notices.rs; ac2-client view.rs/paper_doll_scene.rs keep the last avatar while it is set (RecvNotice_LocalVisualDescUpdate skips UpdatePaperDoll)
 - [x] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled

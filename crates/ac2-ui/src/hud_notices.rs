@@ -54,6 +54,10 @@ pub fn notice_pass<P: HudSource>(
             *dirty = true;
             continue;
         }
+        if let SessionEvent::ObjectRemoved(id) = event {
+            let player_id = crate::InventorySource::player(player);
+            shortcut_checks.extend(crate::shortcut_notices::removal_check(*id, player_id));
+        }
         let SessionEvent::Notice(notice) = event else {
             continue;
         };

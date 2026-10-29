@@ -269,3 +269,29 @@ fn an_unknown_item_waits_pending_until_its_object_is_created() {
         Some(0x0600_1234)
     );
 }
+
+#[test]
+fn a_removed_item_is_checked_and_its_shortcut_dropped() {
+    // `RecvNotice_BeingDeleted`: another object's removal checks its slots; the player's does
+    // not.
+    let check = crate::shortcut_notices::removal_check(ITEM, 0x5000_0000_0000_0001);
+    assert_eq!(check, Some(crate::ShortcutCheck::Item(ITEM, false)));
+    assert_eq!(crate::shortcut_notices::removal_check(7, 7), None);
+    let Some(mut hud) = hud() else {
+        return;
+    };
+    let player = Player::new();
+    let source = Bar {
+        slots: RefCell::new(bar_slots()),
+        player: &player,
+    };
+    let bar = hud.shortcuts.as_mut().expect("the shortcut bar");
+    bar.reload(&mut hud.tree, &source);
+    bar.take_requests();
+    // The item is gone from the player: the check removes its shortcut.
+    player.held.borrow_mut().clear();
+    crate::apply_shortcut_checks(bar, &mut hud.tree, &source, &[check.unwrap()]);
+    assert!(bar
+        .take_requests()
+        .contains(&ShortcutRequest::Set(1, Shortcut::default())));
+}

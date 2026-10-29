@@ -40,6 +40,14 @@ pub fn apply_shortcut_checks(
     }
 }
 
+/// `gmShortcutUI::RecvNotice_BeingDeleted` (Legions 0x4377c0): an object other than the player
+/// going checks the slots holding it (`CheckItem(id, false)`), which drops a shortcut to an item
+/// the player no longer has. Objects go one at a time from the world's destruction queue, never
+/// in a shutdown, so retail's `_shutdown` skip has no case here.
+pub fn removal_check(object: u64, player: u64) -> Option<ShortcutCheck> {
+    (object != player).then_some(ShortcutCheck::Item(object, false))
+}
+
 /// The checks a notice asks of the bar: `RecvNotice_UpdateSkill` (CheckSkill),
 /// `RecvNotice_UpdateInventory` (all items for 0x40000001, else the one item, pending for
 /// 0x40000005; then all skills), `RecvNotice_UpdateContainer` (the same items part) and

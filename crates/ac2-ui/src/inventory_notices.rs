@@ -51,6 +51,7 @@ pub fn paper_doll_notice<S: InventoryNoticeSource>(
         }
         GameplayNotice::SelectionChanged(new) => doll.selection_changed(tree, old_selection, new),
         GameplayNotice::SetTargetingPointer(on) => doll.set_targeting_pointer(tree, on),
+        GameplayNotice::UpdateMountState(on_mount) => doll.update_mount_state(on_mount),
         _ => {}
     }
 }

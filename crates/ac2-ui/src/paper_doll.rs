@@ -78,6 +78,10 @@ pub struct PaperDollUi {
     pick: Option<(i32, i32)>,
     /// `_lastLoc`: the location the last pick or press on the doll was on.
     last_location: u32,
+    /// `m_ignoreVDescChanges`: set while the player is on a mount
+    /// (`RecvNotice_UpdateMountState`), so the figure keeps its look
+    /// (`RecvNotice_LocalVisualDescUpdate` updates it only when clear).
+    ignore_vdesc_changes: bool,
 }
 
 fn find(tree: &UiTree, name: &str) -> Option<usize> {
@@ -113,6 +117,7 @@ impl PaperDollUi {
             doll_click: false,
             pick: None,
             last_location: 0,
+            ignore_vdesc_changes: false,
         };
         ui.init_slots(tree);
         ui.get_inventory(tree, s, equipped);
@@ -295,6 +300,18 @@ impl PaperDollUi {
         for (_, display) in &self.items {
             display.selection_changed(tree, old, new);
         }
+    }
+
+    /// `gmPaperDollUI::RecvNotice_UpdateMountState` (Legions 0x4427e0: `m_ignoreVDescChanges`
+    /// takes the flag).
+    pub fn update_mount_state(&mut self, on_mount: bool) {
+        self.ignore_vdesc_changes = on_mount;
+    }
+
+    /// Whether the figure ignores appearance changes (`m_ignoreVDescChanges`): the client keeps
+    /// the avatar it last drew (`RecvNotice_LocalVisualDescUpdate`).
+    pub fn ignores_visual_desc_changes(&self) -> bool {
+        self.ignore_vdesc_changes
     }
 
     /// `ItemDisplay::RecvNotice_SetTargetingPointer` of the slots.

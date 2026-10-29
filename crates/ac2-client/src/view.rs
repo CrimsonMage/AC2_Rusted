@@ -317,6 +317,12 @@ impl ClientView {
     fn update_doll(&mut self, gpu: &Gpu, frame: &ClientFrame, wait: bool) {
         let viewports: Vec<_> = self.hud.doll_viewport().into_iter().collect();
         let race = self.hud.panels.player_race;
+        let hold = self
+            .hud
+            .panels
+            .paper_doll
+            .as_ref()
+            .is_some_and(|doll| doll.ignores_visual_desc_changes());
         self.doll.update(
             gpu,
             viewports,
@@ -324,6 +330,7 @@ impl ClientView {
             race,
             frame.server_time,
             wait,
+            hold,
         );
     }
 

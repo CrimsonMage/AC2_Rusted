@@ -462,3 +462,38 @@ fn a_saved_inventory_place_carries_the_doll_viewport_at_login() {
         "the viewport sits in its window's saved place"
     );
 }
+
+impl crate::UiStrings for Player {
+    fn render_string(&self, _: &crate::UiString) -> String {
+        String::new()
+    }
+}
+
+impl crate::InventoryNoticeSource for Player {
+    fn equipped(&self) -> Vec<(u32, u64)> {
+        vec![(HEAD, HELM)]
+    }
+
+    fn render_wire(&self, _: &ac2_net::protocol::StringInfo) -> String {
+        String::new()
+    }
+}
+
+#[test]
+fn on_a_mount_the_doll_ignores_appearance_changes() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let mut doll = PaperDollUi::create(tree, &layout, &Player, PLAYER, &[(HEAD, HELM)]);
+    assert!(!doll.ignores_visual_desc_changes());
+    // `RecvNotice_UpdateMountState`: `m_ignoreVDescChanges` follows the mount.
+    for on_mount in [true, false] {
+        let notice = ac2_weenie::GameplayNotice::UpdateMountState(on_mount);
+        crate::paper_doll_notice(&mut doll, tree, &Player, 0, &notice);
+        assert_eq!(doll.ignores_visual_desc_changes(), on_mount);
+    }
+}
