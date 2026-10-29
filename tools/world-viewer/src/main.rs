@@ -7,7 +7,7 @@
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
-//! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1]
+//! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
@@ -20,6 +20,7 @@
 //! `--light-coronas 0` turns off the sky's lens flares (`LightCoronas`; default on).
 //! `--static-shadows` and `--cloud-shadows` set `LandscapeStaticObjectShadows` (default on) and
 //! `LandscapeCloudShadows` (default off; drawn only with the static shadows).
+//! `--water-reflections` sets `WaterReflections` (default 2: reflected and rippled).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -98,6 +99,8 @@ struct Args {
     /// The headless scene's `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`.
     static_shadows: bool,
     cloud_shadows: bool,
+    /// The headless scene's `WaterReflections` level.
+    water_reflections: u8,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -126,6 +129,7 @@ fn parse_args() -> Result<Args, String> {
         height: None,
         static_shadows: ac2_render::prefs::SceneOptions::default().static_shadows,
         cloud_shadows: ac2_render::prefs::SceneOptions::default().cloud_shadows,
+        water_reflections: ac2_render::prefs::SceneOptions::default().water_reflections,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -176,6 +180,11 @@ fn parse_args() -> Result<Args, String> {
                     .parse::<u8>()
                     .map_err(|e| format!("--cloud-shadows: {e}"))?
                     != 0;
+            }
+            "--water-reflections" => {
+                args.water_reflections = value()?
+                    .parse()
+                    .map_err(|e| format!("--water-reflections: {e}"))?;
             }
             "--height" => {
                 args.height = Some(value()?.parse().map_err(|e| format!("--height: {e}"))?);
@@ -361,6 +370,7 @@ fn snapshot(
         light_coronas: args.light_coronas,
         static_shadows: args.static_shadows,
         cloud_shadows: args.cloud_shadows,
+        water_reflections: args.water_reflections,
         ..Default::default()
     });
     let model = models.get(args.model).filter(|_| !args.fly);

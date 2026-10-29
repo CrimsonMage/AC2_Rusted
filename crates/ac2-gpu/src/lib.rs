@@ -31,6 +31,7 @@ mod timing;
 mod tonemap;
 mod ui;
 mod ui_scenes;
+mod water_reflection;
 
 pub use ac2_render::scene::SceneObject;
 pub use ao::AoCamera;

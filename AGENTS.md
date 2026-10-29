@@ -82,6 +82,16 @@ game rules and server-visible behaviour exactly retail.
   corona (`CEnvCell::RenderLightCoronas`) is seen where nothing is nearer than the light, moved
   0.2 m towards the camera (retail's scan triangle sat at a fixed depth of 0.9999); the 64
   nearest flares in view draw, each keeping its fade while it stays in view.
+- Exception: the water reflects in screen space. Retail's `WorldRender::RenderReflectionMap`
+  drew the sky, the terrain and the objects above the frame's water plane
+  (`LScapeRender::FindReflectionPlane`) from a camera mirrored about it into a target, and
+  `LScapeTerrainMesh::DrawWater` blended that target over the stencilled water pixels by their
+  destination alpha, rippled by a bump map at `WaterReflections` 2. Here the same plane is found
+  (the viewer's block's water below it, else the first resident block's), and after the world pass
+  each pixel whose view ray meets that plane over one of its water blocks marches the mirrored
+  ray through the world's depth (`ac2_gpu` `water_reflection.rs`): what it meets on the screen,
+  else the world's colour where the mirrored direction reaches the screen, blended in by a Fresnel
+  weight, with procedural ripples at level 2. What is off the screen is not reflected.
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

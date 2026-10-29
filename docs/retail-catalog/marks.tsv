@@ -8325,7 +8325,7 @@ key	status	note
 0057dba0	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057dcc0	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057e1b0	~	ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
-0057e270	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
+0057e270	x	replaced by ac2-gpu water_reflection.rs's screen-space reflection over the same plane (AGENTS.md exception)
 0057e750	-	D3D device/resource plumbing; wgpu replaces
 0057e830	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057ea20	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
@@ -8384,7 +8384,7 @@ key	status	note
 00583d20	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00583d40	x	ac2-audio/ac2-client: ambient environments, groove
 00583e70	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-00583f40	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
+00583f40	x	ac2-render scene/lighting.rs find_reflection_plane: the viewer's block's water below it, else the first resident block's; none in water
 00584040	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 00584090	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 005841c0	_	needs port: landscape render (terrain draw, water, cell and block culling, lighting)

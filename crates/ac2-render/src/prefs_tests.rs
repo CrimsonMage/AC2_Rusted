@@ -187,6 +187,7 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
             light_coronas: false,
             static_shadows: false,
             cloud_shadows: false,
+            water_reflections: 0,
             ..SceneOptions::default()
         }
     );
@@ -269,6 +270,23 @@ fn the_landscape_takes_static_shadows_from_quality_4_and_cloud_shadows_at_5() {
         assert_eq!(
             (options.static_shadows, options.cloud_shadows),
             (statics, clouds),
+            "level {level}"
+        );
+    }
+}
+
+#[test]
+fn water_reflections_follow_the_quality_level() {
+    use crate::prefs::scene_options;
+
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    assert_eq!(scene_options(&bank).water_reflections, 0, "registered off");
+    for (level, reflections) in [(2, 0), (3, 1), (4, 2), (5, 2)] {
+        assert!(apply_quality(&mut bank, level));
+        assert_eq!(
+            scene_options(&bank).water_reflections,
+            reflections,
             "level {level}"
         );
     }

@@ -109,6 +109,19 @@ pub struct SceneFrame {
     /// The coronas of the lights of the interior cells that draw (`CEnvCell::DrawPostEffects`,
     /// `RenderLightCoronas`), with their block.
     pub coronas: Vec<(BlockKey, CellCorona)>,
+    /// The water the frame reflects (`LScapeRender::FindReflectionPlane`), when there is one.
+    pub reflection: Option<ReflectionPlane>,
+}
+
+/// The frame's reflecting water: its height, the `WaterReflections` level, and the resident
+/// blocks whose water lies on it (retail stencilled the water mesh's pixels).
+#[derive(Debug, Clone, PartialEq)]
+pub struct ReflectionPlane {
+    pub height: f32,
+    pub level: u8,
+    pub blocks: Vec<BlockKey>,
+    /// The landblock edge in metres.
+    pub block_size: f32,
 }
 
 /// What changed since the last drain: loads to upload and blocks that left the ring.
@@ -191,6 +204,8 @@ pub struct WorldScene {
     /// (`LightSourceEffects`).
     light_decal_materials: Option<[DataId; 3]>,
     light_source_effects: bool,
+    /// `WaterReflections`.
+    water_reflections: u8,
     /// `WorldRender`'s rain splash and water ripple systems (no fade, at the world's origin).
     rain_splash: Option<ParticleSystem>,
     rain_ripples: Option<ParticleSystem>,
@@ -247,6 +262,7 @@ impl WorldScene {
             rain_material: None,
             light_decal_materials: None,
             light_source_effects: defaults.light_source_effects,
+            water_reflections: defaults.water_reflections,
             rain_splash: None,
             rain_ripples: None,
             started: Instant::now(),
@@ -263,6 +279,7 @@ impl WorldScene {
     pub fn set_options(&mut self, options: SceneOptions) {
         self.frill = options.frill;
         self.light_source_effects = options.light_source_effects;
+        self.water_reflections = options.water_reflections;
         self.degrades.options = options.degrade;
         if options.far_radius == self.far_radius {
             return;
@@ -782,6 +799,20 @@ impl WorldScene {
         self.pool_lights(&interiors, &interior_cells);
         particles.extend(self.decal_batches());
         let coronas = self.frame_coronas(&interiors, &interior_cells);
+        let reflection = (self.water_reflections > 0)
+            .then(|| self.find_reflection_plane(eye))
+            .flatten()
+            .map(|height| ReflectionPlane {
+                height,
+                level: self.water_reflections,
+                blocks: self
+                    .heights
+                    .iter()
+                    .filter(|(_, h)| h.water.is_some_and(|w| (w - height).abs() < 0.01))
+                    .map(|(key, _)| *key)
+                    .collect(),
+                block_size: self.world.block_size(),
+            });
         SceneFrame {
             lighting,
             sky,
@@ -793,6 +824,7 @@ impl WorldScene {
             far_chunks,
             particles,
             coronas,
+            reflection,
         }
     }
 

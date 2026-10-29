@@ -84,4 +84,27 @@ impl WorldScene {
             .max_by(|a, b| brightness(*a).total_cmp(&brightness(*b)))
             .unwrap_or(0.0);
     }
+
+    /// `LScapeRender::FindReflectionPlane`: the water height of the viewer's block when the
+    /// viewer is above it, else of the first resident block with water below the viewer (in block
+    /// order); none with the viewer in water (`IsCameraInWater`).
+    pub(super) fn find_reflection_plane(&self, viewer: Vec3) -> Option<f32> {
+        let size = self.world.block_size();
+        let block = (viewer.truncate() / size).floor();
+        let water_at = |key: &(u8, u8)| self.heights.get(key).and_then(|heights| heights.water);
+        let own = ((0.0..256.0).contains(&block.x) && (0.0..256.0).contains(&block.y))
+            .then(|| water_at(&(block.x as u8, block.y as u8)))
+            .flatten();
+        if own.is_some_and(|height| viewer.z <= height) {
+            return None;
+        }
+        if let Some(height) = own {
+            return Some(height);
+        }
+        let mut keys: Vec<_> = self.heights.keys().copied().collect();
+        keys.sort_unstable();
+        keys.iter()
+            .filter_map(water_at)
+            .find(|height| *height < viewer.z)
+    }
 }

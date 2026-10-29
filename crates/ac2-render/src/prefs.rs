@@ -245,7 +245,7 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         enumeration(0x4000_004F, TEXTURE_DETAIL, 2),
         enumeration(0x4000_004D, LEVELS_3, 1),
         enumeration(0x4000_004E, LEVELS_3, 1),
-        enumeration(0x4000_0021, WATER, 0),
+        enumeration(WATER_REFLECTIONS, WATER, 0),
         enumeration(0x4000_005D, SHORE, 1),
         enumeration(DYNAMIC_OBJECT_SHADOWS, OBJECT_SHADOWS, 0),
         enumeration(0x4000_0076, LEVELS_3, 1),
@@ -373,6 +373,8 @@ pub struct SceneOptions {
     pub cloud_shadows: bool,
     /// FX lights and the light pools on the ground (`LightSourceEffects`).
     pub light_source_effects: bool,
+    /// `WaterReflections`: 0 none, 1 the reflection, 2 rippled as well.
+    pub water_reflections: u8,
 }
 
 impl Default for SceneOptions {
@@ -389,6 +391,7 @@ impl Default for SceneOptions {
             static_shadows: true,
             cloud_shadows: false,
             light_source_effects: true,
+            water_reflections: 2,
         }
     }
 }
@@ -450,6 +453,10 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         ),
         cloud_shadows: flag(bank, LANDSCAPE_CLOUD_SHADOWS, defaults.cloud_shadows),
         light_source_effects: light_source_effects(bank),
+        water_reflections: match bank.find(WATER_REFLECTIONS).map(|pref| &pref.value) {
+            Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
+            _ => defaults.water_reflections,
+        },
     }
 }
 
@@ -461,6 +468,8 @@ fn flag(bank: &PreferenceBank, key: u32, default: bool) -> bool {
     }
 }
 
+/// `ID_Graphics_WaterReflections`.
+pub const WATER_REFLECTIONS: u32 = 0x4000_0021;
 /// `ID_Graphics_LandscapeStaticObjectShadows`.
 pub const LANDSCAPE_STATIC_OBJECT_SHADOWS: u32 = 0x4000_0049;
 /// `ID_Graphics_LandscapeCloudShadows`.

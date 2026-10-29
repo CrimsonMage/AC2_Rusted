@@ -15,7 +15,8 @@ use crate::ui_scale::UiScale;
 use ac2_ui::SceneViewport;
 
 /// Draws into `color` (cleared to `clear`, an sRGB colour) on the window `scale` fits the UI
-/// to: `world` (when there is one, with its lens flares' scan of its depth), then `portal` (the portal space, from its own camera over a
+/// to: `world` (when there is one, with its water reflection and its lens flares' scan of its
+/// depth), then `portal` (the portal space, from its own camera over a
 /// cleared depth) in the scene target, both through the tone map with the world's post chain,
 /// then `overlay`'s layers (whose roots are `layer_roots`, in drawing order) with each
 /// of `scenes`' prepared viewports after its root's layer.
@@ -62,7 +63,7 @@ pub fn render_with_scenes(
             }
         });
         if let Some(world) = world {
-            world.scan_flares(gpu, &mut encoder, hdr);
+            world.after_world(gpu, &mut encoder, hdr);
         }
         // The occlusion reads the world's depth, so it is recorded before the portal pass clears
         // it: the world keeps its occlusion while it fades under the portal space.

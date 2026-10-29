@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 169 done, 52 partial, 202 to do, 358 skipped.
+781 retail functions: 171 done, 52 partial, 200 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1004,7 +1004,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeMaterialInfo::MultiCombine` · 005919d0 · legions 00561000
 - [x] `LScapeMaterialInfo::Create` · 00591a40 · legions 00561070
 
-## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (9/39)
+## `portal/client/src/smartbox/worldrender/lscaperender.cpp.c` (10/39)
 
 ### LScapeLighting
 - [x] `LScapeLighting::GetAmbientLight` · 005835c0 · legions 00552d30
@@ -1043,7 +1043,7 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeRender::ReleaseCells` · 00583d20 · legions 00553490 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [x] `LScapeRender::AddCellSounds` · 00583d40 · legions 005534b0 — ac2-audio/ac2-client: ambient environments, groove
 - [ ] `LScapeRender::CullLandBlocks` · 00583e70 · legions 005535e0 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
-- [ ] `LScapeRender::FindReflectionPlane` · 00583f40 · legions 00553680 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
+- [x] `LScapeRender::FindReflectionPlane` · 00583f40 · legions 00553680 — ac2-render scene/lighting.rs find_reflection_plane: the viewer's block's water below it, else the first resident block's; none in water
 - [ ] `LScapeRender::GatherVisibleOutsideObjects` · 00584040 · legions 00553780 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
 - [x] `LScapeRender::GetSunLightDirectionBits` · 00584090 · legions 005537d0 — self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 - [ ] `LScapeRender::UpdateLighting` · 005841c0 · legions 00553900 — needs port: landscape render (terrain draw, water, cell and block culling, lighting)
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [x] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (9/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (10/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0 — needs port: game time lighting refresh cadence
@@ -1232,7 +1232,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::DrawWorldObjects` · 0057dba0 · legions 0054d470 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::UpdateTimeOfDay` · 0057dcc0 · legions 0054d590 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [~] `WorldRender::Update` · 0057e1b0 · legions 0054da80 — ac2-client world_manager_update: WorldManager::Update, UpdateRenderInterpolation, UpdateAnimation; no time of day, rain, ambient sound or scene tools
-- [ ] `WorldRender::RenderReflectionMap` · 0057e270 · legions 0054db40 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
+- [x] `WorldRender::RenderReflectionMap` · 0057e270 · legions 0054db40 — replaced by ac2-gpu water_reflection.rs's screen-space reflection over the same plane (AGENTS.md exception)
 - [-] `WorldRender::UpdateRenderTargets` · 0057e750 · legions 0054e020 — D3D device/resource plumbing; wgpu replaces
 - [ ] `WorldRender::GatherIndoorObjects` · 0057e830 · legions 0054e100 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::GatherOutdoorObjects` · 0057ea20 · legions 0054e2f0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)

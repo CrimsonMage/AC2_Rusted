@@ -21,6 +21,7 @@ use ac2_render::{Camera, Image, TextureKey};
 use crate::lens_flare::{FlareOrigin, FlareSource, LensFlares};
 use crate::sky::{SkyLook, SkyRenderer};
 use crate::sun_shadow::{fit_cascades, SunShadows};
+use crate::water_reflection::WaterReflection;
 use crate::{
     DrawGroup, Gpu, GpuFarTerrain, GpuObjectModel, ObjectInstance, ObjectRenderer, ScreenQuad,
     StaticShadowMap, TerrainBlock, TerrainRenderer, HDR_FORMAT,
@@ -52,6 +53,8 @@ pub struct SceneRenderer {
     sky: SkyRenderer,
     /// The sky lights' lens flares and the light coronas over the world.
     flares: LensFlares,
+    /// The water's reflection over the world.
+    water: WaterReflection,
     /// The near landscape's static shadow map.
     shadow_map: StaticShadowMap,
     /// `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`, the region's cloud shadows
@@ -131,14 +134,16 @@ impl SceneRenderer {
         self.flares.set_enabled(enabled);
     }
 
-    /// The lens flares' scan of the world's depth in `hdr`: record it after the world pass and
-    /// before anything clears that depth (the portal space's pass).
-    pub fn scan_flares(
+    /// What follows the world pass over `hdr`: the water's reflection, then the lens flares'
+    /// scan of the world's depth. Record it after the world pass and before anything clears that
+    /// depth (the portal space's pass).
+    pub fn after_world(
         &self,
         gpu: &Gpu,
         encoder: &mut wgpu::CommandEncoder,
         hdr: &crate::HdrTarget,
     ) {
+        self.water.record(gpu, encoder, hdr);
         self.flares.scan(gpu, encoder, &hdr.depth_view);
     }
 
@@ -163,6 +168,7 @@ impl SceneRenderer {
             fog_quad: ScreenQuad::new(gpu, HDR_FORMAT),
             sky: SkyRenderer::new(gpu, HDR_FORMAT),
             flares: LensFlares::new(gpu, HDR_FORMAT),
+            water: WaterReflection::new(gpu),
             models: HashMap::new(),
             world_objects: HashMap::new(),
             frame_objects: Vec::new(),
@@ -340,6 +346,17 @@ impl SceneRenderer {
         );
         self.terrain
             .set_frame(&gpu.queue, camera, &lighting, aspect, time);
+        let horizon = lighting
+            .fog_color
+            .map(|c| crate::shading::srgb_to_linear(c.clamp(0.0, 1.0)));
+        self.water.prepare(
+            gpu,
+            camera,
+            aspect,
+            time,
+            frame.reflection.as_ref(),
+            horizon,
+        );
         let all_world = world_instances(models, placed, blocks, far, frame);
         let world_visible = in_view(&all_world, &Frustum::from_camera(camera, aspect));
         let world = visible(&all_world, &world_visible);
