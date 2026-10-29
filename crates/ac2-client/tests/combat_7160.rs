@@ -788,3 +788,34 @@ fn a_special_attack_story_ends_the_attack_when_it_is_cleaned_up() {
     assert_eq!(ends, vec![0, 1, 1], "{ends:?}");
     assert!(client.take_script_problems().is_empty());
 }
+
+/// The run to melee range: the attack's start moves the player to the creature (the double's
+/// `RecvEvt_MoveTo` with the creature as the object), so the player, 8 m off when it starts,
+/// stands at the creature by the first exchange and has run there, not snapped.
+#[test]
+fn the_attack_runs_the_player_to_the_creature() {
+    let Some((mut client, server)) = with_script() else {
+        return;
+    };
+    select_creature(&mut client, &server);
+    let gap = |client: &ac2_client::Client| {
+        let frame = client.frame();
+        let player = frame.player.as_ref().unwrap().origin;
+        let creature = frame
+            .objects
+            .iter()
+            .find(|o| o.id == CREATURE_ONE)
+            .unwrap()
+            .origin;
+        (player[0] - creature[0]).hypot(player[1] - creature[1])
+    };
+    assert!((gap(&client) - 8.0).abs() < 0.1, "{}", gap(&client));
+    events_for(&mut client, &server, vec![Command::SetAttacking(true)], 1);
+    advance(&mut client, &server, 0.5);
+    let running = gap(&client);
+    assert!(running > 2.0 && running < 7.9, "on the way: {running}");
+    advance(&mut client, &server, HIT_INTERVAL);
+    let reached = gap(&client);
+    assert!(reached < 2.0, "at the creature: {reached}");
+    assert!(client.take_script_problems().is_empty());
+}

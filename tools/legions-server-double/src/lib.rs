@@ -68,8 +68,8 @@ pub use items::{
 };
 pub use lossy::LossyTransport;
 pub use objects::{
-    create_object_bytes, object_event_bytes, position_bytes, weenie_object_bytes,
-    weenie_object_with, ObjectPosition, ObjectSpawn,
+    create_object_bytes, move_to_object_bytes, object_event_bytes, position_bytes,
+    weenie_object_bytes, weenie_object_with, ObjectPosition, ObjectSpawn,
 };
 pub use radar::{
     radar_objects, CREATURE_ONE, CREATURE_TWO, DRUDGE_VISUAL, MONSTER_PACKAGE, NPC, NPC_PACKAGE,

@@ -3,7 +3,8 @@
 //! it, and it hits back on the attack's timer. A hit is a physics story (`DO_STORY`, its damage hook
 //! with the attack result and the health change, sent by the attacker's object), the target's
 //! health quality, and, for a creature, the selection panel's `UpdateSelectionInfo`. At zero health
-//! the creature leaves the world (`LEAVE_WORLD`). A corpse is not spawned here (see the TODO in
+//! the creature leaves the world (`LEAVE_WORLD`). The attack's start runs the player to the creature
+//! (`RecvEvt_MoveTo`, see `run_to`). A corpse is not spawned here (see the TODO in
 //! `kill`). Starts of special attacks are not answered (no forwarder reaches them, see
 //! `ac2_net::protocol::CombatMessage`).
 
@@ -115,6 +116,8 @@ pub struct Fight {
     pub respawns: u16,
     /// Dead creatures still lying in their death, with the time they leave the world.
     pub dying: Vec<(u64, f64)>,
+    /// The last move-to stamp the double sent the player (each move-to is newer).
+    pub move_to_stamp: u16,
 }
 
 /// The lifestone's position: the player's entry plus [`LIFESTONE_OFFSET`].
@@ -180,6 +183,7 @@ impl State {
                 self.fight.attack = Some((*target, self.elapsed + HIT_INTERVAL));
                 self.send_combat(&CombatMessage::UpdateAttackState(true));
                 self.enter_combat(*target);
+                self.run_to(*target);
             }
             (STOP_ATTACKING, []) => self.stop_attack(),
             (STOP_ATTACKING_TARGET, [ac2_net::protocol::PackValue::LongInt(target)])
@@ -299,6 +303,22 @@ impl State {
     pub fn enter_combat(&mut self, target: u64) {
         self.send_combat_mode(PLAYER, MODE_COMBAT);
         self.send_combat_mode(target, MODE_COMBAT_MONSTER);
+    }
+
+    /// The run to melee range: the player is moved to `target` (`ECM_Physics::RecvEvt_MoveTo`
+    /// with the creature as the object), as a server does before the melee exchange. The double
+    /// does not track the player's place, so it sends the move-to on every attack; a player
+    /// already in reach stands.
+    pub fn run_to(&mut self, target: u64) {
+        // The first move-to after entry takes stamp 2, past the entry's.
+        self.fight.move_to_stamp = self.fight.move_to_stamp.max(1) + 1;
+        let bytes = crate::objects::move_to_object_bytes(
+            PLAYER,
+            instance_of(PLAYER),
+            target,
+            self.fight.move_to_stamp,
+        );
+        self.send_event(&bytes);
     }
 
     /// `ECM_Physics::RecvEvt_DoMode` on `object`.

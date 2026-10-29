@@ -7,7 +7,9 @@ mod common;
 
 use ac2_client::{ClientFrame, FrameInput, ObjectFrame};
 use common::*;
-use legions_server_double::{create_object_bytes, object_event_bytes, ObjectSpawn, Spawn, PLAYER};
+use legions_server_double::{
+    create_object_bytes, move_to_object_bytes, object_event_bytes, ObjectSpawn, Spawn, PLAYER,
+};
 
 const NPC: u64 = 0x8000_0000_0000_0042;
 
@@ -23,25 +25,8 @@ fn object(frame: &ClientFrame, id: u64) -> Option<ObjectFrame> {
     frame.objects.iter().find(|o| o.id == id).cloned()
 }
 
-/// `MovementParameters::StreamPack` for a move towards an object (flags 1 | 0x20 | 0x40, use
-/// cylinders), then the move-to stamp, after the player as sender.
 fn move_to_object(target: u64, stamp: u16) -> Vec<u8> {
-    let mut b = 0x0001_0083u32.to_le_bytes().to_vec();
-    b.extend(PLAYER.to_le_bytes());
-    b.extend(9u16.to_le_bytes());
-    b.extend(0u16.to_le_bytes());
-    b.extend(0x61u32.to_le_bytes());
-    // Desired velocity, fail distance, desired distance, maximum success distance.
-    for v in [1.0f32, 50.0, 0.5, 1.0] {
-        b.extend(v.to_le_bytes());
-    }
-    b.extend(target.to_le_bytes());
-    // No waypoints; context 7.
-    b.extend(0u32.to_le_bytes());
-    b.extend(7u32.to_le_bytes());
-    b.extend(stamp.to_le_bytes());
-    b.extend([0, 0]);
-    b
+    move_to_object_bytes(PLAYER, 9, target, stamp)
 }
 
 fn npc(origin: [f32; 3]) -> Vec<u8> {

@@ -113,6 +113,26 @@ pub fn position_bytes(p: &ObjectPosition) -> Vec<u8> {
     b
 }
 
+/// `ECM_Physics::RecvEvt_MoveTo` towards an object, sent by the mover (`instance` its
+/// instance): `MovementParameters::StreamPack` with flags 1 | 0x20 | 0x40 (use cylinders),
+/// speed 1, fail distance 50, desired distance 0.5, success within 1.0, the target, no
+/// waypoints, context 7, then the move-to stamp.
+pub fn move_to_object_bytes(mover: u64, instance: u16, target: u64, stamp: u16) -> Vec<u8> {
+    let mut b = 0x0001_0083u32.to_le_bytes().to_vec();
+    b.extend(mover.to_le_bytes());
+    b.extend(instance.to_le_bytes());
+    b.extend(0u16.to_le_bytes());
+    b.extend(0x61u32.to_le_bytes());
+    for v in [1.0f32, 50.0, 0.5, 1.0] {
+        b.extend(v.to_le_bytes());
+    }
+    b.extend(target.to_le_bytes());
+    words(&mut b, &[0, 7]);
+    b.extend(stamp.to_le_bytes());
+    b.extend([0, 0]);
+    b
+}
+
 /// A per-object event: opcode, the sender (id, instance, visual stamp 0), its words.
 pub fn object_event_bytes(opcode: u32, id: u64, instance: u16, args: &[u32]) -> Vec<u8> {
     let mut b = opcode.to_le_bytes().to_vec();
