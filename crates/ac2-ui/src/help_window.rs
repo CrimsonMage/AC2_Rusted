@@ -55,6 +55,8 @@ pub struct HelpWindow {
     book: BookUi,
     view: HelpView,
     rows: Vec<Row>,
+    /// `gmToolbarUI::m_keyStoneOldState`: whether the window was open when the toolbar hid.
+    open_before_hide: bool,
 }
 
 /// The help frameworks' messages: the key stone key toggles the window (`gmToolbarUI`'s
@@ -108,7 +110,26 @@ impl HelpWindow {
             book,
             view: HelpView::new(),
             rows: Vec::new(),
+            open_before_hide: false,
         })
+    }
+
+    /// `gmToolbarUI::Show`'s key stone part: the toolbar hiding remembers whether the window is
+    /// open (`KeyStone::IsHelpOpen`) and closes it; the toolbar showing again runs
+    /// `ShowKeyStone(remembered)`, which opens the default page (token 0) when it was open and
+    /// closes the window otherwise.
+    pub fn toolbar_shown(&mut self, tree: &mut UiTree, pages: Option<&HelpPages>, shown: bool) {
+        let open = if shown {
+            self.open_before_hide
+        } else {
+            self.open_before_hide = self.is_shown();
+            false
+        };
+        if open {
+            self.open(tree, pages, 0);
+        } else {
+            self.close(tree);
+        }
     }
 
     /// Whether the window is shown.

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1329 done, 306 partial, 116 to do, 496 skipped.
+2247 retail functions: 1331 done, 305 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1161,17 +1161,17 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
 - [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
 
-## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (5/16)
+## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (7/16)
 
 ### PlayingSoundContext
 - [-] `PlayingSoundContext::PlayingSoundContext` · 00421ec0 · legions 006b07e0 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 
 ### gmToolbarUI
-- [-] `gmToolbarUI::ShowKeyStone` · 00421ed0 · legions 00421d10 — KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
+- [x] `gmToolbarUI::ShowKeyStone` · 00421ed0 · legions 00421d10 — ac2-ui help_window.rs: ShowKeyStone(1) opens the default page (token 0), ShowKeyStone(0) closes (help_pass for the key stone key, toolbar_shown for gmToolbarUI::Show); the MSXML4 failure message has no counterpart (help is drawn in the client)
 - [-] `gmToolbarUI::ShowPlugin` · 00421f60 · legions 00421da0 — KeyStone help and the plug-in manager are external windows (MSXML4); not opened, so the missing-XML4 message is not sent
 - [x] `gmToolbarUI::RecvNotice_ShowSaleReminder` · 00421fe0 — ac2-ui toolbar.rs sale_reminder: the consignments button in its state; the sale sound is not played
 - [x] `gmToolbarUI::RecvNotice_UpdateMountState` · 00422080 · legions 00421ec0 — ac2-ui toolbar.rs mount_state: the dismount button in its dismount state; ac2-client hud_player routes UpdateMountState
-- [~] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar). Not: the keystone help state (IsHelpOpen remembered and reopened; ShowKeyStone toggles the help window, hud_help.rs toggle_keystone) and the shortcut bar Show is a separate entry
+- [x] `gmToolbarUI::Show` · 004220d0 · legions 00421f10 — ac2-ui toolbar.rs show_bar: the toolbar field shows and the bottom preclude is its precludeheight (0 hidden), applied at arrival (hud_view show_toolbar); the key stone state: hiding remembers IsHelpOpen and closes help, showing runs ShowKeyStone(remembered) (help_window.rs toolbar_shown, help_window_tests.rs); the shortcut bar's Show follows
 - [~] `gmToolbarUI::ManageChildren` · 00422160 · legions 00421fa0 — ac2-ui toolbar.rs: fields shown/hidden by side; ManageChildren tooltips ID_Toolbar_TT_<child> (Hide while shown, Show while hidden) via refresh_tooltips. Not: the child panel contents (each child's framework)
 - [x] `gmToolbarUI::ChildKeyPress` · 00422230 · legions 00422070 — ac2-ui toolbar.rs
 - [x] `gmToolbarUI::ListenToMessage` · 00422270 · legions 004220b0 — ConsignmentsButton release (Legions 0x00422140 element DAT_00a48d50) calls gmCWInterface::DisplaySaleReminders: ac2-ui toolbar.rs is_sale_reminder_press, routed in ac2-client hud_player_message.rs to Command::DisplaySaleReminders (IFun 0xB4013D); toolbar_tests the_consignments_button_release_is_the_sale_reminder_press

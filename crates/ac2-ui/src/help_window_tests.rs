@@ -275,3 +275,39 @@ fn the_wheel_over_the_help_text_scrolls_the_page() {
     let up = tree.scrollbar_position(slider);
     assert!(up < down, "a wheel turn in scrolls it back: {down} -> {up}");
 }
+
+/// `gmToolbarUI::Show`'s key stone state: the toolbar hiding closes an open help window and
+/// showing again opens the default page (token 0); a window that was closed stays closed.
+#[test]
+fn the_help_window_closes_with_the_toolbar_and_reopens_with_it() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let content = content_dir();
+    if !content.is_dir() {
+        return;
+    }
+    let store = ResourceStore::new(dataset);
+    let pages = load_help_pages(&store, &content).unwrap().unwrap();
+    let store = std::sync::Arc::new(store);
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &mut hud.tree;
+    let help = hud.help.as_mut().unwrap();
+    help.open(tree, Some(&pages), tokenize("ID_Help_Book"));
+    help.toolbar_shown(tree, Some(&pages), false);
+    assert!(!help.is_shown(), "hidden with the toolbar");
+    help.toolbar_shown(tree, Some(&pages), true);
+    assert!(help.is_shown(), "back with the toolbar");
+    let default_page = help.page().map(str::to_owned);
+    help.open(tree, Some(&pages), 0);
+    assert_eq!(
+        help.page().map(str::to_owned),
+        default_page,
+        "the default page"
+    );
+
+    help.close(tree);
+    help.toolbar_shown(tree, Some(&pages), false);
+    help.toolbar_shown(tree, Some(&pages), true);
+    assert!(!help.is_shown(), "a closed window stays closed");
+}

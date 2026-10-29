@@ -283,6 +283,13 @@ impl HudView {
             reticle.precluded_bottom = bottom;
             self.dirty = true;
         }
+        // `gmToolbarUI::Show`'s key stone state: the help window closes with the bar and opens
+        // again with it.
+        let panels = &mut self.panels;
+        if let (Some((tree, _)), Some(help)) = (&mut self.hud, panels.help.as_mut()) {
+            help.toolbar_shown(tree, panels.help_pages.as_ref(), shown);
+            self.dirty = true;
+        }
         // `gmShortcutUI::Show` from `gmToolbarUI::Show`.
         if let (Some((tree, _)), Some(bar)) = (&mut self.hud, &self.panels.shortcuts) {
             bar.show(tree, shown);
