@@ -5665,7 +5665,7 @@ key	status	note
 005145c0	~	ported from the disassembly: retail computes heading and pitch then stores heading zero and pitch zero over them on every path, so the pair is always (0, 0); the error is CalcInitialVelocity's. Script glue not wired
 00514740	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
 00514830	x	ac2-physics missile_flight.rs (asm-read; ICPhysicsObj calls go through MissileFlightHost)
-005148d0	~	ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID (or the weapon's data id for a clone) at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in. Not yet: a clone's SetVisualDesc(weapon GetLocalVisualDesc)
+005148d0	x	ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID, or for a clone of the weapon's data id with its local VisualDesc (SetVisualDesc(GetLocalVisualDesc()), drawn with the weapon's appearance), at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in; combat_view_7160 a_thrown_weapons_story_throws_a_clone_of_the_wielded_item
 005149b0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a30	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 00514a90	x	ac2-client client_story_missiles.rs fire_missile: a missile with no holding location is made now, else the first pending one is taken; MissilePlaceAndFire (missile_request(true, true)) once its body is in

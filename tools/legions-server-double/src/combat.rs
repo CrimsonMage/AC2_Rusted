@@ -56,6 +56,9 @@ const FIRE_MISSILE_HOOK: u32 = 3;
 /// `Hum_Mi_AutoAttackMissile1` (`MasterSkillList`): the human bow's auto attack, whose one hook
 /// fires an arrow (entity `0x470000BE`) held in holding location 4.
 pub const BOW_AUTO_ATTACK: u32 = 0xC7;
+/// `Lug_Mi_AutoAttackMissile1`: the Lugian's thrown auto attack, whose missile is a clone of the
+/// thrown weapon (`MissileInfo` clone and thrown) held in holding location 4.
+pub const THROW_AUTO_ATTACK: u32 = 0x18F;
 /// The instance of an object the double makes: the player's is 9 (`create_object`), the radar
 /// creatures' 1.
 fn instance_of(id: u64) -> u16 {
@@ -227,13 +230,27 @@ impl State {
     /// made and hung (`StoryHookData` type 2), then one is fired (type 3). The damage is not part
     /// of it.
     pub fn send_missile_story(&mut self, attacker: u64, target: u64, skill: u32) {
+        self.send_weapon_missile_story(attacker, target, None, skill);
+    }
+
+    /// [`State::send_missile_story`] naming the weapon (hook bit 0x20), as a thrown weapon's is.
+    pub fn send_weapon_missile_story(
+        &mut self,
+        attacker: u64,
+        target: u64,
+        weapon: Option<u64>,
+        skill: u32,
+    ) {
         let mut args = vec![STORY_BITS];
         args.extend([attacker as u32, (attacker >> 32) as u32]);
         args.push(skill);
         args.push(2);
         for kind in [PARENT_MISSILES_HOOK, FIRE_MISSILE_HOOK] {
-            args.push(kind | 0x100);
+            args.push(kind | 0x100 | if weapon.is_some() { 0x20 } else { 0 });
             args.extend([target as u32, (target >> 32) as u32]);
+            if let Some(weapon) = weapon {
+                args.extend([weapon as u32, (weapon >> 32) as u32]);
+            }
         }
         let bytes = object_event_bytes(Opcode::DO_STORY, attacker, instance_of(attacker), &args);
         self.send_event(&bytes);

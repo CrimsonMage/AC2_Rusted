@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 842 done, 160 partial, 173 to do, 949 skipped.
+2124 retail functions: 843 done, 159 partial, 173 to do, 949 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -3085,10 +3085,10 @@ Legend and workflow: [README](README.md).
 - [-] `PhysicsStory::PhysicsStory` · 006ae4d0 · legions 00647760 — C++ constructor/destructor; Rust constructor and Drop replace it
 - [~] `PhysicsStory::StreamPack` · 006ae550 · legions 006477e0 — unpack only, in ac2-net protocol::movement (Legions instruction-identical)
 
-## `portal/shared/src/physobj/story/storymanager.cpp.c` (9/15)
+## `portal/shared/src/physobj/story/storymanager.cpp.c` (10/15)
 
 ### StoryManager
-- [~] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID (or the weapon's data id for a clone) at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in. Not yet: a clone's SetVisualDesc(weapon GetLocalVisualDesc)
+- [x] `StoryManager::CreateMissile` · 005148d0 · legions 005028e0 — ac2-client client_story_missiles.rs create_missile: a temporary object of m_entityDID, or for a clone of the weapon's data id with its local VisualDesc (SetVisualDesc(GetLocalVisualDesc()), drawn with the weapon's appearance), at the story's object, MISSILE_TIMEOUT_TIME 8 s; SetCollisionState and MissileInitialize when its body is in; combat_view_7160 a_thrown_weapons_story_throws_a_clone_of_the_wielded_item
 
 ### SmartArray<InstanceID>
 - [-] `SmartArray<InstanceID>::RemoveOrderedByIndex` · 005149b0 · legions 005029c0 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it

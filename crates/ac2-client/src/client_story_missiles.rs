@@ -50,6 +50,8 @@ struct Held {
 /// (`StickySetParent`), and when it times out.
 struct Launch {
     info: MissileInfo,
+    /// A clone's look: the weapon's local `VisualDesc` (`SetVisualDesc(GetLocalVisualDesc())`).
+    appearance: Option<std::sync::Arc<ac2_weenie::Appearance>>,
     parent: Option<(u64, u32)>,
     stuck: Option<(u64, u32, ac2_physics::ChildFrame)>,
     initialized: bool,
@@ -81,6 +83,14 @@ impl Stories {
         }
         let (holder, location) = launch.parent?;
         Some((holder, ac2_physics::ChildInfo::holding(id, location)))
+    }
+
+    /// The local `VisualDesc` a cloned missile took from its weapon.
+    pub(crate) fn missile_appearance(
+        &self,
+        id: u64,
+    ) -> Option<std::sync::Arc<ac2_weenie::Appearance>> {
+        self.launches.get(&id)?.appearance.clone()
     }
 
     /// `CPhysicsObj::StickySetParent` for a story missile: it hangs from `bone` of `object` from
@@ -267,14 +277,19 @@ impl Client {
     }
 
     /// `StoryManager::CreateMissile`: a temporary object of the missile's entity (or, for a
-    /// clone, of the weapon's data id) at the story's object, timed out after
+    /// clone, of the weapon's data id with the weapon's look) at the story's object, timed out after
     /// `MISSILE_TIMEOUT_TIME`. Its collision state and missile manager wait for its body.
     fn create_missile(&mut self, object: u64, hook: &StoryHook, info: MissileInfo) -> Option<u64> {
-        let weapon_visual = hook
+        // A clone is made from the weapon's data id and takes its local `VisualDesc`.
+        let weapon = hook
             .weapon
             .filter(|_| info.clone)
-            .and_then(|weapon| self.session.objects().get(weapon)?.visual);
-        let visual = weapon_visual.unwrap_or(info.entity_did);
+            .and_then(|weapon| self.session.objects().get(weapon))
+            .and_then(|o| Some((o.visual?, o.appearance.clone())));
+        let (visual, appearance) = match weapon {
+            Some((visual, appearance)) => (visual, Some(appearance)),
+            None => (info.entity_did, None),
+        };
         if visual == 0 {
             return None;
         }
@@ -306,6 +321,7 @@ impl Client {
             id,
             Launch {
                 info,
+                appearance,
                 parent: None,
                 stuck: None,
                 initialized: false,

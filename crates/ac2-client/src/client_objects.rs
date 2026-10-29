@@ -564,7 +564,8 @@ impl Client {
                     fx_follow: remote.fx_follow(),
                     container: None,
                     wielder: None,
-                    appearance: Default::default(),
+                    // A cloned story missile looks like its weapon.
+                    appearance: self.stories.missile_appearance(id).unwrap_or_default(),
                     pose: ac2_physics::part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
                     // Client-made objects have temporary ids (`IIDUtils::VerifyTemporary`).

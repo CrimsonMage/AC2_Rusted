@@ -31,6 +31,8 @@ pub const GROUND_ITEM_PACKAGE: u32 = 0x1AA9;
 /// bodies, animations and behaviour tables load from.
 pub const DOOR_VISUAL: u32 = 0x1F00_006C;
 pub const LEVER_VISUAL: u32 = 0x1F00_1880;
+/// A sword's visual (`it_hum_sword_kingslayer.vd`), for a drawn test's ground item.
+pub const SWORD_VISUAL: u32 = 0x1F00_0DCC;
 
 /// The door's modes in its behaviour table (`bd_doorsingle`): shut (0x41000002) and open
 /// (0x41000003). The shut to open transition plays the opening behaviour (0x41000006), the open to
@@ -62,7 +64,13 @@ impl State {
         let objects = [
             (DOOR, DOOR_PACKAGE, DOOR_VISUAL, "Door", at(-2.0, 6.0)),
             (LEVER, LEVER_PACKAGE, LEVER_VISUAL, "Lever", at(5.0, 2.0)),
-            (GROUND_ITEM, GROUND_ITEM_PACKAGE, 0, "Sigil", at(-3.0, 2.0)),
+            (
+                GROUND_ITEM,
+                GROUND_ITEM_PACKAGE,
+                self.ground_item_visual,
+                "Sigil",
+                at(-3.0, 2.0),
+            ),
         ];
         for (id, package, visual, name, origin) in objects {
             let object = ObjectSpawn {

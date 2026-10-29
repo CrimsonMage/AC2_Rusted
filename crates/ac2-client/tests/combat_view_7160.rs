@@ -18,8 +18,8 @@ use ac2_net::Credential;
 use ac2_weenie::{CharacterChoice, OnlineConfig, OnlineSession, SessionEvent};
 use legions_server_double::{
     addr, double, object_event_bytes, position_bytes, ObjectPosition, Spawn, BEHAVIOR_MELEE_AUTO,
-    BEHAVIOR_MELEE_NORMAL, BOW_AUTO_ATTACK, CREATURE_ONE, DRUDGE_VISUAL, MODE_COMBAT_MONSTER,
-    PLAYER, SERVER,
+    BEHAVIOR_MELEE_NORMAL, BOW_AUTO_ATTACK, CREATURE_ONE, DRUDGE_VISUAL, GROUND_ITEM,
+    MODE_COMBAT_MONSTER, PLAYER, SERVER, SWORD_VISUAL, THROW_AUTO_ATTACK,
 };
 
 /// `gmbehaviors.emp`'s `Damage_Hit1`: a hit's reaction on its target.
@@ -499,4 +499,81 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         .filter(|(a, b)| a != b)
         .count();
     assert!(changed > 20, "the arrow draws: {changed} pixels");
+}
+
+/// A thrown weapon's story (`Lug_Mi_AutoAttackMissile1`: its `MissileInfo` is a thrown clone):
+/// the missile is made from the wielded item's data id and takes its look
+/// (`StoryManager::CreateMissile`: `SetVisualDesc(GetLocalVisualDesc())`), and the sword itself
+/// fades out while it is "thrown" (`DoSlider(0x40000015, 0)`), then back in over half a second
+/// when the story is cleaned up (`CleanupStory`).
+#[test]
+fn a_thrown_weapons_story_throws_a_clone_of_the_wielded_item() {
+    let Some((mut client, server, _scene)) = setup() else {
+        return;
+    };
+    {
+        let mut state = server.borrow_mut();
+        state.ground_item_visual = SWORD_VISUAL;
+        state.spawn_world_objects();
+        // `CPhysicsObj::RecvEvt_Parent`: the item in the player's hand (holding location 4).
+        state.wield(GROUND_ITEM, PLAYER, 4, 0);
+    }
+    advance(&mut client, &server, 1.0);
+    let sword = |client: &Client| {
+        client
+            .frame()
+            .objects
+            .iter()
+            .find(|o| o.id == GROUND_ITEM)
+            .cloned()
+            .unwrap_or_else(|| {
+                panic!(
+                    "the wielded sword is drawn: {:?}",
+                    client
+                        .frame()
+                        .objects
+                        .iter()
+                        .map(|o| (o.id, o.holder.map(|h| h.id), o.in_world))
+                        .collect::<Vec<_>>()
+                )
+            })
+    };
+    let wielded = sword(&client);
+    assert_eq!(
+        wielded.holder.map(|h| h.id),
+        Some(PLAYER),
+        "in the player's hand"
+    );
+    assert_eq!(wielded.anim_scale[3], 1.0);
+    server.borrow_mut().send_weapon_missile_story(
+        PLAYER,
+        CREATURE_ONE,
+        Some(GROUND_ITEM),
+        THROW_AUTO_ATTACK,
+    );
+    let mut clone = None;
+    let mut faded = false;
+    for _ in 0..60 {
+        step(&mut client, &server, &FrameInput::default());
+        faded |= sword(&client).anim_scale[3] < 1.0;
+        let frame = client.frame();
+        if let Some(missile) = client.story_missiles().first() {
+            clone = frame.objects.iter().find(|o| o.id == missile.0).cloned();
+        }
+        if clone.is_some() {
+            break;
+        }
+    }
+    let clone = clone.expect("the clone is made");
+    assert_eq!(
+        clone.visual, wielded.visual,
+        "made from the sword's data id"
+    );
+    assert_eq!(
+        clone.appearance, wielded.appearance,
+        "with the sword's look"
+    );
+    assert!(faded, "the sword fades while it is thrown");
+    advance(&mut client, &server, 1.0);
+    assert_eq!(sword(&client).anim_scale[3], 1.0, "and fades back in");
 }

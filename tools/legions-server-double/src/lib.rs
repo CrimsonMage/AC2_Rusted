@@ -18,7 +18,7 @@ mod corpse;
 pub use combat::{
     lifestone, Fight, BEHAVIOR_MELEE_AUTO, BEHAVIOR_MELEE_NORMAL, BOW_AUTO_ATTACK, CREATURE_HEALTH,
     DEATH_SECONDS, HEALTH, HEALTH_MAX, MODE_COMBAT, MODE_COMBAT_MONSTER, PLAYER_HEALTH,
-    PLAYER_HEALTH_MAX,
+    PLAYER_HEALTH_MAX, THROW_AUTO_ATTACK,
 };
 mod craft;
 pub use craft::{CRAFT_SKILL, KNOWN_RECIPE};
@@ -86,7 +86,7 @@ pub use vitals::{
 };
 pub use world_objects::{
     BLOCKING_CREATURE, BLOCKING_CREATURE_VISUAL, DOOR, DOOR_OPEN, DOOR_SHUT, DOOR_VISUAL,
-    GROUND_ITEM, LEVER, LEVER_FLIP, LEVER_VISUAL,
+    GROUND_ITEM, LEVER, LEVER_FLIP, LEVER_VISUAL, SWORD_VISUAL,
 };
 
 use std::cell::RefCell;
@@ -301,6 +301,9 @@ pub struct State {
     /// The `VisualDesc` the radar creatures are created with (0: none, as the logic tests use;
     /// a drawn test sets a monster's, e.g. [`DRUDGE_VISUAL`]).
     pub creature_visual: u32,
+    /// The `VisualDesc` the ground item is created with (0: none; a drawn test sets one, e.g.
+    /// [`SWORD_VISUAL`]).
+    pub ground_item_visual: u32,
     /// Every unordered queue-1 event the double sent, byte for byte, in order (`send_event`).
     pub events_sent: Vec<Vec<u8>>,
     /// The player's vigor, its costs and regeneration (`vitals.rs`).
