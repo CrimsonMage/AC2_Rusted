@@ -17,6 +17,9 @@ use crate::client::{Client, Player};
 use crate::loader::Request;
 use crate::remote::Remotes;
 
+/// The mode in which `AvatarVisibleInFirstPerson` 2 hides the avatar (`GetMode() == 0x40000001`).
+const AVATAR_HIDDEN_MODE: u32 = 0x4000_0001;
+
 /// The camera's lookup over the player's and the other objects' bodies.
 pub(crate) struct CameraWorld<'a> {
     pub(crate) player: Option<&'a Player>,
@@ -68,6 +71,16 @@ impl CameraObjects for CameraWorld<'_> {
     }
 }
 
+/// `AvatarVisibleInFirstPerson` `level` for the player's mode: 0 never, 1 always, 2 unless the
+/// player is in mode `0x40000001`.
+fn avatar_shown(level: u8, mode: Option<u32>) -> bool {
+    match level {
+        0 => false,
+        2 => mode != Some(AVATAR_HIDDEN_MODE),
+        _ => true,
+    }
+}
+
 impl Client {
     /// What the camera reads from the player's physics object.
     pub(crate) fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
@@ -102,6 +115,28 @@ impl Client {
         })
     }
 
+    /// `AvatarVisibleInFirstPerson` (`SceneOptions::avatar_first_person`).
+    pub fn set_avatar_first_person(&mut self, level: u8) {
+        self.avatar_first_person = level;
+    }
+
+    /// Whether the avatar is shown in first person: the preference is not "never", and at 2 the
+    /// player is not in mode `0x40000001` (`CPhysicsObj`'s draw, `CameraManager::UpdateCamera`).
+    fn avatar_shown(&self) -> bool {
+        let mode = self
+            .player
+            .as_ref()
+            .and_then(|p| p.body.as_ref())
+            .map(|b| b.physics.mode());
+        avatar_shown(self.avatar_first_person, mode)
+    }
+
+    /// `CPhysicsObj`'s draw: with the camera in first person (`GetFirstPersonIsReady`) and the
+    /// avatar not shown, the player and what it holds are not drawn.
+    pub(crate) fn avatar_hidden(&self) -> bool {
+        self.camera.first_person_ready() && !self.avatar_shown()
+    }
+
     /// `SmartBox::UpdateCamera`. Without `interpolate` (the mouse-look camera, every frame) the
     /// subject is where the body is drawn, so camera and body move together between quanta. The
     /// camera can follow the other objects too ([`CameraWorld`]).
@@ -109,6 +144,14 @@ impl Client {
         let Some(subject) = self.camera_subject_at(true, !interpolate) else {
             return;
         };
+        // `UpdateCamera`'s dynamic first-person test: the avatar shown and a behaviour flagged
+        // `DYNAMIC_FP_CAMERA` playing on the player.
+        let dynamic = self
+            .player
+            .as_ref()
+            .and_then(|p| p.body.as_ref())
+            .is_some_and(|b| b.physics.check_for_dynamic_fp_camera());
+        self.camera.dynamic_first_person = dynamic && self.avatar_shown();
         let world = CameraWorld {
             player: self.player.as_ref(),
             remotes: &self.remotes,
@@ -236,5 +279,20 @@ impl Client {
         self.camera
             .use_time(now, &mut self.scene.current, &mut distance, &mut roll);
         self.scene.fov = self.camera.fov();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_first_person_avatar_shows_by_the_preference_and_the_players_mode() {
+        let other = Some(0x4000_0002);
+        assert!(!avatar_shown(0, other));
+        assert!(avatar_shown(1, Some(AVATAR_HIDDEN_MODE)));
+        assert!(!avatar_shown(2, Some(AVATAR_HIDDEN_MODE)));
+        assert!(avatar_shown(2, other));
+        assert!(avatar_shown(2, None));
     }
 }

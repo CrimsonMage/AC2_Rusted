@@ -149,7 +149,10 @@ fn viewer_distances(drawn: &[Drawn<'_>], frames: &[Frame], eye: ac2_math::Vec3) 
 }
 
 fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
-    let player = frame.player.iter().filter_map(|p| {
+    // `CPhysicsObj`'s draw: a first-person camera that hides the avatar hides what it holds too
+    // (the root parent is the player).
+    let hidden = frame.player.as_ref().filter(|p| p.hidden).map(|p| p.id);
+    let player = frame.player.iter().filter(|p| !p.hidden).filter_map(|p| {
         let visual = p.visual?;
         Some(Drawn {
             id: p.id,
@@ -178,6 +181,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             None => o.in_world,
         })
         .filter(|o| !frame.fx_looks.hidden.contains(&o.id))
+        .filter(|o| hidden.is_none() || o.holder.map(|h| h.id) != hidden)
         .filter_map(|o| {
             let visual = o.visual?;
             Some(Drawn {

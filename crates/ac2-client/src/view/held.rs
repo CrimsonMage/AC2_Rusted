@@ -138,6 +138,7 @@ mod tests {
             contact: true,
             pose: Vec::new(),
             appearance: Arc::new(Appearance::default()),
+            hidden: false,
         }
     }
 
@@ -172,6 +173,29 @@ mod tests {
             vec![7, 9],
             "the wielded sword is drawn with the player"
         );
+    }
+
+    /// `AvatarVisibleInFirstPerson`: a first-person camera that hides the avatar hides what it
+    /// holds; other objects still draw.
+    #[test]
+    fn a_hidden_first_person_avatar_hides_its_wielded_item() {
+        let frame = ClientFrame {
+            player: Some(PlayerFrame {
+                hidden: true,
+                ..player(7)
+            }),
+            objects: vec![
+                object(
+                    9,
+                    Some(0x0200_0002),
+                    Some(holder(7, Some(point(0, Vec3::ZERO)))),
+                    false,
+                ),
+                object(11, Some(0x0200_0003), None, true),
+            ],
+            ..ClientFrame::default()
+        };
+        assert_eq!(ids(&frame), vec![11]);
     }
 
     #[test]

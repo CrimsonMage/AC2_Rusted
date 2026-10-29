@@ -23,6 +23,9 @@ pub struct PlayerFrame {
     pub pose: Vec<ac2_physics::PartPose>,
     /// The player's local `VisualDesc` (`CPhysicsObj::m_local_vdesc`), as for other objects.
     pub appearance: Arc<ac2_weenie::Appearance>,
+    /// The first-person camera hides the avatar and what it holds
+    /// (`AvatarVisibleInFirstPerson`, `Client::avatar_hidden`).
+    pub hidden: bool,
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or

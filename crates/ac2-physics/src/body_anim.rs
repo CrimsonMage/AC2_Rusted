@@ -275,6 +275,12 @@ impl PhysicsBody {
         self.object.anim.modes.mode()
     }
 
+    /// `ModeTracker::CheckForDynamicFPCamera`: a behaviour flagged `DYNAMIC_FP_CAMERA` plays
+    /// (`CameraManager::UpdateCamera` then rides the head bone).
+    pub fn check_for_dynamic_fp_camera(&self) -> bool {
+        self.object.anim.modes.check_for_dynamic_fp_camera()
+    }
+
     /// `PHYSICSOBJREP::GetElement`: the element the animation has reached.
     pub fn current_element(&self) -> u32 {
         self.object.current_element()

@@ -448,6 +448,8 @@ impl App {
             match effect {
                 ac2_client::OptionsEffect::Scene(options) => {
                     view.set_scene_options(options);
+                    self.client
+                        .set_avatar_first_person(options.avatar_first_person);
                     self.scene_options = options;
                 }
                 ac2_client::OptionsEffect::Display => {
@@ -883,6 +885,7 @@ fn run(args: Args) -> Result<(), String> {
     client.set_rain_sound_ids(ac2_client::rain_sound_ids(&store));
     client.set_fx_scripts(ac2_anim::load_fx_scripts(&store));
     let scene_options = prefs.scene_options();
+    client.set_avatar_first_person(scene_options.avatar_first_person);
     client.apply_sound_preferences(prefs.bank());
     client.apply_light_preferences(prefs.bank());
     client.apply_streak_preferences(prefs.bank());

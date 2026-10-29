@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 132 done, 37 partial, 52 to do, 41 skipped.
+262 retail functions: 133 done, 36 partial, 52 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -197,7 +197,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 - [x] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
-## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (30/46)
+## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (31/46)
 
 ### TargetingModule
 - [x] `TargetingModule::TargetingModule` · 00574850 · legions 00544720
@@ -235,7 +235,7 @@ Legend and workflow: [README](README.md).
 - [x] `CameraManager::CalcShoulderOffset` · 00575c00 · legions 00545ad0
 - [~] `CameraManager::HandleApply` · 00575ee0 · legions 00545db0 — ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
 - [x] `CameraManager::DoCameraFX` · 00575f20 · legions 00545df0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
-- [~] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — dynamic first-person head camera ported (update_camera_with, dynamic_first_person) but the client does not set it yet (AvatarVisibleInFirstPerson pref not held); no camera FX gap remains here
+- [x] `CameraManager::UpdateCamera` · 005760f0 · legions 00545fb0 — ac2-smartbox camera.rs update_camera_with (dynamic first-person head camera on bone 0x40000005 at (0, 0.2, 0.2)); ac2-client client_camera.rs sets dynamic_first_person from AvatarVisibleInFirstPerson, the player's mode and ModeTracker::CheckForDynamicFPCamera
 - [x] `CameraManager::LookAtSelf` · 005767a0 · legions 00546660 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [x] `CameraManager::SwingOutLeft` · 00576850 · legions 005467f0 — ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 - [-] `CameraManager::SwingOutRight` · 00576930 — no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]

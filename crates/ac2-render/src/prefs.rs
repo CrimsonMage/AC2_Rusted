@@ -379,6 +379,9 @@ pub struct SceneOptions {
     pub shore_effects: u8,
     /// `ScreenBrightness` (-0.2..1, 0 neutral; `SceneTool::SetGammaBrightness`).
     pub brightness: f32,
+    /// `AvatarVisibleInFirstPerson`: 0 never, 1 always, 2 (the default) except while the player is
+    /// in mode `0x40000001` (`CPhysicsObj`'s draw and `CameraManager::UpdateCamera`).
+    pub avatar_first_person: u8,
 }
 
 impl Default for SceneOptions {
@@ -401,6 +404,7 @@ impl Default for SceneOptions {
             water_reflections: 2,
             shore_effects: 2,
             brightness: 0.0,
+            avatar_first_person: 2,
         }
     }
 }
@@ -474,6 +478,13 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         brightness: match bank.find(SCREEN_BRIGHTNESS).map(|pref| &pref.value) {
             Some(Value::Float(value)) => *value,
             _ => defaults.brightness,
+        },
+        avatar_first_person: match bank
+            .find(AVATAR_VISIBLE_IN_FIRST_PERSON)
+            .map(|pref| &pref.value)
+        {
+            Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
+            _ => defaults.avatar_first_person,
         },
     }
 }

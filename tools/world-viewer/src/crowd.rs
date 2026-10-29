@@ -105,6 +105,7 @@ mod tests {
             contact: true,
             pose: Vec::new(),
             appearance: Arc::default(),
+            hidden: false,
         };
         let crowd = objects(&models, 16, &player, |_| None);
         assert_eq!(crowd.len(), 16);

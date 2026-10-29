@@ -155,6 +155,8 @@ pub struct Client {
     /// Whether the drawn pose blends between the last two bone refreshes (not retail; the
     /// retail pose is the last refresh, drawn as it is).
     pose_blend: bool,
+    /// `AvatarVisibleInFirstPerson` (`SceneOptions::avatar_first_person`).
+    pub(crate) avatar_first_person: u8,
     load_budget: Duration,
     pub(crate) notices: Vec<Notice>,
     /// Where the per-character window position files are (`None`: the player's AC2 directory).
@@ -269,6 +271,7 @@ impl Client {
             render_interpolation: 0.0,
             render_time: now,
             pose_blend: true,
+            avatar_first_person: 2,
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
             window_positions_dir: None,

@@ -36,6 +36,7 @@ impl Client {
                         .map(|o| o.appearance.clone())
                         .unwrap_or_default(),
                 ),
+                hidden: self.avatar_hidden(),
             })
         });
         let objects = self.object_frames();

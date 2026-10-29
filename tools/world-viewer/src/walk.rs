@@ -208,6 +208,7 @@ impl Walk {
                 parent: visual.raw(),
                 ..Appearance::default()
             }),
+            hidden: false,
         })
     }
 
