@@ -69,6 +69,27 @@ fn rippled(n: vec3<f32>, p: vec3<f32>) -> vec3<f32> {
     return normalize(n + offset);
 }
 
+// How squarely the surface met at `uv` faces the mirrored ray `r`, from its normal rebuilt from
+// the depth: a surface turned away from the ray only hid it (the ray passed behind it), and taking
+// its colour would smear it along the ray.
+fn facing_ray(uv: vec2<f32>, size: vec2<f32>, r: vec3<f32>) -> f32 {
+    let texel = vec2<i32>(uv * size);
+    let last = vec2<i32>(size) - vec2(2);
+    let at = clamp(texel, vec2(0), last);
+    let depth = textureLoad(scene_depth, at, 0);
+    let right = textureLoad(scene_depth, at + vec2(1, 0), 0);
+    let below = textureLoad(scene_depth, at + vec2(0, 1), 0);
+    let centre = view_at((vec2<f32>(at) + 0.5) / size, depth);
+    let dx = view_at((vec2<f32>(at + vec2(1, 0)) + 0.5) / size, right) - centre;
+    let dy = view_at((vec2<f32>(at + vec2(0, 1)) + 0.5) / size, below) - centre;
+    var n = normalize(cross(dy, dx));
+    // Towards the camera.
+    if dot(n, centre) > 0.0 {
+        n = -n;
+    }
+    return smoothstep(0.0, 0.25, -dot(n, r));
+}
+
 @fragment
 fn fs_march(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     let size = vec2<f32>(textureDimensions(scene_depth));
@@ -142,21 +163,30 @@ fn fs_march(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
             break;
         }
     }
-    if hit {
-        let edge = min(min(hit_uv.x, 1.0 - hit_uv.x), min(hit_uv.y, 1.0 - hit_uv.y));
-        let met = textureSampleLevel(scene_color, linear_sampler, hit_uv, 0.0).rgb;
-        color = mix(color, met, smoothstep(0.0, 0.06, edge));
-    } else if sky_uv.x >= 0.0 {
-        color = textureSampleLevel(scene_color, linear_sampler, sky_uv, 0.0).rgb;
+    // What a ray that meets nothing shows: the sky it crossed, else the world's colour where the
+    // mirrored direction reaches the screen at infinity, fading to the horizon's towards the
+    // screen's edges. Off the screen it is the horizon's: a clamped edge row would smear into
+    // streaks that change with every turn of the camera.
+    var missed = color;
+    if sky_uv.x >= 0.0 {
+        missed = textureSampleLevel(scene_color, linear_sampler, sky_uv, 0.0).rgb;
     } else {
-        // Where the mirrored direction reaches the screen at infinity, kept on the screen: the
-        // world's colour along the horizon, without seams where rays leave the sides.
         let far_point = water.proj * vec4(r, 0.0);
         if far_point.w > 1e-4 {
             let ndc = far_point.xy / far_point.w;
-            let at = clamp(vec2(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5), vec2(0.0), vec2(1.0));
-            color = textureSampleLevel(scene_color, linear_sampler, at, 0.0).rgb;
+            let at = vec2(ndc.x * 0.5 + 0.5, 0.5 - ndc.y * 0.5);
+            let inside = min(min(at.x, 1.0 - at.x), min(at.y, 1.0 - at.y));
+            if inside > 0.0 {
+                let far = textureSampleLevel(scene_color, linear_sampler, at, 0.0).rgb;
+                missed = mix(color, far, smoothstep(0.0, 0.15, inside));
+            }
         }
+    }
+    color = missed;
+    if hit {
+        let edge = min(min(hit_uv.x, 1.0 - hit_uv.x), min(hit_uv.y, 1.0 - hit_uv.y));
+        let met = textureSampleLevel(scene_color, linear_sampler, hit_uv, 0.0).rgb;
+        color = mix(missed, met, smoothstep(0.0, 0.06, edge) * facing_ray(hit_uv, size, r));
     }
     // Schlick's Fresnel for water (normal incidence 0.02).
     let facing = clamp(dot(-v, n), 0.0, 1.0);

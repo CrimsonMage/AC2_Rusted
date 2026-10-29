@@ -126,8 +126,9 @@ game rules and server-visible behaviour exactly retail.
   (the viewer's block's water below it, else the first resident block's), and after the world pass
   each pixel whose view ray meets that plane over one of its water blocks marches the mirrored
   ray through the world's depth (`ac2_gpu` `water_reflection.rs`): what it meets on the screen,
-  else the world's colour where the mirrored direction reaches the screen, blended in by a Fresnel
-  weight, with procedural ripples at level 2. What is off the screen is not reflected.
+  else the world's colour where the mirrored direction reaches the screen, fading to the horizon's
+  colour towards the screen's edges and beyond them, blended in by a Fresnel weight, with
+  procedural ripples at level 2. What is off the screen is not reflected.
 - Exception: `Antialiasing` drives temporal anti-aliasing and sharpening, and defaults on. Retail's
   `Antialiasing` device preference (`ID_Rendering_Antialiasing`, key 0x4000_0060, default off) became
   the D3D presentation's `MultiSampleType` (`RenderDeviceD3D::SetMultiSampleAntialias`,
