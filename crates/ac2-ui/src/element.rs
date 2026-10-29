@@ -207,6 +207,11 @@ impl UiElement {
             .as_ref()
             .map(|text| String::from_utf16_lossy(&text.text()))
     }
+
+    /// A text element's colour (`SetFontNumAndColor`'s `font_color{n}`), RGBA.
+    pub fn text_color(&self) -> Option<[f32; 4]> {
+        self.text.as_ref().map(|text| text.color)
+    }
 }
 
 /// The element tree (`UIElementManager`'s elements and root list).

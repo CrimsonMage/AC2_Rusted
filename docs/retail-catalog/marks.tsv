@@ -372,7 +372,7 @@ key	status	note
 00415ee0	x	ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 00415f10	x	ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 00415fc0	x	ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
-004160b0	~	ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
+004160b0	x	ac2-ui ingredient.rs update_difficulty: past the cutoff colour 6; without the recipe's colouring table (m_bHasNameColoringTable) Scale_ of difficulty - skill + 42 over -50..50 to 0..5 (0 for no difficulty), with one the recipe's colour; RecipeLabel's text set again in font 0 and that colour (set_font_num_and_color)
 00416280	x	ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
 004164b0	-	C++ destructor: the Rust drop and the tree own the panel's state
 00416640	-	HashTable assignment: the Rust maps are copied by value

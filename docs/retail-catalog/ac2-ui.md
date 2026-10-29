@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1306 done, 327 partial, 118 to do, 496 skipped.
+2247 retail functions: 1307 done, 326 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -258,7 +258,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (26/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (27/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
@@ -278,7 +278,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0 — ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 - [x] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00 — ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 - [x] `gmIngredientUI::SetPending` · 00415fc0 · legions 00415db0 — ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
-- [~] `gmIngredientUI::UpdateApparentDifficulty` · 004160b0 · legions 00415ea0 — ac2-ui ingredient.rs update_difficulty: the name colour from Scale_ of the difficulty against the skill, 0..5, or 6 past the cutoff. The colour is not drawn (the tree has no name colour)
+- [x] `gmIngredientUI::UpdateApparentDifficulty` · 004160b0 · legions 00415ea0 — ac2-ui ingredient.rs update_difficulty: past the cutoff colour 6; without the recipe's colouring table (m_bHasNameColoringTable) Scale_ of difficulty - skill + 42 over -50..50 to 0..5 (0 for no difficulty), with one the recipe's colour; RecipeLabel's text set again in font 0 and that colour (set_font_num_and_color)
 - [x] `gmIngredientUI::RecvNotice_UpdateCraftSkill` · 00416280 · legions 00416070 — ac2-ui ingredient.rs craft_skill_updated: the level changes, the craft button and the difficulty follow
 - [-] `gmIngredientUI::~gmIngredientUI` · 004164b0 · legions 004162b0 — C++ destructor: the Rust drop and the tree own the panel's state
 

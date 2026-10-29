@@ -143,6 +143,8 @@ pub struct IngredientUi {
     pub(crate) max_ingredients: u32,
     pub(crate) difficulty: u32,
     pub(crate) name_color: u32,
+    /// `m_bHasNameColoringTable`: the recipe gives the name's colour itself.
+    pub(crate) has_name_coloring: bool,
     pub(crate) has_difficulty_cutoff: bool,
     pub(crate) difficulty_cutoff: i32,
     pub(crate) dynamic_difficulty: bool,
@@ -263,6 +265,11 @@ impl IngredientUi {
         self.spinner
     }
 
+    /// `m_nameColor`: the recipe name's colour class (`UpdateApparentDifficulty`).
+    pub fn name_color(&self) -> u32 {
+        self.name_color
+    }
+
     /// The recipe the panel shows.
     pub fn recipe(&self) -> u32 {
         self.recipe
@@ -324,6 +331,7 @@ impl IngredientUi {
         self.read_only = record.read_only_spinner;
         self.max_ingredients = record.max_ingredients;
         self.name_color = record.name_color;
+        self.has_name_coloring = record.has_name_coloring;
         self.difficulty = record.difficulty;
         self.dynamic_difficulty = record.dynamic_difficulty;
         self.has_difficulty_cutoff = record.has_difficulty_minus_skill_cutoff;
@@ -357,7 +365,7 @@ impl IngredientUi {
             tree.list_multi_op_complete(list);
         }
         self.update_craft_button(tree);
-        self.update_difficulty();
+        self.update_difficulty(tree);
         self.auto_size(tree);
         self.shown = true;
         if let Some(root) = self.root {
@@ -474,25 +482,33 @@ impl IngredientUi {
                 > i64::from(self.difficulty_cutoff)
     }
 
-    /// `gmIngredientUI::UpdateApparentDifficulty`: the name colour of the recipe. The colour is
-    /// `Scale_` of the difficulty against the skill, clamped to 0..5, unless the recipe has its own
-    /// table; a difficulty past the cutoff is colour 6. The name is not recoloured yet (the tree
-    /// has no name colour).
-    pub(crate) fn update_difficulty(&mut self) {
-        self.name_color = if self.difficulty_too_high() {
-            6
-        } else if self.difficulty == 0 {
-            0
-        } else {
-            let value = f64::from(self.difficulty) - f64::from(self.skill_level) + 42.0;
-            let scaled = scale(value, -50.0, 50.0, 0.0, 5.0);
-            let class = scaled as i64;
-            if class > 4 {
-                5
+    /// `gmIngredientUI::UpdateApparentDifficulty`: the name's colour class. A difficulty past the
+    /// skill cutoff is colour 6; otherwise a recipe without its own colouring table takes
+    /// `Scale_` of the difficulty against the skill, 0..5 (0 for no difficulty), and one with a
+    /// table keeps its colour. The label's text is set again in font 0 and that colour
+    /// (`UIElement_Text::SetText(text, 0, m_nameColor)`).
+    pub(crate) fn update_difficulty(&mut self, tree: &mut UiTree) {
+        if self.difficulty_too_high() {
+            self.name_color = 6;
+        } else if !self.has_name_coloring {
+            self.name_color = if self.difficulty == 0 {
+                0
             } else {
-                class.max(0) as u32
-            }
-        };
+                let value = f64::from(self.difficulty) - f64::from(self.skill_level) + 42.0;
+                let scaled = scale(value, -50.0, 50.0, 0.0, 5.0);
+                let class = scaled as i64;
+                if class > 4 {
+                    5
+                } else {
+                    class.max(0) as u32
+                }
+            };
+        }
+        if let Some(label) = self.child(tree, LABEL_TEXT) {
+            let text = tree.get(label).and_then(|e| e.text()).unwrap_or_default();
+            tree.set_font_num_and_color(label, 0, self.name_color);
+            tree.set_text(label, &text);
+        }
     }
 
     /// `gmIngredientUI::UpdateRecipeFromSpinnerChange`: the spinner's text and buttons, the dynamic
@@ -515,7 +531,7 @@ impl IngredientUi {
             if let Some((difficulty, color)) = source.difficulty(self.recipe, self.spinner) {
                 self.difficulty = difficulty;
                 self.name_color = color;
-                self.update_difficulty();
+                self.update_difficulty(tree);
             }
         }
         self.update_craft_button(tree);
@@ -588,7 +604,7 @@ impl IngredientUi {
             self.difficulty = difficulty;
             self.name_color = color;
         }
-        self.update_difficulty();
+        self.update_difficulty(tree);
     }
 
     /// `gmIngredientUI::RecvNotice_UpdateMountState`: mounted, the craft button shows as unusable.

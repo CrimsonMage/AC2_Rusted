@@ -176,6 +176,26 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     // The panel opens on the recipe: a slot per ingredient the spinner leaves, in ordinal order.
     panel.open(tree, &source, RECIPE);
     assert!(panel.root().is_some(), "the panel's root is made");
+    // The recipe's name shows in its difficulty's colour (`UpdateApparentDifficulty`: the
+    // label's `font_color{n}`, white where the layout has none).
+    let label = tree
+        .child_recursive(panel.root().unwrap(), tokenize("RecipeLabel"))
+        .expect("the label");
+    let color_name = match panel.name_color() {
+        0 => "font_color".to_owned(),
+        n => format!("font_color{n}"),
+    };
+    let channel = |suffix: &str| match tree
+        .get(label)
+        .unwrap()
+        .attribute(tokenize(&format!("{color_name}_{suffix}")))
+    {
+        Some(AttributeValue::Float(v)) => *v,
+        _ => 1.0,
+    };
+    let expected = [channel("red"), channel("green"), channel("blue"), 1.0];
+    eprintln!("name colour {} {expected:?}", panel.name_color());
+    assert_eq!(tree.get(label).unwrap().text_color(), Some(expected));
     let spinner = panel.spinner();
     let (mask, ingredients) = source.ingredients(RECIPE, spinner);
     assert!(mask != 0 || ingredients.is_empty());
