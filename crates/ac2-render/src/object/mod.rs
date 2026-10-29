@@ -39,6 +39,8 @@ pub use pass::{
 pub use pixel_shader::{
     parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,
 };
-pub use point_lights::{object_point_lights, PointLight, SceneLight, MAX_POINT_LIGHTS};
+pub use point_lights::{
+    object_point_lights, static_point_light, PointLight, SceneLight, MAX_POINT_LIGHTS,
+};
 pub use skeleton::{blend_vertex, GroupPose, ObjectSkeleton, SkeletonGroup};
 pub use water::load_water_model;

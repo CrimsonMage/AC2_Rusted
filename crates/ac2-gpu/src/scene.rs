@@ -232,6 +232,7 @@ impl SceneRenderer {
                 // The scene keeps an object FX's system; its material arrives as a model.
                 Loaded::Layout | Loaded::Rain(_) | Loaded::ObjectParticle(_) => {}
                 Loaded::Images(images) => self.take_images(images),
+                Loaded::LightDecalMaterials(_) => {}
                 Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;

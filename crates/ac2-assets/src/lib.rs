@@ -90,7 +90,7 @@ pub use ac2_fx::{
     Ac2FxObjectAttach, Ac2FxTable, Ac2StreakFx,
 };
 pub use ac2_icon::{Ac2IconDesc, Ac2IconLayer};
-pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource};
+pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource, LIGHT_POINT};
 pub use ac2_material::{
     Ac2LayerLighting, Ac2LayerModifier, Ac2LayerStage, Ac2MaterialLayer, Ac2RenderMaterial,
     Ac2Waveform,

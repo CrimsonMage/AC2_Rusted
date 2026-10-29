@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 168 done, 52 partial, 203 to do, 358 skipped.
+781 retail functions: 169 done, 52 partial, 202 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [x] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (8/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (9/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0 — needs port: game time lighting refresh cadence
@@ -1236,6 +1236,6 @@ Legend and workflow: [README](README.md).
 - [-] `WorldRender::UpdateRenderTargets` · 0057e750 · legions 0054e020 — D3D device/resource plumbing; wgpu replaces
 - [ ] `WorldRender::GatherIndoorObjects` · 0057e830 · legions 0054e100 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::GatherOutdoorObjects` · 0057ea20 · legions 0054e2f0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
-- [ ] `WorldRender::CreateLandscapePointLightDecals` · 0057eb10 · legions 0054e3e0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
+- [x] `WorldRender::CreateLandscapePointLightDecals` · 0057eb10 · legions 0054e3e0 — ac2-render scene/light_decals.rs: each frame the FX point lights and the drawn cells' own lights within reach over the ground pool there as draw-once decals of the day/dusk/night material (enums 0x4000000D/2B/2C), gated by LightSourceEffects
 - [ ] `WorldRender::RenderSkeletonEffects` · 0057ef60 · legions 0054e830 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [~] `WorldRender::Render` · 0057f960 · legions 0054f230 — the portal gate (InPortalSpace), the world's SetFOV(m_fWorldFOVScale * mFOV) in portal space (ac2-client view.rs camera), and PortalSpace::Effect::Render after the world (ac2-client ui_scene/render.rs); not all of the world pass is traced here

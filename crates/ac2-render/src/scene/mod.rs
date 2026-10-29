@@ -6,6 +6,7 @@
 
 mod decals;
 mod interiors;
+mod light_decals;
 mod lighting;
 mod loader;
 mod lod;
@@ -139,6 +140,7 @@ struct BlockInfo {
     interiors: bool,
     cull: Option<Arc<BlockCull>>,
     coronas: Option<Arc<[CellCorona]>>,
+    cell_lights: Option<Arc<[(u32, crate::object::PointLight)]>>,
 }
 
 /// The resident world around a centre block.
@@ -185,6 +187,10 @@ pub struct WorldScene {
     rain: RainField,
     /// The rain's material once loaded (`LScapeRender::m_pRainMaterial`).
     rain_material: Option<DataId>,
+    /// The light pools' materials at day, dusk and night, once loaded, and whether they draw
+    /// (`LightSourceEffects`).
+    light_decal_materials: Option<[DataId; 3]>,
+    light_source_effects: bool,
     /// `WorldRender`'s rain splash and water ripple systems (no fade, at the world's origin).
     rain_splash: Option<ParticleSystem>,
     rain_ripples: Option<ParticleSystem>,
@@ -239,11 +245,14 @@ impl WorldScene {
             heights: HashMap::new(),
             rain: RainField::default(),
             rain_material: None,
+            light_decal_materials: None,
+            light_source_effects: defaults.light_source_effects,
             rain_splash: None,
             rain_ripples: None,
             started: Instant::now(),
         };
         scene.request(Request::Rain);
+        scene.request(Request::LightDecalMaterials);
         scene
     }
 
@@ -253,6 +262,7 @@ impl WorldScene {
     /// old ones, and until then no far chunk is drawn. The near ring and the objects stay.
     pub fn set_options(&mut self, options: SceneOptions) {
         self.frill = options.frill;
+        self.light_source_effects = options.light_source_effects;
         self.degrades.options = options.degrade;
         if options.far_radius == self.far_radius {
             return;
@@ -395,12 +405,21 @@ impl WorldScene {
                         interiors: block.interiors.is_some(),
                         cull: block.interiors.as_ref().map(|i| Arc::clone(&i.cull)),
                         coronas: block.interiors.as_ref().map(|i| Arc::clone(&i.coronas)),
+                        cell_lights: block.interiors.as_ref().map(|i| Arc::clone(&i.cell_lights)),
                     },
                 );
             }
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
             Loaded::Layout | Loaded::Rain(..) | Loaded::Images(_) => {}
+            Loaded::LightDecalMaterials(materials) => {
+                self.light_decal_materials = Some(*materials);
+                for material in *materials {
+                    if material.raw() != 0 {
+                        self.request_material(material);
+                    }
+                }
+            }
             Loaded::Object(object) => {
                 if let Some(model) = &object.model {
                     self.degrades.note_object(object.key, model);
@@ -760,6 +779,7 @@ impl WorldScene {
                     .map(|(material, geometry)| ParticleBatch { material, geometry }),
             );
         }
+        self.pool_lights(&interiors, &interior_cells);
         particles.extend(self.decal_batches());
         let coronas = self.frame_coronas(&interiors, &interior_cells);
         SceneFrame {

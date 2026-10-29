@@ -8329,7 +8329,7 @@ key	status	note
 0057e750	-	D3D device/resource plumbing; wgpu replaces
 0057e830	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057ea20	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
-0057eb10	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
+0057eb10	x	ac2-render scene/light_decals.rs: each frame the FX point lights and the drawn cells' own lights within reach over the ground pool there as draw-once decals of the day/dusk/night material (enums 0x4000000D/2B/2C), gated by LightSourceEffects
 0057ef60	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057f960	~	the portal gate (InPortalSpace), the world's SetFOV(m_fWorldFOVScale * mFOV) in portal space (ac2-client view.rs camera), and PortalSpace::Effect::Render after the world (ac2-client ui_scene/render.rs); not all of the world pass is traced here
 00580990	-	D3D device lifecycle/restore; wgpu replaces

@@ -46,7 +46,7 @@ impl WorldScene {
     }
 
     /// The resident terrain under world `(x, y)`, when its block is resident.
-    fn heights_at(
+    pub(super) fn heights_at(
         &self,
         x: f32,
         y: f32,

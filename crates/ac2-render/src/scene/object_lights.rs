@@ -116,6 +116,23 @@ impl ObjectLights {
             .collect()
     }
 
+    /// Every placed point light at `now` (`SceneTool::m_aDynamicLights` of the frame).
+    pub(super) fn all(&self, now: f64) -> Vec<PointLight> {
+        self.lights
+            .iter()
+            .filter(|fx| fx.light.source.kind == ac2_assets::LIGHT_POINT)
+            .filter_map(|fx| {
+                let frame = self.frames.get(&fx.emitter)?;
+                let opacity = light_opacity(&fx.light, now - fx.created)?;
+                Some(fill(
+                    &fx.light.source,
+                    frame.local_to_global_point(fx.light.offset),
+                    opacity,
+                ))
+            })
+            .collect()
+    }
+
     /// Drops the lights that are spent at `now`.
     fn prune(&mut self, now: f64) {
         self.lights

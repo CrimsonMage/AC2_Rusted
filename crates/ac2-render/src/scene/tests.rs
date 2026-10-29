@@ -187,3 +187,64 @@ fn a_dungeon_camera_sees_the_cells_its_portals_open_on() {
     }
     assert!(most > 1, "a portal in view opens another cell");
 }
+
+#[test]
+fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let size = world.block_size();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0xCB, 0x4D));
+    let _ = scene.wait();
+    let materials = scene
+        .light_decal_materials
+        .expect("the light pool materials load with the scene");
+    assert!(
+        materials.iter().all(|m| m.raw() >> 24 == 0x31),
+        "{materials:?}"
+    );
+    let (x, y) = (203.5 * size, 77.5 * size);
+    let ground = scene
+        .heights_at(x, y, size)
+        .and_then(|heights| heights.height_at(x, y))
+        .expect("the centre block is resident");
+    // `CPartArray::CreateLightSource`: a point light (range 5) 2 m over the ground.
+    scene.start_object_light(
+        9,
+        ac2_assets::Ac2FxLight {
+            offset: Vec3::ZERO,
+            source: ac2_assets::Ac2LightSource::default(),
+            lifespan: 0.0,
+            fade_time: 0.0,
+        },
+    );
+    scene.place_objects(&[super::ObjectPlacement {
+        emitter: 9,
+        cell: 0xCB4D_0001,
+        frame: ac2_math::Frame::new(Vec3::new(x, y, ground + 2.0), ac2_math::Quat::IDENTITY),
+        scale: Vec3::ONE,
+        bones: Vec::new(),
+        named_bones: Vec::new(),
+    }]);
+    let camera = Camera {
+        eye: Vec3::new(x, y - 10.0, ground + 5.0),
+        target: Vec3::new(x, y, ground),
+        fov_y: 1.0,
+        near: 0.5,
+        far: 1000.0,
+    };
+    let pooled = |frame: &super::SceneFrame| {
+        frame
+            .particles
+            .iter()
+            .any(|batch| materials.contains(&batch.material))
+    };
+    assert!(pooled(&scene.frame(&camera, 1.5)), "the light pools");
+    // Retail makes the pool anew each frame (draw once); without the light there is none.
+    scene.remove_object_lights(9);
+    assert!(!pooled(&scene.frame(&camera, 1.5)));
+}

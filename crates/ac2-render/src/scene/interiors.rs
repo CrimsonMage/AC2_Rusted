@@ -39,6 +39,9 @@ pub struct BlockInteriors {
     pub cull: Arc<BlockCull>,
     /// The coronas of the block's cell lights.
     pub coronas: Arc<[CellCorona]>,
+    /// The block's cell point lights with the env cell each belongs to, as
+    /// `CEnvCell::LinkStaticLights` links them while the cell draws.
+    pub cell_lights: Arc<[(u32, PointLight)]>,
 }
 
 /// A static light's corona (`CEnvCell::CreateLightSource`): drawn while the cell the light
@@ -214,6 +217,19 @@ pub fn load_block_interiors(
             })
         })
         .collect();
+    let cell_lights = lights
+        .iter()
+        .flat_map(|info| info.lights.iter())
+        .filter(|light| {
+            light.cell.raw() & 0xFFFF >= 0x100 && light.kind == ac2_world::Ac2LightKind::Point
+        })
+        .map(|light| {
+            (
+                light.cell.raw(),
+                crate::object::static_point_light(light, block_origin + light.origin),
+            )
+        })
+        .collect();
     let groups = compute_cell_groups(&cull_cells);
     let cull = BlockCull {
         cells: cull_cells,
@@ -233,5 +249,6 @@ pub fn load_block_interiors(
         object_cells,
         cull: Arc::new(cull),
         coronas,
+        cell_lights,
     })
 }

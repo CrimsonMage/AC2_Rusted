@@ -80,10 +80,14 @@ fn weight(light: &Ac2StaticLight, distance: f32) -> f32 {
 
 /// `LightSource::FillRenderLight` for a static point light.
 fn fill_render_light(scene: &SceneLight) -> PointLight {
-    let light = &scene.light;
+    static_point_light(&scene.light, scene.origin)
+}
+
+/// `LightSource::FillRenderLight` for a static point light standing at `origin` in the scene.
+pub fn static_point_light(light: &Ac2StaticLight, origin: Vec3) -> PointLight {
     let range = light.range.max(0.0002);
     PointLight {
-        origin: scene.origin,
+        origin,
         range,
         diffuse: light.color.map(|c| c * light.intensity),
         specular: [1.0; 3],

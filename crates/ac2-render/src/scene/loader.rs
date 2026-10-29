@@ -127,6 +127,9 @@ pub enum Loaded {
     ObjectParticle(Box<LoadedObjectParticle>),
     /// Images the frame asked for on their own (the sky's lens flare sprites).
     Images(Images),
+    /// The materials of the light pools on the ground at day, dusk and night
+    /// (`WorldRender::CreateLandscapePointLightDecals`); 0 where the enum names none.
+    LightDecalMaterials([DataId; 3]),
 }
 
 /// An object FX particle system's load: its description (`None` when it draws nothing), and its
@@ -178,6 +181,8 @@ pub(crate) enum Request {
     StreakMaterial(DataId),
     /// Images drawn without a model (`LensFlarePoint` textures).
     Images(Vec<TextureKey>),
+    /// The light pools' materials by enum (`FileArray::GetDIDFromEnum(.., 0x40000002)`).
+    LightDecalMaterials,
 }
 
 /// The loader thread and its queues.
@@ -503,6 +508,17 @@ impl Worker {
                 Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
             }
             Request::Images(keys) => Loaded::Images(self.images(keys)),
+            Request::LightDecalMaterials => {
+                let store = self.world.resource_store().clone();
+                Loaded::LightDecalMaterials(crate::scene::light_decals::LIGHT_DECAL_ENUMS.map(
+                    |value| {
+                        ac2_assets::ac2_enum_did(&store, crate::rain::RAIN_MATERIAL_GROUP, value)
+                            .ok()
+                            .flatten()
+                            .unwrap_or(DataId::new(0))
+                    },
+                ))
+            }
             Request::StreakMaterial(material) => {
                 let store = self.world.resource_store().clone();
                 let model = self

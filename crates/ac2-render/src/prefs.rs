@@ -371,6 +371,8 @@ pub struct SceneOptions {
     pub static_shadows: bool,
     /// The cloud shadows over the landscape (`LandscapeCloudShadows`, with the map only).
     pub cloud_shadows: bool,
+    /// FX lights and the light pools on the ground (`LightSourceEffects`).
+    pub light_source_effects: bool,
 }
 
 impl Default for SceneOptions {
@@ -386,6 +388,7 @@ impl Default for SceneOptions {
             light_coronas: true,
             static_shadows: true,
             cloud_shadows: false,
+            light_source_effects: true,
         }
     }
 }
@@ -446,6 +449,7 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             defaults.static_shadows,
         ),
         cloud_shadows: flag(bank, LANDSCAPE_CLOUD_SHADOWS, defaults.cloud_shadows),
+        light_source_effects: light_source_effects(bank),
     }
 }
 
