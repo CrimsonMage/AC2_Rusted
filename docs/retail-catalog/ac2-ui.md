@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1313 done, 320 partial, 118 to do, 496 skipped.
+2247 retail functions: 1314 done, 319 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
@@ -129,12 +129,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs book_pass sends BookUi::clipboard_text to the tree's clipboard (UiTree::send_string_to_clipboard, the OS clipboard in the client); test book_tests.rs
 - [x] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs message: close; while shown the foreground's next page (closing past the last), help (BookRequest::OpenHelp -> ID_Help_Book), and with the controls the slider buttons, the slider and Copy (the OS clipboard)
 
-## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (4/7)
+## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (5/7)
 
 ### gmCameraUI
 - [-] `gmCameraUI::~gmCameraUI` · 0042baa0 · legions 0042b860 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bb00 · legions 0042b8c0 — ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-- [~] `gmCameraUI::SendKey` · 0042bb50 — ac2-ui camera_ui.rs CameraUi::action (the four arrow UI actions re-sent as turn and move actions with the action as its key, device 1; Legions has SendKey inlined at the end of gmCameraUI::ListenToMessage 0x42BAA0). Not ported: the guard that drops the key when either IUIManager current-object query (vtable +0xb4, +0xb8) is true
+- [x] `gmCameraUI::SendKey` · 0042bb50 — ac2-ui camera_ui.rs CameraUi::action re-sends the four arrow UI actions as turn/move (device 1); controls.rs drops them while the active element (m_activeElement, IUIManager +0x6c) is a text (UIElement_Text +0xb4 cast) or list box (+0xb8 cast): UiTree::active_takes_arrows via Controls::set_camera_keys_blocked each frame (ac2-client main.rs)
 - [x] `gmCameraUI::UpdateCamera` · 0042bbb0 · legions 0042b970 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 - [-] `gmCameraUI::gmCameraUI` · 0042bc20 · legions 0042b9e0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmCameraUI::ListenToMessage` · 0042bce0 · legions 0042baa0 — ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)

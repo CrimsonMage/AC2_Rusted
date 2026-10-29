@@ -214,6 +214,13 @@ impl HudView {
         }
     }
 
+    /// `gmCameraUI::SendKey`'s guard: the active element is a text or a list box.
+    pub(crate) fn camera_keys_blocked(&self) -> bool {
+        self.hud
+            .as_ref()
+            .is_some_and(|(tree, _)| tree.active_takes_arrows())
+    }
+
     /// Whether an editable text element is active (the input manager's text mode).
     pub(crate) fn text_mode(&self) -> bool {
         self.hud.as_ref().is_some_and(|(tree, _)| tree.text_mode())

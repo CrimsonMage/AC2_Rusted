@@ -375,6 +375,9 @@ impl App {
         let (stamp, now) = state.now();
         state.controls.set_text_mode(view.text_mode(), stamp, now);
         state.controls.set_copy_text(view.text_copy_focus());
+        state
+            .controls
+            .set_camera_keys_blocked(view.camera_keys_blocked());
         state.controls.ui_messages(&messages, now);
         let notices = view.take_mouse_look_notices();
         let notices = notices

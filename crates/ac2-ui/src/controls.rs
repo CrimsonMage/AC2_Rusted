@@ -53,6 +53,9 @@ pub struct Controls {
     pub input: InputManager,
     pub interpreter: ActionInterpreter,
     pub camera_ui: CameraUi,
+    /// `gmCameraUI::SendKey`'s guard: the UI's active element takes the arrows, so the camera's
+    /// turn and move keys are dropped ([`Controls::set_camera_keys_blocked`]).
+    camera_keys_blocked: bool,
     /// A UI element tree takes the UI actions (`IUIManager` start / stop): they wait in
     /// [`Controls::take_ui_input`] and come back as [`Controls::ui_messages`]. Without one the
     /// camera UI handles them directly.
@@ -142,6 +145,7 @@ impl Controls {
             input,
             interpreter,
             camera_ui: CameraUi::default(),
+            camera_keys_blocked: false,
             ui_attached: false,
             ui_input: Vec::new(),
             text_actions: Vec::new(),
@@ -252,6 +256,12 @@ impl Controls {
         }
     }
 
+    /// `gmCameraUI::SendKey`'s guard for the frame: while the UI's active element is a text or
+    /// a list box ([`crate::UiTree::active_takes_arrows`]) the arrow keys stay with it.
+    pub fn set_camera_keys_blocked(&mut self, blocked: bool) {
+        self.camera_keys_blocked = blocked;
+    }
+
     /// Whether a read-only text holds the copy focus: typed characters then reach the UI tree
     /// (for Ctrl+A / Ctrl+C) without the text mode that would turn every key into a character.
     pub fn set_copy_text(&mut self, on: bool) {
@@ -304,6 +314,7 @@ impl Controls {
     /// `gmCameraUI`'s handling of one UI action; actions it ignores go to [`ControlFrame::ui`].
     fn camera_ui_action(&mut self, ui: u32, value: f32, start: bool, now: f64) {
         match self.camera_ui.action(ui, start) {
+            Some(CameraUiEffect::Action { .. }) if self.camera_keys_blocked => {}
             Some(CameraUiEffect::Action { action, extent }) => {
                 // `gmCameraUI` re-sends with the action as its key, from device 1.
                 self.action(action, extent, action, DEVICE_MOUSE, now);

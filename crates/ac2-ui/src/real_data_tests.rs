@@ -693,3 +693,31 @@ fn in_portal_space_the_reticle_hides() {
     );
     assert_eq!(shown(&tree), 0);
 }
+
+#[test]
+fn the_camera_keys_stay_with_an_active_text_or_list() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut controls = Controls::load(&store).unwrap().expect("controls");
+    controls.ui_attached = true;
+    // The UI's turn-left action (`0x40000013`), re-sent by `gmCameraUI` as the turn: the player
+    // turns (an active movement action).
+    let press = UiMessage {
+        element_id: 0,
+        element: None,
+        message: crate::mouse::GLOBAL_KEY_PRESS,
+        data: 0x4000_0013,
+        item: None,
+    };
+    let turning = |controls: &mut Controls| {
+        controls.ui_messages(std::slice::from_ref(&press), 0.0);
+        !controls.frame().actions.is_empty()
+    };
+    // `SendKey`'s guard: an active text or list box keeps the key.
+    controls.set_camera_keys_blocked(true);
+    assert!(!turning(&mut controls));
+    controls.set_camera_keys_blocked(false);
+    assert!(turning(&mut controls));
+}

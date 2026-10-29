@@ -709,7 +709,7 @@ key	status	note
 0042ba70	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 0042baa0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 0042bb00	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
-0042bb50	~	ac2-ui camera_ui.rs CameraUi::action (the four arrow UI actions re-sent as turn and move actions with the action as its key, device 1; Legions has SendKey inlined at the end of gmCameraUI::ListenToMessage 0x42BAA0). Not ported: the guard that drops the key when either IUIManager current-object query (vtable +0xb4, +0xb8) is true
+0042bb50	x	ac2-ui camera_ui.rs CameraUi::action re-sends the four arrow UI actions as turn/move (device 1); controls.rs drops them while the active element (m_activeElement, IUIManager +0x6c) is a text (UIElement_Text +0xb4 cast) or list box (+0xb8 cast): UiTree::active_takes_arrows via Controls::set_camera_keys_blocked each frame (ac2-client main.rs)
 0042bbb0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)
 0042bc20	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 0042bce0	x	ac2-ui camera_ui.rs (no UI element hit test: the wheel always reaches the world)

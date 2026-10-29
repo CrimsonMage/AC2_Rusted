@@ -66,6 +66,15 @@ impl UiTree {
             .is_some_and(|t| t.editable)
     }
 
+    /// `gmCameraUI::SendKey`'s guard (Legions, inlined at the end of `ListenToMessage`): the
+    /// active element (`m_activeElement`, `IUIManager` +0x6C) is a text (`UIElement_Text`'s
+    /// +0xB4 cast) or a list box (`UIElement_ListBox`'s +0xB8 cast), which take the arrow keys.
+    pub fn active_takes_arrows(&self) -> bool {
+        self.active
+            .and_then(|index| self.get(index))
+            .is_some_and(|e| e.text.is_some() || e.list.is_some())
+    }
+
     /// Whether the active element takes typing (the input manager's text mode).
     pub fn text_mode(&self) -> bool {
         self.active.is_some_and(|index| {

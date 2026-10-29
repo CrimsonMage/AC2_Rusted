@@ -289,6 +289,12 @@ impl ClientView {
         self.chat_display(ac2_ui::ERROR_TEXT_TYPE, text);
     }
 
+    /// Whether the HUD's active element keeps the arrow keys from the camera
+    /// (`gmCameraUI::SendKey`).
+    pub fn camera_keys_blocked(&self) -> bool {
+        self.hud.camera_keys_blocked()
+    }
+
     /// Whether the HUD takes typing (`CInputManager::SetTextMode`).
     pub fn text_mode(&self) -> bool {
         self.hud.text_mode()
