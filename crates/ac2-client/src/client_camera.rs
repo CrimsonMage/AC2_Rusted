@@ -119,9 +119,10 @@ impl Client {
 
     /// The player's behaviour cameras among this step's animation events
     /// (`BehaviorTracker::ProcessParamFlags` sends them for the player only). A targeted camera
-    /// needs its target there (`DoBehaviorOnObject` takes only on a known object); it stands at
-    /// the target's bone type `0x40000002` looking at its `0x40000001`, ramping in over half a
-    /// second.
+    /// first has its target play the behaviour (`CPhysicsObj::DoBehaviorOnObject`:
+    /// `GetObjectA(target)->DoBehavior(behaviorID)`, default `BehaviorParams` for the id); only
+    /// when that starts does the camera stand at the target's bone type `0x40000002` looking at its
+    /// `0x40000001`, ramping in over half a second.
     pub(crate) fn camera_animation_events(
         &mut self,
         events: &[(u64, Option<u32>, Vec<Ac2AnimEvent>)],
@@ -129,39 +130,49 @@ impl Client {
         let Some(player_id) = self.player.as_ref().map(|p| p.id) else {
             return;
         };
-        let Some(subject) = self.camera_subject(false) else {
-            return;
-        };
-        let world = CameraWorld {
-            player: self.player.as_ref(),
-            remotes: &self.remotes,
-        };
-        let view = CameraView {
-            player: Some(&subject),
-            objects: &world,
-        };
-        let camera = &mut self.camera;
-        for (_, _, events) in events.iter().filter(|(id, _, _)| *id == player_id) {
-            for event in events {
-                match *event {
-                    Ac2AnimEvent::CameraAnimParent { period, ramp_time } => {
-                        camera.set_camera_anim_parent(&view, period, ramp_time)
-                    }
-                    Ac2AnimEvent::CameraAnimTarget { period, ramp_time } => {
-                        camera.set_camera_anim_target(&view, period, ramp_time)
-                    }
-                    Ac2AnimEvent::RestoreCamera => camera.restore_player_camera(&view),
-                    Ac2AnimEvent::TargetedCamera { target, period, .. }
-                        if world
-                            .remotes
-                            .get(target)
-                            .is_some_and(|r| r.body().is_some()) =>
-                    {
-                        let bones = (0x4000_0002, 0x4000_0001);
-                        camera.set_targeted_camera(&view, target, bones, period, 0.5);
-                    }
-                    _ => {}
+        let player_events: Vec<Ac2AnimEvent> = events
+            .iter()
+            .filter(|(id, _, _)| *id == player_id)
+            .flat_map(|(_, _, events)| events.iter().copied())
+            .collect();
+        for event in player_events {
+            if let Ac2AnimEvent::TargetedCamera {
+                target, behavior, ..
+            } = event
+            {
+                let params = ac2_anim::Ac2BehaviorParams::new(behavior);
+                let took = self
+                    .script_body_mut(target)
+                    .is_some_and(|body| body.do_behavior(&params));
+                if !took {
+                    continue;
                 }
+            }
+            let Some(subject) = self.camera_subject(false) else {
+                return;
+            };
+            let world = CameraWorld {
+                player: self.player.as_ref(),
+                remotes: &self.remotes,
+            };
+            let view = CameraView {
+                player: Some(&subject),
+                objects: &world,
+            };
+            let camera = &mut self.camera;
+            match event {
+                Ac2AnimEvent::CameraAnimParent { period, ramp_time } => {
+                    camera.set_camera_anim_parent(&view, period, ramp_time)
+                }
+                Ac2AnimEvent::CameraAnimTarget { period, ramp_time } => {
+                    camera.set_camera_anim_target(&view, period, ramp_time)
+                }
+                Ac2AnimEvent::RestoreCamera => camera.restore_player_camera(&view),
+                Ac2AnimEvent::TargetedCamera { target, period, .. } => {
+                    let bones = (0x4000_0002, 0x4000_0001);
+                    camera.set_targeted_camera(&view, target, bones, period, 0.5);
+                }
+                _ => {}
             }
         }
     }

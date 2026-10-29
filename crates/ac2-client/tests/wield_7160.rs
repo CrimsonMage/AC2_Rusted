@@ -77,7 +77,10 @@ fn a_character_wields_an_item_from_its_hand() {
         .expect("the character's visual");
     let location = RIGHT_HAND;
     let (bone, name) = holding_bone(&store, visual, location);
-    assert_eq!(name, RIGHT_WEAPON_HOLDER, "location 1 is on the right weapon holder");
+    assert_eq!(
+        name, RIGHT_WEAPON_HOLDER,
+        "location 1 is on the right weapon holder"
+    );
 
     server.borrow_mut().wield(GROUND_ITEM, PLAYER, location, 0);
     // The item's holder point needs the character's body in (the loader thread); wait on it with

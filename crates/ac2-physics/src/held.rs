@@ -320,11 +320,23 @@ mod tests {
         );
         // Nothing fades while the element is unchanged, for a holder whose weenie is not a
         // player, for a temporary child, or off the hands.
-        assert_eq!(held_element_fade(&holder(false, true, WATER), &right, false), None);
-        assert_eq!(held_element_fade(&holder(true, false, WATER), &right, false), None);
-        assert_eq!(held_element_fade(&holder(true, true, WATER), &right, true), None);
+        assert_eq!(
+            held_element_fade(&holder(false, true, WATER), &right, false),
+            None
+        );
+        assert_eq!(
+            held_element_fade(&holder(true, false, WATER), &right, false),
+            None
+        );
+        assert_eq!(
+            held_element_fade(&holder(true, true, WATER), &right, true),
+            None
+        );
         let back = ChildInfo::holding(9, 4);
-        assert_eq!(held_element_fade(&holder(true, true, WATER), &back, false), None);
+        assert_eq!(
+            held_element_fade(&holder(true, true, WATER), &back, false),
+            None
+        );
         // Retail tests the child type for location 1 only: a bone-index child on bone 2 fades,
         // one on bone 1 does not.
         let bone = |location| ChildInfo {

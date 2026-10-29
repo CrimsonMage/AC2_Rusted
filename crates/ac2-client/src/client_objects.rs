@@ -103,7 +103,7 @@ impl Client {
 
     /// The physics body of the weenie `object` a script acted on: the player's, or a remote
     /// object's (`CWPhysicsObject::m_phys_obj` is any weenie's body).
-    fn script_body_mut(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
+    pub(crate) fn script_body_mut(&mut self, object: u64) -> Option<&mut ac2_physics::PhysicsBody> {
         match self.player.as_mut().filter(|p| p.id == object) {
             Some(player) => player.body.as_mut().map(|b| &mut b.physics),
             None => self.remotes.body_mut(object),

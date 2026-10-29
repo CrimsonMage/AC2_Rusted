@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 853 done, 156 partial, 167 to do, 948 skipped.
+2124 retail functions: 854 done, 157 partial, 165 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2429,7 +2429,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::SetCameraAnimParent` · 004e23f0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetCameraAnimTarget` · 004e2400 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetTargetedCamera` · 004e2410 · legions 004d4e60 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-- [ ] `CPhysicsObj::DoBehaviorOnObject` · 004e2440 · legions 004d4e90 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::DoBehaviorOnObject` · 004e2440 · legions 004d4e90 — ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
 - [ ] `CPhysicsObj::InitLookAtManager` · 004e2480 — needs port: cite-only physics-object method
 - [-] `CPhysicsObj::GetMouseLookState` · 004e24f0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetMouseLookState` · 004e2500 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
@@ -2623,7 +2623,7 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::calc_cross_cells` · 004e9d30 · legions 004dc5b0 — ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 - [~] `CPhysicsObj::SetPositionInternal` · 004e9f50 · legions 004dc7d0 — no cell residency, shadow or material updates; LeaveGround FX not ported
 - [ ] `CPhysicsObj::CombineAndApplyVisualDesc` · 004ea290 — needs port: cite-only physics-object method
-- [x] `CPhysicsObj::DoBehavior` · 004ea490 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+- [~] `CPhysicsObj::DoBehavior` · 004ea490 — CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior (the params overload's path; the 0x198(1) activation call is not separate)
 - [~] `CPhysicsObj::DoBehavior` · 004ea500 — ac2-physics do_behavior: frozen check, params mode, ModeTracker::DoBehavior; no story manager, children, FX target or cloned visual
 - [ ] `CPhysicsObj::AddToTargetList` · 004ea670 · legions 004dcfa0 — needs port: cite-only physics-object method
 - [~] `CPhysicsObj::UpdateMovementInternal` · 004ea780 · legions 004dd0b0 — no path-aligned heading, targeting or missiles
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (109/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (110/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2800,7 +2800,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHYSICSOBJREP::SetCameraAnimParent` · 004f17e0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `PHYSICSOBJREP::SetCameraAnimTarget` · 004f17f0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `PHYSICSOBJREP::SetTargetedCamera` · 004f1800 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-- [ ] `PHYSICSOBJREP::DoBehaviorOnObject` · 004f1830 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::DoBehaviorOnObject` · 004f1830 — ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
 - [-] `PHYSICSOBJREP::SetChildrenOpacity` · 004f1860 — render plumbing
 - [ ] `PHYSICSOBJREP::DoSliderOnChild` · 004f1870 · legions 004e41a0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::GetPosition` · 004f1880 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position

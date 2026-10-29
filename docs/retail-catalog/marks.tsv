@@ -4679,7 +4679,7 @@ key	status	note
 004e23f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2400	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2410	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-004e2440	_	needs port: cite-only physics-object method
+004e2440	x	ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
 004e2480	_	needs port: cite-only physics-object method
 004e24f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e2500	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
@@ -4849,7 +4849,7 @@ key	status	note
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
 004ea290	_	needs port: cite-only physics-object method
-004ea490	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
+004ea490	~	CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior (the params overload's path; the 0x198(1) activation call is not separate)
 004ea500	~	ac2-physics do_behavior: frozen check, params mode, ModeTracker::DoBehavior; no story manager, children, FX target or cloned visual
 004ea670	_	needs port: cite-only physics-object method
 004ea780	~	no path-aligned heading, targeting or missiles
@@ -5101,7 +5101,7 @@ key	status	note
 004f17e0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004f17f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004f1800	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
-004f1830	_	needs port: cite-only physics-object method
+004f1830	x	ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
 004f1860	-	render plumbing
 004f1870	_	needs port: cite-only physics-object method
 004f1880	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position

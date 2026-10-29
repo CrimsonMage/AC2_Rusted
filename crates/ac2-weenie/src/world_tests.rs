@@ -365,7 +365,10 @@ fn a_taken_parent_is_reported_and_a_stale_one_is_not() {
     ));
     let events = world.receive(blob(0x0300_0006, 6, parent(1)), 10.0);
     assert!(
-        matches!(events.as_slice(), [WorldEvent::Dispatched(ServerEvent::Object(_))]),
+        matches!(
+            events.as_slice(),
+            [WorldEvent::Dispatched(ServerEvent::Object(_))]
+        ),
         "{events:?}"
     );
 }
