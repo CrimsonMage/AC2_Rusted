@@ -390,7 +390,8 @@ impl Client {
 
 #[cfg(feature = "test-support")]
 impl Client {
-    /// The story missiles alive: each one's id, the holder it hangs from (`None` once fired),
+    /// The story missiles alive: each one's id, the object it hangs from (its attacker until it
+    /// fires, the object it sticks in once it hits; `None` in flight),
     /// its body's position (`None` until the body is in) and whether its body flies under a
     /// missile manager.
     pub fn story_missiles(&self) -> Vec<(u64, Option<u64>, Option<ac2_physics::Position>, bool)> {
@@ -401,7 +402,7 @@ impl Client {
                 let body = self.remotes.get(id).and_then(|r| r.body());
                 (
                     id,
-                    self.stories.missile_parent(id).map(|(holder, _)| holder),
+                    self.stories.missile_holder(id).map(|(holder, _)| holder),
                     body.map(|b| b.position()),
                     body.is_some_and(|b| b.has_missile_manager()),
                 )

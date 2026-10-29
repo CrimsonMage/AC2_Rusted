@@ -4776,7 +4776,7 @@ key	status	note
 004e5660	-	render plumbing
 004e56e0	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004e5780	~	MissileFlightHost::height_above_ground reads the terrain-polygon distance (physics_obj.rs height_above_walkable), not CObjCell::LOSCheck
-004e5980	x	ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it. The element/opacity slider tail is not run
+004e5980	x	ac2-physics children.rs update_child_frame (holding matrix or bone matrix, remove-rotation, scaled combine, child offset); the client view follows holders through held_place over it; a parented missile's m_posDrawing (ac2-client held_drawing_position) poses its holding location on the root-group bone. The element/opacity slider tail is not run
 004e5d10	~	environment response only; object collisions and the collision manager not ported
 004e60f0	~	ac2-physics los: static objects only (no dynamic shadow list, blocking masks or exact drawing rep)
 004e6650	_	needs port: cite-only physics-object method
@@ -4815,7 +4815,7 @@ key	status	note
 004e7c80	~	ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend)
 004e7db0	~	_bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); lights, selection, shadow colour elsewhere or not ported
 004e86c0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e8750	x	Legions 0x4db130. ac2-physics body_parts.rs sticky_attachment (the child's position relative to the holder's, nearest bone of the root part array, rotation relative to it, offset origin zeroed as CalculateBoneIndexAndOffset does) + children.rs ChildGraph::sticky_set_parent (BoneIndex child, then unset_parent as set_parent does: vtable 0x3f4 and 0x160 are the same pair set_parent calls) + ac2-weenie Session::stick_object (also CBookKeep::RemoveObjectToBeDestroyed) + ac2-smartbox Remotes::leave_world_for_parent + ac2-client Client::stick_missile; view/held.rs places a BoneIndex child on the holder's posed root bone with its offset (held_place_offset)
+004e8750	x	Legions 0x4db130. ac2-physics body_parts.rs sticky_attachment (nearest bone of the root part array, rotation relative to it, offset origin zeroed as CalculateBoneIndexAndOffset does) + children.rs ChildGraph::sticky_set_parent for server objects; a story missile keeps its sticky parent in ac2-client client_story_missiles.rs (Stories::stick) and is drawn on that bone
 004e8850	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e88a0	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e88e0	_	needs port: cite-only physics-object method

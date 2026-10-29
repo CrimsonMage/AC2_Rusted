@@ -46,10 +46,12 @@ struct Held {
 }
 
 /// A story missile: what `CreateMissile` hands its body once the body is in, the holder it
-/// hangs from (`SetParent`) until it fires, and when it times out.
+/// hangs from (`SetParent`) until it fires, the bone it sticks to when it hits
+/// (`StickySetParent`), and when it times out.
 struct Launch {
     info: MissileInfo,
     parent: Option<(u64, u32)>,
+    stuck: Option<(u64, u32, ac2_physics::ChildFrame)>,
     initialized: bool,
     fire: bool,
     fired: bool,
@@ -63,9 +65,39 @@ impl Stories {
         self.held.remove(&object);
     }
 
-    /// The holder and holding location a story missile hangs from, until it fires.
-    pub(crate) fn missile_parent(&self, id: u64) -> Option<(u64, u32)> {
-        self.launches.get(&id)?.parent
+    /// The object a story missile hangs from and how: a holding location until it fires
+    /// (`SetParent`), a bone once it sticks (`StickySetParent`).
+    pub(crate) fn missile_holder(&self, id: u64) -> Option<(u64, ac2_physics::ChildInfo)> {
+        let launch = self.launches.get(&id)?;
+        if let Some((holder, bone, offset)) = launch.stuck {
+            let info = ac2_physics::ChildInfo {
+                id,
+                kind: ac2_physics::ChildType::BoneIndex,
+                location: bone,
+                offset,
+                remove_rotation: false,
+            };
+            return Some((holder, info));
+        }
+        let (holder, location) = launch.parent?;
+        Some((holder, ac2_physics::ChildInfo::holding(id, location)))
+    }
+
+    /// `CPhysicsObj::StickySetParent` for a story missile: it hangs from `bone` of `object` from
+    /// now on. `false` when `missile` is not a story missile.
+    pub(crate) fn stick(
+        &mut self,
+        missile: u64,
+        object: u64,
+        bone: u32,
+        offset: ac2_physics::ChildFrame,
+    ) -> bool {
+        let Some(launch) = self.launches.get_mut(&missile) else {
+            return false;
+        };
+        launch.parent = None;
+        launch.stuck = Some((object, bone, offset));
+        true
     }
 
     /// The story missiles alive.
@@ -190,6 +222,10 @@ impl Client {
                 self.remotes.removed(id, &mut self.terrain);
                 continue;
             }
+            // A stuck missile is out of the world, drawn on its bone.
+            if self.stories.launches[&id].stuck.is_some() {
+                continue;
+            }
             let parent = self.stories.launches[&id].parent;
             let placed = parent.and_then(|(holder, location)| {
                 self.held_drawing_position(holder, &ac2_physics::ChildInfo::holding(id, location))
@@ -271,6 +307,7 @@ impl Client {
             Launch {
                 info,
                 parent: None,
+                stuck: None,
                 initialized: false,
                 fire: false,
                 fired: false,

@@ -542,16 +542,24 @@ impl Client {
                     mode: None,
                     animated_mode: Some(body.mode()),
                     motion: [0.0; 3],
-                    // A story missile hangs from its attacker until it fires (`SetParent`).
+                    // A story missile hangs from its attacker until it fires (`SetParent`), and
+                    // from the bone it sticks to (`StickySetParent`).
                     holder: self
                         .stories
-                        .missile_parent(id)
-                        .map(|(holder, location)| Holder {
+                        .missile_holder(id)
+                        .map(|(holder, info)| Holder {
                             id: holder,
-                            location,
+                            location: info.location,
                             orientation: None,
-                            point: self.holding_point(holder, location),
-                            offset: ac2_physics::ChildInfo::holding(id, location).offset,
+                            point: match info.kind {
+                                ac2_physics::ChildType::BoneIndex => Some(HoldPoint {
+                                    group: 0,
+                                    bone: info.location as usize,
+                                    transform: ac2_anim::Ac2Transform::IDENTITY,
+                                }),
+                                _ => self.holding_point(holder, info.location),
+                            },
+                            offset: info.offset,
                         }),
                     fx_follow: remote.fx_follow(),
                     container: None,
@@ -573,7 +581,7 @@ impl Client {
     /// body and has the object maintenance delete it (`CObjectMaint::FadeAndDestroyObject`).
     /// The weenie's callbacks (slots `0x80`, `0x84`, `0x8c`) are `CWeenieObject`'s defaults in the
     /// client image, which return at once, so there is nothing to run. A missile that sticks
-    /// (`StickySetParent`) needs the holder's bone matrices; see `Known Gaps` in the catalog.
+    /// (`StickySetParent`) hangs from the bone it hit ([`Client::stick_missile`]).
     pub(crate) fn missile_events_taken(&mut self, events: &[(u64, ac2_physics::MissileEvent)]) {
         let follow = self.remotes.follow_missiles(events);
         for (missile, object) in follow.stick {
@@ -605,7 +613,11 @@ impl Client {
         let Some((bone, offset)) = holder.and_then(|body| body.sticky_attachment(&at)) else {
             return;
         };
-        if self.session.stick_object(missile, object, bone, offset) {
+        // A story missile is the client's own and has no session entry: the client keeps its
+        // parent.
+        if self.stories.stick(missile, object, bone, offset)
+            || self.session.stick_object(missile, object, bone, offset)
+        {
             self.remotes.leave_world_for_parent(missile);
         }
     }
@@ -647,9 +659,15 @@ impl Client {
         };
         let position = holder_body.drawing_position(self.render_interpolation);
         let point = self.holding_point(holder, info.location);
+        // The bone the child rides, posed: a bone-index child's own bone, a holding location's
+        // bone in the root group (`CPartArray::GetHoldingLocation` composes it with the bone's
+        // matrix). Identity while the holder's parts are not in.
         let bone = match info.kind {
             ac2_physics::ChildType::BoneIndex => holder_body.bone_transform(info.location),
-            _ => None,
+            _ => point
+                .as_ref()
+                .filter(|p| p.group == 0)
+                .and_then(|p| holder_body.bone_transform(p.bone as u32)),
         }
         .unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
         ac2_physics::parent_drawing_position(

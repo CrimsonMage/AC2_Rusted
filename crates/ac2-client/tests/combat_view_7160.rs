@@ -419,6 +419,7 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         .expect("the drudge is drawn");
     let flat = |a: [f32; 3], b: [f32; 3]| ((a[0] - b[0]).powi(2) + (a[1] - b[1]).powi(2)).sqrt();
     let mut distances = Vec::new();
+    let mut heights = Vec::new();
     for i in 0..24 {
         step(&mut client, &server, &FrameInput::default());
         let missiles = client.story_missiles();
@@ -435,6 +436,7 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
             continue;
         }
         distances.push(flat(at, drudge));
+        heights.push(at[2] - drudge[2]);
         if i % 4 == 0 {
             scene.draw(&client.frame(), &format!("arrow_{i}.png"));
         }
@@ -448,7 +450,26 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         *distances.last().unwrap() < 1.0,
         "the arrow sticks in the drudge: {distances:?}"
     );
-    scene.draw(&client.frame(), "arrow_stuck.png");
+    // It leaves the player's hand (holding location 4, chest high) and strikes the drudge's
+    // body, three quarters of its height up (`m_targetHeightAdjustment` 0.75), not its feet.
+    let hit = *heights.last().unwrap();
+    assert!(
+        (1.0..1.8).contains(&hit),
+        "the arrow strikes the drudge's body: {heights:?}"
+    );
+    // It sticks in the drudge (`StickySetParent`): hung from the drudge's nearest bone, out of
+    // the world, drawn on that bone.
+    let missiles = client.story_missiles();
+    assert_eq!(missiles.first().map(|m| m.1), Some(Some(CREATURE_ONE)));
+    let frame = client.frame();
+    let arrow = frame
+        .objects
+        .iter()
+        .find(|o| o.id == missiles[0].0)
+        .expect("the stuck arrow is drawn");
+    assert_eq!(arrow.holder.map(|h| h.id), Some(CREATURE_ONE));
+    assert!(arrow.holder.is_some_and(|h| h.point.is_some()), "on a bone");
+    scene.draw(&frame, "arrow_stuck.png");
     // Stuck, the arrow is mostly inside the drudge, and in flight it points away from the camera
     // behind the player. Moved into the open, it draws: a temporary object draws its entity's
     // visual (`ICPhysicsObj::makeObject`).
@@ -467,6 +488,8 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         player.origin[2] + 1.5,
     ];
     arrow.rotation = [1.0, 0.0, 0.0, 0.0];
+    arrow.holder = None;
+    arrow.in_world = true;
     let with = scene.draw(&open, "arrow_open.png");
     open.objects.retain(|o| o.id >> 56 != 0x13);
     let without = scene.draw(&open, "arrow_open_without.png");
