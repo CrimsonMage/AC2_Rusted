@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1299 done, 327 partial, 127 to do, 494 skipped.
+2247 retail functions: 1300 done, 327 partial, 124 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -311,7 +311,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 - [x] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot, its icon description (SetIconDesc via IngredientSource::item_icon_layers) or icon, draggable; a failure frees the slot; a new spinner value follows. The object's 0x454/0x1040c handler registration is the session's notice routing
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
-- [ ] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — Legions has it: gmIngredientUI notice vtable slot 124 at 0x00418640 (admin slot 123; Legions inserted one notice slot before it; same size and call count)
+- [-] `gmIngredientUI::RecvNotice_CloseConfirmationDialog` · 00418880 — dead on the DVD client: m_confirmCloseContext (+0x94) is only ever written 0 (Legions 0x415cb3, 0x4162d7, 0x41761a, 0x41786a, 0x418652), so no close confirmation is opened and the handler (Legions 0x418640) never matches a dialog
 
 ## `ac2/client/src/ui/gameplay/gmminifellowui.cpp.c` (6/6)
 
@@ -1110,7 +1110,7 @@ Legend and workflow: [README](README.md).
 
 ### gmShortcutUI
 - [x] `gmShortcutUI::RemoveShortcut` · 00435fc0 · legions 00436810 — ac2-ui shortcut.rs
-- [ ] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — Legions has it: gmShortcutUI notice vtable slot 101 at 0x004368b0 (admin slot 100, shifted by one; same size and calls)
+- [-] `gmShortcutUI::RecvNotice_RemoveRecipe` · 00436060 — no sender on the DVD client: CM_Shortcut::SendNotice_RemoveRecipe's efun (0x008F0002, gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe) is not in the Legions efun table (ac2-script efun_names.txt has only 0x008F0001 ReloadShortcuts), so the handler never runs
 - [x] `gmShortcutUI::CheckRecipe` · 004360e0 · legions 00436930 — ac2-ui shortcut.rs
 - [x] `gmShortcutUI::CheckTimeLeftArray` · 00436120 · legions 00436970 — ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
 - [x] `gmShortcutUI::UpdateTimeLeft` · 00436180 · legions 004369d0 — ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
@@ -1445,7 +1445,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (18/22)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (19/22)
 
 ### gmCraftUI
 - [x] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110 — ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
@@ -1460,7 +1460,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::ClearSelectionInfo` · 00449eb0 · legions 0044ab10 — ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
 - [x] `gmCraftUI::UpdateCategories` · 0044a040 · legions 0044aca0 — ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 - [-] `gmCraftUI::~gmCraftUI` · 0044a1a0 · legions 0044ae00 — the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
-- [ ] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — Legions has it: gmCraftUI notice vtable slot 69 at 0x0044af30 (vtable audit)
+- [x] `gmCraftUI::RecvNotice_ExaminationRequestChanged` · 0044a2d0 — ac2-ui craft.rs examination_request_changed (Legions 0x44af30) from frame_pass: the examined craft skill (0x4000000B, DID), category (0x4000000C, enum) or recipe (0x40000007, DID) row selected, the previous back to its default state; no row, none selected
 - [x] `gmCraftUI::SelectCraftSkill` · 0044a3b0 · legions 0044b010 — ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
 - [x] `gmCraftUI::RefreshCraftSkillPage` · 0044a440 · legions 0044b0a0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 - [x] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)

@@ -399,7 +399,7 @@ key	status	note
 00418210	x	ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 004185d0	x	ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot, its icon description (SetIconDesc via IngredientSource::item_icon_layers) or icon, draggable; a failure frees the slot; a new spinner value follows. The object's 0x454/0x1040c handler registration is the session's notice routing
 00418780	x	ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value
-00418880	_	Legions has it: gmIngredientUI notice vtable slot 124 at 0x00418640 (admin slot 123; Legions inserted one notice slot before it; same size and call count)
+00418880	-	dead on the DVD client: m_confirmCloseContext (+0x94) is only ever written 0 (Legions 0x415cb3, 0x4162d7, 0x41761a, 0x41786a, 0x418652), so no close confirmation is opened and the handler (Legions 0x418640) never matches a dialog
 004188d0	~	ac2-ui pets.rs show: the framework's shown state; the option-driven show (GetShowPetUI) is now set from the options reload (frame_passes.rs reload_pass)
 00418920	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 00418950	x	ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
@@ -913,7 +913,7 @@ key	status	note
 00435e70	x	ac2-ui drag.rs DragCheck::ShortcutOut on the bar's list (UIElement::DragItem asks it of the owner): a slot leaves the bar only below index 100 and, with the bar locked (GetShortcutLocked, kept by the options page's setter and the profile at reload), only while shift is held; tested through the HUD (shortcut_drag_7160)
 00435ec0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00435fc0	x	ac2-ui shortcut.rs
-00436060	_	Legions has it: gmShortcutUI notice vtable slot 101 at 0x004368b0 (admin slot 100, shifted by one; same size and calls)
+00436060	-	no sender on the DVD client: CM_Shortcut::SendNotice_RemoveRecipe's efun (0x008F0002, gCM_Shortcut::CallEFun_SendNotice_RemoveRecipe) is not in the Legions efun table (ac2-script efun_names.txt has only 0x008F0001 ReloadShortcuts), so the handler never runs
 004360e0	x	ac2-ui shortcut.rs
 00436120	x	ac2-ui shortcut_states.rs time_left_position: the entry for (skill, slot)
 00436180	x	ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
@@ -1254,7 +1254,7 @@ key	status	note
 00449eb0	x	ac2-ui craft.rs clear_selection_info: the row maps and selected element cleared
 0044a040	x	ac2-ui craft_pages.rs update_categories: one row per category, sorted by category id (CraftSkillCategoryAdaptor::operator< compares m_category, legions 005cdb70); craft_ui_7160
 0044a1a0	-	the handler registrations are per object in Rust (no per-object table); the panel's state is dropped with the HUD
-0044a2d0	_	Legions has it: gmCraftUI notice vtable slot 69 at 0x0044af30 (vtable audit)
+0044a2d0	x	ac2-ui craft.rs examination_request_changed (Legions 0x44af30) from frame_pass: the examined craft skill (0x4000000B, DID), category (0x4000000C, enum) or recipe (0x40000007, DID) row selected, the previous back to its default state; no row, none selected
 0044a3b0	x	ac2-ui craft.rs select_craft_skill: recipes and categories of the skill, the selection cleared, the examination; tested through the skill row (craft_ui_7160)
 0044a440	x	ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 0044a550	x	ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)

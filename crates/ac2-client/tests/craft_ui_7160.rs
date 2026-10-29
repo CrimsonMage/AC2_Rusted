@@ -221,6 +221,33 @@ fn the_craft_pages_show_the_known_skill_and_recipe() {
             .expect("the category's name"),
     );
     assert_eq!(name_text(tree, categories[0]), category_name);
+    // The examination of that category selects its row; another kind of request leaves none
+    // selected (`RecvNotice_ExaminationRequestChanged`).
+    let examined = |request: ExaminationRequest| {
+        [ac2_weenie::SessionEvent::Notice(
+            ac2_weenie::GameplayNotice::ExaminationRequestChanged(request),
+        )]
+    };
+    let category_request = ExaminationRequest {
+        kind: 0x4000_000C,
+        data_enum: recipe.craft_skill_category,
+        ..ExaminationRequest::default()
+    };
+    let events = examined(category_request);
+    craft.frame_pass(tree, &source, &events, &[]);
+    assert_eq!(
+        tree.get(categories[0]).unwrap().state(),
+        tokenize("selected")
+    );
+    let events = examined(ExaminationRequest {
+        kind: 0x4000_0001,
+        ..ExaminationRequest::default()
+    });
+    craft.frame_pass(tree, &source, &events, &[]);
+    assert_ne!(
+        tree.get(categories[0]).unwrap().state(),
+        tokenize("selected")
+    );
 
     // A double click on the category opens its recipes.
     let category = message(

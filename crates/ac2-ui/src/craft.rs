@@ -228,8 +228,31 @@ impl CraftUi {
         self.refresh_panel(tree, source);
     }
 
+    /// `gmCraftUI::RecvNotice_ExaminationRequestChanged` (Legions 0x44af30): the row of the
+    /// examined craft skill (by DID), category (by enum) or recipe (by DID) shows as selected,
+    /// the previous one returns to its default state; another request, or one without a row,
+    /// leaves none selected.
+    pub fn examination_request_changed(&mut self, tree: &mut UiTree, request: &ExaminationRequest) {
+        let row = match request.kind {
+            EXAMINE_CRAFT_SKILL => self.skill_rows.get(&request.data_id),
+            EXAMINE_CRAFT_CATEGORY => self.category_rows.get(&request.data_enum),
+            EXAMINE_RECIPE => self.recipe_rows.get(&request.data_id),
+            _ => None,
+        }
+        .copied();
+        if let Some(previous) = self.selected_element.take() {
+            let default = tree.default_state_of(previous);
+            tree.set_state(previous, default);
+        }
+        if let Some(row) = row {
+            self.selected_element = Some(row);
+            tree.set_state(row, TOKEN_SELECTED);
+        }
+    }
+
     /// `gmCraftUI` on the frame: the craft notices in `events` refresh the panel
-    /// (`RecvNotice_UpdateCraftPanel`), then its `messages` run [`CraftUi::message`]. Returns the
+    /// (`RecvNotice_UpdateCraftPanel`) or select the examined row
+    /// (`RecvNotice_ExaminationRequestChanged`), then its `messages` run [`CraftUi::message`]. Returns the
     /// requests the frame made, in order.
     pub fn frame_pass(
         &mut self,
@@ -239,8 +262,14 @@ impl CraftUi {
         messages: &[UiMessage],
     ) -> Vec<CraftCommand> {
         for event in events {
-            if let SessionEvent::Notice(GameplayNotice::UpdateCraftPanel) = event {
-                self.update_craft_panel(tree, source);
+            match event {
+                SessionEvent::Notice(GameplayNotice::UpdateCraftPanel) => {
+                    self.update_craft_panel(tree, source);
+                }
+                SessionEvent::Notice(GameplayNotice::ExaminationRequestChanged(request)) => {
+                    self.examination_request_changed(tree, request);
+                }
+                _ => {}
             }
         }
         for message in messages {
