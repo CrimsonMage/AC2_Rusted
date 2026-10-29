@@ -55,7 +55,9 @@ game rules and server-visible behaviour exactly retail.
   chain and composite over their panel where they drew. The sky's atmosphere and cloud deck
   (`sky.wgsl`) stand in for the backdrop dome, so they fade with the dome's authored opacity
   (`LScapeSky::UpdateTimeOfDay`): by night retail drew the night layers and stars over an empty
-  background. The screen brightness (`ScreenBrightness`) scales the world's display levels by
+  background. The sky draws camera-relative (the atmosphere's rays and the DAT sky objects,
+  which ride the viewer as `LScapeSky::SetViewerPosition` places them, with the eye at the origin):
+  in f32 at AC2's world coordinates the absolute view made the sky jitter as the eye moved. The screen brightness (`ScreenBrightness`) scales the world's display levels by
   `1 + 2 * brightness` after the tone map, as retail's gamma ramp did
   (`RenderDeviceD3D::SetGamma`), but the UI keeps its authored levels (retail's ramp brightened
   the whole screen). Do not add a retail/modern switch.

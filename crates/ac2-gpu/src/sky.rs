@@ -242,8 +242,21 @@ impl SkyRenderer {
     }
 }
 
+/// The inverse view-projection of `camera` moved to the origin: the sky is centred on the viewer,
+/// so its rays only need the view's direction. Inverting the absolute view-projection in f32 at
+/// AC2's world coordinates (tens of kilometres) put the rays off by up to about 2 degrees, an error
+/// that changed with every step of the eye and made the sky jitter while moving.
 fn inverse_view_projection(camera: &Camera, aspect: f32) -> Mat4 {
-    camera.view_projection(aspect).inverse()
+    camera_at_origin(camera).view_projection(aspect).inverse()
+}
+
+/// `camera` moved so its eye is the origin, looking the same way.
+pub(crate) fn camera_at_origin(camera: &Camera) -> Camera {
+    Camera {
+        eye: ac2_math::Vec3::ZERO,
+        target: camera.target - camera.eye,
+        ..*camera
+    }
 }
 
 #[cfg(test)]
@@ -268,5 +281,71 @@ mod tests {
         assert!(cloud_cover(0.25, 0.2) > 0.4);
         assert_eq!(cloud_cover(0.25, 0.45), 1.0);
         assert_eq!(cloud_cover(0.25, 1.0), 1.0);
+    }
+
+    /// `sky.wgsl`'s `view_direction` for the screen point `ndc`.
+    fn ray(camera: &ac2_render::Camera, ndc: [f32; 2]) -> ac2_math::Vec3 {
+        let far = super::inverse_view_projection(camera, 16.0 / 9.0)
+            * ac2_math::Vec4::new(ndc[0], ndc[1], 1.0, 1.0);
+        (far.truncate() / far.w).normalize()
+    }
+
+    /// The exact ray through `ndc` of `camera`, in f64 from its eye, target and field of view.
+    fn exact_ray(camera: &ac2_render::Camera, ndc: [f64; 2]) -> [f64; 3] {
+        let v = |a: ac2_math::Vec3| [f64::from(a.x), f64::from(a.y), f64::from(a.z)];
+        let (e, t) = (v(camera.eye), v(camera.target));
+        let norm = |a: [f64; 3]| {
+            let l = (a[0] * a[0] + a[1] * a[1] + a[2] * a[2]).sqrt();
+            [a[0] / l, a[1] / l, a[2] / l]
+        };
+        let cross = |a: [f64; 3], b: [f64; 3]| {
+            [
+                a[1] * b[2] - a[2] * b[1],
+                a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0],
+            ]
+        };
+        let f = norm([t[0] - e[0], t[1] - e[1], t[2] - e[2]]);
+        let s = norm(cross(f, [0.0, 0.0, 1.0]));
+        let u = cross(s, f);
+        let h = (f64::from(camera.fov_y) * 0.5).tan();
+        let (x, y) = (ndc[0] * h * 16.0 / 9.0, ndc[1] * h);
+        norm([0, 1, 2].map(|i| f[i] + x * s[i] + y * u[i]))
+    }
+
+    #[test]
+    fn the_sky_rays_stay_exact_far_from_the_origin() {
+        use ac2_math::Vec3;
+        // A camera at block 0x7FBB's coordinates, tens of kilometres out, stepping a centimetre.
+        for step in 0..100 {
+            let eye = Vec3::new(
+                24_400.0 + step as f32 * 0.01,
+                35_950.0 + step as f32 * 0.007,
+                190.0,
+            );
+            let camera = ac2_render::Camera {
+                eye,
+                target: eye + Vec3::new(0.3, 1.0, 0.1),
+                fov_y: 60_f32.to_radians(),
+                near: 0.1,
+                far: 4000.0,
+            };
+            for ndc in [[0.0, 0.0], [0.7, 0.4], [-1.0, -1.0], [1.0, 1.0]] {
+                let got = ray(&camera, ndc);
+                let want = exact_ray(&camera, ndc.map(f64::from));
+                // The angle between them from their cross product (`acos` of a dot product near 1
+                // has no precision left).
+                let g = [got.x, got.y, got.z].map(f64::from);
+                let c = [
+                    g[1] * want[2] - g[2] * want[1],
+                    g[2] * want[0] - g[0] * want[2],
+                    g[0] * want[1] - g[1] * want[0],
+                ];
+                let angle = (c[0] * c[0] + c[1] * c[1] + c[2] * c[2]).sqrt().asin();
+                // A pixel at 1080p and 60 degrees is about 5e-4 rad; the absolute inverse was off
+                // by up to 3e-2.
+                assert!(angle < 2e-5, "step {step} at {ndc:?}: {angle} rad");
+            }
+        }
     }
 }

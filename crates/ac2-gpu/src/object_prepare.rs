@@ -26,8 +26,13 @@ impl ObjectRenderer {
             groups.len() <= MAX_GROUPS,
             "at most {MAX_GROUPS} draw groups"
         );
+        // The sky groups draw camera-relative: their objects ride the viewer (`LScapeSky::
+        // SetViewerPosition`), and taking the eye off in f32 at AC2's world coordinates (tens of
+        // kilometres) moved each vertex by millimetres that changed with every step of the eye.
+        let sky_camera = crate::sky::camera_at_origin(camera);
         for (index, group) in groups.iter().enumerate() {
             let environment = group.environment.unwrap_or(environment);
+            let camera = if group.sky { &sky_camera } else { camera };
             self.write_frame(&gpu.queue, index, camera, environment, aspect);
         }
         self.scratch_entries.clear();
@@ -35,7 +40,9 @@ impl ObjectRenderer {
         self.groups.clear();
         for group in groups {
             let start = self.scratch_entries.len();
-            self.lay_out_group(group, camera.eye, time);
+            // A sky group's instances are laid out with the eye taken off their origins.
+            let shift = if group.sky { camera.eye } else { Vec3::ZERO };
+            self.lay_out_group(group, camera.eye - shift, shift, time);
             self.groups.push(start..self.scratch_entries.len());
         }
         for entry in &self.scratch_entries {
@@ -54,12 +61,16 @@ impl ObjectRenderer {
 
     /// Lays out `group`'s layers into `scratch_entries`: depth-writing layers (every layer of a
     /// group in draw order) first, the rest back to front from `eye`.
-    fn lay_out_group(&mut self, group: &DrawGroup<'_>, eye: Vec3, time: f64) {
+    /// `shift` is taken off every instance's origin (the sky's camera-relative draw; zero
+    /// otherwise), and `eye` is in the same shifted space.
+    fn lay_out_group(&mut self, group: &DrawGroup<'_>, eye: Vec3, shift: Vec3, time: f64) {
         self.scratch_opaque.clear();
         self.scratch_translucent.clear();
         let backdrop = group.sky.then(|| sky_backdrop(group.instances)).flatten();
         for (instance_index, instance) in group.instances.iter().enumerate() {
-            let center = instance.world.transform_point3(instance.model.center);
+            let mut world = instance.world;
+            world.w_axis -= shift.extend(0.0);
+            let center = world.transform_point3(instance.model.center);
             let distance = center.distance_squared(eye);
             let base = self.scratch_bones.len() as u32;
             if let Some(pose) = instance.pose {
@@ -82,7 +93,7 @@ impl ObjectRenderer {
                     ),
                     None => (part.transform, None),
                 };
-                let mut data = instance_data(instance.world * transform);
+                let mut data = instance_data(world * transform);
                 if let Some(normal) = instance.frill_normal {
                     data.frill = normal.extend(1.0).to_array();
                     let [near, far, hash] = instance.grass;

@@ -6,6 +6,7 @@
 // region's fog colour instead.
 
 struct SkyFrame {
+    // The inverse view-projection of the camera moved to the origin.
     inv_view_proj: mat4x4<f32>,
     eye: vec4<f32>,
     // The region's fog colour (the horizon), encoded; alpha `fog_sky`.
@@ -117,7 +118,8 @@ fn atmosphere(dir: vec3<f32>, sun: vec3<f32>, sun_radiance: vec3<f32>) -> vec3<f
 
 fn view_direction(input: VsOut) -> vec3<f32> {
     let far = sky.inv_view_proj * vec4(input.ndc, 1.0, 1.0);
-    return normalize(far.xyz / far.w - sky.eye.xyz);
+    // `inv_view_proj` is the camera's moved to the origin (`sky.rs`), so the far point is the ray.
+    return normalize(far.xyz / far.w);
 }
 
 // The region's directional light (the sun by day, the moon's dim light by night).
