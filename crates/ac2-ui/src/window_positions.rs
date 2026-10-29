@@ -105,6 +105,31 @@ pub fn write_window_positions(
     paths::write_atomic(&window_positions_file(dir, character), text.as_bytes())
 }
 
+/// The file that marks `character`'s radar coordinates as hidden in `dir`. The radar shows its
+/// coordinates box unless the player turned it off in this client (`AGENTS.md`; retail opened it
+/// only from the profile's `PROFILE_SHOW_RADAR_COORDS` bit, which is still kept and uploaded).
+pub fn radar_coords_hidden_file(dir: &Path, character: u64) -> PathBuf {
+    dir.join(format!("RadarCoordsHidden-{character:016x}.txt"))
+}
+
+/// Whether `character` turned the radar coordinates off in this client.
+pub fn read_radar_coords_hidden(dir: &Path, character: u64) -> bool {
+    radar_coords_hidden_file(dir, character).exists()
+}
+
+/// Keeps or clears `character`'s choice to hide the radar coordinates.
+pub fn write_radar_coords_hidden(dir: &Path, character: u64, hidden: bool) -> io::Result<()> {
+    let path = radar_coords_hidden_file(dir, character);
+    if hidden {
+        paths::write_atomic(&path, b"hidden\n")
+    } else {
+        match std::fs::remove_file(&path) {
+            Err(error) if error.kind() != io::ErrorKind::NotFound => Err(error),
+            _ => Ok(()),
+        }
+    }
+}
+
 impl UiTree {
     /// Whether `index` is a window the player moves and whose place is kept: a root that is not an
     /// overlay and does not cover the whole display.

@@ -541,6 +541,7 @@ impl Client {
                     }
                 }
                 Command::SetShowRadarCoords(show) => {
+                    self.record_radar_coords_choice(*show);
                     let ifun = crate::scripts::IFUN_SET_SHOW_RADAR_COORDS;
                     if self.scripts_own(ifun) {
                         self.script_ifun(

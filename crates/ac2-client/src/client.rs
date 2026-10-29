@@ -159,6 +159,9 @@ pub struct Client {
     pub(crate) notices: Vec<Notice>,
     /// Where the per-character window position files are (`None`: the player's AC2 directory).
     pub(crate) window_positions_dir: Option<std::path::PathBuf>,
+    /// The radar coordinates' local choice (`client_positions`): the character, the profile's
+    /// last `PROFILE_SHOW_RADAR_COORDS` bit seen, and whether the player hid them in this client.
+    pub(crate) radar_coords: Option<(u64, bool, bool)>,
     /// The physics objects of everything but the player.
     pub(crate) remotes: Remotes,
     /// The weenies' script processes, when a script VM is attached.
@@ -269,6 +272,7 @@ impl Client {
             load_budget: Duration::from_millis(4),
             notices: Vec::new(),
             window_positions_dir: None,
+            radar_coords: None,
             remotes: Remotes::default(),
             scripts: None,
             audio: None,

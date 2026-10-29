@@ -112,6 +112,13 @@ game rules and server-visible behaviour exactly retail.
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
   radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to
   its panel, kept at its `SyncPortrait` place each loop), full-display backdrops and tooltips.
+- Exception: the radar shows the player's map coordinates under the compass by default.
+  Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
+  profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it
+  off. Here the box also opens while the player has not hidden it in this client
+  (`Client::radar_coords_shown`): the radar's button or a change of the bit records the choice
+  per character on this machine (`RadarCoordsHidden-<character>.txt` beside the window
+  positions). The bit, the button's `SetShowRadarCoords` call and the profile upload stay retail.
 - Exception: text fields support modern selection and the clipboard: mouse drag and Shift+arrow
   selection, highlighted, with Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V (the OS clipboard). Password
   fields never copy out. Retail's own text editing rules (max length, enter/escape) still apply.

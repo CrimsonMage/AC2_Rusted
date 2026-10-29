@@ -408,7 +408,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmRadarUI::RecvNotice_CreateObject` · 00426270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 - [~] `gmRadarUI::Init` · 004262a0 · legions 00426090 — ac2-client client_radar.rs + ac2-script radar.rs: looks asked on each object's script (the templates' override; selectable objects, the player's radar mask), ranges from RadarControl
 - [x] `gmRadarUI::RecvNotice_ChangeRadarLook` · 004263a0 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
-- [x] `gmRadarUI::ReloadOptions` · 00426400 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
+- [x] `gmRadarUI::ReloadOptions` · 00426400 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile); the box also opens unless hidden in this client (client_positions radar_coords_shown, AGENTS.md exception)
 - [~] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [x] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 

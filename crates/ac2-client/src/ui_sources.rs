@@ -385,7 +385,7 @@ impl ac2_ui::HudHost for ClientPlayer<'_> {
     }
 
     fn show_radar_coords(&self) -> bool {
-        self.client.borrow_mut().show_radar_coords()
+        self.client.borrow_mut().radar_coords_shown()
     }
 
     fn show_object_names(&self) -> bool {

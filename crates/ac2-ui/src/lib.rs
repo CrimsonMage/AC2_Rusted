@@ -265,8 +265,9 @@ pub use window_locations::{
 };
 mod window_positions;
 pub use window_positions::{
-    parse as parse_window_positions, read_window_positions, to_text as window_positions_text,
-    window_positions_file, write_window_positions, WindowPosition,
+    parse as parse_window_positions, radar_coords_hidden_file, read_radar_coords_hidden,
+    read_window_positions, to_text as window_positions_text, window_positions_file,
+    write_radar_coords_hidden, write_window_positions, WindowPosition,
 };
 mod radar_state;
 pub use radar_state::{

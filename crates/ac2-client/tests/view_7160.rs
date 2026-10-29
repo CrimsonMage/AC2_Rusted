@@ -89,6 +89,11 @@ fn the_client_walks_with_w_and_draws_its_character() {
     session.set_chat_commands(ac2_client::chat_commands(&script_data));
     let dat_world = dat_world.with_script_data(script_data.clone());
     let mut client = Client::new(session, Arc::new(dat_world));
+    // The per-character files (window positions, the radar coordinates' choice) in a fresh
+    // directory, not the player's.
+    let local_dir = std::env::temp_dir().join(format!("ac2-view-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&local_dir);
+    client.set_window_positions_dir(Some(local_dir.clone()));
     let wlib = ac2_script::load_wlib(&store, ac2_core::DataId::new(ac2_script::LEGIONS_WLIB_DID))
         .unwrap()
         .expect("the script library");
@@ -744,11 +749,18 @@ fn the_client_walks_with_w_and_draws_its_character() {
             .unwrap();
         assert_eq!(client.show_radar_coords(), on);
     }
-    let show = FrameInput {
-        commands: vec![ac2_client::Command::SetShowRadarCoords(true)],
-        ..FrameInput::default()
-    };
-    client.use_time(&show).unwrap();
+    // The radar's button (`gmRadarUI::ListenToMessage`) hiding the box is kept on this machine
+    // even though the profile's bit is already off; showing it again clears the choice.
+    let player = client.session().player().expect("the player");
+    let hidden_file = ac2_ui::radar_coords_hidden_file(&local_dir, player);
+    for show in [false, true] {
+        let input = FrameInput {
+            commands: vec![ac2_client::Command::SetShowRadarCoords(show)],
+            ..FrameInput::default()
+        };
+        client.use_time(&input).unwrap();
+        assert_eq!(hidden_file.exists(), !show);
+    }
     assert!(client.show_radar_coords());
     // The world chest: opening it shows `gmExternalContainerUI` with its two items.
     server.borrow_mut().spawn_chest();
@@ -799,10 +811,19 @@ fn the_client_walks_with_w_and_draws_its_character() {
         std::thread::sleep(Duration::from_millis(10));
     }
     assert!(view.prepare(&gpu, &frame, aspect, 0.0));
-    // The radar's coordinates (`Position::ToRealMapCoords_Info` through the DAT's table).
-    // The options profile hides the coordinates at login (`gmRadarUI::ReloadOptions` closes
-    // `BaseField`'s box, which then has no `CoordinatesText`).
-    assert_eq!(view.radar_coordinates(), None);
+    // The radar's coordinates (`Position::ToRealMapCoords_Info` through the DAT's table): the
+    // box is open unless the player hid it in this client (`AGENTS.md`), as the reference client
+    // shows them under the compass.
+    let coordinates = view
+        .radar_coordinates()
+        .expect("the coordinates box is open");
+    let (north, east) = coordinates.split_once(", ").expect("two coordinates");
+    assert!(
+        north.ends_with('N') || north.ends_with('S'),
+        "{coordinates}"
+    );
+    assert!(east.ends_with('E') || east.ends_with('W'), "{coordinates}");
+    let _ = std::fs::remove_dir_all(&local_dir);
     view.render(&gpu, &target.color_view, &target.depth_view, true);
     write_png(
         "client_cb4d_chat.png",
