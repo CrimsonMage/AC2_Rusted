@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 848 done, 159 partial, 169 to do, 948 skipped.
+2124 retail functions: 849 done, 159 partial, 168 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (264/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (265/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2526,7 +2526,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::StopFX` · 004e4e10 · legions 004d7860 — ac2-physics body.rs set_velocity_scale / set_acceleration_scale / set_jump_scale / set_hover_height / do_fx / stop_fx; client motion.rs apply; tests physics_obj_tests and motion_tests
 - [ ] `CPhysicsObj::GetGroundPosition` · 004e4e50 — needs port: cite-only physics-object method
 - [ ] `CPhysicsObj::GetBonePosition` · 004e4f60 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::RecvEvt_DoFX_Private` · 004e50c0 · legions 004d7b10 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::RecvEvt_DoFX_Private` · 004e50c0 · legions 004d7b10 — ac2-net server_event.rs ServerEvent::PrivateFx (PSmartArray<unsigned long>); ac2-weenie session.rs plays each on the player as DoFx(fx, 1.0) (GetPlayerID's CPhysicsObj::RecvEvt_DoFX_Private); appearance_fx_7160 a_private_fx_plays_on_the_player
 
 ### DBObjGrabber<EntityDesc>
 - [-] `DBObjGrabber<EntityDesc>::DBObjGrabber<EntityDesc>` · 004e5110 · legions 004d7b60 — STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it

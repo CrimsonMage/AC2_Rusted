@@ -1439,7 +1439,7 @@ Legend and workflow: [README](README.md).
 - [-] `TargetPosition::StreamPack` · 00496c10 — serialization / reference-tracking bookkeeping: Rust codecs and owned values replace it
 
 ### ECM_Physics
-- [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480 — implemented: cited at crates/ac2-net/src/protocol/opcode.rs:151
+- [x] `ECM_Physics::RecvEvt_DoFX_Private` · 00496cb0 · legions 0048f480 — ac2-net server_event.rs ServerEvent::PrivateFx (PSmartArray<unsigned long>); ac2-weenie session.rs plays each on the player as DoFx(fx, 1.0) (GetPlayerID's CPhysicsObj::RecvEvt_DoFX_Private); appearance_fx_7160 a_private_fx_plays_on_the_player
 - [x] `ECM_Physics::SendNotice_BeingDeleted` · 00496d60 — CWeenieObject::ObjectBeingDestructed -> FUN_0048f530 dispatches notice 0x1040c to the weenie's handlers (radar, selection, stack, ingredient, external container, fellow). Here: WorldEvent::Destroyed -> SessionEvent::ObjectRemoved, consumed by those UI pieces. The shutdown argument is unread by the Legions handlers (radar, fellowinfo). ECM_Physics::SendNotice_BeingDeleted is the same dispatch
 - [x] `ECM_Physics::SendNotice_CreateObject` · 00496de0 — ac2-weenie session.rs: every created object (CObjectMaint::FinishEntityCreation) pushes GameplayNotice::CreateObject
 - [ ] `ECM_Physics::SendNotice_CreatePlayerObject` · 00496e70 — needs port: notice CreatePlayerObject to the UI/client; no citation in crates/

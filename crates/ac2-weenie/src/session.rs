@@ -603,6 +603,16 @@ impl OnlineSession {
                     out.push(SessionEvent::ObjectContained(child.id));
                 }
             }
+            // `ECM_Physics::RecvEvt_DoFX_Private`: the player's `CPhysicsObj::RecvEvt_DoFX_Private`
+            // plays each FX at full scalar (`DoFX(fx, 1.0)`).
+            ServerEvent::PrivateFx(fxs) => {
+                if let Some(player) = self.player() {
+                    out.extend(fxs.iter().map(|&fx| SessionEvent::ObjectAction {
+                        object: player,
+                        action: ObjectAction::DoFx { fx, scalar: 1.0 },
+                    }));
+                }
+            }
             ServerEvent::Object(event) => {
                 let updated = matches!(event.action, ObjectAction::UpdateVisualDesc(_));
                 out.push(SessionEvent::ObjectAction {

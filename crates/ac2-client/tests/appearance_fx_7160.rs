@@ -76,3 +76,38 @@ fn an_fx_applies_its_appearance_to_the_player_until_it_stops() {
     }
     assert_eq!(applied(&client), None, "StopFX removes it");
 }
+
+/// `ECM_Physics::RecvEvt_DoFX_Private`: the server's private FX list plays on the player, each FX
+/// at full scalar (`CPhysicsObj::RecvEvt_DoFX_Private`), so its appearance is applied as `DoFX`'s.
+#[test]
+fn a_private_fx_plays_on_the_player() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let world = Arc::new(DatWorld::new(Arc::clone(&store)).unwrap());
+    let (mut client, server) = entered_with(spawn(), world);
+    server.borrow_mut().send_init_player();
+    for _ in 0..60 {
+        step(&mut client, &server, &FrameInput::default());
+    }
+    // The message: its opcode, then `PSmartArray<unsigned long>` (count, then the FX ids).
+    let message: Vec<u8> = [Opcode::DO_FX_PRIVATE, 1, APPEARANCE_FX]
+        .iter()
+        .flat_map(|w| w.to_le_bytes())
+        .collect();
+    server.borrow_mut().send_event(&message);
+    let mut on = None;
+    for _ in 0..30 {
+        step(&mut client, &server, &FrameInput::default());
+        on = applied(&client);
+        if on.is_some() {
+            break;
+        }
+    }
+    assert_eq!(
+        on,
+        Some(1.0),
+        "the private FX plays on the player at full scalar"
+    );
+}
