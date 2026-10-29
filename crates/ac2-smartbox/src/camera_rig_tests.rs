@@ -150,3 +150,25 @@ fn a_dynamic_first_person_camera_rides_the_head_bone() {
     let at_head = step(&mut camera, &player, 0.1);
     assert_eq!(at_head.frame.origin, Vector::new(70.0, 70.2, 52.2));
 }
+
+/// With the player as the camera's parent and an NPC as its target, the camera stands back from
+/// the player along the line from the NPC, and the player's head turns to the NPC.
+#[test]
+fn a_player_parent_turns_the_players_head_to_the_target() {
+    let (mut camera, player) = rig();
+    let view = CameraView {
+        player: Some(&player),
+        objects: &World,
+    };
+    camera.set_parent_object(&view, PLAYER, -1.0, 0.0);
+    camera.set_target_object(&view, NPC, -1.0, 0.0);
+    for _ in 0..5 {
+        step(&mut camera, &player, 0.1);
+    }
+    assert_eq!(camera.targeting.take_look_at(), Some(NPC));
+    assert_eq!(camera.targeting.take_look_at(), None, "taken once");
+    let shot = step(&mut camera, &player, 0.1);
+    // Behind the player (south of it), looking north towards the NPC.
+    assert!(shot.frame.origin.y < 70.0, "{shot:?}");
+    assert!(shot.frame.vector_heading().y > 0.9, "{shot:?}");
+}

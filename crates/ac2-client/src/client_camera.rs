@@ -158,6 +158,18 @@ impl Client {
         };
         self.scene
             .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
+        // `InternalCalcViewerPos`: with the player as the camera's parent, its head turns to the
+        // target (`CPhysicsObj::LookAt`, here only when the target changes).
+        if let Some(target) = self.camera.targeting.take_look_at() {
+            if let Some(player) = self.player.as_mut() {
+                let id = player.id;
+                if let Some(body) = player.body.as_mut() {
+                    if body.physics.look_target() != Some(target) {
+                        body.physics.look_at(target, id);
+                    }
+                }
+            }
+        }
     }
 
     /// The player's behaviour cameras among this step's animation events

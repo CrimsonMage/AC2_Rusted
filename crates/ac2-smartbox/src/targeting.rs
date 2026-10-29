@@ -143,6 +143,9 @@ pub struct TargetingModule {
     last_target_pos: Option<Position>,
     last_parent_pos: Option<Position>,
     pub auto_distance: bool,
+    /// `InternalCalcViewerPos`' `player->LookAt(mTargetID)` (vtable `0x4f8`): the target the
+    /// player's head turned to this update, for the client to apply ([`Self::take_look_at`]).
+    look_at: std::cell::Cell<Option<u64>>,
 }
 
 impl Default for TargetingModule {
@@ -175,6 +178,7 @@ impl Default for TargetingModule {
             last_target_pos: None,
             last_parent_pos: None,
             auto_distance: true,
+            look_at: std::cell::Cell::new(None),
         }
     }
 }
@@ -476,8 +480,11 @@ impl TargetingModule {
                 let Some(p) = parent else {
                     return Position::new(parent_pos.cell_id, frame);
                 };
-                // On the player (whose head retail also turns to the target when not
-                // blending, `0x4f8`, not modelled), back from it along the line.
+                // On the player, whose head turns to the target (`LookAt`, for the current pair
+                // only), back from it along the line.
+                if p.is_player && !use_last {
+                    self.look_at.set(Some(self.target_id));
+                }
                 if p.is_player && self.target_bone == 0 {
                     let away = normalize(Vector::new(-dir.x, -dir.y, -dir.z));
                     let y = st(ld(away.y) * d);
@@ -608,6 +615,12 @@ impl TargetingModule {
             .frame
             .slerp_rotation(&from.frame, &to.frame, self.weight);
         result
+    }
+
+    /// The target the player's head turned to at the last viewer update
+    /// (`InternalCalcViewerPos`' `player->LookAt(mTargetID)`), taken once.
+    pub fn take_look_at(&self) -> Option<u64> {
+        self.look_at.take()
     }
 
     /// `GetFirstPersonIsReady`'s test: the player targeted with no bone at the first-person
