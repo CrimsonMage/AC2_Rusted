@@ -55,7 +55,10 @@ game rules and server-visible behaviour exactly retail.
   chain and composite over their panel where they drew. The sky's atmosphere and cloud deck
   (`sky.wgsl`) stand in for the backdrop dome, so they fade with the dome's authored opacity
   (`LScapeSky::UpdateTimeOfDay`): by night retail drew the night layers and stars over an empty
-  background. Do not add a retail/modern switch.
+  background. The screen brightness (`ScreenBrightness`) scales the world's display levels by
+  `1 + 2 * brightness` after the tone map, as retail's gamma ramp did
+  (`RenderDeviceD3D::SetGamma`), but the UI keeps its authored levels (retail's ramp brightened
+  the whole screen). Do not add a retail/modern switch.
 - Exception: bodies and objects cast sun shadows from depth maps. Retail's `DynamicObjectShadows`
   drew a dark disc decal under each moving object (1, `WorldRender::CreateDiscShadows`) or stencil
   shadow volumes of the moving objects along `SceneTool::m_vShadowDirection` (2, and 3

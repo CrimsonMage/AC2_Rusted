@@ -13,6 +13,7 @@ mod lod;
 mod object_lights;
 mod particles;
 pub(crate) mod shore_strips;
+mod skeleton_effects;
 #[cfg(test)]
 mod tests;
 
@@ -84,6 +85,9 @@ pub struct ObjectPlacement {
     pub scale: Vec3,
     pub bones: Vec<Ac2Transform>,
     pub named_bones: Vec<(u32, Ac2Transform)>,
+    /// Each of `bones`' parent (`CSetup`'s), for the body's skeleton points
+    /// (`CPartArray::CalculateSkeletonPoints`).
+    pub parents: Arc<[Option<usize>]>,
 }
 
 /// What one frame draws, in order.
@@ -218,6 +222,11 @@ pub struct WorldScene {
     /// `WorldRender`'s rain splash and water ripple systems (no fade, at the world's origin).
     rain_splash: Option<ParticleSystem>,
     rain_ripples: Option<ParticleSystem>,
+    /// `m_pWaterBubblesParticleSystem`.
+    water_bubbles: Option<ParticleSystem>,
+    /// The frame's placed bodies, for their skeleton effects, and the dice those roll.
+    bodies: Vec<ObjectPlacement>,
+    effects_random: Random,
     started: Instant,
 }
 
@@ -277,6 +286,9 @@ impl WorldScene {
             water_reflections: defaults.water_reflections,
             rain_splash: None,
             rain_ripples: None,
+            water_bubbles: None,
+            bodies: Vec::new(),
+            effects_random: Random::default(),
             started: Instant::now(),
         };
         scene.request(Request::Rain);
@@ -506,6 +518,7 @@ impl WorldScene {
                 };
                 self.rain_splash = system(rain.splash);
                 self.rain_ripples = system(rain.ripples);
+                self.water_bubbles = system(rain.bubbles);
                 // The images ride with the first model, so the others find them uploaded.
                 update
                     .loaded
@@ -652,6 +665,7 @@ impl WorldScene {
     /// The frame's object placements (see [`ObjectPlacement`]): the object systems are drawn
     /// where their object is placed, and the object lights take the object's frame.
     pub fn place_objects(&mut self, placements: &[ObjectPlacement]) {
+        self.bodies = placements.to_vec();
         self.particles.place_objects(placements);
         self.object_lights.place(placements, self.particles.now());
         self.object_streaks.place(placements.iter().map(|p| {
@@ -806,6 +820,7 @@ impl WorldScene {
         interiors.truncate(MAX_INTERIOR_BLOCKS);
         let interior_cells = self.visible_interior_cells(camera, &frustum, &interiors);
         let mut particles = self.particles.frame(camera);
+        self.skeleton_effects(lighting.rain, lighting.rain_wind);
         particles.extend(self.rain_frame(camera, &lighting));
         self.object_streaks.think(self.particles.now());
         if self.streaks_visible {
@@ -917,6 +932,7 @@ impl WorldScene {
             .rain_splash
             .iter_mut()
             .chain(self.rain_ripples.iter_mut())
+            .chain(self.water_bubbles.iter_mut())
         {
             system.think(now);
             let (Some(material), true) = (system.material(), system.alive() > 0) else {

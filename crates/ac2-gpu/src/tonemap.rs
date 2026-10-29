@@ -178,6 +178,8 @@ pub struct ToneMap {
     post_layout: wgpu::BindGroupLayout,
     /// Inputs for a scene without the post chain: no bloom, EV 0, no vignette.
     neutral: wgpu::BindGroup,
+    /// The world's screen brightness ramp (`look.x`), and the neutral one (1).
+    world_look: wgpu::Buffer,
 }
 
 /// The tone map's post inputs: `bloom` (sampled with `sampler`), the one-texel `exposure` and
@@ -189,6 +191,7 @@ pub(crate) fn post_inputs(
     sampler: &wgpu::Sampler,
     exposure: &wgpu::TextureView,
     ao: &wgpu::TextureView,
+    look: &wgpu::Buffer,
 ) -> wgpu::BindGroup {
     device.create_bind_group(&wgpu::BindGroupDescriptor {
         label: Some("ac2 tone map post"),
@@ -210,7 +213,21 @@ pub(crate) fn post_inputs(
                 binding: 3,
                 resource: wgpu::BindingResource::TextureView(ao),
             },
+            wgpu::BindGroupEntry {
+                binding: 4,
+                resource: look.as_entire_binding(),
+            },
         ],
+    })
+}
+
+/// A tone map `look` uniform with the brightness ramp `scale` in x.
+fn look_buffer(device: &wgpu::Device, label: &str) -> wgpu::Buffer {
+    use wgpu::util::DeviceExt;
+    device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some(label),
+        contents: bytemuck::cast_slice(&[1.0_f32, 0.0, 0.0, 0.0]),
+        usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
     })
 }
 
@@ -246,6 +263,16 @@ impl ToneMap {
                 },
                 entry(2, wgpu::TextureSampleType::Float { filterable: true }),
                 entry(3, wgpu::TextureSampleType::Float { filterable: true }),
+                wgpu::BindGroupLayoutEntry {
+                    binding: 4,
+                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    ty: wgpu::BindingType::Buffer {
+                        ty: wgpu::BufferBindingType::Uniform,
+                        has_dynamic_offset: false,
+                        min_binding_size: None,
+                    },
+                    count: None,
+                },
             ],
         });
         // One black texel serves as both the bloom and the exposure: EV 0, bloom and vignette 0.
@@ -301,7 +328,9 @@ impl ToneMap {
             &device.create_sampler(&Default::default()),
             &black,
             &white.create_view(&Default::default()),
+            &look_buffer(device, "ac2 tone map neutral look"),
         );
+        let world_look = look_buffer(device, "ac2 tone map world look");
         let module = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("ac2 tone map"),
             source: wgpu::ShaderSource::Wgsl(include_str!("tonemap.wgsl").into()),
@@ -354,7 +383,19 @@ impl ToneMap {
             layout,
             post_layout,
             neutral,
+            world_look,
         }
+    }
+
+    /// `SceneTool::SetGammaBrightness` (`RenderDeviceD3D::SetGamma`): the world's display levels
+    /// times `1 + 2 * brightness`, the brightness clamped to -0.2..1 (`ScreenBrightness`).
+    pub fn set_brightness(&self, queue: &wgpu::Queue, brightness: f32) {
+        let scale = 1.0 + 2.0 * brightness.clamp(-0.2, 1.0);
+        queue.write_buffer(
+            &self.world_look,
+            0,
+            bytemuck::cast_slice(&[scale, 0.0, 0.0, 0.0]),
+        );
     }
 
     /// Records the tone map of `source` into `pass` (an output pass the size of `source`, with
@@ -448,6 +489,7 @@ impl ScenePresenter {
                 &self.post_pipelines,
                 &self.ao_pipelines,
                 &self.tonemap.post_layout,
+                &self.tonemap.world_look,
                 hdr,
             ));
         }
@@ -496,6 +538,11 @@ impl ScenePresenter {
                 .draw_with(pass, hdr, None, chain.tonemap_inputs()),
             None => self.tonemap.draw(pass, hdr, None),
         }
+    }
+
+    /// The world's screen brightness (`ScreenBrightness`, `SceneTool::SetGammaBrightness`).
+    pub fn set_brightness(&self, gpu: &Gpu, brightness: f32) {
+        self.tonemap.set_brightness(&gpu.queue, brightness);
     }
 
     pub fn tonemap(&self) -> &ToneMap {

@@ -229,6 +229,7 @@ fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
         scale: Vec3::ONE,
         bones: Vec::new(),
         named_bones: Vec::new(),
+        parents: std::sync::Arc::from(Vec::new()),
     }]);
     let camera = Camera {
         eye: Vec3::new(x, y - 10.0, ground + 5.0),
@@ -247,4 +248,22 @@ fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
     // Retail makes the pool anew each frame (draw once); without the light there is none.
     scene.remove_object_lights(9);
     assert!(!pooled(&scene.frame(&camera, 1.5)));
+}
+
+#[test]
+fn the_rain_and_water_systems_load_with_the_scene() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0xCB, 0x4D));
+    let _ = scene.wait();
+    // `WorldRender::Init`: the rain vapour (splash), ripples and water bubbles systems
+    // (`RenderSkeletonEffects` discharges into all three).
+    assert!(scene.rain_splash.is_some());
+    assert!(scene.rain_ripples.is_some());
+    assert!(scene.water_bubbles.is_some());
 }

@@ -442,6 +442,14 @@ impl ObjectSkeleton {
     /// The root group's model-space bones (`CPartArray::m_boneMatrices`, which carry no scale), as
     /// the transforms `pose` builds them from: each bone's parent-relative local composed up its
     /// chain. `root` is taken as `pose` takes it.
+    /// The root group's bone parents (`CSetup`'s), for its skeleton points.
+    pub fn root_parents(&self) -> std::sync::Arc<[Option<usize>]> {
+        self.groups.first().map_or_else(
+            || std::sync::Arc::from(Vec::new()),
+            |group| std::sync::Arc::from(group.parents.clone()),
+        )
+    }
+
     pub fn root_bones(&self, root: Option<&[Ac2Transform]>) -> Vec<Ac2Transform> {
         self.root_bones_placed(root, DEFAULT_PLACEMENT)
     }

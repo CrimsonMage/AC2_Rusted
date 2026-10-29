@@ -5028,7 +5028,7 @@ key	status	note
 004ef290	x	ac2-physics part_array.rs (CPartArray over the Setup records ac2-assets and ac2-anim decode; loaded by part_load.rs) trace_ray_through_parts: each part's first-degrade triangles in part space (inverse of the part matrix), RayIntersectsTriList's plane-side tests and nearest hit, delta as a fraction of the ray length
 004ef8f0	-	render plumbing
 004ef920	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
-004ef9c0	-	render plumbing
+004ef9c0	x	the root group's posed bones (ObjectPose::bones) with their CSetup parents (ObjectSkeleton::root_parents), carried on ObjectPlacement
 004efb00	x	ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
 004f0140	x	ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
@@ -8032,7 +8032,7 @@ key	status	note
 0056a600	_	needs port: material layer stage order and diffuse colour
 0056a630	-	admin-only/tool/debug code, not in the client (debug HUD)
 0056a7f0	-	admin-only/tool/debug code, not in the client (SceneTool::ShowDebugHUD: test notes no handler in Legions) [vtable-checked: not a slot of any located Legions vtable]
-0056a810	_	needs port: gamma and brightness applied to the scene
+0056a810	x	ac2-gpu ToneMap::set_brightness: the world's display levels times 1 + 2 * ScreenBrightness (RenderDeviceD3D::SetGamma's ramp), set each frame from SceneOptions::brightness; the UI is left as authored (AGENTS.md)
 0056a830	_	needs port: scene tool InitFromGlobalPreferences
 0056a910	-	D3D device/resource plumbing; wgpu replaces
 0056aac0	_	needs port: scene SetWorldCellID step
@@ -8072,7 +8072,7 @@ key	status	note
 0056be60	x	ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 0056bf90	_	needs port: frame skip rule while the scene is busy
 0056bfb0	_	needs port: selection id drawn for picking
-0056bfe0	_	needs port: distortion map target (heat/water distortion)
+0056bfe0	-	no shipped material names the Distortion special texture or a BUMPENVMAP stage (Legions DAT: 0 of 2401 materials); one samples the frame buffer (0x31000323)
 0056c270	-	D3D device/resource plumbing; wgpu replaces
 0056c290	-	D3D device lifecycle/restore; wgpu replaces
 0056c570	_	needs port: bounding box validity (MakeValid)
@@ -8330,7 +8330,7 @@ key	status	note
 0057e830	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057ea20	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
 0057eb10	x	ac2-render scene/light_decals.rs: each frame the FX point lights and the drawn cells' own lights within reach over the ground pool there as draw-once decals of the day/dusk/night material (enums 0x4000000D/2B/2C), gated by LightSourceEffects
-0057ef60	_	needs port: world render (frame draw, shadows, reflections, objects, time of day)
+0057ef60	x	ac2-render scene/skeleton_effects.rs: the outdoor bodies' bones discharge rain vapour (rain over 0.4, bones across the rain), water bubbles and ripples into the shared systems' first emitter; the bubbles system (enum 0x40000011) loads with the rain's
 0057f960	~	the portal gate (InPortalSpace), the world's SetFOV(m_fWorldFOVScale * mFOV) in portal space (ac2-client view.rs camera), and PortalSpace::Effect::Render after the world (ac2-client ui_scene/render.rs); not all of the world pass is traced here
 00580990	-	D3D device lifecycle/restore; wgpu replaces
 005809e0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces

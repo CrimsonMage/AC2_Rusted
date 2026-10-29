@@ -151,6 +151,8 @@ pub struct LoadedRain {
     pub model: Option<ObjectModel>,
     pub splash: Option<Arc<Ac2ParticleSystemDesc>>,
     pub ripples: Option<Arc<Ac2ParticleSystemDesc>>,
+    /// The water bubbles bodies under water give off (`RenderSkeletonEffects`).
+    pub bubbles: Option<Arc<Ac2ParticleSystemDesc>>,
     /// The particle systems' material models.
     pub models: Vec<(DataId, Option<ObjectModel>)>,
     pub images: Images,
@@ -418,6 +420,7 @@ impl Worker {
     fn rain(&mut self) -> LoadedRain {
         use crate::rain::{
             RAIN_MATERIAL_ENUM, RAIN_MATERIAL_GROUP, RAIN_RIPPLES_ENUM, RAIN_SPLASH_ENUM,
+            WATER_BUBBLES_ENUM,
         };
         let store = self.world.resource_store().clone();
         let enum_did = |value| {
@@ -432,8 +435,9 @@ impl Worker {
             .flatten();
         let splash = enum_did(RAIN_SPLASH_ENUM).and_then(|did| self.particle_desc(did));
         let ripples = enum_did(RAIN_RIPPLES_ENUM).and_then(|did| self.particle_desc(did));
+        let bubbles = enum_did(WATER_BUBBLES_ENUM).and_then(|did| self.particle_desc(did));
         let mut models = Vec::new();
-        for desc in splash.iter().chain(&ripples) {
+        for desc in splash.iter().chain(&ripples).chain(&bubbles) {
             if let Some(material) = desc.material {
                 if self.models.insert(material) {
                     let model = particle_material_model(&store, material, &self.settings);
@@ -455,6 +459,7 @@ impl Worker {
             model,
             splash,
             ripples,
+            bubbles,
             models,
             images,
         }

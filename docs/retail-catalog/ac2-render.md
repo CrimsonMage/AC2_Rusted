@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 176 done, 53 partial, 194 to do, 358 skipped.
+781 retail functions: 178 done, 53 partial, 191 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -763,7 +763,7 @@ Legend and workflow: [README](README.md).
 - [ ] `SceneCamera::SetRenderPosition` · 00572c90 · legions 0053a9d0 — needs port: scene camera properties
 - [x] `SceneCamera::SetCurrentPosition` · 00572cb0 · legions 0053a9f0
 
-## `portal/client/src/scenerender/scenetool.cpp.c` (19/100)
+## `portal/client/src/scenerender/scenetool.cpp.c` (20/100)
 
 ### SceneTool
 - [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10 — needs port: motion blur flag (scene effect)
@@ -774,7 +774,7 @@ Legend and workflow: [README](README.md).
 ### SceneTool
 - [-] `SceneTool::StartupDebugHUD` · 0056a630 · legions 0053aa70 — admin-only/tool/debug code, not in the client (debug HUD)
 - [-] `SceneTool::ShowDebugHUD` · 0056a7f0 — admin-only/tool/debug code, not in the client (SceneTool::ShowDebugHUD: test notes no handler in Legions) [vtable-checked: not a slot of any located Legions vtable]
-- [ ] `SceneTool::SetGammaBrightness` · 0056a810 · legions 0053ac30 — needs port: gamma and brightness applied to the scene
+- [x] `SceneTool::SetGammaBrightness` · 0056a810 · legions 0053ac30 — ac2-gpu ToneMap::set_brightness: the world's display levels times 1 + 2 * ScreenBrightness (RenderDeviceD3D::SetGamma's ramp), set each frame from SceneOptions::brightness; the UI is left as authored (AGENTS.md)
 - [ ] `SceneTool::InitFromGlobalPreferences` · 0056a830 · legions 0053ac50 — needs port: scene tool InitFromGlobalPreferences
 - [-] `SceneTool::InitTextureTargets` · 0056a910 · legions 0053ad30 — D3D device/resource plumbing; wgpu replaces
 - [ ] `SceneTool::SetWorldCellID` · 0056aac0 · legions 0053aee0 — needs port: scene SetWorldCellID step
@@ -822,7 +822,7 @@ Legend and workflow: [README](README.md).
 - [x] `SceneTool::CheckObjectSelection` · 0056be60 · legions 0053c240 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 - [ ] `SceneTool::ShouldSkipRenderNow` · 0056bf90 · legions 0053c370 — needs port: frame skip rule while the scene is busy
 - [ ] `SceneTool::SetSelectionID` · 0056bfb0 · legions 0053c390 — needs port: selection id drawn for picking
-- [ ] `SceneTool::GetDistortionMap` · 0056bfe0 · legions 0053c3c0 — needs port: distortion map target (heat/water distortion)
+- [-] `SceneTool::GetDistortionMap` · 0056bfe0 · legions 0053c3c0 — no shipped material names the Distortion special texture or a BUMPENVMAP stage (Legions DAT: 0 of 2401 materials); one samples the frame buffer (0x31000323)
 - [-] `SceneTool::GetFrameBufferTexture` · 0056c270 · legions 0053c640 — D3D device/resource plumbing; wgpu replaces
 - [-] `SceneTool::PurgeOldGraphicsResources` · 0056c290 · legions 0053c660 — D3D device lifecycle/restore; wgpu replaces
 
@@ -1182,7 +1182,7 @@ Legend and workflow: [README](README.md).
 - [x] `PortalSpace::Effect::Initialize` · 00587db0 · legions 005574a0 — materials 0x40000013/0x40000014, the clouds' PSDesc 0x40000015 (ac2-render portal/assets.rs load_clouds_desc, Client::set_portal_clouds), the background CDataMesh 0x40000016 (load_portal_models) and the sounds load at setup (client_teleport.rs); freed on last drop
 - [x] `PortalSpace::Effect::Stop` · 00588050 — ac2-render portal/effect.rs (enter/exit/in_portal_space, Start/Stop) and ac2-client client_teleport.rs; tests: portal_7160, effect_tests
 
-## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (10/36)
+## `portal/client/src/smartbox/worldrender/worldrender.cpp.c` (11/36)
 
 ### GameTime
 - [ ] `GameTime::GetTimeTilTomorrow` · 0057c720 · legions 0054bff0 — needs port: game time lighting refresh cadence
@@ -1237,5 +1237,5 @@ Legend and workflow: [README](README.md).
 - [ ] `WorldRender::GatherIndoorObjects` · 0057e830 · legions 0054e100 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [ ] `WorldRender::GatherOutdoorObjects` · 0057ea20 · legions 0054e2f0 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
 - [x] `WorldRender::CreateLandscapePointLightDecals` · 0057eb10 · legions 0054e3e0 — ac2-render scene/light_decals.rs: each frame the FX point lights and the drawn cells' own lights within reach over the ground pool there as draw-once decals of the day/dusk/night material (enums 0x4000000D/2B/2C), gated by LightSourceEffects
-- [ ] `WorldRender::RenderSkeletonEffects` · 0057ef60 · legions 0054e830 — needs port: world render (frame draw, shadows, reflections, objects, time of day)
+- [x] `WorldRender::RenderSkeletonEffects` · 0057ef60 · legions 0054e830 — ac2-render scene/skeleton_effects.rs: the outdoor bodies' bones discharge rain vapour (rain over 0.4, bones across the rain), water bubbles and ripples into the shared systems' first emitter; the bubbles system (enum 0x40000011) loads with the rain's
 - [~] `WorldRender::Render` · 0057f960 · legions 0054f230 — the portal gate (InPortalSpace), the world's SetFOV(m_fWorldFOVScale * mFOV) in portal space (ac2-client view.rs camera), and PortalSpace::Effect::Render after the world (ac2-client ui_scene/render.rs); not all of the world pass is traced here

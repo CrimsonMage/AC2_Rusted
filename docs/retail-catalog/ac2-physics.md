@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 843 done, 159 partial, 173 to do, 949 skipped.
+2124 retail functions: 844 done, 159 partial, 173 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (41/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (42/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2047,7 +2047,7 @@ Legend and workflow: [README](README.md).
 - [-] `LocationType::operator=` · 004ef920 · legions 004e2260 — C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 
 ### CPartArray
-- [-] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — render plumbing
+- [x] `CPartArray::CalculateSkeletonPoints` · 004ef9c0 · legions 004e2300 — the root group's posed bones (ObjectPose::bones) with their CSetup parents (ObjectSkeleton::root_parents), carried on ObjectPlacement
 - [x] `CPartArray::Draw` · 004efb00 · legions 004e2440 — ac2-render object::degrade (degrade_scale, part_array_lod: cull at max(s*visible,20), 7.5% fade, degrade factor, material detail, ForceDisableAlphaTest past 40) + scene/lod.rs; particle systems, draw and setup id in scene/particles.rs and model.rs. Reflection/shadow-volume branches n/a
 - [x] `CPartArray::GetHoldingLocation` · 004f0140 · legions 004e2a80 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)
 

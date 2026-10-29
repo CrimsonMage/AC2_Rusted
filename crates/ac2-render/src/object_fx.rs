@@ -148,7 +148,7 @@ pub fn object_placements(
         .zip(frames)
         .zip(placed)
         .filter_map(|((slot, frame), placed)| {
-            let (_, scale) = scene.object_rig(slot.key)?;
+            let (rig, scale) = scene.object_rig(slot.key)?;
             let pose = placed.as_ref()?.2.as_ref();
             let bones = pose.map(|pose| pose.bones.clone()).unwrap_or_default();
             let named_bones = pose
@@ -161,6 +161,7 @@ pub fn object_placements(
                 scale: *scale,
                 bones,
                 named_bones,
+                parents: rig.skeleton.root_parents(),
             })
         })
         .collect()

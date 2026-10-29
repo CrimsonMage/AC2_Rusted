@@ -211,6 +211,7 @@ impl PostChain {
         pipes: &PostPipelines,
         ao_pipes: &AoPipelines,
         tonemap_layout: &wgpu::BindGroupLayout,
+        world_look: &wgpu::Buffer,
         hdr: &HdrTarget,
     ) -> Self {
         let ao = AoTargets::new(gpu, ao_pipes, hdr);
@@ -317,6 +318,7 @@ impl PostChain {
                 &pipes.sampler,
                 &exposure[written],
                 &ao.blurred,
+                world_look,
             )
         });
         let smallest = &down_views[levels - 1];

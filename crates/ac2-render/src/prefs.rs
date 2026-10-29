@@ -262,7 +262,7 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         flag(0x4000_0063, true),
         flag(0x4000_0064, false),
         Pref::float(g, 0x4000_0065, 0.0, -1.0, 1.0),
-        Pref::float(g, 0x4000_004B, 0.0, -0.2, 1.0),
+        Pref::float(g, SCREEN_BRIGHTNESS, 0.0, -0.2, 1.0),
     ];
     let mut registered = register_all(bank, names, defs.into_iter().flatten(), "Render");
     let avatar = [
@@ -377,6 +377,8 @@ pub struct SceneOptions {
     pub water_reflections: u8,
     /// `LandscapeShoreEffects`: 2 draws the breaking water on the shores.
     pub shore_effects: u8,
+    /// `ScreenBrightness` (-0.2..1, 0 neutral; `SceneTool::SetGammaBrightness`).
+    pub brightness: f32,
 }
 
 impl Default for SceneOptions {
@@ -395,6 +397,7 @@ impl Default for SceneOptions {
             light_source_effects: true,
             water_reflections: 2,
             shore_effects: 2,
+            brightness: 0.0,
         }
     }
 }
@@ -464,6 +467,10 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
             _ => defaults.shore_effects,
         },
+        brightness: match bank.find(SCREEN_BRIGHTNESS).map(|pref| &pref.value) {
+            Some(Value::Float(value)) => *value,
+            _ => defaults.brightness,
+        },
     }
 }
 
@@ -475,6 +482,8 @@ fn flag(bank: &PreferenceBank, key: u32, default: bool) -> bool {
     }
 }
 
+/// `ID_Graphics_ScreenBrightness`.
+pub const SCREEN_BRIGHTNESS: u32 = 0x4000_004B;
 /// `ID_Graphics_LandscapeShoreEffects`.
 pub const LANDSCAPE_SHORE_EFFECTS: u32 = 0x4000_005D;
 /// `ID_Graphics_WaterReflections`.

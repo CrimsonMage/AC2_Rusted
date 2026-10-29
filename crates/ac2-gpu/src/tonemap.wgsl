@@ -20,6 +20,9 @@
 @group(1) @binding(2) var exposure: texture_2d<f32>;
 // The world's ambient occlusion at half size (`ao.rs`); white when neutral.
 @group(1) @binding(3) var occlusion: texture_2d<f32>;
+// The screen brightness's ramp (`RenderDeviceD3D::SetGamma`: each display level times
+// `1 + 2 * ScreenBrightness`, clamped), in x; 1 when neutral.
+@group(1) @binding(4) var<uniform> look: vec4<f32>;
 
 const EXPOSURE: f32 = 1.0;
 const START_COMPRESSION: f32 = 0.76;
@@ -73,7 +76,7 @@ fn fs(@builtin(position) position: vec4<f32>) -> @location(0) vec4<f32> {
     let aspect = vec2(size.x / size.y, 1.0);
     let edge = length((uv - 0.5) * aspect) / length(0.5 * aspect);
     c *= 1.0 - post.b * smoothstep(0.35, 1.0, edge);
-    return vec4(display(c), 1.0);
+    return vec4(min(display(c) * look.x, vec3(1.0)), 1.0);
 }
 
 @fragment

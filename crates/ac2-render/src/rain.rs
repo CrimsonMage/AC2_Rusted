@@ -24,6 +24,8 @@ pub const RAIN_MATERIAL_GROUP: u32 = 0x4000_0002;
 /// (`m_pRainVaporParticleSystem`) and the water ripples (`m_pWaterRipplesParticleSystem`).
 pub const RAIN_SPLASH_ENUM: u32 = 0x4000_0010;
 pub const RAIN_RIPPLES_ENUM: u32 = 0x4000_0012;
+/// `WorldRender::Init`'s water bubbles particle system (`m_pWaterBubblesParticleSystem`).
+pub const WATER_BUBBLES_ENUM: u32 = 0x4000_0011;
 /// `WorldRender::Render` draws rain only above this amount.
 pub const RAIN_DRAW_THRESHOLD: f32 = 0.4;
 /// `RAIN_cColor` (admin 7148 `.data`): the streak's foot; its head is the same colour at alpha 0.

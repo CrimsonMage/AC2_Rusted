@@ -81,6 +81,8 @@ pub struct ClientView {
     portal: ac2_gpu::PortalDraw,
     /// The tone map the world and the paper doll reach the window through.
     presenter: ac2_gpu::ScenePresenter,
+    /// `ScreenBrightness`, applied to the world's tone map each frame.
+    brightness: f32,
     /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
     /// the effect draws it).
     world_drawn: bool,
@@ -225,6 +227,7 @@ impl ClientView {
             renderer: SceneRenderer::new(gpu),
             portal: portal_draw(gpu, &store),
             presenter: ac2_gpu::ScenePresenter::new(gpu, format),
+            brightness: 0.0,
             world_drawn: true,
         }
     }
@@ -236,6 +239,7 @@ impl ClientView {
         self.renderer.set_light_coronas(options.light_coronas);
         self.renderer
             .set_landscape_shadows(options.static_shadows, options.cloud_shadows);
+        self.brightness = options.brightness;
         self.scene.set_options(options);
     }
 
@@ -375,6 +379,7 @@ impl ClientView {
             return false;
         };
         self.scene.set_clock(time);
+        self.presenter.set_brightness(gpu, self.brightness);
         self.presenter.set_camera(ac2_gpu::AoCamera {
             fov_y: camera.fov_y,
             near: camera.near,

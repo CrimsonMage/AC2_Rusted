@@ -181,6 +181,7 @@ mod tests {
             scale: Vec3::ONE,
             bones: Vec::new(),
             named_bones: Vec::new(),
+            parents: std::sync::Arc::from(Vec::new()),
         }
     }
 
