@@ -8,6 +8,7 @@
 
 mod blocks;
 pub mod camera;
+pub mod camera_fx;
 mod camera_mouse;
 pub mod cells;
 pub mod fx_manager;

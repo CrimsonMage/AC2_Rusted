@@ -1,6 +1,6 @@
 # ac2-smartbox: SmartBox, camera, world manager, object maintenance
 
-262 retail functions: 97 done, 38 partial, 81 to do, 46 skipped.
+262 retail functions: 117 done, 38 partial, 66 to do, 41 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/objects/cbookkeep.cpp.c` (12/22)
@@ -167,35 +167,35 @@ Legend and workflow: [README](README.md).
 - [x] `VisualOrderingQueue::DiscardAllEvents` · 004da700 · legions 004cd160
 - [x] `VisualOrderingQueue::~VisualOrderingQueue` · 004da7b0 · legions 004cd210
 
-## `portal/client/src/smartbox/camera/camerafx.cpp.c` (0/10)
+## `portal/client/src/smartbox/camera/camerafx.cpp.c` (10/10)
 
 ### CameraFX
-- [ ] `CameraFX::SetDefaults` · 00577d00 · legions 00547ca0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFX::GetDBOType` · 00577d70 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFX::get_pack_bitfield` · 00577d80 · legions 00547d20 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [-] `CameraFX::CopyInto` · 00577e90 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [-] `CameraFX::Destroy` · 00577f20 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [-] `CameraFX::CameraFX` · 00577f30 · legions 00547ed0 — ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-- [ ] `CameraFX::StreamPack` · 00577f80 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFX::Allocate` · 00578270 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [-] `CameraFX::FromFileNode` · 00578280 — text source format (admin tools)
-- [-] `CameraFX::ToFileNode` · 00578590 — text source format (admin tools)
+- [x] `CameraFX::SetDefaults` · 00577d00 · legions 00547ca0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::GetDBOType` · 00577d70 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::get_pack_bitfield` · 00577d80 · legions 00547d20 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::CopyInto` · 00577e90 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::Destroy` · 00577f20 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::CameraFX` · 00577f30 · legions 00547ed0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::StreamPack` · 00577f80 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::Allocate` · 00578270 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::FromFileNode` · 00578280 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFX::ToFileNode` · 00578590 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
-## `portal/client/src/smartbox/camera/camerafxmanager.cpp.c` (0/10)
+## `portal/client/src/smartbox/camera/camerafxmanager.cpp.c` (10/10)
 
 ### CameraFxTrack
-- [ ] `CameraFxTrack::CameraFxTrack` · 005788c0 · legions 00548220 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxTrack::Update` · 00578910 · legions 00548270 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
+- [x] `CameraFxTrack::CameraFxTrack` · 005788c0 · legions 00548220 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxTrack::Update` · 00578910 · legions 00548270 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
 ### CameraFxManager
-- [ ] `CameraFxManager::GetDistortion` · 00578a10 · legions 00548370 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::UseTime` · 00578d20 · legions 00548680 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::AddMotionBlur` · 00578ed0 · legions 00548830 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::AddScreenFlash` · 00578f50 · legions 005488b0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::AddFovShift` · 00578fe0 · legions 00548940 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::AddShake` · 00579060 · legions 005489c0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-- [ ] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
+- [x] `CameraFxManager::GetDistortion` · 00578a10 · legions 00548370 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::UseTime` · 00578d20 · legions 00548680 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::AddMotionBlur` · 00578ed0 · legions 00548830 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::AddScreenFlash` · 00578f50 · legions 005488b0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::AddFovShift` · 00578fe0 · legions 00548940 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::AddShake` · 00579060 · legions 005489c0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::AddCameraDistance` · 005790e0 · legions 00548a40 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+- [x] `CameraFxManager::StopAllCameraFX` · 00579160 · legions 00548ac0 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
 ## `portal/client/src/smartbox/camera/cameramanager.cpp.c` (19/46)
 

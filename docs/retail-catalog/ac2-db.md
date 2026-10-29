@@ -1,6 +1,6 @@
 # ac2-db: Database objects, properties, enum maps, string tables, client cache
 
-633 retail functions: 196 done, 15 partial, 128 to do, 294 skipped.
+633 retail functions: 197 done, 15 partial, 128 to do, 293 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ccache/gmclcacheinit.cpp.c` (0/5)
@@ -36,7 +36,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmCharNameCharacterValidator::IsCharacterValid` · 0060cb90 · legions 005cd990 — pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
 - [ ] `gmCharNameCharacterValidator::IsCharacterValidForTransitions` · 0060cc50 · legions 005cda50 — needs port: gmCharNameCharacterValidator::IsCharacterValidForTransitions (Hangul jamo range for character names)
 
-## `portal/client/src/clcache/clcachemain.cpp.c` (1/132)
+## `portal/client/src/clcache/clcachemain.cpp.c` (2/132)
 
 ### EntityDesc
 - [-] `EntityDesc::Allocator` · 004be6e0 · legions 004b2a20 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
@@ -208,7 +208,7 @@ Legend and workflow: [README](README.md).
 - [-] `ValidModes::Allocator` · 004bee70 · legions 004b31b0 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 
 ### CameraFX
-- [-] `CameraFX::Allocator` · 004bee90 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
+- [x] `CameraFX::Allocator` · 004bee90 — ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 
 ### WLib
 - [-] `WLib::Allocator` · 004beeb0 — skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)

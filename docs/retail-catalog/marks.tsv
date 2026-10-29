@@ -3812,7 +3812,7 @@ key	status	note
 004bee30	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 004bee50	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 004bee70	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
-004bee90	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
+004bee90	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 004beeb0	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 004beed0	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
 004beef0	-	skip: object pool allocator; Rust frees on last drop (AGENTS: no DBOCache pooling)
@@ -8222,24 +8222,27 @@ key	status	note
 00577720	-	STL less/map/rb-tree/deque internals (Rust std replaces)
 00577840	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 005778a0	x	ac2-client camera_mouse.rs / input_handlers
-00577d00	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00577d70	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00577d80	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00577e90	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-00577f20	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-00577f30	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
-00577f80	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578270	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-005788c0	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578910	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578a10	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578d20	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578ed0	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578f50	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00578fe0	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00579060	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-005790e0	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-00579160	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
+00577d00	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577d70	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577d80	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577e90	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577f20	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577f30	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577f50	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00577f80	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578270	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578280	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578590	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+005788c0	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578910	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578a10	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578d20	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578ed0	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578f50	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00578fe0	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00579060	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+005790e0	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
+00579160	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 00579180	x	
 005791a0	x	
 00579210	x	
