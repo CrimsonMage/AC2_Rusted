@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1314 done, 319 partial, 118 to do, 496 skipped.
+2247 retail functions: 1318 done, 315 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
@@ -359,7 +359,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
 - [x] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — Legions 0x41A1E0 (undecompiled slot). ac2-ui pets.rs PetUi::update_pet_name: the first (...) (open not first, a close after it) removed from the server's name (PStringBase::replace with L""), stored as PetInfo::name and set on the row's Name
 
-## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (28/35)
+## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (29/35)
 
 ### Position
 - [ ] `Position::get_heading` · 00424fe0 · legions 00424dd0 — needs port: Position::get_heading behaviour
@@ -402,7 +402,7 @@ Legend and workflow: [README](README.md).
 
 ### gmRadarUI
 - [x] `gmRadarUI::DrawBlip` · 00425af0 · legions 004258e0 — ac2-ui radar.rs
-- [~] `gmRadarUI::Update` · 00425c00 · legions 004259f0 — ac2-ui radar.rs + ac2-client: heading ring, blips (scale float, ftol, square clip), tooltip and last-under-mouse, CoordinatesText; SaveLocationsChanged on location_changed not yet
+- [x] `gmRadarUI::Update` · 00425c00 · legions 004259f0 — ac2-ui radar.rs + ac2-client: heading ring, blips (scale float, ftol, square clip), tooltip and last-under-mouse, CoordinatesText; a moved RadarField (location_changed) raises SaveLocationsChanged through the tree's general path (window_locations.rs movement_mouse_move: save_loc / broadcast_loc_change -> locations_changed, frame_passes.rs)
 - [x] `gmRadarUI::ListenToMessage` · 00426060 · legions 00425e50 — ac2-ui radar.rs + ac2-client (Command::SetShowRadarCoords, IFun 0xB4007D; show_radar_coords from the options profile)
 - [~] `gmRadarUI::AddObject` · 00426190 · legions 00425f80 — ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update
 - [x] `gmRadarUI::RecvNotice_CreateObject` · 00426270 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
@@ -496,7 +496,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (17/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (18/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
@@ -506,7 +506,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateMountState` · 0041b240 — ac2-ui consignment.rs ConsignmentUi::recv_update_mount_state keeps the flag (retail reads it only to redraw the player portrait in RecvNotice_LocalVisualDescUpdate, which is not modelled); routed by shop_notices.rs consignment_notice
 
 ### gmShopUI
-- [~] `gmShopUI::RecvNotice_LeaveStore` · 0041b250 — ac2-ui shop.rs recv_leave_store: closes via show(false); the vtable call in the decompile is untraced
+- [x] `gmShopUI::RecvNotice_LeaveStore` · 0041b250 — ac2-ui shop.rs recv_leave_store: Show(0) (Legions/admin 0x41b25e: the primary framework's vtable +0x20 with 0, a tail call)
 
 ### gmShopConsignmentUI
 - [~] `gmShopConsignmentUI::SyncPortrait` · 0041b270 · legions 0041b0d0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
@@ -560,11 +560,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); the sale slot's mouse-over tooltip is not modelled
 
-## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (18/22)
+## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (20/22)
 
 ### gmShopUI
 - [x] `gmShopUI::CreateManagedElements` · 0041d3d0 · legions 0041d1f0 — ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
-- [~] `gmShopUI::UpdatePosition` · 0041d4a0 · legions 0041d2c0 — ac2-ui shop_rows.rs update_position: page ghosting; the untraced one-argument branch is read as enabled without a pending page
+- [x] `gmShopUI::UpdatePosition` · 0041d4a0 · legions 0041d2c0 — ac2-ui shop_rows.rs update_position: prev unavailable/ghosted at 0, unghosted when m_ttNextUpdate == 0; next unavailable and ghosted from size - 7, else unghosted when m_ttNextUpdate == 0 (admin 0x41d51a/0x41d56a push 1 / 0 to the tail calls)
 - [x] `gmShopUI::Show` · 0041d590 · legions 0041d3b0 — ac2-ui shop.rs show: stack and confirmation closed, root hidden for the dormant wait
 - [x] `gmShopUI::RecvNotice_ConfirmPurchase` · 0041d630 — ac2-ui shop.rs recv_confirm_purchase: singular or plural question on DIALOG_CONFIRMATION
 - [x] `gmShopUI::RecvNotice_CloseConfirmationDialog` · 0041d700 · legions 0041d520 — ac2-ui shop.rs recv_close_confirmation_dialog: PurchaseConfirmed(answer) for the open context
@@ -584,7 +584,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopUI::UpdateSales` · 0041e540 · legions 0041e360 — ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
 - [x] `gmShopUI::gmShopUI` · 0041e6a0 · legions 0041e4c0 — ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
 - [x] `gmShopUI::RecvNotice_UpdateStore` · 0041e8d0 — ac2-ui shop.rs recv_update_store: rebuilds the list while shown
-- [~] `gmShopUI::RecvNotice_ViewStore` · 0041e940 — ac2-ui shop.rs recv_view_store: name, description, portrait, sort text, sales; the first vtable call is untraced
+- [x] `gmShopUI::RecvNotice_ViewStore` · 0041e940 — ac2-ui shop.rs recv_view_store: Show(1) first (admin 0x41e952: vtable +0x20 with 1), then name, description, portrait, sort text and sales
 
 ## `ac2/client/src/ui/gameplay/gmstackui.cpp.c` (12/13)
 
