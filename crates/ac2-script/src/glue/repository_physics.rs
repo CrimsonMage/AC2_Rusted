@@ -3,10 +3,8 @@
 //! `LoadDataIDW`; `portal/shared/src/weenie/repository/wrepository.cpp`). Without qualities
 //! (`m_qualities == NULL`) they answer 0.
 //!
-//! `SetEdgeSlides` also reaches the body (`CWPhysicsObject::_SetEdgeSlide`, queued as a
-//! `BodyState`). The physics side of `SetScale` (`CWPhysicsObject::_SetScale`, the part array's
-//! scale) is not applied: the body's shape scale is fixed by its Setup here (a known gap), so
-//! the quality is stored, as the next update of the object reads it.
+//! `SetEdgeSlides` and `SetScale` also reach the body (`CWPhysicsObject::_SetEdgeSlide` and
+//! `_SetScale`, queued as `BodyState`s).
 
 use ac2_net::protocol::QualityValue;
 use ac2_physics::PhysicsTypeMask;
@@ -96,6 +94,13 @@ fn set_scale(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         q.set(SCALE, &QualityValue::Float(scale));
         true
     });
+    // `CWPhysicsObject::_SetScale` -> `CPhysicsObj::SetScale(float)`, clamped to 0.1..10.
+    if ok {
+        if let Some(&id) = vm.owners.get(&this) {
+            vm.body_states
+                .push((id, BodyState::Scale(scale.clamp(0.1, 10.0))));
+        }
+    }
     Call::new(ctx).ret(3, u32::from(ok), INT_RESULT);
     InterpStatus::Success
 }

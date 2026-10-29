@@ -6257,6 +6257,7 @@ key	status	note
 005309c0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 005309e0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530a50	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
+00530a80	x	ac2-script glue/repository_physics.rs set_scale: quality 0x12A, then BodyState::Scale clamped 0.1..10 -> ac2-client apply_body_state set_uniform_scale; collision re-listed at Setup x own scale (ac2-smartbox sync_shadow), drawn and FX placements x the body's scale (ObjectFrame::body_scale)
 00530ae0	x	ac2-script host/body_state.rs inq_current_properties (efun 0x0080004A) over BodySnapshot.properties = the body's cell material (ac2-physics cell_material, set by UpdateCellMaterial); answers 0 with none; unit-tested
 00530b00	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530b20	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
@@ -6356,7 +6357,7 @@ key	status	note
 00531d10	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00531d40	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00531d70	_	needs port: weenie repository inq ethereal type; no citation in crates/
-00531df0	_	needs port: weenie repository set scale; no citation in crates/
+00531df0	x	ac2-script glue/repository_physics.rs set_scale: quality 0x12A, then BodyState::Scale clamped 0.1..10 -> ac2-client apply_body_state set_uniform_scale; collision re-listed at Setup x own scale (ac2-smartbox sync_shadow), drawn and FX placements x the body's scale (ObjectFrame::body_scale)
 00531e30	x	ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 00531e60	_	needs port: weenie repository set ethereal type; no citation in crates/
 00531ed0	_	needs port: weenie repository gather physics state; no citation in crates/

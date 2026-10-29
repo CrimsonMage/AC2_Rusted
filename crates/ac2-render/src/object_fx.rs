@@ -24,6 +24,8 @@ pub struct FxSlot {
     pub key: u64,
     pub cell: u32,
     pub follow: Option<FxFollow>,
+    /// The body's own scale over the model's (`CPhysicsObj::GetScale`).
+    pub body_scale: Vec3,
 }
 
 /// An object's model-to-world matrix: its total scale, then its place.
@@ -158,7 +160,7 @@ pub fn object_placements(
                 emitter: slot.id,
                 cell: slot.cell,
                 frame: *frame,
-                scale: *scale,
+                scale: *scale * slot.body_scale,
                 bones,
                 named_bones,
                 parents: rig.skeleton.root_parents(),

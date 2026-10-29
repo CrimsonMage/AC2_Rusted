@@ -53,6 +53,8 @@ struct Drawn<'a> {
     pose: &'a [PartPose],
     /// The FX's colour and fade for the object (white for none).
     tint: [f32; 4],
+    /// The body's own scale over the model's ([`ObjectFrame::body_scale`]; one for the player).
+    body_scale: Vec3,
     /// The emitter and attach point of an FX object that hangs from one: it is placed on the
     /// emitter's posed bone each frame.
     follow: Option<FxFollow>,
@@ -129,6 +131,7 @@ fn fx_slots(drawn: &[Drawn<'_>]) -> Vec<FxSlot> {
             key: drawn.key,
             cell: drawn.cell,
             follow: drawn.follow,
+            body_scale: drawn.body_scale,
         })
         .collect()
 }
@@ -165,6 +168,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             rotation: p.rotation,
             pose: &p.pose,
             tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
+            body_scale: Vec3::ONE,
             follow: None,
             held: None,
             placement: None,
@@ -198,6 +202,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                     frame.fx_looks.tints.get(&o.id).copied().unwrap_or([1.0; 4]),
                     o.anim_scale,
                 ),
+                body_scale: Vec3::from(o.body_scale),
                 follow: o.fx_follow,
                 held: o
                     .holder
@@ -541,7 +546,7 @@ fn placed(
     at: Frame,
     (rig, scale): &(PoseRig, Vec3),
 ) -> Option<(u64, Mat4, Option<ObjectPose>)> {
-    let world = world_matrix(*scale, at);
+    let world = world_matrix(*scale * drawn.body_scale, at);
     let bones: Vec<_> = drawn.pose.iter().map(PartPose::transform).collect();
     let placement = drawn.placement.unwrap_or(0);
     let pose = rig.pose_placed((!bones.is_empty()).then_some(bones.as_slice()), placement);

@@ -19,7 +19,7 @@ const CELLID_MASK: u32 = 0xFFFF;
 const FIRST_ENVCELL_ID: u32 = 0x100;
 
 /// A state change a script made on a weenie's physics object.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BodyState {
     /// `CPhysicsObj::set_movement_frozen` (`MOVEMENT_FROZEN_PS`).
     MovementFrozen(bool),
@@ -27,6 +27,8 @@ pub enum BodyState {
     AnimationFrozen(bool),
     /// `CPhysicsObj::set_edge_slide` (`EDGE_SLIDE_PS`).
     EdgeSlide(bool),
+    /// `CPhysicsObj::SetScale(float)` (`CWPhysicsObject::_SetScale`, already clamped to 0.1..10).
+    Scale(f32),
 }
 
 /// What the scripts read of a weenie's body: its cell (`CPhysicsObj::GetPosition`) and its

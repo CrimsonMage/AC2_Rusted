@@ -110,3 +110,23 @@ fn a_stuck_body_leaves_the_world_without_being_queued() {
     remotes.leave_world_for_parent(7);
     remotes.leave_world_for_parent(99);
 }
+
+/// `CPhysicsObj::SetScale` on a listed body (a script's `CWRepository::SetScale`): the next sync
+/// lists the object again at the Setup scale times the body's own.
+#[test]
+fn a_rescaled_body_is_listed_again_at_its_new_scale() {
+    let mut remotes = Remotes::<()>::default();
+    remotes.insert(7, in_world_remote(None));
+    let mut terrain = ac2_physics::Terrain::new();
+    remotes.sync_shadows(&mut terrain);
+    let id = remotes.get(7).and_then(|r| r.shadow).expect("listed");
+    let one = ac2_physics::Vector::new(1.0, 1.0, 1.0);
+    assert_eq!(terrain.object_scale(id), Some(one));
+    remotes.sync_shadows(&mut terrain);
+    assert_eq!(remotes.get(7).and_then(|r| r.shadow), Some(id), "unchanged");
+    remotes.body_mut(7).unwrap().set_uniform_scale(2.0);
+    remotes.sync_shadows(&mut terrain);
+    let again = remotes.get(7).and_then(|r| r.shadow).expect("listed again");
+    let two = ac2_physics::Vector::new(2.0, 2.0, 2.0);
+    assert_eq!(terrain.object_scale(again), Some(two));
+}

@@ -122,6 +122,7 @@ mod tests {
             appearance: Arc::new(Appearance::default()),
             pose: Vec::new(),
             anim_scale: [1.0; 4],
+            body_scale: [1.0; 3],
             adaptive_degrade: true,
         }
     }

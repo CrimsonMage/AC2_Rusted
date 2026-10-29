@@ -129,16 +129,35 @@ fn sync_shadow(
     sync_membership(guid, remote, membership);
     // The entry's blocking mask is the body's (`CPhysicsObj::IsBlocking` reads m_blocking_mask),
     // so it is re-read on every sync: a body's bits can change between syncs.
+    // The Setup's root scale times the body's own (`CPhysicsObj::SetScale`, which a script's
+    // `CWRepository::SetScale` changes at run time): a new scale lists the object again.
     let wanted = match (&remote.body, &remote.object, remote.in_world) {
-        (Some(body), Some((shape, scale)), true) => Some((
-            body.position(),
-            Arc::clone(shape),
-            *scale,
-            body.is_mobile(),
-            body.blocking_bits(),
-        )),
+        (Some(body), Some((shape, scale)), true) => {
+            let own = body.effects_scale();
+            let times = |a: f32, b: f32| (f64::from(a) * f64::from(b)) as f32;
+            Some((
+                body.position(),
+                Arc::clone(shape),
+                Vector::new(
+                    times(scale.x, own.x),
+                    times(scale.y, own.y),
+                    times(scale.z, own.z),
+                ),
+                body.is_mobile(),
+                body.blocking_bits(),
+            ))
+        }
         _ => None,
     };
+    if let (Some((_, _, scale, _, _)), Some(id)) = (&wanted, remote.shadow) {
+        if terrain
+            .object_scale(id)
+            .is_some_and(|listed| listed != *scale)
+        {
+            terrain.remove_object(id);
+            remote.shadow = None;
+        }
+    }
     match (wanted, remote.shadow) {
         (Some((position, shape, scale, mobile, blocking)), None) => {
             // The object is named by its guid, so a collision report lists it.

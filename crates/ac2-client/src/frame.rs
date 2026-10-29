@@ -81,6 +81,9 @@ pub struct ObjectFrame {
     /// `PHYSICSOBJREP::Draw`'s colour scale ([`ac2_physics::PhysicsBody::draw_scale`]): the
     /// animation colour and opacity sliders, white until moved. The drawn tint multiplies it.
     pub anim_scale: [f32; 4],
+    /// The body's own scale (`CPhysicsObj::GetScale`, which `CWRepository::SetScale` changes at
+    /// run time) over the model's: the drawn size is their product. One with no body.
+    pub body_scale: [f32; 3],
     /// `CPhysicsObj::Draw`'s `_bUseAdaptiveDegrade`: a server object (not temporary) whose body
     /// is mobile and not static (`is_mobile`, `is_dynamic`).
     pub adaptive_degrade: bool,

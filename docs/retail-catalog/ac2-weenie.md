@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 965 done, 156 partial, 126 to do, 657 skipped.
+1904 retail functions: 966 done, 156 partial, 125 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2699,7 +2699,7 @@ Legend and workflow: [README](README.md).
 - [ ] `WState::SaveStateByID` · 006b7da0 · legions 0064f5c0 — needs port: script VM save state by id (WState); no citation in crates/
 - [ ] `WState::SaveStateByType` · 006b7ea0 · legions 0064f6c0 — needs port: script VM save state by type (WState); no citation in crates/
 
-## `portal/shared/src/weenie/repository/wrepository.cpp.c` (61/101)
+## `portal/shared/src/weenie/repository/wrepository.cpp.c` (62/101)
 
 ### CWRepository
 - [-] `CWRepository::Construct` · 00530e70 · legions 00514e10 — singleton constructor: Rust builds the object directly
@@ -2781,7 +2781,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWRepository::GetScale` · 00531d10 · legions 00515cb0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [-] `CWRepository::EdgeSlides` · 00531d40 · legions 00515ce0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWRepository::InqEtherealType` · 00531d70 · legions 00515d10 — needs port: weenie repository inq ethereal type; no citation in crates/
-- [ ] `CWRepository::SetScale` · 00531df0 · legions 00515d90 — needs port: weenie repository set scale; no citation in crates/
+- [x] `CWRepository::SetScale` · 00531df0 · legions 00515d90 — ac2-script glue/repository_physics.rs set_scale: quality 0x12A, then BodyState::Scale clamped 0.1..10 -> ac2-client apply_body_state set_uniform_scale; collision re-listed at Setup x own scale (ac2-smartbox sync_shadow), drawn and FX placements x the body's scale (ObjectFrame::body_scale)
 - [x] `CWRepository::SetEdgeSlides` · 00531e30 · legions 00515dd0 — ac2-script glue/repository_physics.rs set_edge_slides: quality 7 then BodyState::EdgeSlide -> ac2-physics PhysicsBody::set_edge_slide (CPhysicsObj::set_edge_slide)
 - [ ] `CWRepository::SetEtherealType` · 00531e60 · legions 00515e00 — needs port: weenie repository set ethereal type; no citation in crates/
 - [ ] `CWRepository::GatherPhysicsState` · 00531ed0 · legions 00515e70 — needs port: weenie repository gather physics state; no citation in crates/

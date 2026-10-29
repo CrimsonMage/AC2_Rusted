@@ -252,6 +252,14 @@ impl Terrain {
         }
     }
 
+    /// The scale object `id` was listed with, or `None` when no object has that id.
+    pub fn object_scale(&self, id: u32) -> Option<Vector> {
+        match self.objects.get(id as usize) {
+            Some(Some((object, _))) => Some(object.scale),
+            _ => None,
+        }
+    }
+
     /// The blocking physics-type bits of object `id`, or `None` when no object has that id.
     pub fn object_blocking(&self, id: u32) -> Option<u64> {
         match self.objects.get(id as usize) {

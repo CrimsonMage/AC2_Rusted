@@ -687,6 +687,25 @@ fn the_ethereal_type_goes_into_and_out_of_two_int_qualities() {
         ),
         1
     );
+    // `CWPhysicsObject::_SetScale`: the body takes the scale, clamped to 0.1..10.
+    assert_eq!(
+        word(
+            &mut vm,
+            "gCWRepository::CallEFun_SetScale",
+            &[50.0_f32.to_bits()],
+            this
+        ),
+        1
+    );
+    let scales: Vec<_> = vm
+        .body_states
+        .iter()
+        .filter_map(|(_, s)| match s {
+            crate::host::body_state::BodyState::Scale(scale) => Some(*scale),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(scales, [2.0, 10.0]);
     let name = vm.new_wstring("nothing.dat".encode_utf16().collect());
     assert_eq!(
         word(

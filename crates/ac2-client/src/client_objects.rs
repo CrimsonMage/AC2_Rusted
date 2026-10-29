@@ -126,6 +126,7 @@ impl Client {
             BodyState::MovementFrozen(frozen) => physics.set_movement_frozen(frozen),
             BodyState::AnimationFrozen(frozen) => physics.set_animation_frozen(frozen),
             BodyState::EdgeSlide(slide) => physics.set_edge_slide(slide),
+            BodyState::Scale(scale) => physics.set_uniform_scale(scale),
         }
     }
 
@@ -535,6 +536,10 @@ impl Client {
                         .map(|b| ac2_physics::part_poses(b, self.pose_blend_time()))
                         .unwrap_or_default(),
                     anim_scale: body.map_or([1.0; 4], |b| b.draw_scale()),
+                    body_scale: body.map_or([1.0; 3], |b| {
+                        let s = b.effects_scale();
+                        [s.x, s.y, s.z]
+                    }),
                     adaptive_degrade: body.is_some_and(|b| b.is_mobile() && !b.is_static()),
                 })
             })
@@ -608,6 +613,10 @@ impl Client {
                     ),
                     pose: ac2_physics::part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
+                    body_scale: {
+                        let s = body.effects_scale();
+                        [s.x, s.y, s.z]
+                    },
                     // Client-made objects have temporary ids (`IIDUtils::VerifyTemporary`).
                     adaptive_degrade: false,
                 })
