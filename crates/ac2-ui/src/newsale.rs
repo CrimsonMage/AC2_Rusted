@@ -14,11 +14,11 @@
 //! global loop). What the dialog asks of the player is queued for [`NewSaleUi::take_requests`] and
 //! the stack dialogs it wants for [`NewSaleUi::take_stack_calls`].
 //!
-//! Not modelled: the sale slot's tooltip on mouse over (`ID_Shop_NewSale_Tooltip`) and the help
-//! page (`KeyStone::OpenHelp`); the item's name is the inventory's name at its own quantity.
+//! The item's name is the inventory's name at its own quantity.
 
 use std::sync::Arc;
 
+use crate::craft::TOKEN_SELECTED as SELECTED;
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION, DIALOG_MESSAGE};
 use crate::drag::MSG_STOP_DRAG_ITEM;
 use crate::element::UiTree;
@@ -27,7 +27,7 @@ use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::shop::{id, ShopStackCall, INVALID};
 use crate::skill_tree::SkillVar;
-use crate::token::MSG_BUTTON_RELEASE_ON;
+use crate::token::{MSG_BUTTON_RELEASE_ON, MSG_MOUSE_OVER, STATELESS};
 use crate::ui_string::{UiString, UiStrings};
 
 /// `ListenToMessage`'s global loop: a hidden new-sale dialog waits this long before it is destroyed.
@@ -356,7 +356,8 @@ impl NewSaleUi {
     }
 
     /// `gmShopNewSaleUI::ListenToMessage`: `NewSaleCloseButton` hides the dialog and leaves the store,
-    /// `AddSaleButton` adds the sale, and an item dropped on `NewSale` becomes the sale.
+    /// `AddSaleButton` adds the sale, an item dragged over `NewSale` selects the slot (stateless
+    /// again when the pointer leaves), and an item dropped on it becomes the sale.
     pub fn message(
         &mut self,
         tree: &mut UiTree,
@@ -376,6 +377,18 @@ impl NewSaleUi {
                 self.requests.push(NewSaleRequest::LeaveStore);
             } else if element == id("AddSaleButton") {
                 self.add_sale(tree, dialogs, s, charge);
+            }
+            return;
+        }
+        // The pointer over the sale slot: an item dragged onto it shows the slot selected, and
+        // leaving it shows it stateless again (`Token_ElementMsg_mouse_over`).
+        if element == id("NewSale") && message.message == MSG_MOUSE_OVER {
+            if let Some(slot) = message.element {
+                if message.data == 0 {
+                    tree.set_state(slot, STATELESS);
+                } else if tree.dragged().is_some_and(|copy| is_item_copy(tree, copy)) {
+                    tree.set_state(slot, SELECTED);
+                }
             }
             return;
         }

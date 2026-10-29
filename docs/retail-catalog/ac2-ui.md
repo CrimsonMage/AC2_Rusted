@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1328 done, 307 partial, 116 to do, 496 skipped.
+2247 retail functions: 1329 done, 306 partial, 116 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -538,7 +538,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::RecvNotice_ViewConsignment` · 0041cbd0 · legions 0041c9f0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 
-## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (10/14)
+## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (11/14)
 
 ### gmShopNewSaleUI
 - [x] `gmShopNewSaleUI::DestroyManagedElements` · 0041a600 · legions 0041a440 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
@@ -558,7 +558,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [~] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-- [~] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); the sale slot's mouse-over tooltip is not modelled
+- [x] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); AddSaleButton; NewSale's mouse_over shows the slot selected while an item (ShortcutType 0x40000002) is dragged and stateless when the pointer leaves; the drop takes the item (newsale_tests.rs)
 
 ## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (20/22)
 

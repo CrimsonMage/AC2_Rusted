@@ -346,3 +346,68 @@ fn the_consignment_fee_is_rounded_up_and_at_least_one() {
     assert_eq!(consignment_fee(1, 1, 0.0), 1, "never less than one");
     assert_eq!(consignment_fee(3, 1, 0.1), 1);
 }
+
+/// `gmShopNewSaleUI::ListenToMessage`'s `mouse_over` on `NewSale`: while an item is dragged, the
+/// pointer entering the slot shows it selected; leaving shows it stateless. Entering with nothing
+/// dragged changes nothing.
+#[test]
+fn the_sale_slot_shows_selected_while_an_item_is_dragged_over_it() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let backpack = BackpackUi::create(&mut hud.tree, &layout, &Pack, PLAYER);
+    open(&mut hud, &mut panel, 0, 0);
+    let field = panel.field().expect("the dialog's root");
+    let slot = hud
+        .tree
+        .child_recursive(field, tokenize("NewSale"))
+        .unwrap();
+    let over = |entering: bool| UiMessage {
+        element_id: tokenize("NewSale"),
+        element: Some(slot),
+        message: crate::token::MSG_MOUSE_OVER,
+        data: i32::from(entering),
+        ..UiMessage::default()
+    };
+    let state = |tree: &UiTree| tree.get(slot).unwrap().state();
+    let send = |hud: &mut GameplayHud, panel: &mut NewSaleUi, message: &UiMessage| {
+        panel.message(
+            &mut hud.tree,
+            &mut hud.dialogs,
+            &Pack,
+            message,
+            1.0,
+            &mut || 0.0,
+        );
+    };
+    let before = state(&hud.tree);
+    send(&mut hud, &mut panel, &over(true));
+    assert_eq!(state(&hud.tree), before, "nothing dragged");
+
+    // The sword's icon pressed and moved away: its drag starts (the inventory panel shown).
+    let sword = backpack.packs[0]
+        .items
+        .iter()
+        .find(|slot| slot.item == SWORD)
+        .expect("the sword in the pack")
+        .icon;
+    let tree = &mut hud.tree;
+    let mut at = Some(sword);
+    while let Some(e) = at {
+        tree.set_visible(e, true);
+        at = tree.get(e).unwrap().parent;
+    }
+    let b = tree.screen_box(sword);
+    let (x, y) = ((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2);
+    tree.start_input(crate::UI_POINTER_X, x as f32);
+    tree.start_input(crate::UI_POINTER_Y, y as f32);
+    tree.start_input(0x4000_0004, 1.0);
+    tree.start_input(crate::UI_POINTER_X, (x + 40) as f32);
+    tree.start_input(crate::UI_POINTER_Y, (y + 40) as f32);
+    assert!(tree.dragged().is_some(), "the sword is dragged");
+    send(&mut hud, &mut panel, &over(true));
+    assert_eq!(state(&hud.tree), tokenize("selected"));
+    send(&mut hud, &mut panel, &over(false));
+    assert_eq!(state(&hud.tree), tokenize("stateless"));
+}
