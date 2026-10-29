@@ -119,6 +119,9 @@ pub(crate) struct PhysicsObj {
     /// element without one; this port takes the element at once instead so tableless bodies
     /// still swim and fall.
     pub element: u32,
+    /// `CPhysicsObj::m_bElementChanged`: set at creation and by a `DoElement` toward another
+    /// element, cleared once the object has placed its children (`PrepareObjectForDrawing`).
+    pub(crate) element_changed: bool,
     pub motion: MotionInterp,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
@@ -225,6 +228,7 @@ impl PhysicsObj {
             impact_speed: None,
             collision_manager: Default::default(),
             element: ELEMENT_GROUND,
+            element_changed: true,
             motion,
             anim: AnimRep::unanimated(),
             interp: None,
@@ -298,7 +302,13 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::DoElement` (`ModeTracker::DoElement`: a mode transition toward `element`).
+    /// An element other than the current one makes the body animation-active and marks the
+    /// element changed for its held children (`CPhysicsObj::UpdateChild`).
     pub(crate) fn do_element(&mut self, element: u32) {
+        if element != self.current_element() {
+            self.set_animation_active();
+            self.element_changed = true;
+        }
         if self.anim.can_animate() {
             self.anim.do_element(element);
             self.sync_mode();

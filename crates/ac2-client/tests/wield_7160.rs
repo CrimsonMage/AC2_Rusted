@@ -24,9 +24,16 @@ fn spawn() -> Spawn {
     }
 }
 
-/// The character's hand: the bone furthest along +x at bind that carries a holding point (the
-/// right arm's hand, bone 29 of the human Setup), and the first holding point the Setup lists on it.
-fn hand_location(store: &ResourceStore, visual: u32) -> (u32, usize) {
+/// The right hand's holding location: `CPhysicsObj::UpdateChild` treats locations 1 and 2 as
+/// the hands (its water fade), and the human Setup lists 1 on `rweaponholder` and 2 on
+/// `lweaponholder` (`gmbonetype` 0x81000002 / 0x81000003).
+const RIGHT_HAND: u32 = 1;
+
+/// `gmbonetype` `rweaponholder`.
+const RIGHT_WEAPON_HOLDER: u32 = 0x8100_0002;
+
+/// The bone the character's root Setup hangs `location` from, and that bone's name.
+fn holding_bone(store: &ResourceStore, visual: u32, location: u32) -> (usize, u32) {
     // The character's visual is a VisualDesc: its root part group's Setup lists the holding points
     // (`CPartArray::GetHoldingLocation` on the root group).
     let groups = ac2_render::object::resolve_drawn_groups(store, DataId::new(visual), None)
@@ -40,19 +47,12 @@ fn hand_location(store: &ResourceStore, visual: u32) -> (u32, usize) {
         ))
         .expect("the character's Setup reads")
         .expect("the character's Setup");
-    let rest = setup.rest_pose();
-    let hand = setup
-        .holding_points
-        .iter()
-        .map(|point| point.bone)
-        .max_by(|&a, &b| rest[a].offset.x.total_cmp(&rest[b].offset.x))
-        .expect("a holding point on the character");
     let point = setup
         .holding_points
         .iter()
-        .find(|point| point.bone == hand)
-        .expect("a holding point on the hand");
-    (point.id, hand)
+        .find(|point| point.id == location)
+        .expect("the character's Setup lists the location");
+    (point.bone, setup.bones[point.bone].name)
 }
 
 #[test]
@@ -75,14 +75,23 @@ fn a_character_wields_an_item_from_its_hand() {
         .as_ref()
         .and_then(|player| player.visual)
         .expect("the character's visual");
-    let (location, bone) = hand_location(&store, visual);
+    let location = RIGHT_HAND;
+    let (bone, name) = holding_bone(&store, visual, location);
+    assert_eq!(name, RIGHT_WEAPON_HOLDER, "location 1 is on the right weapon holder");
 
     server.borrow_mut().wield(GROUND_ITEM, PLAYER, location, 0);
     // The item's holder point needs the character's body in (the loader thread); wait on it with
     // a frame budget.
     let mut point = None;
+    let mut parented = false;
     for _ in 0..600 {
-        step(&mut client, &server, &FrameInput::default());
+        // `CPhysicsObj::RecvEvt_Parent` takes the parent once (`set_parent`).
+        parented |= step(&mut client, &server, &FrameInput::default()).contains(
+            &ac2_weenie::SessionEvent::ObjectParented {
+                child: GROUND_ITEM,
+                holder: PLAYER,
+            },
+        );
         point = client
             .frame()
             .objects
@@ -104,5 +113,12 @@ fn a_character_wields_an_item_from_its_hand() {
     assert_eq!(holder.id, PLAYER);
     assert_eq!(holder.location, location);
     let point = point.expect("the character's hand is a holding point of its body");
+    assert!(parented, "the Parent was taken");
     assert_eq!(point.bone, bone, "the item hangs from the hand bone");
+    assert_eq!(point.group, 0, "the hand is the root Setup's");
+    assert_eq!(
+        point.transform,
+        ac2_anim::Ac2Transform::IDENTITY,
+        "location 1 sits on the bone itself"
+    );
 }

@@ -154,6 +154,32 @@ impl PhysicsBody {
         })
     }
 
+    /// [`Self::holding_point_in_parts`] with the bone matrix `CPartArray::GetHoldingLocation`
+    /// hands back with it: the listing group's `m_boneMatrices` entry on the group's matrix
+    /// (model space, unscaled; the identity group matrix for the root), as the transform
+    /// `CPhysicsObj::UpdateChild` composes the location with. The tree's matrices must be
+    /// current (`check_refresh_matrices`).
+    pub fn holding_bone_in_parts(
+        &self,
+        location: u32,
+    ) -> Option<(HoldPoint, ac2_anim::Ac2Transform)> {
+        let tree = self.part_group()?;
+        let found = tree.get_holding_location(0, location)?;
+        let matrix = *tree.group(found.group)?.matrix() * found.bone_matrix;
+        let (_, rotation, offset) = matrix.to_scale_rotation_translation();
+        let point = HoldPoint {
+            group: found.group,
+            bone: found.location.bone,
+            transform: found.location.transform,
+        };
+        let bone = ac2_anim::Ac2Transform {
+            offset,
+            scale: ac2_math::Vec3::ONE,
+            rotation,
+        };
+        Some((point, bone))
+    }
+
     /// The tree's holding locations in `CPartGroup::GetHoldingLocation`'s search order, as the
     /// list [`crate::find_holding_point`] searches.
     pub fn group_holdings(&self) -> Vec<GroupHolding> {

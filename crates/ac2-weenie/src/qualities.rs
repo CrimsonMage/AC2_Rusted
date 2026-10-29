@@ -34,6 +34,12 @@ pub struct WeenieQualities {
 /// The bool quality `CBaseQualities::IsMobile` asks for.
 const MOBILE_QUALITY: u32 = 8;
 
+/// The int quality `CWInterface` reads the weenie type from.
+const WEENIE_TYPE_QUALITY: u32 = 0x14;
+
+/// `CWInterface::IsPlayer`'s weenie type bits.
+const PLAYER_TYPE: i32 = 0x1F;
+
 fn table<T: Clone>(pairs: &[(u32, T)]) -> BTreeMap<u32, T> {
     pairs.iter().cloned().collect()
 }
@@ -56,6 +62,12 @@ impl WeenieQualities {
     /// quality leaves the default 1).
     pub fn is_mobile(&self) -> bool {
         self.inq_bool(MOBILE_QUALITY).unwrap_or(1) != 0
+    }
+
+    /// `CWInterface::IsPlayer`: the weenie type (int quality 0x14) has all of 0x1F.
+    pub fn is_player(&self) -> bool {
+        self.inq_int(WEENIE_TYPE_QUALITY)
+            .is_some_and(|t| t & PLAYER_TYPE == PLAYER_TYPE)
     }
 
     /// `CBaseQualities::operator=` from an unpacked `CBaseQualities` (`CopyWeenieDesc`, then

@@ -11,7 +11,7 @@
 use std::collections::{BTreeMap, VecDeque};
 
 use ac2_net::protocol::{
-    Build, CreateObject, InstanceIdWithStamp, Opcode, PropertyTypes, ServerEvent,
+    Build, CreateObject, InstanceIdWithStamp, ObjectAction, Opcode, PropertyTypes, ServerEvent,
 };
 use ac2_net::{is_cell, is_out_of_world, ORDERING_VISUAL};
 use ac2_net::{ordering_stamp, ordering_type, Blob, ORDERING_ORDERED, ORDERING_UNORDERED};
@@ -46,6 +46,8 @@ pub enum WorldEvent {
     ForceCreate(u64),
     /// `CObjectMaint::DestroyObjectInternal` removed the object (`HandlePendingDeletion`).
     Destroyed(u64),
+    /// `CPhysicsObj::RecvEvt_Parent` accepted a parent for `child` (before its `Dispatched`).
+    Parented { child: u64, holder: u64 },
 }
 
 /// `ObjectEventQueue`: blobs held for an object, when the last arrived, and whether any is not
@@ -483,9 +485,24 @@ impl World {
                     return;
                 }
                 let is_player = Some(object.sender.id) == self.player;
+                let stamp = |objects: &ObjectTable| {
+                    objects
+                        .get(object.sender.id)
+                        .map(|o| o.update_times[crate::objects::STAMP_POSITION])
+                };
+                let before = stamp(&self.objects);
                 let left = self
                     .objects
                     .apply_action(object.sender.id, &object.action, is_player);
+                // `CPhysicsObj::RecvEvt_Parent` took the parent (its position stamp moved on).
+                if let ObjectAction::Parent { parent, .. } = &object.action {
+                    if stamp(&self.objects) != before {
+                        self.out.push(WorldEvent::Parented {
+                            child: object.sender.id,
+                            holder: parent.id,
+                        });
+                    }
+                }
                 // `RecvEvt_LeaveWorld` / `RecvEvt_DeParent`: `LeaveWorld` queues the object for
                 // destruction (`CBookKeep::HandleLeaveWorld`).
                 if let Some(left) = left {

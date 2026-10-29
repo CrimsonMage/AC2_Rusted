@@ -35,7 +35,7 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::set_animation_active(1)`: a static body never becomes animation-active.
-    fn set_animation_active(&mut self) {
+    pub(crate) fn set_animation_active(&mut self) {
         if self.state & STATIC_PS == 0 {
             self.transient_state |= ANIMATION_ACTIVE_TS;
         }

@@ -127,8 +127,9 @@ pub use frame::Frame;
 pub use fx_follow::{follow_frame, placed_at, FxFollow};
 pub use heading::Heading;
 pub use held::{
-    find_holding_point, has_holding_location, held_place, held_place_offset,
-    parent_drawing_position, placement_order, GroupHolding, HoldPoint,
+    find_holding_point, has_holding_location, held_element_fade, held_place, held_place_offset,
+    parent_drawing_position, placement_order, GroupHolding, HoldPoint, HolderElement,
+    HELD_FADE_SLIDER,
 };
 pub use loader::{
     load_block_interiors, load_block_objects, load_body_shape, load_object_scale,

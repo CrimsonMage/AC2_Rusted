@@ -94,6 +94,50 @@ pub fn held_place_offset(
     crate::children::update_child_frame(holder, holder_scale, &info, bone.compose(&point.transform))
 }
 
+/// `CPhysicsObj::UpdateChild`'s opacity slider for a held child (`DoSlider(0, 0x40000015, ..)`).
+pub const HELD_FADE_SLIDER: u32 = 0x4000_0015;
+
+/// The seconds `CPhysicsObj::UpdateChild` fades a held child over.
+const HELD_FADE_TIME: f32 = 0.5;
+
+/// What `CPhysicsObj::UpdateChild` reads of the holder to fade a held child.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct HolderElement {
+    /// `m_bElementChanged`.
+    pub changed: bool,
+    /// The holder has no weenie, or its weenie is a player (`CWInterface::IsPlayer`, weenie
+    /// slot `0x74`).
+    pub no_weenie_or_player: bool,
+    /// `PHYSICSOBJREP::GetDesiredElement`.
+    pub desired_element: u32,
+}
+
+/// `CPhysicsObj::UpdateChild`'s fade: when the holder's element changed, a child held at
+/// holding location 1, or at location 2 by any child type (the retail test is
+/// `(type == HOLDING_LOCATION && location == 1) || location == 2`), whose id is not temporary
+/// (`IIDUtils::VerifyTemporary`) fades out in water (`0x40000003`) and back in elsewhere, both
+/// over half a second. The slider's target and time, or `None` when nothing fades.
+pub fn held_element_fade(
+    holder: &HolderElement,
+    info: &crate::children::ChildInfo,
+    child_temporary: bool,
+) -> Option<(f32, f32)> {
+    use crate::children::ChildType;
+    use crate::motion_interp::ELEMENT_WATER;
+
+    let hand =
+        (info.kind == ChildType::HoldingLocation && info.location == 1) || info.location == 2;
+    if !holder.no_weenie_or_player || !holder.changed || !hand || child_temporary {
+        return None;
+    }
+    let target = if holder.desired_element == ELEMENT_WATER {
+        0.0
+    } else {
+        1.0
+    };
+    Some((target, HELD_FADE_TIME))
+}
+
 /// `m_posDrawing` of a parented child (`CPhysicsObj::UpdateChild`), which
 /// `CMissileManager::InitPosition` reads through `GetDrawingPosition` while the missile
 /// `HasParent`: the holder's drawing position in its cell, then the child's holding matrix and
@@ -251,6 +295,45 @@ mod tests {
             (scaled.origin - Vec3::new(10.0, 2.0, 0.0)).length() < 1e-5,
             "{scaled:?}"
         );
+    }
+
+    #[test]
+    fn a_hand_held_child_fades_out_in_water_and_back_in_elsewhere() {
+        use super::{held_element_fade, HolderElement};
+        use crate::children::{ChildInfo, ChildType};
+        const WATER: u32 = 0x4000_0003;
+        const GROUND: u32 = 0x4000_0001;
+        let holder = |changed, no_weenie_or_player, desired_element| HolderElement {
+            changed,
+            no_weenie_or_player,
+            desired_element,
+        };
+        let right = ChildInfo::holding(9, 1);
+        let left = ChildInfo::holding(9, 2);
+        assert_eq!(
+            held_element_fade(&holder(true, true, WATER), &right, false),
+            Some((0.0, 0.5))
+        );
+        assert_eq!(
+            held_element_fade(&holder(true, true, GROUND), &left, false),
+            Some((1.0, 0.5))
+        );
+        // Nothing fades while the element is unchanged, for a holder whose weenie is not a
+        // player, for a temporary child, or off the hands.
+        assert_eq!(held_element_fade(&holder(false, true, WATER), &right, false), None);
+        assert_eq!(held_element_fade(&holder(true, false, WATER), &right, false), None);
+        assert_eq!(held_element_fade(&holder(true, true, WATER), &right, true), None);
+        let back = ChildInfo::holding(9, 4);
+        assert_eq!(held_element_fade(&holder(true, true, WATER), &back, false), None);
+        // Retail tests the child type for location 1 only: a bone-index child on bone 2 fades,
+        // one on bone 1 does not.
+        let bone = |location| ChildInfo {
+            kind: ChildType::BoneIndex,
+            location,
+            ..ChildInfo::holding(9, 0)
+        };
+        assert!(held_element_fade(&holder(true, true, WATER), &bone(2), false).is_some());
+        assert!(held_element_fade(&holder(true, true, WATER), &bone(1), false).is_none());
     }
 
     #[test]

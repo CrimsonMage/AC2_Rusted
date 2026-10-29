@@ -339,6 +339,37 @@ fn a_destroyed_objects_children_are_queued_for_destruction() {
     assert_eq!(world.use_time(65.0), [WorldEvent::Destroyed(child)]);
 }
 
+/// `CPhysicsObj::RecvEvt_Parent` reports the parent it took (on a newer position stamp) before
+/// the event's dispatch, and nothing for a stale stamp.
+#[test]
+fn a_taken_parent_is_reported_and_a_stale_one_is_not() {
+    let npc = 0x7000_0000_0000_0042;
+    let child = 0x7000_0000_0000_0043;
+    let mut world = world_with(npc);
+    world.receive(blob(0x0300_0004, 4, create_object(child, 1, 0)), 10.0);
+    let parent = |stamp: u16| {
+        let mut b = npc.to_le_bytes().to_vec();
+        b.extend(4u16.to_le_bytes());
+        b.extend(stamp.to_le_bytes());
+        b.extend(1u32.to_le_bytes()); // location: the right hand
+        b.extend(0u32.to_le_bytes()); // orientation
+        object_event(0x0001_0087, child, 1, &b)
+    };
+    let events = world.receive(blob(0x0300_0005, 5, parent(1)), 10.0);
+    assert!(matches!(
+        events.as_slice(),
+        [
+            WorldEvent::Parented { child: c, holder: h },
+            WorldEvent::Dispatched(ServerEvent::Object(_)),
+        ] if *c == child && *h == npc
+    ));
+    let events = world.receive(blob(0x0300_0006, 6, parent(1)), 10.0);
+    assert!(
+        matches!(events.as_slice(), [WorldEvent::Dispatched(ServerEvent::Object(_))]),
+        "{events:?}"
+    );
+}
+
 #[test]
 fn leave_world_on_a_newer_stamp_queues_the_object_for_destruction() {
     let npc = 0x7000_0000_0000_0042;

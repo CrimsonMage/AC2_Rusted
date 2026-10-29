@@ -2595,7 +2595,7 @@ Legend and workflow: [README](README.md).
 - [x] `CWInterface::SendServerEvt` · 0052e570 · legions 005128b0 — implemented: cited at crates/ac2-net/src/protocol/gameplay/mod.rs:5
 - [x] `CWInterface::SendServerEvtEncrypt` · 0052e590 · legions 005128d0 — ac2-script host/glue.rs SendServerEvt[Encrypt] efun -> ScriptPort::send_interp(encrypt) -> ClientEvent::Interp (queue 7, 0x100D0); bytes asserted in ac2-net client_event tests
 - [x] `CWInterface::GetInternalWeenieObject` · 0052e5b0 · legions 005128f0 — implemented: cited at crates/ac2-script/src/host/interface.rs:277
-- [x] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920 — implemented: cited at crates/ac2-weenie/src/objects.rs:83
+- [x] `CWInterface::IsPlayer` · 0052e5e0 · legions 00512920 — WeenieQualities::is_player
 - [x] `CWInterface::IsCreature` · 0052e600 · legions 00512940 — implemented: cited at crates/ac2-weenie/src/session/gameplay.rs:21
 - [x] `CWInterface::IsThePlayer` · 0052e620 · legions 00512960 — implemented: cited at crates/ac2-script/src/host/interface.rs:266
 - [x] `CWInterface::OnStatChanged` · 0052e660 · legions 005129a0 — ac2-client stat_changed: OnStatChanged (IFun 0x7F0044: table, quality) on the object's process once the VM has it (CPlayer 0x85: vitals, XP bar, vitae, skill panel); the session's stand-ins otherwise

@@ -324,6 +324,9 @@ impl Client {
             }
             _ => false,
         };
+        if let SessionEvent::ObjectParented { child, holder } = event {
+            self.take_holder_mode(*child, *holder);
+        }
         let (remotes, mut cx) = self.remote_context();
         match event {
             SessionEvent::ObjectAdded(id) => remotes.added(*id, &mut cx),
@@ -626,6 +629,76 @@ impl Client {
         }
     }
 
+    /// The holder's body: the player's or a remote object's.
+    fn holder_body(&self, holder: u64) -> Option<&ac2_physics::PhysicsBody> {
+        match self.player.as_ref().filter(|p| p.id == holder) {
+            Some(player) => player.body.as_ref().map(|b| &b.physics),
+            None => self.remotes.get(holder)?.body(),
+        }
+    }
+
+    /// `CPhysicsObj::set_parent`'s last step: a child with a physics representation takes its
+    /// new holder's mode (`DoMode(0, parent->GetMode())`), so a wielded item follows its
+    /// holder's combat or peace mode.
+    fn take_holder_mode(&mut self, child: u64, holder: u64) {
+        let Some(mode) = self.holder_body(holder).map(ac2_physics::PhysicsBody::mode) else {
+            return;
+        };
+        if let Some(body) = self.remotes.body_mut(child) {
+            body.do_mode(0, mode);
+        }
+    }
+
+    /// `CPhysicsObj::PrepareObjectForDrawing`'s child loop for every holder with children:
+    /// `CPhysicsObj::UpdateChild` fades a hand-held child out while its holder is in water and
+    /// back in when it leaves ([`ac2_physics::held_element_fade`]), then the holder's
+    /// `m_bElementChanged` is cleared. The children's places are the view's
+    /// ([`Client::held_drawing_position`] for the missiles).
+    pub(crate) fn update_held_children(&mut self) {
+        let player_id = self.player.as_ref().map(|p| p.id);
+        let holders: Vec<u64> = player_id
+            .into_iter()
+            .chain(self.remotes.iter().map(|(id, _)| id))
+            .collect();
+        for holder in holders {
+            let links = self.session.objects().links();
+            let children: Vec<ac2_physics::ChildInfo> =
+                links.children_of(holder).copied().collect();
+            if children.is_empty() {
+                continue;
+            }
+            let Some(body) = self.holder_body(holder) else {
+                continue;
+            };
+            // `m_pWeenieObj` slot `0x74` is `CWInterface::IsPlayer`; a client-made object has
+            // no weenie.
+            let weenie = self.session.objects().get(holder).map(|o| &o.qualities);
+            let element = ac2_physics::HolderElement {
+                changed: body.element_changed(),
+                no_weenie_or_player: weenie.is_none_or(ac2_weenie::WeenieQualities::is_player),
+                desired_element: body.desired_element(),
+            };
+            for info in &children {
+                let temporary = ac2_smartbox::temporary_ids::is_temporary(info.id);
+                let Some((target, time)) =
+                    ac2_physics::held_element_fade(&element, info, temporary)
+                else {
+                    continue;
+                };
+                if let Some(child) = self.remotes.body_mut(info.id) {
+                    child.do_slider(0, ac2_physics::HELD_FADE_SLIDER, target, time);
+                }
+            }
+            let body = match self.player.as_mut().filter(|p| p.id == holder) {
+                Some(player) => player.body.as_mut().map(|b| &mut b.physics),
+                None => self.remotes.body_mut(holder),
+            };
+            if let Some(body) = body {
+                body.clear_element_changed();
+            }
+        }
+    }
+
     /// `CPhysicsObj::m_posDrawing` of each missile that `HasParent`: where the holder's holding
     /// location puts it, which `CMissileManager::InitPosition` starts the flight from. The child
     /// graph is the session's object table; a missile without a parent has none. The story
@@ -657,23 +730,20 @@ impl Client {
         holder: u64,
         info: &ac2_physics::ChildInfo,
     ) -> Option<ac2_physics::Position> {
-        let holder_body = match self.player.as_ref().filter(|p| p.id == holder) {
-            Some(player) => &player.body.as_ref()?.physics,
-            None => self.remotes.get(holder)?.body()?,
-        };
+        let holder_body = self.holder_body(holder)?;
         let position = holder_body.drawing_position(self.render_interpolation);
-        let point = self.holding_point(holder, info.location);
         // The bone the child rides, posed: a bone-index child's own bone, a holding location's
-        // bone in the root group (`CPartArray::GetHoldingLocation` composes it with the bone's
-        // matrix). Identity while the holder's parts are not in.
-        let bone = match info.kind {
-            ac2_physics::ChildType::BoneIndex => holder_body.bone_transform(info.location),
-            _ => point
-                .as_ref()
-                .filter(|p| p.group == 0)
-                .and_then(|p| holder_body.bone_transform(p.bone as u32)),
-        }
-        .unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
+        // bone in the group that lists it (`CPartGroup::GetHoldingLocation` hands back that
+        // group's bone matrix). The rest of the Setup's location, on the identity, while the
+        // holder's parts are not in.
+        let (point, bone) = match info.kind {
+            ac2_physics::ChildType::BoneIndex => (None, holder_body.bone_transform(info.location)),
+            _ => match holder_body.holding_bone_in_parts(info.location) {
+                Some((point, bone)) => (Some(point), Some(bone)),
+                None => (self.holding_point(holder, info.location), None),
+            },
+        };
+        let bone = bone.unwrap_or(ac2_anim::Ac2Transform::IDENTITY);
         ac2_physics::parent_drawing_position(
             &position,
             holder_body.object_view().scale,

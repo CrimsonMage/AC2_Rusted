@@ -833,6 +833,7 @@ impl Client {
     /// frame-drawn notice (`gmGamePlayUI::RecvNotice_NextFrameDrawn` sends
     /// `SceneRenderingComplete`).
     fn render(&mut self) {
+        self.update_held_children();
         if std::mem::take(&mut self.want_frame_drawn) {
             self.session.scene_ready();
             self.notices.push(Notice::NextFrameDrawn);

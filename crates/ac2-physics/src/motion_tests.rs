@@ -236,3 +236,21 @@ fn a_locking_behaviour_on_the_player_emits_lock_events() {
         "{events:?}"
     );
 }
+
+#[test]
+fn a_change_of_element_marks_the_body_for_its_held_children() {
+    const WATER: u32 = 0x4000_0003;
+    let Some(mut body) = human(false) else {
+        return;
+    };
+    // `m_bElementChanged` starts set; `PrepareObjectForDrawing` clears it.
+    assert!(body.element_changed());
+    body.clear_element_changed();
+    // `CPhysicsObj::DoElement` marks only an element other than the current one.
+    let current = body.current_element();
+    body.with_object(|object| object.do_element(current));
+    assert!(!body.element_changed());
+    body.with_object(|object| object.do_element(WATER));
+    assert!(body.element_changed());
+    assert_eq!(body.desired_element(), WATER);
+}

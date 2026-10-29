@@ -129,6 +129,12 @@ pub enum SessionEvent {
     /// `ECM_Physics::RecvEvt_Contain`: the object went into the player's inventory (out of the
     /// world).
     ObjectContained(u64),
+    /// `CPhysicsObj::RecvEvt_Parent` accepted `holder` as the parent of `child`
+    /// (`CPhysicsObj::set_parent`), before the event's [`SessionEvent::ObjectAction`].
+    ObjectParented {
+        child: u64,
+        holder: u64,
+    },
     /// `CObjectMaint::DestroyObjectInternal`: the object is gone (destroyed by the server, or
     /// out of view for 25 s).
     ObjectRemoved(u64),
@@ -528,6 +534,10 @@ impl OnlineSession {
             WorldEvent::Destroyed(id) => {
                 self.script.forget_object(id);
                 out.push(SessionEvent::ObjectRemoved(id));
+                return;
+            }
+            WorldEvent::Parented { child, holder } => {
+                out.push(SessionEvent::ObjectParented { child, holder });
                 return;
             }
         };

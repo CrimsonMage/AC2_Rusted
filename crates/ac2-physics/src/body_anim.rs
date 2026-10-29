@@ -280,6 +280,23 @@ impl PhysicsBody {
         self.object.current_element()
     }
 
+    /// `PHYSICSOBJREP::GetDesiredElement`: the element the body is moving toward.
+    pub fn desired_element(&self) -> u32 {
+        self.object.desired_element()
+    }
+
+    /// `CPhysicsObj::m_bElementChanged`: the body's element changed since its children were
+    /// last placed (set at creation).
+    pub fn element_changed(&self) -> bool {
+        self.object.element_changed
+    }
+
+    /// `CPhysicsObj::PrepareObjectForDrawing` clears `m_bElementChanged` once its children are
+    /// placed.
+    pub fn clear_element_changed(&mut self) {
+        self.object.element_changed = false;
+    }
+
     /// `PHYSICSOBJREP::IsDoingBehavior`.
     pub fn is_doing_behavior(&self, behavior: u32) -> bool {
         self.object.anim.modes.is_doing_behavior(behavior)
