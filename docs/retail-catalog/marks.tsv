@@ -777,7 +777,7 @@ key	status	note
 0042e9d0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 0042eb30	x	ac2-ui item_display.rs / backpack.rs
 0042ebb0	x	ac2-ui item_display.rs / backpack.rs
-0042ec10	_	Legions has it: ItemDisplay notice vtable slot 146 at 0x0042eb10 (admin slot 145, shifted by one; same size and calls)
+0042ec10	x	ac2-ui item_display.rs ItemDisplay::set_targeting_pointer (Legions 0x42eb10, m_itemIcon): the icon's usage_cursor with its hotspot, saved and restored (selection_notices.rs swap_usage_cursor); fanned out by the backpack, containers, paper doll and secure trade from GameplayNotice::SetTargetingPointer (inventory_notices.rs)
 0042ece0	x	ac2-ui item_display.rs update: waiting (ID_Item_TT_WaitingForServer when the UI table holds it, else the icon's tooltip_entry as StartTooltip falls back), icon description or icon, GetName at the forced or own quantity, pending/stateless background, dragable, selected; the object's notice registration is the session's routing
 0042eed0	x	ac2-ui item_display.rs / backpack.rs
 0042ef20	x	ac2-ui item_display.rs / backpack.rs

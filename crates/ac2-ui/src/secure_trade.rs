@@ -178,6 +178,13 @@ impl SecureTradeUi {
         self.partner_items.iter().map(|d| d.item).collect()
     }
 
+    /// `ItemDisplay::RecvNotice_SetTargetingPointer` of both lists' items.
+    pub fn set_targeting_pointer(&self, tree: &mut UiTree, on: bool) {
+        for display in self.own_items.iter().chain(&self.partner_items) {
+            display.set_targeting_pointer(tree, on);
+        }
+    }
+
     /// The requests the panel made since the last call, for the client to send.
     pub fn take_requests(&mut self) -> Vec<SecureTradeRequest> {
         std::mem::take(&mut self.requests)

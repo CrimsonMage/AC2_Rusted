@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1298 done, 327 partial, 128 to do, 494 skipped.
+2247 retail functions: 1299 done, 327 partial, 127 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -789,14 +789,14 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (12/15)
+## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (13/15)
 
 ### ItemDisplay
 - [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
 - [-] `ItemDisplay::~ItemDisplay` · 0042e9d0 · legions 0042e8b0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `ItemDisplay::ListenToMessage` · 0042eb30 · legions 0042ea10 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_SelectionChanged` · 0042ebb0 · legions 0042ea90 — ac2-ui item_display.rs / backpack.rs
-- [ ] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — Legions has it: ItemDisplay notice vtable slot 146 at 0x0042eb10 (admin slot 145, shifted by one; same size and calls)
+- [x] `ItemDisplay::RecvNotice_SetTargetingPointer` · 0042ec10 — ac2-ui item_display.rs ItemDisplay::set_targeting_pointer (Legions 0x42eb10, m_itemIcon): the icon's usage_cursor with its hotspot, saved and restored (selection_notices.rs swap_usage_cursor); fanned out by the backpack, containers, paper doll and secure trade from GameplayNotice::SetTargetingPointer (inventory_notices.rs)
 - [x] `ItemDisplay::Update` · 0042ece0 · legions 0042ebe0 — ac2-ui item_display.rs update: waiting (ID_Item_TT_WaitingForServer when the UI table holds it, else the icon's tooltip_entry as StartTooltip falls back), icon description or icon, GetName at the forced or own quantity, pending/stateless background, dragable, selected; the object's notice registration is the session's routing
 - [x] `ItemDisplay::SetItem` · 0042eed0 · legions 0042edd0 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::SetPending` · 0042ef20 · legions 0042ee20 — ac2-ui item_display.rs / backpack.rs

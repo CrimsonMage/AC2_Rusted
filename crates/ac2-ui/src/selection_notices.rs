@@ -149,9 +149,16 @@ fn item_selection_field(tree: &UiTree) -> Option<usize> {
 /// (`UIElement::RestoreSavedCursor`). Nothing happens when the field or its attributes are
 /// missing.
 pub fn set_targeting_pointer(tree: &mut UiTree, on: bool) {
-    let Some(index) = item_selection_field(tree) else {
-        return;
-    };
+    if let Some(index) = item_selection_field(tree) {
+        swap_usage_cursor(tree, index, on);
+    }
+}
+
+/// The body `gmSelectionUI` and `ItemDisplay` share (`RecvNotice_SetTargetingPointer`): on, the
+/// element's `usage_cursor` with its hotspot replaces its cursor, saved (`SaveCursor`,
+/// `SetCursor`), when all three attributes are there and the cursor is not 0; off, the saved
+/// cursor comes back (`RestoreSavedCursor`).
+pub(crate) fn swap_usage_cursor(tree: &mut UiTree, index: usize, on: bool) {
     if !on {
         let (file, x, y) = tree.el(index).saved_cursor;
         tree.set_element_cursor(index, file, x, y);

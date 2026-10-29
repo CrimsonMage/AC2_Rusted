@@ -325,3 +325,28 @@ fn a_copy_from_another_panel_dropped_on_the_pack_goes_back_to_it() {
     }
     assert_eq!(backpack.message(tree, &Elsewhere(other), &drop), None);
 }
+
+#[test]
+fn the_targeting_pointer_swaps_the_slot_icons_to_their_usage_cursor() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = std::sync::Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().unwrap();
+    let tree = &mut hud.tree;
+    let backpack = BackpackUi::create(tree, &layout, &ONE_POTION, PLAYER);
+    let icon = backpack.packs[0].items[0].icon;
+    let usage = match tree.el(icon).attribute(tokenize("usage_cursor")) {
+        Some(crate::AttributeValue::DataId(file)) => *file,
+        _ => 0,
+    };
+    assert_ne!(usage, 0, "the slot icon has a usage cursor");
+    let before = tree.el(icon).cursor;
+    // `ItemDisplay::RecvNotice_SetTargetingPointer` on every slot.
+    backpack.set_targeting_pointer(tree, true);
+    assert_eq!(tree.el(icon).cursor.0, usage);
+    assert_eq!(tree.el(icon).saved_cursor, before);
+    backpack.set_targeting_pointer(tree, false);
+    assert_eq!(tree.el(icon).cursor, before);
+}

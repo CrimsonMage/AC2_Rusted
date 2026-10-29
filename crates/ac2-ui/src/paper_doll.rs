@@ -297,6 +297,13 @@ impl PaperDollUi {
         }
     }
 
+    /// `ItemDisplay::RecvNotice_SetTargetingPointer` of the slots.
+    pub fn set_targeting_pointer(&self, tree: &mut UiTree, on: bool) {
+        for (_, display) in &self.items {
+            display.set_targeting_pointer(tree, on);
+        }
+    }
+
     /// The worn item at `location`, if any.
     pub fn item_at(&self, location: u32) -> Option<u64> {
         self.items

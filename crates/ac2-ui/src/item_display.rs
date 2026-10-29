@@ -361,6 +361,12 @@ impl ItemDisplay {
         );
     }
 
+    /// `ItemDisplay::RecvNotice_SetTargetingPointer` (Legions 0x42eb10): the icon takes its
+    /// `usage_cursor` while the targeting pointer is on, and its saved cursor back after.
+    pub fn set_targeting_pointer(&self, tree: &mut UiTree, on: bool) {
+        crate::selection_notices::swap_usage_cursor(tree, self.icon, on);
+    }
+
     /// `ItemDisplay::RecvNotice_SelectionChanged`: the icon `selected` while it is the selection.
     pub fn selection_changed(&self, tree: &mut UiTree, old: u64, new: u64) {
         if new == self.item && old != self.item {
@@ -628,6 +634,13 @@ impl ContainerDisplay {
     pub fn selection_changed(&self, tree: &mut UiTree, old: u64, new: u64) {
         for display in &self.items {
             display.selection_changed(tree, old, new);
+        }
+    }
+
+    /// `ItemDisplay::RecvNotice_SetTargetingPointer` of the slots.
+    pub fn set_targeting_pointer(&self, tree: &mut UiTree, on: bool) {
+        for display in &self.items {
+            display.set_targeting_pointer(tree, on);
         }
     }
 

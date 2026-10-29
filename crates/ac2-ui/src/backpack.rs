@@ -278,4 +278,11 @@ impl BackpackUi {
             pack.selection_changed(tree, old, new);
         }
     }
+
+    /// `ItemDisplay::RecvNotice_SetTargetingPointer` of every pack's slots.
+    pub fn set_targeting_pointer(&self, tree: &mut UiTree, on: bool) {
+        for pack in &self.packs {
+            pack.set_targeting_pointer(tree, on);
+        }
+    }
 }

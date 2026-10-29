@@ -50,6 +50,7 @@ pub fn paper_doll_notice<S: InventoryNoticeSource>(
             doll.item_changed(tree, source, item)
         }
         GameplayNotice::SelectionChanged(new) => doll.selection_changed(tree, old_selection, new),
+        GameplayNotice::SetTargetingPointer(on) => doll.set_targeting_pointer(tree, on),
         _ => {}
     }
 }
@@ -80,6 +81,7 @@ pub fn backpack_notice<S: InventoryNoticeSource>(
             backpack.selection_changed(tree, *selection, new);
             *selection = new;
         }
+        GameplayNotice::SetTargetingPointer(on) => backpack.set_targeting_pointer(tree, on),
         _ => {}
     }
 }
@@ -207,6 +209,7 @@ pub fn external_container_event<S: InventoryNoticeSource>(
                 GameplayNotice::SelectionChanged(new) => {
                     display.selection_changed(tree, selection, new);
                 }
+                GameplayNotice::SetTargetingPointer(on) => display.set_targeting_pointer(tree, on),
                 _ => {}
             }
             Vec::new()
@@ -255,6 +258,7 @@ pub fn secure_trade_notice<S: InventoryNoticeSource>(
         GameplayNotice::TradeRevoked { source: from, item } => {
             panel.recv_trade_be_revoked(tree, *from, *item);
         }
+        GameplayNotice::SetTargetingPointer(on) => panel.set_targeting_pointer(tree, *on),
         _ => {}
     }
 }
