@@ -161,6 +161,7 @@ impl ObjectRenderer {
             shadow_view: None,
             scratch_entries: Vec::new(),
             scratch_opaque: Vec::new(),
+            scratch_frills: Vec::new(),
             scratch_translucent: Vec::new(),
             scratch_instances: Vec::new(),
             scratch_model_ranks: HashMap::new(),

@@ -65,6 +65,7 @@ impl ObjectRenderer {
     /// otherwise), and `eye` is in the same shifted space.
     fn lay_out_group(&mut self, group: &DrawGroup<'_>, eye: Vec3, shift: Vec3, time: f64) {
         self.scratch_opaque.clear();
+        self.scratch_frills.clear();
         self.scratch_translucent.clear();
         let backdrop = group.sky.then(|| sky_backdrop(group.instances)).flatten();
         for (instance_index, instance) in group.instances.iter().enumerate() {
@@ -165,7 +166,11 @@ impl ObjectRenderer {
                             model: model_address,
                         };
                         if group.ordered || pass.depth_write {
-                            self.scratch_opaque.push(entry);
+                            if instance.frill_normal.is_some() && !group.ordered {
+                                self.scratch_frills.push(entry);
+                            } else {
+                                self.scratch_opaque.push(entry);
+                            }
                         } else {
                             self.scratch_translucent.push((distance, entry));
                         }
@@ -178,6 +183,11 @@ impl ObjectRenderer {
         } else {
             self.scratch_entries.append(&mut self.scratch_opaque);
         }
+        // `WorldRender::Render` draws the frills (`m_bRenderFrills`) after every opaque object
+        // and before the translucent ones. The grass blends with depth writes, so a blade drawn
+        // first in front of a body left the body failing the depth test under the blade's soft
+        // edge: ragged holes in the body where it walked through grass.
+        self.scratch_entries.append(&mut self.scratch_frills);
         self.scratch_translucent.sort_by(|a, b| b.0.total_cmp(&a.0));
         self.scratch_entries
             .extend(self.scratch_translucent.drain(..).map(|(_, entry)| entry));

@@ -310,6 +310,8 @@ pub struct ObjectRenderer {
     /// nothing. Never shrunk.
     scratch_entries: Vec<DrawEntry>,
     scratch_opaque: Vec<DrawEntry>,
+    /// The group's merged frills (`WorldRender::Render` draws them after the opaque objects).
+    scratch_frills: Vec<DrawEntry>,
     scratch_translucent: Vec<(f32, DrawEntry)>,
     scratch_instances: Vec<InstanceData>,
     /// Each model's rank by first appearance in the group being laid out.
