@@ -13,8 +13,15 @@ use crate::ambient_data::{AmbientData, AmbientSoundInfo};
 use crate::ambient_objects::{AmbSoundObject, ContinSoundManager, IntermitObject};
 use crate::manager::SoundManager;
 
-/// The ambient sounds' emitter ids (`IIDUtils` type 0x13, temporary objects).
-pub const AMBIENT_EMITTERS: u64 = 0x1300_0000_0000_0000;
+/// The ambient sounds' emitter ids: the top of the temporary id type (`IIDUtils` 0x13), clear of
+/// the ids `CObjectMaint::AllocateTemporaryID` gives the client's own objects from its bottom.
+/// Retail's ambient sounds were not objects; these ids only key their emitters.
+pub const AMBIENT_EMITTERS: u64 = 0x13FF_FF00_0000_0000;
+
+/// Whether `id` keys an ambient sound's emitter (not an object's).
+pub fn is_ambient_emitter(id: u64) -> bool {
+    id & 0xFFFF_FF00_0000_0000 == AMBIENT_EMITTERS
+}
 
 /// `AmbientSoundDesc`: one environment (sound type) and its sounds.
 #[derive(Debug, Clone)]

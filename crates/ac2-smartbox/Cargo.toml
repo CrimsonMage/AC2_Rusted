@@ -17,6 +17,7 @@ ac2-assets = { path = "../ac2-assets" }
 ac2-core = { path = "../ac2-core" }
 ac2-dat = { path = "../ac2-dat" }
 ac2-db = { path = "../ac2-db" }
+ac2-net = { path = "../ac2-net" }
 ac2-physics = { path = "../ac2-physics" }
 ac2-prefs = { path = "../ac2-prefs" }
 ac2-world = { path = "../ac2-world" }

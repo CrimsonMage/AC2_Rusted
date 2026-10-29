@@ -23,8 +23,6 @@ use crate::remote::{Context, RemoteCalls};
 /// `MISSILE_TIMEOUT_TIME` (8.0): a story missile is destroyed this long after it is made
 /// (`CObjectMaint::InitializeTemporaryObject`'s destruction queue).
 const MISSILE_TIMEOUT_TIME: f64 = 8.0;
-/// The temporary ids of story missiles (`IIDUtils` type 0x13), below the FX objects' range.
-const STORY_MISSILE_BASE: u64 = 0x13FF_FD00_0000_0000;
 /// The opacity slider a thrown weapon fades on (`CPhysicsObj::DoSlider(0, 0x40000015, ...)`).
 const OPACITY_SLIDER: u32 = 0x4000_0015;
 
@@ -36,7 +34,6 @@ pub(crate) struct Stories {
     held: HashMap<u64, Held>,
     /// The story missiles alive, by id.
     launches: BTreeMap<u64, Launch>,
-    next: u64,
 }
 
 #[derive(Default)]
@@ -294,8 +291,8 @@ impl Client {
             return None;
         }
         let position = self.story_body(object).map(|body| body.position())?;
-        self.stories.next += 1;
-        let id = STORY_MISSILE_BASE | self.stories.next;
+        // `CObjectMaint::AllocateTemporaryID`; none left, no missile.
+        let id = self.remotes.allocate_temporary_id()?;
         let player = self
             .player
             .as_ref()

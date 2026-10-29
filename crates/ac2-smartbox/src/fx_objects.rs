@@ -13,9 +13,6 @@ use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach, Ac2VisualFxParticles};
 
-/// The temporary ids the client gives the objects its FX create (`IIDUtils` type 0x13, numbered
-/// from the top of the instance range so they cannot meet the server's own).
-const FX_OBJECT_BASE: u64 = 0x13FF_FE00_0000_0000;
 /// `FXManager::StopFX`'s colour restore: each channel ramps back to 1.0 over 0.1 seconds
 /// (`PHYSICSOBJREP`'s property calls with 1.0 and 0.1).
 const RESTORE_SECONDS: f32 = 0.1;
@@ -121,7 +118,6 @@ pub struct FxObjects {
     hidden: BTreeSet<u64>,
     fades: BTreeMap<u64, Fade>,
     pending: Vec<PendingObject>,
-    next: u64,
     now: f64,
 }
 
@@ -138,7 +134,14 @@ impl FxObjects {
     /// its object is kept as the retail fallback keeps a failed one (`DoCreateObjectFX`).
     /// Returns without a record when no node has an object fact, or when the FX is running
     /// already (`DoTargettedFX` only updates a running FX's scalar).
-    pub fn start(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject], now: f64) {
+    pub fn start(
+        &mut self,
+        emitter: u64,
+        fx: u32,
+        nodes: &[Ac2FxObject],
+        now: f64,
+        ids: &mut dyn FnMut() -> Option<u64>,
+    ) {
         if !nodes.iter().any(Ac2FxObject::is_active) || self.record(emitter, fx).is_some() {
             return;
         }
@@ -152,8 +155,9 @@ impl FxObjects {
                 }
             }
             let mut target = None;
-            if node.vdesc != 0 {
-                let id = self.new_object(emitter, node);
+            // `CreateTemporaryObject` fails without a temporary id: no object.
+            if let Some(id) = (node.vdesc != 0).then(&mut *ids).flatten() {
+                self.new_object(id, emitter, node);
                 record.objects.push(id);
                 target = Some(id);
                 // `DoTargettedFX`: a non-negative lifetime ends the FX; a negative one never does.
@@ -185,7 +189,13 @@ impl FxObjects {
     /// `FXManager::DoStartupFX`'s object part, run when the object is created: each node that
     /// creates an object does so (`DoCreateObjectFX`), and the FX is recorded as a startup one,
     /// which `StopFX` leaves running. Colour and hides are not part of the startup branch.
-    pub fn start_startup(&mut self, emitter: u64, fx: u32, nodes: &[Ac2FxObject]) {
+    pub fn start_startup(
+        &mut self,
+        emitter: u64,
+        fx: u32,
+        nodes: &[Ac2FxObject],
+        ids: &mut dyn FnMut() -> Option<u64>,
+    ) {
         if self.record(emitter, fx).is_some() {
             return;
         }
@@ -194,7 +204,11 @@ impl FxObjects {
             ..FxRecord::default()
         };
         for node in nodes.iter().filter(|node| node.vdesc != 0) {
-            record.objects.push(self.new_object(emitter, node));
+            let Some(id) = ids() else {
+                continue;
+            };
+            self.new_object(id, emitter, node);
+            record.objects.push(id);
         }
         self.records.entry(emitter).or_default().insert(fx, record);
     }
@@ -286,9 +300,9 @@ impl FxObjects {
         record
     }
 
-    fn new_object(&mut self, emitter: u64, node: &Ac2FxObject) -> u64 {
-        self.next += 1;
-        let id = FX_OBJECT_BASE | self.next;
+    /// `FXManager::DoCreateObjectFX`'s `CreateTemporaryObject`: the object `id` waits to be made
+    /// at its emitter.
+    fn new_object(&mut self, id: u64, emitter: u64, node: &Ac2FxObject) {
         self.pending.push(PendingObject {
             id,
             emitter,
@@ -296,7 +310,6 @@ impl FxObjects {
             attach: node.attach,
             ramp_time: node.ramp_time,
         });
-        id
     }
 
     /// `FXManager::DestroyObject`: an object with a temporary id (`IIDUtils::VerifyTemporary`,
@@ -414,6 +427,13 @@ pub fn drawn_tint(colour: [f32; 4], anim: [f32; 4]) -> [f32; 4] {
 mod tests {
     use super::*;
 
+    /// Temporary ids, each call's distinct from every other's (`AllocateTemporaryID`).
+    fn ids() -> impl FnMut() -> Option<u64> {
+        use std::sync::atomic::{AtomicU64, Ordering};
+        static NEXT: AtomicU64 = AtomicU64::new(crate::temporary_ids::TEMPORARY_BASE);
+        || Some(NEXT.fetch_add(1, Ordering::Relaxed))
+    }
+
     fn vdesc_node(lifetime: f32) -> Ac2FxObject {
         Ac2FxObject {
             vdesc: 0x1F00_0001,
@@ -427,7 +447,7 @@ mod tests {
     #[test]
     fn a_stopped_fx_fades_and_destroys_the_objects_it_created() {
         let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], 10.0);
+        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending.len(), 1);
         assert_eq!(pending[0].emitter, 7);
@@ -456,7 +476,7 @@ mod tests {
             ramp_time: 2.0,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0);
+        fx.start(7, 9, &[node], 0.0, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending[0].ramp_time, 2.0);
     }
@@ -464,7 +484,7 @@ mod tests {
     #[test]
     fn a_startup_fx_keeps_running_through_stop() {
         let mut fx = FxObjects::default();
-        fx.start_startup(7, 9, &[vdesc_node(0.0)]);
+        fx.start_startup(7, 9, &[vdesc_node(0.0)], &mut ids());
         fx.stop(7, 9, &[], 1.0);
         assert!(fx.record(7, 9).is_some_and(|record| record.startup));
         assert!(fx.step(10.0).is_empty());
@@ -479,7 +499,7 @@ mod tests {
             hide_target: true,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0);
+        fx.start(7, 9, &[node], 0.0, &mut ids());
         let id = fx.take_pending()[0].id;
         assert!(fx.looks().hidden.contains(&id));
         fx.stop(7, 9, &[], 1.0);
@@ -496,7 +516,7 @@ mod tests {
             restore: true,
             ..Ac2FxObject::default()
         };
-        fx.start(7, 9, &[node], 0.0);
+        fx.start(7, 9, &[node], 0.0, &mut ids());
         assert_eq!(fx.colour(7, 0.5), Some([1.0, 0.5, 0.5, 1.0]));
         fx.stop(7, 9, &[node], 2.0);
         assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));
@@ -523,14 +543,15 @@ mod tests {
     fn current_fx_skips_startup_fx_and_destroy_object_wants_a_temporary_id() {
         let mut fx = FxObjects::default();
         let node = vdesc_node(10.0);
-        fx.start(1, 5, &[node], 0.0);
-        fx.start(1, 3, &[node], 0.0);
-        fx.start_startup(1, 4, &[node]);
+        fx.start(1, 5, &[node], 0.0, &mut ids());
+        fx.start(1, 3, &[node], 0.0, &mut ids());
+        fx.start_startup(1, 4, &[node], &mut ids());
         assert_eq!(fx.current_fx(1), vec![3, 5]);
         assert!(fx.current_fx(2).is_empty());
         assert!(!fx.destroy_object(0x8000_0000_0000_0001, false, 1.0));
         assert!(fx.fades.is_empty());
-        assert!(fx.destroy_object(FX_OBJECT_BASE | 1, true, 1.0));
-        assert!(fx.fades.contains_key(&(FX_OBJECT_BASE | 1)));
+        let object = fx.record(1, 5).expect("the FX runs").objects[0];
+        assert!(fx.destroy_object(object, true, 1.0));
+        assert!(fx.fades.contains_key(&object));
     }
 }

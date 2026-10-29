@@ -599,7 +599,7 @@ impl Client {
             .keys()
             .copied()
             .filter(|id| Some(*id) != player_id && remotes.get(*id).is_none())
-            .filter(|id| *id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS)
+            .filter(|id| !ac2_audio::is_ambient_emitter(*id))
             .collect();
         for id in gone {
             if let Some(fx) = audio.objects.remove(&id) {

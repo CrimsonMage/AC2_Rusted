@@ -45,13 +45,17 @@ impl Client {
             let particles = self
                 .remotes
                 .body_data(*visual)
-                .and_then(|data| data.fx_particles.as_deref());
+                .and_then(|data| data.fx_particles.clone());
+            let particles = particles.as_deref();
             for event in events {
                 match *event {
                     Ac2AnimEvent::StartFx { fx, .. } => {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
-                            self.fx_objects.start(*id, fx, &nodes, now);
+                            let remotes = &mut self.remotes;
+                            self.fx_objects.start(*id, fx, &nodes, now, &mut || {
+                                remotes.allocate_temporary_id()
+                            });
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
                             let at = self.emitter_place(*id);
                             self.fx_decals.start(
@@ -90,17 +94,20 @@ impl Client {
             .as_ref()
             .filter(|p| p.body.is_some())
             .map(|p| (p.id, p.visual));
-        for (id, visual) in player.into_iter().chain(self.remotes.bodied()) {
+        let bodied: Vec<_> = player.into_iter().chain(self.remotes.bodied()).collect();
+        for (id, visual) in bodied {
             if !self.fx_objects.mark_startup(id) {
                 continue;
             }
-            let Some(data) = self.remotes.body_data(visual) else {
+            // The tables are shared: held apart from the remotes, which make the FX's objects.
+            let Some((table, sounds)) = self
+                .remotes
+                .body_data(visual)
+                .and_then(|data| Some((data.fx_particles.clone()?, data.fx_sounds.clone())))
+            else {
                 continue;
             };
-            let Some(table) = data.fx_particles.as_deref() else {
-                continue;
-            };
-            let sounds = data.fx_sounds.as_deref();
+            let (table, sounds) = (table.as_ref(), sounds.as_deref());
             if let Some(audio) = self.audio.as_mut() {
                 if audio.light_effects {
                     audio.object_lights.extend(startup_light_starts(id, table));
@@ -123,7 +130,9 @@ impl Client {
                     .get(fx)
                     .map(|list| list.iter().map(|a| a.object).collect())
                     .unwrap_or_default();
-                self.fx_objects.start_startup(id, fx, &objects);
+                let remotes = &mut self.remotes;
+                self.fx_objects
+                    .start_startup(id, fx, &objects, &mut || remotes.allocate_temporary_id());
                 if let Some(nodes) = table.get(fx) {
                     let at = self.emitter_place(id);
                     self.fx_decals.start_startup(
@@ -146,9 +155,7 @@ impl Client {
         self.fx_objects
             .retain_startup(|id| Some(id) == player_id || remotes.tracks(id));
         let is_gone = |id: u64| {
-            Some(id) != player_id
-                && remotes.get(id).is_none()
-                && id & 0xFF00_0000_0000_0000 != ac2_audio::AMBIENT_EMITTERS
+            Some(id) != player_id && remotes.get(id).is_none() && !ac2_audio::is_ambient_emitter(id)
         };
         for id in self.fx_objects.emitters() {
             if is_gone(id) {
@@ -182,6 +189,8 @@ impl Client {
                 self.remotes.get(object.emitter).and_then(|r| r.position())
             };
             let Some(position) = placed_at(at, object.attach) else {
+                // Never made: its id goes back (`CreateTemporaryObject`'s failure path).
+                self.remotes.deallocate_temporary_id(object.id);
                 continue;
             };
             let follow = match object.attach {

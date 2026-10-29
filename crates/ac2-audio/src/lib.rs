@@ -41,7 +41,7 @@ mod music_wave_tests;
 #[cfg(test)]
 mod tests;
 
-pub use ambient::{AmbientSound, AMBIENT_EMITTERS};
+pub use ambient::{is_ambient_emitter, AmbientSound, AMBIENT_EMITTERS};
 pub use ambient_data::{
     AmbientData, AmbientSoundInfo, ContinSoundInfo, IntermitSoundInfo, SoundDesc,
 };

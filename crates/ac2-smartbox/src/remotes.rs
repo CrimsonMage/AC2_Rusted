@@ -246,6 +246,8 @@ pub struct Remotes<B> {
     masks: HashMap<u64, u64>,
     /// The cells' object lists and watchers (`CObjCell::AddObject`, `AddVoyeur`).
     membership: CellMembership,
+    /// The client-made objects' ids (`CObjectMaint::m_used_temporary_ids`).
+    temporary_ids: crate::temporary_ids::TemporaryIds,
 }
 
 impl<B> Default for Remotes<B> {
@@ -260,6 +262,7 @@ impl<B> Default for Remotes<B> {
             entity_requested: BTreeSet::new(),
             masks: HashMap::new(),
             membership: CellMembership::new(),
+            temporary_ids: Default::default(),
         }
     }
 }
@@ -434,7 +437,22 @@ impl<B> Remotes<B> {
                 terrain.remove_object(shadow);
             }
         }
-        self.local.remove(&id);
+        if self.local.remove(&id) {
+            // `CObjectMaint::DeallocateTemporaryID`.
+            self.temporary_ids.deallocate(id);
+        }
+    }
+
+    /// `CObjectMaint::AllocateTemporaryID`: an id for an object the client makes; `None` when
+    /// the temporary range is used up.
+    pub fn allocate_temporary_id(&mut self) -> Option<u64> {
+        let objects = &self.objects;
+        self.temporary_ids.allocate(|id| objects.contains_key(&id))
+    }
+
+    /// `CObjectMaint::DeallocateTemporaryID` for an id whose object was never made.
+    pub fn deallocate_temporary_id(&mut self, id: u64) {
+        self.temporary_ids.deallocate(id);
     }
 
     /// Every remote's entry in the world's object lists is brought up to date (after the

@@ -21,6 +21,7 @@ pub mod remotes;
 pub mod scene;
 pub mod target_hub;
 pub mod targeting;
+pub mod temporary_ids;
 mod world;
 
 pub use blocks::{
