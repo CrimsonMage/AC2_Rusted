@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1319 done, 315 partial, 117 to do, 496 skipped.
+2247 retail functions: 1321 done, 313 partial, 117 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [ ] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — needs port (check): StringDownload::OnTopLevelRequestFinished behaviour; implemented area ac2-ui text_data.rs but uncited
 - [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (52/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (54/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3078,7 +3078,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Text::UIElement_Text` · 005eea40 · legions 005af5d0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [~] `UIElement_Text::SetAttribute_Int` · 005eec20 · legions 005af780 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [-] `UIElement_Text::Create` · 005eed10 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [~] `UIElement_Text::InqSizewMargins` · 005eed40 · legions 005af8a0 — ac2-ui text_attr.rs text_size_with_margins: the text laid out in the element's font no wider than max_width (else the display) less the margins, plus the margins. Not ported: DetermineFont's fallback fonts (Korean_12 / 0x40000005) for glyphs the font lacks, which the text module does not model
 - [~] `UIElement_Text::UpdateScrollbars` · 005eef10 · legions 005afa70 — vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 
 ### SmartArray<GlyphLine>
@@ -3131,8 +3131,8 @@ Legend and workflow: [README](README.md).
 - [ ] `UIElement_Text::SetStringInfo` · 005f14e0 · legions 005b2010 — needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
 - [x] `UIElement_Text::AddText` · 005f1510 · legions 005b2040 — UIElement_Text::AddText done: text_attr.rs append_text
 - [x] `UIElement_Text::TruncateText` · 005f1570 · legions 005b20a0 — UIElement_Text::TruncateText done: skill_tree.rs truncate_text
-- [~] `UIElement_Text::SetText` · 005f16e0 · legions 005b2210 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-- [~] `UIElement_Text::SetText` · 005f1750 · legions 005b2280 — ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+- [x] `UIElement_Text::SetText` · 005f16e0 · legions 005b2210 — ac2-ui text_attr.rs set_text: cleared, SetFontNumAndColor(0, 0) (the string download AddStringInfowFont(si, 0) queues), the text added, the scroll bar updated
+- [x] `UIElement_Text::SetText` · 005f1750 · legions 005b2280 — ac2-ui text_attr.rs set_text_with_font(text, font, colour): the same in that font and colour (ingredient.rs's recipe label)
 - [~] `UIElement_Text::SetString` · 005f17c0 · legions 005b22f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 - [x] `UIElement_Text::MatchAttributes` · 005f1810 · legions 005b2340 — ac2-ui drag.rs copy_element: a text's drag copy takes its text when the two differ
 - [~] `UIElement_Text::SetAttribute_Bool` · 005f18c0 · legions 005b23f0 — ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces

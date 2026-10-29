@@ -506,8 +506,7 @@ impl IngredientUi {
         }
         if let Some(label) = self.child(tree, LABEL_TEXT) {
             let text = tree.get(label).and_then(|e| e.text()).unwrap_or_default();
-            tree.set_font_num_and_color(label, 0, self.name_color);
-            tree.set_text(label, &text);
+            tree.set_text_with_font(label, &text, 0, self.name_color);
         }
     }
 

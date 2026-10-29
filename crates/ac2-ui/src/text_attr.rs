@@ -81,10 +81,22 @@ impl UiTree {
         }
     }
 
-    /// `UIElement_Text::SetText`: the element's text replaced, in its current font. The
-    /// vertical bar follows the new paper (retail updates it when the glyphs are recalculated,
-    /// `RecalculateGlyphList` -> `UpdateScrollbars`).
+    /// `UIElement_Text::SetText(text)`: the element's text replaced, in font 0 and colour 0
+    /// (`ClearAllText`, then `AddStringInfowFont(si, 0)`, whose string download applies
+    /// `SetFontNumAndColor(0, 0)` before the text). The vertical bar follows the new paper
+    /// (retail updates it when the glyphs are recalculated, `RecalculateGlyphList` ->
+    /// `UpdateScrollbars`).
     pub fn set_text(&mut self, index: usize, text: &str) {
+        self.set_text_with_font(index, text, 0, 0);
+    }
+
+    /// `UIElement_Text::SetText(text, fontNumber, colorNumber)`: the element's text replaced, in
+    /// that font and colour.
+    pub fn set_text_with_font(&mut self, index: usize, text: &str, font_num: u32, color_num: u32) {
+        if self.el(index).text.is_none() {
+            return;
+        }
+        self.set_font_num_and_color(index, font_num, color_num);
         let units: Vec<u16> = text.encode_utf16().collect();
         if let Some(state) = self.el_mut(index).text.as_mut() {
             state.clear();

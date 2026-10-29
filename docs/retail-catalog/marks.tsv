@@ -9925,7 +9925,7 @@ key	status	note
 005eea40	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eec20	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005eed10	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005eed40	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+005eed40	~	ac2-ui text_attr.rs text_size_with_margins: the text laid out in the element's font no wider than max_width (else the display) less the margins, plus the margins. Not ported: DetermineFont's fallback fonts (Korean_12 / 0x40000005) for glyphs the font lacks, which the text module does not model
 005eef10	~	vertical bar only (text_scroll.rs): position x (paper - (y1 - y0 + 1)) as admin 7148 0x005F0790 and 0x005EDC40 read; horizontal bar, widget size (thumb keeps its own), page messages from the bar's track not modelled. The bar is found across the UI (named_scrollbar)
 005eef60	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 005eefd0	_	needs port (check): UIElement_Text::SetAttribute_ID behaviour; implemented area ac2-ui text.rs / text_attr.rs / text_scroll.rs but uncited
@@ -9974,8 +9974,8 @@ key	status	note
 005f14e0	_	needs port (check): UIElement_Text::SetStringInfo overload; chat_window.rs prefill_entry cites two overloads
 005f1510	x	UIElement_Text::AddText done: text_attr.rs append_text
 005f1570	x	UIElement_Text::TruncateText done: skill_tree.rs truncate_text
-005f16e0	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
-005f1750	~	ac2-ui reticle.rs: no off-screen indicator, meters, radar-look colour or quantity; name plates and damage text not ported
+005f16e0	x	ac2-ui text_attr.rs set_text: cleared, SetFontNumAndColor(0, 0) (the string download AddStringInfowFont(si, 0) queues), the text added, the scroll bar updated
+005f1750	x	ac2-ui text_attr.rs set_text_with_font(text, font, colour): the same in that font and colour (ingredient.rs's recipe label)
 005f17c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
 005f1810	x	ac2-ui drag.rs copy_element: a text's drag copy takes its text when the two differ
 005f18c0	~	ac2-ui text.rs: no editing, cursor, selection, scrolling, fallback fonts, string variables or server downloads; A8R8G8B8 surfaces
