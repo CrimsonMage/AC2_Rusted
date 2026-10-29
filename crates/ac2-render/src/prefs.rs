@@ -246,7 +246,7 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         enumeration(0x4000_004D, LEVELS_3, 1),
         enumeration(0x4000_004E, LEVELS_3, 1),
         enumeration(WATER_REFLECTIONS, WATER, 0),
-        enumeration(0x4000_005D, SHORE, 1),
+        enumeration(LANDSCAPE_SHORE_EFFECTS, SHORE, 1),
         enumeration(DYNAMIC_OBJECT_SHADOWS, OBJECT_SHADOWS, 0),
         enumeration(0x4000_0076, LEVELS_3, 1),
         enumeration(LANDSCAPE_DRAW_DISTANCE, LANDSCAPE_DRAW, 2),
@@ -375,6 +375,8 @@ pub struct SceneOptions {
     pub light_source_effects: bool,
     /// `WaterReflections`: 0 none, 1 the reflection, 2 rippled as well.
     pub water_reflections: u8,
+    /// `LandscapeShoreEffects`: 2 draws the breaking water on the shores.
+    pub shore_effects: u8,
 }
 
 impl Default for SceneOptions {
@@ -392,6 +394,7 @@ impl Default for SceneOptions {
             cloud_shadows: false,
             light_source_effects: true,
             water_reflections: 2,
+            shore_effects: 2,
         }
     }
 }
@@ -457,6 +460,10 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
             _ => defaults.water_reflections,
         },
+        shore_effects: match bank.find(LANDSCAPE_SHORE_EFFECTS).map(|pref| &pref.value) {
+            Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
+            _ => defaults.shore_effects,
+        },
     }
 }
 
@@ -468,6 +475,8 @@ fn flag(bank: &PreferenceBank, key: u32, default: bool) -> bool {
     }
 }
 
+/// `ID_Graphics_LandscapeShoreEffects`.
+pub const LANDSCAPE_SHORE_EFFECTS: u32 = 0x4000_005D;
 /// `ID_Graphics_WaterReflections`.
 pub const WATER_REFLECTIONS: u32 = 0x4000_0021;
 /// `ID_Graphics_LandscapeStaticObjectShadows`.

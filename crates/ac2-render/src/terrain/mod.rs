@@ -6,6 +6,7 @@ mod heights;
 mod layers;
 mod mesh;
 mod shadow;
+mod shore;
 
 pub use far::{
     far_radius_for_draw_distance, FarTerrain, FarVertex, FarVertices, FIRST_FAR_CHUNK, NEAR_RADIUS,
@@ -14,6 +15,7 @@ pub use heights::TerrainHeights;
 pub use layers::{terrain_layers, AlphaRotation, Corners, TerrainLayer, TerrainLayers};
 pub use mesh::{build_terrain_mesh, TerrainBatch, TerrainMesh, TerrainVertex};
 pub use shadow::{self_shadow_factor, shadow_light_bit, vertex_shadow_alpha};
+pub use shore::{generate_shore, Shore, ShoreStrip};
 
 #[cfg(test)]
 mod real_data_tests;

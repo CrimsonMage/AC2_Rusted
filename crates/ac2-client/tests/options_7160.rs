@@ -295,6 +295,8 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
             cloud_shadows: false,
             // `WaterReflections` registers at 0.
             water_reflections: 0,
+            // `LandscapeShoreEffects` registers at 1.
+            shore_effects: 1,
             ..ac2_render::prefs::SceneOptions::default()
         },
         "the scene's defaults until the page changes them"

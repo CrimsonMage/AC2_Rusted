@@ -12,6 +12,7 @@ mod loader;
 mod lod;
 mod object_lights;
 mod particles;
+pub(crate) mod shore_strips;
 #[cfg(test)]
 mod tests;
 
@@ -111,6 +112,9 @@ pub struct SceneFrame {
     pub coronas: Vec<(BlockKey, CellCorona)>,
     /// The water the frame reflects (`LScapeRender::FindReflectionPlane`), when there is one.
     pub reflection: Option<ReflectionPlane>,
+    /// The breaking water on the shores, drawn after the water (`LScapeTerrainMesh::DrawWater`
+    /// then `DrawShore(true)`).
+    pub shore: Option<ParticleBatch>,
 }
 
 /// The frame's reflecting water: its height, the `WaterReflections` level, and the resident
@@ -203,6 +207,11 @@ pub struct WorldScene {
     /// The light pools' materials at day, dusk and night, once loaded, and whether they draw
     /// (`LightSourceEffects`).
     light_decal_materials: Option<[DataId; 3]>,
+    /// The shore's material once loaded, `LandscapeShoreEffects`, and the strips of the near
+    /// blocks they were made for.
+    shore_material: Option<DataId>,
+    shore_effects: u8,
+    shore: Option<shore_strips::ShoreCache>,
     light_source_effects: bool,
     /// `WaterReflections`.
     water_reflections: u8,
@@ -261,6 +270,9 @@ impl WorldScene {
             rain: RainField::default(),
             rain_material: None,
             light_decal_materials: None,
+            shore_material: None,
+            shore_effects: defaults.shore_effects,
+            shore: None,
             light_source_effects: defaults.light_source_effects,
             water_reflections: defaults.water_reflections,
             rain_splash: None,
@@ -269,6 +281,7 @@ impl WorldScene {
         };
         scene.request(Request::Rain);
         scene.request(Request::LightDecalMaterials);
+        scene.request(Request::ShoreMaterial);
         scene
     }
 
@@ -280,6 +293,7 @@ impl WorldScene {
         self.frill = options.frill;
         self.light_source_effects = options.light_source_effects;
         self.water_reflections = options.water_reflections;
+        self.shore_effects = options.shore_effects;
         self.degrades.options = options.degrade;
         if options.far_radius == self.far_radius {
             return;
@@ -429,6 +443,12 @@ impl WorldScene {
             Loaded::Model(visual, model, _) => self.note_model(*visual, model.as_ref()),
             Loaded::Far(far) => self.far_bounds = far.layout.chunk_bounds(&far.vertices),
             Loaded::Layout | Loaded::Rain(..) | Loaded::Images(_) => {}
+            Loaded::ShoreMaterial(material) => {
+                self.shore_material = Some(*material);
+                if material.raw() != 0 {
+                    self.request_material(*material);
+                }
+            }
             Loaded::LightDecalMaterials(materials) => {
                 self.light_decal_materials = Some(*materials);
                 for material in *materials {
@@ -768,7 +788,7 @@ impl WorldScene {
         if !flare_images.is_empty() {
             self.request(Request::Images(flare_images));
         }
-        let terrain = keys
+        let terrain: Vec<BlockKey> = keys
             .iter()
             .copied()
             .filter(|k| self.blocks[k].terrain)
@@ -797,22 +817,10 @@ impl WorldScene {
             );
         }
         self.pool_lights(&interiors, &interior_cells);
+        let shore = self.shore_batch(&terrain);
         particles.extend(self.decal_batches());
         let coronas = self.frame_coronas(&interiors, &interior_cells);
-        let reflection = (self.water_reflections > 0)
-            .then(|| self.find_reflection_plane(eye))
-            .flatten()
-            .map(|height| ReflectionPlane {
-                height,
-                level: self.water_reflections,
-                blocks: self
-                    .heights
-                    .iter()
-                    .filter(|(_, h)| h.water.is_some_and(|w| (w - height).abs() < 0.01))
-                    .map(|(key, _)| *key)
-                    .collect(),
-                block_size: self.world.block_size(),
-            });
+        let reflection = self.reflection_plane(eye);
         SceneFrame {
             lighting,
             sky,
@@ -825,29 +833,8 @@ impl WorldScene {
             particles,
             coronas,
             reflection,
+            shore,
         }
-    }
-
-    /// The coronas of the lights whose cells draw (`CEnvCell::RenderLightCoronas` from each
-    /// drawn cell); a block without a visibility decision draws all of its cells.
-    fn frame_coronas(
-        &self,
-        blocks: &[BlockKey],
-        cells: &HashMap<BlockKey, Vec<u32>>,
-    ) -> Vec<(BlockKey, CellCorona)> {
-        let mut coronas = Vec::new();
-        for key in blocks {
-            let Some(all) = self.blocks.get(key).and_then(|b| b.coronas.as_deref()) else {
-                continue;
-            };
-            let drawn = cells.get(key);
-            coronas.extend(
-                all.iter()
-                    .filter(|corona| drawn.is_none_or(|ids| ids.contains(&corona.cell)))
-                    .map(|corona| (*key, corona.clone())),
-            );
-        }
-        coronas
     }
 
     /// Which env cells of `blocks` draw (`WorldRender::Render`'s gather): from the camera's own

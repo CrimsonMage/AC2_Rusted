@@ -8425,7 +8425,7 @@ key	status	note
 00588300	x	self term: frill shade from its terrain cell's vertex colour bits (ac2-render terrain/shadow.rs, heights.rs self_shadow); map term in object.wgsl landscape_shadow
 00588320	x	
 00588370	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-00588410	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+00588410	x	ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 005884d0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00588530	_	needs port: landblock id conversion
 00588590	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -8434,15 +8434,15 @@ key	status	note
 00588840	~	near water mesh with its material; far water chunks, bump map, reflection and shore passes not yet
 00588a30	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 00588aa0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-00588ae0	_	needs port: terrain vertex normal calculation
-00588b70	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-00588be0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+00588ae0	x	ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
+00588b70	x	ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
+00588be0	~	DrawShore(true) at LandscapeShoreEffects 2: the strips (closed ones under 20 m left out) with the 0x40000017 material after the water (ac2-gpu scene shore group); the destination-alpha pass DrawShore(false) (0x40000024) is not drawn: the HDR target keeps no destination alpha for the water to blend by
 00588e10	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 005890f0	_	needs port: far terrain chunk init
 00589130	x	indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
 00589ec0	x	LScapeTerrainMesh::SetVertex cited in ac2-render terrain/mesh.rs:2 (four vertices per polygon, slots SW/SE/NW/NE)
 0058a000	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-0058a1f0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+0058a1f0	x	ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 0058a270	-	SmartArray/STL container internals; Vec replaces
 0058a400	-	SmartArray/STL container internals; Vec replaces
 0058a460	-	SmartArray/STL container internals; Vec replaces
@@ -8461,7 +8461,7 @@ key	status	note
 0058bce0	x	far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
 0058c8c0	~	vertex colour bits kept (ac2-world GetColor field); the near-mesh alpha is only read by the frill shade, not drawn
 0058d700	x	ac2-render object::load_water_model
-0058dcb0	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+0058dcb0	x	ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 0058e940	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 0058eb20	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 0058ec60	_	needs port: landscape terrain mesh (vertices, shore, near/far mesh build)

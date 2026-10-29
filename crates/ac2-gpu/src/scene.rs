@@ -238,7 +238,7 @@ impl SceneRenderer {
                 // The scene keeps an object FX's system; its material arrives as a model.
                 Loaded::Layout | Loaded::Rain(_) | Loaded::ObjectParticle(_) => {}
                 Loaded::Images(images) => self.take_images(images),
-                Loaded::LightDecalMaterials(_) => {}
+                Loaded::LightDecalMaterials(_) | Loaded::ShoreMaterial(_) => {}
                 Loaded::Model(visual, model, images) => {
                     self.take_images(images);
                     let images = &self.images;
@@ -296,7 +296,7 @@ impl SceneRenderer {
         self.frame = frame;
         self.frame_objects = objects;
         // The particles of the frame go into their materials' models.
-        for batch in &self.frame.particles {
+        for batch in self.frame.particles.iter().chain(&self.frame.shore) {
             if let Some(model) = self.models.get_mut(&batch.material) {
                 self.objects.set_geometry(
                     gpu,
@@ -388,6 +388,14 @@ impl SceneRenderer {
             environment: Some(environment),
             sky: false,
         }));
+        // `DrawShore(true)`, after the water.
+        let shore = shore_instances(models, frame);
+        groups.push(DrawGroup {
+            instances: &shore,
+            ordered: true,
+            environment: None,
+            sky: false,
+        });
         self.objects.prepare(
             gpu,
             camera,
@@ -528,10 +536,12 @@ impl SceneRenderer {
                 &self.world_visible,
             ),
         );
-        for (index, (instances, _)) in interior_instances(models, blocks, frame).iter().enumerate()
-        {
+        let interiors = interior_instances(models, blocks, frame);
+        for (index, (instances, _)) in interiors.iter().enumerate() {
             self.objects.draw(pass, 3 + index, instances);
         }
+        self.objects
+            .draw(pass, 3 + interiors.len(), &shore_instances(models, frame));
         self.objects
             .draw(pass, 2, &sky_instances(models, &frame.sky.after));
         // `LScapeSky::Draw(1)`: then each sky light's `LensFlareEffect::Draw`, with the drawn
@@ -563,6 +573,23 @@ fn flare_sources(frame: &SceneFrame) -> Vec<FlareSource<'_>> {
         flare: &corona.flare,
     });
     sky.chain(coronas).collect()
+}
+
+/// The shore's breaking water (`DrawShore(true)`), drawn in world space after the water.
+fn shore_instances<'a>(
+    models: &'a HashMap<DataId, GpuObjectModel>,
+    frame: &SceneFrame,
+) -> Vec<ObjectInstance<'a>> {
+    frame
+        .shore
+        .iter()
+        .filter_map(|batch| {
+            Some(ObjectInstance::new(
+                models.get(&batch.material)?,
+                Mat4::IDENTITY,
+            ))
+        })
+        .collect()
 }
 
 /// Whether the frame has a landscape sky (`LScapeSky`): sky objects, or the fog quad that

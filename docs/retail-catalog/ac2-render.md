@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 171 done, 52 partial, 200 to do, 358 skipped.
+781 retail functions: 176 done, 53 partial, 194 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -1070,7 +1070,7 @@ Legend and workflow: [README](README.md).
 - [~] `LScapeSky::CreateDeletePhysicsObjects` · 00585ba0 · legions 00555290 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 - [~] `LScapeSky::UpdateTimeOfDay` · 00585cf0 · legions 005553e0 — sky objects drawn as tinted object instances before/after the world with the fog_sky quad; lens flares and fixed_pos/height_mod not yet
 
-## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (8/48)
+## `portal/client/src/smartbox/worldrender/lscapeterrainmesh.cpp.c` (13/48)
 
 ### LM_UVTranslate
 - [ ] `LM_UVTranslate::SetVTranslate` · 005880a0 · legions 005577e0 — needs port: UV translate (scrolling texture coordinates)
@@ -1084,7 +1084,7 @@ Legend and workflow: [README](README.md).
 - [-] `LScapeVertex::operator=` · 00588370 · legions 0059f0d0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 
 ### LScapeTerrainMesh
-- [ ] `LScapeTerrainMesh::CalculatePointsOfIntersection` · 00588410 · legions 00557aa0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+- [x] `LScapeTerrainMesh::CalculatePointsOfIntersection` · 00588410 · legions 00557aa0 — ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 
 ### ShorePointType
 - [-] `ShorePointType::operator=` · 005884d0 · legions 00557b60 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -1103,11 +1103,11 @@ Legend and workflow: [README](README.md).
 - [ ] `LScapeTerrainMesh::InqNearBlockIndex` · 00588aa0 · legions 00558140 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 
 ### (free functions)
-- [ ] `G_CalculateNormal` · 00588ae0 · legions 00558180 — needs port: terrain vertex normal calculation
+- [x] `G_CalculateNormal` · 00588ae0 · legions 00558180 — ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 
 ### LScapeTerrainMesh
-- [ ] `LScapeTerrainMesh::FindShorePointIndexByOrigin` · 00588b70 · legions 00558210 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-- [ ] `LScapeTerrainMesh::DrawShore` · 00588be0 · legions 00558280 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+- [x] `LScapeTerrainMesh::FindShorePointIndexByOrigin` · 00588b70 · legions 00558210 — ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
+- [~] `LScapeTerrainMesh::DrawShore` · 00588be0 · legions 00558280 — DrawShore(true) at LandscapeShoreEffects 2: the strips (closed ones under 20 m left out) with the 0x40000017 material after the water (ac2-gpu scene shore group); the destination-alpha pass DrawShore(false) (0x40000024) is not drawn: the HDR target keeps no destination alpha for the water to blend by
 
 ### DBObjGrabber<RenderTexture>
 - [-] `DBObjGrabber<RenderTexture>::DBObjGrabber<RenderTexture>` · 00588e10 · legions 005584b0 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
@@ -1119,7 +1119,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeTerrainMesh::BuildFarTerrainMesh` · 00589130 · legions 00558880 — indices with RollDice diagonals and LOD crack fill, vertices, far water quads (terrain/far.rs)
 - [x] `LScapeTerrainMesh::SetVertex` · 00589ec0 · legions 00559610 — LScapeTerrainMesh::SetVertex cited in ac2-render terrain/mesh.rs:2 (four vertices per polygon, slots SW/SE/NW/NE)
 - [ ] `LScapeTerrainMesh::GetPixelGeometry` · 0058a000 · legions 00559750 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
-- [ ] `LScapeTerrainMesh::CleanupShore` · 0058a1f0 · legions 00559940 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+- [x] `LScapeTerrainMesh::CleanupShore` · 0058a1f0 · legions 00559940 — ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 
 ### SmartArray<ShoreStripType>
 - [-] `SmartArray<ShoreStripType>::~SmartArray<ShoreStripType>` · 0058a270 · legions 005599f0 — SmartArray/STL container internals; Vec replaces
@@ -1154,7 +1154,7 @@ Legend and workflow: [README](README.md).
 - [x] `LScapeTerrainMesh::InitFarMesh` · 0058bce0 · legions 0055b350 — far chunks, LOD, block edges, far material with ADDSIGNED + MODULATE2X cloud stage (far_terrain.wgsl)
 - [~] `LScapeTerrainMesh::UpdateNearTerrain` · 0058c8c0 · legions 0055bf30 — vertex colour bits kept (ac2-world GetColor field); the near-mesh alpha is only read by the frill shade, not drawn
 - [x] `LScapeTerrainMesh::UpdateNearWater` · 0058d700 · legions 0055cd70 — ac2-render object::load_water_model
-- [ ] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
+- [x] `LScapeTerrainMesh::GenerateShore` · 0058dcb0 · legions 0055d320 — ac2-render terrain/shore.rs generate_shore over the near blocks' ground triangles (made again when the near blocks or centre change, scene/shore_strips.rs)
 - [ ] `LScapeTerrainMesh::Init` · 0058e940 · legions 0055dfb0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 - [ ] `LScapeTerrainMesh::LScapeTerrainMesh` · 0058eb20 · legions 0055e190 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)
 - [ ] `LScapeTerrainMesh::RefreshWorldBuilderTerrain` · 0058ec60 · legions 0055e2d0 — needs port: landscape terrain mesh (vertices, shore, near/far mesh build)

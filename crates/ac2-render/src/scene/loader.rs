@@ -130,6 +130,8 @@ pub enum Loaded {
     /// The materials of the light pools on the ground at day, dusk and night
     /// (`WorldRender::CreateLandscapePointLightDecals`); 0 where the enum names none.
     LightDecalMaterials([DataId; 3]),
+    /// The breaking water's material on the shores (`LScapeTerrainMesh::DrawShore`); 0 for none.
+    ShoreMaterial(DataId),
 }
 
 /// An object FX particle system's load: its description (`None` when it draws nothing), and its
@@ -183,6 +185,8 @@ pub(crate) enum Request {
     Images(Vec<TextureKey>),
     /// The light pools' materials by enum (`FileArray::GetDIDFromEnum(.., 0x40000002)`).
     LightDecalMaterials,
+    /// The shore's material by enum (`DBObj::GetByEnum(0x40000017, 0x40000002, ..)`).
+    ShoreMaterial,
 }
 
 /// The loader thread and its queues.
@@ -508,6 +512,19 @@ impl Worker {
                 Loaded::ObjectParticle(Box::new(self.object_particle(handle, did)))
             }
             Request::Images(keys) => Loaded::Images(self.images(keys)),
+            Request::ShoreMaterial => {
+                let store = self.world.resource_store().clone();
+                Loaded::ShoreMaterial(
+                    ac2_assets::ac2_enum_did(
+                        &store,
+                        crate::rain::RAIN_MATERIAL_GROUP,
+                        crate::scene::shore_strips::SHORE_MATERIAL_ENUM,
+                    )
+                    .ok()
+                    .flatten()
+                    .unwrap_or(DataId::new(0)),
+                )
+            }
             Request::LightDecalMaterials => {
                 let store = self.world.resource_store().clone();
                 Loaded::LightDecalMaterials(crate::scene::light_decals::LIGHT_DECAL_ENUMS.map(

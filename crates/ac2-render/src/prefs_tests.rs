@@ -188,6 +188,7 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
             static_shadows: false,
             cloud_shadows: false,
             water_reflections: 0,
+            shore_effects: 1,
             ..SceneOptions::default()
         }
     );

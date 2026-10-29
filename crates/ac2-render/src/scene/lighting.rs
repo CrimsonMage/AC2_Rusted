@@ -3,7 +3,7 @@
 
 use ac2_math::Vec3;
 
-use super::{WorldScene, DAY_SECONDS};
+use super::{ReflectionPlane, WorldScene, DAY_SECONDS};
 use crate::SceneLighting;
 
 impl WorldScene {
@@ -106,5 +106,24 @@ impl WorldScene {
         keys.iter()
             .filter_map(water_at)
             .find(|height| *height < viewer.z)
+    }
+
+    /// The water the frame at `eye` reflects, at the `WaterReflections` level, with the resident
+    /// blocks whose water lies on it.
+    pub(super) fn reflection_plane(&self, eye: Vec3) -> Option<ReflectionPlane> {
+        (self.water_reflections > 0)
+            .then(|| self.find_reflection_plane(eye))
+            .flatten()
+            .map(|height| ReflectionPlane {
+                height,
+                level: self.water_reflections,
+                blocks: self
+                    .heights
+                    .iter()
+                    .filter(|(_, h)| h.water.is_some_and(|w| (w - height).abs() < 0.01))
+                    .map(|(key, _)| *key)
+                    .collect(),
+                block_size: self.world.block_size(),
+            })
     }
 }

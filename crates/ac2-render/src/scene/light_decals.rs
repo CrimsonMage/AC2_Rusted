@@ -12,7 +12,7 @@ use ac2_math::Vec3;
 use ac2_world::land_block_size;
 
 use super::loader::BlockKey;
-use super::WorldScene;
+use super::{CellCorona, WorldScene};
 use crate::decal::DecalSpec;
 use crate::object::PointLight;
 
@@ -112,6 +112,28 @@ impl WorldScene {
                 self.decals.create(spec, now, &ground_triangles);
             }
         }
+    }
+
+    /// The coronas of the lights whose cells draw (`CEnvCell::RenderLightCoronas` from each
+    /// drawn cell); a block without a visibility decision draws all of its cells.
+    pub(super) fn frame_coronas(
+        &self,
+        blocks: &[BlockKey],
+        cells: &HashMap<BlockKey, Vec<u32>>,
+    ) -> Vec<(BlockKey, CellCorona)> {
+        let mut coronas = Vec::new();
+        for key in blocks {
+            let Some(all) = self.blocks.get(key).and_then(|b| b.coronas.as_deref()) else {
+                continue;
+            };
+            let drawn = cells.get(key);
+            coronas.extend(
+                all.iter()
+                    .filter(|corona| drawn.is_none_or(|ids| ids.contains(&corona.cell)))
+                    .map(|corona| (*key, corona.clone())),
+            );
+        }
+        coronas
     }
 }
 

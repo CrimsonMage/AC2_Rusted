@@ -123,6 +123,23 @@ impl TerrainHeights {
         })
     }
 
+    /// Every polygon's two ground triangles, row by row (`LScapeTerrainMesh::GenerateShore`'s walk
+    /// of the near mesh).
+    pub fn all_triangles(&self) -> Vec<GroundTriangle> {
+        let polygons = self.side - 1;
+        let mut out = Vec::with_capacity(polygons * polygons * 2);
+        for py in 0..polygons {
+            for px in 0..polygons {
+                let x = self.origin[0] + (px as f32 + 0.5) * self.spacing;
+                let y = self.origin[1] + (py as f32 + 0.5) * self.spacing;
+                if let Some(pair) = self.polygon_triangles(x, y) {
+                    out.extend(pair);
+                }
+            }
+        }
+        out
+    }
+
     /// The terrain height at world `(x, y)`, on the triangle of its polygon; `None` off the
     /// block.
     pub fn height_at(&self, x: f32, y: f32) -> Option<f32> {
