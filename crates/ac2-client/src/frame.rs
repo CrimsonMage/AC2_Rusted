@@ -34,6 +34,8 @@ pub struct ObjectFrame {
     pub visual: Option<u32>,
     pub setup: Option<u32>,
     pub name: Option<Arc<str>>,
+    /// `GetName(quantity)` for a stack of more than one (`ItemStats::stack_name`).
+    pub stack_name: Option<ac2_net::protocol::StringInfo>,
     pub cell: u32,
     /// AC axes relative to the cell's landblock.
     pub origin: [f32; 3],

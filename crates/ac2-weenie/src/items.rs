@@ -85,6 +85,17 @@ pub struct ItemStats {
 }
 
 impl ItemStats {
+    /// `GetName(GetQuantity())` where it differs from the name: a stackable object of more than
+    /// one (`display_name`); `None` otherwise, without reading the rest of the stats.
+    pub fn stack_name(q: &WeenieQualities, tables: &StringTableIds) -> Option<StringInfo> {
+        use item_quality::*;
+        let quantity = q.inq_int(QUANTITY).unwrap_or(1);
+        if quantity <= 1 || q.inq_bool(STACKABLE).unwrap_or(0) == 0 {
+            return None;
+        }
+        Some(Self::of(q).display_name(quantity as u32, tables))
+    }
+
     pub fn of(q: &WeenieQualities) -> Self {
         use item_quality::*;
         let int = |stat, default| q.inq_int(stat).unwrap_or(default);
@@ -216,5 +227,16 @@ mod tests {
             ]
         );
         assert_eq!(stats.display_name(1, &tables), named("Healing Potion"));
+        // The name plates' stack name is that name at the quantity; one alone, or an object
+        // that does not stack, keeps its own name (none).
+        assert_eq!(
+            ItemStats::stack_name(&q, &tables),
+            Some(stats.display_name(5, &tables))
+        );
+        q.set(262, &QualityValue::Int(1));
+        assert_eq!(ItemStats::stack_name(&q, &tables), None);
+        q.set(262, &QualityValue::Int(5));
+        q.set(700, &QualityValue::Bool(0));
+        assert_eq!(ItemStats::stack_name(&q, &tables), None);
     }
 }

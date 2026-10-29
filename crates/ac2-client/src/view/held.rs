@@ -102,6 +102,7 @@ mod tests {
             visual,
             setup: None,
             name: None,
+            stack_name: None,
             cell: 0x0A0B_0101,
             origin: [1.0, 2.0, 3.0],
             rotation: [1.0, 0.0, 0.0, 0.0],

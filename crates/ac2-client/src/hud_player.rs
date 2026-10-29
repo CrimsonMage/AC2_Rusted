@@ -76,7 +76,7 @@ impl HudView {
             ui_table: strings.ui_table,
             enums: &strings.enums,
         });
-        let looks = || name_looks(frame);
+        let looks = || name_looks(frame, player.as_ref());
         let friend = friend_target(frame.selection.as_ref());
         let inputs = ac2_ui::FrameInputs {
             server_time: frame.server_time,
@@ -134,18 +134,30 @@ impl HudView {
     }
 }
 
+/// The radar shape `gm3DTextUI::AddName` gives no name plate.
+const NO_NAME_SHAPE: u32 = 0x4000_000B;
+
 /// `gm3DTextUI::AddName`'s inputs: every object with a radar look, its look's colour and its
-/// name.
-pub(crate) fn name_looks(frame: &ClientFrame) -> Vec<ac2_ui::NameLook> {
+/// name at its quantity (`GetName(GetQuantity())`: a stack's count and plural, rendered from the
+/// player's tables).
+pub(crate) fn name_looks(
+    frame: &ClientFrame,
+    player: Option<&ClientPlayer<'_>>,
+) -> Vec<ac2_ui::NameLook> {
     frame
         .radar
         .blips
         .iter()
+        // `AddName` names no object whose radar shape is `0x4000000B`.
+        .filter(|b| b.shape != NO_NAME_SHAPE)
         .filter_map(|b| {
             let object = frame.objects.iter().find(|o| o.id == b.id)?;
             Some(ac2_ui::NameLook {
                 id: b.id,
-                name: object.name.clone()?,
+                name: match (&object.stack_name, player) {
+                    (Some(stack), Some(player)) => player.render_info(stack).into(),
+                    _ => object.name.clone()?,
+                },
                 color: b.color,
             })
         })

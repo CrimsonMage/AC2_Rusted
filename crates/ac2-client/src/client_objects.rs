@@ -426,6 +426,7 @@ impl Client {
     pub(crate) fn object_frames(&self) -> Vec<ObjectFrame> {
         let player_id = self.player.as_ref().map(|p| p.id);
         let links = self.session.objects().links();
+        let tables = self.session.player_script().string_tables();
         self.session
             .objects()
             .iter()
@@ -475,6 +476,7 @@ impl Client {
                     visual: o.visual,
                     setup: o.setup,
                     name: o.name.clone(),
+                    stack_name: ac2_weenie::ItemStats::stack_name(&o.qualities, tables),
                     cell,
                     origin,
                     rotation,
@@ -527,6 +529,7 @@ impl Client {
                     visual: remote.visual(),
                     setup: None,
                     name: None,
+                    stack_name: None,
                     cell,
                     origin,
                     rotation,

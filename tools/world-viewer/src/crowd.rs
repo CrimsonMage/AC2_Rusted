@@ -48,6 +48,7 @@ pub fn objects(
                 visual: Some(visual),
                 setup: None,
                 name: None,
+                stack_name: None,
                 cell: player.cell,
                 origin: [x, y, z],
                 rotation: [q.w, q.x, q.y, q.z],
