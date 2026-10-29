@@ -88,7 +88,7 @@ impl Client {
     }
 
     /// The camera's subject at the body's current quantum, or with `drawn` where the body is
-    /// drawn this frame (`PhysicsBody::drawing_position` at the render interpolation; the
+    /// drawn this frame (`PhysicsBody::led_drawing_position` at the render interpolation; the
     /// mouse-look camera's, `AGENTS.md`).
     fn camera_subject_at(&self, require_in_world: bool, drawn: bool) -> Option<CameraSubject> {
         let player = self.player.as_ref()?;
@@ -97,7 +97,7 @@ impl Client {
         }
         let body = player.body.as_ref()?;
         let position = if drawn {
-            body.physics.drawing_position(self.render_interpolation)
+            body.physics.led_drawing_position(self.render_interpolation)
         } else {
             body.physics.position()
         };

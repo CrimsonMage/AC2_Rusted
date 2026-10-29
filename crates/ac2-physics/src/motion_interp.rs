@@ -78,6 +78,9 @@ pub struct MotionInterp {
     terrain_mods: HashMap<u32, u32>,
     global_mod: u32,
     timers: BehaviorTimers,
+    /// The player turns in the air with the ground's turn values (not retail: the DAT's air
+    /// element has no turn acceleration, so retail's body could not turn mid-jump).
+    pub(crate) turn_in_air: bool,
 }
 
 impl MotionInterp {
@@ -102,6 +105,7 @@ impl MotionInterp {
             terrain_mods: HashMap::new(),
             global_mod: 0,
             timers: BehaviorTimers::default(),
+            turn_in_air: false,
         }
     }
 
@@ -232,6 +236,50 @@ impl MotionInterp {
     pub(crate) fn motion_values(&self, desired_element: u32) -> Ac2MotionValues {
         self.find_motion_values(desired_element, self.mode)
             .unwrap_or_default()
+    }
+
+    /// [`Self::motion_values`] with, for a body that turns in the air ([`Self::turn_in_air`])
+    /// while it desires the air, the ground's turn speeds, acceleration and brake.
+    fn moving_values(&self, desired_element: u32) -> Ac2MotionValues {
+        let mut values = self.motion_values(desired_element);
+        if self.turn_in_air && desired_element == ELEMENT_AIR {
+            let ground = self.motion_values(ELEMENT_GROUND);
+            values.still_turn_velocity = ground.still_turn_velocity;
+            values.running_turn_velocity = ground.running_turn_velocity;
+            values.turn_acceleration = ground.turn_acceleration;
+            values.turn_brake = ground.turn_brake;
+        }
+        values
+    }
+
+    /// The yaw (degrees) the next quantum's `UpdateRotation` will turn a body by over its first
+    /// `dt` seconds, for the drawn heading between quanta: the yaw rate `omega_z` plus half the
+    /// acceleration `CalculateOmegaAcceleration` would pick for the turn input `turn`
+    /// (`SetOmegaVelocity`) times `dt` squared. A turn-to heading leads by its rate alone.
+    pub(crate) fn turn_lead(&self, desired_element: u32, omega_z: f32, turn: f32, dt: f64) -> f64 {
+        let omega = f64::from(omega_z);
+        if self.turn_to {
+            return omega * dt;
+        }
+        let values = self.moving_values(desired_element);
+        let max = f64::from(self.max_turn_vel);
+        let desired = (f64::from(turn) * max).clamp(-max, max);
+        let acl = if desired.abs() < f64::from(F_EPSILON) {
+            if omega < 0.0 {
+                f64::from(values.turn_brake)
+            } else if omega > 0.0 {
+                -f64::from(values.turn_brake)
+            } else {
+                0.0
+            }
+        } else if omega < desired {
+            f64::from(values.turn_acceleration)
+        } else if omega > desired {
+            -f64::from(values.turn_acceleration)
+        } else {
+            0.0
+        };
+        omega * dt + 0.5 * acl * dt * dt
     }
 
     /// `PHYSICSOBJREP::GetStandardMotionValues`: the peace-on-earth values (element and mode
@@ -455,7 +503,7 @@ impl MotionInterp {
             }
         }
         self.turn_to_dir = Heading::from_u8(self.turn_to_dir.to_u8());
-        let values = self.motion_values(ctx.desired_element);
+        let values = self.moving_values(ctx.desired_element);
         // A managed body (interpolating or moving to) skips the constraint factor.
         self.convert_do_motion_to_local_desired(&values, ctx, !managed);
         self.acl = Vector::ZERO;
@@ -632,7 +680,7 @@ impl MotionInterp {
     /// accelerates toward the desired one (`mTurnAcl`) or brakes to zero (`mTurnSB`), and the
     /// object's omega is clamped to the desired rate, which is consumed.
     pub(crate) fn calculate_omega_acceleration(&mut self, ctx: &MotionContext) -> OmegaClamp {
-        let values = self.motion_values(ctx.desired_element);
+        let values = self.moving_values(ctx.desired_element);
         if self.turn_to {
             self.desired_omega_vel = Vector::ZERO;
             let (x, y) = (ld(ctx.vector_heading.x), ld(ctx.vector_heading.y));

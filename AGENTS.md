@@ -173,13 +173,24 @@ game rules and server-visible behaviour exactly retail.
   `Client::set_pose_blend`, on by default), so the skeleton moves at display rate. Retail draws the
   last refresh; turn the blend off to get it. Drawn positions (`PhysicsBody::drawing_position`)
   follow retail's render interpolation and are not an exception.
-- Exception: the mouse-look camera follows the body where it is drawn. Retail's `SmartBox::UseTime`
-  updated the camera every frame while mouse look was on (`UpdateCamera(elapsed, 0)`) against the
-  player's current physics position, which steps a whole quantum (0.1 s) at a time, while the
-  body was drawn interpolated between quanta; running, the two jittered against each other by up
-  to a third of a metre. Here that update reads the drawn position at the render interpolation
-  (`Client::update_camera`, `Player::drawn_camera_subject`); the camera off mouse look still
-  updates per quantum and slerps, as retail.
+- Exception: the camera follows the body where it is drawn, every frame. Retail's `SmartBox::UseTime`
+  updated the camera every frame only while mouse look was on (`UpdateCamera(elapsed, 0)`), and
+  otherwise once per physics quantum (`SmartBox::PlayerPhysicsUpdatedCallback`, then
+  `SceneCamera::slerp`), in both cases against the player's current physics position, which steps
+  a whole quantum (0.1 s) at a time while the body was drawn interpolated between quanta; running,
+  the two jittered against each other by up to a third of a metre, and a turn reached the camera a
+  quantum late. Here the camera updates every frame in every mode against the drawn position
+  (`Client::update_camera`, `Player::drawn_camera_subject`).
+- Exception: the player turns responsively. Retail stepped turns in 0.1 s physics quanta and drew
+  the body slerped from the previous quantum to the current one, so a turn key showed up to two
+  quanta late; and the DAT's air element has no turn acceleration (`MotionValues` 0x40000002), so
+  the body could not turn mid-jump. Here the player's drawn heading is the latest quantum's turned
+  on by what the next quantum's `CPhysicsObj::UpdateRotation` will turn over the elapsed part of it
+  (the yaw rate and the acceleration the held input picks; `PhysicsBody::led_drawing_position`),
+  so a turn shows the frame its key goes down and the next quantum lands where it was drawn; the
+  origin still interpolates as retail. In the air the player takes the ground element's turn
+  speeds, acceleration and brake (`MotionInterp::turn_in_air`). Other bodies are unchanged, and
+  the physics (and the heading reported to the server) still step per quantum as retail.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

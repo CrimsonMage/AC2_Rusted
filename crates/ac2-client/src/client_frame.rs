@@ -16,7 +16,7 @@ impl Client {
             let body = p.body.as_ref()?;
             let state = body.physics.movement_state();
             let (cell, origin, rotation) =
-                ac2_physics::drawn_place(&body.physics, self.render_interpolation);
+                ac2_physics::led_drawn_place(&body.physics, self.render_interpolation);
             Some(PlayerFrame {
                 id: p.id,
                 cell,

@@ -199,21 +199,6 @@ impl PhysicsBody {
         self.object.prev_position
     }
 
-    /// The drawn position (`CPhysicsObj::PrepareObjectForDrawing`, and
-    /// `TargetingModule::GetPosition` for the camera's target): `Position::slerp` from the
-    /// previous to the current position by `t`, the clock's render interpolation
-    /// (`CPhysics::sRenderInterpolation`, `PhysicsClock::render_interpolation`). A static body
-    /// draws where it is.
-    pub fn drawing_position(&self, t: f32) -> Position {
-        let o = &self.object;
-        if o.state & crate::objects::STATIC_PS != 0 {
-            return o.position;
-        }
-        let mut drawn = o.position;
-        drawn.slerp(&o.prev_position, &o.position, t);
-        drawn
-    }
-
     /// The body's id in the world's object lists (`Terrain::insert_object`), or `None` while it
     /// is not listed. The body's own transitions skip that entry.
     pub fn set_world_id(&mut self, id: Option<u32>) {
@@ -960,6 +945,9 @@ mod anim;
 
 #[path = "body_parts.rs"]
 mod parts;
+
+#[path = "body_drawn.rs"]
+mod drawn;
 
 #[cfg(test)]
 mod tests {

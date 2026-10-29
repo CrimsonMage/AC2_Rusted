@@ -122,13 +122,13 @@ impl PlayerBody {
         self.subject_at(id, self.physics.position())
     }
 
-    /// The camera's subject where the body is drawn, `t` of the way from its previous quantum to
-    /// its current one (`PhysicsBody::drawing_position`). The mouse-look camera updates every frame
-    /// against this (`AGENTS.md`): retail's `SmartBox::UseTime` read the current quantum, so the
-    /// camera stepped a whole quantum (0.1 s of running) at a time while the body was drawn
-    /// between quanta, and the two jittered against each other.
+    /// The camera's subject where the body is drawn, `t` of the way through the current quantum
+    /// (`PhysicsBody::led_drawing_position`). The camera updates every frame against this
+    /// (`AGENTS.md`): retail's `SmartBox::UseTime` read the current quantum, so the camera stepped
+    /// a whole quantum (0.1 s of running) at a time while the body was drawn between quanta, and
+    /// the two jittered against each other.
     pub fn drawn_camera_subject(&self, id: u64, t: f32) -> CameraSubject {
-        self.subject_at(id, self.physics.drawing_position(t))
+        self.subject_at(id, self.physics.led_drawing_position(t))
     }
 
     fn subject_at(&self, id: u64, position: ac2_physics::Position) -> CameraSubject {

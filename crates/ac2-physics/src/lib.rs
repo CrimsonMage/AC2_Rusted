@@ -97,6 +97,8 @@ mod terrain_material_tests;
 #[cfg(test)]
 mod test_support;
 mod transition;
+#[cfg(test)]
+mod turn_tests;
 mod vector;
 
 pub use anim_rep::BodyAnimation;
@@ -156,7 +158,7 @@ pub use objects::{BBox, ObjectShape, StaticObject};
 pub use part_array::{PartArray, PartMesh, PartSetup, HAS_PHYSICS_BSP_STATE};
 pub use part_group::{FoundHolding, PartGroup, PartGroupTree};
 pub use part_load::{load_part_group_tree, load_part_setup};
-pub use part_pose::{drawn_place, part_poses, PartPose};
+pub use part_pose::{drawn_place, led_drawn_place, part_poses, PartPose};
 pub use physics_material::{load_physics_material, PhysicsMaterial};
 pub use physics_obj::{BodyShape, DescSlider};
 pub use physics_obj_conflict::{ConflictEffect, ConflictPeer};

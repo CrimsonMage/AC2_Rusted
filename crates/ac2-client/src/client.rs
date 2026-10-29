@@ -20,7 +20,7 @@ use std::time::Duration;
 
 use ac2_physics::{
     AnimationClock, Frame, Heading, MovementInput, MovementState, PhysicsBody, PhysicsClock,
-    Position, Quaternion, SetPositionError, Terrain, Vector, PHYSICS_QUANTUM,
+    Position, Quaternion, SetPositionError, Terrain, Vector,
 };
 use ac2_script::host::lifecycle::ScriptLifecycle;
 use ac2_weenie::{
@@ -610,7 +610,9 @@ impl Client {
         let mut events = self.update_player();
         events.extend(self.world_manager_update()?);
         let in_world = self.player.as_ref().is_some_and(|p| p.in_world);
-        if in_world && self.camera.mouse_look {
+        // The camera updates every frame against the body where it is drawn, in every camera
+        // mode (`AGENTS.md`): retail did so only under mouse look and otherwise per quantum.
+        if in_world {
             let now = self.session.local_time();
             let quantum = (now - self.camera_update_time) as f32;
             self.update_camera(quantum, false);
@@ -711,10 +713,8 @@ impl Client {
                     // `CPhysicsObj::ReportCollisions` with the materials of the body's contact.
                     let materials = body.physics.contact_materials(&self.terrain);
                     reports.extend(body.physics.report_collisions(&materials, false));
-                    // `SmartBox::PlayerPhysicsUpdatedCallback`.
-                    if !self.camera.mouse_look {
-                        self.update_camera(PHYSICS_QUANTUM, true);
-                    }
+                    // `SmartBox::PlayerPhysicsUpdatedCallback`'s camera update runs per frame
+                    // instead (`smart_box`).
                 }
                 // `CPhysics::UpdateAllPhysics`: the other objects.
                 let others: Vec<_> = self

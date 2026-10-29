@@ -34,6 +34,15 @@ pub fn drawn_place(body: &PhysicsBody, render_interpolation: f32) -> (u32, [f32;
     (place.cell_id, [o.x, o.y, o.z], [q.w, q.x, q.y, q.z])
 }
 
+/// [`drawn_place`] for the player: its heading leads to where the next quantum turns it
+/// ([`PhysicsBody::led_drawing_position`]).
+pub fn led_drawn_place(body: &PhysicsBody, render_interpolation: f32) -> (u32, [f32; 3], [f32; 4]) {
+    let place = body.led_drawing_position(render_interpolation);
+    let o = place.frame.origin;
+    let q = place.frame.q;
+    (place.cell_id, [o.x, o.y, o.z], [q.w, q.x, q.y, q.z])
+}
+
 /// The body's bones as the renderer poses them: blended at `drawn_at` (the frame's time) when
 /// pose blending is on, else the retail refresh (`PhysicsBody::bone_transforms`).
 pub fn part_poses(body: &PhysicsBody, drawn_at: Option<f64>) -> Vec<PartPose> {

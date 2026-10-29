@@ -19,6 +19,8 @@ impl PhysicsBody {
     /// full every step, and keeps its client-controlled sliders from the server.
     pub fn set_player(&mut self, player: bool) {
         self.object.anim.set_player(player);
+        // The player turns in the air (an improvement over retail; see `MotionInterp`).
+        self.object.motion.turn_in_air = player;
     }
 
     /// `CPhysicsObj::IsThePlayer`.
