@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1327 done, 308 partial, 116 to do, 496 skipped.
+2247 retail functions: 1328 done, 307 partial, 116 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1813,7 +1813,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGenerationConfirmationUI::ListenToMessage` · 0042cde0 · legions 0042cba0 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 - [x] `gmGenerationConfirmationUI::RecvNotice_CharGenVerification` · 0042d080 — ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 
-## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (20/23)
+## `ac2/client/src/ui/pregame/gmcharacterselectionui.cpp.c` (21/23)
 
 ### CharacterIdentity
 - [x] `CharacterIdentity::Invalid` · 0040f560 · legions 0040f530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
@@ -1835,7 +1835,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCharacterSelectionUI::MoveArms` · 0040fbe0 · legions 0040fbb0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::RecvNotice_CharGenVerification` · 0040fca0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::MakeDeleteDialog` · 0040ff20 · legions 0040fef0 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
-- [~] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0 — character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+- [x] `gmCharacterSelectionUI::ListenToMessage` · 0040ffb0 · legions 0040ffd0 — character_selection.rs: all buttons, list, scene presses; a listed name is cut to its row with ID_Ellipsis (TruncateText, skill_tree.rs truncate_text) when it is set, the item's download_done (pregame tests a_long_character_name_ends_in_the_ellipsis)
 - [x] `gmCharacterSelectionUI::InitArms` · 00410510 · legions 00410530 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::~gmCharacterSelectionUI` · 00410750 · legions 00410770 — ac2-ui pregame/character_selection.rs, pregame/arms.rs
 - [x] `gmCharacterSelectionUI::AddPhysObjToArm` · 004108e0 · legions 004108e0 — pregame 3D scenes: ac2-assets ac2_ui_scene.rs, ac2-client pregame_scene/, ac2-ui pregame/scene.rs

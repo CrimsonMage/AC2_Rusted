@@ -275,7 +275,7 @@ key	status	note
 0040fbe0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040fca0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 0040ff20	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
-0040ffb0	~	character_selection.rs: all buttons, list, scene presses; the name's ellipsis (TruncateText on download_done) not modelled
+0040ffb0	x	character_selection.rs: all buttons, list, scene presses; a listed name is cut to its row with ID_Ellipsis (TruncateText, skill_tree.rs truncate_text) when it is set, the item's download_done (pregame tests a_long_character_name_ends_in_the_ellipsis)
 00410510	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 00410750	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs
 004108c0	x	ac2-ui pregame/character_selection.rs, pregame/arms.rs

@@ -787,3 +787,25 @@ pub(super) fn a_set_after_resuming_gives_the_figures_their_new_look() {
         Some(0x1F00_0023)
     );
 }
+
+/// `gmCharacterSelectionUI::ListenToMessage`'s `download_done`: a name wider than its row is cut
+/// and ends in `ID_Ellipsis` (`UIElement_Text::TruncateText`); a short one is left whole.
+#[test]
+pub(super) fn a_long_character_name_ends_in_the_ellipsis() {
+    let Some(mut ui) = real_ui() else {
+        return;
+    };
+    let long = "Wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww";
+    let mut characters = set();
+    characters.characters[0].name = long.into();
+    to_selection(&mut ui, characters);
+    let list = find(&ui, "CharacterListBox");
+    let items = ui.tree().list_items(list).to_vec();
+    let texts: Vec<String> = items
+        .iter()
+        .map(|&i| ui.tree().get(i).unwrap().text().unwrap())
+        .collect();
+    assert!(texts[0].len() < long.len(), "{texts:?}");
+    assert!(texts[0].ends_with("..."), "{texts:?}");
+    assert_eq!(texts[1], "Beta");
+}

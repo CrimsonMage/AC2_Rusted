@@ -15,8 +15,8 @@
 //! The 3D scene is `pregame::scene` (each occupant's figure from its identity's `VisualDesc`,
 //! `AddPhysObjToArm`), drawn by the client, which answers the pick. A character set that arrives
 //! again (after leaving the world, with the looks the character has now) runs `Update` again, so
-//! the figures follow it. Not modelled yet: the name's ellipsis (`TruncateText`), and the portal
-//! and torch viewports' scenes. The background's music plays when the screen opens
+//! the figures follow it. A name wider than its row ends in the ellipsis (`TruncateText`). Not
+//! modelled yet: the portal and torch viewports' scenes. The background's music plays when the screen opens
 //! ([`PregameRequest::Music`]).
 
 use ac2_net::protocol::CharacterIdentity;
@@ -204,6 +204,10 @@ impl CharacterSelectionUi {
             let name = &set.characters[slot].name;
             ctx.tree
                 .set_text(item, if name.is_empty() { "GARBAGE!" } else { name });
+            // `ListenToMessage`'s `download_done` for the item (its text is set at once here): a
+            // name wider than the row is cut with `ID_Ellipsis` (`UIElement_Text::TruncateText`).
+            let ellipsis = ctx.strings.get("ID_Ellipsis");
+            crate::skill_tree::truncate_text(ctx.tree, item, &ellipsis);
             ctx.tree.list_add_item(list, item);
             if identity(&set, slot).is_some() {
                 self.add_phys_obj_to_arm(ctx.tree, slot, &set.characters[slot]);
