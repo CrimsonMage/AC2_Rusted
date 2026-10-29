@@ -121,46 +121,6 @@ struct State {
     screenshots: Vec<Receiver<io::Result<PathBuf>>>,
 }
 
-/// The OS whose clipboard shortcut key is Cmd (macOS); everywhere else it is Ctrl, which the
-/// keyboard already sends as a held control key.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum ShortcutPlatform {
-    MacOs,
-    Other,
-}
-
-impl ShortcutPlatform {
-    fn current() -> Self {
-        if cfg!(target_os = "macos") {
-            Self::MacOs
-        } else {
-            Self::Other
-        }
-    }
-}
-
-/// The clipboard code (`ac2_ui::clipboard_control`) of a Cmd+letter press on macOS. Only Cmd
-/// (the Super key held) maps there; on other platforms Super never acts as Ctrl and every key
-/// goes through as before, as does Ctrl+letter on macOS (the keyboard sends it as control).
-fn clipboard_shortcut(
-    platform: ShortcutPlatform,
-    super_held: bool,
-    key: &winit::keyboard::Key,
-) -> Option<u16> {
-    if platform != ShortcutPlatform::MacOs || !super_held {
-        return None;
-    }
-    let winit::keyboard::Key::Character(letter) = key else {
-        return None;
-    };
-    let mut chars = letter.chars();
-    let letter = chars.next()?;
-    if chars.next().is_some() {
-        return None;
-    }
-    ac2_ui::clipboard_control(letter)
-}
-
 struct App {
     client: Client,
     world: Arc<ac2_world::Ac2WorldSource>,
@@ -719,8 +679,8 @@ impl ApplicationHandler for App {
                 let pressed = event.state == ElementState::Pressed;
                 // macOS: Cmd+A/C/V/X are the clipboard shortcuts, typed as Ctrl+A/C/V/X would
                 // be on the other platforms; the letter is neither a key nor typed text.
-                let shortcut = clipboard_shortcut(
-                    ShortcutPlatform::current(),
+                let shortcut = keys::clipboard_shortcut(
+                    keys::ShortcutPlatform::current(),
                     state.super_held,
                     &event.logical_key,
                 );
@@ -963,52 +923,5 @@ mod tests {
         );
         assert_eq!(world_title(&StringInfo::literal("")), None);
         assert_eq!(world_title(&StringInfo::default()), None);
-    }
-
-    #[test]
-    fn macos_cmd_letters_are_clipboard_shortcuts() {
-        use super::{clipboard_shortcut, ShortcutPlatform::MacOs};
-        use winit::keyboard::{Key, NamedKey};
-        let letter = |c: &str| Key::Character(c.into());
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("a")), Some(1));
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("c")), Some(3));
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("C")), Some(3));
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("v")), Some(0x16));
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("x")), Some(0x18));
-        // Without Cmd, or for another key or a multi-character key, the press is a key as before.
-        assert_eq!(clipboard_shortcut(MacOs, false, &letter("c")), None);
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("q")), None);
-        assert_eq!(clipboard_shortcut(MacOs, true, &letter("cv")), None);
-        assert_eq!(
-            clipboard_shortcut(MacOs, true, &Key::Named(NamedKey::Enter)),
-            None
-        );
-    }
-
-    #[test]
-    fn super_is_not_a_clipboard_shortcut_off_macos() {
-        use super::{clipboard_shortcut, ShortcutPlatform::Other};
-        use winit::keyboard::Key;
-        // Super (Windows / Linux meta) never acts as Ctrl: every letter stays a key press.
-        for letter in ["a", "c", "v", "x"] {
-            assert_eq!(
-                clipboard_shortcut(Other, true, &Key::Character(letter.into())),
-                None
-            );
-        }
-    }
-
-    #[test]
-    fn ctrl_letters_are_not_remapped_on_any_platform() {
-        use super::{clipboard_shortcut, ShortcutPlatform};
-        use winit::keyboard::Key;
-        // Ctrl+C reaches the UI through the keyboard's own control key and typed text, so the
-        // mapping ignores it on every platform: with Super not held there is no shortcut.
-        for platform in [ShortcutPlatform::MacOs, ShortcutPlatform::Other] {
-            assert_eq!(
-                clipboard_shortcut(platform, false, &Key::Character("c".into())),
-                None
-            );
-        }
     }
 }
