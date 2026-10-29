@@ -873,6 +873,11 @@ impl Client {
         }
     }
 
+    /// `WInitData::m_did` of a known object: the entity DID its weenie description gave.
+    pub(crate) fn object_entity(&self, id: u64) -> Option<u32> {
+        self.session.objects().get(id)?.entity
+    }
+
     /// `GetName(quantity)` (`gmEntity` 0x10B) of a known object at `quantity`.
     pub(crate) fn item_name_at(
         &self,

@@ -11,7 +11,12 @@ use crate::gameplay::Command;
 use crate::ui_sources::ClientPlayer;
 
 #[cfg(feature = "window")]
-impl ConsignmentSource for ClientPlayer<'_> {}
+impl ConsignmentSource for ClientPlayer<'_> {
+    /// `CWeenieObject::m_initData.m_did`: the entity DID the object was created with.
+    fn item_did(&self, item: u64) -> Option<u32> {
+        self.client.borrow().object_entity(item)
+    }
+}
 
 #[cfg(feature = "window")]
 impl ShopSource for ClientPlayer<'_> {

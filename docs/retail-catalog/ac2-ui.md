@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1311 done, 322 partial, 118 to do, 496 skipped.
+2247 retail functions: 1312 done, 321 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -496,7 +496,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (16/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (17/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
@@ -517,7 +517,7 @@ Legend and workflow: [README](README.md).
 ### gmShopConsignmentUI
 - [x] `gmShopConsignmentUI::RecvNotice_StackUIDone` · 0041b390 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog` · 0041b550 · legions 0041b3b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with: the item definition id comes from ConsignmentSource::item_did, which the client does not yet supply (no stacking restock in the game)
+- [x] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with (Legions 0x41b430): the item stackable with a max stack over 1, the sale not sold (status 3, was 2) and its item DID the item's WInitData::m_did (ac2-client hud_shop.rs item_did -> Client::object_entity, the weenie description's entity DID)
 - [~] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 - [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 - [~] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — the 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera) is not modelled in ac2-ui; the mount flag it reads is kept (recv_update_mount_state)

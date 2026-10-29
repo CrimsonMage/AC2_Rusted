@@ -441,7 +441,7 @@ key	status	note
 0041b320	-	scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 0041b390	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 0041b550	x	ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-0041b5d0	~	ac2-ui consignment.rs can_stack_with: the item definition id comes from ConsignmentSource::item_did, which the client does not yet supply (no stacking restock in the game)
+0041b5d0	x	ac2-ui consignment.rs can_stack_with (Legions 0x41b430): the item stackable with a max stack over 1, the sale not sold (status 3, was 2) and its item DID the item's WInitData::m_did (ac2-client hud_shop.rs item_did -> Client::object_entity, the weenie description's entity DID)
 0041b6a0	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 0041b760	~	3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera): not modelled in ac2-ui
 0041b7c0	~	the 3D portrait of the player (UIElement_Viewport, UIScenePhysObjEntity, camera) is not modelled in ac2-ui; the mount flag it reads is kept (recv_update_mount_state)

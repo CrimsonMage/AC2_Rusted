@@ -504,3 +504,24 @@ fn a_row_dragged_into_the_pack_collects_its_sale() {
         }]
     );
 }
+
+#[test]
+fn a_stack_restocks_a_sale_of_its_kind_unless_the_sale_is_sold() {
+    let Some((mut hud, mut panel)) = setup() else {
+        return;
+    };
+    // `CanStackWith`: the potions stack with their own sale (same definition, stackable).
+    open(&mut hud, &mut panel);
+    let mut active = shop();
+    assert!(panel.can_stack_with(&Pack, POTION_SALE, POTIONS));
+    // Not with a sale of another item, nor an item that does not stack.
+    assert!(!panel.can_stack_with(&Pack, SWORD_SALE, POTIONS));
+    assert!(!panel.can_stack_with(&Pack, POTION_SALE, SWORD));
+    // An expired sale (2) still takes it; a sold one (3) does not (Legions 0x41b4b9).
+    active.sales[0].status = 2;
+    panel.recv_update_consignment(&mut hud.tree, &Pack, &active);
+    assert!(panel.can_stack_with(&Pack, POTION_SALE, POTIONS));
+    active.sales[0].status = 3;
+    panel.recv_update_consignment(&mut hud.tree, &Pack, &active);
+    assert!(!panel.can_stack_with(&Pack, POTION_SALE, POTIONS));
+}

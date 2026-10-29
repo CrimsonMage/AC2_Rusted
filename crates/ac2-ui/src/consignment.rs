@@ -66,8 +66,9 @@ pub enum ConsignmentRequest {
 
 /// What the consignment reads from the client: the inventory and the strings it renders.
 pub trait ConsignmentSource: InventorySource + ShopSource {
-    /// The item's definition id, for `CanStackWith`'s match against a sale's item. `None` when the
-    /// client does not know it, which makes no sale stack.
+    /// The item's definition id (`WInitData::m_did`, the weenie description's entity DID), for
+    /// `CanStackWith`'s match against a sale's item. `None` when the client does not know it,
+    /// which makes no sale stack.
     fn item_did(&self, _item: u64) -> Option<u32> {
         None
     }
@@ -430,8 +431,8 @@ impl ConsignmentUi {
     }
 
     /// `gmShopConsignmentUI::CanStackWith`: a sale takes a stack of an item of its kind, when the
-    /// item stacks and the sale is not expired.
-    fn can_stack_with(&self, s: &dyn ConsignmentSource, sale: u32, item: u64) -> bool {
+    /// item stacks and the sale is not sold (status 3; Legions 0x41b4b9).
+    pub(crate) fn can_stack_with(&self, s: &dyn ConsignmentSource, sale: u32, item: u64) -> bool {
         let Some(slot) = s.item(item) else {
             return false;
         };
@@ -440,7 +441,7 @@ impl ConsignmentUi {
         };
         slot.stackable
             && slot.max_stack > 1
-            && sold.status != 2
+            && sold.status != 3
             && s.item_did(item) == Some(sold.item_did)
     }
 
