@@ -659,9 +659,9 @@ key	status	note
 004267d0	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 00426800	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 004268a0	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-00426920	_	Legions has it: vtable slot 90 of gm3DTextUI at 0x004266e0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+00426920	x	Legions 0x004266E0 is a thunk to the notice handler's slot 27, RecvNotice_ChangeRadarLook (0x0042B460, disassembly): ac2-ui name_plates.rs sync re-adds a plate whose look or name changed, and reticle.rs refresh_name runs CheckName again for the selection (hud_state.rs update_reticle); reticle_color_tests.rs
 00426930	x	ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-00426970	x	ac2-ui reticle.rs selection_changed: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it
+00426970	x	ac2-ui reticle.rs check_name: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it; run from selection_changed and, for a changed name or look of the same selection, refresh_name (RecvNotice_ChangeRadarLook / ItemUpdate)
 00426ae0	x	ac2-ui reticle.rs
 00426b70	x	ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 00426d00	-	ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it

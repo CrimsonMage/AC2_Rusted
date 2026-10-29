@@ -60,6 +60,8 @@ pub struct Reticle {
     current: Option<u64>,
     selection_rect: Option<[i32; 4]>,
     has_name: bool,
+    /// The name and look colour `CheckName` last showed.
+    shown_name: Option<(String, [f32; 4])>,
     has_info: bool,
     /// `m_precludedFromTop` / `m_precludedFromBottom` (`CM_UI::SendNotice_PrecludeFrom*`).
     pub precluded_top: i32,
@@ -176,6 +178,7 @@ impl Reticle {
             current: None,
             selection_rect: None,
             has_name: false,
+            shown_name: None,
             has_info: false,
             precluded_top: 0,
             precluded_bottom: 0,
@@ -194,11 +197,8 @@ impl Reticle {
             .chain([self.name, self.stuff])
     }
 
-    /// `gm3DTextUI::RecvNotice_SelectionChanged` / `CheckName`: the new selection's name in the
-    /// name element, sized to it; the averaged boxes restart.
-    ///
-    /// The name takes the selection's radar-look colour (`InqRadarLook`'s colour into the text's
-    /// font colour attributes; white when the object has no look).
+    /// `gm3DTextUI::RecvNotice_SelectionChanged`: the new selection, its name (`CheckName`); the
+    /// averaged boxes restart.
     pub fn selection_changed(
         &mut self,
         tree: &mut UiTree,
@@ -208,10 +208,35 @@ impl Reticle {
     ) {
         self.current = id;
         self.has_info = false;
-        self.has_name = false;
         self.boxes.clear();
-        if let (Some(_), Some(name)) = (id, name) {
+        self.check_name(tree, name, color);
+    }
+
+    /// `gm3DTextUI::CheckName` again when the selection's name or look changed: Legions'
+    /// `RecvNotice_ItemUpdate` (a stack's quantity, so its pluralised name) forwards to
+    /// `RecvNotice_ChangeRadarLook` (vtable slot 27 of the notice handler, 0x0042B460), which runs
+    /// `CheckName` for the selection.
+    pub fn refresh_name(&mut self, tree: &mut UiTree, name: Option<&str>, color: Option<[f32; 4]>) {
+        let color_now = color.unwrap_or([1.0; 4]);
+        let same = match (&self.shown_name, name) {
+            (Some((shown, shown_color)), Some(name)) => shown == name && *shown_color == color_now,
+            (None, None) => true,
+            _ => false,
+        };
+        if self.current.is_some() && !same {
+            self.check_name(tree, name, color);
+        }
+    }
+
+    /// `gm3DTextUI::CheckName`: the selection's name in the name element, sized to it, in its
+    /// radar-look colour (`InqRadarLook`'s colour into the text's font colour attributes; white
+    /// when the object has no look). No name hides it.
+    fn check_name(&mut self, tree: &mut UiTree, name: Option<&str>, color: Option<[f32; 4]>) {
+        self.has_name = false;
+        self.shown_name = None;
+        if let (Some(_), Some(name)) = (self.current, name) {
             let color = color.unwrap_or([1.0; 4]);
+            self.shown_name = Some((name.to_owned(), color));
             for (channel, value) in ["red", "green", "blue"].iter().zip(color) {
                 tree.set_float(self.name, tokenize(&format!("font_color_{channel}")), value);
             }

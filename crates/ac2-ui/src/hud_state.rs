@@ -252,9 +252,12 @@ impl Hud {
             return ReticleOutcome::default();
         };
         let id = selection.map(|(id, _)| id);
+        let name = selection.and_then(|(_, name)| name);
         if reticle.current() != id {
-            reticle.selection_changed(tree, id, selection.and_then(|(_, name)| name), color);
+            reticle.selection_changed(tree, id, name, color);
             self.reticle_info = None;
+        } else {
+            reticle.refresh_name(tree, name, color);
         }
         if let Some(info) = info.filter(|i| self.reticle_info.as_ref() != Some(i)) {
             reticle.selection_info(tree, info);

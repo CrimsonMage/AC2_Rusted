@@ -1,9 +1,9 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1325 done, 309 partial, 117 to do, 496 skipped.
+2247 retail functions: 1326 done, 309 partial, 116 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
-## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
+## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
 
 ### BBox
 - [x] `BBox::AdjustBBox` · 00426720 · legions 00426510 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
@@ -15,9 +15,9 @@ Legend and workflow: [README](README.md).
 
 ### gm3DTextUI
 - [x] `gm3DTextUI::ListenToMessage` · 004268a0 · legions 00426660 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
-- [ ] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — Legions has it: vtable slot 90 of gm3DTextUI at 0x004266e0 (vtable audit); was skip: no Legions 7160 counterpart (no legions_address in the index
+- [x] `gm3DTextUI::RecvNotice_ItemUpdate` · 00426920 — Legions 0x004266E0 is a thunk to the notice handler's slot 27, RecvNotice_ChangeRadarLook (0x0042B460, disassembly): ac2-ui name_plates.rs sync re-adds a plate whose look or name changed, and reticle.rs refresh_name runs CheckName again for the selection (hud_state.rs update_reticle); reticle_color_tests.rs
 - [x] `gm3DTextUI::ShowReticle` · 00426930 · legions 004266f0 — ac2-ui reticle.rs + ac2-gpu ui.rs: the targeting reticle
-- [x] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs selection_changed: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it
+- [x] `gm3DTextUI::CheckName` · 00426970 · legions 00426730 — ac2-ui reticle.rs check_name: GetName(quantity) (ac2-client SelectionFrame::name_info, view/overlays.rs) in the selection's radar-look colour (white without a look), sized to it; run from selection_changed and, for a changed name or look of the same selection, refresh_name (RecvNotice_ChangeRadarLook / ItemUpdate)
 - [x] `gm3DTextUI::DoStuffMeter` · 00426ae0 · legions 004268a0 — ac2-ui reticle.rs
 - [x] `gm3DTextUI::MakeNewData` · 00426b70 · legions 00426930 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 

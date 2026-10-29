@@ -43,3 +43,41 @@ fn the_selection_name_takes_the_radar_look_colour() {
     reticle.selection_changed(&mut tree, Some(8), Some("Rock"), None);
     assert_eq!(channel(&tree, "red"), Some(AttributeValue::Float(1.0)));
 }
+
+/// Legions' `RecvNotice_ItemUpdate` / `RecvNotice_ChangeRadarLook` on the selection: `CheckName`
+/// again, so a stack's new quantity and a new look colour show without a new selection.
+#[test]
+fn the_selection_name_follows_an_item_update_and_a_look_change() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let GameplayHud {
+        mut tree, reticle, ..
+    } = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let mut reticle = reticle.expect("the reticle");
+    let name = tree
+        .roots()
+        .iter()
+        .copied()
+        .find(|&r| tree.get(r).unwrap().id() == tokenize("SelectionName"))
+        .expect("SelectionName");
+    let text = |tree: &crate::UiTree| tree.get(name).unwrap().text();
+    reticle.selection_changed(&mut tree, Some(7), Some("5 Healing Potions"), None);
+    assert_eq!(text(&tree).as_deref(), Some("5 Healing Potions"));
+    reticle.refresh_name(&mut tree, Some("4 Healing Potions"), None);
+    assert_eq!(text(&tree).as_deref(), Some("4 Healing Potions"));
+    reticle.refresh_name(
+        &mut tree,
+        Some("4 Healing Potions"),
+        Some([0.5, 0.25, 1.0, 1.0]),
+    );
+    assert_eq!(
+        tree.get(name)
+            .unwrap()
+            .attribute(tokenize("font_color_red"))
+            .cloned(),
+        Some(AttributeValue::Float(0.5))
+    );
+    assert_eq!(reticle.current(), Some(7), "the selection stays");
+}
