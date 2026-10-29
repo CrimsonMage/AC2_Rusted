@@ -185,6 +185,8 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
         SceneOptions {
             object_shadows: crate::prefs::ObjectShadows::Off,
             light_coronas: false,
+            static_shadows: false,
+            cloud_shadows: false,
             ..SceneOptions::default()
         }
     );
@@ -253,6 +255,23 @@ fn the_dynamic_object_shadows_level_sizes_the_sun_shadows() {
     // Quality 5 sets level 2 (`Render::SetOverallGraphicsQuality`).
     assert!(apply_quality(&mut bank, 5));
     assert_eq!(scene_options(&bank).object_shadows, ObjectShadows::Medium);
+}
+
+#[test]
+fn the_landscape_takes_static_shadows_from_quality_4_and_cloud_shadows_at_5() {
+    use crate::prefs::scene_options;
+
+    let mut bank = bank();
+    register_graphics(&mut bank, &Names);
+    for (level, statics, clouds) in [(3, false, false), (4, true, false), (5, true, true)] {
+        assert!(apply_quality(&mut bank, level));
+        let options = scene_options(&bank);
+        assert_eq!(
+            (options.static_shadows, options.cloud_shadows),
+            (statics, clouds),
+            "level {level}"
+        );
+    }
 }
 
 #[test]

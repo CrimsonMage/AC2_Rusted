@@ -234,6 +234,8 @@ impl ClientView {
     pub fn set_scene_options(&mut self, options: ac2_render::prefs::SceneOptions) {
         self.renderer.set_object_shadows(options.object_shadows);
         self.renderer.set_light_coronas(options.light_coronas);
+        self.renderer
+            .set_landscape_shadows(options.static_shadows, options.cloud_shadows);
         self.scene.set_options(options);
     }
 

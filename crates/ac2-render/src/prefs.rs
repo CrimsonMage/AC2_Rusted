@@ -251,8 +251,8 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
         enumeration(0x4000_0076, LEVELS_3, 1),
         enumeration(LANDSCAPE_DRAW_DISTANCE, LANDSCAPE_DRAW, 2),
         enumeration(0x4000_0044, FRILL, 0),
-        flag(0x4000_0049, false),
-        flag(0x4000_0020, false),
+        flag(LANDSCAPE_STATIC_OBJECT_SHADOWS, false),
+        flag(LANDSCAPE_CLOUD_SHADOWS, false),
         flag(LIGHT_CORONAS, false),
         flag(0x4000_005E, true),
         flag(0x4000_005F, false),
@@ -366,11 +366,17 @@ pub struct SceneOptions {
     /// The sky lights' lens flares (`LightCoronas`; `LScapeSky::Draw(1)` skips
     /// `LensFlareEffect::Draw` while it is off).
     pub light_coronas: bool,
+    /// The near landscape's static shadow map (`LandscapeStaticObjectShadows`): without it the
+    /// terrain takes no static object shadows and no cloud shadows.
+    pub static_shadows: bool,
+    /// The cloud shadows over the landscape (`LandscapeCloudShadows`, with the map only).
+    pub cloud_shadows: bool,
 }
 
 impl Default for SceneOptions {
     /// The scene's own defaults: draw distance 2 (radius 4), the long frill distance, medium
-    /// object shadows and lens flares.
+    /// object shadows, lens flares and the static shadow map without cloud shadows (quality
+    /// level 4's landscape).
     fn default() -> Self {
         Self {
             far_radius: far_radius_for_draw_distance(2),
@@ -378,6 +384,8 @@ impl Default for SceneOptions {
             degrade: DegradeOptions::default(),
             object_shadows: ObjectShadows::Medium,
             light_coronas: true,
+            static_shadows: true,
+            cloud_shadows: false,
         }
     }
 }
@@ -431,12 +439,28 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             Some(Value::Int(value)) => ObjectShadows::from_preference(*value),
             _ => defaults.object_shadows,
         },
-        light_coronas: match bank.find(LIGHT_CORONAS).map(|pref| &pref.value) {
-            Some(Value::Bool(on)) => *on,
-            _ => defaults.light_coronas,
-        },
+        light_coronas: flag(bank, LIGHT_CORONAS, defaults.light_coronas),
+        static_shadows: flag(
+            bank,
+            LANDSCAPE_STATIC_OBJECT_SHADOWS,
+            defaults.static_shadows,
+        ),
+        cloud_shadows: flag(bank, LANDSCAPE_CLOUD_SHADOWS, defaults.cloud_shadows),
     }
 }
+
+/// A boolean preference's value, `default` when it is not registered.
+fn flag(bank: &PreferenceBank, key: u32, default: bool) -> bool {
+    match bank.find(key).map(|pref| &pref.value) {
+        Some(Value::Bool(on)) => *on,
+        _ => default,
+    }
+}
+
+/// `ID_Graphics_LandscapeStaticObjectShadows`.
+pub const LANDSCAPE_STATIC_OBJECT_SHADOWS: u32 = 0x4000_0049;
+/// `ID_Graphics_LandscapeCloudShadows`.
+pub const LANDSCAPE_CLOUD_SHADOWS: u32 = 0x4000_0020;
 
 /// `ID_Graphics_LightCoronas` (`Render::m_Prefs.LightCoronas`).
 pub const LIGHT_CORONAS: u32 = 0x4000_0042;

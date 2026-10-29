@@ -12,7 +12,9 @@ use ac2_math::Mat4;
 use ac2_render::frustum::{Frustum, Relation};
 use ac2_render::object::{ObjectEnvironment, PointLight};
 use ac2_render::prefs::ObjectShadows;
-use ac2_render::scene::{BlockKey, Images, Loaded, SceneFrame, SceneObject, SceneUpdate};
+use ac2_render::scene::{
+    BlockKey, CloudShadow, Images, Loaded, SceneFrame, SceneObject, SceneUpdate,
+};
 use ac2_render::sky::SkyPlacement;
 use ac2_render::{Camera, Image, TextureKey};
 
@@ -52,6 +54,12 @@ pub struct SceneRenderer {
     flares: LensFlares,
     /// The near landscape's static shadow map.
     shadow_map: StaticShadowMap,
+    /// `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`, the region's cloud shadows
+    /// once the far load brings them, and whether the terrain must be bound to them again.
+    static_shadows: bool,
+    cloud_shadows: bool,
+    far_clouds: Option<CloudShadow>,
+    rebind_clouds: bool,
     /// The sun shadow cascades of bodies and objects, and the level they are sized for next.
     sun_shadows: SunShadows,
     object_shadows: ObjectShadows,
@@ -92,6 +100,31 @@ impl SceneRenderer {
         self.object_shadows = level;
     }
 
+    /// Whether the near landscape takes the static shadow map (`LandscapeStaticObjectShadows`)
+    /// and the cloud shadows (`LandscapeCloudShadows`, only with the map:
+    /// `LScapeTerrainMesh::InitFarMesh`, `LScapeMaterialInfo::CombineMaterials`), from the next
+    /// `prepare`.
+    pub fn set_landscape_shadows(&mut self, static_shadows: bool, cloud_shadows: bool) {
+        self.rebind_clouds |=
+            (static_shadows, cloud_shadows) != (self.static_shadows, self.cloud_shadows);
+        self.static_shadows = static_shadows;
+        self.cloud_shadows = cloud_shadows;
+    }
+
+    /// Binds the terrain to the region's cloud shadows when both preferences draw them, else
+    /// to none (the far mesh's stage 0 is then `ADDSIGNED2X`).
+    fn bind_clouds(&mut self, gpu: &Gpu) {
+        let clouds = self
+            .far_clouds
+            .filter(|_| self.static_shadows && self.cloud_shadows);
+        let images = &self.images;
+        self.terrain
+            .set_shadows(gpu, clouds, self.shadow_map.view(), &mut |key| {
+                images.get(&key).cloned()
+            });
+        self.rebind_clouds = false;
+    }
+
     /// Whether the sky lights draw their lens flares and the cell lights their coronas
     /// (`LightCoronas`), from the next `prepare`.
     pub fn set_light_coronas(&mut self, enabled: bool) {
@@ -119,6 +152,10 @@ impl SceneRenderer {
         let sun_shadows = SunShadows::new(gpu);
         Self {
             object_shadows: ac2_render::prefs::SceneOptions::default().object_shadows,
+            static_shadows: ac2_render::prefs::SceneOptions::default().static_shadows,
+            cloud_shadows: ac2_render::prefs::SceneOptions::default().cloud_shadows,
+            far_clouds: None,
+            rebind_clouds: false,
             terrain,
             shadow_map,
             sun_shadows,
@@ -215,16 +252,12 @@ impl SceneRenderer {
                         far.texture,
                         &mut load,
                     );
-                    self.terrain.set_shadows(
-                        gpu,
-                        Some(far.clouds),
-                        self.shadow_map.view(),
-                        &mut load,
-                    );
                     let water = far
                         .water
                         .map(|model| self.objects.upload(gpu, &model, &mut load));
                     self.far = Some((terrain, water));
+                    self.far_clouds = Some(far.clouds);
+                    self.bind_clouds(gpu);
                 }
                 Loaded::Object(object) => {
                     self.take_images(object.images);
@@ -267,6 +300,9 @@ impl SceneRenderer {
             }
         }
         let lighting = self.frame.lighting;
+        if self.rebind_clouds {
+            self.bind_clouds(gpu);
+        }
         self.refresh_shadow_map(gpu);
         self.draw_sun_shadows(gpu, camera, aspect);
         if let Some([r, g, b, a]) = self.frame.sky.fog_quad {
@@ -285,12 +321,9 @@ impl SceneRenderer {
         let look = SkyLook {
             backdrop: crate::sky_backdrop(&before).map(|index| before[index].tint),
             time,
-            wind: self
-                .terrain
-                .clouds()
-                .map_or(crate::sky::DEFAULT_CLOUD_WIND, |c| {
-                    crate::sky::cloud_wind(&c)
-                }),
+            wind: self.far_clouds.map_or(crate::sky::DEFAULT_CLOUD_WIND, |c| {
+                crate::sky::cloud_wind(&c)
+            }),
             ..SkyLook::default()
         };
         self.sky
@@ -353,8 +386,13 @@ impl SceneRenderer {
     /// what it shows changed, and hands the terrain its transform.
     fn refresh_shadow_map(&mut self, gpu: &Gpu) {
         let frame = &self.frame;
-        let terrain: Vec<(BlockKey, &TerrainBlock)> = frame
-            .terrain
+        // Without `LandscapeStaticObjectShadows` there is no map: the terrain samples it white.
+        let shown: &[BlockKey] = if self.static_shadows {
+            &frame.terrain
+        } else {
+            &[]
+        };
+        let terrain: Vec<(BlockKey, &TerrainBlock)> = shown
             .iter()
             .filter_map(|key| Some((*key, self.blocks.get(key)?.terrain.as_ref()?)))
             .collect();
