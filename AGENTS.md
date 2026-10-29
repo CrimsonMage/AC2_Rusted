@@ -110,8 +110,8 @@ game rules and server-visible behaviour exactly retail.
   locations; `save_loc` windows still upload to the server as retail does. The HUD's chrome
   (bars, radar, selection field, toolbar and its side panels) is windows too. Not moved: the
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
-  radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to its
-  panel, kept at its `SyncPortrait` place each loop), full-display backdrops and tooltips.
+  radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to
+  its panel, kept at its `SyncPortrait` place each loop), full-display backdrops and tooltips.
 - Exception: text fields support modern selection and the clipboard: mouse drag and Shift+arrow
   selection, highlighted, with Ctrl+A / Ctrl+C / Ctrl+X / Ctrl+V (the OS clipboard). Password
   fields never copy out. Retail's own text editing rules (max length, enter/escape) still apply.
