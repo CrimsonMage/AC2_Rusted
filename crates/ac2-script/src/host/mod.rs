@@ -248,6 +248,12 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.no_draw)
     }
 
+    /// The camera effect stops the scripts asked for since the last call (see
+    /// `Vm::camera_fx_stops`).
+    pub fn take_camera_fx_stops(&mut self) -> Vec<u64> {
+        std::mem::take(&mut self.vm.camera_fx_stops)
+    }
+
     /// The physics object changes the scripts asked for, in order (see `Vm::physics`).
     pub fn take_physics(&mut self) -> Vec<(u64, ac2_net::protocol::ObjectAction)> {
         std::mem::take(&mut self.vm.physics)

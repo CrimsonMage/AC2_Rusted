@@ -117,12 +117,13 @@ impl PlayerBody {
         }
     }
 
-    /// What the camera reads from the player's physics object.
-    pub fn camera_subject(&self) -> CameraSubject {
+    /// What the camera reads from the player's physics object, `id` its instance id.
+    pub fn camera_subject(&self, id: u64) -> CameraSubject {
         let position = self.physics.position();
         let state = self.physics.movement_state();
         let [vx, vy, vz] = state.velocity;
         CameraSubject {
+            id,
             position,
             height: self.height,
             radius: self.radius,

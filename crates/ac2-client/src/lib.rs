@@ -23,6 +23,7 @@ mod chat_commands;
 mod client;
 mod client_ambient;
 mod client_audio;
+mod client_camera;
 mod client_fx_objects;
 mod client_latent;
 mod client_locations;

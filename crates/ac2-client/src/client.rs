@@ -515,6 +515,7 @@ impl Client {
             }
             Loaded::ScriptState(id, pid, did) => self.script_state_loaded(id, pid, did),
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
+            Loaded::CameraFx(source, scalar, fx) => self.camera_fx_loaded(source, scalar, fx),
             Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),
             Loaded::ScriptData(answered) => self.script_data_loaded(answered),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
@@ -581,6 +582,7 @@ impl Client {
         let state = body.physics.movement_state();
         let [vx, vy, vz] = state.velocity;
         Some(CameraSubject {
+            id: player.id,
             position,
             height: body.height,
             radius: body.radius,
@@ -628,9 +630,7 @@ impl Client {
             self.camera_update_time = now;
         }
         self.scene.slerp(self.render_interpolation);
-        // `CameraManager::UseTime`: no camera effects run, so the field of view is 65 and the
-        // current position gains no distortion.
-        self.scene.fov = self.camera.fov();
+        self.camera_use_time();
         Ok(events)
     }
 
@@ -816,8 +816,12 @@ impl Client {
         let Some(subject) = self.camera_subject(true) else {
             return;
         };
+        let world = crate::client_camera::CameraWorld {
+            player: self.player.as_ref(),
+            remotes: &self.remotes,
+        };
         self.scene
-            .update(&mut self.camera, &subject, quantum, interpolate);
+            .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
     }
 
     /// `SmartBox::SetCameraPosition`.

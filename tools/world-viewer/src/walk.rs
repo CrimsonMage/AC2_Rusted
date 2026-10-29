@@ -20,6 +20,9 @@ use ac2_smartbox::{
     PlayerBody, SceneCamera,
 };
 use ac2_weenie::Appearance;
+
+/// The offline walk's player id: the viewer has no server to name one.
+const VIEWER_PLAYER_ID: u64 = 0x5000_0001;
 use ac2_world::Ac2WorldSource;
 
 /// `SmartBox::SetCameraDefaults`' initial camera height factor and the entry camera's quantum.
@@ -265,8 +268,10 @@ impl Walk {
                     if placed != ac2_physics::SetPositionError::Ok {
                         self.message = Some(format!("the new body cannot stand here: {placed:?}"));
                     }
-                    self.camera
-                        .set_player(&player.camera_subject(), INITIAL_CAMERA_HEIGHT);
+                    self.camera.set_player(
+                        &player.camera_subject(VIEWER_PLAYER_ID),
+                        INITIAL_CAMERA_HEIGHT,
+                    );
                     self.player = Some(player);
                 } else {
                     self.player = Some(player);
@@ -298,7 +303,7 @@ impl Walk {
             return;
         }
         self.in_world = true;
-        let subject = player.camera_subject();
+        let subject = player.camera_subject(VIEWER_PLAYER_ID);
         self.camera.set_player(&subject, INITIAL_CAMERA_HEIGHT);
         let desired = self
             .camera
@@ -317,7 +322,10 @@ impl Walk {
 
     /// A camera action (`camera_action::*`) started or stopped.
     pub fn camera_action(&mut self, action: u32, start: bool) {
-        let subject = self.player.as_ref().map(|p| p.camera_subject());
+        let subject = self
+            .player
+            .as_ref()
+            .map(|p| p.camera_subject(VIEWER_PLAYER_ID));
         if start {
             self.camera.start_action(action, 1.0, subject.as_ref());
         } else {
@@ -380,7 +388,7 @@ impl Walk {
         for _ in 0..quanta {
             player.physics.step_quantum(&self.terrain);
             if !self.camera.mouse_look {
-                let subject = player.camera_subject();
+                let subject = player.camera_subject(VIEWER_PLAYER_ID);
                 self.scene
                     .update(&mut self.camera, &subject, PHYSICS_QUANTUM, true);
             }
@@ -391,11 +399,21 @@ impl Walk {
             }
         }
         if self.camera.mouse_look {
-            let subject = player.camera_subject();
+            let subject = player.camera_subject(VIEWER_PLAYER_ID);
             self.scene.update(&mut self.camera, &subject, dt, false);
         }
         self.scene
             .slerp(self.physics_clock.render_interpolation(now));
+        // `CameraManager::UseTime`: no FX play in the viewer, so only the field of view's base
+        // (65 plus the effects' clamped sum of 10).
+        let random = &mut self.random;
+        self.camera.use_time(
+            now,
+            &mut self.scene.current,
+            &mut |_| None,
+            &mut |lo, hi| random.roll_dice_f32(lo, hi),
+        );
+        self.scene.fov = self.camera.fov();
     }
 }
 

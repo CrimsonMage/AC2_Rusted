@@ -8,8 +8,9 @@
 
 use ac2_physics::{Heading, Position, Vector};
 
+use crate::camera_fx::CameraFxManager;
 use crate::prefs::CameraValues;
-use crate::targeting::TargetingModule;
+use crate::targeting::{CameraObjects, CameraView, NoObjects, TargetingModule, INVALID_IID};
 
 /// Loads a `float` onto the x87 stack.
 #[inline(always)]
@@ -76,6 +77,8 @@ const ZOOM_OUT_BASE: f64 = 1.5;
 /// What the camera reads from the player's physics object.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct CameraSubject {
+    /// `GetID`.
+    pub id: u64,
     /// `GetPosition`.
     pub position: Position,
     /// `GetHeight` and `GetRadius` (x87 results, not stored).
@@ -169,6 +172,14 @@ pub struct CameraManager {
     pub zoom_mode: bool,
     /// `MouseMove`'s static `mouseFilterDeque`: the last ten mouse-look deltas, newest first.
     pub mouse_filter: std::collections::VecDeque<(i32, i32)>,
+    /// `mCameraFXManager`.
+    pub fx: CameraFxManager,
+    /// `UseTime`'s static `tLastUpdateTime`: the local time of the last `use_time`.
+    pub(crate) last_use_time: Option<f64>,
+    /// `UpdateCamera`'s dynamic first-person test: first person with the avatar shown
+    /// (`AvatarVisibleInFirstPerson`) and a behaviour flagged `DYNAMIC_FP_CAMERA` playing on the
+    /// player (`ModeTracker::CheckForDynamicFPCamera`), which the client sets each update.
+    pub dynamic_first_person: bool,
 }
 
 impl Default for CameraManager {
@@ -213,6 +224,9 @@ impl CameraManager {
             invert_y: false,
             zoom_mode: false,
             mouse_filter: std::collections::VecDeque::new(),
+            fx: CameraFxManager::default(),
+            last_use_time: None,
+            dynamic_first_person: false,
         }
     }
 
@@ -222,20 +236,27 @@ impl CameraManager {
         let height = st(subject.height * ld(initial_camera_height));
         // `SetTargetObject`: `StoreTargetPos` from no target finds no old position to blend
         // from; the first target becomes the player.
+        let view = CameraView {
+            player: Some(subject),
+            objects: &NoObjects,
+        };
         self.targeting
-            .store_target_pos(Some(subject), true, 1.0, 1.0);
-        self.targeting.set_player(true);
+            .store_target_pos(&view, subject.id, 0, 1.0, 1.0);
+        self.targeting.set_player(subject.id);
         self.targeting.camera_distance = self.camera_distance;
         self.target_offset = Vector::new(0.0, 0.0, height);
         self.set_defaults(Some(subject));
     }
 
-    /// `CameraManager::ResetCamera` (the player left).
+    /// `CameraManager::ResetCamera` (the player left): no player, and no camera effects
+    /// (the effects' player id is cleared; their tracks run out unseen).
     pub fn reset(&mut self) {
-        self.targeting.set_player(false);
+        self.targeting.set_player(INVALID_IID);
+        self.fx.stop_all();
     }
 
-    /// `CameraManager::GetCameraDistance` (no camera effects run, so their distance sum is 0).
+    /// `CameraManager::GetCameraDistance`: the distance (the effects' distance sum is kept but
+    /// not added, as retail's).
     pub fn get_camera_distance(&self) -> f32 {
         self.camera_distance
     }
@@ -604,6 +625,23 @@ impl CameraManager {
         subject: Option<&CameraSubject>,
         current: &Position,
     ) -> Position {
+        self.update_camera_with(quantum, subject, &NoObjects, current)
+    }
+
+    /// [`Self::update_camera`] with the objects other than the player the camera can follow.
+    /// With [`Self::dynamic_first_person`] set, the camera rides 0.2 m forward of and above the
+    /// player's head bone (`CAMERA_TARGET_BONE`) instead.
+    pub fn update_camera_with(
+        &mut self,
+        quantum: f32,
+        subject: Option<&CameraSubject>,
+        objects: &dyn CameraObjects,
+        current: &Position,
+    ) -> Position {
+        let view = CameraView {
+            player: subject,
+            objects,
+        };
         let q = ld(quantum);
         self.fov = st(ld(self.anim_fov) + ld(self.fov));
         let distance = ld(self.anim_scale).powf(q) * ld(self.camera_distance);
@@ -645,14 +683,23 @@ impl CameraManager {
         self.ease_shoulder(quantum);
         if let Some(player) = subject {
             let mut targeting = std::mem::take(&mut self.targeting);
-            targeting.update(self, player, quantum);
+            targeting.update(self, &view, player, quantum);
             self.targeting = targeting;
         }
         let heading = direction_heading(self.viewer_offset.x, self.viewer_offset.y);
         let angles = Vector::new(-pitch, st(radians(heading)), 0.0);
         let viewer = rotate_angles_forward(angles);
+        if self.first_person && self.dynamic_first_person {
+            if let Some(player) = subject {
+                let head = Vector::new(0.0, 0.2, 0.2);
+                let bone = crate::targeting::CAMERA_TARGET_BONE;
+                if let Some(at) = objects.bone_position(player.id, bone, head) {
+                    return at;
+                }
+            }
+        }
         let mut targeting = std::mem::take(&mut self.targeting);
-        let position = targeting.calc_viewer_pos(self, subject, viewer, current);
+        let position = targeting.calc_viewer_pos(self, &view, viewer, current);
         self.targeting = targeting;
         position
     }
@@ -691,7 +738,7 @@ impl CameraManager {
         self.align_to_slope = values.align_to_slope;
     }
 
-    /// `CameraManager::UseTime`'s field of view: 65 plus the camera effects' sum (none run).
+    /// `CameraManager::m_fov`: 65 plus the camera effects' sum after `use_time` (at least 10).
     pub fn fov(&self) -> f32 {
         self.fov
     }
@@ -703,7 +750,7 @@ impl CameraManager {
 
     /// `CameraManager::NoRayTrace`: first person, or a target other than the player.
     pub fn no_ray_trace(&self) -> bool {
-        self.first_person || !self.targeting.target_is_player
+        self.first_person || !self.targeting.target_is_player()
     }
 
     /// `GetFirstPersonIsReady`.

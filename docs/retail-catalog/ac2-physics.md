@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 850 done, 158 partial, 168 to do, 948 skipped.
+2124 retail functions: 852 done, 157 partial, 167 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (13/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (14/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1252,7 +1252,7 @@ Legend and workflow: [README](README.md).
 - [~] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — ac2-smartbox fx_manager.rs Remotes::do_slider_fx (tested): the emitter's DoSlider(0, slider, scalar, ramp) and, with propagate, DoSliderOnChild on each direct child. The FX node type that calls it (a slider FX in an FXTable) is not decoded by ac2-assets yet, so nothing drives it
 - [~] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — Not ported: DoRepulseFX forwards to PHYSICSOBJREP::CreateParticleRepulsor (the particle repulsor system is not in ac2-render); ac2-assets does not decode repulsor FX nodes
 - [x] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [~] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — Not ported: DoCameraFX forwards to CameraManager::DoCameraFX (camera FX scripts are not in ac2-smartbox's camera); ac2-assets does not decode camera FX nodes
+- [x] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
 
 ### ChannelPrefs
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (265/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (266/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2439,7 +2439,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::SetCameraLookAtCamera` · 004e2570 · legions 004d4fc0 — ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
 - [x] `CPhysicsObj::LookAtSelection` · 004e25b0 · legions 004d5000 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 - [x] `CPhysicsObj::SetLookAtSelection` · 004e2630 · legions 004d5080 — ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
-- [ ] `CPhysicsObj::StopAllCameraFX` · 004e2650 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::StopAllCameraFX` · 004e2650 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CPhysicsObj::LookAtDir` · 004e2670 · legions 004d50c0 — LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 - [-] `CPhysicsObj::SetParentObject` · 004e26c0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 - [-] `CPhysicsObj::SetTargetObject` · 004e26f0 — one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body

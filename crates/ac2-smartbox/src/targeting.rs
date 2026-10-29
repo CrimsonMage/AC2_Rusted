@@ -1,10 +1,14 @@
 //! `TargetingModule` (Legions `portal/client/src/smartbox/camera/targetingmodule.cpp`, every
-//! function an exact instruction match of admin 7148): where the camera stands for its target,
-//! and the timed blend between an old and a new target (`TurnOn`, `FakeTransition`).
+//! function an exact instruction match of admin 7148): where the camera stands for its parent
+//! and its target, and the timed blend between the old and the new ones (`TurnOn`,
+//! `FakeTransition`). The player camera targets the player with no parent; behaviours and camera
+//! effects move the target and the parent to other objects, to bone types on them, and to the
+//! camera's two dummy objects on the player (`CameraManager::SetupCameraDummyObjects`), and the
+//! camera returns to the player when their period runs out.
 //!
-//! The client's camera only ever targets the player with no parent and no bone, so the parent
-//! and bone branches of `InternalCalcViewerPos` are not reachable here and are left out.
-//! Float order follows the x87 code (53-bit precision): `ld`/`st` mark loads and `float` stores.
+//! Positions are the objects' physics positions: the client keeps no drawing position for the
+//! camera (`GetPosition`'s `_bDrawingPos`). Float order follows the x87 code (53-bit precision):
+//! `ld`/`st` mark loads and `float` stores.
 
 use ac2_physics::{Frame, Position, Quaternion, Vector};
 
@@ -12,14 +16,114 @@ use crate::camera::{ld, st, CameraManager, CameraSubject, F_EPSILON};
 
 /// `GetElement`'s water element: the first-person camera leans a whole metre forward in it.
 const WATER_ELEMENT: u32 = 0x4000_0003;
+/// `INVALID_IID`.
+pub const INVALID_IID: u64 = 0;
+/// `IIDUtils::GetCameraParent` and `GetCameraTarget`: the camera's dummy objects.
+pub const CAMERA_PARENT_ID: u64 = 0x1200_0000_0000_0FFF;
+pub const CAMERA_TARGET_ID: u64 = 0x1200_0000_0000_0FFE;
+/// The player's bone types the dummies are attached to (`SetupCameraDummyObjects`); the
+/// target's is also the head the dynamic first-person camera rides (`UpdateCamera`).
+pub const CAMERA_PARENT_BONE: u32 = 0x4000_0004;
+pub const CAMERA_TARGET_BONE: u32 = 0x4000_0005;
 
-/// `TargetingModule`, reduced to a player target.
+/// The objects other than the player the camera can follow.
+pub trait CameraObjects {
+    /// What the camera reads from object `id`'s physics object, `None` when it is not known
+    /// (`ICPhysicsObj::GetObjectA`). Never asked for the player.
+    fn subject(&self, id: u64) -> Option<CameraSubject>;
+    /// `CPhysicsObj::GetBonePosition(bone, offset)`: object `id`'s bone of type `bone` (offset by
+    /// `offset` in the bone's space), placed by the object's position and scale. `None` when the
+    /// object or the bone type is missing. Asked for the player too.
+    fn bone_position(&self, id: u64, bone: u32, offset: Vector) -> Option<Position>;
+}
+
+/// No objects but the player.
+pub struct NoObjects;
+
+impl CameraObjects for NoObjects {
+    fn subject(&self, _id: u64) -> Option<CameraSubject> {
+        None
+    }
+    fn bone_position(&self, _id: u64, _bone: u32, _offset: Vector) -> Option<Position> {
+        None
+    }
+}
+
+/// What the camera sees this update: the player and the other objects.
+#[derive(Clone, Copy)]
+pub struct CameraView<'a> {
+    pub player: Option<&'a CameraSubject>,
+    pub objects: &'a dyn CameraObjects,
+}
+
+/// An object as `InternalCalcViewerPos` reads it.
+#[derive(Debug, Clone, Copy)]
+struct Seen {
+    subject: CameraSubject,
+    /// `IsThePlayer` and `IsDummyObject`.
+    is_player: bool,
+    is_dummy: bool,
+}
+
+impl CameraView<'_> {
+    /// `ICPhysicsObj::GetObjectA(id)`. A camera dummy is there while the player has its bone
+    /// type, standing on that bone.
+    fn object(&self, id: u64, player_id: u64) -> Option<Seen> {
+        if id == INVALID_IID {
+            return None;
+        }
+        if let Some(player) = self.player.filter(|p| p.id == id && id == player_id) {
+            return Some(Seen {
+                subject: *player,
+                is_player: true,
+                is_dummy: false,
+            });
+        }
+        let bone = match id {
+            CAMERA_PARENT_ID => Some(CAMERA_PARENT_BONE),
+            CAMERA_TARGET_ID => Some(CAMERA_TARGET_BONE),
+            _ => None,
+        };
+        if let Some(bone) = bone {
+            let zero = Vector::new(0.0, 0.0, 0.0);
+            let position = self.objects.bone_position(player_id, bone, zero)?;
+            return Some(Seen {
+                subject: CameraSubject {
+                    id,
+                    position,
+                    height: 0.0,
+                    radius: 0.0,
+                    scale_z: 1.0,
+                    local_velocity: zero,
+                    element: 0,
+                    no_draw: true,
+                },
+                is_player: false,
+                is_dummy: true,
+            });
+        }
+        Some(Seen {
+            subject: self.objects.subject(id)?,
+            is_player: false,
+            is_dummy: false,
+        })
+    }
+}
+
+/// `TargetingModule`.
 #[derive(Debug, Clone)]
 pub struct TargetingModule {
-    /// `mTargetID == mPlayerID` (otherwise `INVALID_IID`), and the same for `mOldTargetID`.
-    pub target_is_player: bool,
-    old_target_is_player: bool,
-    pub has_player: bool,
+    /// `mPlayerID`, `mTargetID`/`mTargetBone`, `mOldTargetID`/`mOldTargetBone`, `mParentID`/
+    /// `mParentBone` and `mOldParentID`/`mOldParentBone`.
+    pub player_id: u64,
+    pub target_id: u64,
+    pub target_bone: u32,
+    old_target_id: u64,
+    old_target_bone: u32,
+    pub parent_id: u64,
+    pub parent_bone: u32,
+    old_parent_id: u64,
+    old_parent_bone: u32,
     is_on: bool,
     time: f32,
     period: f32,
@@ -34,8 +138,10 @@ pub struct TargetingModule {
     pub fake_trans_time: f32,
     viewer_offset: Vector,
     old_viewer_offset: Vector,
-    /// `mLastTargetPos`; `None` while it holds no valid cell (`Position::IsValid`).
+    /// `mLastTargetPos` and `mLastParentPos`; `None` while they hold no valid cell
+    /// (`Position::IsValid`).
     last_target_pos: Option<Position>,
+    last_parent_pos: Option<Position>,
     pub auto_distance: bool,
 }
 
@@ -43,9 +149,15 @@ impl Default for TargetingModule {
     /// `TargetingModule::TargetingModule`.
     fn default() -> Self {
         Self {
-            target_is_player: false,
-            old_target_is_player: false,
-            has_player: false,
+            player_id: INVALID_IID,
+            target_id: INVALID_IID,
+            target_bone: 0,
+            old_target_id: INVALID_IID,
+            old_target_bone: 0,
+            parent_id: INVALID_IID,
+            parent_bone: 0,
+            old_parent_id: INVALID_IID,
+            old_parent_bone: 0,
             is_on: false,
             time: 0.0,
             period: 1.0,
@@ -61,6 +173,7 @@ impl Default for TargetingModule {
             viewer_offset: Vector::new(0.0, -3.5, 0.0),
             old_viewer_offset: Vector::new(0.0, -3.5, 0.0),
             last_target_pos: None,
+            last_parent_pos: None,
             auto_distance: true,
         }
     }
@@ -74,10 +187,15 @@ fn normalize(v: Vector) -> Vector {
 impl TargetingModule {
     /// `TargetingModule::SetPlayer`: the player becomes the target, the old target and the
     /// player id.
-    pub fn set_player(&mut self, present: bool) {
-        self.has_player = present;
-        self.target_is_player = present;
-        self.old_target_is_player = present;
+    pub fn set_player(&mut self, id: u64) {
+        self.player_id = id;
+        self.old_target_id = id;
+        self.target_id = id;
+    }
+
+    /// Whether the camera targets the player (`mTargetID == mPlayerID`).
+    pub fn target_is_player(&self) -> bool {
+        self.target_id == self.player_id
     }
 
     /// `TargetingModule::TurnOn`.
@@ -101,40 +219,74 @@ impl TargetingModule {
         }
     }
 
-    /// `TargetingModule::FakeTransition`: forget the old target and blend in from the
-    /// camera's current position over `mFakeTransTime`.
+    /// `TargetingModule::FakeTransition`: forget the old target, drop the parent, and blend in
+    /// from the camera's current position over `mFakeTransTime`.
     pub fn fake_transition(&mut self) {
-        self.old_target_is_player = false;
+        self.old_target_id = INVALID_IID;
+        self.old_parent_id = self.parent_id;
+        self.parent_id = INVALID_IID;
         self.turn_on(self.fake_trans_time, self.fake_trans_time);
     }
 
-    /// `TargetingModule::GetPosition` for the target (`_bDrawingPos` reads the render-slerped
-    /// position, which the headless client does not keep: the physics position stands in).
-    fn target_position(
-        &self,
-        subject: Option<&CameraSubject>,
-        is_player: bool,
-    ) -> Option<Position> {
-        is_player.then(|| subject.map(|s| s.position)).flatten()
+    /// `TargetingModule::GetPosition`: the object's position, or its bone's
+    /// (`GetBonePosition` with no offset). A bone retail cannot find leaves the position
+    /// unwritten; here it is missing.
+    fn get_position(&self, view: &CameraView<'_>, id: u64, bone: u32) -> Option<Position> {
+        let seen = view.object(id, self.player_id)?;
+        if bone != 0 {
+            return view
+                .objects
+                .bone_position(id, bone, Vector::new(0.0, 0.0, 0.0));
+        }
+        Some(seen.subject.position)
     }
 
-    /// `TargetingModule::StoreTargetPos` with bone 0.
+    /// `TargetingModule::StoreTargetPos`: a new target (or bone) keeps where the old one was and
+    /// blends from it over `ramp_time`, holding the new one for `period` (`-1` holds it).
     pub fn store_target_pos(
         &mut self,
-        subject: Option<&CameraSubject>,
-        target_is_player: bool,
+        view: &CameraView<'_>,
+        id: u64,
+        bone: u32,
         period: f32,
         ramp_time: f32,
     ) {
-        if self.target_is_player == target_is_player {
+        if self.target_id == id && self.target_bone == bone {
             return;
         }
-        if let Some(position) = self.target_position(subject, self.target_is_player) {
+        if let Some(position) = self.get_position(view, self.target_id, self.target_bone) {
             self.last_target_pos = Some(position);
         }
-        self.old_target_is_player = self.target_is_player;
-        self.target_is_player = target_is_player;
+        self.old_target_id = self.target_id;
+        self.old_target_bone = self.target_bone;
+        self.target_id = id;
+        self.target_bone = bone;
         if self.last_target_pos.is_some() {
+            self.turn_on(period, ramp_time);
+        }
+    }
+
+    /// `TargetingModule::StoreParentPos`: as [`Self::store_target_pos`] for the parent, which
+    /// changes only with its id.
+    pub fn store_parent_pos(
+        &mut self,
+        view: &CameraView<'_>,
+        id: u64,
+        bone: u32,
+        period: f32,
+        ramp_time: f32,
+    ) {
+        if self.parent_id == id {
+            return;
+        }
+        if let Some(position) = self.get_position(view, self.parent_id, self.parent_bone) {
+            self.last_parent_pos = Some(position);
+        }
+        self.old_parent_id = self.parent_id;
+        self.parent_id = id;
+        self.old_parent_bone = self.parent_bone;
+        self.parent_bone = bone;
+        if self.last_parent_pos.is_some() {
             self.turn_on(period, ramp_time);
         }
     }
@@ -190,25 +342,36 @@ impl TargetingModule {
     }
 
     /// `TargetingModule::Update`: the camera distance, then the blend clock; a blend that is
-    /// done (or has nothing to blend from) turns off, and a timed (not held) target returns to
-    /// the player.
-    pub fn update(&mut self, camera: &CameraManager, subject: &CameraSubject, quantum: f32) {
+    /// done (or has nothing to blend from) turns off, and a timed (not held) target or parent
+    /// other than the player returns the camera to the player over 2 seconds.
+    pub fn update(
+        &mut self,
+        camera: &CameraManager,
+        view: &CameraView<'_>,
+        subject: &CameraSubject,
+        quantum: f32,
+    ) {
         self.calc_camera_distance(camera, subject, quantum);
         if !self.is_on {
-            if let Some(position) = self.target_position(Some(subject), self.target_is_player) {
+            if let Some(position) = self.get_position(view, self.parent_id, self.parent_bone) {
+                self.last_parent_pos = Some(position);
+            }
+            if let Some(position) = self.get_position(view, self.target_id, self.target_bone) {
                 self.last_target_pos = Some(position);
             }
         }
         self.time = st(ld(quantum) + ld(self.time));
-        if !(self.weight < 1.0 && self.last_target_pos.is_some()) {
+        if !(self.weight < 1.0
+            && (self.last_parent_pos.is_some() || self.last_target_pos.is_some()))
+        {
             self.is_on = false;
         }
         if ld(self.period) - ld(self.ramp_time) < ld(self.time)
             && !self.hold
-            && !self.target_is_player
-            && self.has_player
+            && (self.target_id != self.player_id || self.parent_id != INVALID_IID)
         {
-            self.store_target_pos(Some(subject), true, -1.0, 2.0);
+            self.store_target_pos(view, self.player_id, 0, -1.0, 2.0);
+            self.store_parent_pos(view, INVALID_IID, 0, -1.0, 2.0);
         }
         if self.ramp_time > self.time {
             self.weight = st(ld(self.time) / ld(self.ramp_time));
@@ -218,64 +381,173 @@ impl TargetingModule {
         self.weight = self.weight.clamp(0.0, 1.0);
     }
 
-    /// `TargetingModule::InternalCalcViewerPos` for a player target without parent or bone:
-    /// behind the player along `-viewer_offset`, at the camera distance (scaled by the body's
-    /// z scale), lifted by the camera height and the body's height, plus the shoulder offset and
-    /// kept at least 0.5 m from the player horizontally. First person sits at 90% of the body's
-    /// height, leaning forward. With no target the `fallback` position is the answer.
+    /// `TargetingModule::InternalCalcViewerPos` for one parent and target (`use_last` takes the
+    /// last known positions of ones that are gone, for the old pair of a blend):
+    /// - no parent: behind the target along `-viewer_offset`, at the camera distance (scaled by
+    ///   the body's z scale), lifted by the camera height and the body's height, plus the
+    ///   shoulder offset and kept at least 0.5 m from it horizontally; on a target bone, at the
+    ///   bone. First person sits at 90% of the player's height, leaning forward.
+    /// - a parent and a target: at the parent looking at the target; on a parent that is the
+    ///   player (with no target bone), a third of the camera distance back from the player
+    ///   along the line from the target, lifted as above; then the parent's height.
+    /// - a parent alone: at the parent facing its heading, a third of the way along the viewer
+    ///   offset, then its height.
+    ///
+    /// With neither, the `fallback` position is the answer.
+    #[allow(clippy::too_many_arguments)]
     fn internal_calc_viewer_pos(
         &self,
         camera: &mut CameraManager,
-        subject: Option<&CameraSubject>,
-        target_is_player: bool,
+        view: &CameraView<'_>,
+        use_last: bool,
+        (parent_id, parent_bone): (u64, u32),
+        (target_id, target_bone): (u64, u32),
         fallback: &Position,
     ) -> Position {
-        let target = if target_is_player { subject } else { None };
+        let target = view.object(target_id, self.player_id);
+        let parent = (parent_id != INVALID_IID)
+            .then(|| view.object(parent_id, self.player_id))
+            .flatten();
+        let mut parent_pos = self.get_position(view, parent_id, parent_bone);
+        if parent_pos.is_none() && use_last && parent_id != INVALID_IID {
+            parent_pos = self.last_parent_pos;
+        }
+        let mut target_pos = self.get_position(view, target_id, target_bone);
+        if target_pos.is_none() && use_last && target_id != INVALID_IID {
+            target_pos = self.last_target_pos;
+        }
+        let none = Position::new(0, Frame::default());
+        let (parent_pos, target_pos) = (parent_pos.unwrap_or(none), target_pos.unwrap_or(none));
         let mut global = self.viewer_offset;
         if !camera.mouse_look {
-            if let Some(player) = subject {
+            if let Some(player) = view.player {
                 global = player
                     .position
                     .frame
                     .local_to_global_vec(self.viewer_offset);
             }
         }
-        let Some(target) = target else {
-            return *fallback;
+        let forward_scale = target
+            .filter(|t| t.is_player)
+            .map_or(1.0, |t| t.subject.scale_z);
+        let parent_known = parent.is_some() || (use_last && parent_id != INVALID_IID);
+        let target_known = target.is_some() || (use_last && target_id != INVALID_IID);
+        if !parent_known {
+            // Retail reads the target object here; one known only by its last position is not
+            // there to read (a crash in retail), so the fallback stands.
+            let Some(target) = target.filter(|_| target_known) else {
+                return *fallback;
+            };
+            return self.behind_target(camera, view, &target, &target_pos, global);
+        }
+        let identity = Quaternion::new(1.0, 0.0, 0.0, 0.0);
+        let mut frame = Frame::new(parent_pos.frame.origin, identity);
+        let mut origin = parent_pos.frame.origin;
+        let d = ld(self.camera_distance);
+        let third = ld(0.333_333_34_f32);
+        let fwd = ld(forward_scale);
+        let lift = match target_known {
+            false => {
+                // A parent alone: its heading, a third of the way out along the viewer offset.
+                frame.set_vector_heading(parent_pos.frame.vector_heading());
+                let Some(_) = parent else {
+                    return Position::new(parent_pos.cell_id, frame);
+                };
+                let y = st(ld(global.y) * d);
+                let z = st(ld(global.z) * d * fwd);
+                origin.x = st(ld(origin.x) + ld(st(ld(global.x) * d * fwd * third)));
+                origin.y = st(ld(origin.y) + ld(y) * fwd * third);
+                origin.z = st(ld(origin.z) + ld(z) * third);
+                true
+            }
+            true => {
+                // Looking from the parent's top at the target.
+                let mut top = parent_pos.frame.origin;
+                if let Some(p) = parent.filter(|p| !p.is_dummy) {
+                    top.z = st(p.subject.height + ld(top.z));
+                }
+                let t = target_pos.frame.origin;
+                let dir = Vector::new(
+                    st(ld(t.x) - ld(top.x)),
+                    st(ld(t.y) - ld(top.y)),
+                    st(ld(t.z) - ld(top.z)),
+                );
+                frame.set_vector_heading(dir);
+                let Some(p) = parent else {
+                    return Position::new(parent_pos.cell_id, frame);
+                };
+                // On the player (whose head retail also turns to the target when not
+                // blending, `0x4f8`, not modelled), back from it along the line.
+                if p.is_player && self.target_bone == 0 {
+                    let away = normalize(Vector::new(-dir.x, -dir.y, -dir.z));
+                    let y = st(ld(away.y) * d);
+                    let z = st(ld(away.z) * d * fwd);
+                    origin.x = st(ld(st(ld(away.x) * d * fwd * third)) + ld(origin.x));
+                    origin.y = st(ld(y) * fwd * third + ld(origin.y));
+                    origin.z = st(ld(st(ld(z) * third)) + ld(origin.z) + ld(self.camera_height));
+                    true
+                } else {
+                    false
+                }
+            }
         };
-        let target_pos = target.position;
+        if lift {
+            let shoulder = camera.calc_shoulder_offset(view.player, self.camera_distance);
+            origin.x = st(ld(origin.x) + ld(shoulder.x));
+            origin.y = st(ld(origin.y) + ld(shoulder.y));
+            origin.z = st(ld(origin.z) + ld(shoulder.z));
+        }
+        if let Some(p) = parent.filter(|p| !p.is_dummy) {
+            origin.z = st(p.subject.height + ld(origin.z));
+        }
+        frame.origin = origin;
+        Position::new(parent_pos.cell_id, frame)
+    }
+
+    /// `InternalCalcViewerPos` with no parent: behind `target` (see above).
+    fn behind_target(
+        &self,
+        camera: &mut CameraManager,
+        view: &CameraView<'_>,
+        target: &Seen,
+        target_pos: &Position,
+        global: Vector,
+    ) -> Position {
+        let subject = &target.subject;
         let mut frame = Frame::new(target_pos.frame.origin, Quaternion::new(1.0, 0.0, 0.0, 0.0));
         frame.set_vector_heading(Vector::new(-global.x, -global.y, -global.z));
         let mut origin = frame.origin;
         if !camera.first_person {
-            let d = ld(self.camera_distance);
-            let scale = ld(target.scale_z);
-            let ay = ld(st(ld(global.y) * d));
-            let az = st(ld(st(ld(global.z) * d)) * scale);
-            origin.x = st(ld(global.x) * d * scale + ld(origin.x));
-            origin.y = st(ay * scale + ld(origin.y));
-            origin.z = st(ld(az) + ld(origin.z) + ld(self.camera_height));
-            // `IsDummyObject` is false for the player: its height lifts the camera.
-            origin.z = st(target.height + ld(origin.z));
-            let shoulder = camera.calc_shoulder_offset(Some(target), self.camera_distance);
-            origin.x = st(ld(origin.x) + ld(shoulder.x));
-            origin.y = st(ld(origin.y) + ld(shoulder.y));
-            origin.z = st(ld(origin.z) + ld(shoulder.z));
-            let (tx, ty) = (target_pos.frame.origin.x, target_pos.frame.origin.y);
-            let dx = ld(origin.x) - ld(tx);
-            let dy = ld(origin.y) - ld(ty);
-            let length = (dy * dy + dx * dx).sqrt();
-            if length > 0.0 && length < 0.5 {
-                let away = normalize(Vector::new(st(dx), st(dy), 0.0));
-                origin.x = st(ld(away.x) * 0.5 + ld(tx));
-                origin.y = st(ld(away.y) * 0.5 + ld(ty));
+            if self.target_bone == 0 {
+                let d = ld(self.camera_distance);
+                let scale = ld(subject.scale_z);
+                let ay = ld(st(ld(global.y) * d));
+                let az = st(ld(st(ld(global.z) * d)) * scale);
+                origin.x = st(ld(global.x) * d * scale + ld(origin.x));
+                origin.y = st(ay * scale + ld(origin.y));
+                origin.z = st(ld(az) + ld(origin.z) + ld(self.camera_height));
+                if !target.is_dummy {
+                    origin.z = st(subject.height + ld(origin.z));
+                }
+                let shoulder = camera.calc_shoulder_offset(view.player, self.camera_distance);
+                origin.x = st(ld(origin.x) + ld(shoulder.x));
+                origin.y = st(ld(origin.y) + ld(shoulder.y));
+                origin.z = st(ld(origin.z) + ld(shoulder.z));
+                let (tx, ty) = (target_pos.frame.origin.x, target_pos.frame.origin.y);
+                let dx = ld(origin.x) - ld(tx);
+                let dy = ld(origin.y) - ld(ty);
+                let length = (dy * dy + dx * dx).sqrt();
+                if length > 0.0 && length < 0.5 {
+                    let away = normalize(Vector::new(st(dx), st(dy), 0.0));
+                    origin.x = st(ld(away.x) * 0.5 + ld(tx));
+                    origin.y = st(ld(away.y) * 0.5 + ld(ty));
+                }
             }
-        } else if !target.no_draw {
+        } else if !subject.no_draw && target.is_player {
             let forward = normalize(Vector::new(frame.m[3], frame.m[4], 0.0));
-            // `IsThePlayer`.
-            origin.z = st(target.height * ld(0.9_f32) + ld(origin.z));
-            let speed = target.local_velocity.y;
-            let lean = if target.element == WATER_ELEMENT {
+            origin.z = st(subject.height * ld(0.9_f32) + ld(origin.z));
+            let speed = subject.local_velocity.y;
+            let lean = if subject.element == WATER_ELEMENT {
                 1.0
             } else if ld(speed) > ld(F_EPSILON) || -ld(F_EPSILON) > ld(speed) {
                 (ld(speed).abs() * ld(0.1_f32) + 1.0) * ld(0.4_f32)
@@ -304,25 +576,32 @@ impl TargetingModule {
     }
 
     /// `TargetingModule::CalcViewerPos`: the viewer position for `viewer_offset`; during a blend
-    /// (`mIsOn`) the old target's and the new one's, origin lerped and rotation slerped by the
-    /// blend weight.
+    /// (`mIsOn`) the old pair's (from their last positions if gone) and the new one's, origin
+    /// lerped and rotation slerped by the blend weight.
     pub fn calc_viewer_pos(
         &mut self,
         camera: &mut CameraManager,
-        subject: Option<&CameraSubject>,
+        view: &CameraView<'_>,
         viewer_offset: Vector,
         current: &Position,
     ) -> Position {
         self.viewer_offset = viewer_offset;
+        let new = (
+            (self.parent_id, self.parent_bone),
+            (self.target_id, self.target_bone),
+        );
         if !self.is_on {
             let position =
-                self.internal_calc_viewer_pos(camera, subject, self.target_is_player, current);
+                self.internal_calc_viewer_pos(camera, view, false, new.0, new.1, current);
             self.old_viewer_offset = viewer_offset;
             return position;
         }
-        let from =
-            self.internal_calc_viewer_pos(camera, subject, self.old_target_is_player, current);
-        let to = self.internal_calc_viewer_pos(camera, subject, self.target_is_player, current);
+        let old = (
+            (self.old_parent_id, self.old_parent_bone),
+            (self.old_target_id, self.old_target_bone),
+        );
+        let from = self.internal_calc_viewer_pos(camera, view, true, old.0, old.1, current);
+        let to = self.internal_calc_viewer_pos(camera, view, false, new.0, new.1, current);
         let mut result = Position::new(0, Frame::default());
         result.lerp_origin(&from, &to, self.weight);
         result
@@ -331,8 +610,9 @@ impl TargetingModule {
         result
     }
 
-    /// `GetFirstPersonIsReady`'s test: the player targeted at the first-person distance.
+    /// `GetFirstPersonIsReady`'s test: the player targeted with no bone at the first-person
+    /// distance.
     pub fn first_person_ready(&self) -> bool {
-        self.target_is_player && self.camera_distance == 0.01
+        self.target_is_player() && self.target_bone == 0 && self.camera_distance == 0.01
     }
 }

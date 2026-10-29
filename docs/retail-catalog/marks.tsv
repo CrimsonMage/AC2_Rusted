@@ -3578,7 +3578,7 @@ key	status	note
 004b80b0	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8110	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 004b8170	x	ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-004b81d0	~	ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
+004b81d0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 004b8270	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b82f0	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 004b8370	-	efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
@@ -4689,7 +4689,7 @@ key	status	note
 004e2570	x	ac2-physics body_anim.rs set_camera_look (m_bCameraFK / m_bLookAtCamera), the camera's 0x40000068 / 0x40000069 preferences (CameraManager::HandleChange slots 0x4D4 / 0x4D8), applied each frame by ac2-client client.rs
 004e25b0	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
 004e2630	x	ac2-physics physics_obj_look.rs look_at_selection / body_anim.rs set_look_at_selection (m_bIsLookAtEnabled on from the constructor): on, the player looks at the target; off, a look in progress clears once; the id goes out as CLookAt (ac2-weenie session.rs send_look_at); ac2-client gameplay.rs Command::LookAtSelection after the selection UI's Select (hud_request.rs, Finish3DSelection in bin/ac2); the switch is the camera's 0x4000006A preference (CameraManager::HandleChange -> ICPhysicsObj slot 0x4DC, admin exe 0x00577003); look_at_selection_7160, body_anim_tests
-004e2650	_	needs port: cite-only physics-object method
+004e2650	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 004e2670	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004e26c0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004e26f0	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
@@ -5437,7 +5437,7 @@ key	status	note
 005052d0	~	ac2-smartbox fx_manager.rs Remotes::do_slider_fx (tested): the emitter's DoSlider(0, slider, scalar, ramp) and, with propagate, DoSliderOnChild on each direct child. The FX node type that calls it (a slider FX in an FXTable) is not decoded by ac2-assets yet, so nothing drives it
 00505310	~	Not ported: DoRepulseFX forwards to PHYSICSOBJREP::CreateParticleRepulsor (the particle repulsor system is not in ac2-render); ac2-assets does not decode repulsor FX nodes
 00505340	x	ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-00505380	~	Not ported: DoCameraFX forwards to CameraManager::DoCameraFX (camera FX scripts are not in ac2-smartbox's camera); ac2-assets does not decode camera FX nodes
+00505380	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005053b0	x	ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
 005053f0	-	admin/debug or text-file tooling
 00505850	_	needs port: FX appearance key
@@ -6270,7 +6270,7 @@ key	status	note
 00530c30	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530c50	x	ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 00530c80	~	ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
-00530cb0	_	needs port: camera FX stop: the client has no camera effect manager (ac2-script host/interface.rs says a known gap)
+00530cb0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00530cc0	-	only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 00530ce0	_	needs port: physics object init physics; no citation in crates/
 00530d50	x	Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.
@@ -8179,38 +8179,38 @@ key	status	note
 00574850	x	
 00574970	-	CameraManager singleton accessor (Rust owns the camera struct)
 00574980	x	ac2-client camera.rs
-00574b50	~	field of view 65; no camera effects (distortion, blur, flash)
+00574b50	~	ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position; flash colour and blur amount published, not yet drawn
 00574c50	x	
-00574ca0	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00574ca0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00574cc0	x	
 00574cf0	x	camera action 0x4000002D
 00574d40	x	camera action 0x400000B2
-00574d80	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
-00574db0	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00574d80	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00574db0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00574eb0	~	the player target only
-00574ff0	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
-00575040	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
-00575090	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00574ff0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00575040	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00575090	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005750d0	x	CameraManager::global_direction, fed to the movement module
-005750f0	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
-00575150	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+005750f0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00575150	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005751b0	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 005751c0	~	ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
-00575a20	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
+00575a20	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00575a30	-	ctor/dtor/operator= or plain data copy (Rust new/Drop/Clone/derive replaces)
 00575ab0	x	no camera effects run, so their distance sum is 0
 00575ad0	x	camera action 0x4000002A
-00575b40	~	the player target only
+00575b40	~	store_target_pos only; the first-target player set is set_player
 00575bc0	x	ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
 00575c00	x	
 00575ee0	~	ac2-smartbox prefs.rs values + camera.rs apply_prefs: default distance and tilt (taken at the camera's next reset, not live), rotate speed, mouse-look sensitivity, Invert_Y, Steer_Player, Align_To_Slope; zoom speed, transition time, auto distance and camera height are registered but not read
-00575f20	_	needs port: camera effects (CameraFX DBO and CameraFxManager: shake, screen flash, fov shift, motion blur, distortion, camera distance); not in Rust
-005760f0	~	no dynamic first-person head-bone camera, no camera effects
+00575f20	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+005760f0	~	dynamic first-person head camera ported (update_camera_with, dynamic_first_person) but the client does not set it yet (AvatarVisibleInFirstPerson pref not held); no camera FX gap remains here
 005767a0	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 00576850	x	ac2-smartbox camera.rs fake_transition / look_at_self / swing_out_left (action 0x40000028 and 0x40000029 Legions)
 00576930	-	no Legions 7160 function: Legions StartAction runs SwingOutLeft for 0x40000029 (camera.rs SWING_OUT_RIGHT); admin-only [vtable-checked: not a slot of any located Legions vtable]
 00576a10	~	ac2-smartbox camera.rs set_map_view saves and restores the orbit and distance; SceneTool::m_bDisableDegrades not modelled
-00576b00	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
+00576b00	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00576b40	x	
 00576c70	x	camera action 0x400000AE (no map view)
 00576d10	x	ac2-client camera.rs (driven by gmCameraUI states)
@@ -8243,17 +8243,17 @@ key	status	note
 00579060	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 005790e0	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
 00579160	x	ac2-smartbox camera_fx.rs (CameraFx decode, CameraFxManager tracks, sums, clamps, distortion); all 7 portal records decode
-00579180	x	
+00579180	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005791a0	x	
 00579210	x	
 00579420	x	ac2-smartbox targeting.rs interp_viewer_offset (old and new offsets lerped by the blend's time while mIsOn) and camera.rs; read by the player's LookAtManager::Update
-005794b0	x	
-00579500	~	the physics position stands in for the render-slerped drawing position
-00579670	~	bone 0, the player or no target
-00579700	_	needs port: camera rig (CheckEnvOnly, parent/dummy objects, free/targeted camera, restore, anim target/parent, interp viewer and target offsets); ac2-smartbox camera.rs cites other CameraManager methods, not these
-00579780	x	
-00579910	~	a player target without parent or bone (third and first person)
-0057a320	x	
+005794b0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00579500	~	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; physics positions stand in for drawing positions; the player's head turn to the target (vtable 0x4f8) is not modelled
+00579670	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00579700	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00579780	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+00579910	~	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; physics positions stand in for drawing positions; the player's head turn to the target (vtable 0x4f8) is not modelled
+0057a320	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 0057a510	_	needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
 0057a590	x	far radius consumed by FarTerrain::new
 0057a5b0	_	needs port (check): LScapeManager block shift, visible cells, reload, refresh, reset and region change; uncited (LScapeRender::SetVertexValue calls SetVertexValue)
@@ -13722,8 +13722,8 @@ key	status	note
 006bc490	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc4c0	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
 006bc4e0	x	ac2-net iid: id_type / is_player / is_dynamic / is_static / read_block
-006bc4f0	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
-006bc510	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
+006bc4f0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
+006bc510	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 006bc530	_	needs port (check): IIDUtils CreateUI/CreateTemporary/CreateStatic and camera parent/target ids; ac2-net iid.rs has verify/type but no citation of these
 006bc580	-	skip: constructor/destructor of plain data; Rust struct init and Drop
 006bc5a0	-	skip: constructor/destructor of plain data; Rust struct init and Drop

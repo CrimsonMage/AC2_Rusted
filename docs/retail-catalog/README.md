@@ -39,14 +39,14 @@ scripts/retail_catalog.py status
 | [ac2-dat](ac2-dat.md) | 507 | 42 | 7 | 67 | 391 |
 | [ac2-db](ac2-db.md) | 633 | 197 | 15 | 128 | 293 |
 | [ac2-net](ac2-net.md) | 556 | 230 | 20 | 82 | 224 |
-| [ac2-weenie](ac2-weenie.md) | 1904 | 963 | 157 | 127 | 657 |
+| [ac2-weenie](ac2-weenie.md) | 1904 | 965 | 156 | 126 | 657 |
 | [ac2-anim](ac2-anim.md) | 532 | 172 | 1 | 2 | 357 |
 | [ac2-assets](ac2-assets.md) | 785 | 202 | 11 | 0 | 572 |
 | [ac2-world](ac2-world.md) | 989 | 352 | 34 | 19 | 584 |
 | [ac2-render](ac2-render.md) | 781 | 178 | 53 | 191 | 359 |
 | [ac2-gpu](ac2-gpu.md) | 95 | 10 | 3 | 6 | 76 |
-| [ac2-physics](ac2-physics.md) | 2124 | 850 | 158 | 168 | 948 |
-| [ac2-smartbox](ac2-smartbox.md) | 262 | 117 | 38 | 66 | 41 |
+| [ac2-physics](ac2-physics.md) | 2124 | 852 | 157 | 167 | 948 |
+| [ac2-smartbox](ac2-smartbox.md) | 262 | 132 | 37 | 52 | 41 |
 | [ac2-client](ac2-client.md) | 354 | 126 | 51 | 70 | 107 |
 | [ac2-ui](ac2-ui.md) | 2247 | 1325 | 309 | 117 | 496 |
 | [ac2-script](ac2-script.md) | 2468 | 1690 | 32 | 335 | 411 |

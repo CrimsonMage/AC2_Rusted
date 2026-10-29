@@ -71,6 +71,10 @@ pub trait ScriptPort {
     /// `CCollisionManager::SetCollisionState` minimums for object `object` (the impact minimums).
     fn apply_collision_minimums(&mut self, object: u64, xy: f32, z: f32);
 
+    /// `CPhysicsObj::StopAllCameraFX` on object `object`'s physics object: the camera's effects
+    /// end when it is the player.
+    fn stop_all_camera_fx(&mut self, _object: u64) {}
+
     /// `CCollisionManager::SetCollisionState` sets for object `object` (the ethereal and
     /// physics-type sets the call names).
     fn apply_collision_sets(&mut self, object: u64, sets: &CollisionParameters);

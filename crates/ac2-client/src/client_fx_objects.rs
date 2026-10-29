@@ -9,7 +9,7 @@ use ac2_anim::Ac2AnimEvent;
 use ac2_assets::{Ac2FxObject, Ac2FxObjectAttach};
 use ac2_math::Vec3;
 use ac2_physics::placed_at;
-use ac2_smartbox::fx_objects::{create_alpha_moves, fx_nodes};
+use ac2_smartbox::fx_objects::{camera_fx_starts, create_alpha_moves, fx_nodes};
 use ac2_world::{land_block_size, GameClock};
 
 use crate::client::Client;
@@ -52,6 +52,16 @@ impl Client {
                     Ac2AnimEvent::StartFx { fx, intensity } => {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
+                            // A new FX plays its nodes' camera effects (an FX already running
+                            // only takes the new scalar).
+                            if self.fx_objects.record(*id, fx).is_none() {
+                                let is_player = streak_ctx.player == Some(*id);
+                                for (camera_fx, scalar) in
+                                    camera_fx_starts(&nodes, intensity, is_player, streak_ctx.night)
+                                {
+                                    self.request_camera_fx(camera_fx, scalar, *id);
+                                }
+                            }
                             let remotes = &mut self.remotes;
                             self.fx_objects
                                 .start(*id, fx, &nodes, now, intensity, &mut || {

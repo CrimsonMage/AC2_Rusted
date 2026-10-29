@@ -1,0 +1,179 @@
+//! The camera's reach into the world (`CameraManager`'s `ICPhysicsObj::GetObjectA` lookups): the
+//! objects and bones behaviours and camera effects point the camera at, the player's behaviour
+//! cameras (`PHYSICSOBJREP::SetCameraAnimTarget`, `SetCameraAnimParent`, `RestoreCamera`,
+//! `SetTargetedCamera`), the FX nodes' camera effects (`FXManager::DoCameraFX`, read on a loader
+//! thread), and `CameraManager::UseTime`'s step after the scene camera's slerp.
+
+use ac2_anim::Ac2AnimEvent;
+use ac2_math::{Mat4, Vec3};
+use ac2_physics::{Frame, PhysicsBody, Position, Quaternion, Vector};
+use ac2_smartbox::camera_fx::CameraFx;
+use ac2_smartbox::targeting::{CameraObjects, CameraView};
+use ac2_smartbox::CameraSubject;
+
+use crate::client::{Client, Player};
+use crate::loader::Request;
+use crate::remote::Remotes;
+
+/// The camera's lookup over the player's and the other objects' bodies.
+pub(crate) struct CameraWorld<'a> {
+    pub(crate) player: Option<&'a Player>,
+    pub(crate) remotes: &'a Remotes,
+}
+
+impl CameraWorld<'_> {
+    fn body(&self, id: u64) -> Option<&PhysicsBody> {
+        match self.player.filter(|p| p.id == id) {
+            Some(player) => player.body.as_ref().map(|body| &body.physics),
+            None => self.remotes.get(id)?.body(),
+        }
+    }
+}
+
+impl CameraObjects for CameraWorld<'_> {
+    fn subject(&self, id: u64) -> Option<CameraSubject> {
+        let body = self.remotes.get(id)?.body()?;
+        let position = body.position();
+        let state = body.movement_state();
+        let [vx, vy, vz] = state.velocity;
+        Some(CameraSubject {
+            id,
+            position,
+            height: f64::from(body.height()),
+            radius: f64::from(body.radius()),
+            scale_z: body.own_total_scale().z,
+            local_velocity: position.frame.global_to_local_vec(Vector::new(vx, vy, vz)),
+            element: state.element,
+            no_draw: false,
+        })
+    }
+
+    /// `CPhysicsObj::GetBonePosition`: the bone type's matrix (`GetBoneTypeMatrix`) after the
+    /// offset, combined into the object's frame at its total scale (`Frame::combine`).
+    fn bone_position(&self, id: u64, bone: u32, offset: Vector) -> Option<Position> {
+        let body = self.body(id)?;
+        let to_bone = body.bone_type_matrix(bone)?;
+        let relative = to_bone * Mat4::from_translation(Vec3::new(offset.x, offset.y, offset.z));
+        let (_, rotation, translation) = relative.to_scale_rotation_translation();
+        let position = body.position();
+        let frame = Frame::combine_scaled(
+            &position.frame,
+            Vector::new(translation.x, translation.y, translation.z),
+            Quaternion::new(rotation.w, rotation.x, rotation.y, rotation.z),
+            body.own_total_scale(),
+        );
+        Some(Position::new(position.cell_id, frame))
+    }
+}
+
+impl Client {
+    /// The player's behaviour cameras among this step's animation events
+    /// (`BehaviorTracker::ProcessParamFlags` sends them for the player only). A targeted camera
+    /// needs its target there (`DoBehaviorOnObject` takes only on a known object); it stands at
+    /// the target's bone type `0x40000002` looking at its `0x40000001`, ramping in over half a
+    /// second.
+    pub(crate) fn camera_animation_events(
+        &mut self,
+        events: &[(u64, Option<u32>, Vec<Ac2AnimEvent>)],
+    ) {
+        let Some(player_id) = self.player.as_ref().map(|p| p.id) else {
+            return;
+        };
+        let Some(subject) = self.camera_subject(false) else {
+            return;
+        };
+        let world = CameraWorld {
+            player: self.player.as_ref(),
+            remotes: &self.remotes,
+        };
+        let view = CameraView {
+            player: Some(&subject),
+            objects: &world,
+        };
+        let camera = &mut self.camera;
+        for (_, _, events) in events.iter().filter(|(id, _, _)| *id == player_id) {
+            for event in events {
+                match *event {
+                    Ac2AnimEvent::CameraAnimParent { period, ramp_time } => {
+                        camera.set_camera_anim_parent(&view, period, ramp_time)
+                    }
+                    Ac2AnimEvent::CameraAnimTarget { period, ramp_time } => {
+                        camera.set_camera_anim_target(&view, period, ramp_time)
+                    }
+                    Ac2AnimEvent::RestoreCamera => camera.restore_player_camera(&view),
+                    Ac2AnimEvent::TargetedCamera { target, period, .. }
+                        if world
+                            .remotes
+                            .get(target)
+                            .is_some_and(|r| r.body().is_some()) =>
+                    {
+                        let bones = (0x4000_0002, 0x4000_0001);
+                        camera.set_targeted_camera(&view, target, bones, period, 0.5);
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    /// `FXManager::DoCameraFX(id, scalar, source)`: the record is read on a loader thread and
+    /// played when it arrives ([`Self::camera_fx_loaded`]).
+    pub(crate) fn request_camera_fx(&mut self, did: u32, scalar: f32, source: u64) {
+        if did != 0 {
+            self.loader
+                .request(Request::CameraFx(did, scalar.to_bits(), source));
+        }
+    }
+
+    /// A camera effect's record arrived: `CameraManager::DoCameraFX` plays it. A missing record
+    /// does nothing (`IError::ReportMissingDataFrom`).
+    pub(crate) fn camera_fx_loaded(
+        &mut self,
+        source: u64,
+        scalar: f32,
+        fx: Result<Option<CameraFx>, String>,
+    ) {
+        let Ok(Some(fx)) = fx else {
+            return;
+        };
+        let Some(subject) = self.camera_subject(false) else {
+            return;
+        };
+        let world = CameraWorld {
+            player: self.player.as_ref(),
+            remotes: &self.remotes,
+        };
+        let view = CameraView {
+            player: Some(&subject),
+            objects: &world,
+        };
+        self.camera.do_camera_fx(&fx, scalar, source, &view);
+    }
+
+    /// `SmartBox::UseTime`'s `CameraManager::UseTime(res)` after the slerp, with the player
+    /// present: the effects run, the field of view follows them, and their shake moves the
+    /// scene camera's current position.
+    pub(crate) fn camera_use_time(&mut self) {
+        let Some(player) = self.player.as_ref().filter(|p| p.body.is_some()) else {
+            return;
+        };
+        let now = self.session.local_time();
+        let at = player.position();
+        let world = CameraWorld {
+            player: self.player.as_ref(),
+            remotes: &self.remotes,
+        };
+        let mut distance = |source: u64| -> Option<f64> {
+            let from = match world.body(source) {
+                Some(body) => body.position(),
+                None => return None,
+            };
+            Some(at.distance(&from))
+        };
+        let random = &mut self.random;
+        let mut roll = |lo: f32, hi: f32| random.roll_dice_f32(lo, hi);
+        self.camera
+            .use_time(now, &mut self.scene.current, &mut distance, &mut roll);
+        self.scene.fov = self.camera.fov();
+    }
+}

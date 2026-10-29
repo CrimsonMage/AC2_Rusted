@@ -141,6 +141,12 @@ impl ac2_smartbox::ResidentWorld for DatWorld {
         ac2_world::load_entity_ethereal_mask(&self.store, DataId::new(did))
             .map_err(|e| e.to_string())
     }
+
+    fn camera_fx(&self, did: u32) -> Result<Option<ac2_smartbox::camera_fx::CameraFx>, String> {
+        let fx =
+            ac2_smartbox::camera_fx::load_camera_fx(&self.store, did).map_err(|e| e.to_string())?;
+        Ok(fx.map(|fx| *fx))
+    }
 }
 
 impl WorldServices for DatWorld {

@@ -1,8 +1,8 @@
 //! Asheron's Call 2 FX records: `FXNode`/`FXData` (embedded in `PartGroupDataDesc` FX overrides)
 //! and `DBFXTable` (`0x1E`), decoded in `FXNode::StreamPack` / `DBFXTable::StreamPack` order.
 //! The particle-emitter facts of each node are retained (`FXManager::DoParticleFX`), and its
-//! sound facts (`FXManager::DoTargettedFX`'s sound branch); camera, appearance, streak, decal,
-//! repulsor and light payloads are parsed to stay aligned.
+//! sound facts (`FXManager::DoTargettedFX`'s sound branch); the object, camera, appearance,
+//! streak, decal and light parts are kept with them, the repulsor parsed to stay aligned.
 
 use std::sync::Arc;
 
@@ -119,6 +119,8 @@ pub struct Ac2FxObject {
     pub appearance: u32,
     /// `m_apr_key` (`AppliedAppearanceKey`): the key and its scalar modifier.
     pub appearance_key: (u32, f32),
+    /// `m_cameraFX_id`: the `CameraFX` the node plays on the camera (`FXManager::DoCameraFX`).
+    pub camera_fx: u32,
 }
 
 /// `DoTargettedFX`'s gate on each node, read before any of the node's parts run: the channel
@@ -159,6 +161,7 @@ impl Ac2FxObject {
             || self.restore
             || self.decal.is_some()
             || self.appearance != 0
+            || self.camera_fx != 0
     }
 }
 
@@ -455,7 +458,7 @@ fn read_fx_node(
         }
     }
     // Camera FX and appearance ids; the appearance key is (key, scalar modifier).
-    skip_words(cursor, &[0x4])?;
+    let camera_fx = field(cursor, 0x4)?;
     let appearance = field(cursor, 0x8)?;
     let appearance_key = if has(0x10) {
         (word(cursor)?, float(cursor)?)
@@ -533,6 +536,7 @@ fn read_fx_node(
         gate: Ac2FxNodeGate::default(),
         appearance,
         appearance_key,
+        camera_fx,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {
@@ -652,3 +656,7 @@ pub(crate) fn skip(cursor: &mut ArchiveCursor<'_>, len: usize) -> Result<(), Mal
         .map(|_| ())
         .map_err(|_| "record ended early")
 }
+
+#[cfg(test)]
+#[path = "ac2_fx_tests.rs"]
+mod tests;

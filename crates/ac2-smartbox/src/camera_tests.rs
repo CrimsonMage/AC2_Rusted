@@ -2,9 +2,12 @@ use ac2_physics::{Frame, Position, Quaternion, Vector};
 
 use super::*;
 
+const PLAYER: u64 = 0x5000_0001;
+
 /// A 1.8 m player of radius 0.4 standing at (70, 70, 50) facing north.
 fn player() -> CameraSubject {
     CameraSubject {
+        id: PLAYER,
         position: Position::new(
             0x7F7F_001C,
             Frame::new(

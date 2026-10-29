@@ -109,7 +109,9 @@ fn the_headless_client_walks_into_a_pillar_and_takes_a_forced_position() {
     for (target, head) in camera.target.iter().zip(head) {
         assert!((target - head).abs() < 0.01, "{camera:?}");
     }
-    assert_eq!(camera.fov, 65.0);
+    // `CameraManager::UseTime`: 65 plus the camera effects' sum, which `CameraFxManager::UseTime`
+    // clamps to at least 10 (Legions 0x005487AB), so 75 with no effect playing.
+    assert_eq!(camera.fov, 75.0);
     // `GetGlobalDirection`: the negated viewer offset (0, -1, pitch) the movement module steers
     // by.
     assert_eq!(client.camera().global_direction(), [0.0, 1.0, -0.25]);

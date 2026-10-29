@@ -272,6 +272,9 @@ pub struct Vm {
     /// The no-draw changes the scripts asked of weenies' physics objects
     /// (`CWPhysicsObject::SetNoDrawPhysics`, efun 0x800057): the object and the flag, in order.
     pub no_draw: Vec<(u64, bool)>,
+    /// The weenies whose physics objects the scripts asked to stop all camera effects
+    /// (`CWPhysicsObject::StopAllCameraFX`, efun 0x80002C), in order.
+    pub camera_fx_stops: Vec<u64>,
     /// The physics changes the scripts asked of weenies' physics objects (the scale, FX and
     /// hover setters of `gCWPhysicsObject`), as the server event each one is: the object and
     /// the action, in order. The client applies them to the object's body.
@@ -417,6 +420,7 @@ impl Vm {
             shell_lines: Vec::new(),
             help_requests: Vec::new(),
             no_draw: Vec::new(),
+            camera_fx_stops: Vec::new(),
             physics: Vec::new(),
             body_states: Vec::new(),
             bodies: Default::default(),

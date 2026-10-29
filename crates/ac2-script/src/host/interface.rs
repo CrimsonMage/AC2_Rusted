@@ -63,12 +63,17 @@ fn look_at(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
 }
 
 /// `gCWPhysicsObject::CallEFun_StopAllCameraFX` (`CWPhysicsObject::StopAllCameraFX` ->
-/// `CPhysicsObj`'s camera effects): the weenie's physics object's camera effects end. The client
-/// has no camera effect manager yet, so the stop has nothing to end here (a known gap); the call
-/// only checks `this` and returns, as retail's does.
+/// `CPhysicsObj::StopAllCameraFX`): the camera's effects end when the weenie's physics object is
+/// the player (`CameraManager::StopAllCameraFX`). Queued for the client, which knows the player's
+/// body; the call returns nothing, as retail's does.
 fn stop_all_camera_fx(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
     match this_weenie(vm, ctx) {
-        Ok(_) => InterpStatus::Success,
+        Ok(id) => {
+            if id != 0 {
+                vm.camera_fx_stops.push(id);
+            }
+            InterpStatus::Success
+        }
         Err(status) => status,
     }
 }

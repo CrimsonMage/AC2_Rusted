@@ -5,6 +5,7 @@
 use ac2_physics::{Frame, Position};
 
 use crate::camera::{CameraManager, CameraSubject};
+use crate::targeting::{CameraObjects, NoObjects};
 
 /// The renderer's camera for one frame.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -61,8 +62,20 @@ impl SceneCamera {
         quantum: f32,
         interpolate: bool,
     ) {
+        self.update_with(camera, subject, &NoObjects, quantum, interpolate);
+    }
+
+    /// [`Self::update`] with the objects other than the player the camera can follow.
+    pub fn update_with(
+        &mut self,
+        camera: &mut CameraManager,
+        subject: &CameraSubject,
+        objects: &dyn CameraObjects,
+        quantum: f32,
+        interpolate: bool,
+    ) {
         let current = self.current;
-        let desired = camera.update_camera(quantum, Some(subject), &current);
+        let desired = camera.update_camera_with(quantum, Some(subject), objects, &current);
         self.fov = camera.fov();
         self.previous = self.current;
         if !camera.no_ray_trace() {

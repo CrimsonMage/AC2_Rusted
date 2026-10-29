@@ -62,6 +62,12 @@ impl ScriptPort for Client {
         Client::apply_collision_minimums(self, object, xy, z);
     }
 
+    fn stop_all_camera_fx(&mut self, object: u64) {
+        if self.player.as_ref().is_some_and(|p| p.id == object) {
+            self.camera.stop_all_camera_fx();
+        }
+    }
+
     fn apply_collision_sets(&mut self, object: u64, sets: &CollisionParameters) {
         Client::apply_collision_sets(self, object, sets);
     }

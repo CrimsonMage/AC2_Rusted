@@ -32,4 +32,9 @@ pub trait ResidentWorld: BlockSource {
     fn entity_ethereal_mask(&self, _did: u32) -> Result<u64, String> {
         Ok(0)
     }
+    /// The `CameraFX` `did` (`CameraManager::DoCameraFX`'s `DBObj::Get`). `None` when the DATs
+    /// have none.
+    fn camera_fx(&self, _did: u32) -> Result<Option<crate::camera_fx::CameraFx>, String> {
+        Ok(None)
+    }
 }

@@ -32,6 +32,8 @@ pub(crate) enum Request {
     MotionDesc(u64, u32),
     /// An object's `EntityDesc` ethereal bits (`CPhysicsObj::InitVisualDesc`): object, DID.
     EntityMask(u64, u32),
+    /// A camera effect (`CameraManager::DoCameraFX`): DID, the scalar's bits, the source.
+    CameraFx(u32, u32, u64),
 }
 
 /// Finished work.
@@ -55,6 +57,13 @@ pub(crate) enum Loaded {
     ),
     /// An object's `EntityDesc` ethereal bits: object, and the bits or the read's error.
     EntityMask(u64, Result<u64, String>),
+    /// A camera effect's record: the source, the scalar, and the record (`None` where the DATs
+    /// have none).
+    CameraFx(
+        u64,
+        f32,
+        Result<Option<ac2_smartbox::camera_fx::CameraFx>, String>,
+    ),
 }
 
 /// The client's loader threads over one `WorldData` (`ac2_db::LoaderPool`, named `ac2-loader`).
@@ -85,6 +94,9 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
             crate::client_ambient::AmbientLoaded::Points(block, data.ambient_points(block)),
         ),
         Request::MotionDesc(object, did) => Loaded::MotionDesc(object, data.motion_desc(did)),
+        Request::CameraFx(did, scalar, source) => {
+            Loaded::CameraFx(source, f32::from_bits(scalar), data.camera_fx(did))
+        }
         Request::EntityMask(object, did) => {
             Loaded::EntityMask(object, data.entity_ethereal_mask(did))
         }

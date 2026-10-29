@@ -103,6 +103,14 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     for (object, state) in states {
         port.apply_body_state(object, state);
     }
+    // `gCWPhysicsObject::CallEFun_StopAllCameraFX`.
+    let stops = port
+        .script_state()
+        .map(|s| s.host.take_camera_fx_stops())
+        .unwrap_or_default();
+    for object in stops {
+        port.stop_all_camera_fx(object);
+    }
     // `gCWPhysicsObject::CallEFun_SetCollisionState` (the impact minimums).
     let minimums = port
         .script_state()

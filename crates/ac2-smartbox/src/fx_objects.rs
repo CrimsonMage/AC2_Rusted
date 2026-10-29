@@ -32,6 +32,39 @@ pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
         .unwrap_or_default()
 }
 
+/// `FXManager::DoTargettedFX`'s camera part for an FX that starts on an emitter: each node that
+/// plays (no channel mismatch, as no channel preferences load; `m_player_only` on the player;
+/// its day or night flag for the time of day) and names a `CameraFX` plays it from the emitter
+/// (`DoCameraFX`) at the FX's current scalar, which a ramping node starts at 0.
+pub fn camera_fx_starts(
+    nodes: &[Ac2FxObject],
+    scalar: f32,
+    is_player: bool,
+    night: bool,
+) -> Vec<(u32, f32)> {
+    nodes
+        .iter()
+        .filter(|node| node.camera_fx != 0)
+        .filter(|node| {
+            let gate = &node.gate;
+            (!gate.player_only || is_player)
+                && if night {
+                    gate.night_time
+                } else {
+                    gate.day_time
+                }
+        })
+        .map(|node| {
+            let current = if node.ramp_time >= 0.0002 {
+                0.0
+            } else {
+                scalar
+            };
+            (node.camera_fx, current)
+        })
+        .collect()
+}
+
 /// The FX state the object part keeps per emitter and FX id (`FXState`'s object fields).
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct FxRecord {

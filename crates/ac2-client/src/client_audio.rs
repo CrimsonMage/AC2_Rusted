@@ -473,6 +473,7 @@ impl Client {
             .filter_map(|(_, _, events)| lock_change(events))
             .next_back();
         self.fx_object_events(&events, now);
+        self.camera_animation_events(&events);
         // The water surface under each emitter at this step (`FireParticleFX` reads it when a
         // fire-and-forget node starts).
         let water: HashMap<u64, Option<f32>> = events

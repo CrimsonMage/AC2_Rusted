@@ -1,6 +1,6 @@
 # ac2-weenie: Weenie objects, client events, actions, the session
 
-1904 retail functions: 963 done, 157 partial, 127 to do, 657 skipped.
+1904 retail functions: 965 done, 156 partial, 126 to do, 657 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/cfactory/gmcenginefactory.cpp.c` (1/11)
@@ -2298,14 +2298,14 @@ Legend and workflow: [README](README.md).
 - [x] `gCWInterface::CallIFun_OnStatChanged` · 004bc510 · legions 004b1400 — implemented: cited at crates/ac2-weenie/src/session.rs:82
 - [~] `gCWInterface::CallIFun_PreloadWSLSingletons` · 004bc600 · legions 004b14f0 — retail's script-driven singleton warm-up at interface start; not ported: singletons fill on first use (ReferenceTable::GetSingleton) and their WStates are preloaded as the 0x70000000 range. Its vtable caller is not identified in the decompile
 
-## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (22/85)
+## `portal/client/src/weenie/interp/glue/gcwphysicsobject.cpp.c` (23/85)
 
 ### gCWPhysicsObject
 - [-] `gCWPhysicsObject::CallEFun_DoStory` · 004b8050 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [x] `gCWPhysicsObject::CallEFun_SetAccelerationScale` · 004b80b0 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [x] `gCWPhysicsObject::CallEFun_SetJumpScale` · 004b8110 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
 - [x] `gCWPhysicsObject::CallEFun_SetVelocityScale` · 004b8170 — ac2-script host/interface.rs queues the server event (vm.physics) for the weenie; ac2-client scripts_io apply_script_physics; host/tests physics_object_efuns_queue_their_server_events_for_the_weenie
-- [~] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0 — ac2-client client_story.rs: story slot routed; drawing, audio and camera FX are known gaps
+- [x] `gCWPhysicsObject::CallEFun_StopAllCameraFX` · 004b81d0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [-] `gCWPhysicsObject::CallEFun_AddImpulse` · 004b8270 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_AddImpulseLocal` · 004b82f0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
 - [-] `gCWPhysicsObject::CallEFun_AddTargetedImpulse` · 004b8370 · legions 004ae2a0 — efun the Legions wlib never calls (every CALL_EFUN, THIS/LOAD/RLOAD_CALL_EFUN site scanned; AC2_DUMP_REFERENCED in efun_coverage.rs), so no script reaches it and the client binds nothing
@@ -2844,7 +2844,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWeenieObject::~CWeenieObject` · 0052fd40 · legions 00513e90 — destructor: Rust Drop replaces it
 - [-] `CWeenieObject::UnRegisterAllNoticeHandlers` · 0052fd70 · legions 00513ec0 — notice-handler registry: Rust dispatches notices by enum, no handler list
 
-## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (18/91)
+## `portal/shared/src/weenie/wphysobj/wphysicsobject.cpp.c` (19/91)
 
 ### CWPhysicsObject
 - [-] `CWPhysicsObject::CWPhysicsObject` · 0052fe30 · legions 00513f80 — constructor of plain data: Rust struct init replaces it
@@ -2931,7 +2931,7 @@ Legend and workflow: [README](README.md).
 - [-] `CWPhysicsObject::IsAnimationFrozen` · 00530c30 · legions 00514bd0 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [x] `CWPhysicsObject::SetAnimationFrozen` · 00530c50 · legions 00514bf0 — ac2-script host/body_state.rs; ac2-physics PhysicsBody::set_movement_frozen / set_animation_frozen / script_collision_state
 - [~] `CWPhysicsObject::TogglePlaceMarkerObjects` · 00530c80 · legions 00514c20 — ac2-script host/body_state.rs keeps m_bPlaceMarkers only; marker objects are a debug aid not drawn
-- [ ] `CWPhysicsObject::StopAllCameraFX` · 00530cb0 · legions 00514c50 — needs port: camera FX stop: the client has no camera effect manager (ac2-script host/interface.rs says a known gap)
+- [x] `CWPhysicsObject::StopAllCameraFX` · 00530cb0 · legions 00514c50 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [-] `CWPhysicsObject::DoStory` · 00530cc0 · legions 00514c60 — only called by the efun wrapper (or authoring loader) that is itself skipped: no Legions wlib function calls that efun (see efun_coverage.rs), so nothing reaches this method
 - [ ] `CWPhysicsObject::InitPhysics` · 00530ce0 · legions 00514c80 — needs port: physics object init physics; no citation in crates/
 - [x] `CWPhysicsObject::GetLocalVisualDesc` · 00530d50 · legions 00514cf0 — Returns a new VisualDesc native (word 2, REF) copied from the host's shared appearance (ScriptHost::set_appearance from the session's object table); a weenie never shared has the default description. The sell body reads it through gVisualDesc::GetTotalIconDesc.

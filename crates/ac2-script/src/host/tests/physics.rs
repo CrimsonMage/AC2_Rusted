@@ -159,3 +159,22 @@ fn a_latent_mode_resumes_the_context_when_the_body_reports_it_done() {
     assert_eq!(outcome.context, 0x61);
     assert!(host.resume_latent(0x55, 0x61, 0).is_none(), "resumed once");
 }
+
+/// `gCWPhysicsObject::CallEFun_StopAllCameraFX` queues the stop for the weenie's physics object
+/// (the client ends the camera's effects when it is the player); an undefined `this` crashes.
+#[test]
+fn stop_all_camera_fx_queues_the_weenies_object() {
+    let program = Program::from_parts(vec![crate::vm::op::TERMINATE], Vec::new(), Vec::new());
+    let mut host = ScriptHost::new(Arc::new(program), Box::new(NoData));
+    host.vm.owners.insert(9, 0x55);
+    assert_eq!(
+        run_efun(&mut host.vm, 0x0080_002C, &[], 9),
+        InterpStatus::Success
+    );
+    assert_eq!(host.take_camera_fx_stops(), vec![0x55]);
+    assert!(host.take_camera_fx_stops().is_empty());
+    assert_ne!(
+        run_efun(&mut host.vm, 0x0080_002C, &[], u32::MAX),
+        InterpStatus::Success
+    );
+}
