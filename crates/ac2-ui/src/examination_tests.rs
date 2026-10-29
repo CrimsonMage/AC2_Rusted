@@ -257,3 +257,51 @@ fn the_tab_keys_step_through_the_enabled_tabs() {
     panel.message(tree, &key(0x4100_006B), false);
     assert_eq!(panel.take_calls(), vec![ExaminationCall::Start(0x18C)]);
 }
+
+/// `ProcessNode` type 9: the image template shows the icon description's layers (`SetIconDesc`),
+/// each with its shift colour, as the item slots do; type 5 shows the image alone.
+#[test]
+fn an_icon_node_shows_every_layer_of_its_icon_description() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let panel = hud.examination.as_mut().expect("the examination panel");
+    let tree = &mut hud.tree;
+    let layers = vec![
+        crate::IconLayer {
+            image: 0x4100_6F03,
+            shift_color: 0xFFFF_FFFF,
+        },
+        crate::IconLayer {
+            image: 0x4100_1AAB,
+            shift_color: 0xFF80_4020,
+        },
+    ];
+    panel.update_profile(
+        tree,
+        &Strings,
+        0.0,
+        &[ExaminationItem::Icon(layers.clone())],
+        (0x203, 0x203),
+    );
+    fn find(tree: &UiTree, index: usize, out: &mut Vec<usize>) {
+        if tree.get(index).is_some_and(|e| e.icon_layers.is_some()) {
+            out.push(index);
+        }
+        for &child in tree.children(index) {
+            find(tree, child, out);
+        }
+    }
+    let mut icons = Vec::new();
+    for &row in tree.list_items(panel.list().expect("the list")) {
+        find(tree, row, &mut icons);
+    }
+    let [icon] = icons[..] else {
+        panic!("one layered icon: {icons:?}");
+    };
+    let element = tree.get(icon).unwrap();
+    assert_eq!(element.icon_layers.as_deref(), Some(&layers[..]));
+    assert_eq!(element.image().map(|i| i.file), Some(0x4100_6F03));
+}

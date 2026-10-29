@@ -324,7 +324,15 @@ impl<'a> UiText<'a> {
                         self.ui_string("ID_Examination_Number", Some(RenderVar::LInt(*v))),
                     ),
                     V::Image(file) => I::Image(*file),
-                    V::Icon(layers) => I::Icon(layers.iter().map(|l| l.image).collect()),
+                    V::Icon(layers) => I::Icon(
+                        layers
+                            .iter()
+                            .map(|l| crate::IconLayer {
+                                image: l.image,
+                                shift_color: l.color,
+                            })
+                            .collect(),
+                    ),
                     V::Break => I::Break,
                     V::Tabs(n) => I::Tabs(*n),
                     V::Countdown(seconds) => I::Countdown {

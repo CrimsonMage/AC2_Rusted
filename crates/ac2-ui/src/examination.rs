@@ -20,9 +20,8 @@
 //! word as its filter (`+0xB8`), sends it with `StartExamination`, and the tabs' presses and the
 //! selection keys change it.
 //!
-//! Not modelled yet: icon descriptions drawn as layered icons (`SetIconDesc`: the first layer is
-//! shown, as the item icons do), an image's own size before it loads (the template's size is
-//! used), and text that arrives later (`download_done`).
+//! Not modelled yet: an image's own size before it loads (the template's size is used), and text
+//! that arrives later (`download_done`).
 
 use std::sync::Arc;
 
@@ -44,7 +43,7 @@ pub enum ExaminationItem {
     },
     /// Type 5: an image DID; type 9: an icon description's layers.
     Image(u32),
-    Icon(Vec<u32>),
+    Icon(Vec<crate::IconLayer>),
     /// Type 6.
     Break,
     /// Type 7: the tab count.
@@ -338,13 +337,12 @@ impl ExaminationUi {
                 let Some(element) = self.template(tree, id("ExaminationImageTemplate")) else {
                     return;
                 };
-                let file = match item {
-                    ExaminationItem::Image(file) => Some(*file),
-                    ExaminationItem::Icon(layers) => layers.first().copied(),
-                    _ => None,
-                };
-                if let Some(file) = file {
-                    tree.set_image(element, file, 0);
+                // Type 5: the image in its stateless state (`AddImageToState`, draw mode 0); type
+                // 9: the icon description's layers (`SetIconDesc`).
+                match item {
+                    ExaminationItem::Image(file) => tree.set_image(element, *file, 0),
+                    ExaminationItem::Icon(layers) => tree.set_icon_desc(element, layers),
+                    _ => {}
                 }
                 let rect = tree.get(element).map(|e| e.rect).unwrap_or_default();
                 let width = rect.width().min(self.row_width(tree) - self.cur.0);

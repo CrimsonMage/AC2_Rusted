@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1326 done, 309 partial, 116 to do, 496 skipped.
+2247 retail functions: 1327 done, 308 partial, 116 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 - [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (10/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (11/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1034,7 +1034,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
 - [x] `gmExaminationUI::ListenToMessage` · 00430c80 — ac2-ui examination.rs message + examination_tabs.rs: tab presses (Ctrl toggles bits) and SELECTION_NEXT/PREV_EXAM_TAB_KEY choose the filter and restart the examination with it (Legions 0x00431990, 0x00431900); wired in hud_message.rs; tests examination_tests.rs
 - [x] `gmExaminationUI::RecvNotice_ExaminationRequestChanged` · 00430d80 — ac2-ui examination.rs + ac2-client ui_sources
-- [~] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client. Icon descriptions show their first layer only (SetIconDesc layers not drawn)
+- [x] `gmExaminationUI::ProcessNode` · 00430db0 · legions 00430ae0 — ac2-ui examination.rs layout per node type; countdowns tick (QuestTimeDisplay, global loop); effect nodes expanded by the client; type 5 images (AddImageToState, draw mode 0) and type 9 icon descriptions with every layer and shift colour (SetIconDesc, examination_tests.rs)
 - [x] `gmExaminationUI::gmExaminationUI` · 004312e0 — ac2-ui examination.rs create: field, list, timers, hidden start, the four filter tabs (GeneralTab 0x203, DetailsTab 0x18C, EffectsTab 0x10, UsageTab 0x60) in the construction state (Legions 0x00431C40); ExaminationProfile now carries the trailing available-tabs word (ac2-net)
 - [x] `gmExaminationUI::RecvNotice_UpdateExaminationProfile` · 00431410 — ac2-ui examination.rs + ac2-client ui_sources
 
