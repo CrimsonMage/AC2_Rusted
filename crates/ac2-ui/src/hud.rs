@@ -195,7 +195,7 @@ pub fn build_gameplay_hud(
     tree.set_text_data(text_data.clone());
     let mut layouts = HashMap::new();
     let gameplay = load_layout_by_enum(store, LAYOUT_GAMEPLAY)?;
-    let reticle = gameplay
+    let mut reticle = gameplay
         .as_ref()
         .and_then(|layout| Reticle::create(&mut tree, layout));
     let names = match (&gameplay, &reticle) {
@@ -319,8 +319,12 @@ pub fn build_gameplay_hud(
         .as_ref()
         .map(|statusbar| EffectsUi::create(&tree, statusbar));
     let indicators = IndicatorsUi::create(&mut tree);
-    // `gmStatusbarUI::gmStatusbarUI`: `Show(1)` once its children are made.
-    show_statusbar(&mut tree, true);
+    // `gmStatusbarUI::gmStatusbarUI`: `Show(1)` once its children are made, and its height the
+    // reticle's top preclude (`RecvNotice_PrecludeFromTop`).
+    let top = show_statusbar(&mut tree, true);
+    if let Some(reticle) = reticle.as_mut() {
+        reticle.precluded_top = top;
+    }
     let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
     let stack = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()

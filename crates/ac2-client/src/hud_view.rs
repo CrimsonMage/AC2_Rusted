@@ -139,8 +139,14 @@ impl HudView {
         match child {
             GameplayChild::Toolbar => self.show_toolbar(shown),
             GameplayChild::Statusbar => {
-                if let Some((tree, _)) = &mut self.hud {
-                    ac2_ui::show_statusbar(tree, shown);
+                // `gmStatusbarUI::Show` and its top preclude (`RecvNotice_PrecludeFromTop`,
+                // which the next frame's update applies).
+                let top = self
+                    .hud
+                    .as_mut()
+                    .map(|(tree, _)| ac2_ui::show_statusbar(tree, shown));
+                if let (Some(top), Some(reticle)) = (top, self.panels.reticle_mut()) {
+                    reticle.precluded_top = top;
                 }
             }
             GameplayChild::Radar => {

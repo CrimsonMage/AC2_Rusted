@@ -48,7 +48,7 @@ scripts/retail_catalog.py status
 | [ac2-physics](ac2-physics.md) | 2124 | 843 | 159 | 173 | 949 |
 | [ac2-smartbox](ac2-smartbox.md) | 262 | 94 | 38 | 84 | 46 |
 | [ac2-client](ac2-client.md) | 354 | 126 | 51 | 70 | 107 |
-| [ac2-ui](ac2-ui.md) | 2247 | 1298 | 326 | 129 | 494 |
+| [ac2-ui](ac2-ui.md) | 2247 | 1298 | 327 | 128 | 494 |
 | [ac2-script](ac2-script.md) | 2468 | 1690 | 32 | 335 | 411 |
 | [ac2-gameplay](ac2-gameplay.md) | 499 | 224 | 31 | 29 | 215 |
 | [ac2-audio](ac2-audio.md) | 367 | 140 | 35 | 16 | 176 |

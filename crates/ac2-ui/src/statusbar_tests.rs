@@ -1,6 +1,8 @@
 //! `gmStatusbarUI::Show` and the indicators' vitae on the real gameplay layout (`AC2_DAT_DIR`).
 
 use crate::statusbar::{show_statusbar, statusbar_field};
+use crate::token::tokenize;
+use crate::AttributeValue;
 use crate::{build_gameplay_hud, GameplayHud};
 
 fn hud() -> Option<GameplayHud> {
@@ -17,9 +19,21 @@ fn the_status_bar_shows_and_hides_its_field_and_the_indicators_hold_the_vitae() 
     // `gmStatusbarUI::gmStatusbarUI` shows the bar once its children are made.
     let field = statusbar_field(&hud.tree).expect("StatusbarField");
     assert!(hud.tree.get(field).unwrap().visible());
-    show_statusbar(&mut hud.tree, false);
+    // The top preclude is the field's height while it shows, else 0, and the reticle starts
+    // with it.
+    let height = match hud
+        .tree
+        .get(field)
+        .unwrap()
+        .attribute(tokenize("precludeheight"))
+    {
+        Some(AttributeValue::Int(height)) => *height,
+        _ => 0,
+    };
+    assert_eq!(hud.reticle.as_ref().unwrap().precluded_top, height);
+    assert_eq!(show_statusbar(&mut hud.tree, false), 0);
     assert!(!hud.tree.get(field).unwrap().visible());
-    show_statusbar(&mut hud.tree, true);
+    assert_eq!(show_statusbar(&mut hud.tree, true), height);
     assert!(hud.tree.get(field).unwrap().visible());
     // `gmIndicatorsUI`'s vitae indicator is made on the status bar's field.
     assert!(hud.indicators.vitae.state(&hud.tree).is_some());

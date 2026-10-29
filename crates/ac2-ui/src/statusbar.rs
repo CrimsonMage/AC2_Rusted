@@ -21,10 +21,20 @@ pub fn statusbar_shown(tree: &UiTree) -> bool {
 }
 
 /// `gmStatusbarUI::Show`: `UIFramework::Show` records the flag, and the root element shows or
-/// hides with it. The top preclude is sent as 0 whatever the flag
-/// (`CM_UI::SendNotice_PrecludeFromTop(0)`), so the reticle keeps no space from the top.
-pub fn show_statusbar(tree: &mut UiTree, shown: bool) {
-    if let Some(field) = statusbar_field(tree) {
-        tree.set_visible(field, shown);
+/// hides with it. Returns the top preclude it sends (`CM_UI::SendNotice_PrecludeFromTop`): the
+/// field's `precludeheight` while shown, else 0 (Legions 0x422fc4, admin 0x4231f4: `Shown()`
+/// masks the height; the admin decompile shows a literal 0), which the reticle and name plates
+/// keep clear (`gm3DTextUI::RecvNotice_PrecludeFromTop`).
+pub fn show_statusbar(tree: &mut UiTree, shown: bool) -> i32 {
+    let Some(field) = statusbar_field(tree) else {
+        return 0;
+    };
+    tree.set_visible(field, shown);
+    match tree
+        .get(field)
+        .and_then(|e| e.attribute(tokenize("precludeheight")))
+    {
+        Some(crate::layout::AttributeValue::Int(height)) if shown => *height,
+        _ => 0,
     }
 }

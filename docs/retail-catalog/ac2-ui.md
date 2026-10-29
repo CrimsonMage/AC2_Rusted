@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1298 done, 326 partial, 129 to do, 494 skipped.
+2247 retail functions: 1298 done, 327 partial, 128 to do, 494 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -86,7 +86,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::AddName` · 0042ae40 · legions 0042ac00 — ac2-ui name_plates.rs add_name (Legions 0x42ac00): skipped when the object has a plate or its radar shape is 0x4000000b; the look's colour, sized to its name with margins; the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks, ObjectFrame::stack_name)
 - [x] `gm3DTextUI::RecvNotice_CreateObject` · 0042b0c0 — ac2-ui name_plates.rs sync: plates follow the radar looks each frame (the per-object notice registration replaced by the sync); the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks over ObjectFrame::stack_name, ac2-weenie ItemStats::stack_name)
 - [x] `gm3DTextUI::RecvNotice_Do3DDamage` · 0042b150 — ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
-- [ ] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340 — Legions has it: gm3DTextUI notice vtable slot 141 at 0x0042b160 (or slot 142 at 0x0042b100; both match in size, pick by reading). Was skip
+- [~] `gm3DTextUI::RecvNotice_PrecludeFromTop` · 0042b340 — ac2-ui statusbar.rs show_statusbar's preclude sets reticle.precluded_top (ac2-client hud_view.rs set_child_shown, hud.rs at build); the reticle, damage and names update on the next frame, not inside the notice
 - [~] `gm3DTextUI::RecvNotice_PrecludeFromBottom` · 0042b3a0 — ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
 - [-] `gm3DTextUI::~gm3DTextUI` · 0042b400 · legions 0042b1c0
 - [~] `gm3DTextUI::Init` · 0042b510 · legions 0042b2d0 — ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
@@ -933,7 +933,7 @@ Legend and workflow: [README](README.md).
 ## `ac2/client/src/ui/gameplay/statusbar/gmstatusbarui.cpp.c` (3/3)
 
 ### gmStatusbarUI
-- [x] `gmStatusbarUI::Show` · 004231b0 · legions 00422f80 — ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+- [x] `gmStatusbarUI::Show` · 004231b0 · legions 00422f80 — ac2-ui statusbar.rs show_statusbar: the field shows or hides; the top preclude is precludeheight while shown, else 0 (Legions 0x422fc4; the admin decompile's literal 0 is the masked height), kept on the reticle (hud.rs at build, ac2-client hud_view.rs set_child_shown)
 - [x] `gmStatusbarUI::SetupChildren` · 00423210 · legions 00422fe0 — ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
 - [x] `gmStatusbarUI::gmStatusbarUI` · 004232f0 · legions 004230c0 — ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
 

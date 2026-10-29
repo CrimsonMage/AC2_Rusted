@@ -576,7 +576,7 @@ key	status	note
 00422f00	~	ac2-ui toolbar.rs cleanup_children: the child fields hide; the child frameworks are not made so none is deleted
 00422f80	~	ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 00423120	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-004231b0	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
+004231b0	x	ac2-ui statusbar.rs show_statusbar: the field shows or hides; the top preclude is precludeheight while shown, else 0 (Legions 0x422fc4; the admin decompile's literal 0 is the masked height), kept on the reticle (hud.rs at build, ac2-client hud_view.rs set_child_shown)
 00423210	x	ac2-ui statusbar.rs show_statusbar (field shows or hides; top preclude 0); hud.rs makes vitals, effects, indicators in SetupChildren order
 004232f0	x	ac2-ui hud.rs + statusbar.rs: root, SetupChildren, and Show(1) once the children exist; ac2-gpu ui.rs + ac2-client hud_view.rs draw it
 004233a0	_	needs port: LandDefs::in_bounds behaviour
@@ -696,7 +696,7 @@ key	status	note
 0042ae40	x	ac2-ui name_plates.rs add_name (Legions 0x42ac00): skipped when the object has a plate or its radar shape is 0x4000000b; the look's colour, sized to its name with margins; the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks, ObjectFrame::stack_name)
 0042b0c0	x	ac2-ui name_plates.rs sync: plates follow the radar looks each frame (the per-object notice registration replaced by the sync); the name is GetName(GetQuantity()) (ac2-client hud_player.rs name_looks over ObjectFrame::stack_name, ac2-weenie ItemStats::stack_name)
 0042b150	x	ac2-ui damage_text.rs (DamageTextTemplate, blob colour and scale, object and start time); ac2-client hud_player routes CM_Physics::SendNotice_Do3DDamage. Legions keeps UpdateDamage and the array, and its WLib calls efun 0x8D0001; handler body from admin (no Legions match)
-0042b340	_	Legions has it: gm3DTextUI notice vtable slot 141 at 0x0042b160 (or slot 142 at 0x0042b100; both match in size, pick by reading). Was skip
+0042b340	~	ac2-ui statusbar.rs show_statusbar's preclude sets reticle.precluded_top (ac2-client hud_view.rs set_child_shown, hud.rs at build); the reticle, damage and names update on the next frame, not inside the notice
 0042b3a0	~	ac2-ui toolbar.rs show_bar via ac2-client show_toolbar sets reticle.precluded_bottom; the update runs on the next frame, not inside the notice
 0042b400	-	
 0042b510	~	ac2-ui hud.rs Reticle/NamePlates/DamageTexts::create and ac2-client client_radar.rs (the radar ranges, squared in Init); the object notice registration (0x446, 0x454, 0x443, 0x1040c) is replaced by the per-frame sync in name_plates.rs
