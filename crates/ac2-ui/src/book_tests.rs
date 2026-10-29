@@ -137,18 +137,23 @@ fn a_long_book_pages_and_the_page_turns_follow_the_book() {
     assert_eq!(book.current_page(), 1);
     assert_eq!(tree.get(label).unwrap().text().as_deref(), Some("1/12"));
 
-    // The slider at its middle: (12 - 1) * 0.5 = 5.5, rounded half up, not past .5: page 5.
+    // `SetPageFromSlider`: s = (12 - 1) * position; past a half, s + 2, else s + 1, truncated.
+    // At 0.6, s = 6.6: page 8.
     let slider = tree
         .child_recursive(book.field(), tokenize("BookSliderBar"))
         .unwrap();
-    tree.scrollbar_set_position(slider, 0.5);
     let mut moved = press(tokenize("SliderBar"), crate::scrollbar::MSG_NEW_POSITION);
     moved.element = Some(slider);
+    tree.scrollbar_set_position(slider, 0.6);
     book.message(tree, &Strings, &moved);
-    assert_eq!(book.current_page(), 5);
+    assert_eq!(book.current_page(), 8);
+    // At the middle, s = 5.5, not past a half: page 6.
+    tree.scrollbar_set_position(slider, 0.5);
+    book.message(tree, &Strings, &moved);
+    assert_eq!(book.current_page(), 6);
 
     // The page turn past the last page closes the book.
-    for _ in 0..7 {
+    for _ in 0..6 {
         book.message(tree, &Strings, &turn);
     }
     assert_eq!(book.current_page(), 12);

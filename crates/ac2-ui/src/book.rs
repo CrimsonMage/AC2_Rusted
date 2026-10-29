@@ -8,9 +8,9 @@
 //! The panel is kept hidden in the HUD and shown by the notice (`gmBookUI::Show`); retail creates
 //! and destroys its elements on each show, here they stay in the tree.
 //!
-//! Not modelled: the `BookSliderLeft`/`Right`/`Copy` buttons' ghosting, and the `SetViewY` offset
-//! beyond the page height (see [`BookUi::update_book`]). The help page is returned as
-//! [`BookRequest::OpenHelp`] for the caller to open in the help window.
+//! Retail never ghosts the `BookSliderLeft`/`Right`/`Copy` buttons: `SetMode` only shows or hides
+//! the controls. The help page is returned as [`BookRequest::OpenHelp`] for the caller to open in
+//! the help window; the copy button's text goes to the OS clipboard.
 
 use std::sync::Arc;
 
@@ -309,21 +309,21 @@ impl BookUi {
         }
     }
 
-    /// `gmBookUI::SetPageFromSlider`: the page nearest the slider's position, rounded half up
-    /// (`(last - 1) * position`), kept in the book's pages.
+    /// `gmBookUI::SetPageFromSlider`: `s = (last - 1) * position` (a float), and the page is
+    /// `s + 2` when its fraction is over a half, else `s + 1`, truncated (`_ftol2` of the x87 sum):
+    /// the 1-based page nearest the slider, a half rounding down.
     pub fn set_page_from_slider(&mut self, tree: &UiTree) {
         let Some(slider) = self.slider else {
             return;
         };
         let position = tree.scrollbar_position(slider);
-        let scaled = (self.last as f32 - 1.0) * position;
-        let page = scaled.floor()
-            + if scaled - scaled.floor() > 0.5 {
-                1.0
-            } else {
-                0.0
-            };
-        self.current = (page.max(1.0) as u32).min(self.last.max(1));
+        let scaled = f64::from((self.last.wrapping_sub(1) as f32) * position);
+        let step = if scaled - scaled.floor() > 0.5 {
+            2.0
+        } else {
+            1.0
+        };
+        self.current = (scaled + step) as u32;
     }
 
     /// `gmBookUI::ParseText`: the book's text laid out into pages. Returns whether it laid

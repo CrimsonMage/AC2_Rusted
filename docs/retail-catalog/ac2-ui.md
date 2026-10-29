@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1307 done, 326 partial, 118 to do, 496 skipped.
+2247 retail functions: 1311 done, 322 partial, 118 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (37/53)
@@ -98,7 +98,7 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DTextUI::ListenToMessage` · 0042ba40 · legions 0042b800 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 - [x] `gm3DTextUI::RecvNotice_ReloadOptions` · 0042ba70 — ac2-ui name_plates.rs + ac2-client (Command::SetShowObjectNames, IFun 0xB400CE)
 
-## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (10/19)
+## `ac2/client/src/ui/gameplay/gmbookui.cpp.c` (14/19)
 
 ### gmBookUI
 - [x] `gmBookUI::CreateManagedElements` · 0041eaa0 · legions 0041e8c0 — ac2-ui book.rs BookUi::create: the Book template and its children, made with the HUD and hidden (retail makes them on each show)
@@ -106,7 +106,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmBookUI::SynchSliderBar` · 0041ebc0 · legions 0041e9e0 — ac2-ui book.rs BookUi::sync_slider (BookSliderBar x position)
 - [x] `gmBookUI::PreviousPage` · 0041ec50 · legions 0041ea70 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
 - [x] `gmBookUI::NextPage` · 0041ec70 · legions 0041ea90 — ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
-- [~] `gmBookUI::SetPageFromSlider` · 0041ec90 · legions 0041eab0 — ac2-ui book.rs BookUi::set_page_from_slider: rounds half up as ftol2 does; a page 0 is clamped to 1 (retail can set 0)
+- [x] `gmBookUI::SetPageFromSlider` · 0041ec90 · legions 0041eab0 — ac2-ui book.rs set_page_from_slider: s = (last - 1) * position (f32), page = trunc(s + 2) past a half else trunc(s + 1), 1-based as retail (was 0-based and clamped)
 - [x] `gmBookUI::SetMode` · 0041ed20 · legions 0041eb40 — ac2-ui book.rs BookUi::set_mode: BookClientArea, the text and header states; BookBottom shown with the controls
 - [x] `gmBookUI::Reset` · 0041ed90 · legions 0041ebb0 — ac2-ui book.rs BookUi::reset (page 1 of 1, texts and foreground image cleared, Dialog state)
 
@@ -116,7 +116,7 @@ Legend and workflow: [README](README.md).
 ### gmBookUI
 - [~] `gmBookUI::gmBookUI` · 0041ee70 · legions 0041ec90 — ac2-ui book.rs BookUi::create; the notice registration is the frame's event list (ac2-client hud_book.rs), not a handler list
 - [-] `gmBookUI::~gmBookUI` · 0041ef90 · legions 0041edb0 — Rust drop: the tree owns the book's elements, and the frame's events need no listener removal
-- [~] `gmBookUI::UpdateBook` · 0041f010 · legions 0041ee30 — ac2-ui book.rs BookUi::update_book: page label and slider; the view offset is the box height per page (the decompile's field difference plus one)
+- [x] `gmBookUI::UpdateBook` · 0041f010 · legions 0041ee30 — ac2-ui book.rs update_book: with the controls the page label (ID_Book_PageNumberText, CURRENT/LAST) and SynchSliderBar; the text and header SetViewY to the box height times (page - 1)
 
 ### PStringBaseIter<unsigned_short>
 - [-] `PStringBaseIter<unsigned_short>::GetStrLen` · 0041f0d0 · legions 0041eeb0 — PStringBase iterator and operator[]: the Rust port keeps Strings and indexes them by char
@@ -125,9 +125,9 @@ Legend and workflow: [README](README.md).
 - [x] `gmBookUI::AddNewlines` · 0041f480 · legions 0041f260 — ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
 - [x] `gmBookUI::TruncateText` · 0041f510 · legions 0041f2f0 — ac2-ui book.rs truncate_to_width: the text plus L" " (a space, Legions 0x9cbaf0, not an ellipsis) is measured; wider than a positive limit, characters come off until it fits and the text keeps the space
 - [~] `gmBookUI::ParseText` · 0041f7c0 · legions 0041f5a0 — ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
-- [~] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
+- [x] `gmBookUI::RecvNotice_UseBook` · 0041ff30 · legions 0041fd30 — ac2-ui book.rs recv_use_book via book_pass: shown, reset, title text, SetMode(showControls), ParseText of a non-empty text with the page label, BookForeground's image (draw mode 2) or cleared, UpdateBook
 - [x] `gmBookUI::SendBookToClipboard` · 00420010 · legions 0041fe10 — ac2-ui book.rs book_pass sends BookUi::clipboard_text to the tree's clipboard (UiTree::send_string_to_clipboard, the OS clipboard in the client); test book_tests.rs
-- [~] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
+- [x] `gmBookUI::ListenToMessage` · 00420320 · legions 00420120 — ac2-ui book.rs message: close; while shown the foreground's next page (closing past the last), help (BookRequest::OpenHelp -> ID_Help_Book), and with the controls the slider buttons, the slider and Copy (the OS clipboard)
 
 ## `ac2/client/src/ui/gameplay/gmcameraui.cpp.c` (4/7)
 

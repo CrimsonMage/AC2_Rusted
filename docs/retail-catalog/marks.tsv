@@ -500,21 +500,21 @@ key	status	note
 0041ebc0	x	ac2-ui book.rs BookUi::sync_slider (BookSliderBar x position)
 0041ec50	x	ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
 0041ec70	x	ac2-ui book.rs BookUi::previous_page / next_page; ac2-ui book_tests.rs a_long_book_pages_and_the_page_turns_follow_the_book
-0041ec90	~	ac2-ui book.rs BookUi::set_page_from_slider: rounds half up as ftol2 does; a page 0 is clamped to 1 (retail can set 0)
+0041ec90	x	ac2-ui book.rs set_page_from_slider: s = (last - 1) * position (f32), page = trunc(s + 2) past a half else trunc(s + 1), 1-based as retail (was 0-based and clamped)
 0041ed20	x	ac2-ui book.rs BookUi::set_mode: BookClientArea, the text and header states; BookBottom shown with the controls
 0041ed90	x	ac2-ui book.rs BookUi::reset (page 1 of 1, texts and foreground image cleared, Dialog state)
 0041edf0	-	PStringBase iterator and operator[]: the Rust port keeps Strings and indexes them by char
 0041ee70	~	ac2-ui book.rs BookUi::create; the notice registration is the frame's event list (ac2-client hud_book.rs), not a handler list
 0041ef90	-	Rust drop: the tree owns the book's elements, and the frame's events need no listener removal
-0041f010	~	ac2-ui book.rs BookUi::update_book: page label and slider; the view offset is the box height per page (the decompile's field difference plus one)
+0041f010	x	ac2-ui book.rs update_book: with the controls the page label (ID_Book_PageNumberText, CURRENT/LAST) and SynchSliderBar; the text and header SetViewY to the box height times (page - 1)
 0041f0d0	-	PStringBase iterator and operator[]: the Rust port keeps Strings and indexes them by char
 0041f0e0	-	C++ scalar deleting destructor glue
 0041f480	x	ac2-ui book.rs paginate: the padding newlines (AddNewlines as repeated newlines)
 0041f510	x	ac2-ui book.rs truncate_to_width: the text plus L" " (a space, Legions 0x9cbaf0, not an ellipsis) is measured; wider than a positive limit, characters come off until it fits and the text keeps the space
 0041f7c0	~	ac2-ui book.rs paginate and segments: <BR> pages, <H>..</H> headers, pages padded to lines_per_page; a tail after the last <BR> is paginated (retail's flush does not); PStringBase substring end unresolved
-0041ff30	~	ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
+0041ff30	x	ac2-ui book.rs recv_use_book via book_pass: shown, reset, title text, SetMode(showControls), ParseText of a non-empty text with the page label, BookForeground's image (draw mode 2) or cleared, UpdateBook
 00420010	x	ac2-ui book.rs book_pass sends BookUi::clipboard_text to the tree's clipboard (UiTree::send_string_to_clipboard, the OS clipboard in the client); test book_tests.rs
-00420320	~	ac2-ui book.rs book_pass runs the use notices and messages over the frame; ac2-client hud_book.rs maps help requests to KeyStone::OpenHelp, copy dropped (no clipboard device in the client)
+00420320	x	ac2-ui book.rs message: close; while shown the foreground's next page (closing past the last), help (BookRequest::OpenHelp -> ID_Help_Book), and with the controls the slider buttons, the slider and Copy (the OS clipboard)
 00420400	-	teardown: the HUD tree is dropped whole
 00420460	x	ac2-ui external_container.rs
 00420520	x	ac2-ui: the panel hears every object's notices (no per-object registration)
