@@ -134,6 +134,10 @@ game rules and server-visible behaviour exactly retail.
 - Exception: the mouse wheel scrolls every panel that has a scroll bar (texts, lists, trees, and
   the bar itself), from the element under the pointer up to its first scrollable ancestor. A
   wheel turn over a bar's thumb or arrow buttons reaches the bar; retail's buttons swallowed it.
+  Over any other part of a window (its frame, title, tabs, buttons, empty space) the turn scrolls
+  that window's content: the nearest enclosing element with a shown scroll owner, and of its
+  owners the one level with the pointer, else the largest (`window_wheel.rs`). Over no window the
+  turn still zooms the camera; the guide, help and Tracker windows keep their own wheel handling.
   Pixel deltas (trackpads, smooth wheels) accumulate into whole notches. All of this (wheel,
   clipboard, Alt-move) must work on Windows, macOS, Linux X11 and Linux Wayland.
 - Exception: help pages are drawn in the client on every platform. Retail's KSML help viewer was

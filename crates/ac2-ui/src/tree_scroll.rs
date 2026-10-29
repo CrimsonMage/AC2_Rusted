@@ -22,7 +22,7 @@ const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 
 impl UiTree {
     /// The vertical scroll bar a tree names (`GetScrollbar`, see `named_scrollbar`).
-    fn tree_scrollbar(&self, tree: usize) -> Option<usize> {
+    pub(crate) fn tree_scrollbar(&self, tree: usize) -> Option<usize> {
         self.named_scrollbar(tree, VERTICAL_SCROLLBAR)
     }
 
@@ -172,6 +172,7 @@ impl UiTree {
         let Some(bar) = self.tree_scrollbar(tree) else {
             return;
         };
+        self.wheel_scrolled = true;
         self.tree_update_scrollbar(tree);
         self.scrollbar_mouse_down(bar, action);
     }

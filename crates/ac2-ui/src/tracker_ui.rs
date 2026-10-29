@@ -189,6 +189,8 @@ impl TrackerUi {
         };
         let root = book.field();
         let find = |tree: &UiTree, name: &str| tree.child_recursive(root, tokenize(name));
+        // The list scrolls by the window's own wheel handling (`wheel`).
+        tree.set_custom_wheel(root, true);
         tree.resize_to(root, WINDOW.0, WINDOW.1);
         // The frame and the title bar: every image under the root that is the window's width
         // keeps its corners.

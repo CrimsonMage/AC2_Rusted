@@ -282,6 +282,10 @@ pub struct UiTree {
     /// The last press on read-only text (the line under it, the column, and a map coordinate it
     /// landed on), until the HUD takes it.
     pub(crate) text_press: Option<crate::text_edit::TextPress>,
+    /// Whether the wheel turn being dispatched moved a scroll bar (`window_wheel.rs`).
+    pub(crate) wheel_scrolled: bool,
+    /// The windows whose framework takes the wheel itself (`UiTree::set_custom_wheel`).
+    pub(crate) custom_wheel_roots: Vec<usize>,
 }
 
 /// The index of `desc`'s state `id`.
@@ -349,6 +353,8 @@ impl UiTree {
             saved_positions: Vec::new(),
             copy_focus: None,
             text_press: None,
+            wheel_scrolled: false,
+            custom_wheel_roots: Vec::new(),
         }
     }
 

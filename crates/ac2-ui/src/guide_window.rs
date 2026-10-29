@@ -187,6 +187,8 @@ impl GuideWindow {
     ) -> Option<Self> {
         let book = BookUi::create_window(tree, gameplay, "GuideBook")?;
         let root = book.field();
+        // The page and the list scroll by the window's own wheel handling (`wheel`).
+        tree.set_custom_wheel(root, true);
         let find = |tree: &UiTree, name: &str| tree.child_recursive(root, tokenize(name));
         let mut frames = Vec::new();
         for child in tree.children(root).to_vec() {

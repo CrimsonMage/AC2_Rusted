@@ -623,3 +623,108 @@ fn the_wheel_over_no_ui_reaches_the_world_in_the_gameplay_hud() {
         "a wheel over the world reaches the item selection field (camera zoom)"
     );
 }
+
+/// The modern exception's window wheel (`window_wheel.rs`): over any part of a toolbar panel that
+/// is not a scroll owner or a bar (its frame, title, tabs, buttons, the paper doll beside the
+/// backpack), a turn scrolls the panel's content.
+#[test]
+fn the_wheel_over_any_part_of_a_panel_scrolls_its_content() {
+    let Some(dataset) = env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let layout = hud.toolbar_layout.clone().expect("the toolbar layout");
+    let toolbar = hud.toolbar.clone();
+    let tree = &mut hud.tree;
+    let mut scrolled = Vec::new();
+    for child in crate::ToolbarChild::ALL {
+        for other in crate::ToolbarChild::ALL {
+            toolbar.show(tree, other, other == child);
+        }
+        let name = format!("{child:?}Field");
+        let Some(field) = tree
+            .roots()
+            .iter()
+            .find_map(|&r| tree.child_recursive(r, tokenize(&name)))
+        else {
+            continue;
+        };
+        raise(tree, field);
+        // The panel's shown scroll owners, each with content past its view.
+        let mut owners = Vec::new();
+        let mut bars = Vec::new();
+        let mut stack = vec![field];
+        while let Some(index) = stack.pop() {
+            if !shown(tree, index) {
+                continue;
+            }
+            stack.extend(tree.children(index).iter().copied());
+            match classify(tree, index) {
+                Some(Scroller::Bar) => bars.push(index),
+                Some(kind) if linked(tree, index) => owners.push((index, kind)),
+                _ => {}
+            }
+        }
+        if owners.is_empty() {
+            continue;
+        }
+        for &(index, kind) in &owners {
+            overflow(tree, &layout, index, kind);
+        }
+        settle(tree);
+        // A point of the panel that is in no owner and no bar.
+        let rect = tree.screen_box(field);
+        let mut point = None;
+        'search: for y in (rect.y0..rect.y1).step_by(4) {
+            for x in (rect.x0..rect.x1).step_by(4) {
+                tree.start_input(UI_POINTER_X, x as f32);
+                tree.start_input(UI_POINTER_Y, y as f32);
+                let Some(top) = tree.mouse_top() else {
+                    continue;
+                };
+                if within(tree, top, field)
+                    && !owners.iter().any(|&(o, _)| within(tree, top, o))
+                    && !bars.iter().any(|&b| within(tree, top, b))
+                {
+                    point = Some((x, y));
+                    break 'search;
+                }
+            }
+        }
+        let Some((x, y)) = point else {
+            continue;
+        };
+        tree.start_input(UI_POINTER_X, x as f32);
+        tree.start_input(UI_POINTER_Y, y as f32);
+        let total =
+            |tree: &UiTree| -> f64 { owners.iter().map(|&(o, k)| measure(tree, o, k)).sum() };
+        let before = total(tree);
+        tree.start_input(UI_WHEEL_OUT, 1.0);
+        settle(tree);
+        let mut after = total(tree);
+        if after == before {
+            tree.start_input(UI_WHEEL_IN, 1.0);
+            settle(tree);
+            after = total(tree);
+        }
+        assert_ne!(
+            after,
+            before,
+            "{name}: a turn over ({x}, {y}), top {:?}, moved none of {owners:?}",
+            tree.mouse_top().map(|t| tree.get(t).map(|e| e.id()))
+        );
+        scrolled.push(child);
+    }
+    for panel in [
+        crate::ToolbarChild::Inventory,
+        crate::ToolbarChild::Skill,
+        crate::ToolbarChild::Quest,
+        crate::ToolbarChild::Examination,
+    ] {
+        assert!(
+            scrolled.contains(&panel),
+            "{panel:?} was tested: {scrolled:?}"
+        );
+    }
+}

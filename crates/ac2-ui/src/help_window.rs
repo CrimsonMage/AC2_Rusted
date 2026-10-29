@@ -97,6 +97,8 @@ impl HelpWindow {
     /// layout has no `Book`.
     pub fn create(tree: &mut UiTree, gameplay: &Arc<LayoutDesc>) -> Option<Self> {
         let book = BookUi::create_window(tree, gameplay, "HelpPagesBook")?;
+        // The page scrolls by its own wheel handling (`wheel_message`).
+        tree.set_custom_wheel(book.field(), true);
         // The page's image is the book's, and the window has none: its foreground is hidden, so a
         // press on the text reaches it.
         if let Some(foreground) = child(tree, &book, "BookForeground") {

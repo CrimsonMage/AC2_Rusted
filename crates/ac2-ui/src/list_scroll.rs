@@ -62,7 +62,7 @@ fn scroll_range(paper: i32, extent: i32) -> i32 {
 impl UiTree {
     /// The scroll bar a list names in `vertical_scrollbar` (or `horizontal_scrollbar`), resolved
     /// as `GetScrollbar` does (see `named_scrollbar`).
-    fn list_scrollbar(&self, list: usize, vertical: bool) -> Option<usize> {
+    pub(crate) fn list_scrollbar(&self, list: usize, vertical: bool) -> Option<usize> {
         let name = if vertical {
             "vertical_scrollbar"
         } else {
@@ -255,6 +255,7 @@ impl UiTree {
             .list_scrollbar(list, true)
             .or_else(|| self.list_scrollbar(list, false))
         {
+            self.wheel_scrolled = true;
             self.scrollbar_mouse_wheel(bar, action);
         }
     }

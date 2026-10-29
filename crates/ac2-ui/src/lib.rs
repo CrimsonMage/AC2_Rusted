@@ -271,6 +271,7 @@ mod wheel;
 #[cfg(test)]
 mod wheel_tests;
 mod window_locations;
+mod window_wheel;
 pub use wheel::{wheel_event_delta, WheelAccumulator, PIXELS_PER_NOTCH, WHEEL_DELTA};
 pub use window_locations::{
     clip_to_pixel, pixel_to_clip, saved_windows, ui_save_locations, SavedWindow, WindowLocation,

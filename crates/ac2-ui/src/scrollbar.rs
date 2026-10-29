@@ -284,7 +284,14 @@ impl UiTree {
     /// `move_to_touched_position`) moves the widget's middle to the pointer, then any left press
     /// starts dragging the widget.
     pub(crate) fn scrollbar_mouse_down(&mut self, index: usize, action: u32) {
-        if !self.is_scrollbar(index) || self.bool_attribute(index, tokenize("disabled")) {
+        if !self.is_scrollbar(index) {
+            return;
+        }
+        // A turn over a bar is the bar's, moving or not (`window_wheel.rs`).
+        if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
+            self.wheel_scrolled = true;
+        }
+        if self.bool_attribute(index, tokenize("disabled")) {
             return;
         }
         if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {

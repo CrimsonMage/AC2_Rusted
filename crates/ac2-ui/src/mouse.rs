@@ -251,8 +251,15 @@ impl UiTree {
             return;
         }
         let mut processed = false;
+        let wheel = matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT);
+        self.wheel_scrolled = false;
         for root in self.roots.clone() {
             self.notify_mouse_down(root, action, &mut processed);
+        }
+        // A turn that scrolled no element scrolls the window under the pointer (modern
+        // exception, `window_wheel.rs`).
+        if wheel && !self.wheel_scrolled {
+            self.window_wheel(action);
         }
         self.update_mouse();
     }
