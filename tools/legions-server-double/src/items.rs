@@ -28,6 +28,13 @@ pub const ICON_SWORD: u32 = 0x4100_829F;
 pub const ICON_RATION: u32 = 0x4100_A146;
 pub const ICON_COIN: u32 = 0x4100_A21E;
 pub const ICON_SHIELD: u32 = 0x4100_441B;
+/// The starter quests' icon (`icon_it_scroll_generals_quest`).
+pub const ICON_QUEST: u32 = 0x4100_A21A;
+/// The first starter quest's id ([`State::give_starter_quests`]).
+pub const STARTER_QUEST: u32 = 0x100;
+/// `gmQuestInfo::_questStatus`: underway and completed.
+pub const QUEST_UNDERWAY: u32 = 0x1000_0000;
+pub const QUEST_COMPLETED: u32 = 0x3000_0000;
 /// The player's own pack's slots (int 280 on the player).
 pub const MAIN_PACK_CAPACITY: i32 = 24;
 /// The money the starter inventory comes with.
@@ -264,6 +271,36 @@ impl State {
         world.equipped.push((SECONDARY_HAND, SHIELD));
     }
 
+    /// Starter quests for the login message ([`State::send_init_player`]): one underway and one
+    /// completed, so the quest journal lists both pages (the world viewer's session).
+    pub fn give_starter_quests(&mut self) {
+        let quest = |id, name: &str, journal: &str, status| ac2_net::protocol::GmQuestInfo {
+            id,
+            name: literal(name),
+            description: literal(journal),
+            icon: ICON_QUEST,
+            status,
+            phase: 1,
+            journal: literal(journal),
+            challenge_level: 1,
+            ..ac2_net::protocol::GmQuestInfo::default()
+        };
+        self.script_world.quests = vec![
+            quest(
+                STARTER_QUEST,
+                "Ruins of the Old Tower",
+                "Explore the old tower and report what you find.",
+                QUEST_UNDERWAY,
+            ),
+            quest(
+                STARTER_QUEST + 1,
+                "First Steps",
+                "You learned to find your way around.",
+                QUEST_COMPLETED,
+            ),
+        ];
+    }
+
     /// The coin stack of `amount` coins the double makes for `DragFromMoneyBag`: its object and
     /// stackable and maximum-stack qualities, then the container listed with it at `slot` (-1:
     /// the end). Returns its id.
@@ -351,5 +388,12 @@ impl State {
             }
             _ => {}
         }
+    }
+}
+
+fn literal(text: &str) -> StringInfo {
+    StringInfo {
+        literal: Some(text.into()),
+        ..StringInfo::default()
     }
 }

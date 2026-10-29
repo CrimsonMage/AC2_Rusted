@@ -146,7 +146,10 @@ impl HudInput {
         for (action, _, start) in self.controls.frame().camera_actions {
             if matches!(
                 action,
-                actions::ZOOM_IN | actions::ZOOM_OUT | actions::ZOOM_SCALE_IN | actions::ZOOM_SCALE_OUT
+                actions::ZOOM_IN
+                    | actions::ZOOM_OUT
+                    | actions::ZOOM_SCALE_IN
+                    | actions::ZOOM_SCALE_OUT
             ) {
                 walk.camera_action(action, start);
             }

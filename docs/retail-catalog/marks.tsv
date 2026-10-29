@@ -1070,7 +1070,7 @@ key	status	note
 0043ebd0	x	ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
 0043ecb0	x	ac2-ui journal_quests.rs message (QuestTemplate click) and global_loop (m_update); client hud_player.rs
 0043ecd0	x	ac2-ui journal_quests.rs show (the updated quest closes when the panel closes); reached from quests_panel.rs QuestsUi::show
-0043f000	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
+0043f000	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs). The HUD is built on workers, after the login message's list notice can come, so frame_passes.rs init_pass fills the journal from the script's list (InqQuestInfoList) as that notice's case 2 does (quest_journal_7160); elements are left to the tree
 0043f130	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree
 0043f1e0	x	ac2-ui journal_quests.rs recv_notice_update_quests (all codes); quests_panel.rs recv_notice makes the tabs active; client ui_quests.rs quest_notice fetches the list for code 2
 0043f570	~	ac2-ui journal_quests.rs JournalQuestsUi::create (lists found under the pages) and drop; the notice and message registrations are the client dispatch (ac2-client ui_quests.rs, hud_player.rs); elements are left to the tree

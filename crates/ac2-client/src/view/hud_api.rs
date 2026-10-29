@@ -220,6 +220,12 @@ impl ClientView {
         self.hud.external_container_items()
     }
 
+    /// The quest journal's underway and finished quests, in list order.
+    pub fn quest_ids(&self) -> Option<(Vec<u32>, Vec<u32>)> {
+        let journal = self.hud.panels.quests.as_ref()?.journal();
+        Some((journal.underway_ids(), journal.finished_ids()))
+    }
+
     /// The item the paper doll shows worn at an inventory location.
     pub fn paper_doll_item(&self, location: u32) -> Option<u64> {
         self.hud.panels.paper_doll.as_ref()?.item_at(location)

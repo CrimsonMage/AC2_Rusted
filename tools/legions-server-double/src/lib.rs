@@ -65,7 +65,8 @@ pub use effects::{
 pub use items::{
     item_object_bytes, segments, starter_items, ItemSpawn, ICON_COIN, ICON_PACK, ICON_POTION,
     ICON_RATION, ICON_SHIELD, ICON_SWORD, MAIN_PACK_CAPACITY, PACK, POTIONS, PRIMARY_HAND,
-    RATIONS, SECONDARY_HAND, SHIELD, STARTER_MONEY, SWORD,
+    QUEST_COMPLETED, QUEST_UNDERWAY, RATIONS, SECONDARY_HAND, SHIELD, STARTER_MONEY, STARTER_QUEST,
+    SWORD,
 };
 pub use lossy::LossyTransport;
 pub use objects::{

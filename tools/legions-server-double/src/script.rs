@@ -41,6 +41,9 @@ pub struct ScriptWorld {
     pub options: Option<ac2_net::protocol::GameplayOptionsProfile>,
     /// The skills the login message carries.
     pub character: crate::Character,
+    /// The player's quests, the login message's argument 3 (a `gmQuestInfoList`, the list the
+    /// player's script keeps and the quest journal reads through `InqQuestInfoList`).
+    pub quests: Vec<ac2_net::protocol::GmQuestInfo>,
     /// The store the server opened (`open_store`): the sales a purchase is priced from.
     pub open_store: Option<ac2_net::protocol::StoreView>,
     /// Purchases made so far: the item each one gives the player is counted from them.
@@ -417,6 +420,12 @@ impl State {
     /// zero ints.
     pub fn send_init_player(&mut self) {
         let mut args = vec![PackValue::Int(0); 14];
+        // Argument 3: the quest list (`gmQuestInfoList`, native 0xA1), when the player has any.
+        if !self.script_world.quests.is_empty() {
+            args[2] = PackValue::native(ac2_net::protocol::NativeObject::GmQuestInfoList(
+                self.script_world.quests.clone(),
+            ));
+        }
         // Argument 5: the skill repository (`Agent` 0x6C), which the login's skill panel reads.
         args[4] = PackValue::Reference(self.script_world.character.repository());
         // The player's options profile always comes (the double's character's when the test

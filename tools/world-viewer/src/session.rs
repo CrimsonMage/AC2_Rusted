@@ -1,6 +1,6 @@
 //! The HUD's session in the viewer: the client logged on to the Legions server double in process
 //! (no socket), so the gameplay HUD has a player to ask. The double gives the starter items, a
-//! worn shield and sword and the player's login state (skills, options, money), and the HUD's
+//! worn shield and sword, two quests and the player's login state (skills, options, money), and the HUD's
 //! frameworks run against the client every frame as in `bin/ac2`'s world frame: the inventory, the
 //! paper doll, the skills, the shortcut bar and the toolbar's panels and menus all work. The
 //! viewer still walks and draws its own player; the HUD's parts of the frame (inventory, vitals,
@@ -47,7 +47,9 @@ impl Session {
             .load_landblock(ac2_core::CellId::new(cell))
             .ok()
             .flatten()
-            .map_or(0.0, |block| block.height_grid().into_iter().fold(0.0, f32::max));
+            .map_or(0.0, |block| {
+                block.height_grid().into_iter().fold(0.0, f32::max)
+            });
         let (transport, server) = double(Spawn {
             cell,
             origin: [landing.x, landing.y, top + 2.0],
@@ -98,6 +100,7 @@ impl Session {
             let mut server = server.borrow_mut();
             server.give_starter_items();
             server.give_starter_gear();
+            server.give_starter_quests();
             server.send_init_player();
         }
         Ok(Self {
@@ -161,7 +164,9 @@ impl Session {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use legions_server_double::{POTIONS, PRIMARY_HAND, SECONDARY_HAND, SHIELD, SWORD};
+    use legions_server_double::{
+        POTIONS, PRIMARY_HAND, SECONDARY_HAND, SHIELD, STARTER_QUEST, SWORD,
+    };
 
     /// The session on the real DATs (`AC2_DAT_DIR`) under a headless view: the HUD's inventory
     /// lists the starter items and the paper doll shows the worn sword and shield.
@@ -194,7 +199,10 @@ mod tests {
         // The HUD builds on its workers; then the inventory panel shows, as its button does.
         let started = std::time::Instant::now();
         while view.shortcut_slots() == 0 {
-            assert!(started.elapsed() < Duration::from_secs(60), "the HUD is built");
+            assert!(
+                started.elapsed() < Duration::from_secs(60),
+                "the HUD is built"
+            );
             step(&mut session, &mut view);
             std::thread::sleep(Duration::from_millis(5));
         }
@@ -202,9 +210,21 @@ mod tests {
         for _ in 0..32 {
             step(&mut session, &mut view);
         }
-        let items: Vec<u64> = view.backpack_items().into_iter().map(|(id, _)| id).collect();
-        assert!(items.contains(&POTIONS), "the backpack lists the potions: {items:?}");
+        let items: Vec<u64> = view
+            .backpack_items()
+            .into_iter()
+            .map(|(id, _)| id)
+            .collect();
+        assert!(
+            items.contains(&POTIONS),
+            "the backpack lists the potions: {items:?}"
+        );
         assert_eq!(view.paper_doll_item(PRIMARY_HAND), Some(SWORD));
         assert_eq!(view.paper_doll_item(SECONDARY_HAND), Some(SHIELD));
+        let (underway, finished) = view.quest_ids().expect("the quest panel");
+        assert_eq!(
+            (underway, finished),
+            (vec![STARTER_QUEST], vec![STARTER_QUEST + 1])
+        );
     }
 }

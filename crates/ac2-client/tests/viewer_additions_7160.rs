@@ -52,7 +52,11 @@ fn the_viewer_opens_the_guide_and_the_tracker_and_types_into_the_search() {
     assert_eq!(view.hud_layers(), closed + 1, "the guide's window is drawn");
     view.toggle_tracker();
     pump(&gpu, &mut view, &frame);
-    assert_eq!(view.hud_layers(), closed + 2, "the Tracker's window is drawn");
+    assert_eq!(
+        view.hud_layers(),
+        closed + 2,
+        "the Tracker's window is drawn"
+    );
 
     // A press in the search field gives it the typing; the list follows the query.
     let field = view
@@ -73,7 +77,10 @@ fn the_viewer_opens_the_guide_and_the_tracker_and_types_into_the_search() {
     let typed: Vec<(u16, u32)> = "tusk".encode_utf16().map(|ch| (ch, 0)).collect();
     view.text_input(&[], &typed, Modifiers::default());
     pump(&gpu, &mut view, &frame);
-    assert_eq!(view.element_text("GuideSearchInput").as_deref(), Some("tusk"));
+    assert_eq!(
+        view.element_text("GuideSearchInput").as_deref(),
+        Some("tusk")
+    );
 
     view.toggle_guide();
     view.toggle_tracker();

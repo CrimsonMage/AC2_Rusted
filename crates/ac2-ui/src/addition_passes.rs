@@ -11,7 +11,11 @@ use crate::{Hud, HudRequest, UiMessage};
 impl Hud {
     /// The additions' frame without a player: the messages since the last frame go to the guide,
     /// the world map and the Tracker. Returns their requests for the client to map.
-    pub fn offline_frame(&mut self, tree: Option<&mut UiTree>, dirty: &mut bool) -> Vec<HudRequest> {
+    pub fn offline_frame(
+        &mut self,
+        tree: Option<&mut UiTree>,
+        dirty: &mut bool,
+    ) -> Vec<HudRequest> {
         let mut messages = std::mem::take(&mut self.player_messages);
         let Some(tree) = tree else {
             return Vec::new();
@@ -87,7 +91,11 @@ impl Hud {
         }
         // The quest guide: the option panel's In-Game Wiki button opens and closes it, and its
         // own messages (Share fills the chat line; a coordinate points the arrow).
-        if self.option_panel.as_mut().is_some_and(|panel| panel.take_wiki()) {
+        if self
+            .option_panel
+            .as_mut()
+            .is_some_and(|panel| panel.take_wiki())
+        {
             self.toggle_guide(tree);
             *dirty = true;
         }

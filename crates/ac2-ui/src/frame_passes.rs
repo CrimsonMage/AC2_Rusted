@@ -462,6 +462,17 @@ impl Hud {
         if let Some(skills) = self.skills.as_mut() {
             skills.update_skill_panel(tree, player);
         }
+        // `gmJournalQuestsUI` registers for the player's quest notices when it is made, before the
+        // login message's quest list (`WM_Player` 0x27) raises the list notice. The HUD here is
+        // built on workers and can come after that notice, so the journal takes the list the
+        // player's script holds now, as that notice's case 2 would (`InqQuestInfoList`).
+        if let Some(quests) = self.quests.as_mut() {
+            let list = GameplayNotice::UpdateQuests {
+                code: crate::QUEST_CODE_LIST,
+                quest: Box::default(),
+            };
+            quests.recv_gameplay_notice(tree, player, &list);
+        }
         if let Some(page) = self.allegiance.as_mut() {
             page.set_player(tree, FellowshipSource::player(player));
         }
