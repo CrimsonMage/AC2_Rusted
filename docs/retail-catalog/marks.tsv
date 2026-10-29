@@ -8357,7 +8357,7 @@ key	status	note
 00582670	_	needs port: frill render init
 00582760	_	needs port: frill mesh render (frill entries, positions, lists)
 00582890	_	needs port: frill mesh render (frill entries, positions, lists)
-005828e0	~	ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
+005828e0	~	ac2-render frill::select_frills + per-instance frill normal and landscape self-shadow; drawn as instances, each near frill jittered FrillSettings::copies times (scene/grass.rs; AGENTS.md exception)
 005832a0	~	frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 00583480	_	needs port: cell render init
 005834d0	~	ac2-audio/ac2-client ambient: four-copy contin spread unused by Legions; interior visibility from the player's stab list; groove objects read every update

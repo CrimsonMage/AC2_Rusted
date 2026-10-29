@@ -172,7 +172,7 @@ fn an_out_of_range_level_applies_the_section_without_a_preset() {
 
 #[test]
 fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
-    use crate::frill::FrillSettings;
+    use crate::frill::{grass_copies_for_draw_distance, FrillSettings};
     use crate::prefs::{scene_options, SceneOptions, LANDSCAPE_FRILL_DISTANCE};
     use crate::terrain::far_radius_for_draw_distance;
 
@@ -218,6 +218,7 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
         scene_options(&bank).frill,
         FrillSettings {
             short_distance: true,
+            copies: grass_copies_for_draw_distance(4),
             ..FrillSettings::default()
         }
     );

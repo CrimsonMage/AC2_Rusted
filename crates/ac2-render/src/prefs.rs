@@ -21,7 +21,7 @@ use std::thread::JoinHandle;
 
 use ac2_prefs::{Choice, NameTable, Pref, PreferenceBank, PrefsFile, Value};
 
-use crate::frill::FrillSettings;
+use crate::frill::{grass_copies_for_draw_distance, FrillSettings};
 use crate::object::DegradeOptions;
 use crate::terrain::far_radius_for_draw_distance;
 
@@ -388,7 +388,10 @@ impl Default for SceneOptions {
     fn default() -> Self {
         Self {
             far_radius: far_radius_for_draw_distance(2),
-            frill: FrillSettings::default(),
+            frill: FrillSettings {
+                copies: grass_copies_for_draw_distance(2),
+                ..FrillSettings::default()
+            },
             degrade: DegradeOptions::default(),
             object_shadows: ObjectShadows::Medium,
             light_coronas: true,
@@ -434,8 +437,8 @@ impl ObjectShadows {
 /// default.
 pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
     let defaults = SceneOptions::default();
-    let far_radius =
-        landscape_draw_distance(bank).map_or(defaults.far_radius, far_radius_for_draw_distance);
+    let draw_distance = landscape_draw_distance(bank);
+    let far_radius = draw_distance.map_or(defaults.far_radius, far_radius_for_draw_distance);
     let short = matches!(
         bank.find(LANDSCAPE_FRILL_DISTANCE).map(|pref| &pref.value),
         Some(Value::Int(1))
@@ -444,6 +447,7 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         far_radius,
         frill: FrillSettings {
             short_distance: short,
+            copies: draw_distance.map_or(defaults.frill.copies, grass_copies_for_draw_distance),
             ..defaults.frill
         },
         degrade: degrade_options(bank),

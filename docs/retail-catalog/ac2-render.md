@@ -948,7 +948,7 @@ Legend and workflow: [README](README.md).
 - [ ] `FrillRender::FrillRender` · 00582670 · legions 00551e20 — needs port: frill render init
 - [ ] `FrillRender::UpdateFrillPosition` · 00582760 · legions 00551f00 — needs port: frill mesh render (frill entries, positions, lists)
 - [ ] `FrillRender::Render` · 00582890 · legions 00552030 — needs port: frill mesh render (frill entries, positions, lists)
-- [~] `FrillRender::RefreshFrillMesh` · 005828e0 · legions 00552050 — ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
+- [~] `FrillRender::RefreshFrillMesh` · 005828e0 · legions 00552050 — ac2-render frill::select_frills + per-instance frill normal and landscape self-shadow; drawn as instances, each near frill jittered FrillSettings::copies times (scene/grass.rs; AGENTS.md exception)
 - [~] `FrillRender::UpdateRenderList` · 005832a0 · legions 00552a10 — frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 
 ## `portal/client/src/smartbox/worldrender/lscapelighting.cpp.c` (14/19)

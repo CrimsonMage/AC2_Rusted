@@ -161,6 +161,9 @@ fn shade_modern(input: VsOut, texels: array<vec4<f32>, 4>, coarse: vec4<f32>) ->
     if reference < 256u && !(round(clamp(shaded.a, 0.0, 1.0) * 255.0) > f32(reference)) {
         discard;
     }
+    if shaded.a <= input.alpha_cut {
+        discard;
+    }
     // Linear light into the HDR scene; the scene's tone map follows.
     return vec4(max(color, vec3(0.0)), shaded.a);
 }

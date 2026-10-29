@@ -8,7 +8,7 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
-//! [--shore-effects 0|1|2] [--flash R,G,B,A]
+//! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
@@ -25,6 +25,8 @@
 //! `--shore-effects` `LandscapeShoreEffects` (default 2: breaking water on the shores).
 //! `--flash` draws a camera effect's screen flash of that colour over the snapshot (0..1 each, as
 //! `CameraFxManager`'s sum: `--flash 0,0,0,1` is a full fade to black).
+//! `--grass-copies N` draws each near grass frill N times (1: retail's frills only; default 4,
+//! draw distance 2's).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -108,6 +110,8 @@ struct Args {
     shore_effects: u8,
     /// A screen flash to draw over the snapshot (`--flash`).
     flash: [f32; 4],
+    /// Copies of each near grass frill (`FrillSettings::copies`).
+    grass_copies: u32,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -139,6 +143,7 @@ fn parse_args() -> Result<Args, String> {
         water_reflections: ac2_render::prefs::SceneOptions::default().water_reflections,
         shore_effects: ac2_render::prefs::SceneOptions::default().shore_effects,
         flash: [0.0; 4],
+        grass_copies: ac2_render::prefs::SceneOptions::default().frill.copies,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -152,6 +157,11 @@ fn parse_args() -> Result<Args, String> {
             }
             "--radius" => args.radius = value()?.parse().map_err(|e| format!("--radius: {e}"))?,
             "--snapshot" => args.snapshot = Some(value()?.into()),
+            "--grass-copies" => {
+                args.grass_copies = value()?
+                    .parse()
+                    .map_err(|e| format!("--grass-copies: {e}"))?;
+            }
             "--bench" => args.bench = value()?.parse().map_err(|e| format!("--bench: {e}"))?,
             "--gpu-times" => args.gpu_times = true,
             "--fly" => args.fly = true,
@@ -395,6 +405,10 @@ fn snapshot(
         cloud_shadows: args.cloud_shadows,
         water_reflections: args.water_reflections,
         shore_effects: args.shore_effects,
+        frill: ac2_render::frill::FrillSettings {
+            copies: args.grass_copies,
+            ..Default::default()
+        },
         ..Default::default()
     });
     let model = models.get(args.model).filter(|_| !args.fly);

@@ -141,6 +141,72 @@ fn a_frill_takes_the_self_shadow_of_the_terrain_cell_under_it() {
         .all(|p| p.frill_shade == 1.0));
 }
 
+/// The meadow (block `0x408E`, retail's grass reference at 12.1N 49.2W): each frill of retail's
+/// ring is drawn `FrillSettings::copies` times, the copies standing on the ground near it.
+#[test]
+fn the_near_grass_is_drawn_in_jittered_copies_on_the_ground() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let size = world.block_size();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0x40, 0x8E));
+    scene.wait();
+    // The middle of a 20 m landscape cell, so retail's 40 m ring is centred on it.
+    let centre = Vec3::new(64.5 * size + 10.0, 142.5 * size + 10.0, 0.0);
+    let camera = Camera {
+        eye: centre + Vec3::Z * 200.0,
+        target: centre + Vec3::new(0.0, 1.0, 200.0),
+        fov_y: 60_f32.to_radians(),
+        near: 0.5,
+        far: 4000.0,
+    };
+    let mut near_frills = |copies: u32| {
+        let mut options = SceneOptions::default();
+        options.frill.copies = copies;
+        scene.set_options(options);
+        let frame = scene.frame(&camera, 1.0);
+        frame
+            .placements
+            .into_iter()
+            .filter(|p| p.frill_normal.is_some())
+            .filter(|p| {
+                p.world
+                    .w_axis
+                    .truncate()
+                    .truncate()
+                    .distance(centre.truncate())
+                    < 35.0
+            })
+            .collect::<Vec<_>>()
+    };
+    let retail = near_frills(1);
+    let dense = near_frills(8);
+    eprintln!(
+        "near frills: retail {}, dense {}",
+        retail.len(),
+        dense.len()
+    );
+    assert!(retail.len() >= 20, "the meadow has grass");
+    assert!(dense.len() >= retail.len() * 7, "copies fill in the meadow");
+    // Every copy stands within its spread of an authored frill, at about that frill's height.
+    for copy in &dense {
+        let at = copy.world.w_axis.truncate();
+        assert!(
+            retail.iter().any(|r| {
+                let origin = r.world.w_axis.truncate();
+                (at.x - origin.x).abs() <= 1.0 + 1e-3
+                    && (at.y - origin.y).abs() <= 1.0 + 1e-3
+                    && (at.z - origin.z).abs() < 2.0
+            }) || at.truncate().distance(centre.truncate()) > 33.5,
+            "copy at {at} is near no frill"
+        );
+    }
+}
+
 /// A dungeon block (`0x02BB`) loads every cell, and a camera inside one sees the cells its portals
 /// open on, not the whole block.
 #[test]

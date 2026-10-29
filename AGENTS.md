@@ -140,6 +140,14 @@ game rules and server-visible behaviour exactly retail.
   loaded blocks' other frills out to 160 m (`ac2_render::frill::select_far_frills`, 0.65 of it at
   the short `LandscapeFrillDistance`), thinned by a fixed per-frill hash from all of them to 30%,
   each growing in and out from its origin in the vertex stage (`grass_scale` in `object.wgsl`).
+  Each frill of retail's ring is also drawn `FrillSettings::copies` times (1, 2, 4, 8 or 12 by
+  the `LandscapeDrawDistance` choice, so 1 at quality level 1 is retail's count), each copy
+  moved up to 1 m on each axis, turned and scaled 0.85 to 1.15 by a fixed hash of its frill's
+  position and set on the ground there (`ac2_render::frill::grass_copy`, `scene/grass.rs`).
+  Retail drew each DAT frill once. Every frill sways in a wind by the square of its height
+  (`grass_wind`), and discards fragments whose alpha is at most 0.2 (`GRASS_ALPHA_CUT`): the
+  DAT's grass layers blend with depth writes and an alpha test above 0, so overlapping copies'
+  faint fringes hid the blades behind them.
 - Exception: the inventory paper doll frames the whole figure as admin 7148's
   `gmPaperDollUI::UpdatePaperDollPosition` does (avatar at -0.5 of its height, the camera that
   height tall); Legions 7160 framed a head-and-shoulders portrait (-0.875, a quarter).

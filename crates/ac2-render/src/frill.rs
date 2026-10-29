@@ -21,6 +21,9 @@ pub struct FrillSettings {
     pub short_distance: bool,
     /// `LandDefs::square_length`: a landscape cell's edge in metres.
     pub square_length: f32,
+    /// How many times the client draws each frill of retail's ring, jittered (`grass_copy`;
+    /// `AGENTS.md` exception). 1 draws retail's frills only.
+    pub copies: u32,
 }
 
 impl Default for FrillSettings {
@@ -29,7 +32,44 @@ impl Default for FrillSettings {
             lscape_radius: 1,
             short_distance: false,
             square_length: 20.0,
+            copies: 1,
         }
+    }
+}
+
+/// Copies of each near frill for a `LandscapeDrawDistance` choice (0 to 4): the quality levels
+/// raise the draw distance one step each, so the grass thickens with them.
+pub fn grass_copies_for_draw_distance(choice: u32) -> u32 {
+    [1, 2, 4, 8, 12][choice.min(4) as usize]
+}
+
+/// How far a copy strays from its frill on each axis, in metres: half the 2 m spacing of the DAT
+/// meadow grid, so the copies fill the gaps between the authored clumps.
+const COPY_SPREAD: f32 = 1.0;
+
+/// Where copy `copy` of the frill at `origin` stands relative to it: an xy offset, a turn about
+/// the up axis in radians, and a uniform scale. Copy 0 is the frill as authored.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct GrassCopy {
+    pub offset: Vec2,
+    pub yaw: f32,
+    pub scale: f32,
+}
+
+/// Copy `copy` of the frill at `origin`, fixed by its position so it never moves between frames.
+pub fn grass_copy(origin: Vec3, copy: u32) -> GrassCopy {
+    if copy == 0 {
+        return GrassCopy {
+            offset: Vec2::ZERO,
+            yaw: 0.0,
+            scale: 1.0,
+        };
+    }
+    let r = |lane: u32| hash_unit(origin, copy.wrapping_mul(4).wrapping_add(lane));
+    GrassCopy {
+        offset: Vec2::new(r(0) * 2.0 - 1.0, r(1) * 2.0 - 1.0) * COPY_SPREAD,
+        yaw: r(2) * std::f32::consts::TAU,
+        scale: 0.85 + 0.3 * r(3),
     }
 }
 
@@ -111,8 +151,16 @@ pub fn grass_radii(settings: &FrillSettings) -> (f32, f32) {
 /// A frill's fixed random value in [0, 1) from its position to the centimetre, so it thins the
 /// same way from every viewpoint and nothing flickers as the camera moves.
 pub fn grass_hash(origin: Vec3) -> f32 {
+    hash_unit(origin, 0)
+}
+
+/// A fixed value in [0, 1) from `origin`'s xy to the centimetre and a `lane` picking an
+/// independent stream.
+fn hash_unit(origin: Vec3, lane: u32) -> f32 {
     let cell = |v: f32| (v * 100.0).floor() as i32 as u32;
-    let mut h = cell(origin.x).wrapping_mul(0x9E37_79B1) ^ cell(origin.y).wrapping_mul(0x85EB_CA77);
+    let mut h = cell(origin.x).wrapping_mul(0x9E37_79B1)
+        ^ cell(origin.y).wrapping_mul(0x85EB_CA77)
+        ^ lane.wrapping_mul(0xC2B2_AE3D);
     h ^= h >> 15;
     h = h.wrapping_mul(0x2C1B_3C6D);
     h ^= h >> 12;
@@ -244,6 +292,29 @@ mod tests {
             .sum::<f32>()
             / 1000.0;
         assert!((mean - 0.5).abs() < 0.05, "mean {mean}");
+    }
+
+    #[test]
+    fn grass_copies_are_fixed_and_fill_the_gaps() {
+        let origin = Vec3::new(101.25, 33.5, 4.0);
+        assert_eq!(
+            grass_copy(origin, 0),
+            GrassCopy {
+                offset: Vec2::ZERO,
+                yaw: 0.0,
+                scale: 1.0
+            }
+        );
+        assert_eq!(grass_copy(origin, 3), grass_copy(origin, 3));
+        assert_ne!(grass_copy(origin, 1), grass_copy(origin, 2));
+        for copy in 1..64 {
+            let c = grass_copy(origin, copy);
+            assert!(c.offset.abs().max_element() <= COPY_SPREAD);
+            assert!((0.85..=1.15).contains(&c.scale));
+            assert!((0.0..std::f32::consts::TAU).contains(&c.yaw));
+        }
+        assert_eq!(grass_copies_for_draw_distance(0), 1, "level 1 is retail's");
+        assert_eq!(grass_copies_for_draw_distance(9), 12);
     }
 
     #[test]

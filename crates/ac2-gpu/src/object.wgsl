@@ -75,6 +75,19 @@ fn grass_scale(ring: vec3<f32>, distance: f32) -> f32 {
     return grow * (1.0 - smoothstep(0.8 * ring.y, ring.y, distance));
 }
 
+// The client's wind on a grass frill (`AGENTS.md`): the frill bends in xy by the square of the
+// vertex's height above its origin, so the base stays planted. A slow gust sweeps across the
+// world and each frill flutters on its own phase. `frame.to_viewer.w` is the client time.
+fn grass_wind(origin: vec3<f32>, z: f32) -> vec3<f32> {
+    let h = max(z - origin.z, 0.0);
+    let t = frame.to_viewer.w;
+    let gust = 0.6 + 0.4 * sin(t * 0.35 + dot(origin.xy, vec2(0.021, 0.013)));
+    let phase = dot(origin.xy, vec2(0.73, 1.31));
+    let flutter = sin(t * 1.9 + phase) + 0.35 * sin(t * 4.3 + phase * 1.7);
+    let bend = h * h * 0.06 * gust * (0.6 + 0.4 * flutter);
+    return vec3(vec2(0.8, 0.6) * bend, 0.0);
+}
+
 const FLAG_MATERIAL_DIFFUSE: u32 = 1u;
 const FLAG_VERTEX_DIFFUSE: u32 = 2u;
 const FLAG_MODULATE: u32 = 4u;
@@ -164,7 +177,14 @@ struct VsOut {
     // The landscape map's shadow a merged frill's colour already carries (1 elsewhere), which
     // the sun shadow does not darken twice.
     @location(10) landscape_shade: vec3<f32>,
+    // The alpha a frill's fragment must pass to draw (`GRASS_ALPHA_CUT`); 0 elsewhere.
+    @location(11) @interpolate(flat) alpha_cut: f32,
 };
+
+// The client's grass discards its faint fringes (`AGENTS.md`): the DAT's grass layers blend with
+// depth writes and pass every alpha above 0, so in the client's dense grass each fringe hid the
+// blades behind it. Above this the blend is retail's.
+const GRASS_ALPHA_CUT: f32 = 0.2;
 
 /// Per-vertex vectors the fragments share, in world space.
 struct Basis {
@@ -324,7 +344,10 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
         let origin = inst.model[3].xyz;
         position = position * grass_scale(inst.frill_shade.yzw, distance(origin, frame.eye.xyz));
     }
-    let world = inst.model * vec4(position, 1.0);
+    var world = inst.model * vec4(position, 1.0);
+    if inst.frill.w > 0.5 {
+        world = vec4(world.xyz + grass_wind(inst.model[3].xyz, world.z), 1.0);
+    }
     out.clip = frame.view_proj * world;
     let view_pos = (frame.view * world).xyz;
     var basis: Basis;
@@ -338,6 +361,7 @@ fn vs(input: VsIn, @builtin(instance_index) instance: u32) -> VsOut {
         basis.normal = normalize(inst.frill.xyz);
         out.landscape_shade = landscape_shadow(inst.model[3].xyz);
         vertex_color = vec4(out.landscape_shade * inst.frill_shade.x, 1.0);
+        out.alpha_cut = GRASS_ALPHA_CUT;
     }
     basis.tangent_s = normalize((inst.model * vec4(input.tangent_s, 0.0)).xyz);
     basis.tangent_t = normalize((inst.model * vec4(input.tangent_t, 0.0)).xyz);

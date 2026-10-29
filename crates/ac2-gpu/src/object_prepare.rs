@@ -344,7 +344,8 @@ impl ObjectRenderer {
             view: ac2_math::camera::look_at_mat4(camera.eye, camera.target, Vec3::Z)
                 .to_cols_array_2d(),
             eye: camera.eye.extend(1.0).to_array(),
-            to_viewer: (-forward).extend(0.0).to_array(),
+            // w: the client time for the grass wind, wrapped to keep f32 precision.
+            to_viewer: (-forward).extend((self.time % 3600.0) as f32).to_array(),
             sun_inv_dir: inv_dir,
             sun_diffuse: diffuse,
             sun_specular: specular,

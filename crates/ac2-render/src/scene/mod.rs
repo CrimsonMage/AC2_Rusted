@@ -5,6 +5,7 @@
 //! the scene's loader thread; the frame thread only drains finished loads and lays out frames.
 
 mod decals;
+mod grass;
 mod interiors;
 mod light_decals;
 mod lighting;
@@ -35,10 +36,7 @@ pub use loader::{
 pub use lod::PlacedDetail;
 pub use particles::{ParticleAnchor, ParticleBatch};
 
-use crate::frill::{
-    frill_normal, grass_hash, grass_radii, select_far_frills, select_frills, FrillCandidate,
-    FrillSettings, GrassRing,
-};
+use crate::frill::{select_far_frills, select_frills, FrillCandidate, FrillSettings, GrassRing};
 use crate::frustum::{Frustum, Relation};
 use crate::interior_cull::{check_visibility, BlockCull, InteriorCull};
 use crate::object::{DegradeOptions, DrawDetail, ObjectPose, PointLight, RenderSettings};
@@ -743,7 +741,6 @@ impl WorldScene {
         // The client's grass past retail's ring (`AGENTS.md`), thinning and growing out with
         // distance; every frill carries the ring so the near ones stay whole.
         let far_frills = select_far_frills(&candidates, eye, &self.frill, &chosen);
-        let (grass_near, grass_far) = grass_radii(&self.frill);
         // The self shadow's light bit this frame (`LScapeRender::UpdateLighting`).
         let shadow_bit = shadow_light_bit(lighting.light_dir);
         self.degrades.tick();
@@ -763,21 +760,7 @@ impl WorldScene {
                     grass: [0.0; 3],
                 })
             })
-            .chain(chosen.iter().chain(&far_frills).map(|&index| {
-                let (key, p) = frills[index];
-                let frill_shade = self.heights.get(&key).map_or(1.0, |heights| {
-                    heights.self_shadow(p.world.w_axis.x, p.world.w_axis.y, shadow_bit)
-                });
-                FramePlacement {
-                    visual: p.visual,
-                    world: p.world,
-                    frill_normal: Some(frill_normal(&p.world)),
-                    frill_shade,
-                    detail: DrawDetail::FULL,
-                    alpha: 1.0,
-                    grass: [grass_near, grass_far, grass_hash(p.world.w_axis.truncate())],
-                }
-            }))
+            .chain(self.frill_placements(&frills, &chosen, &far_frills, shadow_bit))
             .collect();
         let sky_objects = self
             .world
