@@ -49,6 +49,14 @@ pub(crate) struct HudView {
 }
 
 impl HudView {
+    /// The pointer's cursor (`UIElementManager::SetCursor`): its image file, hot spot and
+    /// pixels, once the image is in.
+    pub fn pointer_cursor(&self) -> Option<((u32, i32, i32), &ac2_ui::UiPixels)> {
+        let (tree, images) = self.hud.as_ref()?;
+        let cursor = tree.pointer_cursor()?;
+        Some((cursor, images.get(&cursor.0)?))
+    }
+
     /// The window, in pixels.
     pub(crate) fn window_size(&self) -> (u32, u32) {
         self.size
@@ -330,6 +338,14 @@ impl HudView {
         if let Some((_, images)) = &mut self.hud {
             if self.images.take(images) {
                 self.dirty = true;
+            }
+        }
+        // The pointer's cursor image loads like the others (`UIElementManager::SetCursor`).
+        if let Some((tree, images)) = &self.hud {
+            if let Some((file, ..)) = tree.pointer_cursor() {
+                if !images.contains_key(&file) {
+                    self.images.request(file);
+                }
             }
         }
         for (kind, text) in self.chat_text.take() {

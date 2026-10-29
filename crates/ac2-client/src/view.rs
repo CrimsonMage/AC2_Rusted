@@ -482,6 +482,11 @@ impl ClientView {
             .count()
     }
 
+    /// The pointer's cursor image and hot spot the HUD set, once loaded.
+    pub fn pointer_cursor(&self) -> Option<((u32, i32, i32), &ac2_ui::UiPixels)> {
+        self.hud.pointer_cursor()
+    }
+
     /// Draws the frame into `color` (the window) cleared to black: the world when
     /// `prepare` laid it out, then the HUD with the paper doll's scene in its viewport, after
     /// its surface and over a cleared depth ([`crate::ui_scene::render_with_scenes`]).

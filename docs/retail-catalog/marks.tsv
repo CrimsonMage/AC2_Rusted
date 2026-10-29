@@ -9205,7 +9205,7 @@ key	status	note
 005c3a30	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005c3c10	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005c3d00	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
-005c3d80	_	needs port (check): RenderUI::SetCursorProperties behaviour; implemented area ac2-ui media.rs but uncited
+005c3d80	x	ac2-client bin/ac2/cursor.rs GameCursor: the HUD's pointer cursor (UiTree::pointer_cursor, its image loaded with the UI images) as a winit custom cursor with its hot spot, made once per image and hot spot; the pregame screens keep the system cursor
 005c3f20	_	needs port (check): RenderUI::SetDefaultCursor behaviour; implemented area ac2-ui media.rs but uncited
 005c3f80	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005c3fc0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
@@ -9238,7 +9238,7 @@ key	status	note
 005c5170	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c51a0	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c51d0	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
-005c5250	_	needs port: the game's own cursor image and hot spot (renderui.cpp.c, uielementmanager.cpp.c); crates only track the cursor id (ac2-ui media.rs set_pointer_cursor) and never draw it
+005c5250	x	ac2-client bin/ac2/cursor.rs GameCursor: the HUD's pointer cursor (UiTree::pointer_cursor, its image loaded with the UI images) as a winit custom cursor with its hot spot, made once per image and hot spot; the pregame screens keep the system cursor
 005c5450	_	needs port: game cursor show/hide from renderui.cpp.c; winit set_cursor_visible only follows mouse look (ac2-client bin/ac2/main.rs)
 005c5470	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c54a0	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
@@ -9252,7 +9252,7 @@ key	status	note
 005c5b10	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c5b50	-	D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 005c5d40	-	texture-stage binding (wgpu bind groups), default render-state baseline (each pipeline sets its own), or fragment.dll compiler loader (object.wgsl is the port)
-005c60a0	_	needs port: brightness as a 256-entry gamma ramp (SceneTool::SetGammaBrightness): per entry clamp(i*255 - brightness, 0..65535) on R, G, B; check the brightness scale in the caller; nothing in crates
+005c60a0	x	ac2-gpu ToneMap::set_brightness (the ramp's 1 + 2b scale on the world's display levels)
 005c6190	-	D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 005c61b0	-	D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 005c61d0	-	D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it

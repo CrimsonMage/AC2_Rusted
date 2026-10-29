@@ -416,7 +416,7 @@ impl UiTree {
         None
     }
 
-    /// Every image file the live elements show.
+    /// Every image file the live elements show, and the pointer's cursors.
     pub fn image_files(&self) -> BTreeSet<u32> {
         self.slots
             .iter()
@@ -432,6 +432,9 @@ impl UiTree {
                             .flat_map(|l| l.iter().map(|l| l.image).filter(|&i| i != 0)),
                     )
             })
+            .chain(self.cursor.map(|(file, ..)| file))
+            .chain(self.default_cursor.map(|(file, ..)| file))
+            .filter(|&file| file != 0)
             .collect()
     }
 

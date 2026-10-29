@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1318 done, 315 partial, 118 to do, 496 skipped.
+2247 retail functions: 1319 done, 315 partial, 117 to do, 496 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (38/53)
@@ -2240,11 +2240,11 @@ Legend and workflow: [README](README.md).
 - [x] `CMapNoteRow::StreamPack` · 0051bfb0 · legions 00509c10 — ac2-world region/detail_map.rs (DetailMap::row_from_value / row_from_block, MapNoteRow) and ac2_region.rs; real-data tests in region/detail_map_tests.rs
 - [-] `CMapNoteRow::FromFileNode` · 0051c020 — text source format (admin tools)
 
-## `portal/client/src/render/ui/renderui.cpp.c` (0/17)
+## `portal/client/src/render/ui/renderui.cpp.c` (1/17)
 
 ### RenderUI
 - [-] `RenderUI::CreateUISurfaceIndexBuffer` · 005c3d00 · legions 0058ae10 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
-- [ ] `RenderUI::SetCursorProperties` · 005c3d80 · legions 0058ae90 — needs port (check): RenderUI::SetCursorProperties behaviour; implemented area ac2-ui media.rs but uncited
+- [x] `RenderUI::SetCursorProperties` · 005c3d80 · legions 0058ae90 — ac2-client bin/ac2/cursor.rs GameCursor: the HUD's pointer cursor (UiTree::pointer_cursor, its image loaded with the UI images) as a winit custom cursor with its hot spot, made once per image and hot spot; the pregame screens keep the system cursor
 - [ ] `RenderUI::SetDefaultCursor` · 005c3f20 · legions 0058b030 — needs port (check): RenderUI::SetDefaultCursor behaviour; implemented area ac2-ui media.rs but uncited
 - [-] `RenderUI::ShowCursor` · 005c3f80 · legions 0058b090 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 - [-] `RenderUI::LockList` · 005c3fc0 · legions 0058b0d0 — Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio

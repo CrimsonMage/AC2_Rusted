@@ -48,6 +48,13 @@ impl UiImageLoader {
         }
     }
 
+    /// Asks for one image, unless it was asked for before.
+    pub fn request(&mut self, file: u32) {
+        if file != 0 && self.asked.insert(file) && self.send.send(file).is_ok() {
+            self.outstanding += 1;
+        }
+    }
+
     /// Asks for every image the tree shows that is not loaded or asked for yet.
     pub fn request_missing(&mut self, tree: &UiTree, images: &HashMap<u32, UiPixels>) {
         for file in tree.image_files() {

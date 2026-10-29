@@ -1,6 +1,6 @@
 # ac2-gpu: The render device
 
-95 retail functions: 8 done, 3 partial, 8 to do, 76 skipped.
+95 retail functions: 10 done, 3 partial, 6 to do, 76 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/render/core/d3d/renderd3d.cpp.c` (0/11)
@@ -18,7 +18,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderD3D::DetectDisplayModes` · 005d9dc0 · legions 0059b3a0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderD3D::Startup` · 005d9e70 · legions 0059b450 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 
-## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (8/84)
+## `portal/client/src/render/core/d3d/renderdeviced3d.cpp.c` (10/84)
 
 ### RenderIndexBuffer
 - [-] `RenderIndexBuffer::~RenderIndexBuffer` · 005c49d0 · legions 0058ba80 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
@@ -38,7 +38,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderDeviceD3D::End` · 005c5170 · legions 0058c190 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::BeginScene` · 005c51a0 · legions 0058c1c0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::EndScene` · 005c51d0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
-- [ ] `RenderDeviceD3D::SetCursorProperties` · 005c5250 — needs port: the game's own cursor image and hot spot (renderui.cpp.c, uielementmanager.cpp.c); crates only track the cursor id (ac2-ui media.rs set_pointer_cursor) and never draw it
+- [x] `RenderDeviceD3D::SetCursorProperties` · 005c5250 — ac2-client bin/ac2/cursor.rs GameCursor: the HUD's pointer cursor (UiTree::pointer_cursor, its image loaded with the UI images) as a winit custom cursor with its hot spot, made once per image and hot spot; the pregame screens keep the system cursor
 - [ ] `RenderDeviceD3D::ShowCursor` · 005c5450 — needs port: game cursor show/hide from renderui.cpp.c; winit set_cursor_visible only follows mouse look (ac2-client bin/ac2/main.rs)
 - [-] `RenderDeviceD3D::SetWorldTransform` · 005c5470 · legions 0058c480 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::SetViewTransform` · 005c54a0 · legions 0058c4b0 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
@@ -52,7 +52,7 @@ Legend and workflow: [README](README.md).
 - [-] `RenderDeviceD3D::Shutdown` · 005c5b10 · legions 0058cb20 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::DetectDeviceCaps` · 005c5b50 · legions 0058cb60 — D3D8 device lifecycle, adapter, presentation or caps plumbing; wgpu surface, passes and HdrTarget replace it
 - [-] `RenderDeviceD3D::SetDefaultD3DStates` · 005c5d40 · legions 0058cd70 — texture-stage binding (wgpu bind groups), default render-state baseline (each pipeline sets its own), or fragment.dll compiler loader (object.wgsl is the port)
-- [ ] `RenderDeviceD3D::SetGamma` · 005c60a0 · legions 0058d0d0 — needs port: brightness as a 256-entry gamma ramp (SceneTool::SetGammaBrightness): per entry clamp(i*255 - brightness, 0..65535) on R, G, B; check the brightness scale in the caller; nothing in crates
+- [x] `RenderDeviceD3D::SetGamma` · 005c60a0 · legions 0058d0d0 — ac2-gpu ToneMap::set_brightness (the ramp's 1 + 2b scale on the world's display levels)
 - [-] `RenderDeviceD3D::CreateSurface` · 005c6190 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 - [-] `RenderDeviceD3D::CreateTexture` · 005c61b0 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it
 - [-] `RenderDeviceD3D::CreateIndexBuffer` · 005c61d0 — D3D8 resource and shader-object lifetime or binding; wgpu buffers, textures and pipelines replace it

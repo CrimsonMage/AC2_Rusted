@@ -29,6 +29,7 @@
 //! check its data version, `1802` ([`ac2_net::RELAUNCH_VERSION`]).
 
 mod cmdline;
+mod cursor;
 mod instance;
 mod keys;
 mod pregame;
@@ -102,6 +103,8 @@ struct State {
     /// The pregame screens until then (none when a start character enters at once).
     pregame: Option<PregameView>,
     controls: Controls,
+    /// The game's cursor image on the window.
+    cursor: cursor::GameCursor,
     /// The Super (Cmd on macOS) key is held: on macOS its clipboard shortcuts are not typed text.
     super_held: bool,
     /// `gmSelectionUI` and the commands its finished selections send next frame.
@@ -502,6 +505,9 @@ impl App {
         let target = output.texture.create_view(&Default::default());
         let aspect = state.config.width as f32 / state.config.height as f32;
         let drawn = view.prepare(&state.gpu, &frame, aspect, time);
+        state
+            .cursor
+            .show(event_loop, &state.window, view.pointer_cursor());
         if view.take_deselect() {
             state.commands.push(Command::Select(None));
         }
@@ -625,6 +631,7 @@ impl ApplicationHandler for App {
                 controls
             },
             super_held: false,
+            cursor: cursor::GameCursor::default(),
             started: Instant::now(),
             ime_allowed: false,
             grabbed: false,
