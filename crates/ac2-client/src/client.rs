@@ -31,7 +31,7 @@ use ac2_world::GameClock;
 
 use ac2_render::portal::PortalSpace;
 
-use crate::camera::{CameraManager, CameraSubject};
+use crate::camera::CameraManager;
 use crate::cells::CellManager;
 use crate::loader::{Loaded, Loader, Request};
 use crate::remote::Remotes;
@@ -94,9 +94,9 @@ pub enum Notice {
 pub(crate) struct Body {
     pub(crate) physics: PhysicsBody,
     /// `GetHeight` and `GetRadius` (x87 values) and `GetTotalScale` z.
-    height: f64,
-    radius: f64,
-    scale: f32,
+    pub(crate) height: f64,
+    pub(crate) radius: f64,
+    pub(crate) scale: f32,
 }
 
 /// The player object (`CreateObject` of the player).
@@ -575,28 +575,6 @@ impl Client {
         }
     }
 
-    /// What the camera reads from the player's physics object.
-    pub(crate) fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
-        let player = self.player.as_ref()?;
-        if require_in_world && !player.in_world {
-            return None;
-        }
-        let body = player.body.as_ref()?;
-        let position = body.physics.position();
-        let state = body.physics.movement_state();
-        let [vx, vy, vz] = state.velocity;
-        Some(CameraSubject {
-            id: player.id,
-            position,
-            height: body.height,
-            radius: body.radius,
-            scale_z: body.scale,
-            local_velocity: position.frame.global_to_local_vec(Vector::new(vx, vy, vz)),
-            element: state.element,
-            no_draw: self.session.player().is_some_and(|id| self.is_no_draw(id)),
-        })
-    }
-
     /// `PlayerMovementModule::UseTime`.
     fn movement(&mut self, input: &FrameInput) {
         let camera = camera_state(&self.camera);
@@ -816,18 +794,6 @@ impl Client {
 
     /// `SmartBox::UpdateCamera(quantum, _bInterpolate)`: the camera manager's viewer position
     /// becomes the scene camera's current one, the old current its previous.
-    fn update_camera(&mut self, quantum: f32, interpolate: bool) {
-        let Some(subject) = self.camera_subject(true) else {
-            return;
-        };
-        let world = crate::client_camera::CameraWorld {
-            player: self.player.as_ref(),
-            remotes: &self.remotes,
-        };
-        self.scene
-            .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
-    }
-
     /// `SmartBox::SetCameraPosition`.
     fn set_camera_position(&mut self, position: Position, set_desired: bool) {
         self.scene.set_position(position, set_desired);

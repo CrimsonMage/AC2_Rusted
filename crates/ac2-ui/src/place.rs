@@ -211,10 +211,12 @@ impl UiTree {
     pub fn move_to(&mut self, index: usize, x: i32, y: i32) {
         let display = self.display;
         let el = self.el_mut(index);
+        let mut object_moved = false;
         let (x, y) = match el.object {
-            Some(_) => {
+            Some(old) => {
                 let x = x.max(0).min(display.0 - 1 + (el.rect.x0 - el.rect.x1));
                 let y = y.max(0).min(display.1 - 1 + (el.rect.y0 - el.rect.y1));
+                object_moved = old != (x, y);
                 el.object = Some((x, y));
                 (0, 0)
             }
@@ -223,6 +225,14 @@ impl UiTree {
         // `UIRegion::MoveTo`.
         let rect = el.rect;
         el.rect = rect.offset(x - rect.x0, y - rect.y0);
+        let rect_moved = el.rect != rect;
+        // A root's surface object is placed again (the window follows a drag frame by frame); a
+        // child's new place is drawn by composing again.
+        if object_moved {
+            self.moved = true;
+        } else if rect_moved {
+            self.changed = true;
+        }
         // `UIElement_Meter::MoveTo`.
         self.meter_update_layout(index);
     }

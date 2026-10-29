@@ -41,7 +41,8 @@
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
-//! V first person, Home resets the camera. Fly (Tab): drag with the left button to look, WASD,
+//! V first person, Home resets the camera; the numpad drives the camera as retail's key map
+//! does (8/2 tilt, 4/6 turn, 5 reset, +/- zoom, 0 shoulder, . first person). Fly (Tab): drag with the left button to look, WASD,
 //! Space/C up and down, Shift fast. `[` and `]` step the time of day, F1 hides the panel.
 
 mod bench;

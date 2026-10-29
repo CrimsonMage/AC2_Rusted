@@ -168,6 +168,13 @@ game rules and server-visible behaviour exactly retail.
   `Client::set_pose_blend`, on by default), so the skeleton moves at display rate. Retail draws the
   last refresh; turn the blend off to get it. Drawn positions (`PhysicsBody::drawing_position`)
   follow retail's render interpolation and are not an exception.
+- Exception: the mouse-look camera follows the body where it is drawn. Retail's `SmartBox::UseTime`
+  updated the camera every frame while mouse look was on (`UpdateCamera(elapsed, 0)`) against the
+  player's current physics position, which steps a whole quantum (0.1 s) at a time, while the
+  body was drawn interpolated between quanta; running, the two jittered against each other by up
+  to a third of a metre. Here that update reads the drawn position at the render interpolation
+  (`Client::update_camera`, `Player::drawn_camera_subject`); the camera off mouse look still
+  updates per quantum and slerps, as retail.
 - Where admin 7148 and Legions 7160 differ, follow Legions (the DVD client the DATs ship with):
   read `decompiled-pdb/legions7160/source_tree/` beside the admin tree and note the difference.
 - Numeric fidelity: retail ran x87 at 53-bit precision (`_setdefaultprecision`, and

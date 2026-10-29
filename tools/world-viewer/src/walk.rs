@@ -398,12 +398,12 @@ impl Walk {
                 player.physics.update_animation(step, now, &mut self.random);
             }
         }
+        let t = self.physics_clock.render_interpolation(now);
         if self.camera.mouse_look {
-            let subject = player.camera_subject(VIEWER_PLAYER_ID);
+            let subject = player.drawn_camera_subject(VIEWER_PLAYER_ID, t);
             self.scene.update(&mut self.camera, &subject, dt, false);
         }
-        self.scene
-            .slerp(self.physics_clock.render_interpolation(now));
+        self.scene.slerp(t);
         // `CameraManager::UseTime`: no FX play in the viewer, so only the field of view's base
         // (65 plus the effects' clamped sum of 10).
         let random = &mut self.random;
@@ -420,7 +420,9 @@ impl Walk {
 /// Camera actions the viewer maps keys to.
 pub mod actions {
     pub use super::camera_action::{
-        MOUSE_LOOK_HOLD, RESET, ROTATE_LEFT, ROTATE_RIGHT, TOGGLE_FIRST_PERSON, ZOOM_IN, ZOOM_OUT,
+        FAKE_TRANSITION, LOOK_AT_GROUND, LOOK_AT_SELF, MAP_VIEW, MOUSE_LOOK_HOLD, PITCH_DOWN,
+        PITCH_UP, RESET, ROTATE_LEFT, ROTATE_RIGHT, SHOULDER_VIEW, SWING_OUT_RIGHT,
+        TOGGLE_FIRST_PERSON, ZOOM_IN, ZOOM_OUT, ZOOM_SCALE_IN, ZOOM_SCALE_OUT,
     };
 }
 

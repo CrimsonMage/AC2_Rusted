@@ -100,12 +100,33 @@ fn a_drag_bar_moves_its_window_and_raises_location_changed() {
 
     let before = hud.tree.screen_box(window);
     hud.tree.start_input(LEFT_DOWN, 0.0);
+    hud.tree.take_moved();
+    // Each move while the button is held places the window again (its surface object), so the
+    // drawn window follows the pointer during the drag, not only after the release.
     hud.tree.start_input(UI_POINTER_X, (cx + 20) as f32);
+    assert!(hud.tree.take_moved(), "the window is placed again mid-drag");
+    let placed = |hud: &crate::GameplayHud| {
+        hud.tree
+            .placements()
+            .into_iter()
+            .find(|p| p.root == window)
+            .map(|p| (p.x, p.y))
+    };
+    let mid = placed(&hud).expect("the window is composed");
+    assert_eq!(mid.0, before.x0 + 20, "drawn where the pointer took it");
     hud.tree.start_input(UI_POINTER_Y, (cy + 10) as f32);
+    assert!(hud.tree.take_moved());
     hud.tree.stop_input(LEFT_DOWN);
     let after = hud.tree.screen_box(window);
     assert_eq!(after.x0 - before.x0, 20, "the window follows the pointer");
     assert_eq!(after.y0 - before.y0, 10);
+    // The release ends the move: the pointer goes on alone.
+    hud.tree.start_input(UI_POINTER_X, (cx + 60) as f32);
+    assert_eq!(
+        hud.tree.screen_box(window),
+        after,
+        "released, the window stays"
+    );
     assert!(hud.tree.take_locations_changed());
     assert!(!hud.tree.take_locations_changed(), "taken once");
 }

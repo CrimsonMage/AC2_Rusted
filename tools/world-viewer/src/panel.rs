@@ -166,7 +166,7 @@ impl Panel {
                 ui.separator();
                 ui.weak(
                     "W/S walk  A/D turn  Q/E strafe  Space jump  RMB look  wheel zoom\n\
-                     V first person  Home reset camera  Tab fly/walk  F1 panel  [ ] time",
+                     V first person  Home reset camera  numpad camera  Tab fly/walk  F1 panel  [ ] time",
                 );
             });
         commands

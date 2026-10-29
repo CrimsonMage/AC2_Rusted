@@ -276,7 +276,11 @@ impl State {
             KeyCode::Home => self.walk.camera_action(actions::RESET, true),
             KeyCode::ArrowLeft => self.walk.camera_action(actions::ROTATE_LEFT, true),
             KeyCode::ArrowRight => self.walk.camera_action(actions::ROTATE_RIGHT, true),
-            _ => {}
+            _ => {
+                if let Some(action) = numpad_camera_action(code) {
+                    self.walk.camera_action(action, true);
+                }
+            }
         }
         self.time_of_day = self.time_of_day.rem_euclid(DAY_SECONDS);
     }
@@ -285,7 +289,11 @@ impl State {
         match code {
             KeyCode::ArrowLeft => self.walk.camera_action(actions::ROTATE_LEFT, false),
             KeyCode::ArrowRight => self.walk.camera_action(actions::ROTATE_RIGHT, false),
-            _ => {}
+            _ => {
+                if let Some(action) = numpad_camera_action(code) {
+                    self.walk.camera_action(action, false);
+                }
+            }
         }
     }
 
@@ -467,4 +475,27 @@ fn depth_view(device: &wgpu::Device, config: &wgpu::SurfaceConfiguration) -> wgp
             view_formats: &[],
         })
         .create_view(&Default::default())
+}
+
+/// The camera keys of the retail main key map (`0x41000001`, the numpad): 8 and 2 tilt, 4 and 6
+/// turn, 5 resets, 7 looks at the ground and 9 at the player, 1 and 3 swing out, 0 is the
+/// shoulder view, `.` first person, Enter the map view, and + and - zoom.
+fn numpad_camera_action(code: KeyCode) -> Option<u32> {
+    Some(match code {
+        KeyCode::Numpad8 => actions::PITCH_UP,
+        KeyCode::Numpad2 => actions::PITCH_DOWN,
+        KeyCode::Numpad4 => actions::ROTATE_LEFT,
+        KeyCode::Numpad6 => actions::ROTATE_RIGHT,
+        KeyCode::Numpad5 => actions::RESET,
+        KeyCode::Numpad7 => actions::LOOK_AT_GROUND,
+        KeyCode::Numpad9 => actions::LOOK_AT_SELF,
+        KeyCode::Numpad1 => actions::FAKE_TRANSITION,
+        KeyCode::Numpad3 => actions::SWING_OUT_RIGHT,
+        KeyCode::Numpad0 => actions::SHOULDER_VIEW,
+        KeyCode::NumpadDecimal => actions::TOGGLE_FIRST_PERSON,
+        KeyCode::NumpadEnter => actions::MAP_VIEW,
+        KeyCode::NumpadAdd => actions::ZOOM_SCALE_IN,
+        KeyCode::NumpadSubtract => actions::ZOOM_SCALE_OUT,
+        _ => return None,
+    })
 }

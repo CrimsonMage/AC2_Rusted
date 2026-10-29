@@ -1,4 +1,6 @@
-//! The camera's reach into the world (`CameraManager`'s `ICPhysicsObj::GetObjectA` lookups): the
+//! The camera's subject and its update (`SmartBox::UpdateCamera`): the player's physics object as
+//! the camera manager reads it, at its current quantum or where it is drawn this frame. And the
+//! camera's reach into the world (`CameraManager`'s `ICPhysicsObj::GetObjectA` lookups): the
 //! objects and bones behaviours and camera effects point the camera at, the player's behaviour
 //! cameras (`PHYSICSOBJREP::SetCameraAnimTarget`, `SetCameraAnimParent`, `RestoreCamera`,
 //! `SetTargetedCamera`), the FX nodes' camera effects (`FXManager::DoCameraFX`, read on a loader
@@ -67,6 +69,54 @@ impl CameraObjects for CameraWorld<'_> {
 }
 
 impl Client {
+    /// What the camera reads from the player's physics object.
+    pub(crate) fn camera_subject(&self, require_in_world: bool) -> Option<CameraSubject> {
+        self.camera_subject_at(require_in_world, false)
+    }
+
+    /// The camera's subject at the body's current quantum, or with `drawn` where the body is
+    /// drawn this frame (`PhysicsBody::drawing_position` at the render interpolation; the
+    /// mouse-look camera's, `AGENTS.md`).
+    fn camera_subject_at(&self, require_in_world: bool, drawn: bool) -> Option<CameraSubject> {
+        let player = self.player.as_ref()?;
+        if require_in_world && !player.in_world {
+            return None;
+        }
+        let body = player.body.as_ref()?;
+        let position = if drawn {
+            body.physics.drawing_position(self.render_interpolation)
+        } else {
+            body.physics.position()
+        };
+        let state = body.physics.movement_state();
+        let [vx, vy, vz] = state.velocity;
+        Some(CameraSubject {
+            id: player.id,
+            position,
+            height: body.height,
+            radius: body.radius,
+            scale_z: body.scale,
+            local_velocity: position.frame.global_to_local_vec(Vector::new(vx, vy, vz)),
+            element: state.element,
+            no_draw: self.session.player().is_some_and(|id| self.is_no_draw(id)),
+        })
+    }
+
+    /// `SmartBox::UpdateCamera`. Without `interpolate` (the mouse-look camera, every frame) the
+    /// subject is where the body is drawn, so camera and body move together between quanta. The
+    /// camera can follow the other objects too ([`CameraWorld`]).
+    pub(crate) fn update_camera(&mut self, quantum: f32, interpolate: bool) {
+        let Some(subject) = self.camera_subject_at(true, !interpolate) else {
+            return;
+        };
+        let world = CameraWorld {
+            player: self.player.as_ref(),
+            remotes: &self.remotes,
+        };
+        self.scene
+            .update_with(&mut self.camera, &subject, &world, quantum, interpolate);
+    }
+
     /// The player's behaviour cameras among this step's animation events
     /// (`BehaviorTracker::ProcessParamFlags` sends them for the player only). A targeted camera
     /// needs its target there (`DoBehaviorOnObject` takes only on a known object); it stands at
