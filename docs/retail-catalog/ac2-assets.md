@@ -1,6 +1,6 @@
 # ac2-assets: Render asset codecs: materials, meshes, appearance, images
 
-785 retail functions: 200 done, 13 partial, 0 to do, 572 skipped.
+785 retail functions: 202 done, 11 partial, 0 to do, 572 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/shared/src/objdesc/gmweeniedesc.cpp.c` (29/62)
@@ -1214,7 +1214,7 @@ Legend and workflow: [README](README.md).
 - [x] `PhysicsDesc::StreamPack` · 00641530
 - [-] `PhysicsDesc::PhysicsDesc` · 00641c70 · legions 005f5470 — ctor/dtor of plain data; Rust constructs and drops values
 
-## `portal/shared/src/objdesc/visualdesc.cpp.c` (35/58)
+## `portal/shared/src/objdesc/visualdesc.cpp.c` (37/58)
 
 ### VisualDesc
 - [x] `VisualDesc::FillFXTable` · 0063c910 · legions 005f1440 — ac2-assets ac2_drawn_groups.rs global_fx_atoms + ac2_visual_particles / ac2_visual_fx_particles / ac2_visual_fx_sounds: with FX at all (HasFX) the global appearance keys' FX atoms join the table behind the overrides (FXTable::AddEntry keeps the first); tested by fx_atoms_of_the_global_appearance_keys_join_the_fx_table (406 shipped visuals)
@@ -1277,8 +1277,8 @@ Legend and workflow: [README](README.md).
 - [x] `VisualDesc::AttemptToRemoveVDesc` · 0063f070 · legions 005f2fa0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [x] `VisualDesc::ReplaceVisualDesc` · 0063f250 · legions 005f3180 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::CopyInto` · 0063f340 · legions 005f3270 — copy of plain data; Rust clones values
-- [~] `VisualDesc::AddAppearanceMod` · 0063f380 · legions 005f32b0 — VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
-- [~] `VisualDesc::RemoveAppearanceMod` · 0063f390 · legions 005f32c0 — VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
+- [x] `VisualDesc::AddAppearanceMod` · 0063f380 · legions 005f32b0 — ac2-physics appearance_ops.rs add_appearance_mod / remove_appearance_mod: AddAppearanceKey / RemoveAppearanceKey on GLOBAL_PART_GROUP; used by the appearance FX
+- [x] `VisualDesc::RemoveAppearanceMod` · 0063f390 · legions 005f32c0 — ac2-physics appearance_ops.rs add_appearance_mod / remove_appearance_mod: AddAppearanceKey / RemoveAppearanceKey on GLOBAL_PART_GROUP; used by the appearance FX
 - [x] `VisualDesc::GetVisualDescFromDB` · 0063f3a0 · legions 005f32d0 — ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 - [-] `VisualDesc::Allocate` · 0063f410 — retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 - [-] `VisualDesc::VisualDesc` · 0063f440 · legions 005f3370 — ctor/dtor of plain data; Rust constructs and drops values

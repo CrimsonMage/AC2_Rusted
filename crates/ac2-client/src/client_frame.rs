@@ -27,13 +27,15 @@ impl Client {
                 velocity: state.velocity,
                 contact: state.contact,
                 pose: ac2_physics::part_poses(&body.physics, self.pose_blend_time()),
-                appearance: self
-                    .session
-                    .objects()
-                    .iter()
-                    .find(|o| o.id == p.id)
-                    .map(|o| o.appearance.clone())
-                    .unwrap_or_default(),
+                appearance: self.drawn_appearance(
+                    p.id,
+                    self.session
+                        .objects()
+                        .iter()
+                        .find(|o| o.id == p.id)
+                        .map(|o| o.appearance.clone())
+                        .unwrap_or_default(),
+                ),
             })
         });
         let objects = self.object_frames();

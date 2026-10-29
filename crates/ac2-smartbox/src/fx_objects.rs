@@ -45,6 +45,9 @@ pub struct FxRecord {
     pub restore_colour: bool,
     /// `m_end_time`: when the FX ends by itself (`None` for never).
     pub end: Option<f64>,
+    /// The appearances the FX's nodes apply (`m_apr_id`, `m_apr_key`'s key), which `StopFX`
+    /// removes from the emitter.
+    pub appearances: Vec<(u32, u32)>,
 }
 
 /// A colour channel set in motion (`PHYSICSOBJREP::SetProperty` with a ramp): linear from
@@ -118,6 +121,9 @@ pub struct FxObjects {
     hidden: BTreeSet<u64>,
     fades: BTreeMap<u64, Fade>,
     pending: Vec<PendingObject>,
+    /// Each emitter's effects description (`CPhysicsObj::m_effects_vdesc`): the appearance keys
+    /// its FX applied.
+    appearances: HashMap<u64, ac2_physics::Appearance>,
     now: f64,
 }
 
@@ -140,12 +146,18 @@ impl FxObjects {
         fx: u32,
         nodes: &[Ac2FxObject],
         now: f64,
+        scalar: f32,
         ids: &mut dyn FnMut() -> Option<u64>,
     ) {
+        // `DoAppearanceFX` runs for a new FX and for a running one taking a new scalar.
+        let appearances = self.appearance_fx(emitter, nodes, scalar);
         if !nodes.iter().any(Ac2FxObject::is_active) || self.record(emitter, fx).is_some() {
             return;
         }
-        let mut record = FxRecord::default();
+        let mut record = FxRecord {
+            appearances,
+            ..FxRecord::default()
+        };
         let mut end = None;
         for node in nodes {
             if let Some(colour) = node.color {
@@ -199,8 +211,11 @@ impl FxObjects {
         if self.record(emitter, fx).is_some() {
             return;
         }
+        // `FXManager::DoStartupFX` applies the appearances at full scalar.
+        let appearances = self.appearance_fx(emitter, nodes, 1.0);
         let mut record = FxRecord {
             startup: true,
+            appearances,
             ..FxRecord::default()
         };
         for node in nodes.iter().filter(|node| node.vdesc != 0) {
@@ -275,6 +290,7 @@ impl FxObjects {
             self.teardown(emitter, record, now);
         }
         self.colours.remove(&emitter);
+        self.appearances.remove(&emitter);
     }
 
     /// `FXManager::StopFX`'s and `UseTime`'s shared teardown: the FX's objects fade and go, its
@@ -289,6 +305,55 @@ impl FxObjects {
         if record.restore_colour {
             self.set_colour(emitter, WHITE, RESTORE_SECONDS, now);
         }
+        // `StopFX`: `PHYSICSOBJREP::RemoveAppearanceFX` for each node's appearance.
+        for &(table, key) in &record.appearances {
+            self.remove_appearance(emitter, table, key);
+        }
+    }
+
+    /// `FXManager::DoAppearanceFX` for each node with an appearance: applied at the node key's
+    /// scalar times `scalar` while that is positive (`CPhysicsObj::DoAppearanceFX` on the
+    /// emitter's effects description), removed otherwise. The appearances the nodes name.
+    fn appearance_fx(
+        &mut self,
+        emitter: u64,
+        nodes: &[Ac2FxObject],
+        scalar: f32,
+    ) -> Vec<(u32, u32)> {
+        let mut named = Vec::new();
+        for node in nodes.iter().filter(|node| node.appearance != 0) {
+            let (key, key_scalar) = node.appearance_key;
+            named.push((node.appearance, key));
+            match crate::fx_manager::appearance_fx_step(node.appearance, key_scalar, scalar) {
+                crate::fx_manager::AppearanceFxStep::Apply { scalar } => {
+                    self.appearances
+                        .entry(emitter)
+                        .or_default()
+                        .add_appearance_mod(node.appearance, (key, scalar));
+                }
+                crate::fx_manager::AppearanceFxStep::Remove => {
+                    self.remove_appearance(emitter, node.appearance, key);
+                }
+                crate::fx_manager::AppearanceFxStep::None => {}
+            }
+        }
+        named
+    }
+
+    /// `CPhysicsObj::RemoveAppearanceFX`: the key leaves the emitter's effects description.
+    fn remove_appearance(&mut self, emitter: u64, table: u32, key: u32) {
+        if let Some(effects) = self.appearances.get_mut(&emitter) {
+            effects.remove_appearance_mod(table, key);
+            if effects.is_empty() {
+                self.appearances.remove(&emitter);
+            }
+        }
+    }
+
+    /// The emitter's effects description (`m_effects_vdesc`), while its FX apply any appearance:
+    /// the object is drawn with it merged onto its local description (`ApplyAdditiveVDesc`).
+    pub fn appearance_effects(&self, emitter: u64) -> Option<&ac2_physics::Appearance> {
+        self.appearances.get(&emitter)
     }
 
     fn take_record(&mut self, emitter: u64, fx: u32) -> Option<FxRecord> {
@@ -447,7 +512,7 @@ mod tests {
     #[test]
     fn a_stopped_fx_fades_and_destroys_the_objects_it_created() {
         let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, &mut ids());
+        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, 1.0, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending.len(), 1);
         assert_eq!(pending[0].emitter, 7);
@@ -476,7 +541,7 @@ mod tests {
             ramp_time: 2.0,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending[0].ramp_time, 2.0);
     }
@@ -499,7 +564,7 @@ mod tests {
             hide_target: true,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
         let id = fx.take_pending()[0].id;
         assert!(fx.looks().hidden.contains(&id));
         fx.stop(7, 9, &[], 1.0);
@@ -516,7 +581,7 @@ mod tests {
             restore: true,
             ..Ac2FxObject::default()
         };
-        fx.start(7, 9, &[node], 0.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
         assert_eq!(fx.colour(7, 0.5), Some([1.0, 0.5, 0.5, 1.0]));
         fx.stop(7, 9, &[node], 2.0);
         assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));
@@ -543,8 +608,8 @@ mod tests {
     fn current_fx_skips_startup_fx_and_destroy_object_wants_a_temporary_id() {
         let mut fx = FxObjects::default();
         let node = vdesc_node(10.0);
-        fx.start(1, 5, &[node], 0.0, &mut ids());
-        fx.start(1, 3, &[node], 0.0, &mut ids());
+        fx.start(1, 5, &[node], 0.0, 1.0, &mut ids());
+        fx.start(1, 3, &[node], 0.0, 1.0, &mut ids());
         fx.start_startup(1, 4, &[node], &mut ids());
         assert_eq!(fx.current_fx(1), vec![3, 5]);
         assert!(fx.current_fx(2).is_empty());
@@ -553,5 +618,33 @@ mod tests {
         let object = fx.record(1, 5).expect("the FX runs").objects[0];
         assert!(fx.destroy_object(object, true, 1.0));
         assert!(fx.fades.contains_key(&object));
+    }
+
+    /// `FXManager::DoAppearanceFX`: an appearance node applies its key to the emitter's effects
+    /// description at the key's scalar times the FX's, a running FX re-scaled to nothing removes
+    /// it, and `StopFX` removes it.
+    #[test]
+    fn an_appearance_node_applies_its_key_until_the_fx_stops() {
+        let mut fx = FxObjects::default();
+        let node = Ac2FxObject {
+            appearance: 0x2500_0010,
+            appearance_key: (0x1000_0003, 0.5),
+            ..Ac2FxObject::default()
+        };
+        let applied = |fx: &FxObjects| {
+            fx.appearance_effects(7).and_then(|e| {
+                e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
+            })
+        };
+        fx.start(7, 9, &[node], 0.0, 2.0, &mut ids());
+        assert_eq!(applied(&fx), Some(1.0), "0.5 times the FX's 2.0");
+        // The running FX taking a zero scalar removes it (`DoTargettedFX`'s update branch).
+        fx.start(7, 9, &[node], 0.0, 0.0, &mut ids());
+        assert_eq!(applied(&fx), None);
+        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        assert_eq!(applied(&fx), Some(0.5));
+        fx.stop(7, 9, &[node], 1.0);
+        assert_eq!(applied(&fx), None, "StopFX removes it");
+        assert!(fx.appearance_effects(7).is_none());
     }
 }

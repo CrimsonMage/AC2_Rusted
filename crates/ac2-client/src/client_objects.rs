@@ -493,7 +493,7 @@ impl Client {
                     fx_follow: None,
                     container: weenie.and_then(|w| w.container),
                     wielder: weenie.and_then(|w| w.wielder),
-                    appearance: o.appearance.clone(),
+                    appearance: self.drawn_appearance(o.id, o.appearance.clone()),
                     pose: body
                         .map(|b| ac2_physics::part_poses(b, self.pose_blend_time()))
                         .unwrap_or_default(),
@@ -565,7 +565,10 @@ impl Client {
                     container: None,
                     wielder: None,
                     // A cloned story missile looks like its weapon.
-                    appearance: self.stories.missile_appearance(id).unwrap_or_default(),
+                    appearance: self.drawn_appearance(
+                        id,
+                        self.stories.missile_appearance(id).unwrap_or_default(),
+                    ),
                     pose: ac2_physics::part_poses(body, self.pose_blend_time()),
                     anim_scale: body.draw_scale(),
                     // Client-made objects have temporary ids (`IIDUtils::VerifyTemporary`).

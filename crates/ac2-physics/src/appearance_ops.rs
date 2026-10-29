@@ -380,6 +380,41 @@ impl Appearance {
         self.add_appearance_key(pg, table, &[(key, -1.0)], Some(parent))
     }
 
+    /// `VisualDesc::AddAppearanceMod(GLOBAL, table, key)`: the applied key joins appearance
+    /// table `table` of the global group.
+    pub fn add_appearance_mod(&mut self, table: u32, key: (u32, f32)) -> bool {
+        self.add_appearance_key(GLOBAL_PART_GROUP, table, &[key], None)
+    }
+
+    /// `VisualDesc::RemoveAppearanceMod(GLOBAL, table, key)`.
+    pub fn remove_appearance_mod(&mut self, table: u32, key: u32) -> bool {
+        self.remove_appearance_key(GLOBAL_PART_GROUP, table, key, None)
+    }
+
+    /// `CPhysicsObj::DoAppearanceFX(table, key)` on `effects` (`m_effects_vdesc`), this being the
+    /// object's local description: the key joins the effects, and when it did the effects merge
+    /// onto the local description (`ApplyAdditiveVDesc`). Whether the local description changed
+    /// (retail then refreshes the part array and raises `LocalVisualDescUpdate`).
+    pub fn do_appearance_fx(
+        &mut self,
+        effects: &mut Appearance,
+        table: u32,
+        key: (u32, f32),
+    ) -> bool {
+        if !effects.add_appearance_mod(table, key) {
+            return false;
+        }
+        self.apply_additive_appearance(effects);
+        true
+    }
+
+    /// `CPhysicsObj::RemoveAppearanceFX(table, key)`: the key leaves the effects and this local
+    /// description.
+    pub fn remove_appearance_fx(&mut self, effects: &mut Appearance, table: u32, key: u32) {
+        effects.remove_appearance_mod(table, key);
+        self.remove_appearance_mod(table, key);
+    }
+
     /// `VisualDesc::InqAppInfoHashForPartGroup`: the group's appearance tables (`None`: no group).
     pub fn app_info_of(&self, pg: u32) -> Option<Vec<(u32, Vec<(u32, f32)>)>> {
         self.group(pg).map(|g| g.appearance.clone())
@@ -447,6 +482,24 @@ impl Appearance {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// `CPhysicsObj::DoAppearanceFX` / `RemoveAppearanceFX`: the key joins the effects and the
+    /// local description's global group, and leaves both again.
+    #[test]
+    fn an_appearance_fx_applies_to_the_local_description_and_is_removed() {
+        let mut local = Appearance::default();
+        let mut effects = Appearance::default();
+        assert!(local.do_appearance_fx(&mut effects, 0x2500_0010, (0x1000_0003, 0.5)));
+        let applied =
+            |d: &Appearance| d.applied_scalar(GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003);
+        assert_eq!(applied(&effects), Some(0.5));
+        assert_eq!(applied(&local), Some(0.5));
+        // No table: nothing is applied.
+        assert!(!local.do_appearance_fx(&mut effects, 0, (0x1000_0003, 0.5)));
+        local.remove_appearance_fx(&mut effects, 0x2500_0010, 0x1000_0003);
+        assert_eq!(applied(&effects), None);
+        assert_eq!(applied(&local), None);
+    }
 
     const ROOT: u32 = 0x8100_0001;
     const ARM: u32 = 0x8100_0002;

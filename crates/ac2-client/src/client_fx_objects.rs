@@ -49,13 +49,14 @@ impl Client {
             let particles = particles.as_deref();
             for event in events {
                 match *event {
-                    Ac2AnimEvent::StartFx { fx, .. } => {
+                    Ac2AnimEvent::StartFx { fx, intensity } => {
                         if let Some(table) = particles {
                             let nodes = fx_nodes(table, fx);
                             let remotes = &mut self.remotes;
-                            self.fx_objects.start(*id, fx, &nodes, now, &mut || {
-                                remotes.allocate_temporary_id()
-                            });
+                            self.fx_objects
+                                .start(*id, fx, &nodes, now, intensity, &mut || {
+                                    remotes.allocate_temporary_id()
+                                });
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
                             let at = self.emitter_place(*id);
                             self.fx_decals.start(
@@ -267,5 +268,25 @@ impl Client {
     /// Whether the FX make and draw streaks (`StreakEffects` is on).
     pub fn streaks_enabled(&self) -> bool {
         self.fx_streaks.enabled()
+    }
+}
+
+impl Client {
+    /// The local description `id` is drawn with: its own, with the appearances its FX applied
+    /// merged on (`CPhysicsObj::DoAppearanceFX`: `m_effects_vdesc` applied additively onto
+    /// `m_local_vdesc`).
+    pub(crate) fn drawn_appearance(
+        &self,
+        id: u64,
+        local: std::sync::Arc<ac2_weenie::Appearance>,
+    ) -> std::sync::Arc<ac2_weenie::Appearance> {
+        match self.fx_objects.appearance_effects(id) {
+            Some(effects) => {
+                let mut drawn = (*local).clone();
+                drawn.apply_additive_appearance(effects);
+                std::sync::Arc::new(drawn)
+            }
+            None => local,
+        }
     }
 }

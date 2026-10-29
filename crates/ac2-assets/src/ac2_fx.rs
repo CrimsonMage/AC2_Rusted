@@ -114,6 +114,11 @@ pub struct Ac2FxObject {
     pub decal: Option<Ac2DecalFx>,
     /// The node's gate: who it plays for and when (`FXManager::DoTargettedFX`'s checks).
     pub gate: Ac2FxNodeGate,
+    /// `m_apr_id`: the appearance table the node applies to its emitter
+    /// (`FXManager::DoAppearanceFX`); zero for none.
+    pub appearance: u32,
+    /// `m_apr_key` (`AppliedAppearanceKey`): the key and its scalar modifier.
+    pub appearance_key: (u32, f32),
 }
 
 /// `DoTargettedFX`'s gate on each node, read before any of the node's parts run: the channel
@@ -153,6 +158,7 @@ impl Ac2FxObject {
             || self.color.is_some()
             || self.restore
             || self.decal.is_some()
+            || self.appearance != 0
     }
 }
 
@@ -449,10 +455,13 @@ fn read_fx_node(
         }
     }
     // Camera FX and appearance ids; the appearance key is (key, scalar modifier).
-    skip_words(cursor, &[0x4, 0x8])?;
-    if has(0x10) {
-        skip(cursor, 8)?;
-    }
+    skip_words(cursor, &[0x4])?;
+    let appearance = field(cursor, 0x8)?;
+    let appearance_key = if has(0x10) {
+        (word(cursor)?, float(cursor)?)
+    } else {
+        (0, 0.0)
+    };
     // Ramp time and intensity.
     let ramp_time = if has(0x20) { float(cursor)? } else { 0.0 };
     skip_words(cursor, &[0x40])?;
@@ -522,6 +531,8 @@ fn read_fx_node(
         holding_location,
         decal: None,
         gate: Ac2FxNodeGate::default(),
+        appearance,
+        appearance_key,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {

@@ -4788,8 +4788,8 @@ key	status	note
 004e67c0	~	ac2-weenie: newer position stamp, the holder, location and placement frame
 004e6810	x	ac2-weenie ObjectTable::apply_action
 004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
-004e6920	_	needs port: cite-only physics-object method
-004e6990	_	needs port: cite-only physics-object method
+004e6920	x	ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
+004e6990	x	ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
 004e6a30	~	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 004e6aa0	~	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 004e6b10	~	ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
@@ -5154,8 +5154,8 @@ key	status	note
 004f2100	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f2110	x	ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
 004f2140	x	ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
-004f2170	_	needs port: cite-only physics-object method
-004f2180	_	needs port: cite-only physics-object method
+004f2170	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
+004f2180	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 004f2190	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f21a0	_	needs port: cite-only physics-object method
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
@@ -5444,7 +5444,7 @@ key	status	note
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005058b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00505960	~	DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
-00505c30	~	ac2-smartbox fx_manager.rs appearance_fx_step: the scalar product and the apply-or-remove choice. PHYSICSOBJREP::DoAppearanceFX / RemoveAppearanceFX (applied appearance keys on the object) are not ported and ac2-assets does not decode appearance FX nodes
+00505c30	~	ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: applied for a new FX and a running one taking a new scalar (DoTargettedFX), at full scalar for startup FX (DoStartupFX), removed by StopFX and expiry; ac2-assets decodes m_apr_id and m_apr_key. Not yet: UseTime's re-application while a ramping FX's scalar changes
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
 00505dd0	~	scene/particles.rs fired(): posed bone found through the part groups by name, holding transform, bone offset without a bone, water-plane node stands on the cell water surface (ParticleAnchor.water_z, read at start in client_audio). Static world sources place through the same part-group search (ac2-assets placement)
@@ -11602,8 +11602,8 @@ key	status	note
 0063f070	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f250	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f340	-	copy of plain data; Rust clones values
-0063f380	~	VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
-0063f390	~	VisualDesc::AddAppearanceMod/RemoveAppearanceMod wrap AddAppearanceKey/RemoveAppearanceKey, which ac2-physics appearance_ops add_appearance_key/remove_appearance_key implement; their only callers are CPhysicsObj::DoAppearanceFX/RemoveAppearanceFX, and the FX node's appearance key (ac2-net FxNode.appearance_key) is not applied by the FX runtime yet
+0063f380	x	ac2-physics appearance_ops.rs add_appearance_mod / remove_appearance_mod: AddAppearanceKey / RemoveAppearanceKey on GLOBAL_PART_GROUP; used by the appearance FX
+0063f390	x	ac2-physics appearance_ops.rs add_appearance_mod / remove_appearance_mod: AddAppearanceKey / RemoveAppearanceKey on GLOBAL_PART_GROUP; used by the appearance FX
 0063f3a0	x	ac2-physics appearance_ops.rs (the decompile algebra over Appearance; unit tests in that file)
 0063f410	-	retail DBO pool/cache release; Arc drop replaces it (AGENTS.md exception)
 0063f440	-	ctor/dtor of plain data; Rust constructs and drops values

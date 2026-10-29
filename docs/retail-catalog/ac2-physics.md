@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 844 done, 159 partial, 173 to do, 948 skipped.
+2124 retail functions: 848 done, 159 partial, 169 to do, 948 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (3/9)
@@ -1269,7 +1269,7 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [~] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
-- [~] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step: the scalar product and the apply-or-remove choice. PHYSICSOBJREP::DoAppearanceFX / RemoveAppearanceFX (applied appearance keys on the object) are not ported and ac2-assets does not decode appearance FX nodes
+- [~] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: applied for a new FX and a running one taking a new scalar (DoTargettedFX), at full scalar for startup FX (DoStartupFX), removed by StopFX and expiry; ac2-assets decodes m_apr_id and m_apr_key. Not yet: UseTime's re-application while a ramping FX's scalar changes
 
 ### DBObjGrabber<FxScript>
 - [x] `DBObjGrabber<FxScript>::DBObjGrabber<FxScript>` · 00505ca0 · legions 004f3f70 — ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (262/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (264/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2562,8 +2562,8 @@ Legend and workflow: [README](README.md).
 - [~] `CPhysicsObj::RecvEvt_Parent` · 004e67c0 — ac2-weenie: newer position stamp, the holder, location and placement frame
 - [x] `CPhysicsObj::RecvEvt_DeParent` · 004e6810 — ac2-weenie ObjectTable::apply_action
 - [x] `CPhysicsObj::RecvEvt_Contain` · 004e6890 — ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
-- [ ] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370 — needs port: cite-only physics-object method
-- [ ] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0 — needs port: cite-only physics-object method
+- [x] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370 — ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
+- [x] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0 — ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
 - [~] `CPhysicsObj::StartStreak` · 004e6a30 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 - [~] `CPhysicsObj::StopStreak` · 004e6aa0 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 - [~] `CPhysicsObj::InitVisualDesc` · 004e6b10 — ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (107/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (109/171)
 
 ### BehaviorTable
 - [ ] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — needs port: BehaviorTable::Get
@@ -2853,8 +2853,8 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::StopStreakInternal` · 004f2100 · legions 004e4a00 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
 - [x] `PHYSICSOBJREP::StopStreak` · 004f2140 · legions 004e4a40 — ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
-- [ ] `PHYSICSOBJREP::DoAppearanceFX` · 004f2170 · legions 004e4a70 — needs port: cite-only physics-object method
-- [ ] `PHYSICSOBJREP::RemoveAppearanceFX` · 004f2180 · legions 004e4a80 — needs port: cite-only physics-object method
+- [x] `PHYSICSOBJREP::DoAppearanceFX` · 004f2170 · legions 004e4a70 — ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
+- [x] `PHYSICSOBJREP::RemoveAppearanceFX` · 004f2180 · legions 004e4a80 — ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 - [x] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [ ] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — needs port: cite-only physics-object method
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f21b0 · legions 004e4ab0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
