@@ -20,8 +20,9 @@ pub(crate) enum Request {
     FarBlock(u32),
     /// The player body for a visual.
     Body(Option<u32>),
-    /// An object's script state (`CWDistributor::Construct`'s WState): object, package, DID.
-    ScriptState(u64, u32, u32),
+    /// An object's script state (`CWDistributor::Construct`'s WState): object, package, DID, and
+    /// the DID of its qualities' class defaults (`CBaseQualities::InitDefaults`; 0 for none).
+    ScriptState(u64, u32, u32, u32),
     /// A read a script call stopped for (cache-only script data).
     ScriptData(ac2_script::vm::DataRequest),
     /// The region's ambient sound data (`CRegionDesc::GetCurrentSoundInfo`'s `CSoundDesc`).
@@ -82,8 +83,14 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         }
         Request::FarBlock(block) => Loaded::FarBlock(block, data.prefetch_far_block(block)),
         Request::Body(visual) => Loaded::Body(visual, data.body(visual)),
-        Request::ScriptState(id, pid, did) => {
+        Request::ScriptState(id, pid, did, defaults) => {
             data.preload_script_state(pid, did);
+            // `CBaseQualities::InitDefaults` read the class defaults when the qualities were
+            // made; resident before the process starts, the script's reads find them as
+            // retail's did instead of waiting on the loader mid-call.
+            if defaults != 0 {
+                data.load_script_data(ac2_script::vm::DataRequest::ClassDefaults(defaults));
+            }
             Loaded::ScriptState(id, pid, did)
         }
         Request::ScriptData(read) => Loaded::ScriptData(data.load_script_data(read)),

@@ -119,7 +119,13 @@ impl ScriptPort for Client {
     }
 
     fn request_script_state(&mut self, id: u64, package: u32, did: u32) {
-        self.loader.request(Request::ScriptState(id, package, did));
+        let defaults = self
+            .session
+            .objects()
+            .get(id)
+            .map_or(0, |o| o.qualities.did);
+        self.loader
+            .request(Request::ScriptState(id, package, did, defaults));
     }
 
     fn push_produced(&mut self, events: Vec<SessionEvent>) {
