@@ -203,3 +203,23 @@ fn sky_time_of_day_keys_decode_every_field_to_sane_values() {
     }
     assert!(keys > 0);
 }
+
+#[test]
+fn the_region_fog_names_fog_areas_by_landblock_corner() {
+    let Some(store) = store() else { return };
+    let fog = super::RegionFog::load(&store)
+        .unwrap()
+        .expect("the region has a fog map");
+    // `GetFogCorners`: most of the world has no fog area; some blocks have one at a corner.
+    let fogged: Vec<(u32, u32)> = (0..255)
+        .flat_map(|x| (0..255).map(move |y| (x, y)))
+        .filter(|(x, y)| fog.corners(*x, *y).is_some())
+        .collect();
+    eprintln!(
+        "fogged blocks: {} e.g. {:02X?}",
+        fogged.len(),
+        &fogged[..fogged.len().min(12)]
+    );
+    assert!(!fogged.is_empty());
+    assert!(fogged.len() < 255 * 255);
+}

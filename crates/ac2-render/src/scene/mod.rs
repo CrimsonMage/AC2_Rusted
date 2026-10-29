@@ -6,6 +6,7 @@
 
 mod decals;
 mod interiors;
+mod lighting;
 mod loader;
 mod lod;
 mod object_lights;
@@ -620,37 +621,6 @@ impl WorldScene {
         self.particles.object_systems()
     }
 
-    /// The region's lighting at the scene's time of day.
-    pub fn lighting(&self) -> SceneLighting {
-        self.world
-            .region()
-            .and_then(|region| region.sample_sky_environment(self.time_of_day))
-            .map(|sample| SceneLighting::from_sky(&sample))
-            .unwrap_or_default()
-    }
-
-    /// Starts at the brightest daylight of the region's day.
-    pub fn set_daytime(&mut self) {
-        let Some(region) = self.world.region() else {
-            return;
-        };
-        let brightness = |time: f64| {
-            region
-                .sample_sky_environment(time)
-                .map(|sample| {
-                    SceneLighting::from_sky(&sample)
-                        .fog_color
-                        .iter()
-                        .sum::<f32>()
-                })
-                .unwrap_or(0.0)
-        };
-        self.time_of_day = (0..48)
-            .map(|step| f64::from(step) * DAY_SECONDS / 48.0)
-            .max_by(|a, b| brightness(*a).total_cmp(&brightness(*b)))
-            .unwrap_or(0.0);
-    }
-
     /// Lays out a frame seen by `camera` at `aspect`: requests sky objects not yet loaded.
     pub fn frame(&mut self, camera: &Camera, aspect: f32) -> SceneFrame {
         let eye = camera.eye;
@@ -663,7 +633,7 @@ impl WorldScene {
             .filter(|(_, (min, max))| frustum.check(*min, *max) != Relation::Outside)
             .map(|(index, _)| index)
             .collect();
-        let lighting = self.lighting();
+        let lighting = self.lighting_at(eye);
         let mut keys: Vec<BlockKey> = self.blocks.keys().copied().collect();
         keys.sort_unstable();
         let all = || {

@@ -93,6 +93,8 @@ pub struct Ac2WorldSource {
     cell_info: crate::cell_info::CellInfoLayout,
     region: Option<Arc<crate::RegionDesc>>,
     water: Option<crate::ac2_water::Ac2WaterSource>,
+    /// The region's fog areas (`LScapeLighting::GetFogCorners`).
+    fog: Option<crate::RegionFog>,
 }
 
 impl std::fmt::Debug for Ac2WorldSource {
@@ -120,6 +122,7 @@ impl Ac2WorldSource {
         let region = crate::region::load_ac2_region(&store)?.map(Arc::new);
         // `EntityDesc` and FX records carry property collections typed by `MasterProperty`.
         ac2_db::install_ac2_property_types(&store)?;
+        let fog = crate::RegionFog::load(&store)?;
         let water = match crate::region::ac2_region_water_desc(&store)? {
             Some(desc) => crate::ac2_water::Ac2WaterSource::load(&store, desc)?,
             None => None,
@@ -138,6 +141,7 @@ impl Ac2WorldSource {
             surfaces,
             region,
             water,
+            fog,
         })))
     }
 
@@ -168,6 +172,25 @@ impl Ac2WorldSource {
     /// The AC2 region environment (`CRegionDesc` sky, days and `GameTime`) as the engine region.
     pub fn region(&self) -> Option<Arc<crate::RegionDesc>> {
         self.region.clone()
+    }
+
+    /// `LScapeLighting::GetWaterInfo`: the depth-keyed light and fog under the water of the
+    /// block at the start of `block_cell_id` (its water type's), `None` without water.
+    pub fn block_water_lighting(
+        &self,
+        block_cell_id: CellId,
+    ) -> Option<Vec<crate::ac2_water::WaterLightInfo>> {
+        let water = self.water.as_ref()?;
+        let index = water.block_water_index(block_cell_id);
+        if !water.has_water(index) {
+            return None;
+        }
+        water.water_lighting(index)
+    }
+
+    /// The region's fog areas, by landblock corner.
+    pub fn region_fog(&self) -> Option<&crate::RegionFog> {
+        self.fog.as_ref()
     }
 
     /// The landblock's water (`CLandBlockData::CacheFarValues`), when its lowest vertex lies below

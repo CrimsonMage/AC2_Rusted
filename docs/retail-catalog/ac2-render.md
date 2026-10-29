@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 155 done, 53 partial, 215 to do, 358 skipped.
+781 retail functions: 168 done, 52 partial, 203 to do, 358 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -951,7 +951,7 @@ Legend and workflow: [README](README.md).
 - [~] `FrillRender::RefreshFrillMesh` · 005828e0 · legions 00552050 — ac2-render frill::select_frills + per-instance frill normal; shadow colour white (no static shadow map), drawn as instances not one merged mesh
 - [~] `FrillRender::UpdateRenderList` · 005832a0 · legions 00552a10 — frills selected by radius around the camera cell; radius is the constructor default (script sets it)
 
-## `portal/client/src/smartbox/worldrender/lscapelighting.cpp.c` (1/19)
+## `portal/client/src/smartbox/worldrender/lscapelighting.cpp.c` (14/19)
 
 ### RGBAColor
 - [ ] `RGBAColor::Normalize` · 0058f080 · legions 0055e6f0 — needs port: colour normalise (clamp channels)
@@ -959,30 +959,30 @@ Legend and workflow: [README](README.md).
 
 ### LScapeLighting
 - [x] `LScapeLighting::SetDayLighting` · 0058f1d0 · legions 0055e840
-- [ ] `LScapeLighting::SetDayFog` · 0058f210 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::CornerInterp` · 0058f230 · legions 0055e8a0 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::Combine` · 0058f890 · legions 0055ef00 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::Combine` · 0058f910 · legions 0055ef80 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::CalcDayLight` · 0058f9a0 · legions 0055f010 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::CalcCombineFog` · 0058fac0 · legions 0055f130 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::CalcWaterLight` · 0058fc10 · legions 0055f280 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+- [x] `LScapeLighting::SetDayFog` · 0058f210 — ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
+- [x] `LScapeLighting::CornerInterp` · 0058f230 · legions 0055e8a0 — ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+- [x] `LScapeLighting::Combine` · 0058f890 · legions 0055ef00 — ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+- [x] `LScapeLighting::Combine` · 0058f910 · legions 0055ef80 — ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+- [x] `LScapeLighting::CalcDayLight` · 0058f9a0 · legions 0055f010 — ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+- [x] `LScapeLighting::CalcCombineFog` · 0058fac0 · legions 0055f130 — ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+- [x] `LScapeLighting::CalcWaterLight` · 0058fc10 · legions 0055f280 — ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
 
 ### DBObjGrabber<CSoundDesc>
 - [-] `DBObjGrabber<CSoundDesc>::~DBObjGrabber<CSoundDesc>` · 00590150 · legions 00478460 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
 
 ### LScapeLighting
-- [~] `LScapeLighting::UpdateLighting` · 005901f0 · legions 0055f840 — day light and fog; no region fog blocks (CalcCombineFog) or water light
-- [ ] `LScapeLighting::GetFogCorners` · 00590670 · legions 0055fcc0 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::GetWaterInfo` · 00590840 · legions 0055fe90 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+- [x] `LScapeLighting::UpdateLighting` · 005901f0 · legions 0055f840 — ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
+- [x] `LScapeLighting::GetFogCorners` · 00590670 · legions 0055fcc0 — ac2-world region/block_fog.rs RegionFog::corners: the current CFogDesc's fog type map at the block's four corners
+- [x] `LScapeLighting::GetWaterInfo` · 00590840 · legions 0055fe90 — ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
 
 ### SmartArray<WaterLightInfo>
 - [-] `SmartArray<WaterLightInfo>::~SmartArray<WaterLightInfo>` · 00590900 · legions 0055ff50 — SmartArray/STL container internals; Vec replaces
 
 ### LScapeLighting
-- [ ] `LScapeLighting::LScapeLighting` · 00590940 · legions 0055ff90 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+- [x] `LScapeLighting::LScapeLighting` · 00590940 · legions 0055ff90 — ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
 - [-] `LScapeLighting::~LScapeLighting` · 00590b10 · legions 00560160 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `LScapeLighting::UpdateInfo` · 00590b60 · legions 005601b0 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-- [ ] `LScapeLighting::ChangeCell` · 00590bc0 · legions 00560210 — needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+- [x] `LScapeLighting::UpdateInfo` · 00590b60 · legions 005601b0 — ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
+- [x] `LScapeLighting::ChangeCell` · 00590bc0 · legions 00560210 — ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
 
 ## `portal/client/src/smartbox/worldrender/lscapematerialinfo.cpp.c` (11/14)
 

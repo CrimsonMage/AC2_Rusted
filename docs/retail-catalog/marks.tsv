@@ -8471,22 +8471,22 @@ key	status	note
 0058f080	_	needs port: colour normalise (clamp channels)
 0058f130	-	debug validity check; no visible behaviour
 0058f1d0	x	
-0058f210	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058f230	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058f890	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058f910	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058f9a0	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058fac0	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-0058fc10	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+0058f210	x	ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
+0058f230	x	ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+0058f890	x	ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+0058f910	x	ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+0058f9a0	x	ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+0058fac0	x	ac2-render landscape_lighting.rs (with_region_fog): each fog-area corner over the day's light and fog, blended by the viewer's place in the block
+0058fc10	x	ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
 00590150	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-005901f0	~	day light and fog; no region fog blocks (CalcCombineFog) or water light
-00590670	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-00590840	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+005901f0	x	ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
+00590670	x	ac2-world region/block_fog.rs RegionFog::corners: the current CFogDesc's fog type map at the block's four corners
+00590840	x	ac2-render landscape_lighting.rs update_lighting: day light and fog, the fog areas at the viewer's block corners (CalcCombineFog, CornerInterp), then under the block's water its depth-keyed fog (CalcWaterLight; the search keeps retail's last match); water layers from ac2-world Ac2WorldSource::block_water_lighting
 00590900	-	SmartArray/STL container internals; Vec replaces
-00590940	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+00590940	x	ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
 00590b10	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-00590b60	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
-00590bc0	_	needs port: landscape lighting (day light, fog corners, water light, combine, shadow colour)
+00590b60	x	ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
+00590bc0	x	ac2-render WorldScene::lighting_at: the viewer's block picks the fog corners each frame (no hysteresis cache); the day's fog comes from SceneLighting::from_sky
 00590c10	_	needs port: render texture global-or-local lookup
 00590c60	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 00590c80	x	

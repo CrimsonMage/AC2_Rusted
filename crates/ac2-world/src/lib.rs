@@ -83,12 +83,12 @@ pub use quad_tree::{BoundingType, LandBlockQuadTree, PhysObjBrush};
 pub use region::{
     ac2_detail_map, ac2_map_note_desc, ac2_region_detail_map_table, ac2_region_game_map,
     ac2_region_info, ac2_region_sound_desc, color_corner_interp, float_corner_interp,
-    integer_corner_interp, vector_corner_interp, BlockProperty, CelestialPosition, DetailMap,
-    DetailMapRow, DidLookup, EncounterDesc, EncounterElem, EncounterExcept, EncounterRow,
-    FogCombine, FogCombineType, FogDesc, FogInfo, FogType, GameClock, GameDateTime, InfoList,
-    LensFlare, LensFlarePoint, LightColors, LightFogInfo, MapNoteDesc, MapNoteRow, PropertyDesc,
-    RegionDesc, RegionInfo, SkyEnvironmentCadence, SkyEnvironmentSample, SkyFogDesc,
-    SkyLightingDesc, TimeStampCalendar,
+    integer_corner_interp, vector_corner_interp, BlockFogCorners, BlockProperty, CelestialPosition,
+    DetailMap, DetailMapRow, DidLookup, EncounterDesc, EncounterElem, EncounterExcept,
+    EncounterRow, FogCombine, FogCombineType, FogDesc, FogInfo, FogType, GameClock, GameDateTime,
+    InfoList, LensFlare, LensFlarePoint, LightColors, LightFogInfo, MapNoteDesc, MapNoteRow,
+    PropertyDesc, RegionDesc, RegionFog, RegionInfo, SkyEnvironmentCadence, SkyEnvironmentSample,
+    SkyFogDesc, SkyLightingDesc, TimeStampCalendar, LSCAPE_FOG_LINEAR,
 };
 pub use surface_desc::Ac2FarTerrain;
 pub use surface_info::Ac2SurfaceInfo;

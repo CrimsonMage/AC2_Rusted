@@ -26,6 +26,8 @@ pub(crate) use ac2_region::{ac2_region_water_desc, load_ac2_region};
 pub use detail_map::{
     ac2_detail_map, ac2_map_note_desc, DetailMap, DetailMapRow, MapNoteDesc, MapNoteRow,
 };
+#[path = "region/block_fog.rs"]
+mod block_fog;
 #[cfg(test)]
 #[path = "region/descs_real_tests.rs"]
 mod descs_real_tests;
@@ -35,9 +37,11 @@ mod encounter_desc;
 mod fog_desc;
 #[path = "region/property_desc.rs"]
 mod property_desc;
+pub use block_fog::{BlockFogCorners, RegionFog};
 pub use encounter_desc::{EncounterDesc, EncounterElem, EncounterExcept, EncounterRow};
 pub use fog_desc::{
     FogCombine, FogCombineType, FogDesc, FogInfo, FogType, LightColors, LightFogInfo,
+    LSCAPE_FOG_LINEAR,
 };
 pub use property_desc::{
     color_corner_interp, float_corner_interp, integer_corner_interp, vector_corner_interp,

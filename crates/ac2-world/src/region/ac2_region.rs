@@ -92,6 +92,12 @@ pub(crate) fn ac2_region_water_desc(store: &ResourceStore) -> ResourceResult<Opt
         .and_then(|region| region.info.current(InfoList::Water)))
 }
 
+/// `CRegionDesc::GetCurrentFogInfo`: the region's current `CFogDesc`.
+pub(crate) fn ac2_region_fog_desc(store: &ResourceStore) -> ResourceResult<Option<DataId>> {
+    Ok(load::<Ac2RegionRecord>(store, AC2_REGION_DID)?
+        .and_then(|region| region.info.current(InfoList::Fog)))
+}
+
 /// `CSkyDesc::GetCurrentDay`: a hashed day number weighted by each day's authored frequency.
 pub(super) fn ac2_day_index(seed: u32, frequencies: &[f32]) -> usize {
     if frequencies.len() <= 1 {

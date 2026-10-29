@@ -12,6 +12,7 @@ pub mod fx_particles;
 pub mod fx_streaks;
 mod image;
 pub mod interior_cull;
+mod landscape_lighting;
 pub mod object;
 pub mod object_fx;
 pub mod particles;
