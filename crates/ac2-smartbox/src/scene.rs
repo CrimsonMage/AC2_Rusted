@@ -23,6 +23,8 @@ pub struct CameraFrame {
     pub fov: f32,
     /// The camera is in first person (`CameraManager::GetFirstPersonIsReady`).
     pub first_person: bool,
+    /// The camera effects' screen flash (r, g, b, a; `SceneTool::m_cFlashColor`).
+    pub flash: [f32; 4],
 }
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -117,6 +119,7 @@ impl SceneCamera {
             ],
             fov: self.fov,
             first_person: camera.first_person,
+            flash: camera.flash_colour(),
         }
     }
 

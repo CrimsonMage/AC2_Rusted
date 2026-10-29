@@ -8028,7 +8028,7 @@ key	status	note
 0056a4c0	-	Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 0056a4e0	-	Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
 0056a550	-	Win32 version resources, perf counters, mmap wrapper (debug/about; AGENTS: no mmap)
-0056a5d0	_	needs port: motion blur flag (scene effect)
+0056a5d0	-	scene motion blur (m_fBlurAmount from CameraFX mBlur): no shipped FX node names a blur CameraFX (blur.cfx 0x55000002 is unreferenced; ac2-assets ac2_fx_tests lists the 22 camera FX nodes), so the blend never runs with the DATs
 0056a600	_	needs port: material layer stage order and diffuse colour
 0056a630	-	admin-only/tool/debug code, not in the client (debug HUD)
 0056a7f0	-	admin-only/tool/debug code, not in the client (SceneTool::ShowDebugHUD: test notes no handler in Legions) [vtable-checked: not a slot of any located Legions vtable]
@@ -8101,8 +8101,8 @@ key	status	note
 0056ef40	x	object::ObjectLights; static shadow strength SceneLighting::shadow_strength drives the landscape map and the sun shadow cascades (ac2_gpu sun_shadow.rs); m_cVolumetricShadowStrength's undimmed colour is not used (cascades take the static strength)
 0056f230	_	needs port: scene DrawLine primitive (verify client use before porting)
 0056f260	~	untextured colour quad (ac2-gpu ScreenQuad) only
-0056f2e0	-	D3D device/resource plumbing; wgpu replaces
-0056f440	_	needs port: scene render pass order (targets, lights, sky, objects, post)
+0056f2e0	-	scene motion blur (m_fBlurAmount from CameraFX mBlur): no shipped FX node names a blur CameraFX (blur.cfx 0x55000002 is unreferenced; ac2-assets ac2_fx_tests lists the 22 camera FX nodes), so the blend never runs with the DATs
+0056f440	~	ac2-gpu tonemap.wgsl/tonemap.rs set_flash: the camera effects' flash (m_cFlashColor) blended over the world's display levels by its alpha before the brightness ramp and the UI; streaks are ac2-render fx_streaks
 0056f4f0	-	SmartArray/STL container internals; Vec replaces
 0056f560	-	SmartArray/STL container internals; Vec replaces
 0056f770	-	admin-only/tool/debug code, not in the client (debug HUD)
@@ -8179,7 +8179,7 @@ key	status	note
 00574850	x	
 00574970	-	CameraManager singleton accessor (Rust owns the camera struct)
 00574980	x	ac2-client camera.rs
-00574b50	~	ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position; flash colour and blur amount published, not yet drawn
+00574b50	~	ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position, flash drawn (ac2-gpu tone map); the blur amount is published but no shipped FX blurs
 00574c50	x	
 00574ca0	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 00574cc0	x	

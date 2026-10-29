@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 178 done, 53 partial, 191 to do, 359 skipped.
+781 retail functions: 178 done, 54 partial, 189 to do, 360 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -766,7 +766,7 @@ Legend and workflow: [README](README.md).
 ## `portal/client/src/scenerender/scenetool.cpp.c` (20/100)
 
 ### SceneTool
-- [ ] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10 — needs port: motion blur flag (scene effect)
+- [-] `SceneTool::UsingSceneMotionBlur` · 0056a5d0 · legions 0053aa10 — scene motion blur (m_fBlurAmount from CameraFX mBlur): no shipped FX node names a blur CameraFX (blur.cfx 0x55000002 is unreferenced; ac2-assets ac2_fx_tests lists the 22 camera FX nodes), so the blend never runs with the DATs
 
 ### MaterialLayer
 - [ ] `MaterialLayer::SetDiffuse` · 0056a600 · legions 0053aa40 — needs port: material layer stage order and diffuse colour
@@ -855,8 +855,8 @@ Legend and workflow: [README](README.md).
 - [x] `SceneTool::SetSunlight` · 0056ef40 · legions 0053f320 — object::ObjectLights; static shadow strength SceneLighting::shadow_strength drives the landscape map and the sun shadow cascades (ac2_gpu sun_shadow.rs); m_cVolumetricShadowStrength's undimmed colour is not used (cascades take the static strength)
 - [ ] `SceneTool::DrawLine` · 0056f230 · legions 0053f610 — needs port: scene DrawLine primitive (verify client use before porting)
 - [~] `SceneTool::DrawScreenQuad` · 0056f260 · legions 0053f640 — untextured colour quad (ac2-gpu ScreenQuad) only
-- [-] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0 — D3D device/resource plumbing; wgpu replaces
-- [ ] `SceneTool::Render` · 0056f440 · legions 0053f820 — needs port: scene render pass order (targets, lights, sky, objects, post)
+- [-] `SceneTool::SwitchTextureTargets` · 0056f2e0 · legions 0053f6c0 — scene motion blur (m_fBlurAmount from CameraFX mBlur): no shipped FX node names a blur CameraFX (blur.cfx 0x55000002 is unreferenced; ac2-assets ac2_fx_tests lists the 22 camera FX nodes), so the blend never runs with the DATs
+- [~] `SceneTool::Render` · 0056f440 · legions 0053f820 — ac2-gpu tonemap.wgsl/tonemap.rs set_flash: the camera effects' flash (m_cFlashColor) blended over the world's display levels by its alpha before the brightness ramp and the UI; streaks are ac2-render fx_streaks
 
 ### SmartArray<ObjectSelection>
 - [-] `SmartArray<ObjectSelection>::AddToEnd` · 0056f4f0 · legions 0053f930 — SmartArray/STL container internals; Vec replaces

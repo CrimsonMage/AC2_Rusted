@@ -8,7 +8,7 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
-//! [--shore-effects 0|1|2]
+//! [--shore-effects 0|1|2] [--flash R,G,B,A]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! ```
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
@@ -23,6 +23,8 @@
 //! `LandscapeCloudShadows` (default off; drawn only with the static shadows).
 //! `--water-reflections` sets `WaterReflections` (default 2: reflected and rippled), and
 //! `--shore-effects` `LandscapeShoreEffects` (default 2: breaking water on the shores).
+//! `--flash` draws a camera effect's screen flash of that colour over the snapshot (0..1 each, as
+//! `CameraFxManager`'s sum: `--flash 0,0,0,1` is a full fade to black).
 //! `--snapshot` renders one headless frame: the player model N of the race table walks forward
 //! for SECONDS (default 4) and is seen from the player camera (`--fly`: the terrain alone).
 //! `--bench N` runs the same headless scene (no snapshot file needed) and then times N more
@@ -104,6 +106,8 @@ struct Args {
     /// The headless scene's `WaterReflections` and `LandscapeShoreEffects` levels.
     water_reflections: u8,
     shore_effects: u8,
+    /// A screen flash to draw over the snapshot (`--flash`).
+    flash: [f32; 4],
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -134,6 +138,7 @@ fn parse_args() -> Result<Args, String> {
         cloud_shadows: ac2_render::prefs::SceneOptions::default().cloud_shadows,
         water_reflections: ac2_render::prefs::SceneOptions::default().water_reflections,
         shore_effects: ac2_render::prefs::SceneOptions::default().shore_effects,
+        flash: [0.0; 4],
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -194,6 +199,15 @@ fn parse_args() -> Result<Args, String> {
                 args.water_reflections = value()?
                     .parse()
                     .map_err(|e| format!("--water-reflections: {e}"))?;
+            }
+            "--flash" => {
+                let parts: Vec<f32> = value()?
+                    .split(',')
+                    .map(|v| v.parse().map_err(|e| format!("--flash: {e}")))
+                    .collect::<Result<_, _>>()?;
+                args.flash = parts
+                    .try_into()
+                    .map_err(|_| "--flash takes R,G,B,A".to_owned())?;
             }
             "--height" => {
                 args.height = Some(value()?.parse().map_err(|e| format!("--height: {e}"))?);
@@ -433,6 +447,9 @@ fn snapshot(
             walk.ground_height(player.cell, origin)
         });
         println!("crowd: {} objects", frame.objects.len());
+    }
+    if let Some(camera) = frame.camera.as_mut() {
+        camera.flash = args.flash;
     }
     view.update(&gpu, &frame, std::time::Duration::from_millis(4));
     view.settle(&gpu, &frame, width as f32 / height as f32);

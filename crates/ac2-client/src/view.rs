@@ -392,6 +392,8 @@ impl ClientView {
         };
         self.scene.set_clock(time);
         self.presenter.set_brightness(gpu, self.brightness);
+        let flash = frame.camera.map_or([0.0; 4], |c| c.flash);
+        self.presenter.set_flash(gpu, flash);
         self.presenter.set_camera(ac2_gpu::AoCamera {
             fov_y: camera.fov_y,
             near: camera.near,

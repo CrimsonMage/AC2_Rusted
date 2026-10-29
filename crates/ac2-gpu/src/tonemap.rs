@@ -221,12 +221,13 @@ pub(crate) fn post_inputs(
     })
 }
 
-/// A tone map `look` uniform with the brightness ramp `scale` in x.
+/// A tone map `look` uniform: the brightness ramp's scale in x, then the screen flash (r, g, b,
+/// a), none.
 fn look_buffer(device: &wgpu::Device, label: &str) -> wgpu::Buffer {
     use wgpu::util::DeviceExt;
     device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some(label),
-        contents: bytemuck::cast_slice(&[1.0_f32, 0.0, 0.0, 0.0]),
+        contents: bytemuck::cast_slice(&[1.0_f32, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
         usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
     })
 }
@@ -398,6 +399,13 @@ impl ToneMap {
         );
     }
 
+    /// `SceneTool::Render`'s screen flash (`m_cFlashColor`, the camera effects' sum): a quad of
+    /// the colour blended over the world by its alpha (`BLEND_SRCALPHA` / `BLEND_INVSRCALPHA`),
+    /// before the brightness ramp; none at zero alpha.
+    pub fn set_flash(&self, queue: &wgpu::Queue, flash: [f32; 4]) {
+        queue.write_buffer(&self.world_look, 16, bytemuck::cast_slice(&flash));
+    }
+
     /// Records the tone map of `source` into `pass` (an output pass the size of `source`, with
     /// its depth attachment), replacing the output. A `viewport` instead composites that
     /// rectangle of the scene over the output where the scene drew (`fs_composite`).
@@ -543,6 +551,11 @@ impl ScenePresenter {
     /// The world's screen brightness (`ScreenBrightness`, `SceneTool::SetGammaBrightness`).
     pub fn set_brightness(&self, gpu: &Gpu, brightness: f32) {
         self.tonemap.set_brightness(&gpu.queue, brightness);
+    }
+
+    /// The camera effects' screen flash over the world (see [`ToneMap::set_flash`]).
+    pub fn set_flash(&self, gpu: &Gpu, flash: [f32; 4]) {
+        self.tonemap.set_flash(&gpu.queue, flash);
     }
 
     pub fn tonemap(&self) -> &ToneMap {

@@ -205,7 +205,7 @@ Legend and workflow: [README](README.md).
 ### CameraManager
 - [-] `CameraManager::GetCameraManager` · 00574970 · legions 00544840 — CameraManager singleton accessor (Rust owns the camera struct)
 - [x] `CameraManager::CalcAlignToSlope` · 00574980 · legions 00544850 — ac2-client camera.rs
-- [~] `CameraManager::UseTime` · 00574b50 · legions 00544a20 — ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position; flash colour and blur amount published, not yet drawn
+- [~] `CameraManager::UseTime` · 00574b50 · legions 00544a20 — ac2-smartbox camera_rig.rs use_time: FX tracks, fov = 65 + clamped sum (75 idle), shake into the scene camera's current position, flash drawn (ac2-gpu tone map); the blur amount is published but no shipped FX blurs
 - [x] `CameraManager::GetFirstPersonIsReady` · 00574c50 · legions 00544b20
 - [x] `CameraManager::CheckEnvOnly` · 00574ca0 · legions 00544b70 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `CameraManager::NoRayTrace` · 00574cc0 · legions 00544b90
