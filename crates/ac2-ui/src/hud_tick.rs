@@ -67,6 +67,7 @@ pub fn tick_pass<P: HudSource>(
         chat,
         allegiance,
         fellowship,
+        mini_fellow,
         assistance,
         character,
         chat_options,
@@ -315,6 +316,14 @@ pub fn tick_pass<P: HudSource>(
         );
     }
     if let Some(panel) = fellowship.as_mut() {
+        out.extend(
+            fellowship_calls(panel.take_requests(), selection)
+                .into_iter()
+                .map(HudRequest::Social),
+        );
+    }
+    // The mini panel's helper: a press on a member selects them (or starts a tell).
+    if let Some(panel) = mini_fellow.as_mut() {
         out.extend(
             fellowship_calls(panel.take_requests(), selection)
                 .into_iter()

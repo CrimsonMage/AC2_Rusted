@@ -239,3 +239,56 @@ fn the_mini_panel_saves_its_location_and_takes_it_back_on_load() {
     assert!((again.x0 - saved.x0).abs() < 1e-6 && (again.y0 - saved.y0).abs() < 1e-6);
     assert_eq!(again.shown, saved.shown);
 }
+
+/// `FellowshipHelper::ListenToMessage` on the mini panel's list: a press on a member's row
+/// selects that member, and the assisted-tell press also starts a tell to them.
+#[test]
+fn a_press_on_a_mini_panel_row_selects_the_member() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let GameplayHud {
+        tree, mini_fellow, ..
+    } = &mut hud;
+    let panel = mini_fellow.as_mut().expect("the mini panel");
+    let data = FellowshipData {
+        name: "Wanderers".into(),
+        leader: 1,
+        social: true,
+        looting: 2,
+        fellows: vec![fellow(1, "Explorer", 50), fellow(2, "Mira", 40)],
+    };
+    panel.update_fellowship(tree, &player(), &data);
+    panel.show(tree, true);
+    let rows = panel.rows(tree);
+    let (id, row) = *rows.iter().find(|(id, _)| *id == 2).expect("Mira's row");
+    let at = tree.screen_box(row);
+    tree.pointer = ((at.x0 + at.x1) / 2, (at.y0 + at.y1) / 2);
+    let list = tree
+        .roots()
+        .iter()
+        .find_map(|&r| tree.child_recursive(r, tokenize("FellowMiniPanelListBox")))
+        .expect("the list");
+    let press = |data: i32| UiMessage {
+        element_id: tokenize("FellowMiniPanelListBox"),
+        element: Some(list),
+        message: tokenize("mouse_press"),
+        data,
+        item: None,
+    };
+    panel.message(tree, &press(0x4000_0001));
+    assert_eq!(
+        panel.take_requests(),
+        vec![crate::FellowshipRequest::Select(id)]
+    );
+    panel.message(tree, &press(0x4000_0007));
+    assert_eq!(
+        panel.take_requests(),
+        vec![
+            crate::FellowshipRequest::Select(id),
+            crate::FellowshipRequest::AssistedTell("Mira".into())
+        ]
+    );
+}

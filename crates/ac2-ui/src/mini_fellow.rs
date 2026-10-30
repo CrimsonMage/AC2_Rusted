@@ -5,6 +5,9 @@
 //! state for the page's `fellowship` state, so it is in the tree only with a fellowship. Its member rows
 //! are a [`FellowRows`] over the gameplay layout's `FellowMiniPanelTemplate`
 //! (`FellowshipHelper` mode 1): no level, no XP share, health and vigor numbers hidden at first.
+//! As the fellowship page's helper does, a press on a member's row selects that member
+//! (`FellowshipHelper::ListenToMessage`, `gmCWInterface::SetSelection`), and the assisted-tell
+//! press also starts a tell to them (`DoAssistedTell`).
 //!
 //! The panel's location is the window location mechanism's: a move raises the location change
 //! the client saves (`CM_UI::SendNotice_SaveLocationsChanged`), and a load applies the saved
@@ -16,7 +19,7 @@ use std::sync::Arc;
 
 use crate::element::UiTree;
 use crate::fellow_rows::{FellowNotice, FellowRows};
-use crate::fellowship::{FellowshipData, FellowshipSource};
+use crate::fellowship::{FellowshipData, FellowshipRequest, FellowshipSource};
 use crate::layout::LayoutDesc;
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_BUTTON_RELEASE_ON};
@@ -35,6 +38,8 @@ pub struct MiniFellowUi {
     shown: bool,
     /// `_fellowshipHelper`: the members, `None` without a fellowship.
     helper: Option<FellowRows>,
+    /// The helper's selections and tells, for the HUD to send.
+    requests: Vec<FellowshipRequest>,
 }
 
 impl MiniFellowUi {
@@ -47,6 +52,7 @@ impl MiniFellowUi {
             panel,
             shown: false,
             helper: None,
+            requests: Vec::new(),
         };
         ui.show(tree, false);
         ui
@@ -72,13 +78,34 @@ impl MiniFellowUi {
     }
 
     /// `gmMiniFellowUI::ListenToMessage`: the `FellowshipMiniButton`'s release toggles the panel.
+    /// Then the helper's (`FellowshipHelper::ListenToMessage`): a press on a member's row selects
+    /// the member, and the assisted-tell press (data `0x40000007`) also starts a tell.
     pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage) {
         if message.message == MSG_BUTTON_RELEASE_ON
             && message.element_id == id("FellowshipMiniButton")
         {
             let shown = !self.shown;
             self.show(tree, shown);
+            return;
         }
+        let Some(helper) = &self.helper else {
+            return;
+        };
+        if message.message == id("mouse_press") && message.element == Some(helper.list) {
+            let row = tree.list_item_under_mouse(helper.list);
+            if let Some(info) = helper.fellow_at_item(row) {
+                self.requests.push(FellowshipRequest::Select(info.id));
+                if message.data as u32 == 0x4000_0007 {
+                    self.requests
+                        .push(FellowshipRequest::AssistedTell(info.name.clone()));
+                }
+            }
+        }
+    }
+
+    /// The selections and tells since the last call.
+    pub fn take_requests(&mut self) -> Vec<FellowshipRequest> {
+        std::mem::take(&mut self.requests)
     }
 
     /// The members' rows, top first, and their ids.
