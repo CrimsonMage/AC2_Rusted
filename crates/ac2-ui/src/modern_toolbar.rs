@@ -235,6 +235,12 @@ impl Dock {
     /// kept where it is put, the wings hidden, the design's parts made. Then laid out.
     pub(crate) fn adopt(tree: &mut UiTree, field: usize) -> Self {
         adopt_field(tree, field);
+        // The design lays the toolbar and the shortcut bar out itself, by the display's edges:
+        // neither is a window whose saved place would move it.
+        tree.set_overlay_root(field);
+        if let Some(bar) = Self::shortcut_root(tree) {
+            tree.set_overlay_root(bar);
+        }
         let find = |tree: &UiTree, name: &str| tree.child_recursive(field, tokenize(name));
         for wing in ["LeftWingField", "RightWingField"] {
             if let Some(wing) = find(tree, wing) {

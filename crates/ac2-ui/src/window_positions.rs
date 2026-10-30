@@ -22,7 +22,8 @@ use crate::element::UiTree;
 use crate::token::ALLOW_RESIZE;
 use crate::window_locations::{clip_to_pixel, pixel_to_clip};
 
-/// One window's saved corners in clip space, under its layout and element ids.
+/// One window's saved corners in clip space, under its layout and element ids, and the display
+/// (logical pixels) they were saved on (`None` in a file written before it was kept).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WindowPosition {
     pub layout: u32,
@@ -31,10 +32,12 @@ pub struct WindowPosition {
     pub y0: f32,
     pub x1: f32,
     pub y1: f32,
+    pub display: Option<(i32, i32)>,
 }
 
 /// The file's header comment.
-const HEADER: &str = "# AC2 window positions: window <layout> <element> <x0> <y0> <x1> <y1>";
+const HEADER: &str =
+    "# AC2 window positions: window <layout> <element> <x0> <y0> <x1> <y1> [<width> <height>]";
 
 /// The file's text: a header, then a line per window.
 pub fn to_text(positions: &[WindowPosition]) -> String {
@@ -42,9 +45,13 @@ pub fn to_text(positions: &[WindowPosition]) -> String {
     text.push('\n');
     for p in positions {
         text.push_str(&format!(
-            "window {:08x} {:08x} {} {} {} {}\n",
+            "window {:08x} {:08x} {} {} {} {}",
             p.layout, p.element, p.x0, p.y0, p.x1, p.y1
         ));
+        if let Some((w, h)) = p.display {
+            text.push_str(&format!(" {w} {h}"));
+        }
+        text.push('\n');
     }
     text
 }
@@ -59,7 +66,12 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
         }
         let fields: Vec<&str> = line.split_whitespace().collect();
         let bad = || format!("line {}: not a window position: {line}", number + 1);
-        let [tag, layout, element, x0, y0, x1, y1] = fields.as_slice() else {
+        let (head, display) = match fields.len() {
+            7 => (&fields[..], None),
+            9 => (&fields[..7], Some((fields[7], fields[8]))),
+            _ => return Err(bad()),
+        };
+        let [tag, layout, element, x0, y0, x1, y1] = head else {
             return Err(bad());
         };
         if *tag != "window" {
@@ -67,6 +79,11 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
         }
         let hex = |s: &str| u32::from_str_radix(s, 16).map_err(|_| bad());
         let float = |s: &str| s.parse::<f32>().map_err(|_| bad());
+        let int = |s: &str| s.parse::<i32>().map_err(|_| bad());
+        let display = match display {
+            Some((w, h)) => Some((int(w)?, int(h)?)),
+            None => None,
+        };
         out.push(WindowPosition {
             layout: hex(layout)?,
             element: hex(element)?,
@@ -74,6 +91,7 @@ pub fn parse(text: &str) -> Result<Vec<WindowPosition>, String> {
             y0: float(y0)?,
             x1: float(x1)?,
             y1: float(y1)?,
+            display,
         });
     }
     Ok(out)
@@ -145,6 +163,36 @@ pub fn write_radar_coords_hidden(dir: &Path, character: u64, hidden: bool) -> io
     }
 }
 
+/// One axis of a window saved on a display `from` long, moved to one `to` long: the window keeps
+/// its length and its distance from the edge it was nearest (its centre in the first third: the
+/// near edge; in the last: the far one; else the middle).
+fn anchor_axis(start: i32, end: i32, from: i32, to: i32) -> (i32, i32) {
+    let length = end - start;
+    let centre = (start + end) as f32 / 2.0;
+    let third = from as f32 / 3.0;
+    let start = if centre < third {
+        start
+    } else if centre > 2.0 * third {
+        to - (from - start)
+    } else {
+        to / 2 - (from / 2 - start)
+    };
+    (start, start + length)
+}
+
+/// A saved place (clip space on display `from`) on display `to`, anchored ([`anchor_axis`]).
+pub(crate) fn anchored(
+    saved: &WindowPosition,
+    from: (i32, i32),
+    to: (i32, i32),
+) -> (i32, i32, i32, i32) {
+    let (x0, y0) = clip_to_pixel(saved.x0, saved.y0, from.0, from.1);
+    let (x1, y1) = clip_to_pixel(saved.x1, saved.y1, from.0, from.1);
+    let (x0, x1) = anchor_axis(x0, x1, from.0, to.0);
+    let (y0, y1) = anchor_axis(y0, y1, from.1, to.1);
+    (x0, y0, x1, y1)
+}
+
 impl UiTree {
     /// Whether `index` is a window the player moves and whose place is kept: a root that is not an
     /// overlay and does not cover the whole display.
@@ -183,6 +231,7 @@ impl UiTree {
                     y0,
                     x1,
                     y1,
+                    display: Some((width, height)),
                 }
             })
             .collect()
@@ -216,8 +265,16 @@ impl UiTree {
             return;
         };
         let (width, height) = self.display;
-        let (x0, y0) = clip_to_pixel(saved.x0, saved.y0, width, height);
-        let (x1, y1) = clip_to_pixel(saved.x1, saved.y1, width, height);
+        let (x0, y0, x1, y1) = match saved.display {
+            // Saved on another display: kept at its size and its distance from the edges it was
+            // nearest (`anchored`), where clip space would scale both with the display.
+            Some(on) if on != (width, height) => anchored(&saved, on, (width, height)),
+            _ => {
+                let (x0, y0) = clip_to_pixel(saved.x0, saved.y0, width, height);
+                let (x1, y1) = clip_to_pixel(saved.x1, saved.y1, width, height);
+                (x0, y0, x1, y1)
+            }
+        };
         // The size first: `move_to` clamps the origin on the display for the final size, so a
         // saved window larger than this display still starts on it.
         if self.bool_attribute(index, ALLOW_RESIZE) {

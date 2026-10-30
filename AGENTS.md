@@ -121,7 +121,10 @@ game rules and server-visible behaviour exactly retail.
   Alt + left drag anywhere on it. Every window's position is saved locally per character (the
   client's config directory, `ac2_prefs::paths`) and restored at login, over the server's
   locations, and again after the window changes size (where retail's `RefreshEvent` re-applied
-  the server's saved locations); `save_loc` windows still upload to the server as retail does. The HUD's chrome
+  the server's saved locations, scaled with the display). A saved place records the display it
+  was saved on; on another display the window keeps its size and its distance from the edges it
+  was nearest (left, right or centred; top, bottom or centred), so a bigger window does not drift
+  windows inwards or stretch them (`window_positions.rs` `anchored`); `save_loc` windows still upload to the server as retail does. The HUD's chrome
   (bars, radar, selection field, toolbar and its side panels) is windows too. Not moved: the
   world's overlays (targeting reticle, name plates, damage text), the heading ring (it follows the
   radar), the doll's 3D viewport (docked to the inventory), the consignment's portrait (docked to

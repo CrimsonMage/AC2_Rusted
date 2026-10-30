@@ -24,6 +24,7 @@ fn sample() -> Vec<WindowPosition> {
             y0: 0.1,
             x1: -0.1,
             y1: 0.7,
+            display: None,
         },
         WindowPosition {
             layout: 0x2200_0005,
@@ -32,6 +33,7 @@ fn sample() -> Vec<WindowPosition> {
             y0: -1e-7,
             x1: 0.9,
             y1: 1.0,
+            display: Some((1365, 768)),
         },
     ]
 }
@@ -324,6 +326,7 @@ fn each_hud_style_keeps_its_own_positions_file() {
         y0: -0.7,
         x1: 0.3,
         y1: -1.0,
+        display: None,
     }];
     crate::write_window_positions(&dir, 0x2000_0001, crate::HudStyle::Classic, &saved).unwrap();
     assert_eq!(
@@ -336,4 +339,40 @@ fn each_hud_style_keeps_its_own_positions_file() {
             .is_empty()
     );
     let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A window saved on one display keeps its size and its distance from its nearest edges on
+/// another: one by the right edge stays by it, one by the bottom stays by the bottom, one in the
+/// middle stays centred.
+#[test]
+fn a_saved_window_keeps_its_size_and_its_nearest_edges_on_a_new_display() {
+    use crate::window_locations::pixel_to_clip;
+    let from = (1024, 768);
+    let clip = |x: i32, y: i32| pixel_to_clip(x, y, from.0, from.1);
+    let window = |x0: i32, y0: i32, x1: i32, y1: i32| {
+        let (a, b) = clip(x0, y0);
+        let (c, d) = clip(x1, y1);
+        crate::WindowPosition {
+            layout: 1,
+            element: 2,
+            x0: a,
+            y0: b,
+            x1: c,
+            y1: d,
+            display: Some(from),
+        }
+    };
+    let to = (1600, 900);
+    // By the right edge, 20 pixels in, 300 wide; by the bottom, 10 up.
+    let (x0, y0, x1, y1) =
+        crate::window_positions::anchored(&window(704, 600, 1003, 757), from, to);
+    assert_eq!((x1 - x0, y1 - y0), (299, 157));
+    assert_eq!((to.0 - 1 - x1, to.1 - 1 - y1), (20, 10));
+    // Centred: its centre stays on the display's.
+    let (x0, _, x1, _) = crate::window_positions::anchored(&window(412, 300, 611, 400), from, to);
+    assert_eq!(x1 - x0, 199);
+    assert!(((x0 + x1) / 2 - to.0 / 2).abs() <= 1);
+    // By the left and top: unchanged.
+    let (x0, y0, ..) = crate::window_positions::anchored(&window(8, 8, 100, 100), from, to);
+    assert_eq!((x0, y0), (8, 8));
 }

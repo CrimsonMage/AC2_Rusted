@@ -127,3 +127,48 @@ fn the_classic_style_keeps_retails_bar() {
         "retail's bar art"
     );
 }
+
+/// A bigger window: the strip stays on the bottom edge and the dock in the bottom-right corner
+/// (the toolbar is laid out by the display's edges, not a window put back at a saved place).
+#[test]
+fn a_resized_display_keeps_the_strip_and_the_dock_on_their_edges() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    hud.toolbar.follow(tree);
+    // A place saved for every window on this display, as the client keeps them.
+    let saved = tree.window_positions();
+    tree.set_window_positions(&saved);
+    tree.set_display(2276, 1280);
+    hud.toolbar.follow(tree);
+    let orb = tree.screen_box(named(tree, "ModernDockOrb"));
+    assert_eq!(orb.x1, 2276 - 1 - 10, "{orb:?}");
+    assert_eq!(orb.y1, 1280 - 1 - 8, "{orb:?}");
+    let fade = tree.screen_box(named(tree, "ModernStripFade"));
+    assert_eq!(fade.y1, 1280 - 1 - 6, "{fade:?}");
+    let bar = tree.screen_box(named(tree, "ShortcutField"));
+    assert!(bar.y1 < fade.y1 && bar.y0 > fade.y0, "{bar:?} in {fade:?}");
+}
+
+/// The classic style's bar, a window with a saved place, keeps its size and stays centred on
+/// the bottom edge on a bigger display (its place is anchored, not scaled).
+#[test]
+fn a_resized_display_keeps_the_classic_bar_centred_on_the_bottom_edge() {
+    let Some(mut hud) = hud(HudStyle::Classic) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let field = named(tree, "ToolbarField");
+    let before = tree.screen_box(field);
+    let saved = tree.window_positions();
+    tree.set_window_positions(&saved);
+    tree.set_display(2276, 1280);
+    let after = tree.screen_box(field);
+    assert_eq!(after.width(), before.width(), "{before:?} -> {after:?}");
+    assert_eq!(1280 - 1 - after.y1, 768 - 1 - before.y1, "{after:?}");
+    assert!(
+        ((after.x0 + after.x1) / 2 - 2276 / 2).abs() <= 2,
+        "{after:?}"
+    );
+}
