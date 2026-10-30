@@ -12,7 +12,7 @@ use ac2_physics::Terrain;
 use crate::world_data::{BodyData, WorldData};
 
 /// Work for a loader thread.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub(crate) enum Request {
     /// A near landblock with its sub-data (objects, interiors).
     Block(u32),
@@ -35,6 +35,17 @@ pub(crate) enum Request {
     EntityMask(u64, u32),
     /// A camera effect (`CameraManager::DoCameraFX`): DID, the scalar's bits, the source.
     CameraFx(u32, u32, u64),
+    /// An object's part tree followed to its changed description (`CPhysicsObj::ApplyVisualDesc`):
+    /// object, the description's structure key, and the job.
+    PartTree(u64, u64, Box<PartTreeJob>),
+}
+
+/// What the part-tree rebuild needs: the body's tree, its visual and the local description.
+#[derive(Debug, Clone)]
+pub(crate) struct PartTreeJob {
+    pub tree: ac2_physics::PartGroupTree,
+    pub visual: u32,
+    pub local: ac2_assets::Ac2VisualDesc,
 }
 
 /// Finished work.
@@ -65,6 +76,9 @@ pub(crate) enum Loaded {
         f32,
         Result<Option<ac2_smartbox::camera_fx::CameraFx>, String>,
     ),
+    /// A rebuilt part tree: object, the structure key it was asked for, the tree (`None` where
+    /// nothing was followed).
+    PartTree(u64, u64, Result<Option<ac2_physics::PartGroupTree>, String>),
 }
 
 /// The client's loader threads over one `WorldData` (`ac2_db::LoaderPool`, named `ac2-loader`).
@@ -104,6 +118,11 @@ fn load(data: &dyn WorldData, request: Request) -> Loaded {
         Request::CameraFx(did, scalar, source) => {
             Loaded::CameraFx(source, f32::from_bits(scalar), data.camera_fx(did))
         }
+        Request::PartTree(object, key, job) => Loaded::PartTree(
+            object,
+            key,
+            data.rebuild_parts(&job.tree, job.visual, &job.local),
+        ),
         Request::EntityMask(object, did) => {
             Loaded::EntityMask(object, data.entity_ethereal_mask(did))
         }

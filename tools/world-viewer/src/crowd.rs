@@ -107,6 +107,7 @@ mod tests {
             pose: Vec::new(),
             appearance: Arc::default(),
             hidden: false,
+            anim_scale: [1.0; 4],
         };
         let crowd = objects(&models, 16, &player, |_| None);
         assert_eq!(crowd.len(), 16);

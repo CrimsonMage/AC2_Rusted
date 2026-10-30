@@ -107,6 +107,11 @@ pub trait ScriptPort {
     /// the object.
     fn object_appearance(&self, id: u64) -> Option<Appearance>;
 
+    /// Object `id`'s local visual description as the scripts left it
+    /// (`CPhysicsObj::ApplyAdditiveVisualDesc`, `ApplySubtractiveVisualDesc`,
+    /// `CombineAndApplyVisualDesc`); the object is drawn from it.
+    fn set_object_appearance(&mut self, id: u64, appearance: Appearance);
+
     /// Events the script boundary hands to the session's story flow (a latent completion's
     /// output, `CPhysicsObj::HandleModeDone`'s resumes), after the frame's own events.
     fn push_outbox(&mut self, events: Vec<SessionEvent>);

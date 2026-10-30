@@ -88,7 +88,7 @@ pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
 pub use ac2_fx::{
     Ac2DecalFx, Ac2FxAttach, Ac2FxAttachPoint, Ac2FxLight, Ac2FxNodeGate, Ac2FxObject,
-    Ac2FxObjectAttach, Ac2FxTable, Ac2StreakFx,
+    Ac2FxObjectAttach, Ac2FxSlider, Ac2FxTable, Ac2RepulsorFx, Ac2StreakFx,
 };
 pub use ac2_icon::{Ac2IconDesc, Ac2IconLayer};
 pub use ac2_light_source::{read_ac2_light_source, Ac2LightSource, LIGHT_POINT};

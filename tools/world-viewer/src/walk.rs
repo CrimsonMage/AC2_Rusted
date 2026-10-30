@@ -214,6 +214,7 @@ impl Walk {
                 ..Appearance::default()
             }),
             hidden: false,
+            anim_scale: player.physics.draw_scale(),
         })
     }
 

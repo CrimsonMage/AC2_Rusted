@@ -123,3 +123,47 @@ pub fn load_part_group_tree(
     tree.check_refresh_matrices();
     Ok(Some(tree))
 }
+
+/// `CPhysicsObj::ApplyVisualDesc`'s part rebuild: the object's total description (its DAT chain
+/// with `local` on top, `GetTotalVisualDesc`) is followed by the tree
+/// (`CPartGroup::CompareAndModify`): changed Setups are reloaded, new groups made, groups the
+/// description dropped removed. `Ok(None)` for a bare Setup (nothing to follow), a description
+/// that does not resolve, or one the tree cannot follow. Run on a loader thread.
+pub fn rebuild_part_group_tree(
+    store: &ResourceStore,
+    tree: &PartGroupTree,
+    visual: DataId,
+    local: &ac2_assets::Ac2VisualDesc,
+) -> ResourceResult<Option<PartGroupTree>> {
+    let visual = ac2_assets::resolve_ac2_entity_visual(store, visual)?;
+    if visual.raw() & 0xFF00_0000 != 0x1F00_0000 {
+        return Ok(None);
+    }
+    let Some(total) = ac2_assets::total_visual_desc(store, visual, Some(local))? else {
+        return Ok(None);
+    };
+    let mut tree = tree.clone();
+    let mut failure = None;
+    let mut cache: HashMap<u32, Option<Arc<PartSetup>>> = HashMap::new();
+    let followed = tree.compare_and_modify(0, &total, &mut |did| {
+        cache
+            .entry(did.raw())
+            .or_insert_with(|| match load_part_setup(store, did) {
+                Ok(setup) => setup,
+                Err(error) => {
+                    failure = Some(error);
+                    None
+                }
+            })
+            .clone()
+    });
+    if let Some(error) = failure {
+        return Err(error);
+    }
+    if !followed {
+        return Ok(None);
+    }
+    tree.cache_has_physics_bsp(0);
+    tree.check_refresh_matrices();
+    Ok(Some(tree))
+}

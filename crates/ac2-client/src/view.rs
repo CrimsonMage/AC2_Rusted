@@ -167,7 +167,10 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             origin: p.origin,
             rotation: p.rotation,
             pose: &p.pose,
-            tint: frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
+            tint: ac2_smartbox::fx_objects::drawn_tint(
+                frame.fx_looks.tints.get(&p.id).copied().unwrap_or([1.0; 4]),
+                p.anim_scale,
+            ),
             body_scale: Vec3::ONE,
             follow: None,
             held: None,

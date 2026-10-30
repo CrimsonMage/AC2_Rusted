@@ -4635,7 +4635,7 @@ key	status	note
 004e1670	-	state-bit flag accessor
 004e16b0	-	state-bit flag accessor
 004e16f0	x	ac2-physics body_access.rs: state / transient-state bit test or set on PhysicsBody (has_sliding, contact_is_water, reports_collisions, ignore_collisions, has_physics_bsp, is_in_workspace, set_in_workspace, set_missile, align_to_path)
-004e1720	x	Emitter position for sounds is the body's own place (ac2-client client_audio body_emitter, through PhysicsSpace)
+004e1720	x	Traced (objdump): a held object (HasParent) uses m_posDrawing, else m_posPhysics. ac2-client client_audio.rs emitter lookup: a held object sounds from its holder's place (the holding offset, under a metre, not added), others from body.position()
 004e1740	-	render plumbing
 004e1780	-	render plumbing
 004e17a0	-	state-bit flag accessor
@@ -4745,7 +4745,7 @@ key	status	note
 004e44e0	x	
 004e4580	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e4590	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e45b0	~	ObjectVisualDesc::apply_visual_desc holds the description; PartGroupTree::compare_and_modify exists but is not fed a changed description, so the physics part tree (spheres, holdings) is not rebuilt on a description change; drawing is unaffected (total_visual_desc each frame)
+004e45b0	~	ac2-physics part_load::rebuild_part_group_tree follows the body tree to the object total description (CompareAndModify on a loader thread); ac2-client client_part_trees.rs refresh_part_trees requests it when the drawn description changes what the groups are (ignoring FX scalar ramps) and part_tree_loaded installs the tree. Tested on the real DATs (physics a_changed_visual_description_rebuilds_the_part_tree, client tests/part_tree_7160.rs)
 004e4640	x	ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
 004e4730	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 004e47d0	x	ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
@@ -4794,8 +4794,8 @@ key	status	note
 004e6aa0	~	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
 004e6b10	~	ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
-004e6c30	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004e6c40	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
+004e6c30	x	ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
+004e6c40	x	ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
 004e6c50	x	PhysicsObj::do_mode, plus the child tail (Remotes::children_do_mode -> PhysicsBody::follow_holder_mode; tested); the weenie hook is CWPhysicsObject::Notify_DoMode (ac2-weenie rows)
 004e6d00	x	animation events ModeDone/BehaviorDone reach the story manager and scripts (client_story.rs, client_latent.rs)
 004e6d20	x	ported on PhysicsBody (missile_initialize, missile_request); called by ac2-client client_story_missiles.rs story_missiles_quantum for story missiles
@@ -4810,7 +4810,7 @@ key	status	note
 004e7580	~	ac2-physics objects.rs find_object_collisions: per shadow object once per insertion pass, physics BSP else cylinders else spheres, IsBlocking against the mover sets by the object InstanceID (solid and ethereal lists), the mover temporary ethereal list, the ETHEREAL state, FX objects ethereal (DoCreateObjectFX); AddObject with the ethereal flag (last_collided_object). Not ported: the obstacle own collision set (Interpermiable second direction: needs the obstacle CollisionParameters on its shadow entry), the mutual AddToTempEtherealList and UpdateCollidePhysicsMask for an ethereal obstacle, the missile DetonatesOnProximityTo branch and the admin 0x250 branch (admin build; no Legions body)
 004e79a0	x	ReportCollisions -> HandleCollision: the weenie hears the report (ac2-client scripts.rs collision_reported -> CWInterface::HandleCollision, for the player and for every remote with a collision manager, ac2-smartbox Remotes::step_quantum) and the missile manager (PhysicsBody::handle_missile_collision); the report carries the impact, object begin/end, environment, surface, water and contact records (collision_report.rs)
 004e79e0	x	ac2-physics PhysicsBody::collision_remove_object (PhysicsObj::collision_remove_object): the entry of the object is marked remove_now and ends at the next report; ReportCollision erasing an entry tells the other body to drop this one (PhysicsBody::take_dropped; ac2-smartbox Remotes::step_quantum and ac2-client apply it); tested. The profile RemoveObjectCollision fills only carries the object property list, which is not held
-004e7a60	x	Forces the object to be prepared when a particle system force-draws; the scene draws every visible object each frame and particles are placed in ac2-render scene/particles.rs, so no always-prepare list is needed
+004e7a60	x	Traced: forces an object to be prepared when a particle system force-draws, the first-person player, or a child does. The client has no per-view prepare list: every body within PHYSICS_RANGE animates (Remote::active) and particles are not culled by view, so every object is always prepared
 004e7af0	~	PhysicsBody::set_view_distance; ac2-client view::viewer_distances (|eye - origin|, held objects take the holder's) drives the degrade; no scene stamp
 004e7c80	~	ac2-physics PhysicsBody::drawing_position (slerp of the previous and current position at the render interpolation); ac2-client draws the player and every remote at it; the pose blend is not retail (Client::set_pose_blend); the child pass runs UpdateChild's fade and clears m_bElementChanged (Client::update_held_children)
 004e7db0	~	_bUseAdaptiveDegrade (not temporary, is_mobile, is_dynamic: ObjectFrame::adaptive_degrade) and HACK_bDrawingPlayer feed WorldScene::object_detail (ac2-client view); AvatarVisibleInFirstPerson: in first person (GetFirstPersonIsReady) the player and what it holds are not drawn at 0, or at 2 in mode 0x40000001 (PlayerFrame::hidden, view drawn_objects); lights, selection, shadow colour elsewhere or not ported
@@ -4825,8 +4825,8 @@ key	status	note
 004e8a40	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e8ac0	x	PhysicsBody::set_motion_desc (SetMIDESC) over the loader-decoded description
 004e8ae0	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004e8b00	x	ac2-smartbox fx_manager.rs Remotes::set_children_opacity: opacity slider 0x40000015 on each child, tested
-004e8b60	x	ac2-smartbox fx_manager.rs Remotes::do_slider_on_child: DoSlider(0, slider, scalar, ramp) on each direct child, tested
+004e8b00	x	Unreachable in 7160: CPhysicsObj/PHYSICSOBJREP::SetChildrenOpacity have no direct callers (the PHYSICSOBJREP vtable slot 0x94 is called by no PHYSICSOBJREP user in the exported pseudocode); ac2-smartbox Remotes::set_children_opacity (slider 0x40000015 per child, tested) is kept as the equivalent
+004e8b60	x	ac2-smartbox Remotes::do_slider_on_child, called by ac2-client apply_slider_fx for a propagating slider node (and by DoColorFX in retail; the client colour ramp does not propagate to children, see DoColorFX)
 004e8bc0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004e8d10	x	StoryManager in ac2-physics story.rs, driven by client_story.rs
 004e8d50	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
@@ -4848,7 +4848,7 @@ key	status	note
 004e9be0	_	needs port: cite-only physics-object method
 004e9d30	~	ac2-physics Terrain::insert_object: shadow cells from the shadow box through land cells and portals; residency order and moving objects not ported
 004e9f50	~	no cell residency, shadow or material updates; LeaveGround FX not ported
-004ea290	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
+004ea290	x	ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
 004ea490	x	CPhysicsObj::DoBehavior(ulong): Ac2BehaviorParams::new(id) through PhysicsBody::do_behavior
 004ea500	~	ac2-physics do_behavior with mPropagate to the children (Remotes::children_do_behavior -> follow_holder_behavior; tested); not carried: m_iidFXTarget and mVDescToClone (FX target, cloned appearance), which need FX-target plumbing through the StartFx event
 004ea670	-	unreachable in the Legions client: the detection manager is made only by CPhysicsObj::DoIntersection (InitDetectionList) via the DoIntersection efun (0x800001) or CreateDetectionCylsphere (no call site); a scan of every efun call in the Legions wlib finds no call of the DoIntersection efun or any gDetectionParameters efun, and the server is never told of client detection; the shape math stays in detection_volume.rs
@@ -4936,23 +4936,23 @@ key	status	note
 004eb960	x	ac2-anim behavior/triggers + dbanimator/triggers (slice 4): effect, hook and impulse triggers through TriggerUpdate
 004eba30	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004ebb50	x	CPhysicsObj::CPhysicsObj - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
-004ec1a0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
-004ec230	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
+004ec1a0	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
+004ec230	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 004ec290	x	ac2-client motion.rs forwards SessionEvent::ObjectAction to the PhysicsBody entry point (players and other objects)
 004ec310	x	structural: the TriggerUpdate is owned by the mode tracker (ac2-anim ModeTracker::triggers_mut), made at creation
 004ec350	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec400	~	the bookie part only
 004ec4a0	-	STL/MSVC or archive template helper; Rust collections replace it
 004ec4f0	-	admin/debug or text-file tooling
-004ec520	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
+004ec520	x	ICPhysicsObj::makeObject(EntityDesc) body (makeObjectInternal): Setup/VisualDesc DIDs and the EntityDesc template visual are followed (resolve_ac2_entity_visual); not checked: EntityDesc property 0x4000006B (present and false: no object is made), the template scale times the object scale, and the property collection applied on the new object
 004ec680	x	ac2-client client_objects.rs apply_remote: the weenie emote gate (answer_weenie_emote); the copy with context 1 is motion.rs behavior()
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
 004ec830	~	physics half (PhysicsBody::set_description_physics: velocity, spin, external acceleration, scales, head, FX list) and animation half applied at body creation; the missile branch of a missile created mid-flight (target pos/id, activated, moving) is not applied: missiles start from InitializeMissile events and the parser does not carry target height/scale flags
-004ed160	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
+004ed160	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 004ed190	~	flags 0x1010 into PhysicsBody::place
 004ed1f0	~	interp blips use set_position_checked(SLIDE); parent/placement-position bookkeeping not ported
-004ed270	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
+004ed270	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 004ed2e0	-	admin/debug or text-file tooling
 004ed470	x	the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 004ed850	-	C++ constructor/destructor; Rust constructor and Drop replace it
@@ -5034,7 +5034,7 @@ key	status	note
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-004f0300	~	CreateRepulsorEffect needs the particle repulsor system (PSManager::CreateRepulsor), which ac2-render does not have; ac2-assets does not decode repulsor FX nodes
+004f0300	~	RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
 004f0380	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f0410	~	ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 004f0500	-	render plumbing
@@ -5043,11 +5043,11 @@ key	status	note
 004f0900	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 004f0a10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f0a80	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-004f0af0	~	all triggers every frame, compositor only on refresh frames; no slider-driven layer weights; one part group
+004f0af0	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
 004f0c10	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f0d10	-	render plumbing
 004f0d40	-	C++ constructor/destructor; Rust constructor and Drop replace it
-004f0de0	~	impulse triggers only (effect triggers and weenie hooks not fired); no slider-driven layer weights; one part group
+004f0de0	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
 004f10c0	x	BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
 004f10e0	x	PhysicsBody::set_motion_desc / MotionInterp::set_desc; CompareAndModify (vdesc change) is its own row
 004f1140	_	needs port: cite-only physics-object method
@@ -5103,7 +5103,7 @@ key	status	note
 004f1800	-	one-line forwarder to CameraManager with no state of its own; the camera is not part of the physics body
 004f1830	x	ac2-client client_camera.rs camera_animation_events: the target (player or remote body) runs PhysicsBody::do_behavior(BehaviorParams::new(behavior)); the targeted camera follows only when it starts
 004f1860	-	render plumbing
-004f1870	x	ac2-smartbox fx_manager.rs Remotes::do_slider_on_child: DoSlider(0, slider, scalar, ramp) on each direct child, tested
+004f1870	x	ac2-smartbox Remotes::do_slider_on_child, called by ac2-client apply_slider_fx for a propagating slider node (and by DoColorFX in retail; the client colour ramp does not propagate to children, see DoColorFX)
 004f1880	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f18a0	x	ac2-physics body_access.rs PhysicsBody::set_omega_velocity / omega_velocity
 004f18f0	_	needs port: cite-only physics-object method
@@ -5119,7 +5119,7 @@ key	status	note
 004f1ad0	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
 004f1b00	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1b90	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-004f1c40	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
+004f1c40	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
 004f1cb0	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f1d10	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f1d70	~	Partial: the material layers, the terrain-type property and the reports are ported (ac2-physics collision_report.rs, collide_property.rs, body.rs). Not ported: the per-object CollidePropertyList and CollideProperty arrays (SetProperties, the object begin/end lists; GetProperty needs the gBaseProperty native), the FX manager's terrain (PHYSICSOBJREP::SetTerrainType's m_fx_manager->m_terrain). The environment list is refreshed on each report, not on UpdateCellMaterial
@@ -5162,7 +5162,7 @@ key	status	note
 004f22c0	x	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 004f2410	x	ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)
 004f2420	x	structural forwarders of the representation: the body is its own rep; behaviour/mode completions are Ac2AnimEvents (ModeDone/BehaviorDone), FX manager and UpdateFX are the client FX objects, DeleteSelf is the client object deletion, UpdateMovement is update_movement_offset -> MotionInterp::update_movement
-004f2440	~	ac2-physics anim_rep update_sliders: wind slider 0x4000000B to windmag over 1 s; colour/opacity read back; FXScript tracker separate
+004f2440	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
 004f2540	x	ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 004f2560	x	ac2-physics anim_rep / motion_interp_behaviors (slice 3)
 004f2590	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
@@ -5191,7 +5191,7 @@ key	status	note
 004f28a0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f28f0	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
 004f2940	x	ac2-physics body_access.rs PhysicsBody getters over the body's CMotionInterp (body.rs is_moving_to)
-004f2990	x	Forces the object to be prepared when a particle system force-draws; the scene draws every visible object each frame and particles are placed in ac2-render scene/particles.rs, so no always-prepare list is needed
+004f2990	x	Traced: forces an object to be prepared when a particle system force-draws, the first-person player, or a child does. The client has no per-view prepare list: every body within PHYSICS_RANGE animates (Remote::active) and particles are not culled by view, so every object is always prepared
 004f2a00	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f2ad0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f2c30	x	ac2-anim behavior/slider.rs SliderTracker::get_slider_interpolator (default interpolator when absent)
@@ -5231,8 +5231,8 @@ key	status	note
 004f4980	x	ac2-physics part_group.rs (CPartGroup tree in an arena) get_part_group: depth first, own key first
 004f49d0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) transition_group_count: the group count the walk adds (the summed time is not touched in Legions)
 004f4a40	x	ac2-anim dbanimator / ac2-physics anim_pose (slice 3)
-004f4aa0	~	ac2-physics anim_rep: no look-at, FX scripts, triggers, wind slider or AnimInfo hold loops; DoFX is an event; one part group
-004f4b20	~	anim_rep GetHoldLocations on the one part group; no recursion into child part groups
+004f4aa0	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
+004f4b20	~	Child part groups with their own AnimMap exist (732 DAT visuals; the human visual 0x1F000023 has group 0x81000009, map 0x03000075, Setup 0x040001F2) but ac2-physics load_body_animation reads only the root AnimMap, so one animator set, one bone set and one hold-loop search serve the body; GetHoldLocations/AddAnimation/DoAnimation/GetComboCVel/the slider trackers recurse into children in retail. Needs per-group animators and bones
 004f4bb0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) set_parent_connection
 004f4bf0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) destroy_children
 004f4c90	-	CPartGroup::SetCellID hands the cell to every CPhysicsPart for drawing; the cell lives with ac2-render's object placement, nothing in the physics side stores it
@@ -5251,7 +5251,7 @@ key	status	note
 004f52b0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) find_matrix_for_bone_type (first group in search order; the bone's matrix in its own group)
 004f5320	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 004f53a0	x	ac2-render scene/particles.rs destroys an object's systems by handle; CPartArray::DestroyParticleSystem port in ac2-physics part_array.rs
-004f5400	~	ac2-render model.rs: mesh + material atoms; opacity atoms not applied (none in the DATs)
+004f5400	~	Opacity atoms: none in the DATs (checked by the earlier port); mesh and material atoms are applied by ac2-render model.rs
 004f5540	x	ac2-physics part_group.rs (CPartGroup tree in an arena) update_part_group
 004f5590	x	ac2-physics part_group.rs (CPartGroup tree in an arena) reset_parent_connection
 004f5660	x	ac2-render object/skeleton.rs (render-side bones)
@@ -5261,8 +5261,8 @@ key	status	note
 004f5980	x	ac2-render object/model.rs load_object_model_with
 004f59f0	x	ac2-render object/model.rs load_object_model_with
 004f5aa0	x	ac2-render object/model.rs load_object_model_with
-004f5ac0	~	ac2-physics part_group.rs (CPartGroup tree in an arena) compare_and_modify over Ac2TotalVisualDesc: key and Setup reloaded, connection point reset, children compared, residuals removed. The atom collection (meshes, materials) it applies via BuildAndApplyAtomCollection is ac2-render's, and nothing feeds a changed description to the body's tree yet
-004f5b80	~	ac2-physics part_group.rs (CPartGroup tree in an arena) compare_and_modify_children (see CompareAndModify)
+004f5ac0	~	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
+004f5b80	~	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
 004f5c30	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f5c90	x	ac2-physics part_array.rs PartInfo::has_matrix_weights / has_physics_bsp (cached into the array state)
 004f5cb0	-	render plumbing
@@ -5434,8 +5434,8 @@ key	status	note
 00504940	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005051c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 00505210	x	ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
-005052d0	~	ac2-smartbox fx_manager.rs Remotes::do_slider_fx (tested): the emitter's DoSlider(0, slider, scalar, ramp) and, with propagate, DoSliderOnChild on each direct child. The FX node type that calls it (a slider FX in an FXTable) is not decoded by ac2-assets yet, so nothing drives it
-00505310	~	Not ported: DoRepulseFX forwards to PHYSICSOBJREP::CreateParticleRepulsor (the particle repulsor system is not in ac2-render); ac2-assets does not decode repulsor FX nodes
+005052d0	~	ac2-smartbox fx_objects.rs start queues a SliderMove per slider node (m_slider, m_intensity, m_prop_color, ramp); ac2-client client_fx_objects.rs apply_slider_fx moves the emitter body (DoSlider 0) and, propagated, each held child (do_slider_on_child). ac2-assets decodes Ac2FxSlider; 27 DAT nodes use it (alpha slider 0x4000001A, the fade FX 0x8100028D/E). Tested end to end on the real DATs (tests/slider_fx_7160.rs)
+00505310	~	RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
 00505340	x	ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 00505380	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005053b0	x	ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
@@ -5455,7 +5455,7 @@ key	status	note
 005062c0	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 00506360	x	emitter's own rep only (DoParticleFX calls CreateParticleSystem on this->m_physobjrep): a bone the rep lacks starts no system; no parent or wearer lookup for particle bones (ac2-assets attaches, ac2-render fx_bone_tests split)
 00506430	x	ac2-client client_audio.rs: light_starts only while Render::m_Prefs.LightSourceEffects is on (ac2-render prefs light_source_effects, applied by apply_light_preferences); particle systems still start with the light off
-005064f0	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
+005064f0	~	Object part: particle looping (ac2-assets particle_looping) gives -1 else 0 in smartbox fx_objects.rs start (tested); the sound looping branch (SoundIsLooping of the picked sound) is not known to the object part
 00506520	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005065e0	-	C++ constructor/destructor; Rust constructor and Drop replace it
 00506680	~	ac2-smartbox fx_objects.rs start: target hide (m_hide_target, unhidden on stop) and destruction (m_destroy_target). Not ported: retarget clones, parent/unparent to the holding location, target FX (m_target_fx_id)
@@ -5473,16 +5473,16 @@ key	status	note
 00508750	-	DBO/archive serialisation of runtime state; the client does not read it from the DAT
 005087c0	~	ac2-smartbox fx_objects.rs FxObjects::current_fx: the non-startup FX ids with a record; the scalar and target of each are not kept (only FX with object facts have a record)
 00508860	-	STL/MSVC or archive template helper; Rust collections replace it
-005089d0	~	ac2-client client_fx_objects.rs drives ac2-smartbox fx_objects (object part) and ac2-render fx_streaks (streak part: player-only, day/night and channel gates). The sound branch in client_audio still assumes day; no channel prefs loaded
+005089d0	~	ac2-smartbox/ac2-client now run the per-node gates (player only, day/night: gated_nodes), the slider node, and the FX end time of the last node (lifetime default 15 s, looping, target FX, appearance key, FX script period, colour lifetime; tested). Not ported: ChannelMissmatch (no channel prefs load), the retarget clone and parent/unparent parts (DoTargetAndCloningFXs), the sound branch still assumes day; streak/decal/repulsor as in their rows
 00509220	~	ac2-client client_fx_objects.rs start_startup_fx drives ac2-smartbox fx_objects start_startup (objects made without a sound device, recorded as startup so StopFX leaves them); node sounds (DoSoundFX, no day/night filter) and lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect), decal (DoDecalFX) and repulsor (CreateParticleRepulsor) nodes, which need render support; the light-fails-skips-vdesc branch; the shared rep particle branch (ApplyStartupFX with no object)
 00509440	~	ac2-client FX sounds: sound branch only (no particles/appearance/channel prefs, day assumed); DirectSound 3D pan law and doppler approximated
 00509480	-	C++ constructor/destructor; Rust constructor and Drop replace it
 005094a0	x	the player id is Client.player.id; Remotes::step_quantum takes (id, ObjectView) of the player as ICPhysicsObj::player_id
 005094c0	x	the handler is replaced by the client loop: SmartBox::PlayerPhysicsUpdatedCallback work runs inline per quantum/frame (client.rs world_manager_update)
-005094d0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
-005094f0	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
-00509520	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
-00509550	x	ICPhysicsObj/CPhysicsObj::makeObject* are the factory wrappers: PhysicsBody::new + ac2-physics loader (load_body_shape, part_load::load_part_group_tree = PHYSICSOBJREP::InitVisualDescObject) + PhysicsBody::init_object_begin/set_mobile; the weenie link is the id
+005094d0	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
+005094f0	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
+00509520	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
+00509550	x	Traced: factory wrappers (new CPhysicsObj, InitObjectBegin, InitDataIDObject, InitObjectEnd; an EntityDesc DID is wrapped and followed). Rust: PhysicsBody::new + init_object_begin + part tree (load_part_group_tree) + init_object_end; the EntityDesc template resolution is resolve_ac2_entity_visual (see the EntityDesc makeObjectInternal row for what is not checked)
 00509580	x	ICPhysicsObj::GetObjectA / CPhysicsObj::GetObjectA is the ObjectLookup trait (physics_obj_missile.rs) over the remotes and the player
 005095a0	x	ICPhysicsObj::IncrementGlobalPhysicsTimeStamp - ICPhysicsObj::IncrementGlobalPhysicsTimeStamp, ac2-physics transition/mod.rs
 005095b0	-	C++ constructor/destructor; Rust constructor and Drop replace it

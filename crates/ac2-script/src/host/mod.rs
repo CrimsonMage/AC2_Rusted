@@ -248,6 +248,19 @@ impl ScriptHost {
         std::mem::take(&mut self.vm.no_draw)
     }
 
+    /// The weenies whose local visual description the scripts edited since the last call, each
+    /// with the description as edited (`CPhysicsObj::ApplyAdditiveVisualDesc` and friends); a
+    /// weenie edited twice is listed once.
+    pub fn take_appearance_edits(&mut self) -> Vec<(u64, ac2_weenie::Appearance)> {
+        let mut ids = std::mem::take(&mut self.vm.appearance_edits);
+        ids.dedup();
+        ids.sort_unstable();
+        ids.dedup();
+        ids.into_iter()
+            .filter_map(|id| Some((id, self.vm.appearances.get(&id)?.clone())))
+            .collect()
+    }
+
     /// The camera effect stops the scripts asked for since the last call (see
     /// `Vm::camera_fx_stops`).
     pub fn take_camera_fx_stops(&mut self) -> Vec<u64> {

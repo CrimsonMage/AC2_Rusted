@@ -118,6 +118,10 @@ impl ScriptPort for Client {
             .map(|o| (*o.appearance).clone())
     }
 
+    fn set_object_appearance(&mut self, id: u64, appearance: Appearance) {
+        self.session.set_object_appearance(id, appearance);
+    }
+
     fn request_script_state(&mut self, id: u64, package: u32, did: u32) {
         let defaults = self
             .session

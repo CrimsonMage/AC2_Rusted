@@ -66,6 +66,16 @@ pub trait WorldServices: Send + Sync {
     fn ambient_points(&self, _block: u32) -> Vec<ac2_world::Ac2AmbientSoundPoint> {
         Vec::new()
     }
+    /// `CPhysicsObj::ApplyVisualDesc`'s part rebuild: `tree` followed to the total description
+    /// of `visual` with `local` on top. `None` where nothing is followed.
+    fn rebuild_parts(
+        &self,
+        _tree: &ac2_physics::PartGroupTree,
+        _visual: u32,
+        _local: &ac2_assets::Ac2VisualDesc,
+    ) -> Result<Option<ac2_physics::PartGroupTree>, String> {
+        Ok(None)
+    }
 }
 
 /// The AC2 DATs, through `ac2-world` and `ac2-physics`' loaders.
@@ -159,6 +169,16 @@ impl ac2_smartbox::ResidentWorld for DatWorld {
 }
 
 impl WorldServices for DatWorld {
+    fn rebuild_parts(
+        &self,
+        tree: &ac2_physics::PartGroupTree,
+        visual: u32,
+        local: &ac2_assets::Ac2VisualDesc,
+    ) -> Result<Option<ac2_physics::PartGroupTree>, String> {
+        ac2_physics::rebuild_part_group_tree(&self.store, tree, DataId::new(visual), local)
+            .map_err(|e| e.to_string())
+    }
+
     fn ambient_data(&self) -> Option<Arc<ac2_audio::AmbientData>> {
         let did = ac2_world::ac2_region_sound_desc(&self.store).ok()??;
         ac2_audio::AmbientData::load(&self.store, did.raw()).ok()?

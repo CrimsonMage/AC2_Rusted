@@ -62,11 +62,23 @@ impl Client {
                                     self.request_camera_fx(camera_fx, scalar, *id);
                                 }
                             }
+                            let nodes = ac2_smartbox::fx_objects::gated_nodes(
+                                &nodes,
+                                streak_ctx.player == Some(*id),
+                                streak_ctx.night,
+                            );
                             let remotes = &mut self.remotes;
-                            self.fx_objects
-                                .start(*id, fx, &nodes, now, intensity, &mut || {
-                                    remotes.allocate_temporary_id()
-                                });
+                            let scripts = &self.fx_scripts;
+                            self.fx_objects.start(
+                                *id,
+                                fx,
+                                &nodes,
+                                now,
+                                intensity,
+                                &|script| scripts.get(script).map(|s| s.period),
+                                &mut || remotes.allocate_temporary_id(),
+                            );
+                            self.apply_slider_fx();
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
                             let at = self.emitter_place(*id);
                             self.fx_decals.start(
@@ -91,6 +103,26 @@ impl Client {
                     }
                     _ => {}
                 }
+            }
+        }
+    }
+
+    /// `FXManager::DoSliderFX` for the slider nodes the FX just started: the emitter's body
+    /// (`PHYSICSOBJREP::DoSlider(0, ...)`), the player's or a remote's, and with `m_prop_color`
+    /// each object it holds (`PHYSICSOBJREP::DoSliderOnChild`).
+    fn apply_slider_fx(&mut self) {
+        for slider in self.fx_objects.take_sliders() {
+            if let Some(body) = self.script_body_mut(slider.emitter) {
+                body.do_slider(0, slider.slider, slider.scalar, slider.ramp_time);
+            }
+            if slider.propagate {
+                let children = self.session.objects().children(slider.emitter);
+                self.remotes.do_slider_on_child(
+                    slider.slider,
+                    slider.scalar,
+                    slider.ramp_time,
+                    &children,
+                );
             }
         }
     }

@@ -103,6 +103,14 @@ pub fn outcome<P: ScriptPort + ?Sized>(
     for (object, state) in states {
         port.apply_body_state(object, state);
     }
+    // `gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc` and the other visual-description edits.
+    let edits = port
+        .script_state()
+        .map(|s| s.host.take_appearance_edits())
+        .unwrap_or_default();
+    for (object, appearance) in edits {
+        port.set_object_appearance(object, appearance);
+    }
     // `gCWPhysicsObject::CallEFun_StopAllCameraFX`.
     let stops = port
         .script_state()

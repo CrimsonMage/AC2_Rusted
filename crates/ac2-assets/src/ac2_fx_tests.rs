@@ -39,3 +39,47 @@ fn every_fx_table_decodes_and_its_camera_effects_are_camera_fx_records() {
         assert_eq!(id >> 24, 0x55, "{table:08X} fx {fx:08X}");
     }
 }
+
+/// Which FX nodes of portal.dat carry a slider effect or a repulsor (`m_slider`, `m_has_repulsor`).
+#[test]
+fn slider_and_repulsor_nodes_in_the_fx_tables() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = ResourceStore::new(Arc::clone(&dataset));
+    assert!(ac2_db::install_ac2_property_types(&store).expect("MasterProperty decodes"));
+    let (mut sliders, mut repulsors) = (Vec::new(), Vec::new());
+    let ids: Vec<u32> = dataset
+        .ids_in_range(ac2_dat::DatFileKind::Portal, 0x1E00_0000, 0x1EFF_FFFE)
+        .collect();
+    for did in ids {
+        let table = store
+            .load_cached_packed::<Ac2FxTable>(TypedResourceRef::new(
+                ac2_dat::DatFileKind::Portal,
+                DataId::new(did),
+                0,
+            ))
+            .unwrap()
+            .unwrap();
+        for (fx, nodes) in table.entries.iter() {
+            for node in nodes.iter() {
+                if node.object.slider.id != 0 {
+                    sliders.push((did, *fx, node.object.slider));
+                }
+                if let Some(r) = node.object.repulsor {
+                    repulsors.push((did, *fx, r));
+                }
+            }
+        }
+    }
+    eprintln!(
+        "sliders {}: {:08X?}",
+        sliders.len(),
+        &sliders[..sliders.len().min(8)]
+    );
+    eprintln!(
+        "repulsors {}: {:?}",
+        repulsors.len(),
+        &repulsors[..repulsors.len().min(4)]
+    );
+}

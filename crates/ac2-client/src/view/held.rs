@@ -153,6 +153,7 @@ mod tests {
             pose: Vec::new(),
             appearance: Arc::new(Appearance::default()),
             hidden: false,
+            anim_scale: [1.0; 4],
         }
     }
 

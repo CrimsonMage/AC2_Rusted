@@ -194,6 +194,9 @@ pub struct Client {
     pub(crate) story_queue: Vec<ac2_ui::StoryEvent>,
     /// Streaks a missile's body started or stopped, applied with the next FX events.
     pub(crate) pending_streaks: Vec<(u64, bool)>,
+    /// The description structure each object's part tree was last asked to follow
+    /// (`CPhysicsObj::ApplyVisualDesc`'s rebuild).
+    pub(crate) part_keys: std::collections::HashMap<u64, u64>,
     /// Each physics object's `StoryManager` (retail keeps one on the `CPhysicsObj`), by object.
     pub(crate) stories: crate::client_story_missiles::Stories,
     /// Session events the story slot made outside a frame (the skip key, the session's end);
@@ -291,6 +294,7 @@ impl Client {
             story_scenes: Vec::new(),
             story_queue: Vec::new(),
             pending_streaks: Vec::new(),
+            part_keys: std::collections::HashMap::new(),
             stories: Default::default(),
             story_outbox: Vec::new(),
             script_outbox: Vec::new(),
@@ -532,6 +536,7 @@ impl Client {
             Loaded::MotionDesc(object, desc) => self.motion_desc_loaded(object, desc),
             Loaded::CameraFx(source, scalar, fx) => self.camera_fx_loaded(source, scalar, fx),
             Loaded::EntityMask(object, mask) => self.entity_mask_loaded(object, mask),
+            Loaded::PartTree(object, key, tree) => self.part_tree_loaded(object, key, tree),
             Loaded::ScriptData(answered) => self.script_data_loaded(answered),
             Loaded::Ambient(loaded) => self.ambient_loaded(loaded),
             Loaded::Block(block, result) => {

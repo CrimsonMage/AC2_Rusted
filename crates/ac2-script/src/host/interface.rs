@@ -25,6 +25,9 @@ pub(super) fn register(efuns: &mut EFuns) {
     efuns.register(0x007D_001F, remove_object_to_be_destroyed);
     efuns.register(0x0080_0057, set_no_draw_physics);
     efuns.register(0x0080_0059, get_local_visual_desc);
+    efuns.register(0x0080_005B, combine_and_apply_visual_desc);
+    efuns.register(0x0080_005D, apply_additive_visual_desc);
+    efuns.register(0x0080_005E, apply_subtractive_visual_desc);
     efuns.register(0x0080_002A, look_at);
     efuns.register(0x0080_002C, stop_all_camera_fx);
     efuns.register(0x0080_0045, do_fx);
@@ -371,5 +374,100 @@ fn get_internal_weenie_object(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
         .find(|(_, &owner)| owner == id && id != 0)
         .map_or(u32::MAX, |(&r, _)| r);
     Call::new(ctx).ret(4, r, tag::REF);
+    InterpStatus::Success
+}
+
+/// The delta description argument 2 names (a copy), for the visual-description efuns.
+fn delta_argument(vm: &Vm, ctx: &mut Context) -> Option<ac2_weenie::Appearance> {
+    match vm.native(Call::new(ctx).word(2))? {
+        NativeObject::VisualDesc(delta) => Some((**delta).clone()),
+        _ => None,
+    }
+}
+
+/// `gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc(delta)` -> `CWPhysicsObject::
+/// ApplyAdditiveVisualDesc` -> `CPhysicsObj::ApplyAdditiveVisualDesc`: the delta merges onto the
+/// weenie's local description (`ObjectVisualDesc::apply_additive_visual_desc`), which the client
+/// takes back and draws; the parts are rebuilt by a later `ApplyVisualDescToPhysicsObj`.
+fn apply_additive_visual_desc(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let Some(delta) = delta_argument(vm, ctx) else {
+        Call::new(ctx).ret(3, 0, tag::INT);
+        return InterpStatus::Success;
+    };
+    let mut visual =
+        ac2_physics::ObjectVisualDesc::from_local(vm.appearances.remove(&id).unwrap_or_default());
+    let done = visual.apply_additive_visual_desc(&delta);
+    vm.appearances.insert(id, visual.into_local());
+    vm.appearance_edits.push(id);
+    Call::new(ctx).ret(3, u32::from(done), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_ApplySubtractiveVisualDesc(delta)` ->
+/// `CPhysicsObj::ApplySubtractiveVisualDesc`: the delta's keys leave the local description (its
+/// parent's description is read through the data source).
+fn apply_subtractive_visual_desc(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let Some(delta) = delta_argument(vm, ctx) else {
+        Call::new(ctx).ret(3, 0, tag::INT);
+        return InterpStatus::Success;
+    };
+    let local = vm.appearances.remove(&id).unwrap_or_default();
+    let parent = (local.parent != 0)
+        .then(|| vm.data().visual_desc(local.parent))
+        .flatten();
+    let mut visual = ac2_physics::ObjectVisualDesc::from_local(local);
+    let done = visual.apply_subtractive_visual_desc(&delta, parent.as_deref());
+    vm.appearances.insert(id, visual.into_local());
+    vm.appearance_edits.push(id);
+    Call::new(ctx).ret(3, u32::from(done), tag::INT);
+    InterpStatus::Success
+}
+
+/// `gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc(vdescID)` ->
+/// `CPhysicsObj::CombineAndApplyVisualDesc`: the DAT description `vdescID` replaces the local one
+/// (the effects and the old total's global appearance tables kept). 0 when the description is
+/// not held (`DBObj::Get` failed).
+fn combine_and_apply_visual_desc(vm: &mut Vm, ctx: &mut Context) -> InterpStatus {
+    let id = match this_weenie(vm, ctx) {
+        Ok(id) => id,
+        Err(status) => return status,
+    };
+    let did = Call::new(ctx).word(2);
+    let Some(vdesc) = vm.data().visual_desc(did) else {
+        Call::new(ctx).ret(3, 0, tag::INT);
+        return InterpStatus::Success;
+    };
+    let local = vm.appearances.remove(&id).unwrap_or_default();
+    // `GetTotalVisualDesc` of the old local description: its DAT chain, then itself.
+    let mut chain = Vec::new();
+    let mut at = local.parent;
+    while at != 0 && chain.len() < 16 {
+        let Some(link) = vm.data().visual_desc(at) else {
+            break;
+        };
+        at = link.parent;
+        chain.push(link);
+    }
+    let mut total = ac2_weenie::Appearance::default();
+    for link in chain.iter().rev() {
+        total.apply_additive_appearance(link);
+    }
+    total.apply_additive_appearance(&local);
+    let parent = (vdesc.parent != 0)
+        .then(|| vm.data().visual_desc(vdesc.parent))
+        .flatten();
+    let mut visual = ac2_physics::ObjectVisualDesc::from_local(local);
+    let done = visual.combine_and_apply_visual_desc(&vdesc, &total, parent.as_deref());
+    vm.appearances.insert(id, visual.into_local());
+    vm.appearance_edits.push(id);
+    Call::new(ctx).ret(3, u32::from(done), tag::INT);
     InterpStatus::Success
 }

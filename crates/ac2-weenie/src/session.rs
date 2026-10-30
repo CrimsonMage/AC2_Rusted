@@ -314,6 +314,13 @@ impl OnlineSession {
         &self.world.objects
     }
 
+    /// A script's edit of object `id`'s local visual description
+    /// (`CPhysicsObj::ApplyAdditiveVisualDesc` and friends): the object keeps `appearance` and
+    /// the visual DID it names. False without the object.
+    pub fn set_object_appearance(&mut self, id: u64, appearance: ac2_physics::Appearance) -> bool {
+        self.world.objects.set_local_appearance(id, appearance)
+    }
+
     /// The player's object id once entering the world.
     pub fn player(&self) -> Option<u64> {
         self.world.player()

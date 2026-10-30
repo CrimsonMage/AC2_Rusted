@@ -448,6 +448,7 @@ impl Client {
     /// device (`client_fx_objects`); the sound and particle parts run only with one.
     pub(crate) fn animation_sounds(&mut self, step: f32, now: f64) {
         self.start_startup_fx(now);
+        self.refresh_part_trees();
         // The player's events come first: its latent script physics finish on them.
         let player_taken = self.player.as_mut().filter(|p| p.in_world).and_then(|p| {
             let (id, visual) = (p.id, p.visual);
@@ -622,6 +623,24 @@ impl Client {
             if Some(id) == player_id {
                 let body = player?.body.as_ref()?;
                 return Some(body_emitter(&space, &listener, &body.physics, true));
+            }
+            // `CPhysicsObj::GetSoundPosition`: a held object sounds from its drawing position,
+            // which rides its holder (taken as the holder's place, the holding offset is under
+            // a metre); an unheld one from its physics position.
+            let holder = self
+                .session
+                .objects()
+                .get(id)
+                .and_then(|o| o.parent)
+                .map(|(h, _)| h);
+            if let Some(holder) = holder {
+                if Some(holder) == player_id {
+                    let body = player?.body.as_ref()?;
+                    return Some(body_emitter(&space, &listener, &body.physics, true));
+                }
+                if let Some(body) = remotes.get(holder).and_then(|r| r.body()) {
+                    return Some(body_emitter(&space, &listener, body, true));
+                }
             }
             let remote = remotes.get(id)?;
             match remote.body() {

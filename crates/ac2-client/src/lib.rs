@@ -27,6 +27,7 @@ mod client_camera;
 mod client_fx_objects;
 mod client_latent;
 mod client_locations;
+mod client_part_trees;
 mod client_positions;
 mod client_prefs;
 mod clipboard;

@@ -173,6 +173,7 @@ pub fn resolve_ac2_visual_fx_particles(
                 Arc::from([])
             };
             let looping = looping_flags(store, &particle_descs)?;
+            let first_looping = looping.first().copied().unwrap_or(false);
             attachments.push(Ac2ParticleAttachment {
                 placement: placement(setup.as_deref(), &rest, &named, &node),
                 anchor: anchor(setup.as_deref(), &node),
@@ -184,6 +185,7 @@ pub fn resolve_ac2_visual_fx_particles(
                 looping,
                 object: Ac2FxObject {
                     attach: object_attach(setup.as_deref(), &rest_bone, &named, &node),
+                    particle_looping: first_looping,
                     ..node.object
                 },
             });

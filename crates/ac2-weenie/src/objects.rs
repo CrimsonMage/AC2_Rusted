@@ -322,7 +322,7 @@ impl ObjectTable {
     }
 
     /// The objects held by `id` (`CPhysicsObj::m_children`).
-    pub(crate) fn children(&self, id: u64) -> Vec<u64> {
+    pub fn children(&self, id: u64) -> Vec<u64> {
         self.links.children_of(id).map(|c| c.id).collect()
     }
 
@@ -346,6 +346,16 @@ impl ObjectTable {
 
     pub fn get(&self, id: u64) -> Option<&RemoteObject> {
         self.objects.get(&id)
+    }
+
+    /// The object's local visual description replaced by a script's edit (the Setup stays).
+    pub(crate) fn set_local_appearance(&mut self, id: u64, appearance: Appearance) -> bool {
+        let Some(object) = self.objects.get_mut(&id) else {
+            return false;
+        };
+        object.visual = (appearance.parent != 0).then_some(appearance.parent);
+        object.appearance = Arc::new(appearance);
+        true
     }
 
     /// `CPhysicsObj::inc_update_time(stamp)`: the object's `ushort` stamp moves on by one.

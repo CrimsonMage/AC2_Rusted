@@ -584,3 +584,73 @@ fn the_applied_key_fields_read_and_write() {
         (-1.0f32).to_bits()
     );
 }
+
+const OBJECT: u64 = 0x5000_0042;
+
+/// A weenie `this` owned by [`OBJECT`] whose local description is `local`.
+fn weenie(vm: &mut Vm, local: Appearance) -> u32 {
+    let this = vm
+        .refs
+        .create_native(ntype::VISUAL_DESC, NativeObject::VisualDesc(Box::default()));
+    vm.owners.insert(this, OBJECT);
+    vm.appearances.insert(OBJECT, local);
+    this
+}
+
+#[test]
+fn the_physics_object_efuns_edit_the_weenies_local_description() {
+    let mut host = vm_with(parent_records());
+    let vm = host.vm_mut();
+    let this = weenie(
+        vm,
+        Appearance {
+            parent: PARENT,
+            ..Appearance::default()
+        },
+    );
+    // `ApplyAdditiveVisualDesc`: gear's global key joins the local description.
+    let mut gear = Appearance::default();
+    gear.global.appearance = vec![(TABLE, vec![(9, 1.0)])];
+    let gear_ref = visual(vm, gear.clone());
+    let name = "gCWPhysicsObject::CallEFun_ApplyAdditiveVisualDesc";
+    assert_eq!(call(vm, name, &[gear_ref], this, 3), 1);
+    assert_eq!(
+        vm.appearances[&OBJECT].applied_scalar(GLOBAL_PART_GROUP, TABLE, 9),
+        Some(1.0)
+    );
+    // `ApplySubtractiveVisualDesc`: the same key leaves again.
+    let name = "gCWPhysicsObject::CallEFun_ApplySubtractiveVisualDesc";
+    assert_eq!(call(vm, name, &[gear_ref], this, 3), 1);
+    assert_eq!(
+        vm.appearances[&OBJECT].applied_scalar(GLOBAL_PART_GROUP, TABLE, 9),
+        None
+    );
+    // The edits are reported once for the client to take back.
+    let edits = host.take_appearance_edits();
+    assert_eq!(edits.len(), 1);
+    assert_eq!(edits[0].0, OBJECT);
+}
+
+#[test]
+fn combine_and_apply_replaces_the_description_and_keeps_the_global_keys() {
+    let mut host = vm_with(parent_records());
+    let vm = host.vm_mut();
+    let mut local = Appearance {
+        parent: PARENT,
+        ..Appearance::default()
+    };
+    local.global.appearance = vec![(TABLE, vec![(5, 0.75)])];
+    let this = weenie(vm, local);
+    let name = "gCWPhysicsObject::CallEFun_CombineAndApplyVisualDesc";
+    // A description the data source lacks fails and changes nothing.
+    assert_eq!(call(vm, name, &[0x1F00_9999], this, 3), 0);
+    assert_eq!(vm.appearances[&OBJECT].parent, PARENT);
+    // The parent's own record, applied as the new description, keeps the old global key.
+    assert_eq!(call(vm, name, &[PARENT], this, 3), 1);
+    let after = &vm.appearances[&OBJECT];
+    assert_eq!(after.root, Some(ROOT));
+    assert_eq!(
+        after.applied_scalar(GLOBAL_PART_GROUP, TABLE, 5),
+        Some(0.75)
+    );
+}

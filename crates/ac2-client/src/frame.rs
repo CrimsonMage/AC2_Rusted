@@ -26,6 +26,9 @@ pub struct PlayerFrame {
     /// The first-person camera hides the avatar and what it holds
     /// (`AvatarVisibleInFirstPerson`, `Client::avatar_hidden`).
     pub hidden: bool,
+    /// The colour scale the body's sliders give it (`PHYSICSOBJREP::Draw`: r, g, b and alpha),
+    /// as for other objects.
+    pub anim_scale: [f32; 4],
 }
 
 /// An object other than the player: where its physics object is (in the client's world), or

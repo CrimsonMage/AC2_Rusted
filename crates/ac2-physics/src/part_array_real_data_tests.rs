@@ -169,3 +169,67 @@ fn a_ray_through_the_humans_chest_hits_a_part_and_one_over_its_head_does_not() {
     };
     assert!(tree.trace_ray(0, &over).is_none());
 }
+
+/// `CPhysicsObj::ApplyVisualDesc`'s rebuild: a local description that names the human's parent
+/// and nothing else leaves the tree as it was; one that gives a part group another Setup reloads
+/// that group, and the group keeps its place in the tree.
+#[test]
+fn a_changed_visual_description_rebuilds_the_part_tree() {
+    use crate::appearance::{Appearance, PartGroupAppearance};
+    use crate::part_load::rebuild_part_group_tree;
+
+    let Some(store) = store() else {
+        return;
+    };
+    let visual = DataId::new(HUMAN_MALE_VISUAL);
+    let tree = load_part_group_tree(&store, visual).unwrap().expect("tree");
+    let groups = resolve_drawn_groups(&store, visual, None).unwrap().unwrap();
+    let delta = |changes: &[PartGroupAppearance]| {
+        let mut local = Appearance {
+            parent: HUMAN_MALE_VISUAL,
+            ..Appearance::default()
+        };
+        local.part_groups = changes.to_vec();
+        local.reset_tree();
+        crate::local_visual_desc(&local)
+    };
+    let same = rebuild_part_group_tree(&store, &tree, visual, &delta(&[]))
+        .unwrap()
+        .expect("followed");
+    assert_eq!(same.indices().len(), tree.indices().len());
+    // A new group (a wielded item's Setup) hangs from the root at a free connection point: the
+    // rebuilt tree has it, and the original is untouched.
+    let root_key = groups[0].key;
+    let mut found = None;
+    for point in 0x8100_0001..0x8100_0040 {
+        let mut local = Appearance {
+            parent: HUMAN_MALE_VISUAL,
+            ..Appearance::default()
+        };
+        local.part_groups = vec![PartGroupAppearance {
+            key: 0x7777,
+            parent_key: root_key,
+            connection_point: point,
+            setup: groups[0].setup.raw(),
+            ..PartGroupAppearance::default()
+        }];
+        local.reset_tree();
+        let result =
+            rebuild_part_group_tree(&store, &tree, visual, &crate::local_visual_desc(&local));
+        let Ok(Some(rebuilt)) = result else {
+            continue;
+        };
+        if rebuilt.get_part_group(0, 0x7777).is_some() {
+            found = Some(rebuilt);
+            break;
+        }
+    }
+    let rebuilt = found.expect("the new group joins at some connection point");
+    assert_eq!(rebuilt.indices().len(), tree.indices().len() + 1);
+    assert!(tree.get_part_group(0, 0x7777).is_none());
+    let index = rebuilt.get_part_group(0, 0x7777).unwrap();
+    assert_eq!(
+        rebuilt.group(index).unwrap().array.setup().map(|s| s.did),
+        Some(groups[0].setup)
+    );
+}

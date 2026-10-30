@@ -28,6 +28,19 @@ impl ObjectVisualDesc {
         Self::default()
     }
 
+    /// An object whose local description is `local` and which has no effects.
+    pub fn from_local(local: Appearance) -> Self {
+        Self {
+            local,
+            effects: Appearance::default(),
+        }
+    }
+
+    /// The local description, consuming the wrapper.
+    pub fn into_local(self) -> Appearance {
+        self.local
+    }
+
     /// `CPhysicsObj::GetLocalVisualDesc`.
     pub fn local(&self) -> &Appearance {
         &self.local

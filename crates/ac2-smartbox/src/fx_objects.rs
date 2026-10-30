@@ -32,6 +32,25 @@ pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
         .unwrap_or_default()
 }
 
+/// The nodes `FXManager::DoTargettedFX` goes on to act on: the ones that play for this emitter
+/// (`m_player_only` only on the player) at this time of day (`m_day_time`, `m_night_time`).
+/// `ChannelMissmatch` is not applied: no channel preferences load.
+pub fn gated_nodes(nodes: &[Ac2FxObject], is_player: bool, night: bool) -> Vec<Ac2FxObject> {
+    nodes
+        .iter()
+        .filter(|node| {
+            let gate = &node.gate;
+            (!gate.player_only || is_player)
+                && if night {
+                    gate.night_time
+                } else {
+                    gate.day_time
+                }
+        })
+        .copied()
+        .collect()
+}
+
 /// `FXManager::DoTargettedFX`'s camera part for an FX that starts on an emitter: each node that
 /// plays (no channel mismatch, as no channel preferences load; `m_player_only` on the player;
 /// its day or night flag for the time of day) and names a `CameraFX` plays it from the emitter
@@ -161,6 +180,17 @@ pub struct PendingObject {
     pub ramp_time: f32,
 }
 
+/// A slider effect a node asked of its emitter (`FXManager::DoSliderFX`): the emitter's
+/// `DoSlider(0, slider, scalar, ramp_time)`, and with `propagate` the same on each direct child.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct SliderMove {
+    pub emitter: u64,
+    pub slider: u32,
+    pub scalar: f32,
+    pub ramp_time: f32,
+    pub propagate: bool,
+}
+
 /// The two alpha moves `FXManager::DoCreateObjectFX` makes on a created object, as
 /// `(pos, time)` for `CPhysicsObj::DoSlider(0, ALPHA_SLIDER, pos, time)`: the object starts
 /// clear at once, then fades to opaque over `ramp_time`, or over 0.25 s when that is zero.
@@ -191,6 +221,7 @@ pub struct FxObjects {
     /// Each emitter's effects description (`CPhysicsObj::m_effects_vdesc`): the appearance keys
     /// its FX applied.
     appearances: HashMap<u64, ac2_physics::Appearance>,
+    sliders: Vec<SliderMove>,
     now: f64,
 }
 
@@ -214,6 +245,7 @@ impl FxObjects {
         nodes: &[Ac2FxObject],
         now: f64,
         scalar: f32,
+        script_period: &dyn Fn(u32) -> Option<f32>,
         ids: &mut dyn FnMut() -> Option<u64>,
     ) {
         let ramps: Vec<RampNode> = nodes.iter().map(RampNode::new).collect();
@@ -252,6 +284,16 @@ impl FxObjects {
         };
         let mut end = None;
         for node in nodes {
+            // `FXManager::DoSliderFX(m_prop_color, m_slider, m_intensity, m_ramp_time)`.
+            if node.slider.id != 0 {
+                self.sliders.push(SliderMove {
+                    emitter,
+                    slider: node.slider.id,
+                    scalar: node.slider.intensity,
+                    ramp_time: node.ramp_time,
+                    propagate: node.slider.propagate,
+                });
+            }
             if let Some(colour) = node.color {
                 self.set_colour(emitter, colour, node.ramp_time, now);
                 if node.color_lifetime != 0.0 {
@@ -264,9 +306,34 @@ impl FxObjects {
                 self.new_object(id, emitter, node);
                 record.objects.push(id);
                 target = Some(id);
-                // `DoTargettedFX`: a non-negative lifetime ends the FX; a negative one never does.
-                end = (node.lifetime > 0.0).then(|| now + f64::from(node.lifetime));
             }
+            // `DoTargettedFX`'s duration, the last node's: `CalcDuration` (a looping system never
+            // ends, else the FX ends at once; sound looping is not known here), the object's
+            // lifetime, a target FX or an appearance that is not removed (never), a removing
+            // appearance key (0.1 s), the FX script's period, and a restoring colour's lifetime.
+            let mut seconds = if node.particle_looping { -1.0 } else { 0.0 };
+            if (node.vdesc != 0 || node.retarget) && node.lifetime != 0.0 {
+                seconds = node.lifetime;
+            }
+            if node.target_fx_id != 0 {
+                seconds = -1.0;
+            }
+            if node.appearance != 0 {
+                seconds = if node.appearance_key.1 < 0.0 {
+                    0.1
+                } else {
+                    -1.0
+                };
+            }
+            if node.fx_script != 0 {
+                if let Some(period) = script_period(node.fx_script) {
+                    seconds = period;
+                }
+            }
+            if record.restore_colour && node.color_lifetime > 0.0 {
+                seconds = node.color_lifetime;
+            }
+            end = (seconds >= 0.0).then(|| now + f64::from(seconds));
             if let Some(target) = target {
                 if node.hide_target {
                     self.hidden.insert(target);
@@ -275,15 +342,6 @@ impl FxObjects {
                 if node.destroy_target {
                     self.fade_and_destroy(target, now);
                 }
-            }
-        }
-        if record.restore_colour {
-            // `m_color_lifetime` overrides the object's lifetime for a colour that restores.
-            if let Some(lifetime) = nodes
-                .iter()
-                .find(|node| node.color.is_some() && node.color_lifetime > 0.0)
-            {
-                end = Some(now + f64::from(lifetime.color_lifetime));
             }
         }
         record.end = end;
@@ -525,6 +583,11 @@ impl FxObjects {
             .map(|ramp| ramp.at(now))
     }
 
+    /// Takes the slider effects FX asked for since the last call (`DoSliderFX`), in order.
+    pub fn take_sliders(&mut self) -> Vec<SliderMove> {
+        std::mem::take(&mut self.sliders)
+    }
+
     /// Takes the objects FX asked for since the last call.
     pub fn take_pending(&mut self) -> Vec<PendingObject> {
         std::mem::take(&mut self.pending)
@@ -649,7 +712,7 @@ mod tests {
     #[test]
     fn a_stopped_fx_fades_and_destroys_the_objects_it_created() {
         let mut fx = FxObjects::default();
-        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, 1.0, &mut ids());
+        fx.start(7, 9, &[vdesc_node(0.0)], 10.0, 1.0, &|_| None, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending.len(), 1);
         assert_eq!(pending[0].emitter, 7);
@@ -678,7 +741,7 @@ mod tests {
             ramp_time: 2.0,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
         let pending = fx.take_pending();
         assert_eq!(pending[0].ramp_time, 2.0);
     }
@@ -701,7 +764,7 @@ mod tests {
             hide_target: true,
             ..vdesc_node(0.0)
         };
-        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
         let id = fx.take_pending()[0].id;
         assert!(fx.looks().hidden.contains(&id));
         fx.stop(7, 9, &[], 1.0);
@@ -718,7 +781,7 @@ mod tests {
             restore: true,
             ..Ac2FxObject::default()
         };
-        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
         assert_eq!(fx.colour(7, 0.5), Some([1.0, 0.5, 0.5, 1.0]));
         fx.stop(7, 9, &[node], 2.0);
         assert_eq!(fx.colour(7, 2.05), Some([1.0, 0.5, 0.5, 1.0]));
@@ -745,8 +808,8 @@ mod tests {
     fn current_fx_skips_startup_fx_and_destroy_object_wants_a_temporary_id() {
         let mut fx = FxObjects::default();
         let node = vdesc_node(10.0);
-        fx.start(1, 5, &[node], 0.0, 1.0, &mut ids());
-        fx.start(1, 3, &[node], 0.0, 1.0, &mut ids());
+        fx.start(1, 5, &[node], 0.0, 1.0, &|_| None, &mut ids());
+        fx.start(1, 3, &[node], 0.0, 1.0, &|_| None, &mut ids());
         fx.start_startup(1, 4, &[node], &mut ids());
         assert_eq!(fx.current_fx(1), vec![3, 5]);
         assert!(fx.current_fx(2).is_empty());
@@ -755,6 +818,93 @@ mod tests {
         let object = fx.record(1, 5).expect("the FX runs").objects[0];
         assert!(fx.destroy_object(object, true, 1.0));
         assert!(fx.fades.contains_key(&object));
+    }
+
+    /// `FXManager::DoTargettedFX`'s duration: the last node decides. An object node lasts its
+    /// lifetime (15 s by default), a looping system or a target FX never ends, a removing
+    /// appearance key lasts 0.1 s, an FX script its period, and anything else ends at once.
+    #[test]
+    fn nodes_play_by_their_gates() {
+        let gated = |player_only, day_time, night_time| Ac2FxObject {
+            gate: ac2_assets::Ac2FxNodeGate {
+                player_only,
+                day_time,
+                night_time,
+                has_channels: false,
+            },
+            ..Ac2FxObject::default()
+        };
+        let nodes = [gated(true, true, true), gated(false, true, false)];
+        assert_eq!(gated_nodes(&nodes, false, false).len(), 1);
+        assert_eq!(gated_nodes(&nodes, true, false).len(), 2);
+        assert_eq!(gated_nodes(&nodes, true, true).len(), 1);
+    }
+
+    #[test]
+    fn an_fx_ends_by_its_last_nodes_duration() {
+        let end_of = |node: Ac2FxObject, script: Option<f32>| {
+            let mut fx = FxObjects::default();
+            fx.start(1, 2, &[node], 10.0, 1.0, &|_| script, &mut ids());
+            fx.record(1, 2).map(|record| record.end)
+        };
+        // An object for its lifetime; a zero lifetime falls to `CalcDuration`'s end at once.
+        assert_eq!(end_of(vdesc_node(3.0), None), Some(Some(13.0)));
+        assert_eq!(end_of(vdesc_node(0.0), None), Some(Some(10.0)));
+        assert_eq!(end_of(vdesc_node(-1.0), None), Some(None));
+        // A looping system, a target FX or a kept appearance never end; a removing key does.
+        let looping = Ac2FxObject {
+            particle_looping: true,
+            color: Some([1.0; 4]),
+            ..Ac2FxObject::default()
+        };
+        assert_eq!(end_of(looping, None), Some(None));
+        let appearance = |scalar| Ac2FxObject {
+            appearance: 0x2500_0010,
+            appearance_key: (3, scalar),
+            ..Ac2FxObject::default()
+        };
+        assert_eq!(end_of(appearance(0.5), None), Some(None));
+        assert_eq!(
+            end_of(appearance(-1.0), None),
+            Some(Some(10.0 + f64::from(0.1f32)))
+        );
+        // An FX script's period.
+        let script = Ac2FxObject {
+            fx_script: 0x5700_0001,
+            color: Some([1.0; 4]),
+            ..Ac2FxObject::default()
+        };
+        assert_eq!(end_of(script, Some(2.5)), Some(Some(12.5)));
+    }
+
+    /// `FXManager::DoSliderFX`: a slider node asks its emitter's slider (and with `m_prop_color`
+    /// its children's) to move to the intensity over the ramp time, once per new FX.
+    #[test]
+    fn a_slider_node_asks_for_its_slider_move() {
+        let mut fx = FxObjects::default();
+        let node = Ac2FxObject {
+            slider: ac2_assets::Ac2FxSlider {
+                id: 0x4000_001A,
+                intensity: 0.0,
+                propagate: true,
+            },
+            ramp_time: 0.5,
+            ..Ac2FxObject::default()
+        };
+        fx.start(7, 0x8100_028E, &[node], 0.0, 1.0, &|_| None, &mut ids());
+        // A running FX only takes the scalar: no second move.
+        fx.start(7, 0x8100_028E, &[node], 1.0, 1.0, &|_| None, &mut ids());
+        assert_eq!(
+            fx.take_sliders(),
+            vec![SliderMove {
+                emitter: 7,
+                slider: 0x4000_001A,
+                scalar: 0.0,
+                ramp_time: 0.5,
+                propagate: true,
+            }]
+        );
+        assert!(fx.take_sliders().is_empty());
     }
 
     /// `FXManager::DoAppearanceFX`: an appearance node applies its key to the emitter's effects
@@ -773,12 +923,12 @@ mod tests {
                 e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
             })
         };
-        fx.start(7, 9, &[node], 0.0, 2.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 2.0, &|_| None, &mut ids());
         assert_eq!(applied(&fx), Some(1.0), "0.5 times the FX's 2.0");
         // The running FX taking a zero scalar removes it (`DoTargettedFX`'s update branch).
-        fx.start(7, 9, &[node], 0.0, 0.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 0.0, &|_| None, &mut ids());
         assert_eq!(applied(&fx), None);
-        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
         assert_eq!(applied(&fx), Some(0.5));
         fx.stop(7, 9, &[node], 1.0);
         assert_eq!(applied(&fx), None, "StopFX removes it");
@@ -802,7 +952,7 @@ mod tests {
                 e.applied_scalar(ac2_physics::GLOBAL_PART_GROUP, 0x2500_0010, 0x1000_0003)
             })
         };
-        fx.start(7, 9, &[node], 0.0, 1.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 1.0, &|_| None, &mut ids());
         assert_eq!(applied(&fx), None, "a ramping node starts at 0");
         fx.use_time(0.5);
         assert_eq!(applied(&fx), Some(0.25));
@@ -811,7 +961,7 @@ mod tests {
         fx.use_time(1.0);
         assert_eq!(applied(&fx), Some(1.0), "held at the desired scalar");
         // A lower scalar on the running FX ramps down; the ramp keeps the current one.
-        fx.start(7, 9, &[node], 0.0, 0.0, &mut ids());
+        fx.start(7, 9, &[node], 0.0, 0.0, &|_| None, &mut ids());
         assert_eq!(applied(&fx), Some(1.0));
         fx.use_time(1.0);
         assert_eq!(applied(&fx), Some(0.5));

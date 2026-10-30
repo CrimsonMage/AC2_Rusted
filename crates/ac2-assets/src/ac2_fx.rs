@@ -79,7 +79,8 @@ pub struct Ac2FxObject {
     pub vdesc: u32,
     /// `m_behavior`: the behaviour the created object starts (its failure keeps the object).
     pub behavior: u32,
-    /// `m_lifetime`: seconds the created object's FX lasts (zero: until stopped).
+    /// `m_lifetime` (`FXNode::SetDefaults`: 15 seconds): how long an object-making node's FX
+    /// lasts; negative: until stopped.
     pub lifetime: f32,
     /// `m_hide_target`: the FX's target object is hidden until the FX stops.
     pub hide_target: bool,
@@ -121,6 +122,41 @@ pub struct Ac2FxObject {
     pub appearance_key: (u32, f32),
     /// `m_cameraFX_id`: the `CameraFX` the node plays on the camera (`FXManager::DoCameraFX`).
     pub camera_fx: u32,
+    /// `m_slider`, `m_intensity` and `m_prop_color`: the slider `FXManager::DoSliderFX` moves
+    /// on the emitter (zero for none) to the intensity over `ramp_time`, and whether it goes on
+    /// to the emitter's children.
+    pub slider: Ac2FxSlider,
+    /// `m_has_repulsor`'s `RepulsorFX`: the repulsor `FXManager::DoRepulseFX` makes.
+    pub repulsor: Option<Ac2RepulsorFx>,
+    /// `m_retarget`: the node retargets (with an object, its `lifetime` still sets the duration).
+    pub retarget: bool,
+    /// `m_fx_script_id`: the `FxScript` the node plays, whose period is the FX's duration.
+    pub fx_script: u32,
+    /// `FXManager::ParticleIsLooping` of the node's first system (`FXManager::CalcDuration`).
+    pub particle_looping: bool,
+}
+
+/// An FX node's slider effect (`FXManager::DoSliderFX`).
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Ac2FxSlider {
+    /// `m_slider`: the slider id, zero for none.
+    pub id: u32,
+    /// `m_intensity` (default 1.0 when the stream lacks it): the slider's target at full scalar.
+    pub intensity: f32,
+    /// `m_prop_color`: the slider also moves on the emitter's direct children.
+    pub propagate: bool,
+}
+
+/// `RepulsorFX` (`RepulsorFX::StreamPack`): a particle repulsor or attractor.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Ac2RepulsorFx {
+    /// `m_fAcceleration`, `m_fRange`, `m_fLifetime` and `m_fMinimumVelocity`.
+    pub acceleration: f32,
+    pub range: f32,
+    pub lifetime: f32,
+    pub minimum_velocity: f32,
+    /// `m_bAttractor`: pulls particles in instead of pushing them away.
+    pub attractor: bool,
 }
 
 /// `DoTargettedFX`'s gate on each node, read before any of the node's parts run: the channel
@@ -162,6 +198,8 @@ impl Ac2FxObject {
             || self.decal.is_some()
             || self.appearance != 0
             || self.camera_fx != 0
+            || self.slider.id != 0
+            || self.repulsor.is_some()
     }
 }
 
@@ -431,12 +469,6 @@ fn read_fx_node(
             Ok(0)
         }
     };
-    let skip_words = |cursor: &mut ArchiveCursor<'_>, mask: &[u64]| -> Result<(), Malformed> {
-        for bit in mask {
-            field(cursor, *bit)?;
-        }
-        Ok(())
-    };
     let mut sounds = Vec::new();
     if has(0x1) {
         for _ in 0..count(cursor, 4)? {
@@ -467,7 +499,7 @@ fn read_fx_node(
     };
     // Ramp time and intensity.
     let ramp_time = if has(0x20) { float(cursor)? } else { 0.0 };
-    skip_words(cursor, &[0x40])?;
+    let intensity = if has(0x40) { float(cursor)? } else { 1.0 };
     let holding_location = field(cursor, 0x80)?;
     let bone_name = field(cursor, 0x100)?;
     let bone_offset = if has(0x200) {
@@ -484,7 +516,7 @@ fn read_fx_node(
     };
     let start_streak = field(cursor, 0x800)? != 0;
     let stop_streak = field(cursor, 0x1000)? != 0;
-    skip_words(cursor, &[0x2000])?;
+    let slider_id = field(cursor, 0x2000)?;
     let restore = field(cursor, 0x4000)? != 0;
     // `m_has_color`, then `m_color` (r, g, b, a).
     let color = if has(0x8000) {
@@ -501,9 +533,9 @@ fn read_fx_node(
     };
     // Stream order: prop colour, vdesc, lifetime, colour lifetime, behaviour, parent, unparent,
     // retarget, destroy target, hide target, target FX.
-    field(cursor, 0x1_0000)?;
+    let prop_color = field(cursor, 0x1_0000)? != 0;
     let vdesc = field(cursor, 0x2_0000)?;
-    let lifetime = if has(0x4_0000) { float(cursor)? } else { 0.0 };
+    let lifetime = if has(0x4_0000) { float(cursor)? } else { 15.0 };
     let color_lifetime = if has(0x20_0000_0000) {
         float(cursor)?
     } else {
@@ -512,7 +544,7 @@ fn read_fx_node(
     let behavior = field(cursor, 0x8_0000)?;
     field(cursor, 0x10_0000)?;
     field(cursor, 0x20_0000)?;
-    field(cursor, 0x40_0000)?;
+    let retarget = field(cursor, 0x40_0000)? != 0;
     let destroy_target = field(cursor, 0x80_0000)? != 0;
     let hide_target = field(cursor, 0x8_0000_0000)? != 0;
     let target_fx_id = field(cursor, 0x100_0000)?;
@@ -537,6 +569,15 @@ fn read_fx_node(
         appearance,
         appearance_key,
         camera_fx,
+        slider: Ac2FxSlider {
+            id: slider_id,
+            intensity,
+            propagate: prop_color,
+        },
+        repulsor: None,
+        retarget,
+        fx_script: 0,
+        particle_looping: false,
     };
     let flag = |cursor: &mut ArchiveCursor<'_>, bit: u64, default: bool| {
         Ok::<_, Malformed>(if has(bit) {
@@ -562,9 +603,22 @@ fn read_fx_node(
         word(cursor)?;
         decal = Some(read_decal_fx(cursor)?);
     }
+    let mut repulsor = None;
     if has(0x2_0000_0000) {
         // `m_has_repulsor`, then `RepulsorFX`: acceleration, range, lifetime, attractor, speed.
-        skip(cursor, 4 + 5 * 4)?;
+        let has_repulsor = word(cursor)? != 0;
+        let acceleration = float(cursor)?;
+        let range = float(cursor)?;
+        let lifetime = float(cursor)?;
+        let attractor = word(cursor)? != 0;
+        let minimum_velocity = float(cursor)?;
+        repulsor = has_repulsor.then_some(Ac2RepulsorFx {
+            acceleration,
+            range,
+            lifetime,
+            minimum_velocity,
+            attractor,
+        });
     }
     let mut light = None;
     if has(0x1_0000_0000) {
@@ -584,7 +638,7 @@ fn read_fx_node(
         });
     }
     let player_only = flag(cursor, 0x4_0000_0000, false)?;
-    skip_words(cursor, &[0x10_0000_0000])?;
+    let fx_script = field(cursor, 0x10_0000_0000)?;
     let remove_rotation = field(cursor, 0x40_0000_0000)? != 0;
     let object = Ac2FxObject {
         gate: Ac2FxNodeGate {
@@ -594,6 +648,8 @@ fn read_fx_node(
             night_time,
         },
         decal,
+        repulsor,
+        fx_script,
         ..object
     };
     let particle = (!particle_descs.is_empty()

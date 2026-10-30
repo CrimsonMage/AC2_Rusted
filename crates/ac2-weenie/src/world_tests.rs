@@ -401,3 +401,24 @@ fn leave_world_on_a_newer_stamp_queues_the_object_for_destruction() {
     // `RecvEvt_MoveTo` is the player's only: an object keeps its move-to stamp.
     assert_eq!(world.objects.get(npc).unwrap().update_times[3], 0);
 }
+
+/// A script's edit of an object's local description (`CPhysicsObj::ApplyAdditiveVisualDesc`)
+/// replaces what the object keeps and names its visual.
+#[test]
+fn a_script_edit_replaces_the_objects_local_description() {
+    let mut world = World::new(Build::Legions7160);
+    world.start_entering_world();
+    let object = 0x7000_0000_0000_0009;
+    world.receive(blob(0x0300_0001, 1, create_object(object, 1, 0)), 0.0);
+    world.receive(blob(0x0300_0002, 2, create_player()), 0.0);
+    let mut edited = ac2_physics::Appearance {
+        parent: 0x1F00_0023,
+        ..Default::default()
+    };
+    edited.global.appearance = vec![(0x2000_0010, vec![(9, 1.0)])];
+    assert!(world.objects.set_local_appearance(object, edited.clone()));
+    let kept = world.objects.get(object).unwrap();
+    assert_eq!(*kept.appearance, edited);
+    assert_eq!(kept.visual, Some(0x1F00_0023));
+    assert!(!world.objects.set_local_appearance(1, edited));
+}
