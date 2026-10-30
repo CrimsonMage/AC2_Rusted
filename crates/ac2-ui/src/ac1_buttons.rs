@@ -63,6 +63,9 @@ pub const PANEL_SYMBOLS: [(&str, u32, SymbolKind, Option<Area>); 7] = [
     ("social", 0x0600_111F, SymbolKind::Ring, None),
 ];
 
+/// The samples per pixel along each axis when the symbol and the orb's edge are drawn.
+const SUPER: u32 = 4;
+
 /// The face's radius the symbol is scaled to fill, the ivory, the rollover's light.
 const FACE: f32 = 8.6;
 const IVORY: [f32; 3] = [238.0, 226.0, 196.0];
@@ -134,6 +137,8 @@ fn clean_orb(base: &Rgba) -> (Vec<[f32; 4]>, (f32, f32)) {
         }
     }
     let (cx, cy) = (sx / f32::max(n, 1.0), sy / f32::max(n, 1.0));
+    // The orb's outline drawn smooth: a disc of the orb's own area, its edge supersampled.
+    let radius = (n / std::f32::consts::PI).sqrt();
     let dist = |x: u32, y: u32| ((x as f32 - cx).powi(2) + (y as f32 - cy).powi(2)).sqrt();
     // Per whole distance: the bronze-weighted colour and weight, and the pixels' alpha.
     let mut rings = vec![[0.0f32; 5]; (w.max(h) as usize) + 2];
@@ -153,11 +158,10 @@ fn clean_orb(base: &Rgba) -> (Vec<[f32; 4]>, (f32, f32)) {
     let mut out = vec![[0.0f32; 4]; (w * h) as usize];
     for y in 0..h {
         for x in 0..w {
-            let p = base.at(x, y);
-            if p[3] == 0.0 {
+            if edge_cover(x, y, (cx, cy), radius) == 0.0 {
                 continue;
             }
-            let mut d = dist(x, y) as usize;
+            let mut d = (dist(x, y) as usize).min(rings.len() - 1);
             while d < 8 && rings[d][3] < 0.5 * rings[d][4] {
                 d += 1;
             }
@@ -170,11 +174,26 @@ fn clean_orb(base: &Rgba) -> (Vec<[f32; 4]>, (f32, f32)) {
             for (i, value) in c.iter_mut().take(3).enumerate() {
                 *value = (ring[i] / ring[3].max(1e-3) * lit).min(255.0);
             }
-            c[3] = p[3];
+            c[3] = 255.0 * edge_cover(x, y, (cx, cy), radius);
             out[(y * w + x) as usize] = c;
         }
     }
     (out, (cx, cy))
+}
+
+/// How much of pixel `(x, y)` a disc of `radius` about `centre` covers (supersampled).
+fn edge_cover(x: u32, y: u32, (cx, cy): (f32, f32), radius: f32) -> f32 {
+    let mut inside = 0;
+    for sy in 0..SUPER {
+        for sx in 0..SUPER {
+            let px = x as f32 - 0.5 + (sx as f32 + 0.5) / SUPER as f32;
+            let py = y as f32 - 0.5 + (sy as f32 + 0.5) / SUPER as f32;
+            if (px - cx).powi(2) + (py - cy).powi(2) <= radius * radius {
+                inside += 1;
+            }
+        }
+    }
+    inside as f32 / (SUPER * SUPER) as f32
 }
 
 /// The symbol's cover at `(x, y)` in its image, bilinear and clamped to the image.
@@ -227,12 +246,22 @@ pub fn icon(base: &Rgba, symbol: &Rgba, kind: SymbolKind, light: f32) -> Rgba {
         for x in 0..w {
             let d = ((x as f32 - cx).powi(2) + (y as f32 - cy).powi(2)).sqrt();
             if d <= FACE + 1.5 {
-                covered[(y * w + x) as usize] = sample(
-                    symbol,
-                    kind,
-                    scx + (x as f32 - cx) * scale,
-                    scy + (y as f32 - cy) * scale,
-                );
+                // Supersampled (4 x 4 per pixel), so the symbol's edges are smooth when the UI
+                // is drawn larger.
+                let mut sum = 0.0;
+                for sy in 0..SUPER {
+                    for sx in 0..SUPER {
+                        let px = x as f32 - 0.5 + (sx as f32 + 0.5) / SUPER as f32;
+                        let py = y as f32 - 0.5 + (sy as f32 + 0.5) / SUPER as f32;
+                        sum += sample(
+                            symbol,
+                            kind,
+                            scx + (px - cx) * scale,
+                            scy + (py - cy) * scale,
+                        );
+                    }
+                }
+                covered[(y * w + x) as usize] = sum / (SUPER * SUPER) as f32;
             }
         }
     }

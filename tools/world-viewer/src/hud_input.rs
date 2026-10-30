@@ -28,7 +28,10 @@ impl HudInput {
     /// `None` when the DATs hold no action map.
     pub fn load(store: &ac2_db::ResourceStore) -> Option<Self> {
         let files = ac2_ui::keymap_file::KeymapFiles::user();
-        let controls = Controls::load_with(store, Some(&files)).ok().flatten()?;
+        let mut controls = Controls::load_with(store, Some(&files)).ok().flatten()?;
+        // The HUD's tree takes the UI actions (the pointer over panels, presses, the world's
+        // wheel), as the client attaches it: without it they went to the camera alone.
+        controls.ui_attached = true;
         Some(Self {
             controls,
             wheel: WheelAccumulator::default(),
@@ -154,5 +157,31 @@ impl HudInput {
                 walk.camera_action(action, start);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The viewer's HUD input on the real key maps (`AC2_DAT_DIR`): the pointer and a press reach
+    /// the HUD as UI actions.
+    #[test]
+    fn the_pointer_and_presses_reach_the_hud() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let store = ac2_db::ResourceStore::new(dataset);
+        let mut hud = HudInput::load(&store).expect("the key maps");
+        hud.cursor(500.0, 400.0);
+        hud.button(MouseButton::Left, true);
+        let actions = hud.controls.take_ui_input();
+        assert!(
+            actions
+                .iter()
+                .any(|&(a, v, _)| a == ac2_ui::UI_POINTER_X && v == 500.0),
+            "{actions:?}"
+        );
+        assert!(actions.len() >= 3, "the pointer and the press: {actions:?}");
     }
 }
