@@ -76,6 +76,21 @@ pub const WIN_ARROW: [u32; 8] = [
 pub const WIN_ROW: u32 = 0x7E01_0132;
 pub const WIN_ROW_SEL: u32 = 0x7E01_0133;
 pub const WIN_ROW_BORDER: i32 = 5;
+/// The fellows' meters (the design's `.meter`): health, vigor and focus at the panel's size
+/// (277 by 14), then at the mini panel's (215 by 5).
+pub const WIN_METER: [u32; 6] = [
+    0x7E01_0134,
+    0x7E01_0135,
+    0x7E01_0136,
+    0x7E01_0137,
+    0x7E01_0138,
+    0x7E01_0139,
+];
+/// The secure trade's title strip (271 by 18) and its divider (7 by 110).
+pub const WIN_STRIP: u32 = 0x7E01_013A;
+pub const WIN_DIVIDER: u32 = 0x7E01_013B;
+/// The secure trade's frame (`0x410023AD`, 271 by 179) with a header band over its title.
+pub const WIN_TRADE: u32 = 0x7E01_013C;
 /// A window without a header: the glass in the bevel all round.
 pub const WIN_PANEL: u32 = 0x7E01_0110;
 /// The dialogs' glass, under their border's eight pieces (`WIN_BORDER`, row by row from the top
@@ -524,6 +539,53 @@ fn price() -> UiPixels {
     c.finish()
 }
 
+/// A meter's fill `w` by `h`: shaded down from `top` to `bottom`.
+fn meter(w: usize, h: usize, top: u32, bottom: u32) -> UiPixels {
+    let mut c = Canvas::new(w, h);
+    c.paint(
+        |_, _| -1.0,
+        |_, y, d| {
+            (
+                mix(rgb(top, 1.0), rgb(bottom, 1.0), y / h as f32),
+                inside(d),
+            )
+        },
+    );
+    c.finish()
+}
+
+/// The secure trade's title strip: the header's stone shaded down, a black line at its foot.
+fn strip() -> UiPixels {
+    let (w, h) = (271usize, 18usize);
+    let mut c = Canvas::new(w, h);
+    c.paint(
+        |_, _| -1.0,
+        |_, y, d| {
+            let colour = if y >= h as f32 - 1.0 {
+                rgb(0x000000, 1.0)
+            } else {
+                mix(rgb(0x38352B, 1.0), rgb(0x16150F, 1.0), y / h as f32)
+            };
+            (colour, inside(d))
+        },
+    );
+    c.finish()
+}
+
+/// The secure trade's divider: a line in the line colour down its middle, fading at its ends.
+fn divider() -> UiPixels {
+    let (w, h) = (7usize, 110usize);
+    let mut c = Canvas::new(w, h);
+    c.paint(
+        |x, _| if (3.0..4.0).contains(&x) { -1.0 } else { 1.0 },
+        |_, y, d| {
+            let edge = (y.min(h as f32 - y) / 16.0).min(1.0);
+            (rgb(LINE, edge), inside(d))
+        },
+    );
+    c.finish()
+}
+
 /// The windows' images made into `images`.
 pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
     let tabs = [tab(false), tab(true)];
@@ -563,6 +625,29 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (WIN_ROW, row(false)),
         (WIN_ROW_SEL, row(true)),
         (WIN_PANEL, panel()),
+        (WIN_METER[0], meter(277, 14, 0xE0504A, 0x7A1A16)),
+        (WIN_METER[1], meter(277, 14, 0x4A62E8, 0x16207A)),
+        (WIN_METER[2], meter(277, 14, 0xE8D9A0, 0x8A7A40)),
+        (WIN_METER[3], meter(215, 5, 0xE0504A, 0x7A1A16)),
+        (WIN_METER[4], meter(215, 5, 0x4A62E8, 0x16207A)),
+        (WIN_METER[5], meter(215, 5, 0xE8D9A0, 0x8A7A40)),
+        (WIN_STRIP, strip()),
+        (
+            WIN_TRADE,
+            frame(
+                271,
+                179,
+                &Frame {
+                    head: 26.0,
+                    round_top: true,
+                    round_foot: true,
+                    wells: &[],
+                    lights: &[],
+                    pages: &[],
+                },
+            ),
+        ),
+        (WIN_DIVIDER, divider()),
         (WIN_STORE, store()),
         (WIN_CATALOG, catalog()),
         (WIN_NEW_SALE, new_sale()),

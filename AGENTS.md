@@ -300,7 +300,9 @@ game rules and server-visible behaviour exactly retail.
   blue text buttons, bronze pills (gold when lit, faint when ghosted); the check box, a dark well
   with a gold tick; the expander and drop-down arrows, gold chevrons; the rule, a fine line; the
   wells' eight pieces, dark wells; the dialogs', pets' and fellows' translucent fill and bronze
-  border, and the secure trade's frame, the glass in the bevel; the whole-window frames of the
+  border, the glass in the bevel; the secure trade's frame, redrawn with a header over its title,
+  its title strip and divider the header's stone and a fine rule; the fellows' health, vigor and
+  focus fills, the design's meter gradients; the whole-window frames of the
   store, consignments, catalog, new sale, ingredients and book, redrawn at their own sizes with
   their wells where retail's were (retail's light title boxes, which hold dark text, as parchment
   strips; the book's page as parchment); the green, gold and grey button families, pills too;

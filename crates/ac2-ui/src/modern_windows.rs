@@ -5,7 +5,7 @@
 //! `0x410002B9`), the tabs' caps (`0x41001E5A`..`0x41001E5F`), four families of blue text
 //! buttons, the check box, the expander and drop-down arrows, the rule (`0x41001E71`), the
 //! wells' eight pieces, the dialogs' fill (`0x4100225F`, now the glass in the bevel) and bronze border
-//! (`0x41002259`..`0x41002262`), the secure trade's frame (`0x410023AD`), the whole-window frames
+//! (`0x41002259`..`0x41002262`), the secure trade's frame (`0x410023AD`, redrawn with a header), the whole-window frames
 //! of the store, catalog, new sale, ingredients and book (redrawn at their own sizes with their
 //! wells where retail's were) and the blue scroll bar; the header bar's image (`0x410002CD`,
 //! `0x410011FC`) only filled the room under a side panel's window. Each is swapped in the layout descriptions, before
@@ -172,6 +172,16 @@ fn swaps() -> Vec<Swap> {
         (0x4100_8781, a[3], STRETCH),
         (0x4100_8782, a[3], STRETCH),
         (0x4100_8783, a[2], STRETCH),
+        // The fellows' meters (health, vigor, focus; the panel's and the mini panel's).
+        (0x4100_0978, art::WIN_METER[0], None),
+        (0x4100_0977, art::WIN_METER[1], None),
+        (0x4100_7FEA, art::WIN_METER[2], None),
+        (0x4100_2023, art::WIN_METER[3], None),
+        (0x4100_2024, art::WIN_METER[4], None),
+        (0x4100_7FE9, art::WIN_METER[5], None),
+        // The secure trade's title strip and divider.
+        (0x4100_6643, art::WIN_STRIP, None),
+        (0x4100_23D7, art::WIN_DIVIDER, None),
         // The small check box (clear, ticked).
         (0x4100_6649, art::WIN_CHECK, None),
         (0x4100_6648, art::WIN_CHECK_ON, None),
@@ -184,7 +194,7 @@ fn swaps() -> Vec<Swap> {
     all.extend(dialog_border());
     all.extend([
         (0x4100_225F, art::WIN_PANEL, PANEL),
-        (0x4100_23AD, art::WIN_PANEL, PANEL),
+        (0x4100_23AD, art::WIN_TRADE, None),
         (0x4100_8468, art::WIN_STORE, None),
         (0x4100_87C5, art::WIN_CATALOG, None),
         (0x4100_8C0C, art::WIN_NEW_SALE, None),
@@ -221,8 +231,9 @@ fn own_design(id: u32) -> bool {
 }
 
 /// The frames with the design's header, whose title is drawn in gold.
-const HEADED: [u32; 6] = [
+const HEADED: [u32; 7] = [
     art::WIN_GLASS,
+    art::WIN_TRADE,
     art::WIN_STORE,
     art::WIN_CATALOG,
     art::WIN_NEW_SALE,
