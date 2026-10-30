@@ -105,6 +105,55 @@ impl UiTree {
         self.list_update_controls(list);
     }
 
+    /// `UIElement_ListBox::SetState`, after the element's own state change: the items are
+    /// every child of the list (`m_firstChild` on), each inserted before the first item that
+    /// lies after it (a `horizontal` list orders by `y0`, then `x0`; otherwise by `x0`, then
+    /// `y0`, of `m_box`), then laid out again (`UpdateLayout`, `KeepViewInBounds`,
+    /// `UpdateControls`). Retail's callers parent an item when they make it; here the layout
+    /// parents it, so an item added during an open multi-operation that is not a child yet
+    /// is kept too.
+    pub(crate) fn list_set_state(&mut self, list: usize) {
+        if !crate::list_box_select::is_list_kind(self.el(list).desc.kind) {
+            return;
+        }
+        let horizontal = self.list_flag(list, "horizontal");
+        let key = |tree: &UiTree, item: usize| {
+            let r = tree.el(item).rect;
+            if horizontal {
+                (r.y0, r.x0)
+            } else {
+                (r.x0, r.y0)
+            }
+        };
+        let mut children: Vec<usize> = self
+            .el(list)
+            .children
+            .iter()
+            .copied()
+            .filter(|&c| self.get(c).is_some())
+            .collect();
+        for &item in self.list_items(list) {
+            if !children.contains(&item) {
+                children.push(item);
+            }
+        }
+        let mut items: Vec<usize> = Vec::with_capacity(children.len());
+        for child in children {
+            let k = key(self, child);
+            let at = items
+                .iter()
+                .position(|&i| key(self, i) > k)
+                .unwrap_or(items.len());
+            items.insert(at, child);
+        }
+        let state = self.list(list);
+        if state.selected.is_some_and(|s| !items.contains(&s)) {
+            state.selected = None;
+        }
+        state.items = items;
+        self.list_relayout(list);
+    }
+
     /// `UIElement_ListBox::AddItem`.
     pub fn list_add_item(&mut self, list: usize, item: usize) {
         let at = self.list_items(list).len();

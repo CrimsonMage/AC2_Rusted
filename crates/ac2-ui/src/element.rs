@@ -754,6 +754,7 @@ impl UiTree {
     pub fn set_state(&mut self, index: usize, state: u32) {
         self.button_set_state(index, state);
         self.transition_set_state(index, state);
+        self.list_set_state(index);
         self.meter_update_layout(index);
     }
 

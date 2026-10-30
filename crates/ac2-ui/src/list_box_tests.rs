@@ -132,3 +132,29 @@ fn a_vertical_list_fills_columns() {
     let placed: Vec<_> = items.iter().map(|&i| at(&tree, i)).collect();
     assert_eq!(placed, vec![(0, 0), (0, 10), (10, 0), (10, 10)]);
 }
+
+/// `UIElement_ListBox::SetState`: the items become every child of the list in the order of
+/// their places (a horizontal list by row, then column), and the list is laid out again.
+#[test]
+fn a_state_change_lists_every_child_in_place_order() {
+    let (mut tree, layout, list) = tree(true);
+    let items: Vec<usize> = (0..3).map(|_| item(&mut tree, &layout)).collect();
+    for &i in &items {
+        tree.list_add_item(list, i);
+    }
+    // A child that is not an item, placed between the first and the second.
+    let extra = item(&mut tree, &layout);
+    tree.set_parent(extra, Some(list));
+    tree.move_to(extra, 5, 0);
+    tree.set_state(list, STATELESS);
+    assert_eq!(
+        tree.list_items(list),
+        &[items[0], extra, items[1], items[2]][..]
+    );
+    let placed: Vec<_> = tree
+        .list_items(list)
+        .iter()
+        .map(|&i| at(&tree, i))
+        .collect();
+    assert_eq!(placed, vec![(0, 0), (10, 0), (20, 0), (0, 10)]);
+}

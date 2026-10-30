@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1371 done, 301 partial, 34 to do, 541 skipped.
+2247 retail functions: 1372 done, 298 partial, 34 to do, 543 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs catch_dropped_item: the field's rollover state restored (field_end_rollover), then UIElement::CatchDroppedItem
 - [-] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (65/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (66/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3246,7 +3246,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::Rollover` · 005f3e70 · legions 005b49a0 — ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
 - [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
-- [~] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60 — needs port: UIElement_ListBox::SetState rebuilds the item list from the new state's children (ordered by position along the list's axis), then UpdateLayout, KeepViewInBounds, UpdateControls. 6 Legions layout lists have more than one state; the tree does not yet swap a state's children on a state change
+- [x] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60 — ac2-ui list_box.rs list_set_state (from UiTree::set_state): the items become every child of the list (m_firstChild walk, admin disassembly 0x5f4063), each before the first item lying after it by m_box (0x60/0x64: horizontal (bit 0 of m_bitField) orders y0 then x0, else x0 then y0), then UpdateLayout, KeepViewInBounds, UpdateControls; an item not yet parented (our layout parents items) is kept; list_box_tests.rs
 - [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
 - [~] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0 — ac2-ui list_scroll.rs lists_bound_to: scroll bars matched by name when their messages arrive, buttons by scrollbar.rs; missing: the horizontal/vertical flag (bit 0x800) and UpdateControls when the attribute is set, list up/down/left/right buttons are not wired
 - [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
@@ -3366,8 +3366,8 @@ Legend and workflow: [README](README.md).
 - [-] `UIElement_Resizebar::SetState` · 005f8300 · legions 005b8e30 — UpdateLayout hides the grip only when disabled and hide_when_disabled; no Legions resize grip has hide_when_disabled (its 16 uses are scroll bars, scanned 2026-10-29), so the grip always shows, which resize.rs grips already do (the press reads disabled, resizebar_mouse_down)
 - [-] `UIElement_Resizebar::SetAttribute_Bool` · 005f8320 · legions 005b8e50 — UpdateLayout hides the grip only when disabled and hide_when_disabled; no Legions resize grip has hide_when_disabled (its 16 uses are scroll bars, scanned 2026-10-29), so the grip always shows, which resize.rs grips already do (the press reads disabled, resizebar_mouse_down)
 - [x] `UIElement_Resizebar::UIElement_Resizebar` · 005f8360 · legions 005b8e90 — ac2-ui resize.rs: a grip is an element of kind resizebar (create_element), not pressed; allow_updating only gates UpdateLayout, which never hides a Legions grip (no hide_when_disabled, scanned 2026-10-29)
-- [~] `UIElement_Resizebar::Create` · 005f83c0 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
-- [~] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — ac2-ui resize.rs: the grip reads its border and disabled attributes at the press; the grip's own shown or hidden state when disabled (UpdateLayout, SetState) is not modelled
+- [-] `UIElement_Resizebar::Create` · 005f83c0 — Element construction and class registration: UiTree::create_element builds a grip from its layout description (kind dispatch by match)
+- [-] `UIElement_Resizebar::Register` · 005f83f0 · legions 005b8f20 — Element construction and class registration: UiTree::create_element builds a grip from its layout description (kind dispatch by match)
 
 ## `portal/client/src/uielement/types/uielement_scrollbar.cpp.c` (13/28)
 
