@@ -338,6 +338,29 @@ fn the_overview_map_shows_one_map_and_closes_on_its_button() {
 }
 
 #[test]
+fn the_knorr_button_is_in_the_layout_and_shows_its_map() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ResourceStore::new(dataset));
+    let mut hud = build_gameplay_hud(&store, 1024, 768).unwrap();
+    let gameplay = load_layout_by_enum(&store, 0x4100_0009).unwrap().unwrap();
+    let nav = hud.navigation.take().expect("NavigationField");
+    let tree: &mut UiTree = &mut hud.tree;
+    let button = tokenize("NavigationZoomToOverviewKnorrButton");
+    assert!(nav
+        .child(tree, "NavigationZoomToOverviewKnorrButton")
+        .is_some());
+    assert!(nav.overview_buttons.iter().all(Option::is_some));
+    let overview = OverviewMapUi::create(tree, &gameplay).expect("OverviewMap");
+    assert!(overview.message(tree, button));
+    assert!(overview.is_shown(tree));
+    let client = overview.client_area().unwrap();
+    assert_eq!(tree.get(client).unwrap().state(), tokenize("KnorrMap"));
+    hud.navigation = Some(nav);
+}
+
+#[test]
 fn the_pixel_maps_invert_inside_the_map_and_reject_outside() {
     let map = MapFrame {
         origin: ORIGIN,

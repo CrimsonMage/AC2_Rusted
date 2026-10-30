@@ -184,3 +184,30 @@ fn a_teleport_runs_the_portal_space_and_places_the_player_at_the_destination() {
         }]
     );
 }
+
+/// `gmGamePlayUI::gmGamePlayUI`: the gameplay UI starts in portal space at once
+/// (`SmartBox::EnterPortalSpace(1)`), before the world's entry, and the login still lets the
+/// player out.
+#[test]
+fn the_gameplay_ui_starts_in_portal_space_and_the_login_ends_it() {
+    let Some((spawn, world)) = dat_world() else {
+        eprintln!("skipped: AC2_DAT_DIR is unset");
+        return;
+    };
+    let (transport, server) = legions_server_double::double(spawn);
+    let session = ac2_weenie::OnlineSession::with_transport(config(), Box::new(transport)).unwrap();
+    let mut client = Client::new(session, world);
+    client.set_load_budget(std::time::Duration::from_secs(5));
+    assert!(!client.frame().portal.in_portal_space);
+    client.gameplay_ui_started();
+    assert!(client.frame().portal.in_portal_space);
+    let mut notices = Vec::new();
+    let mut frames = 0;
+    let mut current = client.frame();
+    while !current.in_world || current.portal.in_portal_space {
+        current = frame(&mut client, &server, &mut notices);
+        frames += 1;
+        assert!(frames < 3000, "the portal space did not run out");
+    }
+    assert!(current.portal.world_drawn());
+}

@@ -149,6 +149,35 @@ fn the_page_lists_each_preference_under_its_label_in_retail_order() {
     assert_eq!(page.value(prefs.bank(), "ID_Sound_FXVolume"), Some(1.0));
 }
 
+/// `gmClientUI::Construct` describes each expander with `ID_<name>_<name>Section` of the
+/// preferences' label table: a header reads that string. The DVD's table has none of them (as
+/// with the rows' names), so the header is the section's enum name.
+#[test]
+fn the_expander_headers_read_their_section_strings() {
+    let Some(store) = dataset_store() else {
+        return;
+    };
+    let (prefs, _) = load_prefs(&store, "headers");
+    let (hud, page) = page_over_hud(&store, &prefs);
+    let text = hud.tree.text_data().expect("the text data");
+    for (section, id) in [
+        (0x4000_000B, "ID_Rendering_RenderingSection"),
+        (0x4000_0004, "ID_Graphics_GraphicsSection"),
+        (0x4000_0008, "ID_Camera_CameraSection"),
+        (0x4000_0007, "ID_Sound_SoundSection"),
+    ] {
+        let header = page.header_text(&hud.tree, section).expect("a header");
+        assert!(!header.is_empty(), "{id}");
+
+        let in_table = text
+            .string(hud.pref_table.expect("the label table"), tokenize(id))
+            .map(|units| String::from_utf16_lossy(&units));
+        if let Some(string) = in_table {
+            assert_eq!(header, string, "{id}");
+        }
+    }
+}
+
 #[test]
 fn every_drop_down_lists_its_choices_and_a_pick_sets_the_preference() {
     let Some(store) = dataset_store() else {

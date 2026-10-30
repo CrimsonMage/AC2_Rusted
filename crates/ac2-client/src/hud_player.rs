@@ -53,6 +53,8 @@ pub(crate) struct PassOut {
     pub(crate) help: Vec<u32>,
     /// The story's show state for the gameplay panels (`gmStoryUI` begin `false`, hide `true`).
     pub(crate) story_gameplay: Vec<bool>,
+    /// `gmGamePlayUI::Show` calls of `RecvNotice_UpdateDeathState` (dead `false`, alive `true`).
+    pub(crate) death_gameplay: Vec<bool>,
 }
 
 impl HudView {
@@ -143,6 +145,13 @@ impl HudView {
         // The gameplay panels leave while a story plays and come back as they were after it.
         for shown in std::mem::take(&mut out.story_gameplay) {
             self.set_story_gameplay_shown(shown);
+        }
+        // Dying hides them and coming back shows them, unless a story holds the UI
+        // (`gmGamePlayUI::Show`).
+        for shown in std::mem::take(&mut out.death_gameplay) {
+            if self.story_hid_gameplay.is_none() {
+                self.set_gameplay_shown(shown);
+            }
         }
         out.commands
     }

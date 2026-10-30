@@ -11,7 +11,8 @@
 //! `Tokenize`d name, with `_Help` for its tooltip), read from the preferences' label table; where
 //! that table has no string, the row shows the preference's INI key name, its words spaced. A
 //! preference with no name shows no row. An expander's header is its section's name from the
-//! DAT's enum tables through a [`NameTable`], as text (the section string IDs are not identified).
+//! preferences' label table (`ID_<name>_<name>Section`, as `gmClientUI::Construct` describes it),
+//! else its name from the DAT's enum tables through a [`NameTable`].
 //! Preferences that are text show no row.
 //!
 //! A drop-down (`OptionChoice`) lists its choices in its menu (`OptionChoice::Merge`, run when
@@ -184,7 +185,13 @@ impl ClientOptionsUi {
             let Some(element) = self.make(tree, toolbar, "OptionTree") else {
                 continue;
             };
-            let title = names.section_name(section).unwrap_or_default();
+            // `OptionExpander::Describe(0x40000008, ID_<name>_<name>Section)`: the header is the
+            // section's string of the preferences' label table; without one, the section's name.
+            let title = section_title(section)
+                .map(|id| labels.get(id))
+                .filter(|text| !text.is_empty())
+                .or_else(|| names.section_name(section))
+                .unwrap_or_default();
             if let Some(text) = tree.child_recursive(element, tokenize("OptionText")) {
                 tree.set_text(text, &title);
             }
@@ -627,6 +634,13 @@ impl ClientOptionsUi {
         self.page_element
     }
 
+    /// The header text of the expander of `section` (`OptionExpander::Describe`).
+    pub fn header_text(&self, tree: &UiTree, section: u32) -> Option<String> {
+        let expander = self.expanders.iter().find(|e| e.section == section)?;
+        let text = tree.child_recursive(expander.element, tokenize("OptionText"))?;
+        tree.get(text)?.text()
+    }
+
     /// The section ids of the expanders, in order.
     pub fn sections(&self) -> Vec<u32> {
         self.expanders.iter().map(|e| e.section).collect()
@@ -706,6 +720,22 @@ fn choice_label(labels: Labels, names: &dyn NameTable, pref: &Pref, choice: &Cho
         return spaced(name);
     }
     labels.get_id(choice.label)
+}
+
+/// The string `gmClientUI::Construct` gives the expander of `section` (`ID_Rendering_RenderingSection`
+/// and its seven siblings), by the order of [`SECTION_ORDER`].
+fn section_title(section: u32) -> Option<&'static str> {
+    Some(match section {
+        0x4000_000B => "ID_Rendering_RenderingSection",
+        0x4000_0004 => "ID_Graphics_GraphicsSection",
+        0x4000_0008 => "ID_Camera_CameraSection",
+        0x4000_000D => "ID_Avatar_AvatarSection",
+        0x4000_000E => "ID_Input_InputSection",
+        0x4000_0009 => "ID_FX_FXSection",
+        0x4000_0007 => "ID_Sound_SoundSection",
+        0x4000_000C => "ID_Misc_MiscSection",
+        _ => return None,
+    })
 }
 
 /// A name's words spaced (`VeryLow` reads `Very Low`, `FXVolume` reads `FX Volume`).

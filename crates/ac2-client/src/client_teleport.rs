@@ -128,6 +128,17 @@ impl Client {
         self.portal.set_clouds(desc, now);
     }
 
+    /// `gmGamePlayUI::gmGamePlayUI`: the gameplay UI is made while neither the weenie nor the
+    /// client is ready, so it puts the world in portal space at once (`SmartBox::
+    /// EnterPortalSpace(1)`); the login's notices let the player out through the gate. Called
+    /// where the real login makes the client; an offline harness has no login to end it.
+    pub fn gameplay_ui_started(&mut self) {
+        if self.story.weenie_ready() {
+            return;
+        }
+        self.enter_portal_space(true);
+    }
+
     /// `SmartBox::EnterPortalSpace(bInstantly)` (`WorldRender::EnterPortalSpace`).
     pub(crate) fn enter_portal_space(&mut self, instantly: bool) {
         let now = self.session.local_time();

@@ -111,9 +111,10 @@ impl UiViews {
         self.views.iter().map(|v| v.viewport.root).collect()
     }
 
-    /// Follows `viewports` at `now` seconds: their scenes, the figures `figures` stands in each,
-    /// the loads that finished (all of them when `wait`), the animation and the frame's layout,
-    /// then `direct` adjusts each frame. Returns each view's loads that finished, by root, for
+    /// Follows `viewports` at `now` seconds: their scenes (`UISceneManager::GetUIScene`), the
+    /// figures `figures` stands in each, the loads that finished (all of them when `wait`), the
+    /// animation (`UISceneManager::UseTime`, `UIScene::Think` and each entity's think) and the
+    /// frame's layout, then `direct` adjusts each frame. Returns each view's loads that finished, by root, for
     /// its renderer.
     pub fn update(
         &mut self,

@@ -85,7 +85,7 @@ impl UiScenes {
         self.loader.object_known(object)
     }
 
-    /// The scene `did`, once loaded.
+    /// The scene `did`, once loaded (`UISceneManager::GetUIScene`).
     pub(crate) fn scene(&self, did: u32) -> Option<&SceneData> {
         self.loader.scene(did)
     }

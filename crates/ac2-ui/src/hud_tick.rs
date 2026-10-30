@@ -89,7 +89,17 @@ pub fn tick_pass<P: HudSource>(
             .is_some_and(|copy| crate::MoneyBagUi::drag_accepts(tree, player, copy));
         tree.set_money_bag_accepts(accepts);
     }
-    death_notices(death, tree, dialogs, player, events);
+    let mut shown = Vec::new();
+    death_notices(
+        death,
+        tree,
+        dialogs,
+        player,
+        events,
+        game_dialogs.wait_context() != 0,
+        &mut shown,
+    );
+    out.extend(shown.into_iter().map(HudRequest::GameplayShown));
     if let Some(dialogs) = dialogs.as_mut() {
         game_dialogs.frame_notices(
             tree,

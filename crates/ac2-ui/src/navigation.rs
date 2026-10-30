@@ -123,9 +123,10 @@ pub struct NavigationUi {
     pub(crate) sized: Option<((u32, u32), (i32, i32))>,
     /// The notes' elements, in arrival order.
     pub(crate) notes: Vec<PlacedNote>,
-    /// `m_pOverviewOstethButton`, `m_pOverviewOmishanButton`, `m_pOverviewArramoraButton` and
-    /// `m_pOverviewLinvakMassifButton`: shown in the macro view (`SetupElementsForMapMode`).
-    pub(crate) overview_buttons: [Option<usize>; 4],
+    /// `m_pOverviewOstethButton`, `m_pOverviewOmishanButton`, `m_pOverviewArramoraButton`,
+    /// `m_pOverviewLinvakMassifButton` and the Legions build's Knorr button (the field its
+    /// symbols call `m_pCoordinatesText`): shown in the macro view (`SetupElementsForMapMode`).
+    pub(crate) overview_buttons: [Option<usize>; 5],
 }
 
 impl NavigationUi {
@@ -163,6 +164,7 @@ impl NavigationUi {
             "NavigationZoomToOverviewOmishanButton",
             "NavigationZoomToOverviewArramoraButton",
             "NavigationZoomToOverviewLinvakMassifButton",
+            "NavigationZoomToOverviewKnorrButton",
         ]
         .map(|name| child(tree, name));
         let macro_frame = MapFrame {

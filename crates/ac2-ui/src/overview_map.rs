@@ -12,8 +12,8 @@
 //!
 //! `gmNavigationUI::ListenToMessage` shows the overview for the panel's zoom buttons
 //! (`NavigationZoomToOverview*Button`): each calls `ShowMap` with its map's state. The Legions
-//! constructor binds four of them (Osteth, Omishan, Arramora, LinvakMassif); the fifth map state
-//! Legions carries (`KnorrMap`) has no button this module can name, so it is not wired.
+//! constructor binds five of them (Osteth, Omishan, Arramora, LinvakMassif and the Legions-only
+//! Knorr button, whose field the admin symbols name `m_pCoordinatesText`).
 
 use std::sync::Arc;
 
@@ -23,7 +23,7 @@ use crate::token::tokenize;
 
 /// The overview's zoom buttons (`gmNavigationUI`'s `m_pOverviewOstethButton` and the others) and
 /// the map state each passes to `gmOverviewMapUI::ShowMap`.
-const MAP_BUTTONS: [(u32, u32); 4] = [
+const MAP_BUTTONS: [(u32, u32); 5] = [
     (
         tokenize("NavigationZoomToOverviewOstethButton"),
         tokenize("OstethMap"),
@@ -39,6 +39,10 @@ const MAP_BUTTONS: [(u32, u32); 4] = [
     (
         tokenize("NavigationZoomToOverviewLinvakMassifButton"),
         tokenize("LinvakMassifMap"),
+    ),
+    (
+        tokenize("NavigationZoomToOverviewKnorrButton"),
+        tokenize("KnorrMap"),
     ),
 ];
 

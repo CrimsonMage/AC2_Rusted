@@ -149,13 +149,19 @@ impl DeathPanel {
 }
 
 /// `RecvNotice_UpdateDeathState` and `RecvNotice_ResurrectionRequestedByOther` for the frame's
-/// notices, in order. The offer's prompt is rendered with the resurrecter's name.
+/// notices, in order. The offer's prompt is rendered with the resurrecter's name. Dying calls
+/// `gmGamePlayUI::Show(0)` before the dialog is made and coming back alive calls `Show(1)` after
+/// it is closed; `Show` does nothing while a please-wait dialog (`wait_up`) or a death dialog
+/// (`_deathContext`, checked at that moment) is up, so each call that takes effect pushes its
+/// flag onto `shown`.
 pub fn death_notices(
     death: &mut DeathPanel,
     tree: &mut UiTree,
     dialogs: &mut Option<DialogFactory>,
     strings: &dyn UiStrings,
     events: &[SessionEvent],
+    wait_up: bool,
+    shown: &mut Vec<bool>,
 ) {
     let Some(dialogs) = dialogs.as_mut() else {
         return;
@@ -163,7 +169,17 @@ pub fn death_notices(
     for event in events {
         match event {
             SessionEvent::Notice(GameplayNotice::UpdateDeathState(dead)) => {
-                death.notice(tree, dialogs, strings, *dead);
+                if *dead {
+                    if !wait_up && death.context() == 0 {
+                        shown.push(false);
+                    }
+                    death.notice(tree, dialogs, strings, true);
+                } else {
+                    death.notice(tree, dialogs, strings, false);
+                    if !wait_up {
+                        shown.push(true);
+                    }
+                }
             }
             SessionEvent::Notice(GameplayNotice::ResurrectionRequestedByOther(name)) => {
                 let prompt = strings.render_string(&resurrection_prompt(name));
@@ -199,6 +215,70 @@ mod tests {
         panel.notice(&mut tree, &mut dialogs, &Text, false);
         assert_eq!(panel.context(), 0);
         assert_eq!(dialogs.shown(), None);
+    }
+
+    #[test]
+    fn dying_hides_the_gameplay_panels_and_coming_back_shows_them() {
+        let mut tree = UiTree::new(1024, 768);
+        let mut dialogs = Some(DialogFactory::new(None));
+        let mut panel = DeathPanel::default();
+        let dead = [SessionEvent::Notice(GameplayNotice::UpdateDeathState(true))];
+        let alive = [SessionEvent::Notice(GameplayNotice::UpdateDeathState(
+            false,
+        ))];
+        let mut shown = Vec::new();
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &dead,
+            false,
+            &mut shown,
+        );
+        assert_eq!(shown, [false]);
+        // A second death notice finds the death dialog up: `Show` does nothing.
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &dead,
+            false,
+            &mut shown,
+        );
+        assert_eq!(shown, [false]);
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &alive,
+            false,
+            &mut shown,
+        );
+        assert_eq!(shown, [false, true]);
+        // A please-wait dialog up holds the UI: no call takes effect.
+        let mut held = Vec::new();
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &dead,
+            true,
+            &mut held,
+        );
+        death_notices(
+            &mut panel,
+            &mut tree,
+            &mut dialogs,
+            &Text,
+            &alive,
+            true,
+            &mut held,
+        );
+        assert!(held.is_empty());
     }
 
     #[test]

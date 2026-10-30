@@ -82,6 +82,10 @@ pub enum HudRequest {
     Social(SocialCall),
     /// A dialog's answer the gameplay panel takes (`GameplayDialogs::frame_answers`).
     Dialog(DialogRequest),
+    /// `gmGamePlayUI::Show` from `RecvNotice_UpdateDeathState`: the gameplay panels hide when the
+    /// player dies and show when alive again (already past `Show`'s please-wait and death-context
+    /// guards; the client adds the story guard).
+    GameplayShown(bool),
     /// `gmGamePlayUI`'s logout: the game options go up, then the character logs off.
     LogOff,
     /// `CM_UI::SendNotice_Logoff` (`gmGamePlayUI::RecvNotice_Logoff`): the game options go to

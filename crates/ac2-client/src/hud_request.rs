@@ -70,6 +70,7 @@ pub(crate) fn hud_request_commands(requests: Vec<HudRequest>, out: &mut PassOut)
             HudRequest::Craft(request) => out.commands.push(craft_command(request)),
             HudRequest::Ingredient(request) => out.commands.push(ingredient_command(request)),
             HudRequest::StoryGameplay(shown) => out.story_gameplay.push(shown),
+            HudRequest::GameplayShown(shown) => out.death_gameplay.push(shown),
             HudRequest::Catalog(request) => {
                 out.commands.extend(catalog_commands(vec![request]));
             }
