@@ -131,6 +131,8 @@ pub struct Hud {
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
     /// The modern style's Edit layout mode (`modern_layout_edit`).
     pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
+    /// The modern style's targeting banner (`modern_banner`).
+    pub modern_banner: Option<crate::modern_banner::TargetBanner>,
     /// The floating arrow (`guide_arrow`).
     pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
     /// The world map in the navigation panel (`world_map`).

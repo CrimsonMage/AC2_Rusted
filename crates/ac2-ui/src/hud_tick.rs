@@ -52,6 +52,7 @@ pub fn tick_pass<P: HudSource>(
         dialogs,
         toolbar,
         modern_edit,
+        modern_banner,
         backpack,
         paper_doll,
         vitals,
@@ -103,6 +104,10 @@ pub fn tick_pass<P: HudSource>(
                 tree.start_use_active(tab);
             }
         }
+    }
+    // The modern targeting banner follows the targeting pointer.
+    if let Some(banner) = modern_banner.as_ref() {
+        banner.tick(tree);
     }
     // The modern Edit layout mode's marks follow the parts.
     if let Some(edit) = modern_edit.as_ref() {

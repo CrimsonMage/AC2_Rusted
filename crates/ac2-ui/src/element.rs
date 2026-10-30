@@ -238,6 +238,8 @@ pub struct UiTree {
     /// name, `modern_layout_edit`), and whether the whole HUD is locked in place.
     pub(crate) hud_offsets: std::collections::BTreeMap<String, (i32, i32)>,
     pub(crate) hud_locked: bool,
+    /// The targeting pointer is on (`RecvNotice_SetTargetingPointer`; the modern banner shows).
+    pub(crate) targeting: bool,
     /// Scaled images are filtered (the modern style, `compose_filter`); else nearest pixel.
     pub(crate) smooth_scaling: bool,
     /// Fonts and strings for text elements.
@@ -344,6 +346,7 @@ impl UiTree {
             stack_context: 0,
             hud_offsets: Default::default(),
             hud_locked: false,
+            targeting: false,
             smooth_scaling: false,
             text_data: None,
             messages: Vec::new(),

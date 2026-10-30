@@ -14,6 +14,10 @@ pub const LOOT_PILL_LIT: u32 = 0x7E01_00E2;
 pub const LOOT_CLOSE: u32 = 0x7E01_00E3;
 pub const LOOT_CLOSE_LIT: u32 = 0x7E01_00E4;
 pub const LOOT_PILL_BORDER: i32 = 12;
+/// The targeting banner: gold shaded down (`#f1d57a` to `#b89a45`) in a light line (`#fff3b0`)
+/// with a gold glow, corners 6.
+pub const TARGET_BANNER: u32 = 0x7E01_00E5;
+pub const TARGET_BANNER_BORDER: i32 = 10;
 pub const LOOT_GLASS_BORDER: i32 = 9;
 
 /// The glass inside the frame: deep teal (`rgba(0,30,27,.9)`) lit from its top (a radial
@@ -77,6 +81,34 @@ fn close(lit: bool) -> UiPixels {
     c.finish()
 }
 
+fn banner() -> UiPixels {
+    let (w, h) = (40usize, 32usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(4.0, 4.0, w as f32 - 4.0, h as f32 - 4.0, 6.0);
+    c.paint(&shape, |_, _, d| {
+        (
+            rgb(0xF1D57A, 0.5),
+            if d > 0.0 {
+                (1.0 - d / 4.0).max(0.0)
+            } else {
+                0.0
+            },
+        )
+    });
+    c.paint(&shape, |_, y, d| {
+        (
+            mix(
+                rgb(0xF1D57A, 1.0),
+                rgb(0xB89A45, 1.0),
+                (y - 4.0) / (h as f32 - 8.0),
+            ),
+            inside(d),
+        )
+    });
+    c.paint(&shape, |_, _, d| (rgb(0xFFF3B0, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
 /// The loot window's images made into `images`.
 pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
     for (id, image) in [
@@ -85,6 +117,7 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (LOOT_PILL_LIT, pill(true)),
         (LOOT_CLOSE, close(false)),
         (LOOT_CLOSE_LIT, close(true)),
+        (TARGET_BANNER, banner()),
     ] {
         images.insert(id, image);
     }

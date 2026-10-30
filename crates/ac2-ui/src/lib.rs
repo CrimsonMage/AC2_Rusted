@@ -275,6 +275,7 @@ mod modern_art_chat;
 mod modern_art_drawer;
 mod modern_art_loot;
 mod modern_art_radar;
+pub mod modern_banner;
 mod modern_chat;
 mod modern_chat_settings;
 mod modern_chat_tabs;

@@ -104,3 +104,25 @@ fn the_lock_stops_every_move_and_leaves_the_mode() {
     edit.set_on(tree, true);
     assert!(!tree.hud_locked);
 }
+
+#[test]
+fn the_targeting_banner_shows_at_the_top_centre_while_the_pointer_is_on() {
+    let (Some(mut modern), Some(classic)) = (hud(HudStyle::Modern), hud(HudStyle::Classic)) else {
+        return;
+    };
+    assert!(classic.modern_banner.is_none());
+    let banner = modern.modern_banner.clone().expect("banner");
+    let tree = &mut modern.tree;
+    let root = named(tree, "ModernTargetBanner");
+    banner.tick(tree);
+    assert!(!tree.el(root).visible);
+    crate::selection_notices::set_targeting_pointer(tree, true);
+    banner.tick(tree);
+    let at = tree.screen_box(root);
+    assert!(tree.el(root).visible);
+    assert_eq!(at.y0, 6);
+    assert!((at.x0 + at.x1 - 1365).abs() <= 2, "{at:?}");
+    crate::selection_notices::set_targeting_pointer(tree, false);
+    banner.tick(tree);
+    assert!(!tree.el(root).visible);
+}

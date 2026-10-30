@@ -149,6 +149,7 @@ fn item_selection_field(tree: &UiTree) -> Option<usize> {
 /// (`UIElement::RestoreSavedCursor`). Nothing happens when the field or its attributes are
 /// missing.
 pub fn set_targeting_pointer(tree: &mut UiTree, on: bool) {
+    tree.targeting = on;
     if let Some(index) = item_selection_field(tree) {
         swap_usage_cursor(tree, index, on);
     }

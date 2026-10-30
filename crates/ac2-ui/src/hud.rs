@@ -179,6 +179,8 @@ pub struct GameplayHud {
     pub tracker: Option<crate::tracker_ui::TrackerUi>,
     /// The modern style's Edit layout mode (`modern_layout_edit`).
     pub modern_edit: Option<crate::modern_layout_edit::EditLayout>,
+    /// The modern style's targeting banner (`modern_banner`).
+    pub modern_banner: Option<crate::modern_banner::TargetBanner>,
     /// The floating arrow towards the Tracker's pick or a clicked coordinate, hidden until one.
     pub guide_arrow: Option<crate::guide_arrow::GuideArrow>,
     /// The world map in the navigation panel (its notes read here, on the HUD's worker).
@@ -487,6 +489,21 @@ pub fn build_styled_hud(
     });
     radar.place_eye(&mut tree, tracker.as_ref().and_then(|t| t.button()));
     // The modern Edit layout mode, made from the first chat window's layout.
+    let modern_banner = (style == HudStyle::Modern)
+        .then(|| {
+            let window = tree
+                .roots()
+                .iter()
+                .copied()
+                .find(|&r| tree.el(r).id() == tokenize("ChatWindow1"))?;
+            let template = [0x2757_2022, 0x8B36_899A, 0x52EF_E72C]
+                .into_iter()
+                .filter_map(|id| tree.child_recursive(window, id))
+                .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
+            let gameplay = layouts[&LAYOUT_GAMEPLAY].as_ref()?;
+            crate::modern_banner::TargetBanner::make(&mut tree, window, template, gameplay)
+        })
+        .flatten();
     let modern_edit = (style == HudStyle::Modern)
         .then(|| {
             let window = tree
@@ -561,6 +578,7 @@ pub fn build_styled_hud(
         help,
         tracker,
         modern_edit,
+        modern_banner,
         guide_arrow,
         world_map,
         guide,

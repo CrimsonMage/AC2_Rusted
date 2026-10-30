@@ -278,6 +278,9 @@ game rules and server-visible behaviour exactly retail.
   centred, a bronze close button, the list four slots wide (retail three) with the thin scroll
   bar, Loot All and Transmute All as pills holding their art and their names, and a note under
   them. The elements are retail's, so opening, slots, drops and the buttons stay retail's.
+  While the targeting pointer is on (`RecvNotice_SetTargetingPointer`), a gold banner at the
+  display's top centre says to pick a target (`ac2_ui::modern_banner`, the design's variant B);
+  retail showed only the pointer's cursor. It takes no pointer; the targeting stays retail's.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its
