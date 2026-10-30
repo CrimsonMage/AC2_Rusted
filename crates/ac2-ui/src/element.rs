@@ -161,6 +161,8 @@ pub struct UiElement {
     /// (the radar's heading ring, the doll's 3D viewport). It does not move by Alt + drag and is not
     /// saved as a window position ([`UiTree::set_overlay_root`]).
     pub(crate) overlay: bool,
+    /// A window the player locked in place (the modern style's lock): no move, no resize.
+    pub(crate) locked: bool,
 }
 
 impl UiElement {
@@ -585,6 +587,7 @@ impl UiTree {
             latest_update: self.update_count,
             created_by_layout: false,
             overlay: false,
+            locked: false,
         });
         if is_meter {
             self.meter_create(index);

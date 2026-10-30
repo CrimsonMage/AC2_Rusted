@@ -296,8 +296,8 @@ impl ModernVitals {
         Some(vitals)
     }
 
-    #[cfg(test)]
-    pub fn layout(&self) -> VitalsLayout {
+    /// The layout shown.
+    pub fn current_layout(&self) -> VitalsLayout {
         self.layout.get()
     }
 

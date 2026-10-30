@@ -210,7 +210,10 @@ impl UiTree {
         let Some(window) = self.el(index).parent else {
             return;
         };
-        if self.resizing.is_some() || self.movement.is_some_and(|m| m.element == window) {
+        if self.resizing.is_some()
+            || self.movement.is_some_and(|m| m.element == window)
+            || self.el(self.root_of(window)).locked
+        {
             return;
         }
         let Some(border) = border_of(

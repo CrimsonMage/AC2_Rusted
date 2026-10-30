@@ -21,6 +21,7 @@ use crate::compose::{DRAW_OVER, DRAW_OVER_FADE, NINE_SLICE};
 use crate::element::{UiBox, UiTree};
 use crate::layout::{ElementDesc, LayoutDesc, MediaDesc};
 use crate::modern_art as art;
+use crate::modern_chat_settings::{ChatLook, Popover, SettingsAction};
 use crate::modern_drawer_bar::{count_label, place_label};
 use crate::modern_inventory::{keep, make_part};
 use crate::text::Justification;
@@ -156,6 +157,28 @@ pub struct ModernChat {
     windows: Vec<WindowParts>,
     /// The window whose slider is being dragged.
     dragging: Cell<Option<usize>>,
+    /// Each window's choices (`modern_chat_settings`).
+    looks: std::cell::RefCell<Vec<ChatLook>>,
+    /// The settings popover and the window it is open for.
+    popover: Option<Popover>,
+    open_for: Cell<Option<usize>>,
+}
+
+/// What a message to the modern windows asks of the chat.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ChatEvent {
+    /// Window `i`'s opacity set by its slider (saved when `released`).
+    Opacity {
+        window: usize,
+        opacity: f32,
+        released: bool,
+    },
+    /// Window `i`'s choices changed (its font step and lock are the chat's to apply).
+    Look(usize),
+    /// Hide window `i` (`ChatWindow::Show(0)`).
+    Hide(usize),
+    /// Open the options panel's chat page.
+    OpenOptions,
 }
 
 fn place(tree: &mut UiTree, element: Option<usize>, (x, y, w, h): (i32, i32, i32, i32)) {
@@ -182,8 +205,13 @@ fn set_color(tree: &mut UiTree, label: usize, rgb: u32) {
 
 impl ModernChat {
     /// The four windows' parts made (`roots`: each window's root).
-    pub fn adopt(tree: &mut UiTree, roots: &[usize], layouts: &[&Arc<LayoutDesc>]) -> Self {
-        let windows = roots
+    pub fn adopt(
+        tree: &mut UiTree,
+        roots: &[usize],
+        gameplay: Option<&Arc<LayoutDesc>>,
+        layouts: &[&Arc<LayoutDesc>],
+    ) -> Self {
+        let windows: Vec<WindowParts> = roots
             .iter()
             .map(|&root| {
                 // A plain field of the window to copy the parts from (the frame is a reference).
@@ -326,16 +354,69 @@ impl ModernChat {
                 }
             })
             .collect();
+        // The settings popover, from the first window's layout and plain field.
+        let popover = roots.first().and_then(|&root| {
+            let template = [ENTRY_FIELD, LOG_FIELD, TOGGLES]
+                .into_iter()
+                .filter_map(|id| tree.child_recursive(root, id))
+                .find(|&e| tree.el(e).reference.kind == tree.el(e).desc.kind)?;
+            Popover::make(tree, root, template, gameplay, layouts)
+        });
         Self {
+            looks: std::cell::RefCell::new(vec![ChatLook::default(); windows.len()]),
             windows,
             dragging: Cell::new(None),
+            popover,
+            open_for: Cell::new(None),
         }
+    }
+
+    /// Each window's choices as `layout` keeps them.
+    pub fn read_looks(&self, layout: &crate::hud_layout::HudLayout) {
+        let mut looks = self.looks.borrow_mut();
+        for (i, look) in looks.iter_mut().enumerate() {
+            *look = ChatLook::read(layout, i + 1);
+        }
+        for w in &self.windows {
+            *w.laid_out.borrow_mut() = None;
+        }
+    }
+
+    /// Each window's choices written into `layout`; whether one changed.
+    pub fn write_looks(&self, layout: &mut crate::hud_layout::HudLayout) -> bool {
+        let looks = self.looks.borrow();
+        let mut changed = false;
+        for (i, look) in looks.iter().enumerate() {
+            changed |= look.write(layout, i + 1);
+        }
+        changed
+    }
+
+    /// Window `i`'s font step and lock.
+    pub fn look_of(&self, i: usize) -> (i32, bool) {
+        self.looks
+            .borrow()
+            .get(i)
+            .map_or((0, false), |l| (l.font, l.locked))
     }
 
     /// Each shown window's parts laid out for its size, its active look (`active`: the window
     /// whose move bar shows `active`), its name (`names`, by window), the pill for its entry's
     /// text, and its opacity; run every frame.
-    pub fn follow(&self, tree: &mut UiTree, names: &[String]) {
+    pub fn follow(&self, tree: &mut UiTree, names: &[String]) -> bool {
+        // The name typed in the open popover is the window's.
+        let mut renamed = false;
+        if let (Some(popover), Some(i)) = (&self.popover, self.open_for.get()) {
+            if let Some(name) = popover.typed_name(tree) {
+                let mut looks = self.looks.borrow_mut();
+                if let Some(look) = looks.get_mut(i) {
+                    if look.name != name {
+                        look.name = name;
+                        renamed = true;
+                    }
+                }
+            }
+        }
         for (i, w) in self.windows.iter().enumerate() {
             if !tree.get(w.root).is_some_and(|e| e.visible) {
                 continue;
@@ -345,7 +426,12 @@ impl ModernChat {
             let (width, height) = (r.width(), r.height());
             let active = find(tree, tokenize("MoveBarField"))
                 .is_some_and(|f| tree.el(f).state == tokenize("active"));
-            let name = names.get(i).cloned().unwrap_or_default();
+            let look = self.looks.borrow().get(i).cloned().unwrap_or_default();
+            let name = if look.name.is_empty() {
+                names.get(i).cloned().unwrap_or_default()
+            } else {
+                look.name.clone()
+            };
             let entry_text = find(tree, tokenize("ChatEntry"))
                 .and_then(|e| tree.el(e).text())
                 .unwrap_or_default();
@@ -373,6 +459,23 @@ impl ModernChat {
                 tree.set_int(glass, NINE_SLICE, art::CHAT_BORDER);
             }
             place(tree, w.glass, (0, 0, width, height));
+            // The background choice: the glass and the log's backing, in the chosen tint.
+            for part in [w.glass, w.log_backing].into_iter().flatten() {
+                if tree.el(part).visible != look.background {
+                    tree.set_visible(part, look.background);
+                }
+            }
+            if let Some(backing) = w.log_backing {
+                let tint = art::CHAT_TINTS[look.tint.min(art::CHAT_TINTS.len() - 1)];
+                tree.set_image(backing, tint, DRAW_OVER_FADE);
+                tree.set_int(backing, NINE_SLICE, 1);
+            }
+            // A locked window shows no grip.
+            if let Some(grip) = find(tree, GRIP) {
+                if tree.el(grip).visible == look.locked {
+                    tree.set_visible(grip, !look.locked);
+                }
+            }
             place(tree, w.header, (0, 0, width, HEADER));
             // The move bar over the whole header (its grip mark centred on top).
             let bar = find(tree, tokenize("MoveBar"));
@@ -511,18 +614,68 @@ impl ModernChat {
             );
             place(tree, find(tree, GRIP), (width - 12, height - 12, 12, 12));
         }
+        renamed
     }
 
-    /// The opacity slider's drag: a press on a window's track or knob starts it, the pointer
-    /// moving sets the window's opacity, a release ends it. The window (its index) and the
-    /// opacity set, and whether the drag ended (the opacity is then saved).
+    /// A message to the modern windows: the opacity slider's drag (a press on a window's track
+    /// or knob starts it, the pointer moving sets the opacity, a release ends and saves it), the
+    /// options button opening and closing the settings popover, the popover's chips, and a press
+    /// elsewhere closing it.
     pub fn message(
         &self,
-        tree: &UiTree,
+        tree: &mut UiTree,
         message: &crate::mouse::UiMessage,
-    ) -> Option<(usize, f32, bool)> {
-        use crate::mouse::{GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP};
-        let pressed = (message.message == crate::token::MSG_MOUSE_PRESS_TOP)
+    ) -> Option<ChatEvent> {
+        use crate::mouse::{GLOBAL_MOUSE_DOWN, GLOBAL_MOUSE_MOVE, GLOBAL_MOUSE_UP};
+        use crate::token::{MSG_BUTTON_RELEASE_ON, MSG_MOUSE_PRESS_TOP};
+        // The options button (`=`) opens the window's popover, or closes it.
+        if message.message == MSG_BUTTON_RELEASE_ON {
+            if let Some(i) = self.windows.iter().position(|w| {
+                message.element.is_some()
+                    && tree.child_recursive(w.root, tokenize("OptionsButton")) == message.element
+            }) {
+                self.toggle_popover(tree, i);
+                return None;
+            }
+        }
+        if let (Some(popover), Some(i)) = (&self.popover, self.open_for.get()) {
+            if message.message == MSG_MOUSE_PRESS_TOP {
+                if let Some(element) = message.element.filter(|&e| popover.contains(tree, e)) {
+                    let mut looks = self.looks.borrow_mut();
+                    let look = looks.get_mut(i)?;
+                    return match popover.press(tree, element, look)? {
+                        SettingsAction::Changed => {
+                            *self.windows[i].laid_out.borrow_mut() = None;
+                            Some(ChatEvent::Look(i))
+                        }
+                        SettingsAction::Hide => {
+                            popover.hide(tree);
+                            self.open_for.set(None);
+                            Some(ChatEvent::Hide(i))
+                        }
+                        SettingsAction::OpenOptions => {
+                            popover.hide(tree);
+                            self.open_for.set(None);
+                            Some(ChatEvent::OpenOptions)
+                        }
+                    };
+                }
+            }
+            // A press away from the popover and the window's button closes it.
+            if message.message == GLOBAL_MOUSE_DOWN && message.element.is_none() {
+                let (x, y) = tree.pointer();
+                let inside = |e: usize| {
+                    let b = tree.screen_box(e);
+                    x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1
+                };
+                let button = tree.child_recursive(self.windows[i].root, tokenize("OptionsButton"));
+                if !inside(popover.root) && !button.is_some_and(inside) {
+                    popover.hide(tree);
+                    self.open_for.set(None);
+                }
+            }
+        }
+        let pressed = (message.message == MSG_MOUSE_PRESS_TOP)
             .then(|| {
                 self.windows.iter().position(|w| {
                     message.element.is_some()
@@ -543,7 +696,32 @@ impl ModernChat {
         }
         let track = tree.screen_box(self.windows.get(i)?.track?);
         let share = (tree.pointer().0 - track.x0) as f32 / track.width().max(1) as f32;
-        Some((i, share.clamp(MIN_OPACITY, 1.0), released))
+        Some(ChatEvent::Opacity {
+            window: i,
+            opacity: share.clamp(MIN_OPACITY, 1.0),
+            released,
+        })
+    }
+
+    /// Window `i`'s popover opened over its options button, or closed if open for it.
+    fn toggle_popover(&self, tree: &mut UiTree, i: usize) {
+        let Some(popover) = &self.popover else {
+            return;
+        };
+        if self.open_for.get() == Some(i) && popover.shown(tree) {
+            popover.hide(tree);
+            self.open_for.set(None);
+            return;
+        }
+        let w = &self.windows[i];
+        let Some(button) = tree.child_recursive(w.root, tokenize("OptionsButton")) else {
+            return;
+        };
+        let at = tree.screen_box(button);
+        let header = tree.screen_box(w.root).y0 + HEADER;
+        let look = self.looks.borrow().get(i).cloned().unwrap_or_default();
+        popover.show(tree, i + 1, &look, at, header);
+        self.open_for.set(Some(i));
     }
 }
 

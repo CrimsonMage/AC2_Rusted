@@ -430,6 +430,14 @@ impl ac2_ui::HudHost for ClientPlayer<'_> {
             .save_local_window_positions(player, style, positions);
     }
 
+    fn local_hud_layout(&self, player: u64) -> Result<ac2_ui::hud_layout::HudLayout, String> {
+        self.client.borrow().local_hud_layout(player)
+    }
+
+    fn save_local_hud_layout(&self, player: u64, layout: &ac2_ui::hud_layout::HudLayout) {
+        self.client.borrow().save_local_hud_layout(player, layout);
+    }
+
     /// `gmCWInterface::InqInt(290)` on the player's qualities.
     fn player_race(&self, player: u64) -> Option<i32> {
         let client = self.client.borrow_mut();

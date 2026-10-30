@@ -50,6 +50,29 @@ impl Client {
         }
     }
 
+    /// `character`'s modern HUD layout settings (`ac2_ui::hud_layout`), kept beside the window
+    /// positions.
+    pub fn local_hud_layout(
+        &self,
+        character: u64,
+    ) -> Result<ac2_ui::hud_layout::HudLayout, String> {
+        ac2_ui::hud_layout::read_hud_layout(&self.positions_dir(), character)
+    }
+
+    /// Writes `character`'s modern HUD layout settings. A failure is reported on stderr; the
+    /// choices stay for this session.
+    pub(crate) fn save_local_hud_layout(
+        &self,
+        character: u64,
+        layout: &ac2_ui::hud_layout::HudLayout,
+    ) {
+        let dir = self.positions_dir();
+        if let Err(error) = ac2_ui::hud_layout::write_hud_layout(&dir, character, layout) {
+            let path = ac2_ui::hud_layout::hud_layout_file(&dir, character);
+            eprintln!("ac2: HUD layout {}: {error}", path.display());
+        }
+    }
+
     /// Whether the radar shows its coordinates box (`gmRadarUI::ReloadOptions`' argument). Retail
     /// passed the profile's `PROFILE_SHOW_RADAR_COORDS` bit; here the box is also open while the
     /// player has not hidden it in this client, so a new character sees its coordinates. A change

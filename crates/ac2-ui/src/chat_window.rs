@@ -134,6 +134,8 @@ pub(crate) struct ChatWindow {
     pub pending: Vec<(u32, Vec<u16>)>,
     /// `m_messageInfoTable`.
     pub message_info: HashMap<u32, ChatMessageInfo>,
+    /// The modern style's font size step over the chat options' sizes (-1, 0, 1).
+    pub font_step: i32,
 }
 
 impl ChatWindow {
@@ -176,6 +178,7 @@ impl ChatWindow {
             bitfield: 0xF000_0000,
             pending: Vec::new(),
             message_info: HashMap::new(),
+            font_step: 0,
         };
         window.show(tree, false);
         Some(window)
@@ -268,7 +271,9 @@ impl ChatWindow {
         for (text_type, text) in std::mem::take(&mut self.pending) {
             let info = self.chat_message_info(text_type);
             popup |= info.popup;
-            tree.add_text_with_font(log, &text, info.size, info.color);
+            // The modern font step (`modern_chat_settings`) over the options' size.
+            let size = (info.size as i32 + self.font_step).clamp(0, 3) as u32;
+            tree.add_text_with_font(log, &text, size, info.color);
         }
         if !self.shown(tree) {
             if let Some(button) = self.button(tree) {

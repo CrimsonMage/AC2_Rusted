@@ -233,6 +233,14 @@ game rules and server-visible behaviour exactly retail.
   window's opacity as retail's did (`ChatWindow::SetOpacity`) and saves it on release
   (`SetWindowOpacity`), and the window's glass fades with it as retail's mode 3 frame did
   (`compose::DRAW_OVER_FADE`). The art is restyled in the chat's own copy of the toolbar layout.
+  The options button (`=`) opens the window's settings (`ac2_ui::modern_chat_settings`; retail's
+  button opened the field with its vertical opacity slider): a name for its tab, a font size step
+  over the chat options' per-type sizes (small, medium, large; applied to new lines), whether its
+  glass and the log's backing show and the backing's tint, a lock (a locked window neither moves,
+  by its bar or Alt + drag, nor resizes: `UiTree::set_locked`), Hide window (`ChatWindow::Show(0)`,
+  as its key does) and the chat options page. The choices, and the vitals' layout, are kept per
+  character on this machine in `HudLayout-<character>.txt` beside the window positions
+  (`ac2_ui::hud_layout`). Retail had none of these choices.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

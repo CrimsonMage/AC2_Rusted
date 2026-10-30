@@ -21,6 +21,13 @@ pub const CHAT_MENU_LIT: u32 = 0x7E01_00C9;
 pub const CHAT_GRIP: u32 = 0x7E01_00CA;
 pub const CHAT_KEY: u32 = 0x7E01_00CB;
 pub const CHAT_CLEAR: u32 = 0x7E01_00CC;
+/// The settings popover's glass.
+pub const CHAT_POPOVER: u32 = 0x7E01_00CD;
+/// The log's backing in each tint (`TINTS`' order: teal, black, bronze, blue).
+pub const CHAT_TINTS: [u32; 4] = [0x7E01_00C4, 0x7E01_00CE, 0x7E01_00CF, 0x7E01_00D0];
+/// The tints' names and colours (the design's `rgba(r,g,b,.8)`).
+pub const TINT_NAMES: [&str; 4] = ["Teal", "Black", "Bronze", "Blue"];
+const TINT_COLORS: [u32; 4] = [0x001412, 0x000000, 0x281C08, 0x06142C];
 /// The corners the stretched parts keep.
 pub const CHAT_BORDER: i32 = 8;
 pub const TAB_BORDER: i32 = 5;
@@ -175,6 +182,18 @@ fn key() -> UiPixels {
     c.finish()
 }
 
+/// The popover's glass: deep teal (`rgba(0,36,32,.97)`) in a light bronze line (`#c3bca4`) and a
+/// black rim, corners 8.
+fn popover() -> UiPixels {
+    let (w, h) = (24usize, 24usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(1.0, 1.0, w as f32 - 1.0, h as f32 - 1.0, 8.0);
+    c.paint(&shape, |_, _, d| (rgb(0x002420, 0.97), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0xC3BCA4, 1.0), band(d, -1.0, 0.0)));
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
 /// The chat's images made into `images`.
 pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
     for (id, image) in [
@@ -182,7 +201,7 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_GLASS_ACTIVE, glass(true)),
         (CHAT_HEADER, header()),
         (CHAT_TAB, tab()),
-        (CHAT_LOG, fill(0x001412, 0.8)),
+        (CHAT_POPOVER, popover()),
         (CHAT_ENTRY_BAR, entry_bar()),
         (CHAT_INPUT, input()),
         (CHAT_PILL, pill()),
@@ -193,5 +212,8 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (CHAT_CLEAR, Canvas::new(1, 1).finish()),
     ] {
         images.insert(id, image);
+    }
+    for (id, color) in CHAT_TINTS.into_iter().zip(TINT_COLORS) {
+        images.insert(id, fill(color, 0.8));
     }
 }

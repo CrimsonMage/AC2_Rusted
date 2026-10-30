@@ -33,7 +33,7 @@ fn the_bars_sit_side_by_side_over_the_experience_bar_and_stack_after_the_switch(
     };
     let tree = &mut hud.tree;
     let vitals = hud.vitals.modern().unwrap();
-    assert_eq!(vitals.layout(), VitalsLayout::SideBySide);
+    assert_eq!(vitals.current_layout(), VitalsLayout::SideBySide);
     let (h, v, f, xp) = (
         at(tree, "HealthField"),
         at(tree, "VigorField"),
@@ -65,7 +65,10 @@ fn the_bars_sit_side_by_side_over_the_experience_bar_and_stack_after_the_switch(
         }
     }
     hud.vitals.message(tree, &message, &NoStrings);
-    assert_eq!(hud.vitals.modern().unwrap().layout(), VitalsLayout::Stacked);
+    assert_eq!(
+        hud.vitals.modern().unwrap().current_layout(),
+        VitalsLayout::Stacked
+    );
     let (h, v, f, xp) = (
         at(tree, "HealthField"),
         at(tree, "VigorField"),

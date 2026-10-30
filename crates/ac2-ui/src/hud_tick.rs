@@ -88,6 +88,20 @@ pub fn tick_pass<P: HudSource>(
     // The modern chat windows follow their sizes and states.
     if let Some(chat) = chat.as_mut() {
         chat.modern_tick(tree, player);
+        // A window's settings popover asked for the chat options: the option panel shows on its
+        // chat page (`ChatTab`), as its tab's press opens it.
+        if chat.take_open_options() {
+            if let Some(bar) = toolbar.as_ref() {
+                bar.show(tree, crate::ToolbarChild::Option, true);
+            }
+            let tab = tree
+                .roots()
+                .iter()
+                .find_map(|&r| tree.child_recursive(r, crate::token::tokenize("ChatTab")));
+            if let Some(tab) = tab {
+                tree.start_use_active(tab);
+            }
+        }
     }
     // The modern vitals' layout switch follows the pointer.
     if let Some(bar) = vitals.as_ref() {

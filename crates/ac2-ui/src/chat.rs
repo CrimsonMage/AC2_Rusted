@@ -154,6 +154,10 @@ pub struct ChatUi {
     modern: Option<crate::modern_chat::ModernChat>,
     /// The windows' names (`ID_Option_Chat1`..`4`), once the UI table renders them.
     names: Vec<String>,
+    /// A modern window's popover asked for the options panel's chat page.
+    open_options: bool,
+    /// The modern windows' choices changed since the layout was last written.
+    looks_changed: bool,
 }
 
 impl ChatUi {
@@ -178,6 +182,8 @@ impl ChatUi {
             spew,
             modern: None,
             names: Vec::new(),
+            open_options: false,
+            looks_changed: false,
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
@@ -188,9 +194,49 @@ impl ChatUi {
 
     /// The modern style's windows laid over the four (`modern_chat`); `layouts` give its small
     /// font.
-    pub fn set_modern(&mut self, tree: &mut UiTree, layouts: &[&Arc<LayoutDesc>]) {
+    pub fn set_modern(
+        &mut self,
+        tree: &mut UiTree,
+        gameplay: Option<&Arc<LayoutDesc>>,
+        layouts: &[&Arc<LayoutDesc>],
+    ) {
         let roots: Vec<usize> = self.windows.iter().map(|w| w.root).collect();
-        self.modern = Some(crate::modern_chat::ModernChat::adopt(tree, &roots, layouts));
+        self.modern = Some(crate::modern_chat::ModernChat::adopt(
+            tree, &roots, gameplay, layouts,
+        ));
+    }
+
+    /// Window `i`'s modern choices applied: its font step (new lines) and its lock.
+    fn apply_look(&mut self, tree: &mut UiTree, i: usize) {
+        let Some((font, locked)) = self.modern.as_ref().map(|m| m.look_of(i)) else {
+            return;
+        };
+        if let Some(window) = self.windows.get_mut(i) {
+            window.font_step = font;
+            tree.set_locked(window.root, locked);
+        }
+        self.looks_changed = true;
+    }
+
+    /// The modern windows' choices as the HUD's layout settings keep them.
+    pub fn apply_layout(&mut self, tree: &mut UiTree, layout: &crate::hud_layout::HudLayout) {
+        if let Some(modern) = &self.modern {
+            modern.read_looks(layout);
+        }
+        for i in 0..self.windows.len() {
+            self.apply_look(tree, i);
+        }
+        self.looks_changed = false;
+    }
+
+    /// The modern windows' choices written into the HUD's layout settings; whether they changed.
+    pub fn export_layout(&self, layout: &mut crate::hud_layout::HudLayout) -> bool {
+        self.modern.as_ref().is_some_and(|m| m.write_looks(layout))
+    }
+
+    /// Whether a modern window's popover asked for the chat options page since the last call.
+    pub fn take_open_options(&mut self) -> bool {
+        std::mem::take(&mut self.open_options)
     }
 
     /// The modern windows laid out for their sizes and states (every frame; nothing in classic);
@@ -208,7 +254,9 @@ impl ChatUi {
                 })
                 .collect();
         }
-        modern.follow(tree, &self.names);
+        if modern.follow(tree, &self.names) {
+            self.looks_changed = true;
+        }
     }
 
     /// The windows' roots, first to fourth.
@@ -283,16 +331,31 @@ impl ChatUi {
 
     /// One UI message (`gmChatUI::ListenToMessage` and each `ChatWindow::ListenToMessage`).
     pub fn message(&mut self, tree: &mut UiTree, message: &UiMessage, modifiers: Modifiers) {
-        // The modern opacity slider: it sets the window's opacity as retail's slider did, and a
-        // release saves it (`SetWindowOpacity`).
-        if let Some((i, opacity, released)) =
-            self.modern.as_ref().and_then(|m| m.message(tree, message))
-        {
-            if let Some(window) = self.windows.get(i) {
-                window.apply_opacity(tree, opacity);
-                if released {
-                    self.opacity_requests.push((window.window_id, opacity));
+        // The modern windows' own parts: the opacity slider (it sets the window's opacity as
+        // retail's slider did, and a release saves it), the settings popover.
+        let event = self.modern.as_ref().map(|m| m.message(tree, message));
+        if let Some(Some(event)) = event {
+            use crate::modern_chat::ChatEvent;
+            match event {
+                ChatEvent::Opacity {
+                    window,
+                    opacity,
+                    released,
+                } => {
+                    if let Some(w) = self.windows.get(window) {
+                        w.apply_opacity(tree, opacity);
+                        if released {
+                            self.opacity_requests.push((w.window_id, opacity));
+                        }
+                    }
                 }
+                ChatEvent::Look(i) => self.apply_look(tree, i),
+                ChatEvent::Hide(i) => {
+                    if let Some(w) = self.windows.get_mut(i) {
+                        w.show(tree, false);
+                    }
+                }
+                ChatEvent::OpenOptions => self.open_options = true,
             }
             return;
         }

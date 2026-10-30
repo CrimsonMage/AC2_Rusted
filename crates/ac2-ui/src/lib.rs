@@ -274,6 +274,7 @@ mod modern_art_chat;
 mod modern_art_drawer;
 mod modern_art_radar;
 mod modern_chat;
+mod modern_chat_settings;
 #[cfg(test)]
 mod modern_chat_tests;
 mod modern_drawer_bar;
@@ -308,6 +309,7 @@ pub use wheel::{wheel_event_delta, WheelAccumulator, PIXELS_PER_NOTCH, WHEEL_DEL
 pub use window_locations::{
     clip_to_pixel, pixel_to_clip, saved_windows, ui_save_locations, SavedWindow, WindowLocation,
 };
+pub mod hud_layout;
 mod window_positions;
 pub use window_positions::{
     parse as parse_window_positions, radar_coords_hidden_file, read_radar_coords_hidden,

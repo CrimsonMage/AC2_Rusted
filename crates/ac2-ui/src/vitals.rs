@@ -86,6 +86,30 @@ impl VitalsUi {
         self.modern.as_ref()
     }
 
+    /// The modern panel's layout written into the HUD's layout settings; whether it changed.
+    pub fn export_layout(&self, layout: &mut crate::hud_layout::HudLayout) -> bool {
+        self.modern.as_ref().is_some_and(|m| {
+            let value = match m.current_layout() {
+                crate::modern_vitals::VitalsLayout::SideBySide => "side",
+                crate::modern_vitals::VitalsLayout::Stacked => "stacked",
+            };
+            layout.set("vitals.layout", value)
+        })
+    }
+
+    /// The modern panel's layout as the HUD's layout settings keep it.
+    pub fn apply_layout(&self, tree: &mut UiTree, layout: &crate::hud_layout::HudLayout) {
+        if let Some(m) = &self.modern {
+            let chosen = match layout.get("vitals.layout") {
+                Some("stacked") => crate::modern_vitals::VitalsLayout::Stacked,
+                _ => crate::modern_vitals::VitalsLayout::SideBySide,
+            };
+            if m.current_layout() != chosen {
+                m.set_layout(tree, chosen);
+            }
+        }
+    }
+
     /// The modern panel's switch follows the pointer (every frame; nothing in classic).
     pub fn modern_tick(&self, tree: &mut UiTree) {
         if let Some(modern) = &self.modern {

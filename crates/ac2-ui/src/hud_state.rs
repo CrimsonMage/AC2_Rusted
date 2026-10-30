@@ -66,6 +66,8 @@ pub struct Hud {
     pub quests: Option<QuestsUi>,
     /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
     pub vitals: Option<VitalsUi>,
+    /// The modern HUD's layout settings for the character (`hud_layout`).
+    pub hud_layout: crate::hud_layout::HudLayout,
     pub effects: Option<EffectsUi>,
     pub vitae: Option<VitaeStatusUi>,
     /// `gmPKStatusUI`, the PK indicator.

@@ -53,6 +53,13 @@ pub trait HudHost {
         style: HudStyle,
         positions: &[WindowPosition],
     );
+    /// The modern HUD's layout settings kept on this machine for the character (`hud_layout`);
+    /// none by default.
+    fn local_hud_layout(&self, _player: u64) -> Result<crate::hud_layout::HudLayout, String> {
+        Ok(Default::default())
+    }
+    /// Saves the modern HUD's layout settings on this machine; nothing by default.
+    fn save_local_hud_layout(&self, _player: u64, _layout: &crate::hud_layout::HudLayout) {}
     /// The player's race (int 290) from the object table.
     fn player_race(&self, player: u64) -> Option<i32>;
     /// The GUN friend events taken since the last call (`FriendStart`, `FriendStatus`).
@@ -349,6 +356,20 @@ impl Hud {
                 }
             }
         }
+        // The modern HUD's layout settings: each part's choices, saved on this machine when one
+        // changed (`hud_layout`).
+        if self.style == HudStyle::Modern && self.player_loaded {
+            let mut changed = self
+                .vitals
+                .as_ref()
+                .is_some_and(|v| v.export_layout(&mut self.hud_layout));
+            if let Some(chat) = self.chat.as_ref() {
+                changed |= chat.export_layout(&mut self.hud_layout);
+            }
+            if let (true, Some(player)) = (changed, input.player) {
+                host.save_local_hud_layout(player, &self.hud_layout);
+            }
+        }
         // The chat windows' opacity sliders released since the last frame.
         if let Some(chat) = self.chat.as_mut() {
             for (window, opacity) in chat.take_opacity_requests() {
@@ -379,6 +400,19 @@ impl Hud {
                 match host.local_window_positions(player, self.style) {
                     Ok(local) => tree.set_window_positions(&local),
                     Err(error) => eprintln!("ac2: window positions: {error}"),
+                }
+            }
+            // The modern HUD's layout settings, per character (`hud_layout`).
+            if let (HudStyle::Modern, Some(player)) = (self.style, input.player) {
+                match host.local_hud_layout(player) {
+                    Ok(layout) => self.hud_layout = layout,
+                    Err(error) => eprintln!("ac2: HUD layout: {error}"),
+                }
+                if let Some(vitals) = self.vitals.as_ref() {
+                    vitals.apply_layout(tree, &self.hud_layout);
+                }
+                if let Some(chat) = self.chat.as_mut() {
+                    chat.apply_layout(tree, &self.hud_layout);
                 }
             }
         }

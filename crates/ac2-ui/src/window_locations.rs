@@ -184,7 +184,7 @@ impl UiTree {
     /// `UIElement::StartMovement`: the element follows the pointer from here. A move in progress
     /// is kept (one drag at a time).
     pub(crate) fn start_movement(&mut self, element: usize) {
-        if self.movement.is_some() {
+        if self.movement.is_some() || self.el(self.root_of(element)).locked {
             return;
         }
         let start_pos = self.position_of(element);
@@ -193,6 +193,12 @@ impl UiTree {
             start_pointer: self.pointer,
             start_pos,
         });
+    }
+
+    /// `root` locked in place or freed (the modern style's lock): a locked window neither moves
+    /// (by its drag bar or Alt + drag) nor resizes.
+    pub fn set_locked(&mut self, root: usize, locked: bool) {
+        self.el_mut(root).locked = locked;
     }
 
     /// `UIElement::StopMovement`.

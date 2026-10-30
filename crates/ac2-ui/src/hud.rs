@@ -312,7 +312,10 @@ pub fn build_styled_hud(
             };
             let mut chat = ChatUi::create(&mut tree, &chat_layout, messages, chat_strings(store)?);
             if style == HudStyle::Modern {
-                chat.set_modern(&mut tree, &[toolbar]);
+                let gameplay = layouts[&LAYOUT_GAMEPLAY].as_ref();
+                let fonts: Vec<&Arc<LayoutDesc>> =
+                    [Some(toolbar), gameplay].into_iter().flatten().collect();
+                chat.set_modern(&mut tree, gameplay, &fonts);
             }
             Some(chat)
         }

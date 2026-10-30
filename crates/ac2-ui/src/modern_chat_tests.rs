@@ -107,3 +107,70 @@ fn the_classic_windows_keep_retails_frame() {
         .child_recursive(root, tokenize("ModernChatHeader"))
         .is_none());
 }
+
+fn release(tree: &UiTree, element: usize) -> UiMessage {
+    UiMessage {
+        element_id: tree.el(element).id(),
+        element: Some(element),
+        message: crate::token::MSG_BUTTON_RELEASE_ON,
+        data: 0,
+        item: None,
+    }
+}
+
+fn root_named(tree: &UiTree, name: &str) -> usize {
+    *tree
+        .roots()
+        .iter()
+        .find(|&&r| tree.el(r).id() == tokenize(name))
+        .unwrap_or_else(|| panic!("{name}"))
+}
+
+/// The options button (`=`) opens the window's settings over it; its chips change the window
+/// (the lock stops a move, the tint and font step are kept in the HUD's layout), Hide hides it.
+#[test]
+fn the_settings_popover_changes_the_window_and_is_kept_in_the_layout() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = hud.chat.as_mut().unwrap();
+    chat.modern_tick(tree, &Names);
+    let root = chat.roots()[0];
+    let modifiers = crate::chat::Modifiers::default();
+    let button = part(tree, root, "OptionsButton");
+    chat.message(tree, &release(tree, button), modifiers);
+    let popover = root_named(tree, "ModernChatSettings");
+    assert!(tree.el(popover).visible);
+    let (p, b) = (tree.screen_box(popover), tree.screen_box(button));
+    assert!(
+        p.x1 <= b.x1 + 1 && (p.y1 < b.y0 || p.y0 > b.y1),
+        "{p:?} {b:?}"
+    );
+    let press = |tree: &mut UiTree, chat: &mut crate::ChatUi, name: &str| {
+        let chip = part(tree, popover, name);
+        chat.message(tree, &message(MSG_MOUSE_PRESS_TOP, Some(chip)), modifiers);
+    };
+    press(tree, chat, "ModernChatFontL");
+    press(tree, chat, "ModernChatTint");
+    press(tree, chat, "ModernChatLock");
+    let mut layout = crate::hud_layout::HudLayout::default();
+    assert!(chat.export_layout(&mut layout));
+    assert_eq!(layout.number("chat.1.font", 0), 1);
+    assert_eq!(layout.number("chat.1.tint", 0), 1);
+    assert!(layout.flag("chat.1.locked", false));
+    // Locked: the move bar's press does not move the window.
+    let bar = part(tree, root, "MoveBar");
+    let before = tree.screen_box(root);
+    tree.start_movement(bar);
+    assert!(tree.movement.is_none(), "a locked window does not move");
+    assert_eq!(tree.screen_box(root), before);
+    // The layout read back gives the same choices.
+    let mut back = crate::hud_layout::HudLayout::parse(&layout.to_text());
+    chat.apply_layout(tree, &back);
+    assert!(!chat.export_layout(&mut back));
+    press(tree, chat, "ModernChatHide");
+    assert!(!tree.el(root).visible);
+    assert!(!tree.el(popover).visible);
+}
+
