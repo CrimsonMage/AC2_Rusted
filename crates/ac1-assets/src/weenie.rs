@@ -2,7 +2,8 @@
 //! properties that decide how a creature looks, read from its `INSERT` statements. ACE builds
 //! the `ObjDesc` it sends from the same properties (`WorldObject.CalculateObjDesc`): the Setup,
 //! the ClothingBase's object effects for that Setup, the PaletteTemplate's sub-palettes at the
-//! weenie's shade, and the weenie's own anim parts, texture maps and palettes.
+//! weenie's shade, and the weenie's own anim parts, texture maps and palettes. Its HeartBeat
+//! emotes are the idle actions ACE's `EmoteManager` plays every heartbeat.
 
 use std::path::Path;
 
@@ -29,7 +30,28 @@ pub struct AceWeenie {
     pub texture_maps: Vec<(u32, u32, u32)>,
     /// `weenie_properties_palette`: (palette or palette set, offset, length), in units of 8.
     pub palettes: Vec<(u32, u32, u32)>,
+    /// `PropertyFloat.HeartbeatInterval` in seconds (5 when unset).
+    pub heartbeat_interval: f64,
+    /// The HeartBeat emote sets (`EmoteCategory.HeartBeat`), in the file's order.
+    pub heartbeat_emotes: Vec<AceEmoteSet>,
 }
+
+/// One emote set: the roll it answers, the stance it applies in, and its Motion actions.
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct AceEmoteSet {
+    /// `probability`: the set answers a roll under it (`EmoteManager.GetEmoteSet` takes the
+    /// first set, by ascending probability, above the roll).
+    pub probability: f64,
+    /// `style` and `substyle` (`MotionStance` and the substate); `None` for any.
+    pub style: Option<u32>,
+    pub substyle: Option<u32>,
+    /// `EmoteType.Motion` actions in order: (delay in seconds, motion command).
+    pub motions: Vec<(f64, u32)>,
+}
+
+/// `EmoteCategory.HeartBeat` and `EmoteType.Motion`.
+const EMOTE_HEARTBEAT: u32 = 5;
+const EMOTE_ACTION_MOTION: u32 = 5;
 
 /// One SQL value.
 #[derive(Debug, Clone, PartialEq)]
@@ -67,9 +89,13 @@ impl AceWeenie {
     pub fn parse(sql: &str) -> Option<Self> {
         let mut weenie = Self {
             scale: 1.0,
+            heartbeat_interval: 5.0,
             ..Self::default()
         };
         let mut found = false;
+        // The emote set the following `weenie_properties_emote_action` rows belong to
+        // (`SET @parent_id = LAST_INSERT_ID()`), when it is a HeartBeat set.
+        let mut current: Option<usize> = None;
         for (table, rows) in inserts(sql) {
             for row in rows {
                 let at = |i: usize| row.get(i).cloned().unwrap_or(Value::Null);
@@ -93,6 +119,7 @@ impl AceWeenie {
                         weenie.palette_template = at(2).u32();
                     }
                     "weenie_properties_float" => match at(1).u32() {
+                        Some(1) => weenie.heartbeat_interval = at(2).f64().unwrap_or(5.0),
                         Some(12) => weenie.shade = at(2).f64().unwrap_or(0.0),
                         Some(39) => weenie.scale = at(2).f64().unwrap_or(1.0) as f32,
                         _ => {}
@@ -104,6 +131,25 @@ impl AceWeenie {
                         weenie
                             .texture_maps
                             .push((at(1).u32()?, at(2).u32()?, at(3).u32()?));
+                    }
+                    "weenie_properties_emote" => {
+                        current = (at(1).u32() == Some(EMOTE_HEARTBEAT)).then(|| {
+                            weenie.heartbeat_emotes.push(AceEmoteSet {
+                                probability: at(2).f64().unwrap_or(1.0),
+                                style: at(4).u32(),
+                                substyle: at(5).u32(),
+                                motions: Vec::new(),
+                            });
+                            weenie.heartbeat_emotes.len() - 1
+                        });
+                    }
+                    "weenie_properties_emote_action" => {
+                        if let (Some(set), Some(EMOTE_ACTION_MOTION), Some(motion)) =
+                            (current, at(2).u32(), at(5).u32())
+                        {
+                            let delay = at(3).f64().unwrap_or(0.0);
+                            weenie.heartbeat_emotes[set].motions.push((delay, motion));
+                        }
                     }
                     "weenie_properties_palette" => {
                         weenie
@@ -318,8 +364,23 @@ VALUES (90001,   1, 0x02000001) /* Setup */
 INSERT INTO `weenie_properties_palette` (`object_Id`, `sub_Palette_Id`, `offset`, `length`)
 VALUES (90001, 0x0F000004, 0, 12);
 
-INSERT INTO `weenie_properties_emote_action` (`emote_Id`, `order`, `type`)
-VALUES (@parent_id,  0,   5 /* Motion */);
+INSERT INTO `weenie_properties_emote` (`object_Id`, `category`, `probability`, `weenie_Class_Id`, `style`, `substyle`, `quest`)
+VALUES (90001,  3 /* Death */,   0.5, NULL, NULL, NULL, NULL);
+
+SET @parent_id = LAST_INSERT_ID();
+
+INSERT INTO `weenie_properties_emote_action` (`emote_Id`, `order`, `type`, `delay`, `extent`, `motion`)
+VALUES (@parent_id,  0,   5 /* Motion */, 0, 1, 0x10000099);
+
+INSERT INTO `weenie_properties_emote` (`object_Id`, `category`, `probability`, `weenie_Class_Id`, `style`, `substyle`, `quest`)
+VALUES (90001,  5 /* HeartBeat */,   0.1, NULL, 0x8000003D /* NonCombat */, 0x41000003 /* Ready */, NULL);
+
+SET @parent_id = LAST_INSERT_ID();
+
+INSERT INTO `weenie_properties_emote_action` (`emote_Id`, `order`, `type`, `delay`, `extent`, `motion`)
+VALUES (@parent_id,  0,   5 /* Motion */, 0, 1, 0x10000051 /* Twitch1 */)
+     , (@parent_id,  1,  10 /* Tell */, 0, 1, NULL)
+     , (@parent_id,  2,   5 /* Motion */, 0.5, 1, 0x41000003 /* Ready */);
 ";
 
     #[test]
@@ -334,6 +395,16 @@ VALUES (@parent_id,  0,   5 /* Motion */);
         assert_eq!(weenie.shade, 0.5);
         assert_eq!(weenie.scale, 0.95);
         assert_eq!(weenie.palettes, vec![(0x0F00_0004, 0, 12)]);
+        assert_eq!(weenie.heartbeat_interval, 5.0);
+        assert_eq!(
+            weenie.heartbeat_emotes,
+            vec![AceEmoteSet {
+                probability: 0.1,
+                style: Some(0x8000_003D),
+                substyle: Some(0x4100_0003),
+                motions: vec![(0.0, 0x1000_0051), (0.5, 0x4100_0003)],
+            }]
+        );
         assert!(AceWeenie::parse("SELECT 1;").is_none());
     }
 }

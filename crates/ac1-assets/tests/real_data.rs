@@ -31,12 +31,13 @@ fn every_weenie_builds_a_drawn_model_with_an_idle_cycle() {
             .map(|b| b.indices.len() / 3)
             .sum();
         println!(
-            "{:<20} parts {:>2} triangles {:>5} images {:>2} idle frames {:?}",
+            "{:<20} parts {:>2} triangles {:>5} images {:>2} idle frames {:?} actions {:?}",
             weenie.name,
             creature.model.parts.len(),
             triangles,
             creature.images.len(),
-            creature.idle.as_ref().map(|i| i.frame_count())
+            creature.idle.as_ref().map(|i| i.cycle.frame_count()),
+            creature.idle.as_ref().map(|i| i.action_count())
         );
         assert!(triangles > 0, "{} draws nothing", weenie.name);
         assert!(creature.images.iter().all(|(_, i)| i.is_some()));

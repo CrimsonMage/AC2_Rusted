@@ -22,9 +22,10 @@ use ac2_render::TextureKey;
 use crate::dats::Ac1Dats;
 use crate::formats::{
     decode_degrade_closest, decode_palette, decode_palette_set, decode_surface_texture,
-    palette_for_shade, surface_type as st, Ac1Error, Ac1Result, Animation, ClothingTable, Frame,
-    GfxObj, MotionTable, RenderSurface, Setup, Surface,
+    palette_for_shade, surface_type as st, Ac1Error, Ac1Result, ClothingTable, Frame, GfxObj,
+    RenderSurface, Setup, Surface,
 };
+use crate::idle::IdleBehaviour;
 use crate::image::{decode_rgba, mip_chain, solid};
 use crate::weenie::AceWeenie;
 
@@ -33,10 +34,17 @@ pub const AC1_VISUAL_BASE: u32 = 0xAC00_0000;
 /// The texture DIDs their images are keyed by.
 const AC1_TEXTURE_BASE: u32 = 0xAC80_0000;
 const PALETTE_SET: u32 = 0x0F;
+/// How much brighter an AC1 texel draws than an AC2 one. AC1 lit its objects in display space
+/// (`texel * (ambient + sun * N.L)`, the region's lights summing past 1 and clamped), and its
+/// textures are authored darker for that; this path lights in linear light as AC2's objects are,
+/// which leaves AC1 creatures dim beside AC2 bodies. The stage doubles the texel
+/// (`D3DTOP_MODULATE2X`) against a material diffuse of half this gain.
+const AC1_TEXEL_GAIN: f32 = 1.4;
 
 /// D3D values of the one layer an AC1 surface draws as.
 mod d3d {
     pub const TOP_MODULATE: u32 = 4;
+    pub const TOP_MODULATE2X: u32 = 5;
     pub const TOP_SELECTARG1: u32 = 2;
     pub const TA_DIFFUSE: u32 = 0;
     pub const TA_TEXTURE: u32 = 2;
@@ -56,35 +64,8 @@ pub struct Ac1Creature {
     pub visual: DataId,
     pub model: ObjectModel,
     pub images: Images,
-    /// The motion table's idle cycle, when it has one.
-    pub idle: Option<IdleCycle>,
-}
-
-/// A looping cycle of per-part poses (`CSequence` over the cycle's `AnimData`s).
-#[derive(Debug, Clone, PartialEq)]
-pub struct IdleCycle {
-    /// Each frame's part poses and how long it shows.
-    frames: Vec<(Vec<PartPose>, f64)>,
-    length: f64,
-}
-
-impl IdleCycle {
-    /// The poses at `time` seconds into the loop (each frame held, as `CSequence` steps whole
-    /// frames).
-    pub fn pose(&self, time: f64) -> &[PartPose] {
-        let mut t = time.rem_euclid(self.length);
-        for (pose, duration) in &self.frames {
-            if t < *duration {
-                return pose;
-            }
-            t -= duration;
-        }
-        &self.frames[self.frames.len() - 1].0
-    }
-
-    pub fn frame_count(&self) -> usize {
-        self.frames.len()
-    }
+    /// The idle cycle and heartbeat actions, when the motion table has a default cycle.
+    pub idle: Option<IdleBehaviour>,
 }
 
 /// The part changes and palette an `ObjDesc` makes of a weenie.
@@ -161,7 +142,7 @@ impl Ac1Dats {
             setup.default_motion_table
         };
         let idle = (motion_table != 0)
-            .then(|| self.idle_cycle(motion_table, bones))
+            .then(|| self.idle_behaviour(weenie, motion_table, bones))
             .transpose()?
             .flatten();
         Ok(Ac1Creature {
@@ -229,44 +210,6 @@ impl Ac1Dats {
             context: "the palette set has no palette at this shade",
         })
     }
-
-    /// `CMotionTable::SetDefaultState`'s cycle as poses for `parts` parts.
-    fn idle_cycle(&self, motion_table: u32, parts: usize) -> Ac1Result<Option<IdleCycle>> {
-        let table = self.decode(motion_table, MotionTable::decode)?;
-        let Some(anims) = table.idle_cycle() else {
-            return Ok(None);
-        };
-        let mut frames = Vec::new();
-        for data in anims {
-            let animation = self.decode(data.animation, Animation::decode)?;
-            let last = animation.frames.len() as i32 - 1;
-            let high = if data.high_frame < 0 {
-                last
-            } else {
-                data.high_frame.min(last)
-            };
-            let low = data.low_frame.clamp(0, high.max(0));
-            let rate = f64::from(data.framerate.abs()).max(1.0);
-            let mut range: Vec<i32> = (low..=high).collect();
-            if data.framerate < 0.0 {
-                range.reverse();
-            }
-            for index in range {
-                let pose = (0..parts)
-                    .map(|part| {
-                        let frame = animation.frames[index as usize]
-                            .get(part)
-                            .copied()
-                            .unwrap_or(Frame::IDENTITY);
-                        part_pose(frame)
-                    })
-                    .collect();
-                frames.push((pose, 1.0 / rate));
-            }
-        }
-        let length = frames.iter().map(|(_, d)| d).sum::<f64>();
-        Ok((!frames.is_empty() && length > 0.0).then_some(IdleCycle { frames, length }))
-    }
 }
 
 /// A frame as the bone transform the renderer poses a part with.
@@ -284,7 +227,7 @@ fn transform(frame: Frame) -> Ac2Transform {
     }
 }
 
-fn part_pose(frame: Frame) -> PartPose {
+pub(crate) fn part_pose(frame: Frame) -> PartPose {
     let t = transform(frame);
     PartPose {
         offset: t.offset.to_array(),
@@ -509,7 +452,7 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
         false_flags: 0,
         stages: vec![Ac2LayerStage {
             texture: Some(texture),
-            color_op: d3d::TOP_MODULATE,
+            color_op: d3d::TOP_MODULATE2X,
             color_arg1: d3d::TA_TEXTURE,
             color_arg2: d3d::TA_DIFFUSE,
             alpha_op: if alpha {
@@ -542,7 +485,12 @@ fn layer(surface: &Surface, texture: DataId) -> Ac2MaterialLayer {
             ..Ac2LayerLighting::default()
         },
         ambient: [1.0; 4],
-        diffuse: [1.0, 1.0, 1.0, opacity],
+        diffuse: [
+            AC1_TEXEL_GAIN / 2.0,
+            AC1_TEXEL_GAIN / 2.0,
+            AC1_TEXEL_GAIN / 2.0,
+            opacity,
+        ],
         specular: [0.0; 4],
         specular_power: Ac2Waveform::constant(0.0),
         options: 0,
@@ -604,21 +552,7 @@ mod tests {
     }
 
     #[test]
-    fn the_idle_cycle_holds_each_frame_and_loops() {
-        let pose = |x: f32| {
-            vec![PartPose {
-                offset: [x, 0.0, 0.0],
-                rotation: [1.0, 0.0, 0.0, 0.0],
-                scale: [1.0; 3],
-            }]
-        };
-        let cycle = IdleCycle {
-            frames: vec![(pose(0.0), 0.1), (pose(1.0), 0.1)],
-            length: 0.2,
-        };
-        assert_eq!(cycle.pose(0.05)[0].offset[0], 0.0);
-        assert_eq!(cycle.pose(0.15)[0].offset[0], 1.0);
-        assert_eq!(cycle.pose(0.25)[0].offset[0], 0.0);
+    fn an_identity_frame_places_a_part_at_the_origin() {
         assert_eq!(origin(&transform(Frame::IDENTITY).to_mat4()), Vec3::ZERO);
     }
 }

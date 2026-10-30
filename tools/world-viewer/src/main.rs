@@ -6,7 +6,7 @@
 //! world-viewer ... --snapshot out.png [--model N] [--walk SECONDS] [--speed N] [--warm-up SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --bench N [--gpu-times] [--snapshot out.png] [--model N] [--walk SECONDS] [--at X,Y] [--fly]
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
-//! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR]   (with or without --snapshot)
+//! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS]
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -41,7 +41,8 @@
 //! RSS). The line always ends with the allocator's VRAM bytes (0 on Metal and GL).
 //! `--ace-weenies DIR` stands every ACE weenie patch file (`*.sql`) in DIR, built from the AC1
 //! DATs (`--ac1-dat-dir`, else `AC1_DAT_DIR`), in a ring around where the player first stands,
-//! each idling through its motion table's default cycle (`ac1.rs`).
+//! each idling through its motion table's default cycle and its weenie's HeartBeat emote actions
+//! (`ac1.rs`); `--ac1-heartbeat` rolls those every SECONDS instead of the weenie's interval.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -131,6 +132,7 @@ struct Args {
     /// ACE weenie patch files to stand in the world, and the AC1 DATs they are built from.
     ace_weenies: Option<PathBuf>,
     ac1_dat_dir: Option<PathBuf>,
+    ac1_heartbeat: Option<f64>,
 }
 
 fn parse_args() -> Result<Args, String> {
@@ -166,6 +168,7 @@ fn parse_args() -> Result<Args, String> {
         size: (1280, 720),
         ace_weenies: None,
         ac1_dat_dir: std::env::var_os(ac1_assets::AC1_DAT_DIR_ENV).map(PathBuf::from),
+        ac1_heartbeat: None,
     };
     let mut it = std::env::args().skip(1);
     while let Some(flag) = it.next() {
@@ -254,6 +257,13 @@ fn parse_args() -> Result<Args, String> {
             }
             "--ace-weenies" => args.ace_weenies = Some(value()?.into()),
             "--ac1-dat-dir" => args.ac1_dat_dir = Some(value()?.into()),
+            "--ac1-heartbeat" => {
+                args.ac1_heartbeat = Some(
+                    value()?
+                        .parse()
+                        .map_err(|e| format!("--ac1-heartbeat: {e}"))?,
+                );
+            }
             "--crowd" => args.crowd = value()?.parse().map_err(|e| format!("--crowd: {e}"))?,
             "--model-detail" => {
                 args.degrade.model_detail = value()?
@@ -318,7 +328,10 @@ fn main() {
     };
     let ac1 = match (&args.ace_weenies, &args.ac1_dat_dir) {
         (Some(weenies), Some(dats)) => match ac1::Ac1Showcase::load(dats, weenies) {
-            Ok(showcase) => Some(showcase),
+            Ok(mut showcase) => {
+                showcase.heartbeat = args.ac1_heartbeat;
+                Some(showcase)
+            }
             Err(error) => {
                 eprintln!("world-viewer: {error}");
                 std::process::exit(2);

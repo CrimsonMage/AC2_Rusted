@@ -2,12 +2,13 @@
 //! patch file (`*.sql`) in DIR is built from the AC1 DATs (`--ac1-dat-dir`, or `AC1_DAT_DIR`) by
 //! `ac1-assets`, its model handed to the view as a foreign model, and the creatures stand in a
 //! ring around where the player first stands, facing in, each playing its motion table's idle
-//! cycle. They have no AI and never move.
+//! cycle and, every heartbeat, the idle actions its ACE HeartBeat emotes roll for (`IdlePlayer`;
+//! `--ac1-heartbeat SECONDS` shortens the weenies' interval). They have no AI and never move.
 
 use std::path::Path;
 use std::sync::Arc;
 
-use ac1_assets::{Ac1Creature, Ac1Dats, Ac1Models, AceWeenie};
+use ac1_assets::{Ac1Creature, Ac1Dats, Ac1Models, AceWeenie, IdlePlayer};
 use ac2_client::{ObjectFrame, PlayerFrame};
 use ac2_core::DataId;
 use ac2_physics::{Frame, Heading, Quaternion, Vector};
@@ -22,6 +23,10 @@ const SPACING: f32 = 4.0;
 /// The creatures and where they stand.
 pub struct Ac1Showcase {
     creatures: Vec<Ac1Creature>,
+    /// Each creature's idle state, made at its first frame.
+    players: Vec<Option<IdlePlayer>>,
+    /// `--ac1-heartbeat`: the heartbeat interval in place of the weenies'.
+    pub heartbeat: Option<f64>,
     models: Arc<Ac1Models>,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
@@ -68,6 +73,8 @@ impl Ac1Showcase {
                 .join(", ")
         );
         Ok(Self {
+            players: vec![None; creatures.len()],
+            heartbeat: None,
             creatures,
             models: Arc::new(models),
             anchor: None,
@@ -99,11 +106,13 @@ impl Ac1Showcase {
             return Vec::new();
         };
         let count = self.creatures.len();
+        let heartbeat = self.heartbeat;
         let radius = MIN_RADIUS.max(count as f32 * SPACING / std::f32::consts::TAU);
         self.creatures
             .iter()
+            .zip(self.players.iter_mut())
             .enumerate()
-            .map(|(index, creature)| {
+            .map(|(index, (creature, player))| {
                 let angle = index as f32 / count as f32 * 360.0;
                 let (sin, cos) = angle.to_radians().sin_cos();
                 let x = centre[0] + radius * sin;
@@ -117,7 +126,12 @@ impl Ac1Showcase {
                 let pose = creature
                     .idle
                     .as_ref()
-                    .map(|idle| idle.pose(time + index as f64 * 0.37).to_vec())
+                    .map(|idle| {
+                        player
+                            .get_or_insert_with(|| IdlePlayer::new(idle, index as u64 + 1, time))
+                            .pose(idle, time, heartbeat)
+                            .to_vec()
+                    })
                     .unwrap_or_default();
                 let scale = creature.weenie.scale;
                 ObjectFrame {

@@ -712,17 +712,19 @@ pub struct AnimData {
     pub framerate: f32,
 }
 
-/// `CMotionTable` (`0x09`): what the idle cycle needs.
+/// `CMotionTable` (`0x09`): its cycles and the links between motions.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct MotionTable {
     pub default_style: u32,
     pub style_defaults: HashMap<u32, u32>,
     /// `cycles` by `(style << 16) | (substate & 0xFFFFFF)`.
     pub cycles: HashMap<u32, Vec<AnimData>>,
+    /// `links` by `(style << 16) | (substate & 0xFFFFFF)`, then by the motion linked to.
+    pub links: HashMap<u32, HashMap<u32, Vec<AnimData>>>,
 }
 
 impl MotionTable {
-    /// `CMotionTable::UnPack` up to the cycles (the modifiers and links are not read).
+    /// `CMotionTable::UnPack` (the modifiers are read past).
     pub fn decode(did: u32, bytes: &[u8]) -> Ac1Result<Self> {
         let mut r = Reader::new(did, bytes);
         r.header()?;
@@ -739,11 +741,50 @@ impl MotionTable {
             let key = r.u32("missing MotionTable cycle key")?;
             cycles.insert(key, motion_data(&mut r)?);
         }
+        let n = r.u32_count(8, "missing MotionTable modifier count")?;
+        for _ in 0..n {
+            r.u32("missing MotionTable modifier key")?;
+            motion_data(&mut r)?;
+        }
+        let n = r.u32_count(8, "missing MotionTable link count")?;
+        let mut links = HashMap::with_capacity(n);
+        for _ in 0..n {
+            let key = r.u32("missing MotionTable link key")?;
+            let m = r.u32_count(8, "missing MotionTable link motion count")?;
+            let mut motions = HashMap::with_capacity(m);
+            for _ in 0..m {
+                let motion = r.u32("missing MotionTable link motion")?;
+                motions.insert(motion, motion_data(&mut r)?);
+            }
+            links.insert(key, motions);
+        }
         Ok(Self {
             default_style,
             style_defaults,
             cycles,
+            links,
         })
+    }
+
+    /// The default style and its default substate (`CMotionTable::SetDefaultState`).
+    pub fn default_state(&self) -> Option<(u32, u32)> {
+        let substate = self.style_defaults.get(&self.default_style)?;
+        Some((self.default_style, *substate))
+    }
+
+    /// `CMotionTable::get_link` at positive speed: the animations that take `style`'s
+    /// `substate` into `motion`, else the style's own link to it.
+    pub fn link(&self, style: u32, substate: u32, motion: u32) -> Option<&[AnimData]> {
+        let key = (style << 16) | (substate & 0x00FF_FFFF);
+        self.links
+            .get(&key)
+            .and_then(|motions| motions.get(&motion))
+            .or_else(|| {
+                self.links
+                    .get(&(style << 16))
+                    .and_then(|motions| motions.get(&motion))
+            })
+            .map(|anims| &anims[..])
     }
 
     /// `CMotionTable::SetDefaultState`: the default style's default substate cycle.
