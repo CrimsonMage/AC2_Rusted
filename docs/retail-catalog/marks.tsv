@@ -10132,7 +10132,7 @@ key	status	note
 005f70d0	x	ac2-ui tree_view.rs
 005f71f0	x	ac2-ui tree_view.rs
 005f7220	x	ac2-ui tree_view.rs
-005f73e0	_	needs port: UIElement_Tree::SetSelectedItem selects a child (item_normal_state / item_selected_state on the old and new item when selected_item_state_change), broadcasts TreeMsg_new_selection and updates the layout
+005f73e0	x	ac2-ui tree_scroll.rs tree_set_selected_item: the selection (a listed item, else none), item_normal_state / item_selected_state with selected_item_state_change, the new_selection broadcast with the item's id, then the layout (tree_tests a_press_on_an_item_selects_it)
 005f74f0	x	ac2-ui tree_view.rs
 005f7590	x	ac2-ui tree_view.rs
 005f75c0	x	ac2-ui tree_view.rs
@@ -10140,7 +10140,7 @@ key	status	note
 005f7830	-	element creation and teardown: UiTree::create_element and Drop
 005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
 005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
-005f7c50	~	tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
+005f7c50	x	ac2-ui tree_scroll.rs tree_mouse_down: a left press or double click selects the item under the pointer (SetSelectedItem with the broadcast), a wheel turn goes to the vertical bar; TreeMsg_mouse_press is the element's own mouse_press broadcast
 005f7dd0	_	needs port: UIElement_Tree::SetState rebuilds the node list from the children (grid or static layout links), then UpdateLayout and UpdateControls
 005f7f30	-	element creation and teardown: UiTree::create_element and Drop
 005f8000	-	element creation and teardown: UiTree::create_element and Drop

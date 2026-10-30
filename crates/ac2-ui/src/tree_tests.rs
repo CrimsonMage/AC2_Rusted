@@ -181,3 +181,57 @@ fn a_tree_steps_by_nodes_and_pages_within_its_paper() {
     assert!((tree.tree_percentage(root, true) - 0.5).abs() < 1e-6);
     assert!((tree.tree_percentage(root, false) - 0.5).abs() < 1e-6);
 }
+
+/// `UIElement_Tree::MouseDown` / `SetSelectedItem`: a left press on an item selects it, with
+/// `selected_item_state_change` the old item takes the normal state and the new one the selected
+/// state, and the tree says `new_selection` with the item's id.
+#[test]
+fn a_press_on_an_item_selects_it() {
+    let layout = layout();
+    let mut tree = UiTree::new(200, 200);
+    let root = tree
+        .create_root(Arc::clone(&layout), tokenize("Tree"))
+        .unwrap();
+    tree.set_bool(root, tokenize("selected_item_state_change"), true);
+    for (name, state) in [
+        ("item_normal_state", "normal"),
+        ("item_selected_state", "selected"),
+    ] {
+        tree.el_mut(root)
+            .attributes
+            .insert(tokenize(name), AttributeValue::Id(tokenize(state)));
+    }
+    tree.tree_multi_op_start(root);
+    let a = node(&mut tree, &layout);
+    let b = node(&mut tree, &layout);
+    assert!(tree.tree_add_item(root, a, 0, 0));
+    assert!(tree.tree_add_item(root, b, 1, 0));
+    tree.tree_multi_op_complete(root);
+    // The tree is a root here: its items pass the press on, as items under a panel do.
+    for item in [a, b] {
+        tree.set_bool(item, tokenize("mouse_event_passthrough"), true);
+    }
+    let press = |tree: &mut UiTree, item: usize| {
+        let r = tree.screen_box(item);
+        tree.start_input(crate::UI_POINTER_X, (r.x0 + 2) as f32);
+        tree.start_input(crate::UI_POINTER_Y, (r.y0 + 2) as f32);
+        tree.take_messages();
+        tree.start_input(0x4000_0004, 1.0);
+        tree.stop_input(0x4000_0004);
+        tree.take_messages()
+            .into_iter()
+            .filter(|m| m.element == Some(root) && m.message == tokenize("new_selection"))
+            .map(|m| m.data)
+            .collect::<Vec<_>>()
+    };
+    let said = press(&mut tree, a);
+    assert_eq!(said, [tree.get(a).unwrap().id() as i32]);
+    assert_eq!(tree.get(a).unwrap().state(), tokenize("selected"));
+    press(&mut tree, b);
+    assert_eq!(tree.get(a).unwrap().state(), tokenize("normal"));
+    assert_eq!(tree.get(b).unwrap().state(), tokenize("selected"));
+    assert!(
+        press(&mut tree, b).is_empty(),
+        "the selected item again: no change"
+    );
+}

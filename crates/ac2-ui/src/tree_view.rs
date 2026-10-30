@@ -10,9 +10,9 @@
 //! as three segments bent `straight_away_pix` away (`SurfaceWindow::DrawLine`).
 //!
 //! The vertical scroll bar and its wheel are in `tree_scroll.rs`. Not modelled yet: the horizontal
-//! bar and arrow buttons (`UpdateControls`), the selection
-//! (`SetSelectedItem`, `MouseDown`) and the static layout's placement (static trees keep the
-//! items where the layout put them).
+//! bar and arrow buttons (`UpdateControls`) and the static layout's placement (static trees keep
+//! the items where the layout put them). The selection (`SetSelectedItem`) is `tree_scroll.rs`'s
+//! press.
 
 use crate::element::{UiBox, UiTree};
 use crate::layout::AttributeValue;
@@ -46,6 +46,8 @@ pub(crate) struct TreeState {
     pub view: (i32, i32),
     pub max_grid: (i32, i32),
     pub multiop: bool,
+    /// `m_selected`: the selected item's element.
+    pub selected: Option<usize>,
 }
 
 impl TreeState {

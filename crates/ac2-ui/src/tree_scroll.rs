@@ -18,6 +18,9 @@ use crate::mouse::{UI_WHEEL_IN, UI_WHEEL_OUT};
 use crate::token::tokenize;
 
 const TREE: u32 = tokenize("tree");
+/// The left button's press and double click (`0x40000004`, `0x40000007`).
+const LEFT_PRESS: u32 = 0x4000_0004;
+const DOUBLE_CLICK: u32 = 0x4000_0007;
 const VERTICAL_SCROLLBAR: &str = "vertical_scrollbar";
 
 impl UiTree {
@@ -178,10 +181,68 @@ impl UiTree {
         self.scrollbar_mouse_down(bar, action);
     }
 
-    /// `UIElement_Tree::MouseDown`: a wheel turn over the tree.
+    /// `UIElement_Tree::MouseDown`: a left press (or double click) selects the item under the
+    /// pointer (`SetSelectedItem` with the broadcast); a wheel turn goes to the bar. (Its
+    /// `TreeMsg_mouse_press` is the element's own `mouse_press`, already broadcast.)
     pub(crate) fn tree_mouse_down(&mut self, index: usize, action: u32) {
-        if self.el(index).desc.kind == TREE && matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
-            self.tree_wheel(index, action);
+        if self.el(index).desc.kind != TREE {
+            return;
         }
+        if matches!(action, UI_WHEEL_IN | UI_WHEEL_OUT) {
+            self.tree_wheel(index, action);
+            return;
+        }
+        if matches!(action, LEFT_PRESS | DOUBLE_CLICK) {
+            let under = self.el(index).tree.as_ref().and_then(|state| {
+                state
+                    .nodes
+                    .iter()
+                    .map(|node| node.element)
+                    .find(|&e| self.get(e).is_some_and(|el| el.mouse_over))
+            });
+            if let Some(item) = under {
+                self.tree_set_selected_item(index, Some(item), true);
+            }
+        }
+    }
+
+    /// `UIElement_Tree::SetSelectedItem`: `item` (one of the tree's items, else none) becomes the
+    /// selection; with `selected_item_state_change` the old item takes `item_normal_state` and the
+    /// new one `item_selected_state`; `broadcast` sends `new_selection` with the item's id (0 for
+    /// none); then the layout.
+    pub fn tree_set_selected_item(&mut self, tree: usize, item: Option<usize>, broadcast: bool) {
+        let old = self.el(tree).tree.as_ref().and_then(|s| s.selected);
+        if old == item {
+            return;
+        }
+        let listed = item.filter(|&i| {
+            self.el(tree)
+                .tree
+                .as_ref()
+                .is_some_and(|s| s.nodes.iter().any(|n| n.element == i))
+        });
+        self.tree_state(tree).selected = listed;
+        if self.bool_attribute(tree, tokenize("selected_item_state_change")) {
+            let state = |tree_el: &crate::element::UiElement, name: &str| match tree_el
+                .attributes
+                .get(&tokenize(name))
+            {
+                Some(AttributeValue::Id(id)) => *id,
+                _ => 0,
+            };
+            let normal = state(self.el(tree), "item_normal_state");
+            let selected = state(self.el(tree), "item_selected_state");
+            if let Some(old) = old.filter(|&o| self.get(o).is_some()) {
+                self.set_state(old, normal);
+            }
+            if let Some(new) = listed {
+                self.set_state(new, selected);
+            }
+        }
+        if broadcast {
+            let id = listed.map_or(0, |i| self.el(i).id());
+            self.broadcast(tree, tokenize("new_selection"), id as i32);
+        }
+        self.tree_update_layout(tree);
     }
 }

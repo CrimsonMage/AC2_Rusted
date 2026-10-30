@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1358 done, 314 partial, 39 to do, 536 skipped.
+2247 retail functions: 1360 done, 313 partial, 38 to do, 536 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3401,7 +3401,7 @@ Legend and workflow: [README](README.md).
 - [~] `UIElement_Scrollbar::ListenToMessage` · 005fb400 · legions 005bbf30 — scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
 - [-] `UIElement_Scrollbar::Register` · 005fb4c0 · legions 005bbff0 — element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 
-## `portal/client/src/uielement/types/uielement_tree.cpp.c` (26/39)
+## `portal/client/src/uielement/types/uielement_tree.cpp.c` (28/39)
 
 ### UIElement_Tree
 - [x] `UIElement_Tree::CalculatePaperDimen` · 005f5d90 · legions 005b68c0 — ac2-ui tree_view.rs
@@ -3430,7 +3430,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Tree::AddGridNode` · 005f70d0 · legions 005b7c00 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::IsOccupied` · 005f71f0 · legions 005b7d20 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::UpdateLayout` · 005f7220 · legions 005b7d50 — ac2-ui tree_view.rs
-- [ ] `UIElement_Tree::SetSelectedItem` · 005f73e0 · legions 005b7f10 — needs port: UIElement_Tree::SetSelectedItem selects a child (item_normal_state / item_selected_state on the old and new item when selected_item_state_change), broadcasts TreeMsg_new_selection and updates the layout
+- [x] `UIElement_Tree::SetSelectedItem` · 005f73e0 · legions 005b7f10 — ac2-ui tree_scroll.rs tree_set_selected_item: the selection (a listed item, else none), item_normal_state / item_selected_state with selected_item_state_change, the new_selection broadcast with the item's id, then the layout (tree_tests a_press_on_an_item_selects_it)
 - [x] `UIElement_Tree::SetItemsParent` · 005f74f0 · legions 005b8020 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::MultiOpComplete` · 005f7590 · legions 005b80c0 — ac2-ui tree_view.rs
 - [x] `UIElement_Tree::AddItem` · 005f75c0 · legions 005b80f0 — ac2-ui tree_view.rs
@@ -3438,7 +3438,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIElement_Tree::~UIElement_Tree` · 005f7830 · legions 005b8360 — element creation and teardown: UiTree::create_element and Drop
 - [~] `UIElement_Tree::SetAttribute_Bool` · 005f7b40 · legions 005b8670 — ac2-ui tree_view.rs: view via tree_end/flush only
 - [~] `UIElement_Tree::SetAttribute_Int` · 005f7b90 · legions 005b86c0 — ac2-ui tree_view.rs: view via tree_end/flush only
-- [~] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780 — tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
+- [x] `UIElement_Tree::MouseDown` · 005f7c50 · legions 005b8780 — ac2-ui tree_scroll.rs tree_mouse_down: a left press or double click selects the item under the pointer (SetSelectedItem with the broadcast), a wheel turn goes to the vertical bar; TreeMsg_mouse_press is the element's own mouse_press broadcast
 - [ ] `UIElement_Tree::SetState` · 005f7dd0 · legions 005b8900 — needs port: UIElement_Tree::SetState rebuilds the node list from the children (grid or static layout links), then UpdateLayout and UpdateControls
 - [-] `UIElement_Tree::UIElement_Tree` · 005f7f30 · legions 005b8a60 — element creation and teardown: UiTree::create_element and Drop
 - [-] `UIElement_Tree::Create` · 005f8000 — element creation and teardown: UiTree::create_element and Drop
