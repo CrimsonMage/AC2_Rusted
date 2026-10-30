@@ -144,8 +144,8 @@ game rules and server-visible behaviour exactly retail.
   the client-only `ClassicHud` preference (`ac2_ui::hud_style`, key `0x7E000001` in the
   `Misc` section, listed on the options page by its key name); applying it rebuilds the HUD
   (`ClientView::set_hud_style`), whose panels come back from the player as after a relog. The
-  world viewer takes `--hud-style modern|classic` and switches with F7. The default stays classic
-  until the modern style is complete. Each modern change is listed here as it lands.
+  world viewer takes `--hud-style modern|classic` and switches with F7. The modern style is the
+  default (`ClassicHud` off); classic stays one switch away. Each modern change is listed here.
   Modern changes so far: scaled UI art is filtered (`ac2_ui` `compose_filter`: a box filter where
   it shrinks, bilinear where it grows, mixed in premultiplied alpha), where retail's
   `SurfaceWindow::Blit` took the nearest pixel (classic still does).

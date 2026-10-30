@@ -11,10 +11,10 @@ use crate::tooltip_prefs::TOOLTIP_SECTION;
 /// The HUD's style.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub enum HudStyle {
-    /// The client's own HUD over the retail frameworks.
+    /// The client's own HUD over the retail frameworks (the default).
+    #[default]
     Modern,
     /// The retail DAT HUD.
-    #[default]
     Classic,
 }
 
@@ -52,10 +52,9 @@ pub fn client_key_name(key: u32) -> Option<&'static str> {
     (key == CLASSIC_HUD).then_some(CLASSIC_HUD_NAME)
 }
 
-/// Registers the switch, on by default until the modern HUD is complete. Whether it was
-/// registered.
+/// Registers the switch, off by default (the modern HUD). Whether it was registered.
 pub fn register(bank: &mut PreferenceBank, names: &dyn NameTable) -> bool {
-    let def = Pref::boolean(HUD_STYLE_SECTION, CLASSIC_HUD, true);
+    let def = Pref::boolean(HUD_STYLE_SECTION, CLASSIC_HUD, false);
     if bank.register(def, names).is_some() {
         bank.link(CLASSIC_HUD, OWNER);
         return true;
@@ -63,11 +62,11 @@ pub fn register(bank: &mut PreferenceBank, names: &dyn NameTable) -> bool {
     false
 }
 
-/// The style the bank holds (classic when the key is missing).
+/// The style the bank holds (modern when the key is missing).
 pub fn hud_style(bank: &PreferenceBank) -> HudStyle {
     match bank.find(CLASSIC_HUD).map(|p| &p.value) {
-        Some(Value::Bool(false)) => HudStyle::Modern,
-        _ => HudStyle::Classic,
+        Some(Value::Bool(true)) => HudStyle::Classic,
+        _ => HudStyle::Modern,
     }
 }
 
@@ -81,7 +80,7 @@ mod tests {
         assert_eq!(HudStyle::parse("classic"), Some(HudStyle::Classic));
         assert_eq!(HudStyle::parse("retail"), None);
         assert_eq!(HudStyle::Modern.toggled(), HudStyle::Classic);
-        assert_eq!(HudStyle::default(), HudStyle::Classic);
+        assert_eq!(HudStyle::default(), HudStyle::Modern);
     }
 
     /// The client's table over a DAT that names only the section.
@@ -105,11 +104,11 @@ mod tests {
     fn the_switch_reads_from_the_bank() {
         let names = Names;
         let mut bank = PreferenceBank::default();
-        assert_eq!(hud_style(&bank), HudStyle::Classic);
-        assert!(register(&mut bank, &names));
-        assert_eq!(hud_style(&bank), HudStyle::Classic);
-        bank.find_mut(CLASSIC_HUD).unwrap().value = Value::Bool(false);
         assert_eq!(hud_style(&bank), HudStyle::Modern);
+        assert!(register(&mut bank, &names));
+        assert_eq!(hud_style(&bank), HudStyle::Modern);
+        bank.find_mut(CLASSIC_HUD).unwrap().value = Value::Bool(true);
+        assert_eq!(hud_style(&bank), HudStyle::Classic);
         assert_eq!(client_key_name(CLASSIC_HUD), Some("ClassicHud"));
         assert_eq!(client_key_name(0x4000_005B), None);
     }

@@ -101,11 +101,18 @@ The Legions DVD client logs on as `7160`; servers that only take the admin build
 `--version 7148`. `--client-exe` reads the RSA key a retail `ac2client.exe` carries, as retail
 does.
 
+The HUD is the client's modern style by default: the retail frameworks over the DAT layouts,
+restyled (glass windows, the shortcut strip and dock, the inventory drawer, chat tabs) with the
+same behaviour. The retail DAT HUD is one switch away: `ClassicHud` under `Misc` on the client
+options page (or `ClassicHud=1` in `Preferences.ini`) rebuilds the HUD in the classic style.
+`AGENTS.md` lists every modern change and what retail did.
+
 ### The offline world viewer
 
 Draws what the client draws, without a server: the viewer builds the client's own `ClientFrame`
 and hands it to `ClientView`, so terrain, grass frills, water, sky, interiors, objects, particles
-and the DAT-built HUD all appear exactly as in the client. A player walks the world with collision
+and the DAT-built HUD (modern by default, `--hud-style classic` for retail's) all appear exactly
+as in the client. A player walks the world with collision
 and the retail camera; an egui panel swaps the playable race and sex, teleports, scales the
 movement speed and sets the time of day.
 

@@ -13,7 +13,7 @@
 //! world-viewer ... [--hud-style modern|classic]
 //! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...] [--hud-pointer X,Y]
 //! ```
-//! `--hud-style` builds the HUD in that style (default classic, the retail DAT HUD); in the window
+//! `--hud-style` builds the HUD in that style (default modern; classic is the retail DAT HUD); in the window
 //! F7 switches between the two and rebuilds the HUD. `--hud` logs the snapshot's HUD on to the
 //! in-process server double (the window's session) so its vitals, shortcuts and inventory are
 //! filled, and leaves out the control panel; `--hud-panel NAME` (Inventory, Skill, Quest, Social,
@@ -157,7 +157,7 @@ fn parse_args() -> Result<Args, String> {
         walk_seconds: 4.0,
         speed: 1,
         warm_up: 3,
-        hud_style: ac2_ui::HudStyle::Classic,
+        hud_style: ac2_ui::HudStyle::Modern,
         hud: false,
         hud_panels: Vec::new(),
         hud_pointer: None,
