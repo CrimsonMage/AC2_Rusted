@@ -362,13 +362,13 @@ key	status	note
 004157e0	-	Rust std replaces it
 00415810	x	ac2-ui dialog.rs
 00415870	-	gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
-00415890	~	ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
+00415890	x	ac2-ui ingredient.rs destroy_managed: the panel's root removed (the dormancy's call; close flushes the slots and the list first); reopened by create_managed (ingredient_ui_7160)
 00415900	x	ac2-ui ingredient.rs update_craft_button: pending only ghosts; mounted / spinner out of range / difficulty past the cutoff ghost with the ID_Craft_CraftButton_Disabled caption on CraftButtonText and the ID_Craft_TT_Mounted / InvalidSpinner / TooHard tooltip; otherwise a ghosted button gets ID_Craft_CraftButton back and no tooltip
 00415b70	x	ac2-ui drag.rs DragCheck::IngredientDrop on the ingredient list (CatchDroppedItem asks it of the container): only an item (ShortcutType 0x40000002) from a container (FromID set); a refusal goes to the drag's owner as a drop outside
 00415be0	x	ac2-ui ingredient.rs update_cost: ID_Craft_Cost with the cost as value, on CostField (ingredient_ui_7160 asserts the text)
 00415c50	x	ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
 00415cd0	x	ac2-ui ingredient.rs create_managed: root RealIngredientField (Legions DAT_00a46a44), RecipeLabel, RecipeMiscText, CostField, IngredientListBox with the drop check, spinner field and buttons, AutoPopulateButton, CraftButton and CraftButtonText
-00415e60	~	ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
+00415e60	x	ac2-ui ingredient.rs open/close: shown and hidden with the root; hiding stamps m_timeDormant (dormant_since) for the global loop's 15 s destroy
 00415ee0	x	ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 00415f10	x	ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 00415fc0	x	ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
@@ -395,7 +395,7 @@ key	status	note
 00417b00	x	ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
 00417d20	x	ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
 00418060	x	ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
-00418150	~	ac2-ui ingredient.rs tick: typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped to the range, UpdateRecipeFromSpinnerChange). Not ported: the 15 s dormancy that destroys the panel (DestroyManagedElements)
+00418150	x	ac2-ui ingredient.rs tick: shown, typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped, UpdateRecipeFromSpinnerChange); hidden past 15 s (DORMANT_LIMIT), DestroyManagedElements (ingredient_ui_7160)
 00418210	x	ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 004185d0	x	ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot, its icon description (SetIconDesc via IngredientSource::item_icon_layers) or icon, draggable; a failure frees the slot; a new spinner value follows. The object's 0x454/0x1040c handler registration is the session's notice routing
 00418780	x	ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value

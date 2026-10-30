@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1334 done, 302 partial, 116 to do, 495 skipped.
+2247 retail functions: 1337 done, 299 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -258,13 +258,13 @@ Legend and workflow: [README](README.md).
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (27/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (30/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
 
 ### gmIngredientUI
-- [~] `gmIngredientUI::DestroyManagedElements` · 00415890 · legions 00415680 — ac2-ui ingredient.rs close: the slots' objects leave and the list flushes; the panel's root is kept (the 15 s dormancy destroy is not modelled)
+- [x] `gmIngredientUI::DestroyManagedElements` · 00415890 · legions 00415680 — ac2-ui ingredient.rs destroy_managed: the panel's root removed (the dormancy's call; close flushes the slots and the list first); reopened by create_managed (ingredient_ui_7160)
 - [x] `gmIngredientUI::UpdateCraftButton` · 00415900 · legions 004156f0 — ac2-ui ingredient.rs update_craft_button: pending only ghosts; mounted / spinner out of range / difficulty past the cutoff ghost with the ID_Craft_CraftButton_Disabled caption on CraftButtonText and the ID_Craft_TT_Mounted / InvalidSpinner / TooHard tooltip; otherwise a ghosted button gets ID_Craft_CraftButton back and no tooltip
 
 ### (free functions)
@@ -274,7 +274,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::UpdateCost` · 00415be0 · legions 004159d0 — ac2-ui ingredient.rs update_cost: ID_Craft_Cost with the cost as value, on CostField (ingredient_ui_7160 asserts the text)
 - [x] `gmIngredientUI::Scale_` · 00415c50 · legions 00415a40 — ac2-ui ingredient.rs scale: Scale_ in f64, clamped to its range, mapped onto the scaled range
 - [x] `gmIngredientUI::CreateManagedElements` · 00415cd0 · legions 00415ac0 — ac2-ui ingredient.rs create_managed: root RealIngredientField (Legions DAT_00a46a44), RecipeLabel, RecipeMiscText, CostField, IngredientListBox with the drop check, spinner field and buttons, AutoPopulateButton, CraftButton and CraftButtonText
-- [~] `gmIngredientUI::Show` · 00415e60 · legions 00415c50 — ac2-ui ingredient.rs open/close: shown and hidden with the root; the timed dormancy is not modelled
+- [x] `gmIngredientUI::Show` · 00415e60 · legions 00415c50 — ac2-ui ingredient.rs open/close: shown and hidden with the root; hiding stamps m_timeDormant (dormant_since) for the global loop's 15 s destroy
 - [x] `gmIngredientUI::RecvNotice_UpdateMountState` · 00415ee0 · legions 00415cd0 — ac2-ui ingredient.rs mount_state: mounted, the craft button ghosts
 - [x] `gmIngredientUI::AutoSizeIngredientUI` · 00415f10 · legions 00415d00 — ac2-ui ingredient.rs auto_size: min_width, min_height and max_height of the panel, plus one template row (box y1-y0+1) for each ingredient past three, capped at max_height; ingredient_ui_7160 bounds the height
 - [x] `gmIngredientUI::SetPending` · 00415fc0 · legions 00415db0 — ac2-ui ingredient.rs set_pending: the slots show pending (dragable off), the craft button ghosts
@@ -307,7 +307,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::UpdateRecipeFromSpinnerChange` · 00417b00 · legions 004178c0 — ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
 - [x] `gmIngredientUI::AutoPopulateIngredients` · 00417d20 · legions 00417ae0 — ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
 - [x] `gmIngredientUI::DoClose` · 00418060 · legions 00417e20 — ac2-ui ingredient.rs close: the slots' objects leave, the list flushes, the panel hides
-- [~] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs tick: typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped to the range, UpdateRecipeFromSpinnerChange). Not ported: the 15 s dormancy that destroys the panel (DestroyManagedElements)
+- [x] `gmIngredientUI::ListenToMessage` · 00418150 · legions 00417f10 — ac2-ui ingredient.rs tick: shown, typed spinner text waits 2.0 s after its last message and is then taken (wcstol base 0, clamped, UpdateRecipeFromSpinnerChange); hidden past 15 s (DORMANT_LIMIT), DestroyManagedElements (ingredient_ui_7160)
 - [x] `gmIngredientUI::ListenToMessage` · 00418210 · legions 00417fd0 — ac2-ui ingredient_slots.rs message (spinner buttons, typed SpinnerValueField: deactivated takes the text at once, other messages start the 2 s wait, IngredientCloseButton closes unless pending, auto-populate, CraftButton, a drop on the list, an object dragged out of its slot); ignored while the panel is not shown
 - [x] `gmIngredientUI::RecvNotice_AddIngredient_Done` · 004185d0 — ac2-ui ingredient_slots.rs add_done: a successful add puts the object in its slot, its icon description (SetIconDesc via IngredientSource::item_icon_layers) or icon, draggable; a failure frees the slot; a new spinner value follows. The object's 0x454/0x1040c handler registration is the session's notice routing
 - [x] `gmIngredientUI::RecvNotice_ExecuteCraft_Done` · 00418780 — ac2-ui ingredient.rs execute_done: the slots go out of pending; no error and no charges closes the panel; charges show ID_Craft_Charges (a named string id) with the value

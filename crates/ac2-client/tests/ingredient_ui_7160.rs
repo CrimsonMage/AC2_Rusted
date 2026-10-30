@@ -350,6 +350,15 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     assert!(close.element.is_some(), "the layout has the close button");
     panel.message(tree, &source, &close);
     assert!(!tree.get(root).unwrap().visible());
+
+    // Hidden past 15 s, the panel lets its elements go; it makes them again when it opens
+    // (`ListenToMessage`'s dormancy, `DestroyManagedElements` / `CreateManagedElements`).
+    panel.frame_pass(tree, &source, &[], &[], 10.0);
+    assert!(panel.root().is_some(), "10 s hidden: kept");
+    panel.frame_pass(tree, &source, &[], &[], 16.0);
+    assert!(panel.root().is_none(), "past 15 s hidden: destroyed");
+    panel.open(tree, &source, RECIPE);
+    assert!(panel.root().is_some(), "opening makes the panel again");
     drop(source);
     assert!(client.take_script_problems().is_empty());
 }

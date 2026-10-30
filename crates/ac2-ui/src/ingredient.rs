@@ -14,8 +14,9 @@
 //! The strings are the `Tokenize` initializers of the admin 7148 tree matched by position to
 //! Legions's `DAT_` symbols in the same functions (the Legions initializers are not decompiled).
 //!
-//! Not modelled yet: the name's colour (the colour attribute is not in the tree), and the 15
-//! second dormancy that destroys the panel.
+//! A panel hidden for 15 seconds lets its elements go until it opens again
+//! ([`IngredientUi::tick`]). Not modelled yet: the name's colour (the colour attribute is not in
+//! the tree).
 
 use std::sync::Arc;
 
@@ -126,6 +127,10 @@ pub(crate) struct Slot {
     pub pending: bool,
 }
 
+/// `gmIngredientUI::ListenToMessage`'s dormancy: a panel hidden this long (seconds) destroys its
+/// managed elements.
+const DORMANT_LIMIT: f64 = 15.0;
+
 /// `gmIngredientUI`'s state.
 #[derive(Debug, Clone, Default)]
 pub struct IngredientUi {
@@ -165,6 +170,8 @@ pub struct IngredientUi {
     pub(crate) spinner_update_at: f64,
     /// The frame's time (`Timer::cur_time`).
     pub(crate) now: f64,
+    /// `m_timeDormant`: when the panel last hid (`Show(0)`).
+    pub(crate) dormant_since: f64,
     /// The craft button's caption and tooltips, rendered when the panel opens.
     pub(crate) button_text: ButtonText,
 }
@@ -556,12 +563,24 @@ impl IngredientUi {
         self.spinner_changed(tree, source);
     }
 
-    /// `gmIngredientUI::ListenToMessage` on the global loop (`0xffff0005`): typed text that has
-    /// waited its two seconds is taken. (The 15 s dormancy destroy is not modelled.)
+    /// `gmIngredientUI::ListenToMessage` on the global loop (`0xffff0005`): shown, typed text
+    /// that has waited its two seconds is taken; hidden for more than 15 s, the managed elements
+    /// are destroyed (`DestroyManagedElements`), to be made again when the panel opens.
     pub fn tick(&mut self, tree: &mut UiTree, source: &dyn IngredientSource) {
-        if self.shown && self.spinner_edited && self.spinner_update_at < self.now {
+        if !self.shown {
+            if self.root.is_some() && DORMANT_LIMIT < self.now - self.dormant_since {
+                self.destroy_managed(tree);
+            }
+        } else if self.spinner_edited && self.spinner_update_at < self.now {
             self.spinner_edited = false;
             self.commit_spinner_text(tree, source);
+        }
+    }
+
+    /// `gmIngredientUI::DestroyManagedElements`: the panel's root goes.
+    fn destroy_managed(&mut self, tree: &mut UiTree) {
+        if let Some(root) = self.root.take() {
+            tree.remove_root(root);
         }
     }
 
@@ -684,6 +703,8 @@ impl IngredientUi {
         self.pending = false;
         self.shown = false;
         if let Some(root) = self.root {
+            // `Show(0)`: the hidden panel's dormancy starts.
+            self.dormant_since = self.now;
             tree.set_visible(root, false);
         }
     }
