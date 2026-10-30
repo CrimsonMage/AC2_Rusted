@@ -35,7 +35,9 @@ pub struct ObjectLightStart {
 /// The systems `fx` starts on `emitter`, one per node of the visual's entry for it that has a
 /// `PSDesc`. A node that attaches to a bone the object lacks starts none (`DoParticleFX`'s
 /// `CreateParticleSystem` returns zero). `water_z` is the water surface under the object now
-/// (`FXManager::FireParticleFX`'s water branch). The handles are left at zero for the caller.
+/// (`FXManager::FireParticleFX`'s water branch). `terrain` is the emitter's `FXManager::m_terrain`,
+/// which selects each `FXData`'s terrain node (`FXData::GetData`). The handles are left at zero for
+/// the caller.
 pub fn particle_starts(
     emitter: u64,
     fx: u32,
@@ -44,8 +46,9 @@ pub fn particle_starts(
     water_z: Option<f32>,
     is_player: bool,
     night: bool,
+    terrain: u32,
 ) -> Vec<ObjectParticleStart> {
-    let Some(nodes) = table.get(fx) else {
+    let Some(nodes) = table.get_on(fx, terrain) else {
         return Vec::new();
     };
     nodes
@@ -80,8 +83,11 @@ pub fn light_starts(
     table: &Ac2VisualFxParticles,
     is_player: bool,
     night: bool,
+    terrain: u32,
 ) -> Vec<ObjectLightStart> {
-    lights(emitter, fx, table, |gate| gate.plays(is_player, night))
+    lights(emitter, fx, table, terrain, |gate| {
+        gate.plays(is_player, night)
+    })
 }
 
 /// The lights of `fx`'s nodes whose gate `plays` accepts.
@@ -89,9 +95,10 @@ fn lights(
     emitter: u64,
     fx: u32,
     table: &Ac2VisualFxParticles,
+    terrain: u32,
     plays: impl Fn(&ac2_assets::Ac2FxNodeGate) -> bool,
 ) -> Vec<ObjectLightStart> {
-    let Some(nodes) = table.get(fx) else {
+    let Some(nodes) = table.get_on(fx, terrain) else {
         return Vec::new();
     };
     nodes
@@ -111,7 +118,7 @@ pub fn startup_light_starts(emitter: u64, table: &Ac2VisualFxParticles) -> Vec<O
     table
         .startup()
         .iter()
-        .flat_map(|fx| lights(emitter, *fx, table, |_| true))
+        .flat_map(|fx| lights(emitter, *fx, table, 0, |_| true))
         .collect()
 }
 
@@ -158,8 +165,8 @@ mod tests {
         finite.looping = vec![false].into();
         let table = Ac2VisualFxParticles::from_entries([(7, vec![looping]), (8, vec![finite])]);
         let mut random = Random::default();
-        assert!(particle_starts(3, 7, &table, &mut random, None, false, false)[0].looping);
-        assert!(!particle_starts(3, 8, &table, &mut random, None, false, false)[0].looping);
+        assert!(particle_starts(3, 7, &table, &mut random, None, false, false, 0)[0].looping);
+        assert!(!particle_starts(3, 8, &table, &mut random, None, false, false, 0)[0].looping);
     }
 
     /// `DoStartupFX` with an object: the light-only node of each startup FX places its light at
@@ -192,16 +199,16 @@ mod tests {
         )]);
         let mut random = Random::default();
         assert_eq!(
-            particle_starts(3, 7, &table, &mut random, None, false, false).len(),
+            particle_starts(3, 7, &table, &mut random, None, false, false, 0).len(),
             1
         );
         assert_eq!(
-            light_starts(3, 7, &table, false, false),
+            light_starts(3, 7, &table, false, false, 0),
             vec![ObjectLightStart {
                 emitter: 3,
                 light: light(2.0),
             }]
         );
-        assert!(light_starts(3, 8, &table, false, false).is_empty());
+        assert!(light_starts(3, 8, &table, false, false, 0).is_empty());
     }
 }

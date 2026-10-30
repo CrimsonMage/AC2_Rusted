@@ -24,17 +24,19 @@ const WHITE: [f32; 4] = [1.0; 4];
 /// The slider `FXManager::DoCreateObjectFX` moves an object's alpha on (`CPhysicsObj::DoSlider`).
 pub const ALPHA_SLIDER: u32 = 0x4000_001a;
 
-/// The FX nodes that create or hide objects for `fx` (`FXManager::DoTargettedFX`'s node list).
-pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32) -> Vec<Ac2FxObject> {
+/// The FX nodes that create or hide objects for `fx` (`FXManager::DoTargettedFX`'s node list) of
+/// an emitter on `terrain` (`FXManager::m_terrain`).
+pub fn fx_nodes(table: &Ac2VisualFxParticles, fx: u32, terrain: u32) -> Vec<Ac2FxObject> {
     table
-        .get(fx)
+        .get_on(fx, terrain)
         .map(|list| list.iter().map(|a| a.object).collect())
         .unwrap_or_default()
 }
 
 /// The nodes `FXManager::DoTargettedFX` goes on to act on: the ones that play for this emitter
 /// (`m_player_only` only on the player) at this time of day (`m_day_time`, `m_night_time`).
-/// `ChannelMissmatch` is not applied: no channel preferences load.
+/// A node whose channel keys mismatch the FX channel preferences does not play
+/// (`FXManager::ChannelMissmatch`).
 pub fn gated_nodes(nodes: &[Ac2FxObject], is_player: bool, night: bool) -> Vec<Ac2FxObject> {
     nodes
         .iter()
@@ -44,7 +46,7 @@ pub fn gated_nodes(nodes: &[Ac2FxObject], is_player: bool, night: bool) -> Vec<A
 }
 
 /// `FXManager::DoTargettedFX`'s camera part for an FX that starts on an emitter: each node that
-/// plays (no channel mismatch, as no channel preferences load; `m_player_only` on the player;
+/// plays (no channel mismatch; `m_player_only` on the player;
 /// its day or night flag for the time of day) and names a `CameraFX` plays it from the emitter
 /// (`DoCameraFX`) at the FX's current scalar, which a ramping node starts at 0.
 pub fn camera_fx_starts(

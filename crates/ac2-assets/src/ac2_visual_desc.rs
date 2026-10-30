@@ -11,7 +11,8 @@ use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId
 use ac2_math::Vec3;
 
 use crate::ac2_fx::{
-    count, float, hash_count, read_fx_map, word, Ac2FxEntry, Ac2FxSoundEntry, Malformed,
+    count, float, hash_count, read_fx_map, word, Ac2FxEntry, Ac2FxSoundEntry, Ac2FxTerrainEntry,
+    Malformed,
 };
 use crate::ac2_icon::{Ac2IconDesc, Ac2IconLayer};
 
@@ -34,6 +35,8 @@ pub struct Ac2VisualFx {
     pub overrides: Arc<[Ac2FxEntry]>,
     /// The overrides' sound nodes.
     pub sound_overrides: Arc<[Ac2FxSoundEntry]>,
+    /// The overrides' lists per terrain (`FXData::GetData`), for the ids whose data key terrains.
+    pub terrain_overrides: Arc<[Ac2FxTerrainEntry]>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -232,6 +235,7 @@ pub(crate) fn part_group(cursor: &mut ArchiveCursor<'_>) -> Result<DecodedPartGr
         let map = read_fx_map(cursor)?;
         fx.overrides = map.particles;
         fx.sound_overrides = map.sounds;
+        fx.terrain_overrides = map.terrains;
     }
     Ok(DecodedPartGroup {
         group,

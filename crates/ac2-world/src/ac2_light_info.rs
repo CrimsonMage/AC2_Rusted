@@ -11,7 +11,7 @@ use ac2_core::{CellId, QualifiedDataId};
 use ac2_dat::ArchiveCursor;
 use ac2_db::read_ac2_property_collection;
 use ac2_db::{ResourceError, ResourcePackedDecode, ResourceResult, ResourceTypeId};
-use ac2_math::Vec3;
+use ac2_math::{Vec3, Waveform};
 
 const MAX_ITEMS: usize = 1 << 16;
 const SUNLIGHT_SETS: usize = 9;
@@ -48,6 +48,10 @@ pub struct Ac2StaticLight {
     /// `m_wRange` and `m_wDiffuseIntensity` base values (`LightSource` defaults 5 and 0.5).
     pub range: f32,
     pub intensity: f32,
+    /// The waveforms themselves: a light's range and intensity at client time `t` are their values
+    /// then (`LightSource::GetAnimatedRange`, `FillRenderLight`); see [`Self::range_at`].
+    pub range_wave: Waveform,
+    pub intensity_wave: Waveform,
     /// `m_cDiffuse` as linear RGB in 0..1.
     pub color: [f32; 3],
     /// Per lit cell, the vertex indices of its cell mesh this light reaches.
@@ -69,6 +73,21 @@ pub struct Ac2Corona {
 }
 
 impl Ac2StaticLight {
+    /// `LightSource::GetAnimatedRange`: `m_wRange` at client time `time`.
+    pub fn range_at(&self, time: f64) -> f32 {
+        self.range_wave.value(time)
+    }
+
+    /// `m_wDiffuseIntensity` at client time `time`.
+    pub fn intensity_at(&self, time: f64) -> f32 {
+        self.intensity_wave.value(time)
+    }
+
+    /// `LightSource::GetIsRangeAnimating`: a point light whose range waveform is not constant.
+    pub fn is_range_animating(&self) -> bool {
+        self.kind == Ac2LightKind::Point && self.range_wave.kind != ac2_math::waveform::kind::NONE
+    }
+
     /// `LightSource::CalculateAttenuation`: `intensity / (10 d^2 / range^2 + 1)` for point lights.
     pub fn attenuation(&self, distance: f32) -> f32 {
         match self.kind {
@@ -212,6 +231,8 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Read<Ac2LightInfo> {
             direction: Vec3::ZERO,
             range: 5.0,
             intensity: 0.5,
+            range_wave: Waveform::constant(5.0),
+            intensity_wave: Waveform::constant(0.5),
             color: [1.0; 3],
             lit: Box::default(),
             corona: None,
@@ -238,9 +259,15 @@ fn decode(cursor: &mut ArchiveCursor<'_>, did: u32) -> Read<Ac2LightInfo> {
                     }
                 }
                 // `Waveform`: kind, then base value first.
-                PROPERTY_RANGE => light.range = property.float_at(1).unwrap_or(light.range),
+                PROPERTY_RANGE => {
+                    light.range = property.float_at(1).unwrap_or(light.range);
+                    light.range_wave = Waveform::from_packed(&property.bytes)
+                        .unwrap_or_else(|| Waveform::constant(light.range));
+                }
                 PROPERTY_INTENSITY => {
-                    light.intensity = property.float_at(1).unwrap_or(light.intensity)
+                    light.intensity = property.float_at(1).unwrap_or(light.intensity);
+                    light.intensity_wave = Waveform::from_packed(&property.bytes)
+                        .unwrap_or_else(|| Waveform::constant(light.intensity));
                 }
                 PROPERTY_DIFFUSE => {
                     if let Some(argb) = property.word() {

@@ -179,6 +179,9 @@ pub struct Ac2RepulsorFx {
 pub struct Ac2FxNodeGate {
     /// `m_channel_keys` is not empty.
     pub has_channels: bool,
+    /// The node's values for the four channel keys `ChannelPrefs` holds, in [`CHANNEL_KEYS`] order
+    /// (`None`: the node has no such key). A key the preferences do not hold never compares.
+    pub channels: [Option<u32>; 4],
     /// `m_player_only`.
     pub player_only: bool,
     /// `m_day_time`: the node plays by day.
@@ -191,6 +194,7 @@ impl Default for Ac2FxNodeGate {
     fn default() -> Self {
         Self {
             has_channels: false,
+            channels: [None; 4],
             player_only: false,
             day_time: true,
             night_time: true,
@@ -198,12 +202,82 @@ impl Default for Ac2FxNodeGate {
     }
 }
 
+/// The channel keys `ChannelPrefs` maps to its preferences, in the order [`Ac2FxChannelPrefs`]
+/// and [`Ac2FxNodeGate::channels`] hold them: `gore` (the gore amount, preference `0x40000035`),
+/// `BloodColor` (the gore hue, `0x40000036`), `FootStepSounds` (`0x40000037`) and
+/// `FootStepParticles` (`0x40000039`). The keys are the channel enum's constants (the FX nodes'
+/// `m_channel_keys` use them), not the preference ids: 1, 7, 5 and 8. The enum's other keys (the
+/// data also has 9, `PlayerMusic`) are not in the table and never compare.
+pub const CHANNEL_KEYS: [u32; 4] = [0x4000_0001, 0x4000_0007, 0x4000_0005, 0x4000_0008];
+
+/// The preference each channel key follows, in [`CHANNEL_KEYS`] order
+/// (`ChannelPrefs::HandleApply`'s cases).
+pub const CHANNEL_PREFERENCES: [u32; 4] = [0x4000_0035, 0x4000_0036, 0x4000_0037, 0x4000_0039];
+
+/// `ChannelPrefs`' table (`ChannelPrefs::HandleApply` / `HandleChange` set a key to the
+/// preference's value): the value each channel key holds now, `None` while it has none.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct Ac2FxChannelPrefs {
+    pub values: [Option<u32>; 4],
+}
+
+impl Ac2FxChannelPrefs {
+    /// `HashTable::set(key, value)` for one of the four keys (any other key is not kept).
+    pub fn set(&mut self, key: u32, value: u32) {
+        if let Some(at) = CHANNEL_KEYS.iter().position(|k| *k == key) {
+            self.values[at] = Some(value);
+        }
+    }
+}
+
+/// The preference table `FXManager::ChannelMissmatch` reads (`ChannelPrefs`' one instance, shared
+/// by every `FXManager`).
+static CHANNEL_PREFS: std::sync::RwLock<Ac2FxChannelPrefs> =
+    std::sync::RwLock::new(Ac2FxChannelPrefs { values: [None; 4] });
+
+/// `ChannelPrefs::m_channel_keys` now.
+pub fn fx_channel_prefs() -> Ac2FxChannelPrefs {
+    CHANNEL_PREFS
+        .read()
+        .map_or_else(|e| *e.into_inner(), |g| *g)
+}
+
+/// Replaces the table (what `ChannelPrefs::HandleApply` leaves after it set each key).
+pub fn set_fx_channel_prefs(prefs: Ac2FxChannelPrefs) {
+    match CHANNEL_PREFS.write() {
+        Ok(mut guard) => *guard = prefs,
+        Err(poisoned) => *poisoned.into_inner() = prefs,
+    }
+}
+
 impl Ac2FxNodeGate {
-    /// `FXManager::DoTargettedFX`'s gates for a node of a new FX (no channel preferences are
-    /// set): `m_player_only` plays only for the player, and the node's day or night flag must
-    /// be on for the time of day.
+    /// `FXManager::ChannelMissmatch`: a node with channel keys mismatches when, for a key the
+    /// preference table holds, the node holds the key with another value.
+    pub fn channel_missmatch(&self, prefs: &Ac2FxChannelPrefs) -> bool {
+        self.has_channels
+            && self
+                .channels
+                .iter()
+                .zip(prefs.values)
+                .any(|(node, pref)| matches!((node, pref), (Some(n), Some(p)) if *n != p))
+    }
+
+    /// `ChannelMissmatch` against the shared preference table.
+    pub fn missmatches(&self) -> bool {
+        self.has_channels && self.channel_missmatch(&fx_channel_prefs())
+    }
+
+    /// Whether a running FX's node takes a new scalar or steps (`DoTargettedFX`'s update branch
+    /// and `UseTime`): no channel mismatch, and `m_player_only` plays only for the player.
+    pub fn updates(&self, is_player: bool) -> bool {
+        !self.missmatches() && (!self.player_only || is_player)
+    }
+
+    /// `FXManager::DoTargettedFX`'s gates for a node of a new FX: no channel mismatch,
+    /// `m_player_only` plays only for the player, and the node's day or night flag must be on
+    /// for the time of day.
     pub fn plays(&self, is_player: bool, night: bool) -> bool {
-        (!self.player_only || is_player)
+        self.updates(is_player)
             && if night {
                 self.night_time
             } else {
@@ -371,6 +445,168 @@ pub struct Ac2FxSoundNode {
     pub night_time: bool,
     /// `m_channel_keys` is not empty (`FXManager::ChannelMissmatch` consults the channel prefs).
     pub has_channels: bool,
+    /// The node's values for [`CHANNEL_KEYS`] (see [`Ac2FxNodeGate::channels`]).
+    pub channels: [Option<u32>; 4],
+}
+
+impl Ac2FxSoundNode {
+    /// The node's gate, as `DoTargettedFX` reads it.
+    pub fn gate(&self) -> Ac2FxNodeGate {
+        Ac2FxNodeGate {
+            has_channels: self.has_channels,
+            channels: self.channels,
+            player_only: self.player_only,
+            day_time: self.day_time,
+            night_time: self.night_time,
+        }
+    }
+}
+
+/// The nodes of an FX id's list when its object stands on `terrain` (`FXData::GetData(terrain)`
+/// of each `FXData`: the terrain's node where the data has one, else its default node).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Ac2FxTerrainSet {
+    pub terrain: u32,
+    pub particles: Arc<[Ac2FxParticleNode]>,
+    pub sounds: Arc<[Ac2FxSoundNode]>,
+}
+
+/// One FX id's terrain sets.
+pub type Ac2FxTerrainEntry = (u32, Arc<[Ac2FxTerrainSet]>);
+
+/// The default node of an `FXData` as the two views keep it.
+pub(crate) type FxNodePair = (Option<Ac2FxParticleNode>, Ac2FxSoundNode);
+
+/// One decoded `FXData`: the default node and the terrain-keyed ones (`m_terrainData`).
+pub(crate) struct FxDataParts {
+    pub(crate) default: FxNodePair,
+    pub(crate) terrains: Vec<(u32, FxNodePair)>,
+}
+
+/// An FX id's list gathered from `FXData`s, and from segments of other lists
+/// (`DBFXTable::GetFXData` appends each table's list): the default nodes, and for every
+/// terrain any segment keys, the nodes `FXData::GetData` returns for it.
+#[derive(Debug, Clone, Default)]
+pub(crate) struct FxSegments {
+    segments: Vec<FxSegment>,
+}
+
+#[derive(Debug, Clone)]
+struct FxSegment {
+    particles: Arc<[Ac2FxParticleNode]>,
+    sounds: Arc<[Ac2FxSoundNode]>,
+    terrains: Arc<[Ac2FxTerrainSet]>,
+}
+
+impl FxSegments {
+    pub(crate) fn push(
+        &mut self,
+        particles: Arc<[Ac2FxParticleNode]>,
+        sounds: Arc<[Ac2FxSoundNode]>,
+        terrains: Arc<[Ac2FxTerrainSet]>,
+    ) {
+        self.segments.push(FxSegment {
+            particles,
+            sounds,
+            terrains,
+        });
+    }
+
+    /// The whole list's default particle nodes.
+    pub(crate) fn particles(&self) -> Vec<Ac2FxParticleNode> {
+        self.segments
+            .iter()
+            .flat_map(|s| s.particles.iter().cloned())
+            .collect()
+    }
+
+    /// The whole list's default sound nodes.
+    pub(crate) fn sounds(&self) -> Vec<Ac2FxSoundNode> {
+        self.segments
+            .iter()
+            .flat_map(|s| s.sounds.iter().cloned())
+            .collect()
+    }
+
+    /// The list for each terrain some segment keys, in the order the terrains first appear.
+    pub(crate) fn terrain_sets(&self) -> Vec<Ac2FxTerrainSet> {
+        let mut ids = Vec::new();
+        for terrain in self.segments.iter().flat_map(|s| s.terrains.iter()) {
+            if !ids.contains(&terrain.terrain) {
+                ids.push(terrain.terrain);
+            }
+        }
+        ids.into_iter()
+            .map(|id| {
+                let (mut particles, mut sounds) = (Vec::new(), Vec::new());
+                for segment in &self.segments {
+                    match segment.terrains.iter().find(|t| t.terrain == id) {
+                        Some(set) => {
+                            particles.extend(set.particles.iter().cloned());
+                            sounds.extend(set.sounds.iter().cloned());
+                        }
+                        None => {
+                            particles.extend(segment.particles.iter().cloned());
+                            sounds.extend(segment.sounds.iter().cloned());
+                        }
+                    }
+                }
+                Ac2FxTerrainSet {
+                    terrain: id,
+                    particles: particles.into(),
+                    sounds: sounds.into(),
+                }
+            })
+            .collect()
+    }
+}
+
+impl FxDataParts {
+    /// The default nodes of a list of `FXData` as one segment: the particle and sound views, and
+    /// the terrain sets (each key's nodes for the data that carry it, the default for the rest).
+    pub(crate) fn segment(
+        list: Vec<FxDataParts>,
+    ) -> (
+        Arc<[Ac2FxParticleNode]>,
+        Arc<[Ac2FxSoundNode]>,
+        Arc<[Ac2FxTerrainSet]>,
+    ) {
+        let mut ids = Vec::new();
+        for data in &list {
+            for (terrain, _) in &data.terrains {
+                if !ids.contains(terrain) {
+                    ids.push(*terrain);
+                }
+            }
+        }
+        let terrains: Vec<Ac2FxTerrainSet> = ids
+            .into_iter()
+            .map(|id| {
+                let (mut particles, mut sounds) = (Vec::new(), Vec::new());
+                for data in &list {
+                    let (particle, sound) = data
+                        .terrains
+                        .iter()
+                        .find(|(t, _)| *t == id)
+                        .map_or(&data.default, |(_, pair)| pair);
+                    particles.extend(particle.iter().cloned());
+                    sounds.push(sound.clone());
+                }
+                Ac2FxTerrainSet {
+                    terrain: id,
+                    particles: particles.into(),
+                    sounds: sounds.into(),
+                }
+            })
+            .collect();
+        let mut particles = Vec::new();
+        let mut sounds = Vec::new();
+        for data in list {
+            particles.extend(data.default.0);
+            sounds.push(data.default.1);
+        }
+        (particles.into(), sounds.into(), terrains.into())
+    }
 }
 
 /// One FX id's sound nodes.
@@ -381,6 +617,8 @@ pub type Ac2FxSoundEntry = (u32, Arc<[Ac2FxSoundNode]>);
 pub struct Ac2FxMap {
     pub particles: Arc<[Ac2FxEntry]>,
     pub sounds: Arc<[Ac2FxSoundEntry]>,
+    /// The ids whose `FXData` key terrain nodes, with the lists per terrain.
+    pub terrains: Arc<[Ac2FxTerrainEntry]>,
 }
 
 /// `DBFXTable` (`0x1E`): FX id -> `FXData` list, plus sub-tables searched after this one.
@@ -388,6 +626,8 @@ pub struct Ac2FxMap {
 pub struct Ac2FxTable {
     pub entries: Arc<[Ac2FxEntry]>,
     pub sounds: Arc<[Ac2FxSoundEntry]>,
+    /// The ids whose `FXData` key terrain nodes (`FXData::GetData`), with the lists per terrain.
+    pub terrains: Arc<[Ac2FxTerrainEntry]>,
     pub sub_tables: Arc<[DataId]>,
 }
 
@@ -421,6 +661,7 @@ impl ResourcePackedDecode for Ac2FxTable {
         Ok(Self {
             entries: map.particles,
             sounds: map.sounds,
+            terrains: map.terrains,
             sub_tables: Arc::from(sub_tables),
         })
     }
@@ -456,32 +697,36 @@ impl Ac2FxTable {
 pub(crate) fn read_fx_map(cursor: &mut ArchiveCursor<'_>) -> Result<Ac2FxMap, Malformed> {
     let mut particles = Vec::new();
     let mut sounds = Vec::new();
+    let mut terrains = Vec::new();
     for _ in 0..hash_count(cursor)? {
         let fx_id = word(cursor)?;
-        let nodes = (0..count(cursor, 8)?)
+        let list = (0..count(cursor, 8)?)
             .map(|_| read_fx_data(cursor))
             .collect::<Result<Vec<_>, _>>()?;
-        let (particle, sound): (Vec<_>, Vec<_>) = nodes.into_iter().unzip();
-        particles.push((fx_id, particle.into_iter().flatten().collect::<Arc<[_]>>()));
-        sounds.push((fx_id, Arc::from(sound)));
+        let (particle, sound, terrain) = FxDataParts::segment(list);
+        particles.push((fx_id, particle));
+        sounds.push((fx_id, sound));
+        if !terrain.is_empty() {
+            terrains.push((fx_id, terrain));
+        }
     }
     Ok(Ac2FxMap {
         particles: Arc::from(particles),
         sounds: Arc::from(sounds),
+        terrains: Arc::from(terrains),
     })
 }
 
 /// `FXData::StreamPack`: the default `FXNode`, then a terrain-keyed `FXNode` table. The default
 /// node is what `FXData::GetData` returns off the keyed terrains.
-pub(crate) fn read_fx_data(
-    cursor: &mut ArchiveCursor<'_>,
-) -> Result<(Option<Ac2FxParticleNode>, Ac2FxSoundNode), Malformed> {
-    let node = read_fx_node(cursor)?;
+pub(crate) fn read_fx_data(cursor: &mut ArchiveCursor<'_>) -> Result<FxDataParts, Malformed> {
+    let default = read_fx_node(cursor)?;
+    let mut terrains = Vec::new();
     for _ in 0..hash_count(cursor)? {
-        word(cursor)?;
-        read_fx_node(cursor)?;
+        let terrain = word(cursor)?;
+        terrains.push((terrain, read_fx_node(cursor)?));
     }
-    Ok(node)
+    Ok(FxDataParts { default, terrains })
 }
 
 /// `FXNode::StreamPack`: a 64-bit pack bitfield gating each field in stream order (absent
@@ -622,11 +867,18 @@ fn read_fx_node(
     };
     let day_time = flag(cursor, 0x200_0000, true)?;
     let night_time = flag(cursor, 0x400_0000, true)?;
+    // `m_channel_keys`: key and value pairs; only the four keys `ChannelPrefs` holds compare.
     let mut has_channels = false;
+    let mut channels = [None; 4];
     if has(0x800_0000) {
         let pairs = hash_count(cursor)?;
         has_channels = pairs != 0;
-        skip(cursor, pairs * 8)?;
+        for _ in 0..pairs {
+            let (key, value) = (word(cursor)?, word(cursor)?);
+            if let Some(at) = CHANNEL_KEYS.iter().position(|k| *k == key) {
+                channels[at] = Some(value);
+            }
+        }
     }
     let fire_and_forget = flag(cursor, 0x1000_0000, false)?;
     let water_plane = field(cursor, 0x2000_0000)? != 0;
@@ -677,6 +929,7 @@ fn read_fx_node(
     let object = Ac2FxObject {
         gate: Ac2FxNodeGate {
             has_channels,
+            channels,
             player_only,
             day_time,
             night_time,
@@ -712,6 +965,7 @@ fn read_fx_node(
         day_time,
         night_time,
         has_channels,
+        channels,
     };
     Ok((particle, sound))
 }

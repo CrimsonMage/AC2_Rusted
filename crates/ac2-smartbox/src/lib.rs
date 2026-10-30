@@ -15,6 +15,7 @@ pub mod cells;
 mod collision_traffic;
 pub mod fx_manager;
 pub mod fx_objects;
+pub mod fx_prefs;
 pub mod membership;
 pub mod missile_follow;
 mod player;

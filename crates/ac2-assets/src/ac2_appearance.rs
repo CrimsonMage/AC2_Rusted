@@ -29,7 +29,8 @@ use ac2_db::{
 };
 
 use crate::ac2_fx::{
-    count as fx_count, float, read_fx_data, word, Ac2FxParticleNode, Ac2FxSoundNode, Malformed,
+    count as fx_count, float, read_fx_data, word, Ac2FxParticleNode, Ac2FxSoundNode,
+    Ac2FxTerrainSet, FxDataParts, Malformed,
 };
 use crate::ac2_icon::Ac2IconLayer;
 use crate::ac2_material::{Ac2MaterialInstance, Ac2MaterialModifier, Ac2RenderMaterial};
@@ -100,6 +101,8 @@ pub struct Ac2FxAtom {
     pub ids: Arc<[u32]>,
     pub particles: Arc<[Ac2FxParticleNode]>,
     pub sounds: Arc<[Ac2FxSoundNode]>,
+    /// The lists per terrain the atom's `FXData` key (`FXData::GetData`).
+    pub terrains: Arc<[Ac2FxTerrainSet]>,
 }
 
 impl Ac2FxAtom {
@@ -282,17 +285,15 @@ fn read_collection(cursor: &mut ArchiveCursor<'_>) -> Result<(f32, Ac2Atoms), Ma
         let ids = (0..fx_count(cursor, 4)?)
             .map(|_| word(cursor))
             .collect::<Result<Vec<_>, _>>()?;
-        let mut particles = Vec::new();
-        let mut sounds = Vec::new();
-        for _ in 0..fx_count(cursor, 8)? {
-            let (particle, sound) = read_fx_data(cursor)?;
-            particles.extend(particle);
-            sounds.push(sound);
-        }
+        let list = (0..fx_count(cursor, 8)?)
+            .map(|_| read_fx_data(cursor))
+            .collect::<Result<Vec<_>, _>>()?;
+        let (particles, sounds, terrains) = FxDataParts::segment(list);
         let atom = Ac2FxAtom {
             ids: Arc::from(ids),
-            particles: Arc::from(particles),
-            sounds: Arc::from(sounds),
+            particles,
+            sounds,
+            terrains,
         };
         let at = atoms
             .fx
@@ -717,6 +718,7 @@ mod tests {
             ids: Arc::from(ids),
             particles: Arc::from([]),
             sounds: Arc::from([]),
+            terrains: Arc::from([]),
         }
     }
 

@@ -154,6 +154,8 @@ pub fn point_lights(scene: &SceneData, camera_light: bool) -> Vec<SceneLight> {
                 direction: l.direction,
                 range: l.range,
                 intensity: l.intensity,
+                range_wave: ac2_math::Waveform::constant(l.range),
+                intensity_wave: ac2_math::Waveform::constant(l.intensity),
                 color: l.diffuse,
                 lit: Box::default(),
                 corona: None,

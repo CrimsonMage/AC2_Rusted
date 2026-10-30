@@ -62,6 +62,7 @@ fn day(holds: &[(u64, u64, u32)]) -> StreakContext<'_> {
         player: None,
         night: false,
         holds,
+        terrain: 0,
     }
 }
 
@@ -84,6 +85,27 @@ fn activate(emitter: u64, on: bool) -> ObjectStreakCall {
 
 /// `DoStreakFX` makes the node's streak on the emitter, and its start flag activates it (in node
 /// order: the streak first, then the start and stop flags).
+/// `DoStartupFX` makes a streak of every node that has one with no gate, but not while
+/// `StreakEffects` is off.
+#[test]
+fn startup_nodes_make_their_streaks_while_streak_effects_are_on() {
+    let mut night_only = node(Some(streak()), false, false);
+    night_only.object.gate.day_time = false;
+    let nodes = [node(None, true, false), night_only];
+    let mut fx = FxStreaks::default();
+    fx.start_startup(EMITTER, &nodes);
+    assert_eq!(
+        fx.streak_calls.len(),
+        1,
+        "no gate, and no streak without one"
+    );
+    assert_eq!(fx.streaked_emitters(), vec![EMITTER]);
+    let mut off = FxStreaks::default();
+    off.set_enabled(false);
+    off.start_startup(EMITTER, &nodes);
+    assert!(off.streak_calls.is_empty() && off.streaked_emitters().is_empty());
+}
+
 #[test]
 fn an_fx_with_a_streak_node_makes_a_streak_and_starts_it() {
     let table = table(vec![node(Some(streak()), true, false)]);

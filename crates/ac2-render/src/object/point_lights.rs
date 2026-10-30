@@ -44,8 +44,17 @@ pub fn object_point_lights(
     radius: f32,
     indoor: bool,
 ) -> Vec<PointLight> {
+    object_point_lights_in(scene.iter(), position, radius, indoor)
+}
+
+/// [`object_point_lights`] over lights held in several places (the resident blocks').
+pub fn object_point_lights_in<'a>(
+    scene: impl Iterator<Item = &'a SceneLight>,
+    position: Vec3,
+    radius: f32,
+    indoor: bool,
+) -> Vec<PointLight> {
     let mut candidates: Vec<(f32, f32, &SceneLight)> = scene
-        .iter()
         .filter(|light| light.light.kind == Ac2LightKind::Point)
         .map(|light| {
             let distance = light.origin.distance(position);
@@ -83,13 +92,21 @@ fn fill_render_light(scene: &SceneLight) -> PointLight {
     static_point_light(&scene.light, scene.origin)
 }
 
-/// `LightSource::FillRenderLight` for a static point light standing at `origin` in the scene.
+/// `LightSource::FillRenderLight` for a static point light standing at `origin` in the scene, at
+/// the start of its waveforms (the lights cached with a cell or an object keep these values).
 pub fn static_point_light(light: &Ac2StaticLight, origin: Vec3) -> PointLight {
-    let range = light.range.max(0.0002);
+    static_point_light_at(light, origin, 0.0)
+}
+
+/// `LightSource::FillRenderLight` at client time `time`: the range and the diffuse intensity are
+/// the values of `m_wRange` and `m_wDiffuseIntensity` then, so a light whose waveforms animate
+/// breathes from frame to frame.
+pub fn static_point_light_at(light: &Ac2StaticLight, origin: Vec3, time: f64) -> PointLight {
+    let range = light.range_at(time).max(0.0002);
     PointLight {
         origin,
         range,
-        diffuse: light.color.map(|c| c * light.intensity),
+        diffuse: light.color.map(|c| c * light.intensity_at(time)),
         specular: [1.0; 3],
         attenuation: [1.0, 0.0, 10.0 / (range * range)],
     }
@@ -109,6 +126,8 @@ mod tests {
                 direction: Vec3::ZERO,
                 range,
                 intensity: 0.5,
+                range_wave: ac2_math::Waveform::constant(range),
+                intensity_wave: ac2_math::Waveform::constant(0.5),
                 color: [1.0; 3],
                 lit: Box::new([]),
                 corona: None,
@@ -116,6 +135,40 @@ mod tests {
             origin: Vec3::new(x, 0.0, 0.0),
             indoor,
         }
+    }
+
+    /// A cell light whose waveforms animate fills a different render light at another time
+    /// (`LightSource::FillRenderLight` samples `m_wRange` and `m_wDiffuseIntensity`); a constant
+    /// one never changes.
+    #[test]
+    fn a_static_lights_range_and_intensity_follow_their_waveforms() {
+        use ac2_math::waveform::kind;
+        let mut animated = light(0.0, 6.0, true);
+        animated.light.range_wave = ac2_math::Waveform {
+            kind: kind::SINE,
+            base: 6.0,
+            amplitude: 2.0,
+            frequency: std::f32::consts::FRAC_PI_2,
+            ..Default::default()
+        };
+        animated.light.intensity_wave = ac2_math::Waveform {
+            kind: kind::SINE,
+            base: 0.5,
+            amplitude: 0.25,
+            frequency: std::f32::consts::FRAC_PI_2,
+            ..Default::default()
+        };
+        assert!(animated.light.is_range_animating());
+        let peak = static_point_light_at(&animated.light, animated.origin, 1.0);
+        let trough = static_point_light_at(&animated.light, animated.origin, 3.0);
+        assert!((peak.range - 8.0).abs() < 1e-4 && (trough.range - 4.0).abs() < 1e-4);
+        assert!((peak.diffuse[0] - 0.75).abs() < 1e-4 && (trough.diffuse[0] - 0.25).abs() < 1e-4);
+        let steady = light(0.0, 6.0, true);
+        assert!(!steady.light.is_range_animating());
+        assert_eq!(
+            static_point_light_at(&steady.light, steady.origin, 0.0),
+            static_point_light_at(&steady.light, steady.origin, 99.0)
+        );
     }
 
     #[test]

@@ -18,7 +18,7 @@ use crate::streak::StreakSpec;
 const MAX_HOLD_DEPTH: usize = 16;
 
 /// What the streak part of `DoTargettedFX` reads beside the FX: the player (for a player-only
-/// node), the time of day, and which objects hang from which holding point.
+/// node), the time of day, which objects hang from which holding point, and the emitter's terrain.
 #[derive(Debug, Clone, Copy)]
 pub struct StreakContext<'a> {
     /// The player's object id.
@@ -28,6 +28,9 @@ pub struct StreakContext<'a> {
     /// `(parent, child, holding location)` for each object held at a holding point of its parent
     /// (`CHILDLIST`'s holding entries).
     pub holds: &'a [(u64, u64, u32)],
+    /// The emitter's `FXManager::m_terrain` (`PHYSICSOBJREP::SetTerrainType`): the terrain whose
+    /// nodes `FXData::GetData` selects.
+    pub terrain: u32,
 }
 
 /// The FX streak state (`FXManager`'s streak part): the FX that are running their streak nodes,
@@ -71,23 +74,11 @@ fn spec(streak: &ac2_assets::Ac2StreakFx) -> StreakSpec {
     }
 }
 
-/// `FXManager::ChannelMissmatch` for a node: the channel preferences are compared with the node's
-/// channel keys. No channel preferences are loaded (`ChannelPrefs::LoadChannelPrefs` is admin
-/// tooling), so the table is empty and no node has a mismatch.
-fn channel_missmatch(_gate: &ac2_assets::Ac2FxNodeGate) -> bool {
-    false
-}
-
-/// `DoTargettedFX`'s node gate: no channel mismatch, `m_player_only` for the player, and the
-/// node's day or night flag for the time of day (`(day_time || night) && (night_time || day)`).
+/// `DoTargettedFX`'s node gate: no channel mismatch (`FXManager::ChannelMissmatch` against the
+/// FX channel preferences), `m_player_only` for the player, and the node's day or night flag for
+/// the time of day (`(day_time || night) && (night_time || day)`).
 pub(crate) fn node_plays(gate: &ac2_assets::Ac2FxNodeGate, is_player: bool, night: bool) -> bool {
-    !channel_missmatch(gate)
-        && (!gate.player_only || is_player)
-        && if night {
-            gate.night_time
-        } else {
-            gate.day_time
-        }
+    gate.plays(is_player, night)
 }
 
 impl FxStreaks {
@@ -106,7 +97,7 @@ impl FxStreaks {
         if !self.streaking.insert((emitter, fx)) {
             return;
         }
-        let Some(nodes) = table.get(fx) else {
+        let Some(nodes) = table.get_on(fx, ctx.terrain) else {
             return;
         };
         let on = !self.streaks_off;
@@ -129,6 +120,22 @@ impl FxStreaks {
             if node.object.stop_streak {
                 self.activate_tree(emitter, false, holding, ctx.holds, 0);
             }
+        }
+    }
+
+    /// `FXManager::DoStartupFX`'s streak part: every node of a startup FX that carries a streak
+    /// makes it (`CreateStreakEffect` at the FX's scalar, no node gate), while `StreakEffects` is on.
+    /// Called once per object, when its startup FX run.
+    pub fn start_startup(&mut self, emitter: u64, nodes: &[ac2_assets::Ac2ParticleAttachment]) {
+        if self.streaks_off {
+            return;
+        }
+        for streak in nodes.iter().filter_map(|node| node.object.streak.as_ref()) {
+            self.streaked.insert(emitter);
+            self.streak_calls.push(ObjectStreakCall::Create {
+                emitter,
+                spec: spec(streak),
+            });
         }
     }
 

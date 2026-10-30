@@ -58,6 +58,7 @@ pub const PREF_LABEL_TABLE: u32 = 0x4000_0008;
 const GRAPHICS_SECTION: u32 = 0x4000_0004;
 const AVATAR_SECTION: u32 = 0x4000_000D;
 const SOUND_SECTION: u32 = 0x4000_0007;
+const FX_SECTION: u32 = 0x4000_0009;
 /// The confirmations' texts (`ID_Option_RecallText`, `ID_Option_DefaultText`).
 const RECALL_TEXT: &str = "ID_Option_RecallText";
 const DEFAULT_TEXT: &str = "ID_Option_DefaultText";
@@ -709,6 +710,10 @@ fn choice_label(labels: Labels, names: &dyn NameTable, pref: &Pref, choice: &Cho
             GRAPHICS_SECTION => Some("ID_Graphics_Value_"),
             AVATAR_SECTION => Some("ID_Avatar_Value_"),
             SOUND_SECTION => Some("ID_Sound_"),
+            // `ChannelPrefs::LoadChannelPrefs`: the hue's choices are `ID_FX_Hue_Value_*`, the gore
+            // amount's the graphics values.
+            FX_SECTION if pref.key == 0x4000_0036 => Some("ID_FX_Hue_Value_"),
+            FX_SECTION => Some("ID_Graphics_Value_"),
             _ => None,
         };
         if let Some(prefix) = prefix {

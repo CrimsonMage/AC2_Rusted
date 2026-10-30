@@ -47,6 +47,7 @@ fn day() -> StreakContext<'static> {
         player: None,
         night: false,
         holds: &[],
+        terrain: 0,
     }
 }
 
@@ -98,6 +99,39 @@ fn the_repulsors_go_once_with_their_emitter() {
         vec![ObjectRepulsorCall::Gone { emitter: EMITTER }]
     );
     assert!(fx.repulsed_emitters().is_empty());
+}
+
+/// `DoStartupFX` makes every repulsor node's repulsor with no gate (a night-only node by day too),
+/// and the emitter's `FXManager::m_terrain` selects the node list a started FX makes it from.
+#[test]
+fn startup_nodes_make_their_repulsors_without_a_gate_and_a_terrain_picks_the_list() {
+    let mut night_only = node(Some(repulsor()));
+    night_only.object.gate.day_time = false;
+    let mut fx = FxRepulsors::default();
+    fx.start_startup(EMITTER, &[node(None), night_only.clone()]);
+    assert_eq!(
+        fx.calls.len(),
+        1,
+        "the night-only node makes its repulsor by day"
+    );
+    assert_eq!(fx.repulsed_emitters(), vec![EMITTER]);
+
+    // A terrain's list replaces the default's: here the default has none and the terrain has one.
+    let table = Ac2VisualFxParticles::from_entries([(FX, vec![node(None)])]).with_terrain(
+        FX,
+        0x8100_0004,
+        vec![node(Some(repulsor()))],
+    );
+    let mut on_grass = FxRepulsors::default();
+    let ctx = StreakContext {
+        terrain: 0x8100_0004,
+        ..day()
+    };
+    on_grass.start(EMITTER, FX, &table, &ctx);
+    assert_eq!(on_grass.take_calls().len(), 1);
+    let mut elsewhere = FxRepulsors::default();
+    elsewhere.start(EMITTER, FX, &table, &day());
+    assert!(elsewhere.take_calls().is_empty());
 }
 
 /// The scene keeps a repulsor on its emitter, places it where the emitter draws with the body's

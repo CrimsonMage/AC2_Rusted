@@ -11,7 +11,7 @@ use ac2_core::DataId;
 use ac2_dat::DatFileKind;
 use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 
-use crate::ac2_fx::{Ac2FxSoundNode, Ac2FxTable};
+use crate::ac2_fx::{Ac2FxSoundNode, Ac2FxTable, Ac2FxTerrainSet, FxSegments};
 use crate::ac2_visual_desc::Ac2VisualDesc;
 
 const VISUAL_DESC_PREFIX: u32 = 0x1F00_0000;
@@ -22,18 +22,35 @@ const MAX_FX_TABLE_DEPTH: usize = 8;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2VisualFxSounds {
     entries: HashMap<u32, Arc<[Ac2FxSoundNode]>>,
+    /// The lists of the ids whose data key terrain nodes, per (FX id, terrain).
+    terrains: HashMap<(u32, u32), Arc<[Ac2FxSoundNode]>>,
 }
 
 impl Ac2VisualFxSounds {
     /// `FXTable::GetFXData(fx_id)`'s nodes.
     pub fn get(&self, fx_id: u32) -> Option<&Arc<[Ac2FxSoundNode]>> {
-        self.entries.get(&fx_id)
+        self.get_on(fx_id, 0)
+    }
+
+    /// `FXTable::GetFXData(fx_id)`'s nodes for an object on `terrain` (`FXData::GetData` of each
+    /// `FXData`: the terrain's node where the data keys one, else its default).
+    pub fn get_on(&self, fx_id: u32, terrain: u32) -> Option<&Arc<[Ac2FxSoundNode]>> {
+        self.terrains
+            .get(&(fx_id, terrain))
+            .or_else(|| self.entries.get(&fx_id))
+    }
+
+    /// The (FX id, terrain) pairs whose data key a terrain node, for the real-data checks.
+    #[cfg(test)]
+    pub(crate) fn terrain_keys_for_test(&self) -> Vec<(u32, u32)> {
+        self.terrains.keys().copied().collect()
     }
 
     /// Every sound any FX of the visual can play.
     pub fn sound_ids(&self) -> std::collections::BTreeSet<u32> {
         self.entries
             .values()
+            .chain(self.terrains.values())
             .flat_map(|nodes| nodes.iter().flat_map(|node| node.sounds.iter().copied()))
             .collect()
     }
@@ -42,6 +59,7 @@ impl Ac2VisualFxSounds {
     pub fn has_sounds(&self) -> bool {
         self.entries
             .values()
+            .chain(self.terrains.values())
             .any(|nodes| nodes.iter().any(|node| !node.sounds.is_empty()))
     }
 }
@@ -73,35 +91,54 @@ pub fn resolve_ac2_visual_fx_sounds(
     // `PartGroupDataDesc::ApplyAdditivePGDDesc`, root first: the first override per id and the
     // last non-zero table.
     let mut fx_table = None;
-    let mut entries = HashMap::new();
+    type Override = (Arc<[Ac2FxSoundNode]>, Arc<[Ac2FxTerrainSet]>);
+    let mut overrides = HashMap::<u32, Override>::new();
     for desc in chain.iter().rev() {
         fx_table = desc.fx.fx_table.or(fx_table);
         for (id, nodes) in desc.fx.sound_overrides.iter() {
-            entries.entry(*id).or_insert_with(|| Arc::clone(nodes));
+            overrides.entry(*id).or_insert_with(|| {
+                let terrain = desc
+                    .fx
+                    .terrain_overrides
+                    .iter()
+                    .find(|(t, _)| t == id)
+                    .map_or_else(|| Arc::from([]), |(_, sets)| Arc::clone(sets));
+                (Arc::clone(nodes), terrain)
+            });
         }
     }
     // `PartGroupDataDesc::FillFXTable`: with FX at all (`HasFX`), the global appearance keys' FX
     // atoms join the table behind the overrides.
-    if fx_table.is_some() || !entries.is_empty() {
+    if fx_table.is_some() || !overrides.is_empty() {
         for atom in crate::ac2_drawn_groups::global_fx_atoms(store, visual)? {
             for id in atom.ids.iter() {
-                entries
+                overrides
                     .entry(*id)
-                    .or_insert_with(|| Arc::clone(&atom.sounds));
+                    .or_insert_with(|| (Arc::clone(&atom.sounds), Arc::clone(&atom.terrains)));
             }
         }
     }
-    let mut table_nodes = HashMap::<u32, Vec<Ac2FxSoundNode>>::new();
+    let mut segments = HashMap::<u32, FxSegments>::new();
     if let Some(table) = fx_table {
-        collect_table(store, table, 0, &mut table_nodes)?;
+        collect_table(store, table, 0, &mut segments)?;
     }
-    for (id, nodes) in table_nodes {
-        entries.entry(id).or_insert_with(|| Arc::from(nodes));
+    for (id, (nodes, terrains)) in overrides {
+        let mut one = FxSegments::default();
+        one.push(Arc::from([]), nodes, terrains);
+        segments.insert(id, one);
     }
-    if entries.is_empty() {
+    if segments.is_empty() {
         return Ok(None);
     }
-    Ok(Some(Ac2VisualFxSounds { entries }))
+    let mut entries = HashMap::new();
+    let mut terrains = HashMap::new();
+    for (id, segs) in segments {
+        entries.insert(id, Arc::from(segs.sounds()));
+        for set in segs.terrain_sets() {
+            terrains.insert((id, set.terrain), set.sounds);
+        }
+    }
+    Ok(Some(Ac2VisualFxSounds { entries, terrains }))
 }
 
 /// Every id of `table` and its sub-tables, each id's nodes in `DBFXTable::GetFXData` order.
@@ -109,7 +146,7 @@ fn collect_table(
     store: &ResourceStore,
     table: DataId,
     depth: usize,
-    nodes: &mut HashMap<u32, Vec<Ac2FxSoundNode>>,
+    segments: &mut HashMap<u32, FxSegments>,
 ) -> ResourceResult<()> {
     if depth >= MAX_FX_TABLE_DEPTH {
         return Ok(());
@@ -123,10 +160,18 @@ fn collect_table(
         return Ok(());
     };
     for (id, list) in record.sounds.iter() {
-        nodes.entry(*id).or_default().extend(list.iter().cloned());
+        let terrains = record
+            .terrains
+            .iter()
+            .find(|(t, _)| t == id)
+            .map_or_else(|| Arc::from([]), |(_, sets)| Arc::clone(sets));
+        segments
+            .entry(*id)
+            .or_default()
+            .push(Arc::from([]), Arc::clone(list), terrains);
     }
     for sub in record.sub_tables.iter() {
-        collect_table(store, *sub, depth + 1, nodes)?;
+        collect_table(store, *sub, depth + 1, segments)?;
     }
     Ok(())
 }

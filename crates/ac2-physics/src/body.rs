@@ -775,6 +775,13 @@ impl PhysicsBody {
         }
     }
 
+    /// `FXManager::m_terrain` of the body's rep: the terrain `CPhysicsObj::SetTerrainType` last
+    /// handed it (`PHYSICSOBJREP::SetTerrainType` sets it with the motion terrain), zero until
+    /// then. The FX nodes keyed by terrain are selected by it (`FXData::GetData`).
+    pub fn fx_terrain_type(&self) -> u32 {
+        self.object.fx_terrain
+    }
+
     /// The motion terrain the body's motion interpreter looks its values up under
     /// (`CMotionInterp::GetTerrainType`): the sentinel until a landscape or water property sets it.
     pub fn motion_terrain_type(&self) -> u32 {
@@ -829,6 +836,7 @@ impl PhysicsBody {
         // (`CPhysicsObj::SetTerrainType`), whether or not the report lists anything.
         if let Some(terrain) = self.object.collision_manager.take_terrain() {
             self.object.motion.set_terrain_type(terrain as u32);
+            self.object.fx_terrain = terrain as u32;
         }
         (!report.is_empty()).then_some(report)
     }

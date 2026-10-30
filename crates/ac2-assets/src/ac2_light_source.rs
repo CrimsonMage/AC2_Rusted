@@ -5,6 +5,8 @@
 use ac2_dat::ArchiveCursor;
 use ac2_db::read_ac2_property_collection;
 
+use crate::ac2_material::{waveform_from_bytes, Ac2Waveform};
+
 /// `LightSource`'s property ids (group 0x4000000A's light entries, as `ui_scene` reads them).
 const LIGHT_TYPE: u32 = 0x4000_0002;
 const LIGHT_DIRECTION: u32 = 0x4000_0003;
@@ -15,8 +17,8 @@ const LIGHT_SPECULAR: u32 = 0x4000_000A;
 /// `LightSource::LightSource`'s `m_Type` (point).
 pub const LIGHT_POINT: u32 = 0x4000_0001;
 
-/// A `LightSource` as an FX light: its type, range and diffuse intensity waveforms' base values,
-/// and its colours (RGB in 0..1).
+/// A `LightSource` as an FX light: its type, its range and diffuse intensity waveforms (with their
+/// base values), and its colours (RGB in 0..1).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Ac2LightSource {
     /// `m_Type`: `LIGHT_POINT` for the lights an FX makes.
@@ -26,6 +28,11 @@ pub struct Ac2LightSource {
     pub range: f32,
     /// `m_wDiffuseIntensity` base value (0.5 by default).
     pub intensity: f32,
+    /// `m_wRange` and `m_wDiffuseIntensity` themselves: animated waveforms whose value at the
+    /// client time is the light's range and intensity (`LightSource::GetAnimatedRange`,
+    /// `FillRenderLight`). The base values above are theirs.
+    pub range_wave: Ac2Waveform,
+    pub intensity_wave: Ac2Waveform,
     /// `m_cDiffuse` and `m_cSpecular` (white by default).
     pub diffuse: [f32; 3],
     pub specular: [f32; 3],
@@ -38,9 +45,29 @@ impl Default for Ac2LightSource {
             direction: [0.0; 3],
             range: 5.0,
             intensity: 0.5,
+            range_wave: Ac2Waveform::constant(5.0),
+            intensity_wave: Ac2Waveform::constant(0.5),
             diffuse: [1.0; 3],
             specular: [1.0; 3],
         }
+    }
+}
+
+impl Ac2LightSource {
+    /// `LightSource::GetAnimatedRange` as `FillRenderLight` takes it: `m_wRange` at client time
+    /// `time`, no smaller than 0.0002.
+    pub fn range_at(&self, time: f64) -> f32 {
+        self.range_wave.value(time).max(0.0002)
+    }
+
+    /// `m_wDiffuseIntensity` at client time `time` (`Waveform::GetValue`).
+    pub fn intensity_at(&self, time: f64) -> f32 {
+        self.intensity_wave.value(time)
+    }
+
+    /// `LightSource::GetIsRangeAnimating`: a point light whose range waveform is not constant.
+    pub fn is_range_animating(&self) -> bool {
+        self.kind == LIGHT_POINT && self.range_wave.kind != ac2_math::waveform::kind::NONE
     }
 }
 
@@ -60,8 +87,16 @@ pub fn read_ac2_light_source(properties: &[u8]) -> Ac2LightSource {
                 }
             }
             // A `Waveform`: its kind, then the base value.
-            LIGHT_RANGE => light.range = property.float_at(1).unwrap_or(light.range),
-            LIGHT_INTENSITY => light.intensity = property.float_at(1).unwrap_or(light.intensity),
+            LIGHT_RANGE => {
+                light.range = property.float_at(1).unwrap_or(light.range);
+                light.range_wave = waveform_from_bytes(&property.bytes)
+                    .unwrap_or_else(|| Ac2Waveform::constant(light.range));
+            }
+            LIGHT_INTENSITY => {
+                light.intensity = property.float_at(1).unwrap_or(light.intensity);
+                light.intensity_wave = waveform_from_bytes(&property.bytes)
+                    .unwrap_or_else(|| Ac2Waveform::constant(light.intensity));
+            }
             LIGHT_DIFFUSE => light.diffuse = property.word().map_or(light.diffuse, rgb),
             LIGHT_SPECULAR => light.specular = property.word().map_or(light.specular, rgb),
             _ => {}

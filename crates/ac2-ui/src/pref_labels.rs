@@ -26,6 +26,10 @@ const PREF_LABELS: &[(u32, u32, &str)] = &[
     (0x4000_0007, 0x4000_0058, "ID_Sound_NumPlayingSounds"),
     (0x4000_0007, 0x4000_0033, "ID_Sound_DisableSound"),
     (0x4000_0007, 0x4000_0034, "ID_Sound_DisableMusic"),
+    // FX (`ChannelPrefs::LoadChannelPrefs`).
+    (0x4000_0009, 0x4000_0035, "ID_FX_Gore_Amount"),
+    (0x4000_0009, 0x4000_0036, "ID_FX_Gore_Hue"),
+    (0x4000_0009, 0x4000_0039, "ID_FX_Foot_Step_Particles"),
     // Rendering (the display section).
     (0x4000_000B, 0x4000_0047, "ID_Rendering_DisplayResolution"),
     (0x4000_000B, 0x4000_0003, "ID_Rendering_FullScreen"),

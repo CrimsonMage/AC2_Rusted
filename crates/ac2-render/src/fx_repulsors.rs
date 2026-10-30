@@ -32,6 +32,17 @@ pub struct FxRepulsors {
     calls: Vec<ObjectRepulsorCall>,
 }
 
+/// A `RepulsorFX` as the particle manager is given it (`PSManager::CreateRepulsor`'s arguments).
+fn repulsor_spec(repulsor: &ac2_assets::Ac2RepulsorFx) -> RepulsorSpec {
+    RepulsorSpec {
+        acceleration: repulsor.acceleration,
+        range: repulsor.range,
+        lifetime: repulsor.lifetime,
+        minimum_velocity: repulsor.minimum_velocity,
+        attractor: repulsor.attractor,
+    }
+}
+
 impl FxRepulsors {
     /// `FXManager::DoTargettedFX`'s repulsor part for an FX starting on `emitter`: each node that
     /// plays (see [`node_plays`]) and carries a repulsor makes it, in order.
@@ -45,7 +56,7 @@ impl FxRepulsors {
         if !self.started.insert((emitter, fx)) {
             return;
         }
-        let Some(nodes) = table.get(fx) else {
+        let Some(nodes) = table.get_on(fx, ctx.terrain) else {
             return;
         };
         let is_player = ctx.player == Some(emitter);
@@ -59,13 +70,20 @@ impl FxRepulsors {
             self.repulsed.insert(emitter);
             self.calls.push(ObjectRepulsorCall::Create {
                 emitter,
-                spec: RepulsorSpec {
-                    acceleration: repulsor.acceleration,
-                    range: repulsor.range,
-                    lifetime: repulsor.lifetime,
-                    minimum_velocity: repulsor.minimum_velocity,
-                    attractor: repulsor.attractor,
-                },
+                spec: repulsor_spec(&repulsor),
+            });
+        }
+    }
+
+    /// `FXManager::DoStartupFX`'s repulsor part: every node of a startup FX that carries a repulsor
+    /// makes it (`CreateParticleRepulsor`, no node gate). Called once per object, when its startup
+    /// FX run.
+    pub fn start_startup(&mut self, emitter: u64, nodes: &[ac2_assets::Ac2ParticleAttachment]) {
+        for repulsor in nodes.iter().filter_map(|node| node.object.repulsor) {
+            self.repulsed.insert(emitter);
+            self.calls.push(ObjectRepulsorCall::Create {
+                emitter,
+                spec: repulsor_spec(&repulsor),
             });
         }
     }

@@ -172,7 +172,10 @@ struct BlockInfo {
     interiors: bool,
     cull: Option<Arc<BlockCull>>,
     coronas: Option<Arc<[CellCorona]>>,
-    cell_lights: Option<Arc<[(u32, crate::object::PointLight)]>>,
+    cell_lights: Option<Arc<[(u32, crate::object::SceneLight)]>>,
+    /// The block's point lights for the objects that move (`SceneTool::m_aIndoorSceneLights` and
+    /// `m_aOutdoorSceneLights`).
+    scene_lights: Option<Arc<[crate::object::SceneLight]>>,
 }
 
 /// The resident world around a centre block.
@@ -464,6 +467,10 @@ impl WorldScene {
                         cull: block.interiors.as_ref().map(|i| Arc::clone(&i.cull)),
                         coronas: block.interiors.as_ref().map(|i| Arc::clone(&i.coronas)),
                         cell_lights: block.interiors.as_ref().map(|i| Arc::clone(&i.cell_lights)),
+                        scene_lights: block
+                            .interiors
+                            .as_ref()
+                            .map(|i| Arc::clone(&i.scene_lights)),
                     },
                 );
             }
@@ -725,6 +732,32 @@ impl WorldScene {
     pub fn object_point_lights(&self, position: Vec3, radius: f32) -> Vec<PointLight> {
         self.object_lights
             .point_lights(self.particles.now(), position, radius)
+    }
+
+    /// The point lights that light an object at `position` with bounding radius `radius`, standing
+    /// in an interior cell (`indoor`) or outside: `CPhysicsObj::Draw`'s `SceneTool::CacheStaticLights`
+    /// (the resident blocks' static point lights on the object's side, in range, heaviest first)
+    /// and `ApplyLights`' dynamic lights (the FX lights) sorted together by weight, at most the
+    /// device's point lights. Retail keeps the static pick on the object until it has moved about
+    /// 10 cm; here the pick is made again each frame from the resident lights, which gives the
+    /// same lights at the cost of a distance test per light.
+    pub fn object_lit_by(&self, position: Vec3, radius: f32, indoor: bool) -> Vec<PointLight> {
+        let mut lights = crate::object::object_point_lights_in(
+            self.blocks
+                .values()
+                .filter_map(|block| block.scene_lights.as_deref())
+                .flatten(),
+            position,
+            radius,
+            indoor,
+        );
+        lights.extend(self.object_point_lights(position, radius));
+        lights.sort_by(|a, b| {
+            let weight = |l: &PointLight| object_lights::weight(l, l.origin.distance(position));
+            weight(b).total_cmp(&weight(a))
+        });
+        lights.truncate(crate::object::MAX_POINT_LIGHTS);
+        lights
     }
 
     /// How many FX lights the scene holds.

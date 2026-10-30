@@ -2,8 +2,9 @@
 //! (sound, render and smartbox) over the file the [`ac2_prefs::PrefsFile`] reads and writes.
 //!
 //! The file IO is `ac2_prefs::PrefsFile` (read at startup, written on a worker thread on a save);
-//! the graphics quality's read and save are `ac2_render::prefs`. The client network's keys and
-//! FX's are not registered yet (see `docs/retail-catalog`).
+//! the graphics quality's read and save are `ac2_render::prefs`. The client network's keys are
+//! not registered yet (see `docs/retail-catalog`); the FX channel preferences are
+//! (`ac2_smartbox::fx_prefs`).
 
 use std::io;
 use std::ops::{Deref, DerefMut};
@@ -103,6 +104,15 @@ impl NameTable for DatNames {
     }
 }
 
+/// `StringStateInfo::GetTopGoreLevel` and `GetTopBloodLevel` of the language's `StringState`
+/// (the first of the local DAT), `None` without one.
+fn top_levels(store: &ResourceStore) -> Option<(u32, u32)> {
+    let state = ac2_db::load_string_state(store, ac2_core::DataId::new(0x5800_0000))
+        .ok()
+        .flatten()?;
+    Some((state.settings[0], state.settings[1]))
+}
+
 /// The client's preferences: the file with the subsystems' preferences registered, over the DAT's
 /// names. The file's methods are reached through `Deref`.
 pub struct ClientPrefs {
@@ -119,6 +129,7 @@ impl ClientPrefs {
         ac2_render::prefs::register_graphics(bank, names);
         ac2_render::prefs::register_device(bank, names);
         ac2_smartbox::prefs::register(bank, names);
+        ac2_smartbox::fx_prefs::register(bank, names, top_levels(&store));
         ac2_ui::tooltip_prefs::register(bank, names);
         ac2_ui::hud_style::register(bank, names);
         Ok(Self { file })
@@ -206,6 +217,7 @@ impl crate::Client {
         self.apply_light_preferences(prefs.bank());
         self.apply_streak_preferences(prefs.bank());
         self.apply_decal_preferences(prefs.bank());
+        ac2_smartbox::fx_prefs::apply(prefs.bank());
         self.camera
             .apply_prefs(&ac2_smartbox::prefs::values(prefs.bank()));
         let scene = prefs.scene_options();

@@ -40,11 +40,18 @@ impl Client {
             player: self.player.as_ref().map(|p| p.id),
             night: self.game_clock.as_ref().is_some_and(GameClock::is_night),
             holds: &holds,
+            terrain: 0,
         };
         for (id, on) in std::mem::take(&mut self.pending_streaks) {
             self.fx_streaks.set_object_streaks(id, on, &streak_ctx);
         }
         for (id, visual, events) in events {
+            // `FXManager::m_terrain` of this emitter: the FX nodes keyed by terrain follow it.
+            let terrain = self.fx_terrain(*id);
+            let streak_ctx = ac2_render::fx_streaks::StreakContext {
+                terrain,
+                ..streak_ctx
+            };
             let particles = self
                 .remotes
                 .body_data(*visual)
@@ -58,7 +65,7 @@ impl Client {
                         target,
                     } => {
                         if let Some(table) = particles {
-                            let nodes = fx_nodes(table, fx);
+                            let nodes = fx_nodes(table, fx, terrain);
                             // A new FX plays its nodes' camera effects (an FX already running
                             // only takes the new scalar).
                             if self.fx_objects.record(*id, fx).is_none() {
@@ -117,7 +124,7 @@ impl Client {
                     }
                     Ac2AnimEvent::StopFx { fx } => {
                         let nodes = particles
-                            .map(|table| fx_nodes(table, fx))
+                            .map(|table| fx_nodes(table, fx, terrain))
                             .unwrap_or_default();
                         self.fx_objects.stop(*id, fx, &nodes, now);
                         self.apply_fx_targets();
@@ -262,6 +269,9 @@ impl Client {
                 self.fx_objects
                     .start_startup(id, fx, &objects, &mut || remotes.allocate_temporary_id());
                 if let Some(nodes) = table.get(fx) {
+                    // `DoStartupFX`: the streak and repulsor nodes make theirs as well.
+                    self.fx_streaks.start_startup(id, nodes);
+                    self.fx_repulsors.start_startup(id, nodes);
                     let at = self.emitter_place(id);
                     self.fx_decals.start_startup(
                         nodes,
@@ -359,6 +369,20 @@ impl Client {
 }
 
 impl Client {
+    /// `FXManager::m_terrain` of an object: the terrain its body last reported
+    /// (`PHYSICSOBJREP::SetTerrainType`), zero before that or without a body.
+    pub(crate) fn fx_terrain(&self, id: u64) -> u32 {
+        let body = if self.player.as_ref().is_some_and(|p| p.id == id) {
+            self.player
+                .as_ref()
+                .and_then(|p| p.body.as_ref())
+                .map(|b| &b.physics)
+        } else {
+            self.remotes.get(id).and_then(|r| r.body())
+        };
+        body.map_or(0, |b| b.fx_terrain_type())
+    }
+
     /// The emitter's place for an FX decal: its cell, block-local origin and heading, `None` while it has no
     /// body (`DoDecalFX` needs the physics rep).
     fn emitter_place(&self, id: u64) -> Option<EmitterPlace> {

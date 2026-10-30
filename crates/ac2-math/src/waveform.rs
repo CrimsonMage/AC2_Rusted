@@ -45,6 +45,27 @@ impl Waveform {
         }
     }
 
+    /// A packed `Waveform` record (`RMDATA_WAVEFORM`, 44 bytes: the kind word, then the ten floats
+    /// in field order). `None` for fewer bytes.
+    pub fn from_packed(bytes: &[u8]) -> Option<Self> {
+        let word =
+            |at: usize| -> Option<[u8; 4]> { bytes.get(at * 4..at * 4 + 4)?.try_into().ok() };
+        let float = |at: usize| word(at).map(f32::from_le_bytes);
+        Some(Self {
+            kind: u32::from_le_bytes(word(0)?),
+            base: float(1)?,
+            base_velocity: float(2)?,
+            amplitude: float(3)?,
+            amplitude_velocity: float(4)?,
+            phase: float(5)?,
+            phase_velocity: float(6)?,
+            frequency: float(7)?,
+            frequency_velocity: float(8)?,
+            roughness: float(9)?,
+            roughness_velocity: float(10)?,
+        })
+    }
+
     /// `Waveform::GetValue`: the value at client time `time`.
     pub fn value(&self, time: f64) -> f32 {
         self.value_for_phase(0.0, time)
@@ -128,6 +149,23 @@ fn frame_loop(amplitude: f32, frequency: f32, phase: f32, time: f64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::{kind, Waveform};
+
+    #[test]
+    fn a_packed_waveform_reads_its_kind_then_ten_floats() {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&kind::SINE.to_le_bytes());
+        for v in 1..=10 {
+            bytes.extend_from_slice(&(v as f32).to_le_bytes());
+        }
+        let wave = Waveform::from_packed(&bytes).expect("44 bytes");
+        assert_eq!(
+            (wave.kind, wave.base, wave.base_velocity),
+            (kind::SINE, 1.0, 2.0)
+        );
+        assert_eq!((wave.amplitude, wave.frequency), (3.0, 7.0));
+        assert_eq!(wave.roughness_velocity, 10.0);
+        assert_eq!(Waveform::from_packed(&bytes[..43]), None);
+    }
 
     #[test]
     fn constant_and_linear_waveforms() {

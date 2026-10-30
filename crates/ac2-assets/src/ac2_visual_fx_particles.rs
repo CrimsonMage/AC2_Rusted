@@ -15,6 +15,7 @@ use ac2_db::{ResourceResult, ResourceStore, TypedResourceRef};
 use crate::ac2_drawn_groups::rest_named_bones;
 use crate::ac2_fx::{
     Ac2FxAttach, Ac2FxAttachPoint, Ac2FxObject, Ac2FxObjectAttach, Ac2FxParticleNode, Ac2FxTable,
+    Ac2FxTerrainSet, FxSegments,
 };
 use crate::ac2_visual_desc::Ac2VisualDesc;
 use crate::ac2_visual_particles::{
@@ -32,6 +33,9 @@ const MAX_FX_TABLE_DEPTH: usize = 8;
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Ac2VisualFxParticles {
     entries: HashMap<u32, Arc<[Ac2ParticleAttachment]>>,
+    /// The lists of the FX ids whose data key terrain nodes, per (FX id, terrain)
+    /// (`FXData::GetData(m_terrain)`); an id off its keyed terrains uses `entries`.
+    terrains: HashMap<(u32, u32), Arc<[Ac2ParticleAttachment]>>,
     /// The startup FX ids (`m_startup_fx`), each once, in the order `PHYSICSOBJREP::InitFXManager`
     /// fills them.
     startup: Vec<u32>,
@@ -47,6 +51,7 @@ impl Ac2VisualFxParticles {
                 .into_iter()
                 .map(|(id, list)| (id, list.into()))
                 .collect(),
+            terrains: HashMap::new(),
             startup: Vec::new(),
         }
     }
@@ -63,9 +68,29 @@ impl Ac2VisualFxParticles {
         &self.startup
     }
 
-    /// The nodes FX `fx_id` starts, `None` when it starts none.
+    /// The nodes FX `fx_id` starts, `None` when it starts none (an object on terrain 0, the
+    /// `FXManager::m_terrain` a new manager has).
     pub fn get(&self, fx_id: u32) -> Option<&Arc<[Ac2ParticleAttachment]>> {
-        self.entries.get(&fx_id)
+        self.get_on(fx_id, 0)
+    }
+
+    /// The nodes FX `fx_id` starts for an object on `terrain` (`FXData::GetData(m_terrain)` of
+    /// each `FXData` of the id): the terrain's node where the data keys one, else its default.
+    pub fn get_on(&self, fx_id: u32, terrain: u32) -> Option<&Arc<[Ac2ParticleAttachment]>> {
+        self.terrains
+            .get(&(fx_id, terrain))
+            .or_else(|| self.entries.get(&fx_id))
+    }
+
+    /// A table with `terrain`'s list for `fx_id` (for tests).
+    pub fn with_terrain(
+        mut self,
+        fx_id: u32,
+        terrain: u32,
+        list: Vec<Ac2ParticleAttachment>,
+    ) -> Self {
+        self.terrains.insert((fx_id, terrain), list.into());
+        self
     }
 
     /// Every FX id and its systems, for the real-data checks.
@@ -74,6 +99,12 @@ impl Ac2VisualFxParticles {
         &self,
     ) -> impl Iterator<Item = (u32, &Arc<[Ac2ParticleAttachment]>)> + '_ {
         self.entries.iter().map(|(id, list)| (*id, list))
+    }
+
+    /// The (FX id, terrain) pairs whose data key a terrain node, for the real-data checks.
+    #[cfg(test)]
+    pub(crate) fn terrain_keys_for_test(&self) -> Vec<(u32, u32)> {
+        self.terrains.keys().copied().collect()
     }
 
     /// The bone name of every bone node in the table, once per node (`m_bone_name`), for checks
@@ -91,7 +122,7 @@ impl Ac2VisualFxParticles {
 
     /// Whether the visual has any particle FX.
     pub fn is_empty(&self) -> bool {
-        self.entries.is_empty()
+        self.entries.is_empty() && self.terrains.is_empty()
     }
 }
 
@@ -115,7 +146,8 @@ pub fn resolve_ac2_visual_fx_particles(
     // `PartGroupDataDesc::ApplyAdditivePGDDesc`, root first: the first override per id and the
     // last non-zero table.
     let mut fx_table = None;
-    let mut overrides = Vec::<(u32, Arc<[Ac2FxParticleNode]>)>::new();
+    type Override = (u32, Arc<[Ac2FxParticleNode]>, Arc<[Ac2FxTerrainSet]>);
+    let mut overrides = Vec::<Override>::new();
     let mut startup = Vec::<u32>::new();
     for desc in chain.iter().rev() {
         fx_table = desc.fx.fx_table.or(fx_table);
@@ -125,8 +157,14 @@ pub fn resolve_ac2_visual_fx_particles(
             }
         }
         for (id, nodes) in desc.fx.overrides.iter() {
-            if !overrides.iter().any(|(known, _)| known == id) {
-                overrides.push((*id, Arc::clone(nodes)));
+            if !overrides.iter().any(|(known, ..)| known == id) {
+                let terrain = desc
+                    .fx
+                    .terrain_overrides
+                    .iter()
+                    .find(|(t, _)| t == id)
+                    .map_or_else(|| Arc::from([]), |(_, sets)| Arc::clone(sets));
+                overrides.push((*id, Arc::clone(nodes), terrain));
             }
         }
     }
@@ -135,21 +173,22 @@ pub fn resolve_ac2_visual_fx_particles(
     if fx_table.is_some() || !overrides.is_empty() {
         for atom in crate::ac2_drawn_groups::global_fx_atoms(store, visual)? {
             for id in atom.ids.iter() {
-                if !overrides.iter().any(|(known, _)| known == id) {
-                    overrides.push((*id, Arc::clone(&atom.particles)));
+                if !overrides.iter().any(|(known, ..)| known == id) {
+                    overrides.push((*id, Arc::clone(&atom.particles), Arc::clone(&atom.terrains)));
                 }
             }
         }
     }
-    let mut table_nodes = HashMap::<u32, Vec<Ac2FxParticleNode>>::new();
+    let mut segments = HashMap::<u32, FxSegments>::new();
     if let Some(table) = fx_table {
-        collect_table(store, table, 0, &mut table_nodes)?;
+        collect_table(store, table, 0, &mut segments)?;
     }
-    let mut nodes: HashMap<u32, Vec<Ac2FxParticleNode>> = table_nodes;
-    for (id, list) in overrides {
-        nodes.insert(id, list.iter().cloned().collect());
+    for (id, list, terrains) in overrides {
+        let mut one = FxSegments::default();
+        one.push(list, Arc::from([]), terrains);
+        segments.insert(id, one);
     }
-    if nodes.is_empty() {
+    if segments.is_empty() {
         return Ok(None);
     }
     let setup = match crate::resolve_ac2_visual_setup(store, visual)? {
@@ -161,38 +200,55 @@ pub fn resolve_ac2_visual_fx_particles(
         .map(|setup| setup.rest_pose())
         .unwrap_or_default();
     let named = rest_named_bones(store, visual)?;
-    let mut entries = HashMap::new();
     let rest_bone = |index: usize| rest.get(index).copied().unwrap_or(Ac2Transform::IDENTITY);
-    for (id, list) in nodes.into_iter().filter(|(_, list)| !list.is_empty()) {
-        let mut attachments = Vec::with_capacity(list.len());
-        for node in list {
-            // A node whose bone the visual lacks starts no system but keeps its light.
-            let particle_descs = if attaches(&named, &node) {
-                node.particle_descs.clone()
-            } else {
-                Arc::from([])
-            };
-            let looping = looping_flags(store, &particle_descs)?;
-            let first_looping = looping.first().copied().unwrap_or(false);
-            attachments.push(Ac2ParticleAttachment {
-                placement: placement(setup.as_deref(), &rest, &named, &node),
-                anchor: anchor(setup.as_deref(), &node),
-                remove_rotation: node.remove_rotation,
-                particle_descs,
-                water_plane: node.water_plane,
-                fire_and_forget: node.fire_and_forget,
-                light: node.light,
-                looping,
-                object: Ac2FxObject {
-                    attach: object_attach(setup.as_deref(), &rest_bone, &named, &node),
-                    particle_looping: first_looping,
-                    ..node.object
-                },
-            });
+    let attach_list =
+        |list: Vec<Ac2FxParticleNode>| -> ResourceResult<Arc<[Ac2ParticleAttachment]>> {
+            let mut attachments = Vec::with_capacity(list.len());
+            for node in list {
+                // A node whose bone the visual lacks starts no system but keeps its light.
+                let particle_descs = if attaches(&named, &node) {
+                    node.particle_descs.clone()
+                } else {
+                    Arc::from([])
+                };
+                let looping = looping_flags(store, &particle_descs)?;
+                let first_looping = looping.first().copied().unwrap_or(false);
+                attachments.push(Ac2ParticleAttachment {
+                    placement: placement(setup.as_deref(), &rest, &named, &node),
+                    anchor: anchor(setup.as_deref(), &node),
+                    remove_rotation: node.remove_rotation,
+                    particle_descs,
+                    water_plane: node.water_plane,
+                    fire_and_forget: node.fire_and_forget,
+                    light: node.light,
+                    looping,
+                    object: Ac2FxObject {
+                        attach: object_attach(setup.as_deref(), &rest_bone, &named, &node),
+                        particle_looping: first_looping,
+                        ..node.object
+                    },
+                });
+            }
+            Ok(Arc::from(attachments))
+        };
+    let mut entries = HashMap::new();
+    let mut terrains = HashMap::new();
+    for (id, segs) in segments {
+        let list = segs.particles();
+        if !list.is_empty() {
+            entries.insert(id, attach_list(list)?);
         }
-        entries.insert(id, Arc::from(attachments));
+        for set in segs.terrain_sets() {
+            if !set.particles.is_empty() {
+                terrains.insert((id, set.terrain), attach_list(set.particles.to_vec())?);
+            }
+        }
     }
-    Ok(Some(Ac2VisualFxParticles { entries, startup }))
+    Ok(Some(Ac2VisualFxParticles {
+        entries,
+        terrains,
+        startup,
+    }))
 }
 
 /// Every id of `table` and its sub-tables, each id's nodes in `DBFXTable::GetFXData` order.
@@ -200,7 +256,7 @@ fn collect_table(
     store: &ResourceStore,
     table: DataId,
     depth: usize,
-    nodes: &mut HashMap<u32, Vec<Ac2FxParticleNode>>,
+    segments: &mut HashMap<u32, FxSegments>,
 ) -> ResourceResult<()> {
     if depth >= MAX_FX_TABLE_DEPTH {
         return Ok(());
@@ -214,10 +270,18 @@ fn collect_table(
         return Ok(());
     };
     for (id, list) in record.entries.iter() {
-        nodes.entry(*id).or_default().extend(list.iter().cloned());
+        let terrains = record
+            .terrains
+            .iter()
+            .find(|(t, _)| t == id)
+            .map_or_else(|| Arc::from([]), |(_, sets)| Arc::clone(sets));
+        segments
+            .entry(*id)
+            .or_default()
+            .push(Arc::clone(list), Arc::from([]), terrains);
     }
     for sub in record.sub_tables.iter() {
-        collect_table(store, *sub, depth + 1, nodes)?;
+        collect_table(store, *sub, depth + 1, segments)?;
     }
     Ok(())
 }

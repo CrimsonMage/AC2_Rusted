@@ -14,7 +14,7 @@ use ac2_world::land_block_size;
 use super::loader::BlockKey;
 use super::{CellCorona, WorldScene};
 use crate::decal::DecalSpec;
-use crate::object::PointLight;
+use crate::object::{static_point_light_at, PointLight};
 
 /// The materials' enums (`FileArray::GetDIDFromEnum(.., 0x40000002)`) by day, dusk and night.
 pub(crate) const LIGHT_DECAL_ENUMS: [u32; 3] = [0x4000_000D, 0x4000_002B, 0x4000_002C];
@@ -85,7 +85,9 @@ impl WorldScene {
         if material.raw() == 0 {
             return;
         }
-        let mut lights = self.object_lights.all(self.particles.now());
+        // `LightSource::GetAnimatedRange` and `GetValue` sample the waveforms at the client time.
+        let now = self.particles.now();
+        let mut lights = self.object_lights.all(now);
         for key in interiors {
             let Some(all) = self.blocks.get(key).and_then(|b| b.cell_lights.as_deref()) else {
                 continue;
@@ -94,11 +96,10 @@ impl WorldScene {
             lights.extend(
                 all.iter()
                     .filter(|(cell, _)| drawn.is_none_or(|ids| ids.contains(cell)))
-                    .map(|(_, light)| *light),
+                    .map(|(_, light)| static_point_light_at(&light.light, light.origin, now)),
             );
         }
         let block_size = land_block_size();
-        let now = self.particles.now();
         for light in &lights {
             let (x, y) = (light.origin.x, light.origin.y);
             let Some(ground) = self

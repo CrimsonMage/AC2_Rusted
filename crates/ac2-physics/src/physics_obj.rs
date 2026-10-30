@@ -125,6 +125,10 @@ pub(crate) struct PhysicsObj {
     /// element, cleared once the object has placed its children (`PrepareObjectForDrawing`).
     pub(crate) element_changed: bool,
     pub motion: MotionInterp,
+    /// `FXManager::m_terrain` of the object's rep: zero (`FXManager::FXManager`) until
+    /// `PHYSICSOBJREP::SetTerrainType` sets it, with the motion terrain, to select the FX nodes
+    /// keyed by terrain (`FXData::GetData`).
+    pub(crate) fx_terrain: u32,
     /// `PHYSICSOBJREP`'s mode and slider trackers.
     pub(crate) anim: AnimRep,
     /// `CPhysicsObj::m_pLookAtManager`, always present (`CPhysicsObj::InitLookAtManager` makes it
@@ -253,6 +257,7 @@ impl PhysicsObj {
             element: ELEMENT_GROUND,
             element_changed: true,
             motion,
+            fx_terrain: 0,
             anim: AnimRep::unanimated(),
             interp: None,
             constraint: None,

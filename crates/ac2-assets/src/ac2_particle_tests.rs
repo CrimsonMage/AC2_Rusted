@@ -200,6 +200,44 @@ fn startup_particles_of_every_visual_name_decodable_particle_systems() {
     );
 }
 
+/// Visuals whose FX data key terrain nodes (`FXData::m_terrainData`) resolve a list per terrain:
+/// off its keyed terrains an FX uses its default nodes, on one it uses the terrain's, in both the
+/// particle view and the sound view.
+#[test]
+fn visuals_resolve_their_fx_nodes_per_terrain() {
+    let Some((dataset, store)) = ac2_dataset() else {
+        return;
+    };
+    let (mut particle_pairs, mut sound_pairs, mut differing) = (0, 0, 0);
+    for did in portal_ids(&dataset, 0x1F00_0000) {
+        let visual = DataId::new(did);
+        if let Some(fx) = crate::resolve_ac2_visual_fx_particles(&store, visual).unwrap() {
+            for (fx_id, terrain) in fx.terrain_keys_for_test() {
+                particle_pairs += 1;
+                assert!(fx.get_on(fx_id, terrain).is_some(), "{did:08X} {fx_id:08X}");
+                // A terrain no data keys falls back to the default list.
+                assert_eq!(fx.get_on(fx_id, 0x7FFF_FFFF), fx.get(fx_id));
+                differing += usize::from(fx.get_on(fx_id, terrain) != fx.get(fx_id));
+            }
+        }
+        if let Some(sounds) = crate::resolve_ac2_visual_fx_sounds(&store, visual).unwrap() {
+            for (fx_id, terrain) in sounds.terrain_keys_for_test() {
+                sound_pairs += 1;
+                assert!(sounds.get_on(fx_id, terrain).is_some());
+                assert_eq!(sounds.get_on(fx_id, 0x7FFF_FFFF), sounds.get(fx_id));
+            }
+        }
+    }
+    eprintln!(
+        "{particle_pairs} particle and {sound_pairs} sound terrain lists, {differing} differ"
+    );
+    assert!(
+        particle_pairs > 0 && sound_pairs > 0,
+        "some visuals key terrain FX"
+    );
+    assert!(differing > 0, "a terrain's nodes differ from the default");
+}
+
 #[test]
 fn the_visuals_fx_particles_resolve_per_fx_id() {
     let Some((dataset, store)) = ac2_dataset() else {

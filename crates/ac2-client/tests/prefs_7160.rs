@@ -274,3 +274,50 @@ fn the_hud_style_saves_under_its_client_name_and_reads_back() {
     );
     let _ = std::fs::remove_dir_all(path.parent().expect("a directory"));
 }
+
+/// `ChannelPrefs::LoadChannelPrefs` on the real DATs: the gore amount, the gore hue and the foot
+/// step particles register in the FX section with the language's `StringState` top levels, their
+/// names are in the DAT, and a saved value reaches the table the FX nodes' channel keys compare
+/// with (`ChannelPrefs::HandleApply`).
+#[test]
+fn the_fx_channel_preferences_register_and_reach_the_channel_table() {
+    use ac2_smartbox::fx_prefs::{
+        apply, channel_prefs, FOOT_STEP_PARTICLES, FX_SECTION, GORE_AMOUNT, GORE_HUE,
+    };
+    let Some(store) = store() else {
+        return;
+    };
+    let names = DatNames::new(&store);
+    assert!(
+        names.section_name(FX_SECTION).is_some(),
+        "the FX section is named"
+    );
+    for key in [GORE_AMOUNT, GORE_HUE, FOOT_STEP_PARTICLES] {
+        assert!(names.key_name(key).is_some(), "{key:08X} is named");
+    }
+    let path = temp_file("fx.ini");
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let section = names.section_name(FX_SECTION).unwrap();
+    let particles = names.key_name(FOOT_STEP_PARTICLES).unwrap();
+    std::fs::write(&path, format!("[{section}]\r\n{particles}=0\r\n")).unwrap();
+    let prefs = ClientPrefs::load(path.clone(), Arc::clone(&store)).expect("load");
+    let bank = prefs.bank();
+    for key in [GORE_AMOUNT, GORE_HUE, FOOT_STEP_PARTICLES] {
+        assert!(bank.find(key).is_some(), "{key:08X} is registered");
+    }
+    assert_eq!(
+        bank.find(FOOT_STEP_PARTICLES).unwrap().value,
+        Value::Bool(false)
+    );
+    let table = channel_prefs(bank);
+    assert_eq!(
+        table.values[3],
+        Some(0),
+        "the saved switch is the table's value"
+    );
+    assert!(table.values[0].is_some() && table.values[1].is_some());
+    apply(bank);
+    assert_eq!(ac2_assets::fx_channel_prefs(), table);
+    ac2_assets::set_fx_channel_prefs(Default::default());
+    let _ = std::fs::remove_dir_all(path.parent().unwrap());
+}

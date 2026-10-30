@@ -40,8 +40,12 @@ pub struct BlockInteriors {
     /// The coronas of the block's cell lights.
     pub coronas: Arc<[CellCorona]>,
     /// The block's cell point lights with the env cell each belongs to, as
-    /// `CEnvCell::LinkStaticLights` links them while the cell draws.
-    pub cell_lights: Arc<[(u32, PointLight)]>,
+    /// `CEnvCell::LinkStaticLights` links them while the cell draws. They are the lights
+    /// themselves, so their animated range and intensity are sampled at each frame's time.
+    pub cell_lights: Arc<[(u32, SceneLight)]>,
+    /// Every point light of the block's `CLightInfo` with whether it is an interior cell's: the
+    /// lights `SceneTool::CacheStaticLights` picks from for the objects that move.
+    pub scene_lights: Arc<[SceneLight]>,
 }
 
 /// A static light's corona (`CEnvCell::CreateLightSource`): drawn while the cell the light
@@ -226,7 +230,11 @@ pub fn load_block_interiors(
         .map(|light| {
             (
                 light.cell.raw(),
-                crate::object::static_point_light(light, block_origin + light.origin),
+                SceneLight {
+                    light: light.clone(),
+                    origin: block_origin + light.origin,
+                    indoor: true,
+                },
             )
         })
         .collect();
@@ -250,5 +258,6 @@ pub fn load_block_interiors(
         cull: Arc::new(cull),
         coronas,
         cell_lights,
+        scene_lights: scene_lights.into(),
     })
 }

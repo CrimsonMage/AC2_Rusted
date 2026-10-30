@@ -87,6 +87,10 @@ pub use ac2_drawn_groups::{
 pub use ac2_entity::{read_ac2_entity_desc, Ac2EntityDesc};
 pub use ac2_fx::Ac2FxSoundNode;
 pub use ac2_fx::{
+    fx_channel_prefs, set_fx_channel_prefs, Ac2FxChannelPrefs, Ac2FxTerrainSet, CHANNEL_KEYS,
+    CHANNEL_PREFERENCES,
+};
+pub use ac2_fx::{
     Ac2DecalFx, Ac2FxAttach, Ac2FxAttachPoint, Ac2FxLight, Ac2FxNodeGate, Ac2FxObject,
     Ac2FxObjectAttach, Ac2FxSlider, Ac2FxTable, Ac2RepulsorFx, Ac2StreakFx,
 };

@@ -106,6 +106,7 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
         is_player: false,
         night: false,
         now: 1.0,
+        terrain: 0,
     };
     let mut fx_sounds = FxSounds::default();
     let played = fx_sounds.do_fx(STEP_FX, 1.0, &call, &mut manager, &mut random);
@@ -142,6 +143,7 @@ fn a_do_fx_script_event_queues_the_effects_sound_and_particle_ids() {
         None,
         false,
         false,
+        0,
     );
     assert!(!queued.is_empty(), "a particle system starts");
     assert_eq!(
@@ -221,7 +223,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
             Ac2AnimEvent::StartFx { fx, .. } => Some(fx),
             _ => None,
         })
-        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random, None, false, false))
+        .flat_map(|fx| particle_starts(EMITTER, fx, &particles, &mut random, None, false, false, 0))
         .enumerate()
         .map(|(index, mut start)| {
             start.handle = index as u64 + 1;

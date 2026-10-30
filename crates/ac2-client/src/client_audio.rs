@@ -60,24 +60,21 @@ struct FxCall<'a> {
     /// `CGameTime`'s night flag (`m_night_time` against `m_day_time`).
     night: bool,
     now: f64,
+    /// The emitter's `FXManager::m_terrain`.
+    terrain: u32,
 }
 
 /// Whether a node starts here (`FXManager::DoTargettedFX`'s gates for a new FX:
-/// `FXManager::ChannelMissmatch` with no channel preferences set, the player-only flag, and the
-/// node's day or night flag for the time of day).
+/// `FXManager::ChannelMissmatch` against the FX channel preferences, the player-only flag, and
+/// the node's day or night flag for the time of day).
 fn node_starts(node: &Ac2FxSoundNode, is_player: bool, night: bool) -> bool {
-    (!node.player_only || is_player)
-        && if night {
-            node.night_time
-        } else {
-            node.day_time
-        }
+    node.gate().plays(is_player, night)
 }
 
 /// Whether a node takes the new scalar of an FX already running (`DoTargettedFX`'s update
-/// branch checks the player-only flag but not the time of day).
+/// branch checks the channel mismatch and the player-only flag but not the time of day).
 fn node_updates(node: &Ac2FxSoundNode, is_player: bool) -> bool {
-    !node.player_only || is_player
+    node.gate().updates(is_player)
 }
 
 /// `FXNode::GetSoundID`: one of the node's sounds (`Random::RollDice`).
@@ -114,7 +111,12 @@ impl FxSounds {
         random: &mut Random,
     ) -> Vec<u32> {
         let mut played_dids = Vec::new();
-        let Some(nodes) = call.data.table.get(fx).filter(|nodes| !nodes.is_empty()) else {
+        let Some(nodes) = call
+            .data
+            .table
+            .get_on(fx, call.terrain)
+            .filter(|nodes| !nodes.is_empty())
+        else {
             return played_dids;
         };
         if let Some(state) = self.states.get_mut(&fx) {
@@ -179,12 +181,19 @@ impl FxSounds {
 
     /// `FXManager::UseTime`: each running FX's scalar steps toward the desired one (once per
     /// node, `quantum / ramp_time`), its sounds follow, and an FX past its end is dropped.
-    fn use_time(&mut self, quantum: f32, now: f64, data: &FxSoundData, manager: &mut SoundManager) {
+    fn use_time(
+        &mut self,
+        quantum: f32,
+        now: f64,
+        data: &FxSoundData,
+        terrain: u32,
+        manager: &mut SoundManager,
+    ) {
         self.states.retain(|fx, state| {
-            let nodes = data.table.get(*fx).cloned().unwrap_or_default();
+            let nodes = data.table.get_on(*fx, terrain).cloned().unwrap_or_default();
             if state.current != state.desired {
                 // `FXManager::UseTime` steps once per node that has no channel mismatch.
-                for node in nodes.iter() {
+                for node in nodes.iter().filter(|n| !n.gate().missmatches()) {
                     if node.ramp_time >= 0.0002 {
                         let step = quantum / node.ramp_time;
                         if state.desired <= state.current {
@@ -492,6 +501,11 @@ impl Client {
             .iter()
             .map(|(id, _, _)| (*id, self.water_surface_under(*id, player_id)))
             .collect();
+        // Each emitter's `FXManager::m_terrain`, which selects the nodes keyed by terrain.
+        let terrains: HashMap<u64, u32> = events
+            .iter()
+            .map(|(id, _, _)| (*id, self.fx_terrain(*id)))
+            .collect();
         let night = self
             .game_clock
             .as_ref()
@@ -520,6 +534,7 @@ impl Client {
                                     is_player,
                                     night,
                                     now,
+                                    terrain: terrains.get(&id).copied().unwrap_or(0),
                                 };
                                 fx.do_fx(
                                     effect,
@@ -541,6 +556,7 @@ impl Client {
                                         water.get(&id).copied().flatten(),
                                         is_player,
                                         night,
+                                        terrains.get(&id).copied().unwrap_or(0),
                                     );
                                     let mut handles = Vec::with_capacity(starts.len());
                                     for start in &mut starts {
@@ -556,7 +572,12 @@ impl Client {
                                     audio.object_particles.extend(starts);
                                     if audio.light_effects {
                                         audio.object_lights.extend(light_starts(
-                                            id, effect, table, is_player, night,
+                                            id,
+                                            effect,
+                                            table,
+                                            is_player,
+                                            night,
+                                            terrains.get(&id).copied().unwrap_or(0),
                                         ));
                                     }
                                 }
@@ -584,7 +605,13 @@ impl Client {
                     }
                 }
                 if let Some(data) = sounds {
-                    fx.use_time(step, now, data, &mut audio.manager);
+                    fx.use_time(
+                        step,
+                        now,
+                        data,
+                        terrains.get(&id).copied().unwrap_or(0),
+                        &mut audio.manager,
+                    );
                 }
             }
         }

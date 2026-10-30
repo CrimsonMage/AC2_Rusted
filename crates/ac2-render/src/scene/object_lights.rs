@@ -2,7 +2,9 @@
 //! on its object at the node's offset (`PHYSICSOBJREP::PrepareObjectForDrawing`: the object's
 //! frame times the offset), fading in and out over its fade time, until its lifespan is spent.
 //! A light with no lifespan lasts while its object is in the world (`DestroyAllTransientFX`
-//! drops them with it).
+//! drops them with it). The light is a copy of the whole `LightSource` (`CPartArray::CreateLightSource`),
+//! so its range and diffuse intensity are the animated waveforms `FillRenderLight` samples at the
+//! client time of each frame.
 
 use std::collections::HashMap;
 
@@ -102,7 +104,7 @@ impl ObjectLights {
                 let frame = self.frames.get(&fx.emitter)?;
                 let opacity = light_opacity(&fx.light, now - fx.created)?;
                 let origin = frame.local_to_global_point(fx.light.offset);
-                let point = fill(&fx.light.source, origin, opacity);
+                let point = fill(&fx.light.source, origin, opacity, now);
                 let distance = origin.distance(position);
                 (distance < point.range + radius).then(|| (weight(&point, distance), point))
             })
@@ -128,6 +130,7 @@ impl ObjectLights {
                     &fx.light.source,
                     frame.local_to_global_point(fx.light.offset),
                     opacity,
+                    now,
                 ))
             })
             .collect()
@@ -140,14 +143,16 @@ impl ObjectLights {
     }
 }
 
-/// `LightSource::FillRenderLight` for an FX light at `origin` with its `opacity`: diffuse is the
-/// colour times the intensity and the opacity; the attenuation is `1 / (10 d^2 / range^2 + 1)`.
-fn fill(source: &Ac2LightSource, origin: Vec3, opacity: f32) -> PointLight {
-    let range = source.range.max(MIN_RANGE);
+/// `LightSource::FillRenderLight` for an FX light at `origin` with its `opacity` at client time
+/// `now`: the range and the intensity are the waveforms' values then; diffuse is the colour times
+/// the intensity and the opacity; the attenuation is `1 / (10 d^2 / range^2 + 1)`.
+fn fill(source: &Ac2LightSource, origin: Vec3, opacity: f32, now: f64) -> PointLight {
+    let range = source.range_at(now).max(MIN_RANGE);
+    let intensity = source.intensity_at(now);
     PointLight {
         origin,
         range,
-        diffuse: source.diffuse.map(|c| c * source.intensity * opacity),
+        diffuse: source.diffuse.map(|c| c * intensity * opacity),
         specular: source.specular.map(|c| c * opacity),
         attenuation: [1.0, 0.0, 10.0 / (range * range)],
     }
@@ -155,7 +160,7 @@ fn fill(source: &Ac2LightSource, origin: Vec3, opacity: f32) -> PointLight {
 
 /// `LightSource::GetWeight` for a point light: `(range - d) / range * mean diffuse`, where the
 /// diffuse already carries the intensity and the opacity; capped at 1.
-fn weight(point: &PointLight, distance: f32) -> f32 {
+pub(super) fn weight(point: &PointLight, distance: f32) -> f32 {
     let mean = point.diffuse.iter().sum::<f32>() / 3.0;
     (((point.range - distance) / point.range) * mean).min(1.0)
 }
@@ -199,6 +204,48 @@ mod tests {
         // No lifespan lasts, and no fade time is full strength.
         assert_eq!(light_opacity(&fx(0.0, 0.25), 1e6), Some(1.0));
         assert_eq!(light_opacity(&fx(2.0, 0.0), 1.0), Some(1.0));
+    }
+
+    /// A light whose range and intensity are sine waveforms breathes with the client time:
+    /// `GetAnimatedRange` and `FillRenderLight` sample them each frame.
+    #[test]
+    fn range_and_intensity_follow_their_waveforms_over_time() {
+        use ac2_math::waveform::kind;
+        let mut light = fx(0.0, 0.0);
+        light.source.range_wave = ac2_assets::Ac2Waveform {
+            kind: kind::SINE,
+            base: 6.0,
+            amplitude: 2.0,
+            frequency: std::f32::consts::FRAC_PI_2,
+            ..Default::default()
+        };
+        light.source.intensity_wave = ac2_assets::Ac2Waveform {
+            kind: kind::SQUARE,
+            base: 1.0,
+            amplitude: 0.5,
+            frequency: std::f32::consts::FRAC_PI_2,
+            ..Default::default()
+        };
+        assert!(light.source.is_range_animating());
+        let mut lights = ObjectLights::default();
+        lights.start(7, light, 0.0);
+        lights.place(&[placed(7, 0.0)], 0.0);
+        let at = |t: f64| lights.all(t).remove(0);
+        // t = 1: the range's sine peaks (6 + 2); the intensity's square is positive (1.5).
+        let peak = at(1.0);
+        assert!((peak.range - 8.0).abs() < 1e-4, "{}", peak.range);
+        assert!((peak.diffuse[0] - 1.5).abs() < 1e-4);
+        assert!((peak.attenuation[2] - 10.0 / 64.0).abs() < 1e-5);
+        // t = 3: the range's sine bottoms out (6 - 2); the intensity's square is negative (0.5).
+        let trough = at(3.0);
+        assert!((trough.range - 4.0).abs() < 1e-4, "{}", trough.range);
+        assert!((trough.diffuse[0] - 0.5).abs() < 1e-4);
+        // A constant waveform is its base at any time: the light is not animated.
+        assert!(!fx(0.0, 0.0).source.is_range_animating());
+        let mut still = ObjectLights::default();
+        still.start(7, fx(0.0, 0.0), 0.0);
+        still.place(&[placed(7, 0.0)], 0.0);
+        assert_eq!(still.all(0.0)[0].range, still.all(500.0)[0].range);
     }
 
     #[test]

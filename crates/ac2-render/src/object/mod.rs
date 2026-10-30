@@ -40,7 +40,8 @@ pub use pixel_shader::{
     parse_pixel_shader, PixelProgram, PsInstruction, PsOp, PsRegister, PsSource, PsSourceModifier,
 };
 pub use point_lights::{
-    object_point_lights, static_point_light, PointLight, SceneLight, MAX_POINT_LIGHTS,
+    object_point_lights, object_point_lights_in, static_point_light, static_point_light_at,
+    PointLight, SceneLight, MAX_POINT_LIGHTS,
 };
 pub use skeleton::{blend_vertex, GroupPose, ObjectSkeleton, SkeletonGroup};
 pub use water::load_water_model;

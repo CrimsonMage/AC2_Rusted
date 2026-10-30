@@ -140,6 +140,7 @@ fn nodes_play_by_their_gates() {
             day_time,
             night_time,
             has_channels: false,
+            channels: [None; 4],
         },
         ..Ac2FxObject::default()
     };

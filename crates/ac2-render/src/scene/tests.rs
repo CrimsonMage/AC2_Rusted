@@ -318,6 +318,49 @@ fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
     assert!(!pooled(&scene.frame(&camera, 1.5)));
 }
 
+/// An object that moves is lit by the static point lights of the side it stands on
+/// (`SceneTool::CacheStaticLights`): inside a dungeon it takes the cell lights near it, and it
+/// takes none of them when it stands outside.
+#[test]
+fn a_moving_object_is_lit_by_the_static_lights_on_its_side() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let world = Ac2WorldSource::open(Arc::new(ResourceStore::new(dataset)))
+        .unwrap()
+        .unwrap();
+    let mut scene = WorldScene::new(Arc::clone(&world), 1);
+    scene.set_center((0x02, 0xBB));
+    let _ = scene.wait();
+    let light = scene
+        .blocks
+        .values()
+        .filter_map(|block| block.scene_lights.as_deref())
+        .flatten()
+        .find(|light| light.indoor)
+        .expect("the dungeon block has interior point lights")
+        .clone();
+    let near = scene.object_lit_by(light.origin, 0.5, true);
+    assert!(
+        near.iter().any(|lit| lit.origin == light.origin),
+        "an object at the light is lit by it"
+    );
+    assert!(near.len() <= crate::object::MAX_POINT_LIGHTS);
+    assert!(
+        scene
+            .object_lit_by(light.origin, 0.5, false)
+            .iter()
+            .all(|lit| lit.origin != light.origin),
+        "an indoor light does not light an object outside"
+    );
+    assert!(
+        scene
+            .object_lit_by(light.origin + Vec3::splat(1.0e5), 0.5, true)
+            .is_empty(),
+        "a light out of range lights nothing"
+    );
+}
+
 #[test]
 fn the_rain_and_water_systems_load_with_the_scene() {
     let Some(dataset) = ac2_dat::test_support::env_dataset() else {

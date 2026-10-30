@@ -887,6 +887,7 @@ fn run(args: Args) -> Result<(), String> {
     client.apply_sound_preferences(prefs.bank());
     client.apply_light_preferences(prefs.bank());
     client.apply_streak_preferences(prefs.bank());
+    ac2_smartbox::fx_prefs::apply(prefs.bank());
     client.attach_prefs(prefs);
     let event_loop = EventLoop::new().map_err(|e| e.to_string())?;
     let mut app = App {

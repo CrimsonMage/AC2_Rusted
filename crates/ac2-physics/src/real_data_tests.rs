@@ -291,6 +291,11 @@ fn a_landscape_terrain_type_property_sets_the_motion_terrain() {
     else {
         return;
     };
+    assert_eq!(
+        scene.body.fx_terrain_type(),
+        0,
+        "FXManager::m_terrain starts at zero"
+    );
     for _ in 0..(1.0 / PHYSICS_QUANTUM).round() as usize {
         scene.body.step_quantum(&scene.terrain);
         let materials = scene.body.contact_materials(&scene.terrain);
@@ -300,6 +305,11 @@ fn a_landscape_terrain_type_property_sets_the_motion_terrain() {
         u64::from(scene.body.motion_terrain_type()),
         value,
         "the body's motion terrain is the material's terrain type"
+    );
+    assert_eq!(
+        u64::from(scene.body.fx_terrain_type()),
+        value,
+        "PHYSICSOBJREP::SetTerrainType hands the FX manager the same terrain"
     );
 }
 

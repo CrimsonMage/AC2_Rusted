@@ -139,7 +139,7 @@ impl FxDecals {
         if !self.started.insert((emitter, fx)) {
             return;
         }
-        let Some(nodes) = table.get(fx) else {
+        let Some(nodes) = table.get_on(fx, ctx.terrain) else {
             return;
         };
         let is_player = ctx.player == Some(emitter);
