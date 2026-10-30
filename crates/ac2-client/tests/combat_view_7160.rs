@@ -425,9 +425,14 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         step(&mut client, &server, &FrameInput::default());
         let missiles = client.story_missiles();
         assert!(missiles.len() <= 1, "one arrow: {missiles:?}");
-        let Some(&(_, _, Some(at), flying)) = missiles.first() else {
+        let Some(&(_, holder, Some(at), flying)) = missiles.first() else {
             continue;
         };
+        // Once it sticks the body is out of the world, left where it detonated and drawn on the
+        // drudge's bone.
+        if flying && holder == Some(CREATURE_ONE) {
+            break;
+        }
         let o = at.frame.origin;
         let at = [o.x, o.y, o.z];
         // Made at the player; its body loads first, and the next physics quantum gives it its
@@ -447,9 +452,13 @@ fn a_bow_story_fires_an_arrow_into_the_drudge() {
         distances.windows(2).all(|w| w[1] <= w[0] + 0.01),
         "the arrow closes on the drudge: {distances:?}"
     );
+    // `CMissileManager::DetonatesOnProximityTo`: the arrow (detonation proximity 0, its chance
+    // within the missile's) collides with its target alone at the target's containment radius
+    // plus its own, with no shape test (`CPhysicsObj::FindObjCollisions`). That is where the body
+    // stops; `StickySetParent` then hangs it from the nearest bone with a zero offset.
     assert!(
-        *distances.last().unwrap() < 1.0,
-        "the arrow sticks in the drudge: {distances:?}"
+        (3.0..3.6).contains(distances.last().unwrap()),
+        "the arrow detonates at the drudge's containment sphere: {distances:?}"
     );
     // It leaves the player's hand (holding location 4, chest high) and strikes the drudge's
     // body, three quarters of its height up (`m_targetHeightAdjustment` 0.75), not its feet.

@@ -294,3 +294,78 @@ fn the_solid_and_ethereal_lists_name_the_object_by_its_instance_id() {
     listed.collision_mut().merge_set_state(&info);
     assert!(!blocked(&mut listed, &world));
 }
+
+/// A transition of a small sphere from `(80, y0)` to `(80, y1)` past the creature at (80, 84)
+/// (instance `0x77`), with the mover's missile proximity target as given.
+fn missile_pass(
+    world: &Terrain,
+    target: Option<(u64, f32)>,
+    y0: f32,
+    y1: f32,
+) -> (bool, Vec<u32>, f32) {
+    use crate::collision_types::CollisionParameters;
+    use crate::transition::{Transition, TransitionObject};
+    let spheres = [Sphere::new(Vector::new(0.0, 0.0, 1.0), 0.1)];
+    let collision = CollisionParameters::default();
+    let object = TransitionObject {
+        state: 0,
+        spheres: &spheres,
+        scale: 1.0,
+        step_up_height: 0.0,
+        step_down_height: 0.0,
+        affected_by_gravity: false,
+        contact: None,
+        sliding_normal: None,
+        frames_stationary_fall: 0,
+        containment_radius: 0.1,
+        collision: &collision,
+        identity: None,
+        instance_id: 0x99,
+        blocking: Default::default(),
+        missile_proximity: target,
+    };
+    let from = position(80.0, y0, 0.0);
+    let mut t = Transition::new(
+        &object,
+        Some(from.cell_id),
+        Some(from),
+        position(80.0, y1, 0.0),
+    );
+    let found = t.find_valid_position(world);
+    (
+        found,
+        t.collision_info.collide_objects.clone(),
+        t.sphere_path.curr_pos.frame.origin.y,
+    )
+}
+
+/// `CMissileManager::DetonatesOnProximityTo`: a missile aimed at an object collides with it at its
+/// containment radius plus the proximity, though the shape (a half metre pillar) is far inside;
+/// another object, or a missile not aimed at it, passes the shape test as ever.
+#[test]
+fn a_missile_collides_with_its_target_at_the_containment_radius() {
+    let mut world = flat();
+    let object = StaticObject::dynamic(
+        position(80.0, 84.0, 0.0),
+        Vector::new(1.0, 1.0, 1.0),
+        pillar(),
+        true,
+    )
+    .with_instance_id(0x77);
+    let radius = object.containment_radius;
+    let id = world.insert_object(object);
+    assert!(radius > 3.0, "{radius}");
+    // Unaimed, the sphere reaches the pillar's shape only within half a metre.
+    let (_, hit, y) = missile_pass(&world, None, 70.0, 83.0);
+    assert!(hit.is_empty() && y > 82.9, "{hit:?} {y}");
+    // Aimed, it stops at the containment sphere (the mover's own 0.1 plus the proximity 0.5).
+    let (_, hit, y) = missile_pass(&world, Some((0x77, 0.5)), 70.0, 83.0);
+    assert_eq!(hit, vec![id]);
+    assert!(
+        y < 84.0 - (radius + 0.6) + 1.0 && y > 84.0 - (radius + 0.6) - 1.0,
+        "{y}"
+    );
+    // Another target leaves the object to its shape.
+    let (_, hit, _) = missile_pass(&world, Some((0x78, 0.5)), 70.0, 83.0);
+    assert!(hit.is_empty(), "{hit:?}");
+}

@@ -72,6 +72,9 @@ pub(crate) struct Transition {
     /// The mover's `InstanceID` and blocking mask, which an obstacle's own collision set judges
     /// (`CPhysicsObj::Interpermiable`'s second direction).
     pub mover: (u64, crate::collision_types::PhysicsTypeMask),
+    /// The mover's missile target and detonation proximity when it detonates on proximity
+    /// (`CMissileManager::DetonatesOnProximityTo`, `m_detonation_proximity`).
+    pub missile_proximity: Option<(u64, f32)>,
 }
 
 /// The object traits `CPhysicsObj::transition` hands `CTransition` (`get_object_info`,
@@ -98,6 +101,8 @@ pub(crate) struct TransitionObject<'a> {
     pub instance_id: u64,
     /// The body's blocking mask (`m_blocking_mask`).
     pub blocking: crate::collision_types::PhysicsTypeMask,
+    /// See `Transition::missile_proximity`.
+    pub missile_proximity: Option<(u64, f32)>,
 }
 
 impl Transition {
@@ -123,6 +128,7 @@ impl Transition {
         transition.collision = object.collision.clone();
         transition.identity = object.identity;
         transition.mover = (object.instance_id, object.blocking);
+        transition.missile_proximity = object.missile_proximity;
         if let Some((cell_id, plane, is_water, is_landscape, is_environment)) = object.contact {
             transition.init_contact_plane(cell_id, plane, is_water, is_landscape, is_environment);
         }

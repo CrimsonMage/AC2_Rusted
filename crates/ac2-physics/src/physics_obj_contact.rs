@@ -176,6 +176,7 @@ impl PhysicsObj {
             instance_id: self.instance_id,
             blocking: self.blocking,
             identity: self.world_id,
+            missile_proximity: self.missile_proximity(),
         };
         let begin_cell =
             ObjCell::get(terrain, self.position.cell_id).map(|_| self.position.cell_id);

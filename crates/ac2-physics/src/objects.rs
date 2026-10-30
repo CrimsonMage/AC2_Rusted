@@ -428,9 +428,13 @@ impl Transition {
             || (dynamic_mobile && !self.sphere_path.placement_ethereal);
         let step = self.object_info.max_step;
         let mover = self.object_info.containment_radius;
-        if !object.can_collide(step, mover, &self.sphere_path.check_pos) {
-            return TransitionState::Ok;
-        }
+        // `CMissileManager::DetonatesOnProximityTo`: a missile that detonates on proximity
+        // collides with its target alone once within the target's containment radius plus the
+        // missile's, plus the detonation proximity, with no shape test.
+        let proximity = match (self.missile_proximity, object.instance_id) {
+            (Some((target, radius)), Some(id)) if target == id => Some(radius),
+            _ => None,
+        };
         // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
         // is ethereal to it (`StaticObject::is_ethereal_to`, which also reads the ETHEREAL state).
         // Outside a placement the transition passes through it; a placement keeps the overlap test
@@ -438,6 +442,18 @@ impl Transition {
         let placement = self.sphere_path.placement_ethereal;
         let ethereal = object.is_ethereal_to(&self.collision, self.mover, placement);
         if ethereal && !placement {
+            return TransitionState::Ok;
+        }
+        if let Some(radius) = proximity {
+            if !object.can_collide(0.0, st(ld(radius) + ld(mover)), &self.sphere_path.check_pos) {
+                return TransitionState::Ok;
+            }
+            if !self.sphere_path.step_down {
+                self.collision_info.add_object(id, ethereal);
+            }
+            return TransitionState::Collided;
+        }
+        if !object.can_collide(step, mover, &self.sphere_path.check_pos) {
             return TransitionState::Ok;
         }
         self.sphere_path.obstruction_ethereal = ethereal;
@@ -479,6 +495,11 @@ impl Transition {
             }
             self.collision_info
                 .add_object(id, self.sphere_path.obstruction_ethereal);
+            // An ethereal obstruction is recorded for the collision report and does not stop the
+            // transition.
+            if self.sphere_path.obstruction_ethereal {
+                ts = TransitionState::Ok;
+            }
         }
         self.sphere_path.obstruction_ethereal = false;
         ts

@@ -88,6 +88,7 @@ impl PhysicsObj {
             instance_id: self.instance_id,
             blocking: self.blocking,
             identity: self.world_id,
+            missile_proximity: self.missile_proximity(),
         };
         let mut p = position;
         let probe = Transition::new(&object, None, None, p);

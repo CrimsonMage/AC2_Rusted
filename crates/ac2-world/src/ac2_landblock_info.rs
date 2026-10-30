@@ -234,13 +234,38 @@ pub fn load_entity_ethereal_mask(store: &ResourceStore, did: DataId) -> Resource
     }))
 }
 
-/// The `VisualDesc` an entity draws and its template's scale: a placed `VisualDesc` itself, or
-/// the `VisualDesc` of the template `EntityDesc` it instances.
+/// The `EntityDesc` property that, present and false on a template, makes its instances no
+/// object at all (`CPhysicsObj::makeObjectInternal`).
+const NO_OBJECT_PROPERTY: u32 = 0x4000_006B;
+
+/// `CPhysicsObj::makeObjectInternal`'s check on a template: its own `0x4000006B` property is
+/// present and false (or has no value).
+pub(crate) fn template_makes_no_object(template: &Ac2EntityDesc) -> bool {
+    entity_own_groups(template)
+        .iter()
+        .flat_map(|group| &group.properties)
+        .find(|property| property.name == NO_OBJECT_PROPERTY)
+        .is_some_and(|property| property.word().is_none_or(|value| value == 0))
+}
+
+/// The `VisualDesc` an entity draws and its templates' scale: a placed `VisualDesc` itself, or
+/// the `VisualDesc` at the end of the chain of template `EntityDesc`s it instances. Each template's
+/// scale multiplies in (`makeObjectInternal` scales the object by the description's scale times its
+/// current one at every level), and a template that makes no object ends the chain
+/// ([`template_makes_no_object`]).
 fn resolve_entity_visual(store: &ResourceStore, entity: &Ac2EntityDesc) -> Option<(DataId, Vec3)> {
+    resolve_entity_chain(store, entity, 0)
+}
+
+fn resolve_entity_chain(
+    store: &ResourceStore,
+    entity: &Ac2EntityDesc,
+    depth: usize,
+) -> Option<(DataId, Vec3)> {
     let data = entity.data?;
     match data.raw() & 0xFF00_0000 {
         VISUAL_DESC_PREFIX => Some((data, Vec3::ONE)),
-        ENTITY_DESC_PREFIX => {
+        ENTITY_DESC_PREFIX if depth < MAX_TEMPLATE_DEPTH => {
             let template = store
                 .load_cached_packed::<Ac2EntityDesc>(TypedResourceRef::new(
                     DatFileKind::Portal,
@@ -249,12 +274,11 @@ fn resolve_entity_visual(store: &ResourceStore, entity: &Ac2EntityDesc) -> Optio
                 ))
                 .ok()
                 .flatten()?;
-            match template.data {
-                Some(visual) if visual.raw() & 0xFF00_0000 == VISUAL_DESC_PREFIX => {
-                    Some((visual, template.scale))
-                }
-                _ => None,
+            if template_makes_no_object(&template) {
+                return None;
             }
+            let (visual, scale) = resolve_entity_chain(store, &template, depth + 1)?;
+            Some((visual, scale * template.scale))
         }
         _ => None,
     }

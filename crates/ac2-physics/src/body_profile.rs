@@ -8,10 +8,15 @@
 use std::sync::Arc;
 
 use super::super::PhysicsBody;
+use crate::collision_types::{CollisionParameters, PhysicsTypeMask};
 
 const IGNORE_COLLISIONS_PS: u32 = 0x8;
 const LIGHTS_PS: u32 = 0x400;
 const INIT_BEGIN_PS: u32 = 0x8_0000;
+/// The property `InitObjectBegin` sets in a dynamic object's default movement and placement masks.
+const DEFAULT_COLLISION_PROPERTY: u32 = 0x4000_0024;
+/// The bool `MasterProperty` type word.
+const TYPE_BOOL: u32 = 0x4000_0001;
 
 /// `PhysObjProfile`: the part of the weenie's physics description `ApplyPhysObjProfile` reads.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -26,13 +31,26 @@ pub struct PhysObjProfile {
 
 impl PhysicsBody {
     /// `CPhysicsObj::InitObjectBegin`: a static object gets `STATIC_PS`, a dynamic one clears
-    /// it; `set_mobile`; and the state's `0x80000` bit is set. Retail also gives a dynamic
-    /// object without a collision manager the default `CollisionParameters` (physics-type bit
-    /// `0x10`, property `0x40000024`, movement and placement bits); the body's own
-    /// `CollisionParameters::default` stands for those. Always true.
+    /// it and, without a collision manager, takes the default `CollisionParameters`
+    /// (`SetCollisionState`: physics type empty, the movement and placement masks holding the bit
+    /// of property `0x40000024`, which `MasterProperty::InqPropertyBit` gives; no bit without the
+    /// installed property table); `set_mobile`; and the state's `0x80000` bit is set. Always true.
     pub fn init_object_begin(&mut self, dynamic: bool, mobile: bool) -> bool {
         self.object
             .set_state_bit(crate::physics_obj::STATIC_PS, !dynamic);
+        if dynamic && !self.object.has_collision_manager {
+            let mut mask = PhysicsTypeMask::default();
+            if let Some(desc) = ac2_db::ac2_property_desc(DEFAULT_COLLISION_PROPERTY)
+                .filter(|desc| desc.value_type == TYPE_BOOL)
+            {
+                mask.set_bit(u64::from(desc.data), true);
+            }
+            let mut collide = CollisionParameters::default();
+            collide.set_bit(0x10);
+            collide.set_physics_movement_type(mask);
+            collide.set_physics_placement_type(mask);
+            self.object.set_collision_state(&collide, &|_| None);
+        }
         self.set_mobile(mobile);
         self.object.set_state_bit(INIT_BEGIN_PS, true);
         true
@@ -148,5 +166,7 @@ mod tests {
         assert!(body.init_object_begin(true, true));
         assert!(body.state_bits() & crate::physics_obj::STATIC_PS == 0);
         assert!(body.is_mobile());
+        // A dynamic object takes the default collision state (`SetCollisionState`).
+        assert!(body.has_collision_manager());
     }
 }

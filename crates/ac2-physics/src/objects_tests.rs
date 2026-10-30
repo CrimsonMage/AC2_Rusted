@@ -337,3 +337,30 @@ fn an_ethereal_wall_is_passed_through_and_a_solid_one_stops_the_body() {
     let path = walk_north(&mut solid, &world, 3.0);
     assert!(path.iter().all(|p| p[1] <= 84.0 - 0.39), "{path:?}");
 }
+
+/// `CPhysicsObj::FindObjCollisions`: an obstruction that is ethereal to the mover is recorded for
+/// the report and does not fail the placement the way the same solid box does.
+#[test]
+fn a_placement_overlapping_an_ethereal_box_is_not_refused() {
+    let block = || {
+        bsp_box(
+            position(80.0, 84.0, 0.0),
+            Vector::new(-1.0, -1.0, 0.0),
+            Vector::new(1.0, 1.0, 2.0),
+        )
+    };
+    let mut terrain = flat();
+    let id = terrain.insert_object(block());
+    let mut body = walker(70.0, 70.0, 0.0);
+    body.collision_mut().add_to_ethereal_list(u64::from(id));
+    assert_eq!(
+        body.place(position(80.0, 85.2, 0.0), 0, &terrain),
+        SetPositionError::Ok
+    );
+    let world = world_with(block());
+    let mut solid = walker(70.0, 70.0, 0.0);
+    assert_ne!(
+        solid.place(position(80.0, 85.2, 0.0), 0, &world),
+        SetPositionError::Ok
+    );
+}

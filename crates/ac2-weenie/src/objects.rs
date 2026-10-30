@@ -74,7 +74,38 @@ fn desc_physics(desc: &ac2_net::protocol::PhysicsDesc) -> ac2_physics::DescPhysi
             .iter()
             .map(|&(fx, scalar, _)| (fx, scalar))
             .collect(),
+        missile: desc_missile(desc),
     }
+}
+
+/// `CPhysicsObj::set_description`'s missile branch (`bitfield & 0xC00`).
+fn desc_missile(desc: &ac2_net::protocol::PhysicsDesc) -> Option<ac2_physics::DescMissile> {
+    if desc.bitfield & 0xC00 == 0 {
+        return None;
+    }
+    let target_pos = desc.target_position.map_or_else(Default::default, |p| {
+        let [w, x, y, z] = p.rotation;
+        ac2_physics::Position::new(
+            p.cell,
+            ac2_physics::Frame::new(
+                ac2_physics::Vector::new(p.origin[0], p.origin[1], p.origin[2]),
+                ac2_physics::Quaternion::new(w, x, y, z),
+            ),
+        )
+    });
+    let offset = desc.target_offset.unwrap_or_default();
+    Some(ac2_physics::DescMissile {
+        target_pos,
+        activated: desc.bitfield & 0x10_0000 != 0,
+        moving: desc.bitfield & 0x8_0000 != 0,
+        target: (desc.bitfield & 0x400 != 0).then(|| {
+            (
+                desc.target.unwrap_or_default(),
+                ac2_physics::Vector::new(offset[0], offset[1], offset[2]),
+                desc.bitfield & 0x4000 != 0,
+            )
+        }),
+    })
 }
 
 /// What an accepted position update did to the stamps (`CPhysicsObj::RecvEvt_Position`'s
@@ -512,5 +543,23 @@ mod tests {
             .apply_position(&update(12, 3, 1, 0x0299_0109))
             .is_some());
         assert_eq!(table.get(9).unwrap().update_times, [12, 1, 4, 0]);
+    }
+
+    #[test]
+    fn a_target_in_the_physics_description_is_a_missile_in_flight() {
+        use ac2_net::protocol::PhysicsDesc;
+        let plain = PhysicsDesc::default();
+        assert!(super::desc_missile(&plain).is_none());
+        let desc = PhysicsDesc {
+            bitfield: 0x400 | 0x4000 | 0x10_0000 | 0x8_0000,
+            target: Some(0x77),
+            target_offset: Some([0.0, 0.0, 0.5]),
+            ..PhysicsDesc::default()
+        };
+        let missile = super::desc_missile(&desc).expect("a missile");
+        assert!(missile.activated && missile.moving);
+        let (id, offset, scale) = missile.target.expect("a target");
+        assert_eq!((id, offset.z, scale), (0x77, 0.5, true));
+        assert_eq!(missile.target_pos.cell_id, 0);
     }
 }

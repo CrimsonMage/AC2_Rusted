@@ -13,7 +13,8 @@ use crate::fpu::{ld, st, F_EPSILON};
 use crate::landdefs::is_outside;
 use crate::los::{LosParameters, Ray, RayIntersection};
 use crate::missile::{
-    MissileHost, MissileManager, MissileParameters, MissileTargetingParameters, TargetPosition,
+    targeting_bits, MissileHost, MissileManager, MissileParameters, MissileTargetingParameters,
+    TargetPosition,
 };
 use crate::missile_detonation::{ImpactLookup, MissileCollisionHost};
 use crate::missile_flight::{MissileFlightHost, ObjectTarget};
@@ -247,6 +248,41 @@ impl PhysicsObj {
     /// `CPhysicsObj::HasMissileManager`.
     pub(crate) fn has_missile_manager(&self) -> bool {
         self.missile.is_some()
+    }
+
+    /// The target and proximity a mover's transition tests obstacles against
+    /// (`CMissileManager::DetonatesOnProximityTo` in `CPhysicsObj::FindObjCollisions`).
+    pub(crate) fn missile_proximity(&self) -> Option<(u64, f32)> {
+        self.missile.as_ref()?.proximity_target()
+    }
+
+    /// The missile branch of `CPhysicsObj::set_description`: the manager made when the body has
+    /// none, then `SetTargetPos`, `SetActivated`, `SetMoving`, `SetTargetID` when the description
+    /// names a target, and the described velocity as a missile's.
+    pub(crate) fn describe_missile(
+        &mut self,
+        missile: &crate::body::DescMissile,
+        velocity: [f32; 3],
+    ) {
+        self.ensure_missile_manager();
+        let empty = Terrain::new();
+        self.with_missile(&empty, &NoObjects, |manager, ctx, _| {
+            let info = &mut manager.target_info;
+            info.target_pos = missile.target_pos;
+            info.bitfield |= 2;
+            manager.set_activated(missile.activated);
+            manager.set_moving(ctx, missile.moving);
+            if let Some((id, offset, use_scale)) = missile.target {
+                let info = &mut manager.target_info;
+                info.target_id = id;
+                info.target_height_adjustment = 0.0;
+                info.use_target_scale = use_scale;
+                info.target_offset = offset;
+                info.bitfield |= targeting_bits::TARGET_OBJECT;
+            }
+        });
+        let [x, y, z] = velocity;
+        self.set_velocity_culled(Vector::new(x, y, z));
     }
 
     /// The manager made on first use: `IntrusiveSmartPointer::create`, the manager bound to the

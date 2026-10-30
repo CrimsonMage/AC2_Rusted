@@ -1081,7 +1081,7 @@ pub use profile::PhysObjProfile;
 
 #[path = "physics_obj_desc.rs"]
 mod desc;
-pub use desc::DescPhysics;
+pub use desc::{DescMissile, DescPhysics};
 
 #[path = "body_drawn.rs"]
 mod drawn;

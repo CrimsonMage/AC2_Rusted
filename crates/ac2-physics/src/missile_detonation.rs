@@ -110,9 +110,16 @@ impl MissileManager {
     /// `CMissileManager::DetonatesOnProximityTo`: the missile detonates on proximity, the target
     /// asked for a chance within the missile's, and `object` is the target.
     pub fn detonates_on_proximity_to(&self, object: u64) -> bool {
-        self.info.bitfield & DETONATES_ON_PROXIMITY != 0
-            && self.target_info.missile_detonation_chance <= self.info.detonation_chance
-            && object == self.target_info.target_id
+        self.proximity_target()
+            .is_some_and(|(target, _)| target == object)
+    }
+
+    /// The one object `detonates_on_proximity_to` answers for, and the missile's
+    /// `m_detonation_proximity`: what `CPhysicsObj::FindObjCollisions` tests each obstacle against.
+    pub fn proximity_target(&self) -> Option<(u64, f32)> {
+        (self.info.bitfield & DETONATES_ON_PROXIMITY != 0
+            && self.target_info.missile_detonation_chance <= self.info.detonation_chance)
+            .then_some((self.target_info.target_id, self.info.detonation_proximity))
     }
 
     /// `CMissileManager::InquireDirection`: the heading and pitch of the missile's initial
