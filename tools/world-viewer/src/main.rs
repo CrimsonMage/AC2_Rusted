@@ -11,9 +11,13 @@
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! world-viewer ... [--hud-style modern|classic]
+//! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...]
 //! ```
 //! `--hud-style` builds the HUD in that style (default classic, the retail DAT HUD); in the window
-//! F7 switches between the two and rebuilds the HUD.
+//! F7 switches between the two and rebuilds the HUD. `--hud` logs the snapshot's HUD on to the
+//! in-process server double (the window's session) so its vitals, shortcuts and inventory are
+//! filled, and leaves out the control panel; `--hud-panel NAME` (Inventory, Skill, Quest, Social,
+//! Examination, Navigation, Option; repeatable, implies `--hud`) opens that toolbar panel.
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
 //! degrees above the horizon (the sky: `--look 0,60`). `--height Z` puts the `--fly` camera at
@@ -99,6 +103,10 @@ struct Args {
     warm_up: u32,
     /// The HUD's style (`--hud-style`).
     hud_style: ac2_ui::HudStyle,
+    /// The snapshot's HUD with the server double's session (`--hud`).
+    hud: bool,
+    /// The toolbar panels the snapshot opens (`--hud-panel`).
+    hud_panels: Vec<ac2_ui::ToolbarChild>,
     /// The start position within the block (default: its centre).
     at: Option<(f32, f32)>,
     /// Server seconds to show (default: the day's brightest daylight); other days bring their
@@ -147,6 +155,8 @@ fn parse_args() -> Result<Args, String> {
         speed: 1,
         warm_up: 3,
         hud_style: ac2_ui::HudStyle::Classic,
+        hud: false,
+        hud_panels: Vec::new(),
         at: None,
         time: None,
         crowd: 0,
@@ -275,6 +285,14 @@ fn parse_args() -> Result<Args, String> {
                 let word = value()?;
                 args.hud_style = ac2_ui::HudStyle::parse(&word)
                     .ok_or(format!("--hud-style: modern or classic, not {word}"))?;
+            }
+            "--hud" => args.hud = true,
+            "--hud-panel" => {
+                let name = value()?;
+                let child = ac2_ui::ToolbarChild::from_name(&name)
+                    .ok_or(format!("--hud-panel: no panel named {name}"))?;
+                args.hud_panels.push(child);
+                args.hud = true;
             }
             "--warm-up" => {
                 args.warm_up = value()?.parse().map_err(|e| format!("--warm-up: {e}"))?;
@@ -501,6 +519,10 @@ fn snapshot(
     }
     view.update(&gpu, &frame, std::time::Duration::from_millis(4));
     view.settle(&gpu, &frame, width as f32 / height as f32);
+    if args.hud {
+        hud_session(&mut view, &gpu, &store, &world, &mut frame, args, (x, y));
+        view.settle(&gpu, &frame, width as f32 / height as f32);
+    }
     // The scene's particle systems run on the wall clock: let them emit before the frame is
     // taken.
     for step in 0..args.warm_up * 20 {
@@ -527,33 +549,18 @@ fn snapshot(
         println!("{}", report.line());
     }
     view.render(&gpu, &target.color_view, &target.depth_view, true);
-    // The control panel over it, as the window draws it.
-    let mut gui = gui::Gui::headless(&gpu, COLOR_FORMAT);
-    let mut panel = panel::Panel::new(
-        models.to_vec(),
-        mode,
-        walk::Landing {
-            block: args.block,
-            x,
-            y,
-        },
-    );
-    panel.model = args.model.min(models.len().saturating_sub(1));
-    panel.speed = args.speed;
-    let mut day = time_of_day;
-    let status = walk.status();
-    gui.headless_frame(&gpu, &target.color_view, [width, height], |ui| {
-        panel.show(
-            ui,
-            panel::PanelView {
-                status,
-                message: walk.message.as_deref(),
-                fps: 60.0,
-                time_of_day: &mut day,
-                particle_count: 0,
-            },
+    if !args.hud {
+        control_panel(
+            &gpu,
+            &target,
+            models,
+            mode,
+            args,
+            (x, y),
+            &walk,
+            time_of_day,
         );
-    });
+    }
     let Some(path) = &args.snapshot else {
         return;
     };
@@ -567,6 +574,84 @@ fn snapshot(
         .and_then(|mut writer| writer.write_image_data(&rgba))
         .expect("snapshot PNG writes");
     println!("wrote {}", path.display());
+}
+
+/// The snapshot's HUD logged on to the server double (`--hud`): the session's frames until the
+/// HUD has its panels, then the `--hud-panel` panels opened.
+fn hud_session(
+    view: &mut ClientView,
+    gpu: &Gpu,
+    store: &Arc<ResourceStore>,
+    world: &Arc<Ac2WorldSource>,
+    frame: &mut ac2_client::ClientFrame,
+    args: &Args,
+    (x, y): (f32, f32),
+) {
+    const STEP: f64 = 1.0 / 30.0;
+    let landing = walk::Landing {
+        block: args.block,
+        x,
+        y,
+    };
+    let mut session = match session::Session::start(store, world, landing) {
+        Ok(session) => session,
+        Err(error) => {
+            eprintln!("world-viewer: --hud: no session: {error}");
+            return;
+        }
+    };
+    let mut run = |view: &mut ClientView, frames: usize| {
+        for _ in 0..frames {
+            session.frame(view, frame, STEP);
+            view.update(gpu, frame, std::time::Duration::from_millis(4));
+        }
+    };
+    run(view, 90);
+    for &child in &args.hud_panels {
+        view.show_panel(child, true);
+    }
+    run(view, 30);
+}
+
+/// The viewer's control panel over the snapshot, as the window draws it.
+#[allow(clippy::too_many_arguments)]
+fn control_panel(
+    gpu: &Gpu,
+    target: &FrameTarget,
+    models: &[races::PlayerModel],
+    mode: panel::Mode,
+    args: &Args,
+    (x, y): (f32, f32),
+    walk: &walk::Walk,
+    time_of_day: f64,
+) {
+    let (width, height) = args.size;
+    let mut gui = gui::Gui::headless(gpu, COLOR_FORMAT);
+    let mut panel = panel::Panel::new(
+        models.to_vec(),
+        mode,
+        walk::Landing {
+            block: args.block,
+            x,
+            y,
+        },
+    );
+    panel.model = args.model.min(models.len().saturating_sub(1));
+    panel.speed = args.speed;
+    let mut day = time_of_day;
+    let status = walk.status();
+    gui.headless_frame(gpu, &target.color_view, [width, height], |ui| {
+        panel.show(
+            ui,
+            panel::PanelView {
+                status,
+                message: walk.message.as_deref(),
+                fps: 60.0,
+                time_of_day: &mut day,
+                particle_count: 0,
+            },
+        );
+    });
 }
 
 /// Runs the player in simulated 60 Hz time: until it is in the world (the cells load on their

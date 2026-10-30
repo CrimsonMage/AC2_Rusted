@@ -46,6 +46,13 @@ impl ToolbarChild {
         Self::Social,
     ];
 
+    /// The child a panel name names (`Inventory`, `skill`, ...; any case), as tools pass it.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL
+            .into_iter()
+            .find(|child| child.name().eq_ignore_ascii_case(name))
+    }
+
     fn name(self) -> &'static str {
         match self {
             Self::Examination => "Examination",
