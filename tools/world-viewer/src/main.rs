@@ -154,7 +154,6 @@ struct Args {
 }
 
 fn parse_args() -> Result<Args, String> {
-    let mut style_given = false;
     let mut args = Args {
         dat_dir: std::env::var_os("AC2_DAT_DIR")
             .map(PathBuf::from)
@@ -301,7 +300,6 @@ fn parse_args() -> Result<Args, String> {
             }
             "--hud-style" => {
                 let word = value()?;
-                style_given = true;
                 args.hud_style = ac2_ui::HudStyle::parse(&word)
                     .ok_or(format!("--hud-style: modern or classic, not {word}"))?;
             }
@@ -341,10 +339,6 @@ fn parse_args() -> Result<Args, String> {
             }
             other => return Err(format!("unknown argument {other}")),
         }
-    }
-    // The snapshot's HUD is the client's default style, modern; classic is `--hud-style classic`.
-    if args.hud && !style_given {
-        args.hud_style = ac2_ui::HudStyle::Modern;
     }
     if args.dat_dir.as_os_str().is_empty() {
         return Err("set AC2_DAT_DIR or pass --dat-dir".into());
