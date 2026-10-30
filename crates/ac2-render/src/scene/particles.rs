@@ -547,6 +547,7 @@ mod tests {
             bones: Vec::new(),
             named_bones: Vec::new(),
             parents: std::sync::Arc::from(Vec::new()),
+            speed: 0.0,
         }]);
         let placed = &particles.placed[&4];
         assert_eq!(

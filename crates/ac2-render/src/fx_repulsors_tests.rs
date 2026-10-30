@@ -131,6 +131,7 @@ fn the_scene_places_a_repulsor_with_its_emitter_and_ends_it_by_lifetime() {
         cell: 1,
         frame: Frame::new(Vec3::new(4.0, 5.0, 6.0), Quat::IDENTITY),
         scale: Vec3::ONE,
+        particle_scale: 1.0,
         bones: Vec::new(),
         named_bones: Vec::new(),
         parents: Arc::from(Vec::new()),
