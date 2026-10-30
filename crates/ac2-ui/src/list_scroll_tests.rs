@@ -285,6 +285,23 @@ fn columns_percentage_and_selection_by_id() {
     assert_eq!(tree.list_selected_index(list), None);
 }
 
+/// `UIElement_ListBox::SetAttribute_Int(max_columns)`: a new column count lays the list out at
+/// once.
+#[test]
+fn a_new_column_count_lays_the_list_out_again() {
+    let (mut tree, list, _, _) = panel();
+    assert_eq!(tree.get(list).unwrap().list.as_ref().unwrap().cols, 1);
+    tree.set_int(list, tokenize("max_columns"), 2);
+    let state = tree.get(list).unwrap().list.as_ref().unwrap();
+    assert_eq!(state.cols, 2);
+    // Each column fills down first, so the last item is in the second column.
+    let last = *tree.list_items(list).last().unwrap();
+    assert!(
+        tree.get(last).unwrap().rect.x0 > 0,
+        "the last item moved to column 1"
+    );
+}
+
 /// A 30 x 20 `listboxmsize` of one column over items 10, 30 and 10 pixels tall (a 50 pixel paper).
 fn sized_panel() -> (UiTree, usize) {
     let list = element(
@@ -356,6 +373,21 @@ fn a_sized_list_steps_by_the_cell_at_the_view_edge() {
     assert_eq!(view_y(&tree, list), 0);
     tree.list_scroll_to_row(list, 1);
     assert_eq!(view_y(&tree, list), 10);
+}
+
+/// `UIElement_ListBoxMSize::ScrollToShow`: a row above the view becomes its first; one below the
+/// view's far edge stays put (retail's forward case reads the base item size, never set).
+#[test]
+fn a_sized_list_shows_a_row_above_the_view_and_leaves_one_below() {
+    let (mut tree, list) = sized_panel();
+    tree.list_set_view(list, None, Some(25));
+    tree.list_scroll_to_show(list, 1);
+    assert_eq!(view_y(&tree, list), 10);
+    tree.list_set_view(list, None, Some(0));
+    tree.list_scroll_to_show(list, 2);
+    assert_eq!(view_y(&tree, list), 0);
+    // The column at x 0 never moves the view across.
+    assert_eq!(tree.get(list).unwrap().list.as_ref().unwrap().view.0, 0);
 }
 
 #[test]

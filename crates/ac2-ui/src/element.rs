@@ -703,6 +703,7 @@ impl UiTree {
         }
         if changed {
             self.changed = true;
+            self.list_attribute(index, id);
             self.button_attribute(index, id, value);
             self.menu_attribute(index, id, value);
         }
@@ -725,6 +726,9 @@ impl UiTree {
                     .attributes
                     .insert(attribute.id, value.clone());
                 let changed = previous.as_ref() != Some(value);
+                if changed {
+                    self.list_attribute(index, attribute.id);
+                }
                 self.text_attribute(index, attribute.id, value, changed);
             }
         }
@@ -803,11 +807,12 @@ impl UiTree {
         }
     }
 
-    /// `UIElement::SetAttribute_Int`.
+    /// `UIElement::SetAttribute_Int` (a list's changed `max_columns` lays it out again).
     pub fn set_int(&mut self, index: usize, id: u32, value: i32) {
-        self.el_mut(index)
-            .attributes
-            .insert(id, AttributeValue::Int(value));
+        let value = AttributeValue::Int(value);
+        if self.el_mut(index).attributes.insert(id, value.clone()) != Some(value) {
+            self.list_attribute(index, id);
+        }
     }
 
     /// `UIElement::SetAttribute_ID`.

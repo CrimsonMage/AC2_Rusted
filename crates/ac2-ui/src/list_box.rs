@@ -99,6 +99,19 @@ impl UiTree {
         }
     }
 
+    /// `UIElement_ListBox::SetAttribute_Bool(horizontal)` and `SetAttribute_Int(max_columns)`: a
+    /// changed layout attribute lays the list out again (`UpdateLayout`).
+    pub(crate) fn list_attribute(&mut self, index: usize, id: u32) {
+        let layout = id == crate::token::tokenize("horizontal")
+            || id == crate::token::tokenize("max_columns");
+        if layout
+            && crate::list_box_select::is_list_kind(self.el(index).desc.kind)
+            && self.el(index).list.is_some()
+        {
+            self.list_update_layout(index);
+        }
+    }
+
     pub(crate) fn list_relayout(&mut self, list: usize) {
         self.list_update_layout(list);
         self.list_keep_view_in_bounds(list);

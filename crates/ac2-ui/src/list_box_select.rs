@@ -109,6 +109,10 @@ impl UiTree {
             (i / state.rows, i % state.rows)
         };
         let (item, view) = (state.item, state.view);
+        if self.is_msize(list) {
+            self.list_msize_scroll_to_show(list, col, row);
+            return;
+        }
         let rect = self.el(list).rect;
         if item.0 * col < view.0 {
             self.list_set_view(list, Some(item.0 * col), None);

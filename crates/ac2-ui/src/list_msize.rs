@@ -6,8 +6,7 @@
 //! size of the cell at the view's edge, and a point finds its cell by the running sums
 //! (`InqItemIndex`, `GetItemIndexAtPoint`).
 //!
-//! Not modelled: `ScrollToShow` (it reads the base list's item size, which the sized list never
-//! sets) and the smooth animation of the goal (see `list_goal.rs`).
+//! Not modelled: the smooth animation of the goal (see `list_goal.rs`).
 
 use crate::element::UiTree;
 use crate::list_box_select::LIST_BOX_MSIZE;
@@ -204,6 +203,21 @@ impl UiTree {
             self.list_set_view(list, None, Some(offset));
         } else {
             self.list_set_view(list, Some(offset), None);
+        }
+    }
+
+    /// `UIElement_ListBoxMSize::ScrollToShow` (admin 0x005F8F60) for the cell at `col`, `row`:
+    /// a column or row starting before the view becomes the view's first. Its forward case (the
+    /// cell past the view's far edge) divides by the base list's item size, which the sized list
+    /// never sets, so it never runs and a cell past the far edge stays where it is.
+    pub(crate) fn list_msize_scroll_to_show(&mut self, list: usize, col: i32, row: i32) {
+        let x = item_offset(col.max(0) as usize, &self.msize_sizes(list, false));
+        if x < self.list(list).view.0 {
+            self.list_msize_scroll_to(list, false, col);
+        }
+        let y = item_offset(row.max(0) as usize, &self.msize_sizes(list, true));
+        if y < self.list(list).view.1 {
+            self.list_msize_scroll_to(list, true, row);
         }
     }
 

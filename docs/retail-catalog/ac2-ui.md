@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1437 done, 230 partial, 0 to do, 580 skipped.
+2247 retail functions: 1449 done, 218 partial, 0 to do, 580 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3180,7 +3180,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs catch_dropped_item: the field's rollover state restored (field_end_rollover), then UIElement::CatchDroppedItem
 - [-] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (66/82)
+## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (77/82)
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::Home` · 005f1b90 · legions 005b26c0 — ac2-ui list_box.rs
@@ -3194,8 +3194,8 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::GetScrollBar` · 005f1db0 · legions 005b28e0 — named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
 - [-] `UIElement_ListBox::UnregisterForScrollbar` · 005f1e50 · legions 005b2980 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [-] `UIElement_ListBox::TestBitMask` · 005f1f60 · legions 005b2a90 — m_bitField is typed fields in ListBoxState (multiop, from_scrollbar) and attributes; no mask test needed
-- [~] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
-- [~] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
+- [x] `UIElement_ListBox::ScrollToShow` · 005f1f80 · legions 005b2ab0 — list_box_select.rs list_scroll_to_show: the least whole columns and rows that bring the item into the box (GetCol/GetRow, GetLeftCol/GetTopRow); every caller passes _immediate 1 (SetSelectedIndex, SetSelectedItem, the keyboard step), so no goal path is reachable; a sized list goes to list_msize_scroll_to_show
+- [x] `UIElement_ListBox::SetAttribute_Bool` · 005f1fc0 · legions 005b2af0 — ac2-ui: the bit flags are read from the attributes when used (list_flag); a changed horizontal lays the list out again (list_box.rs list_attribute)
 - [x] `UIElement_ListBox::DetermineAndSetNewGoal` · 005f2180 · legions 005b2cb0 — ac2-ui list_goal.rs / list_msize.rs: the max/min clamp of the goal is inlined in list_line_step, list_page_step and list_msize_step; a smooth list jumps to the goal
 - [x] `UIElement_ListBox::UpdateLayout` · 005f21f0 · legions 005b2d20 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::StartAnimation` · 005f23f0 · legions 005b2f20 — ac2-ui list_animate.rs list_start_animation / list_stop_animation / list_global_loop: goal-driven smooth movement over smooth_movement_duration (start + trunc((end-start)*t), t as float; restart half way while moving), ticked from UiTree::global_loop; list_drag_tests.rs
@@ -3204,13 +3204,13 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::SetSelectedItem` · 005f2560 · legions 005b3090 — ac2-ui list_box_select.rs
 - [x] `UIElement_ListBox::SetSelectedIndex` · 005f2650 · legions 005b3180 — ac2-ui list_box_select.rs
 - [x] `UIElement_ListBox::GetItemIndexAtPoint` · 005f26b0 · legions 005b31e0 — ac2-ui list_box.rs
-- [~] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
+- [x] `UIElement_ListBox::InsertItem` · 005f27c0 · legions 005b32f0 — list_box.rs list_insert_item: InsertOrderedByIndex (at the end when past it), then UpdateLayout, KeepViewInBounds and UpdateControls unless a multi-operation is open; items draw into the list root surface (no per-item object)
 - [x] `UIElement_ListBox::MultiOpAddItem` · 005f2820 · legions 005b3350 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 - [x] `UIElement_ListBox::MultiOpInsertItem` · 005f2840 · legions 005b3370 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 - [x] `UIElement_ListBox::MultiOpInsertItem` · 005f2850 · legions 005b3380 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
 - [x] `UIElement_ListBox::GetCol` · 005f2870 · legions 005b33a0 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::GetRow` · 005f28d0 · legions 005b3400 — ac2-ui list_box.rs list_what_num (the row index the extra text goes after)
-- [~] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs: left-press selection; wheel/scroll bar and smooth (goal) scrolling not modelled
+- [x] `UIElement_ListBox::ScrollToShow` · 005f2930 · legions 005b3460 — list_box_select.rs list_scroll_to_show: the least whole columns and rows that bring the item into the box (GetCol/GetRow, GetLeftCol/GetTopRow); every caller passes _immediate 1 (SetSelectedIndex, SetSelectedItem, the keyboard step), so no goal path is reachable; a sized list goes to list_msize_scroll_to_show
 - [x] `UIElement_ListBox::StartDragSelect` · 005f2a50 · legions 005b3580 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 - [x] `UIElement_ListBox::EndDragSelect` · 005f2ac0 · legions 005b35f0 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 - [x] `UIElement_ListBox::StartRollover` · 005f2b10 · legions 005b3640 — ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
@@ -3219,7 +3219,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::GetPercentageV` · 005f2c30 · legions 005b3760 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::GetPercentageH` · 005f2cc0 · legions 005b37f0 — ac2-ui list_goal.rs: UiTree::list_scroll_to_col / list_left_col / list_col / list_percentage
 - [x] `UIElement_ListBox::HandleMouseWheel` · 005f2d50 · legions 005b3880 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
-- [~] `UIElement_ListBox::HandleScrollBarMessage` · 005f2d90 · legions 005b38c0 — list_scroll.rs: view = position x (paper - (y1 - y0 + 1)) and share = view / (paper - (y1 - y0 + 1)) (admin 0x005F2D90, 0x005F2C30); smooth goal (goal_x_view, StartAnimation) and paging not modelled
+- [x] `UIElement_ListBox::HandleScrollBarMessage` · 005f2d90 · legions 005b38c0 — list_scroll.rs lists_follow_scrollbar: new_position sets the view (SetAttribute_Int x_view/y_view, not a goal) from position x (paper - (y1 - y0 + 1)); widget_release (list_animate.rs list_scrollbar_widget_release) and the line/page messages (list_goal.rs) step the goal
 - [x] `UIElement_ListBox::HandleScrollbarWidgetRelease` · 005f2f60 · legions 005b3a90 — ac2-ui list_animate.rs list_scrollbar_widget_release: the nearest item boundary as the goal, skipped with allow_largeitem_scroll and at the far end with allow_uneven_at_end; called from scrollbar_mouse_up for the bound lists
 - [-] `UIElement_ListBox::~UIElement_ListBox` · 005f3070 · legions 005b3ba0 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [x] `UIElement_ListBox::MouseOverTop` · 005f3190 · legions 005b3cc0 — ac2-ui list_drag.rs: a drag over a container list with drag_rollover rolls over the item under the pointer (drag_rollover_accept / reject by the list's drop check and disallow_drag_in; the drop check is the element callback at +0x15C), the left item restored; started on MouseOverTop, applied on the next move; list_drag_tests.rs
@@ -3247,32 +3247,32 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_ListBox::ViewChanged` · 005f3f30 · legions 005b4a60 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::HandleSelection` · 005f3fd0 · legions 005b4b00 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 - [x] `UIElement_ListBox::SetState` · 005f4030 · legions 005b4b60 — ac2-ui list_box.rs list_set_state (from UiTree::set_state): the items become every child of the list (m_firstChild walk, admin disassembly 0x5f4063), each before the first item lying after it by m_box (0x60/0x64: horizontal (bit 0 of m_bitField) orders y0 then x0, else x0 then y0), then UpdateLayout, KeepViewInBounds, UpdateControls; an item not yet parented (our layout parents items) is kept; list_box_tests.rs
-- [~] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
-- [~] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0 — ac2-ui list_scroll.rs lists_bound_to: scroll bars matched by name when their messages arrive, buttons by scrollbar.rs; missing: the horizontal/vertical flag (bit 0x800) and UpdateControls when the attribute is set, list up/down/left/right buttons are not wired
-- [~] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — left press selects the item (list_box_select.rs); the wheel goes to the scroll bar (list_scroll.rs); drag selection and rollover not modelled
+- [x] `UIElement_ListBox::SetAttribute_Int` · 005f4170 · legions 005b4ca0 — list_box.rs list_set_view / list_animate.rs list_set_goal: views and goals constrained, ViewChanged, a view set from elsewhere stops the animation, a goal on a non-smooth list becomes the view and clears; a changed max_columns lays the list out again (list_attribute). Test: list_scroll_tests a_new_column_count_lays_the_list_out_again
+- [x] `UIElement_ListBox::SetAttribute_ID` · 005f4270 · legions 005b4da0 — list_scroll.rs lists_bound_to (bars matched by the vertical_scrollbar / horizontal_scrollbar ids, so the 0x800 horizontal flag is which id names the bar) and list_goal.rs list_hot_click (up/down/left/right buttons step the list); controls update on every relayout
+- [x] `UIElement_ListBox::MouseDown` · 005f4420 · legions 005b4f50 — list_box_select.rs list_mouse_down: a left press on a click_select list selects (HandleSelection), drag_select opens a drag selection (list_drag.rs); the wheel goes to the scroll bar (list_scroll.rs)
 - [x] `UIElement_ListBox::Global_MouseMove` · 005f44c0 · legions 005b4ff0 — ac2-ui list_drag.rs: a drag_select list selects under the pointer while the left button is held (list_start_drag_select from list_mouse_down, lists_global_mouse_move), ended by any button up; list_drag_tests.rs
 - [x] `UIElement_ListBox::StartUpActive` · 005f4500 · legions 005b5030 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 - [x] `UIElement_ListBox::StartDownActive` · 005f4540 · legions 005b5070 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 - [x] `UIElement_ListBox::StartLeftActive` · 005f4570 · legions 005b50a0 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 - [x] `UIElement_ListBox::StartRightActive` · 005f45b0 · legions 005b50e0 — ac2-ui list_scroll.rs: UiTree::list_step_active (arrow keys step the selection)
 - [x] `UIElement_ListBox::AddItem` · 005f45e0 · legions 005b5110 — ac2-ui list_box.rs
-- [~] `UIElement_ListBox::InsertItem` · 005f4680 · legions 005b51b0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
+- [x] `UIElement_ListBox::InsertItem` · 005f4680 · legions 005b51b0 — list_box.rs list_insert_item: InsertOrderedByIndex (at the end when past it), then UpdateLayout, KeepViewInBounds and UpdateControls unless a multi-operation is open; items draw into the list root surface (no per-item object)
 - [x] `UIElement_ListBox::DeleteItem` · 005f46f0 · legions 005b5220 — ac2-ui list_box.rs
 - [x] `UIElement_ListBox::MultiOpRemoveItem` · 005f4750 · legions 005b5280 — ac2-ui list_goal.rs: list_multi_op_add_item / list_multi_op_insert_item / list_multi_op_remove_item (the 0x200000 multi-op bit is ListBoxState::multiop)
-- [~] `UIElement_ListBox::UIElement_ListBox` · 005f47a0 · legions 005b52d0 — ac2-ui list_box.rs: no smooth scrolling, controls or selection
+- [x] `UIElement_ListBox::UIElement_ListBox` · 005f47a0 · legions 005b52d0 — ac2-ui list_box.rs ListBoxState (items, view, paper, cell, selection, multi-operation, animation in list_animate.rs) made with the list element
 - [-] `UIElement_ListBox::Create` · 005f4a80 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 - [x] `UIElement_ListBox::ListenToMessage` · 005f4ab0 · legions 005b55e0 — ac2-ui list_drag.rs lists_global_mouse_up / lists_global_mouse_move, called from mouse.rs on the global mouse up and move
-- [~] `UIElement_ListBox::ListenToMessage` · 005f4b00 · legions 005b5630 — ac2-ui: global mouse up/move (list_drag.rs) and the global loop (list_animate.rs) are ported; the ListBoxMsg_update message is not routed: the frameworks call list_relayout directly
+- [x] `UIElement_ListBox::ListenToMessage` · 005f4b00 · legions 005b5630 — list_drag.rs (global mouse up ends drag select and rollover, global mouse move) and list_animate.rs (global loop); ListBoxMsg_update has no sender in the client (only this listener names it), and the frameworks call list_relayout directly
 - [x] `UIElement_ListBox::SetItem` · 005f4b90 · legions 005b56c0 — ac2-ui list_box.rs
 - [-] `UIElement_ListBox::Register` · 005f4c30 · legions 005b5760 — ctor/dtor/Create/Register are the framework's element creation (UiTree::create_element) and Drop; scroll-bar listeners are the lists_bound_to lookup (list_scroll.rs), not message registrations
 
-## `portal/client/src/uielement/types/uielement_listboxmsize.cpp.c` (16/20)
+## `portal/client/src/uielement/types/uielement_listboxmsize.cpp.c` (17/20)
 
 ### UIElement_ListBoxMSize
 - [x] `UIElement_ListBoxMSize::ConstrainViewValue` · 005f8e70 · legions 005b99a0 — ac2-ui list_msize.rs: UiTree::list_msize_constrain (no snapping, within 0 and paper - extent)
 - [x] `UIElement_ListBoxMSize::InqItemIndex` · 005f8ed0 · legions 005b9a00 — ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
 - [x] `UIElement_ListBoxMSize::InqItemSize` · 005f8f20 · legions 005b9a50 — ac2-ui list_msize.rs: item_index / item_offset (InqItemIndex, InqItemSize over the running sizes)
-- [~] `UIElement_ListBoxMSize::ScrollToShow` · 005f8f60 · legions 005b9a90 — list_msize.rs: not ported: the base list's item size that ScrollToShow reads (the sized list never sets it); a selection is shown by the base list_scroll_to_show
+- [x] `UIElement_ListBoxMSize::ScrollToShow` · 005f8f60 · legions 005b9a90 — list_msize.rs list_msize_scroll_to_show: a column or row starting before the view becomes its first; the forward case divides by the base item size the sized list never sets, so it never runs (as in retail). Test: list_scroll_tests a_sized_list_shows_a_row_above_the_view_and_leaves_one_below
 - [x] `UIElement_ListBoxMSize::ScrollToRow` · 005f90d0 · legions 005b9c00 — ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
 - [x] `UIElement_ListBoxMSize::ScrollToCol` · 005f9110 · legions 005b9c40 — ac2-ui list_msize.rs: list_msize_scroll_to (immediate; smooth scrolling is not modelled)
 - [x] `UIElement_ListBoxMSize::VerticalPageDecrement` · 005f91a0 · legions 005b9cd0 — ac2-ui list_msize.rs: list_msize_step (line/page by the cell at the view edge, DetermineAndSetNewGoal clamps)
