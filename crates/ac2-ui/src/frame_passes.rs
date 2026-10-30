@@ -366,6 +366,9 @@ impl Hud {
             if let Some(chat) = self.chat.as_ref() {
                 changed |= chat.export_layout(&mut self.hud_layout);
             }
+            if let Some(pets) = self.pets.as_ref() {
+                changed |= pets.export_layout(&mut self.hud_layout);
+            }
             changed |= crate::modern_layout_edit::export(tree, &mut self.hud_layout);
             if let (true, Some(player)) = (changed, input.player) {
                 host.save_local_hud_layout(player, &self.hud_layout);
@@ -414,6 +417,9 @@ impl Hud {
                 }
                 if let Some(chat) = self.chat.as_mut() {
                     chat.apply_layout(tree, &self.hud_layout);
+                }
+                if let Some(pets) = self.pets.as_ref() {
+                    pets.apply_layout(&self.hud_layout);
                 }
                 crate::modern_layout_edit::apply(tree, &self.hud_layout);
             }

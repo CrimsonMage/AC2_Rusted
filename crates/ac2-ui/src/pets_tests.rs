@@ -318,3 +318,69 @@ fn an_edited_name_is_compared_ignoring_case() {
     assert!(!super::pets::name_differs("Rex", "REX"));
     assert!(super::pets::name_differs("Rex", "Max"));
 }
+
+/// The modern panel (`modern_pets`): its fold chevron folds the rows' well to the pets listed
+/// (compact) and opens it to retail's height (expanded), the commands under the rows; the choice
+/// goes to the HUD layout. The panel's states keep the parts.
+#[test]
+fn the_modern_panel_folds_to_its_rows_and_opens_again() {
+    let Some(layout) = gameplay() else {
+        return;
+    };
+    let layout = Arc::new(crate::modern_windows::restyle(&layout));
+    let mut tree = UiTree::new(1024, 768);
+    let mut ui = PetUi::create(&mut tree, &layout);
+    ui.set_modern(&mut tree);
+    ui.show(&mut tree, true);
+    ui.add_pet(&mut tree, PET, "Rex", 0, IDLE);
+    ui.add_pet(&mut tree, OTHER, "Mo", 0, DEFENSIVE);
+    ui.modern_tick(&mut tree);
+    let panel = panel_root(&tree);
+    let fold = element(&tree, panel, "ModernPetsFold");
+    let attack = element(&tree, panel, "AttackButton");
+    let expanded = tree.el(panel).rect.height();
+    assert_eq!(expanded, 262);
+    let press = UiMessage {
+        element_id: tokenize("ModernPetsFold"),
+        element: Some(fold),
+        message: crate::token::MSG_MOUSE_PRESS_TOP,
+        data: 0,
+        item: None,
+    };
+    assert!(ui.message(&mut tree, &press, None).is_empty());
+    ui.modern_tick(&mut tree);
+    let compact = tree.el(panel).rect.height();
+    assert!(compact < expanded - 100, "{compact}");
+    // The commands stay under the rows, inside the panel.
+    let (p, a) = (tree.screen_box(panel), tree.screen_box(attack));
+    assert!(a.y1 <= p.y1 && a.y0 > p.y0 + 40, "{a:?} in {p:?}");
+    let mut saved = crate::hud_layout::HudLayout::default();
+    assert!(ui.export_layout(&mut saved));
+    assert_eq!(saved.get("pets.compact"), Some("true"));
+    ui.message(&mut tree, &press, None);
+    ui.modern_tick(&mut tree);
+    assert_eq!(tree.el(panel).rect.height(), expanded);
+    ui.apply_layout(&saved);
+    ui.modern_tick(&mut tree);
+    assert_eq!(tree.el(panel).rect.height(), compact);
+    if let Ok(dir) = std::env::var("ZZ_PETS") {
+        let store = ResourceStore::new(ac2_dat::test_support::env_dataset().unwrap());
+        for (name, fold) in [("compact", false), ("expanded", true)] {
+            if fold {
+                ui.message(&mut tree, &press, None);
+                ui.modern_tick(&mut tree);
+            }
+            let mut images = crate::load_ui_images(&store, &tree).unwrap();
+            crate::modern_art::bake(&mut images, &std::collections::HashMap::new());
+            let s = tree
+                .compose(&images)
+                .into_iter()
+                .find(|s| s.root == panel)
+                .unwrap();
+            let f = std::fs::File::create(format!("{dir}/pets_{name}.png")).unwrap();
+            let mut e = png::Encoder::new(f, s.width, s.height);
+            e.set_color(png::ColorType::Rgba);
+            e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
+        }
+    }
+}

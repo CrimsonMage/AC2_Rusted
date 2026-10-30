@@ -143,6 +143,8 @@ pub struct PetUi {
     /// Whether the panel listens for the edited name's `deactivated` (`RegisterForMessage` in
     /// `ListenToMessage`'s right press).
     editing: bool,
+    /// The modern style's panel (`modern_pets`).
+    modern: Option<crate::modern_pets::ModernPets>,
 }
 
 impl PetUi {
@@ -161,6 +163,7 @@ impl PetUi {
             last_update: 0.0,
             selection: 0,
             editing: false,
+            modern: None,
         };
         ui.update_state(tree);
         ui
@@ -169,6 +172,35 @@ impl PetUi {
     /// Whether the panel is shown (`UIFramework::IsShown`).
     pub fn is_shown(&self) -> bool {
         self.shown
+    }
+
+    /// The modern style's panel (`modern_pets`), laid over the panel.
+    pub fn set_modern(&mut self, tree: &mut UiTree) {
+        if let Some(panel) = self.panel {
+            self.modern = Some(crate::modern_pets::ModernPets::adopt(tree, panel));
+        }
+    }
+
+    /// The modern panel laid out for its mode and the pets listed (every frame; nothing in
+    /// classic).
+    pub fn modern_tick(&self, tree: &mut UiTree) {
+        if let Some(modern) = &self.modern {
+            modern.tick(tree, self.pets.len());
+        }
+    }
+
+    /// The modern panel's mode written into the HUD's layout settings; whether it changed.
+    pub fn export_layout(&self, layout: &mut crate::hud_layout::HudLayout) -> bool {
+        self.modern
+            .as_ref()
+            .is_some_and(|m| layout.set("pets.compact", m.is_compact()))
+    }
+
+    /// The modern panel's mode as the HUD's layout settings keep it.
+    pub fn apply_layout(&self, layout: &crate::hud_layout::HudLayout) {
+        if let Some(m) = &self.modern {
+            m.set_compact(layout.flag("pets.compact", false));
+        }
     }
 
     /// `gmPetUI::Show`: the framework's shown state; the root is drawn when it is shown and a pet
@@ -350,6 +382,9 @@ impl PetUi {
         selection: Option<u64>,
     ) -> Vec<PetAction> {
         let mut actions = Vec::new();
+        if self.modern.as_ref().is_some_and(|m| m.message(message)) {
+            return actions;
+        }
         if message.message == MSG_BUTTON_RELEASE_ON {
             let target = selection.unwrap_or(0);
             match message.element_id {

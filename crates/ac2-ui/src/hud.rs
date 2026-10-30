@@ -310,9 +310,14 @@ pub fn build_styled_hud(
         .as_ref()
         .map(|gameplay| MiniFellowUi::create(&mut tree, gameplay));
     // `gmGamePlayUI::SetupChildren` makes the pet panel with the mini panel.
-    let pets = layouts[&LAYOUT_GAMEPLAY]
-        .as_ref()
-        .map(|gameplay| PetUi::create(&mut tree, gameplay));
+    let pets = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
+        let mut pets = PetUi::create(&mut tree, gameplay);
+        // The design's panel, expanded or compact (`modern_pets`).
+        if style == HudStyle::Modern {
+            pets.set_modern(&mut tree);
+        }
+        pets
+    });
     if let std::collections::hash_map::Entry::Vacant(e) = layouts.entry(LAYOUT_SPEW) {
         e.insert(load_layout_by_enum(store, LAYOUT_SPEW)?);
     }

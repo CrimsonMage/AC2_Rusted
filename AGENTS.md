@@ -298,6 +298,11 @@ game rules and server-visible behaviour exactly retail.
   ring; the blue scroll bar, the thin one. Retail tiled its header bar
   (`0x410002CD`, `0x410011FC`) down the room under a side panel's window; that room is left
   empty. The inventory drawer, the loot window and the stack dialog keep their own design.
+  The pet panel is the design's, expanded or compact (`ac2_ui::modern_pets`, the user's choice):
+  retail's `PetPanel` put its title and the four command buttons in a block over the list of
+  pets, at one size; here the title and a fold chevron head the panel, the rows follow in their
+  well and the commands stand under them, and the chevron folds the well to the pets listed or
+  opens it to retail's height. The choice is kept in the HUD layout (`pets.compact`).
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

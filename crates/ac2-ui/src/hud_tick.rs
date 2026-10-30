@@ -271,6 +271,7 @@ pub fn tick_pass<P: HudSource>(
     }
     // `gmPetUI::ListenToMessage` on the refresh message: each pass asks for the rows' wanted modes.
     if let Some(panel) = pets.as_mut() {
+        panel.modern_tick(tree);
         out.extend(
             panel
                 .tick(tree, server_time)
