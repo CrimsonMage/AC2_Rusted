@@ -8,8 +8,8 @@
 //! The pointer is the tree's: `SetTargetingPointer` swaps the `ItemSelectionField` root's cursor
 //! for its `usage_cursor` and restores the saved one.
 //!
-//! Not modelled yet: `CWPhysicsObject::LookAtSelection` (the client's `CLookAt` event is not
-//! sent). `StopAttacking` is returned as an action; the client does not send its IFun yet.
+//! `CWPhysicsObject::LookAtSelection` follows each `Select` action in the client (`CLookAt`).
+//! `StopAttacking` is returned as an action; the client runs `gmCWInterface::StopAttacking`.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;

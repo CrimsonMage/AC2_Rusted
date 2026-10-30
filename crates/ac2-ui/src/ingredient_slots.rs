@@ -333,10 +333,14 @@ impl IngredientUi {
             let Some(dragged) = message.item else {
                 return;
             };
-            let Some(object) = instance_of(tree, dragged) else {
-                return;
-            };
             if element_id == INGREDIENT_LIST {
+                // `HandleListBoxDrop` reads the dragged copy's `Token_ShortcutData`.
+                let object = crate::item_display::dragged_item(tree, dragged)
+                    .map(|d| d.item)
+                    .filter(|&object| object != 0);
+                let Some(object) = object else {
+                    return;
+                };
                 if let Some(list) = self.child(tree, INGREDIENT_LIST) {
                     if let Some(index) = tree.list_index_under_mouse(list) {
                         if index < self.slots.len() {
@@ -345,7 +349,10 @@ impl IngredientUi {
                     }
                 }
             } else if element_id == INGREDIENT_ITEM {
-                self.handle_item_removal(tree, object);
+                // An object dragged out of its slot carries it as the slot icon's `token_id`.
+                if let Some(object) = instance_of(tree, dragged) {
+                    self.handle_item_removal(tree, object);
+                }
             }
             return;
         }

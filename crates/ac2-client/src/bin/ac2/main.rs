@@ -485,8 +485,8 @@ impl App {
         if state.selection.wants_pick() {
             let screen = (state.config.width, state.config.height);
             let potential = view.pick_list(&frame, screen, view.pointer());
-            let (targets, player_type) = pick_targets(&self.client, &frame, &potential);
-            if let Some(outcome) = state.selection.finish(&targets, player_type) {
+            let (targets, player_type, player_id) = pick_targets(&self.client, &frame, &potential);
+            if let Some(outcome) = state.selection.finish(&targets, player_type, player_id) {
                 state.commands.push(Command::Select(outcome.select));
                 state
                     .commands

@@ -21,15 +21,25 @@ fn press(action: u32) -> UiMessage {
     }
 }
 
+const PLAYER: u64 = 0x8000_0000_0000_0001;
+
 fn target(id: u64, selectable: Option<bool>) -> PotentialTarget {
-    PotentialTarget { id, selectable }
+    PotentialTarget {
+        id,
+        selectable,
+        wielder: 0,
+    }
 }
 
 #[test]
 fn a_pick_selects_its_first_entry_nearest_first() {
     let mut ui = SelectionUi::default();
     let outcome = ui
-        .finish(&[target(FOE, Some(true)), target(ROCK, Some(true))], 0)
+        .finish(
+            &[target(FOE, Some(true)), target(ROCK, Some(true))],
+            0,
+            PLAYER,
+        )
         .unwrap();
     assert_eq!(outcome.select, Some(FOE));
     assert!(!outcome.use_selection && !outcome.open_examination);
@@ -38,22 +48,24 @@ fn a_pick_selects_its_first_entry_nearest_first() {
 #[test]
 fn an_empty_potential_list_clears_the_selection() {
     let mut ui = SelectionUi::default();
-    let outcome = ui.finish(&[], 0).unwrap();
+    let outcome = ui.finish(&[], 0, PLAYER).unwrap();
     assert_eq!(outcome.select, None);
 }
 
 #[test]
 fn an_unselectable_first_target_is_refused_unless_the_player_has_all_bits() {
     let mut ui = SelectionUi::default();
-    assert_eq!(ui.finish(&[target(ROCK, Some(false))], 0), None);
-    let outcome = ui.finish(&[target(ROCK, Some(false))], ALL_BITS).unwrap();
+    assert_eq!(ui.finish(&[target(ROCK, Some(false))], 0, PLAYER), None);
+    let outcome = ui
+        .finish(&[target(ROCK, Some(false))], ALL_BITS, PLAYER)
+        .unwrap();
     assert_eq!(outcome.select, Some(ROCK));
 }
 
 #[test]
 fn a_target_without_a_record_skips_the_selectability_check() {
     let mut ui = SelectionUi::default();
-    let outcome = ui.finish(&[target(ROCK, None)], 0).unwrap();
+    let outcome = ui.finish(&[target(ROCK, None)], 0, PLAYER).unwrap();
     assert_eq!(outcome.select, Some(ROCK));
 }
 
@@ -62,8 +74,8 @@ fn a_refused_pick_keeps_its_clicks_for_the_next_one_as_retail_does() {
     let mut ui = SelectionUi::default();
     // A double click on an unselectable target: nothing changes, the double click waits.
     ui.message(&press(0x4000_0007));
-    assert_eq!(ui.finish(&[target(ROCK, Some(false))], 0), None);
-    let outcome = ui.finish(&[target(FOE, Some(true))], 0).unwrap();
+    assert_eq!(ui.finish(&[target(ROCK, Some(false))], 0, PLAYER), None);
+    let outcome = ui.finish(&[target(FOE, Some(true))], 0, PLAYER).unwrap();
     assert!(outcome.use_selection, "the pending double click is used");
 }
 
@@ -71,11 +83,32 @@ fn a_refused_pick_keeps_its_clicks_for_the_next_one_as_retail_does() {
 fn a_right_click_opens_the_examination_only_with_a_target() {
     let mut ui = SelectionUi::default();
     ui.message(&press(0x4000_0005));
-    assert!(!ui.finish(&[], 0).unwrap().open_examination);
+    assert!(!ui.finish(&[], 0, PLAYER).unwrap().open_examination);
     ui.message(&press(0x4000_0005));
     assert!(
-        ui.finish(&[target(FOE, Some(true))], 0)
+        ui.finish(&[target(FOE, Some(true))], 0, PLAYER)
             .unwrap()
             .open_examination
     );
+}
+
+#[test]
+fn a_double_click_does_not_use_an_item_the_player_wields() {
+    let mut ui = SelectionUi::default();
+    let worn = PotentialTarget {
+        id: ROCK,
+        selectable: Some(true),
+        wielder: PLAYER,
+    };
+    ui.message(&press(0x4000_0007));
+    let outcome = ui.finish(&[worn], 0, PLAYER).unwrap();
+    assert_eq!(outcome.select, Some(ROCK));
+    assert!(!outcome.use_selection);
+    // Someone else's wielded item is used.
+    ui.message(&press(0x4000_0007));
+    let other = PotentialTarget {
+        wielder: PLAYER + 1,
+        ..worn
+    };
+    assert!(ui.finish(&[other], 0, PLAYER).unwrap().use_selection);
 }

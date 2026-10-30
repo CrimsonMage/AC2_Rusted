@@ -13,7 +13,7 @@ use crate::selection_notices::{
     being_deleted, direct_key, last_attacker_notice, selectability_notice, set_targeting_pointer,
     SelectionAction, SelectionSnapshot,
 };
-use crate::target_cycle::{select_target, Candidate};
+use crate::target_cycle::{cycle_rule, select_target, Candidate};
 
 /// What the selection keys and notices read from the player: the selection state, the auto-target
 /// option, the radar, and the objects the session holds.
@@ -31,6 +31,9 @@ pub trait SelectionSource {
     fn object(&self, id: u64) -> Option<SelectionObject>;
     /// Whether `id` is a member of the player's fellowship.
     fn is_fellow(&self, id: u64) -> bool;
+    /// `gmCWInterface::CanAutoAttackTarget`: the player's script lets it attack `id` (no without
+    /// a script, as retail without a process).
+    fn can_auto_attack(&self, id: u64) -> bool;
 }
 
 /// The weenie qualities the selection reads from an object.
@@ -83,7 +86,9 @@ fn key_calls<S: SelectionSource>(
             .collect();
     }
     let range = source.radar_range();
-    let candidates = candidates(source);
+    // The foe keys ask the script for each candidate they would otherwise take.
+    let foes = cycle_rule(key).is_some_and(|rule| rule.foes);
+    let candidates = candidates(source, foes);
     select_target(
         key,
         snapshot.player,
@@ -205,7 +210,8 @@ fn run<S: SelectionSource>(
 
 /// The objects in the radar's range, as `Select` reads them: `CWRepository`'s type (`0x14`),
 /// selectability (`0x270`) and owner (`0x1F9`), and the fellowship.
-fn candidates<S: SelectionSource>(source: &S) -> Vec<Candidate> {
+/// `CanAutoAttackTarget` is asked (`foes`) only of what the foe keys could take.
+fn candidates<S: SelectionSource>(source: &S, foes: bool) -> Vec<Candidate> {
     source
         .radar_blips()
         .iter()
@@ -220,10 +226,10 @@ fn candidates<S: SelectionSource>(source: &S) -> Vec<Candidate> {
                 owner: object.owner,
                 fellow: is_fellow,
                 owner_fellow: object.owner.is_some_and(|owner| source.is_fellow(owner)),
-                // `CanAutoAttackTarget` (`Client::can_auto_attack_target`) is not asked here
-                // yet: the script answered no for a creature of the double. Until that is
-                // traced, a creature that is not a fellow.
-                can_attack: object.kind & 0x4F == 0x4F && !is_fellow,
+                can_attack: foes
+                    && object.selectable
+                    && !is_fellow
+                    && source.can_auto_attack(blip.id),
                 offset: blip.offset,
             })
         })

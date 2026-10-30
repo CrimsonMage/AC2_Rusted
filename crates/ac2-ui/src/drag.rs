@@ -53,6 +53,9 @@ pub enum DragCheck {
     ContainerDrop,
     /// `gm3DItems_DDCB`: the coin field or an item from a container.
     WorldDrop,
+    /// `gmMoneyBagUI_DDCB`: an item the player has that is not worn; the inventory part is the
+    /// HUD's answer for the dragged copy ([`UiTree::set_money_bag_accepts`]).
+    MoneyBagDrop,
 }
 
 /// The left mouse button.
@@ -75,6 +78,9 @@ pub(crate) struct DragState {
     pub shortcut_locked: bool,
     /// `GetKeyState(VK_SHIFT)`, set from the input's modifiers.
     pub shift: bool,
+    /// What `gmMoneyBagUI_DDCB` found of the dragged copy in the inventory (`DoIHaveItem` and
+    /// not `IsOnInventory`), set each frame by the HUD.
+    pub bag_accepts: bool,
 }
 
 const SHORTCUT_TYPE: u32 = tokenize("Token_ShortcutType");
@@ -310,6 +316,7 @@ impl UiTree {
             DragCheck::ContainerDrop => {
                 self.el(item).id() == COINS_FIELD || shortcut_type == ITEM_TYPE
             }
+            DragCheck::MoneyBagDrop => shortcut_type == ITEM_TYPE && self.drag.bag_accepts,
             DragCheck::WorldDrop => {
                 self.el(item).id() == COINS_FIELD
                     || (shortcut_type == ITEM_TYPE && from_container())
@@ -325,6 +332,11 @@ impl UiTree {
     /// `m_dragDropCallback = ...`: the check `CatchDroppedItem` asks of `element`.
     pub fn set_drag_drop_check(&mut self, element: usize, check: Option<DragCheck>) {
         self.el_mut(element).drag_drop = check;
+    }
+
+    /// The inventory's answer for `gmMoneyBagUI_DDCB` about the dragged copy.
+    pub fn set_money_bag_accepts(&mut self, accepts: bool) {
+        self.drag.bag_accepts = accepts;
     }
 
     /// `GetKeyState(VK_SHIFT)` as the callbacks read it.

@@ -307,6 +307,34 @@ fn the_panel_opens_on_the_recipes_ingredients_and_executes() {
     assert!(tree.image_files().contains(&LAYER_IMAGE));
     panel.add_done(tree, &source, ordinal, object, after, 1);
     assert_eq!(slot_objects(tree, &panel)[0], None);
+    // An object dragged from a pack (its copy carries `Token_ShortcutData`, not `id`) and dropped
+    // on the first slot: the slot goes pending and the add goes out (`HandleListBoxDrop`).
+    let list = tree
+        .child_recursive(panel.root().unwrap(), tokenize("IngredientListBox"))
+        .expect("the list");
+    let first = tree.list_items(list)[0];
+    let area = tree.screen_box(first);
+    tree.start_input(ac2_ui::UI_POINTER_X, ((area.x0 + area.x1) / 2) as f32);
+    tree.start_input(ac2_ui::UI_POINTER_Y, ((area.y0 + area.y1) / 2) as f32);
+    tree.update_mouse();
+    let copy = tree
+        .child_recursive(first, tokenize("ItemIcon"))
+        .expect("the slot's icon");
+    let dropped = 0x8000_0000_0000_9002;
+    tree.set_instance_attribute(copy, tokenize("Token_ShortcutData"), dropped);
+    let on_list = ac2_ui::UiMessage {
+        element_id: tokenize("IngredientListBox"),
+        element: Some(list),
+        message: tokenize("stop_drag_item"),
+        data: 1,
+        item: Some(copy),
+    };
+    panel.message(tree, &source, &on_list);
+    assert!(panel.take_commands().iter().any(|c| matches!(
+        c,
+        IngredientCommand::Add { object, .. } if *object == dropped
+    )));
+    panel.add_done(tree, &source, ordinal, dropped, after, 1);
     // Auto-populate: each inventory object goes into a free slot the recipe fills itself, and the
     // request for it goes out (the auto-populate button's message).
     let auto_button = tree

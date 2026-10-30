@@ -82,6 +82,13 @@ pub fn tick_pass<P: HudSource>(
             crate::secure_trade_split(split, tree, stack.as_mut(), player);
         }
     }
+    // `gmMoneyBagUI_DDCB`'s inventory part, for the copy being dragged (read when it is dropped).
+    if money.is_some() {
+        let accepts = tree
+            .dragged()
+            .is_some_and(|copy| crate::MoneyBagUi::drag_accepts(tree, player, copy));
+        tree.set_money_bag_accepts(accepts);
+    }
     death_notices(death, tree, dialogs, player, events);
     if let Some(dialogs) = dialogs.as_mut() {
         game_dialogs.frame_notices(

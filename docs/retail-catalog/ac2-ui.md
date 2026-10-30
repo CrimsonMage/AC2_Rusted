@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1563 done, 98 partial, 0 to do, 586 skipped.
+2247 retail functions: 1594 done, 61 partial, 0 to do, 592 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -258,7 +258,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmGamePlayUI::ListenToMessage` · 0040a810 · legions 0040a6d0 — ac2-ui game_dialogs.rs logout_key (0x4100000e); ac2-client hud_view.rs gameplay_keys (child keys, 0x4100000C via gameplay_show_key, 0x4100000D via take_use_key -> Command::UseSelection); 0xffff0005 and 0xffff0007 notices not here
 - [x] `gmGamePlayUI::RecvNotice_ReloadOptions` · 0040a960 — ac2-client client_locations.rs: ReloadOptions and the refresh apply the profile's locations (hud_player.rs); a moved window sends SaveWindowLocations: IFun 0xB4007B then 0xB400DB (WM_Player 0x32); AddLocation bucket order in ac2-script native/options.rs; tests window_locations_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (30/39)
+## `ac2/client/src/ui/gameplay/gmingredientui.cpp.c` (33/39)
 
 ### gmCObjectMaint
 - [-] `gmCObjectMaint::GetWeenieObject` · 00415870 · legions 00415660 — gmCObjectMaint::GetWeenieObject: the session's object table serves it (client hud_ingredient.rs)
@@ -290,7 +290,7 @@ Legend and workflow: [README](README.md).
 - [-] `PList<InstanceID>::UnPack` · 00416790 — PList unpack: no load of the slot list (the panel is rebuilt on open)
 
 ### gmIngredientUI
-- [~] `gmIngredientUI::MultiOpAddIngredientSlot` · 00416900 · legions 004166c0 — ac2-ui ingredient_slots.rs add_slot: the template at its ordinal's place in the list, with its description and the slot's mask bit (the list is sorted by ordinal)
+- [x] `gmIngredientUI::MultiOpAddIngredientSlot` · 00416900 · legions 004166c0 — ac2-ui ingredient_slots.rs add_slot: the template at its ordinal place (list kept sorted by ordinal), description, ordinal as id, mask bit; the slot table is the Vec order, not hash tables
 - [x] `gmIngredientUI::HandleItemRemoval` · 00416ad0 · legions 00416890 — ac2-ui ingredient_slots.rs handle_item_removal: the object leaves its slot; the icon clears and stops being draggable
 - [x] `gmIngredientUI::CheckItem` · 00416be0 · legions 004169a0 — ac2-ui ingredient_slots.rs check_item: DoIHaveItem and CheckIngredient at the spinner, else the object leaves its slot
 - [x] `gmIngredientUI::RecvNotice_BeingDeleted` · 00416d20 — ac2-ui ingredient.rs object_removed: a deleted object leaves its slot (client hud_ingredient.rs ObjectRemoved)
@@ -300,9 +300,9 @@ Legend and workflow: [README](README.md).
 - [x] `gmIngredientUI::Init` · 00416ea0 · legions 00416c60 — ac2-ui ingredient.rs open: name in RecipeLabel, the charges line ID_Craft_Charges in RecipeMiscText (hidden without charges), spinner range and value, cost, skill level, slots from InqRecipeIngredients, craft button, difficulty. The spinner starts at last_spinner (the Init decompile overlays two adaptors)
 - [x] `gmIngredientUI::MultiOpRemoveIngredientSlot` · 00417290 · legions 00417050 — ac2-ui ingredient_slots.rs remove_slot: the slot's object leaves, the list item and the mask bit go
 - [x] `gmIngredientUI::UpdateIngredientSlot` · 004173f0 · legions 004171b0 — ac2-ui ingredient_slots.rs update_slot: the description and the object checked again at the spinner
-- [~] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message: a drop on the list (MSG_STOP_DRAG_ITEM, the list item under the pointer) leaves the object's old slot, the slot goes pending and the add goes out; gmIngredientUI_DDCB now refuses what is not an item from a container (drag_tests). Not tested through the HUD with a real pack drag
+- [x] `gmIngredientUI::HandleListBoxDrop` · 00417530 · legions 004172f0 — ac2-ui ingredient_slots.rs message + drop_on_slot: the dropped copy is read by Token_ShortcutData (a real pack drag carried no id: fixed), leaves its old slot, the slot goes pending and RequestAddIngredient goes out; tested through the panel with a copy (ingredient_ui_7160)
 - [x] `gmIngredientUI::UpdateIngredients` · 004176c0 · legions 00417480 — ac2-ui ingredient_slots.rs update_ingredients: slots added, kept ones refreshed, the ones no longer asked for removed (the mask as retail)
-- [~] `gmIngredientUI::gmIngredientUI` · 00417800 · legions 004175c0 — ac2-ui ingredient.rs IngredientUi::new: the layout kept; the root is made when the panel opens. Not: the notice and message registrations (per object and listeners in Rust, no table)
+- [x] `gmIngredientUI::gmIngredientUI` · 00417800 · legions 004175c0 — ac2-ui ingredient.rs IngredientUi::new: layout kept, root made when the panel opens; notice/message registrations are the HUD dispatch (no table); DDCB is DragCheck::IngredientDrop
 - [x] `gmIngredientUI::RecvNotice_OpenIngredientPanel` · 00417ac0 · legions 00417880 — ac2-ui ingredient.rs open_notice: the recipe's panel opens unless it is shown and its cost is dynamic (client hud_ingredient.rs)
 - [x] `gmIngredientUI::UpdateRecipeFromSpinnerChange` · 00417b00 · legions 004178c0 — ac2-ui ingredient.rs spinner_changed and step_spinner: the spinner text and buttons, the dynamic cost and difficulty, the craft button, the slots (tested: craft spinner and execute)
 - [x] `gmIngredientUI::AutoPopulateIngredients` · 00417d20 · legions 00417ae0 — ac2-ui ingredient_slots.rs auto_populate: each inventory object outside the slots goes to the first free slot the recipe auto-populates and takes; the requests go out (tested through the auto-populate button)
@@ -333,10 +333,10 @@ Legend and workflow: [README](README.md).
 - [~] `gmOverviewMapUI::ListenToMessage` · 0043e2c0 · legions 0043eb10 — ac2-ui overview_map.rs map_for_button/message: the four zoom buttons (Osteth, Omishan, Arramora, LinvakMassif) call show_map with their map state; the close button hides. Client routes UiMessage to it (ac2-client hud_player_message.rs). Not: KnorrMap (its button id is not bound: Legions binds DAT_00a4b640 as both the coordinates text and the Knorr-style message), the help page (KeyStone::OpenHelp)
 - [~] `gmOverviewMapUI::gmOverviewMapUI` · 0043e300 · legions 0043eb70 — ac2-ui overview_map.rs: label is Panel_Label_OverviewMap, client area OverviewMapClientArea, close OverviewMapCloseButton (admin Tokenize strings); the help button is a generic help button (hud_help.rs ID_Help_OverviewMap). The field is hidden with the HUD rather than made on show and destroyed on hide
 
-## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (11/18)
+## `ac2/client/src/ui/gameplay/gmpetui.cpp.c` (16/18)
 
 ### gmPetUI
-- [~] `gmPetUI::Show` · 004188d0 · legions 00418690 — ac2-ui pets.rs show: the framework's shown state; the option-driven show (GetShowPetUI) is now set from the options reload (frame_passes.rs reload_pass)
+- [x] `gmPetUI::Show` · 004188d0 · legions 00418690 — ac2-ui pets.rs show: shown state then UpdateState; global-loop registration is the HUD tick; GetShowPetUI set from the options reload (frame_passes.rs)
 - [x] `gmPetUI::GetNextMode` · 00418920 · legions 004186e0 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 - [x] `gmPetUI::GetPreviousMode` · 00418950 · legions 00418710 — ac2-ui pets.rs next_mode / previous_mode: the ModeTable of admin 7148's static initializer (_E554); the table is in the admin tree only, not the Legions decompile
 
@@ -352,11 +352,11 @@ Legend and workflow: [README](README.md).
 - [x] `gmPetUI::Refresh` · 00419580 · legions 004193c0 — ac2-ui pets.rs tick: the five-second pass, each row's wanted mode sent (PetAction::Mode -> Command::PetMode), the unsafe pet back to safe
 - [x] `gmPetUI::RecvNotice_PetIsUnderAttack` · 00419730 — ac2-ui pets.rs pet_under_attack: the Name state unsafe and the attack time; HUD routes PetIsUnderAttack (ac2-client hud_pets.rs)
 - [x] `gmPetUI::ListenToMessage` · 00419810 · legions 00419650 — ac2-ui pets.rs tick: the refresh message's five-second gate (the HUD calls it each frame, ac2-client hud_player.rs)
-- [~] `gmPetUI::RequestSetPetMode` · 00419840 · legions 00419680 — ac2-ui pets.rs step_mode: the row's wanted mode and its text; the row's server mode is not changed (UpdatePetMode is a no-op in Legions)
-- [~] `gmPetUI::RecvNotice_AddPet` · 004199d0 — Legions 0x419810 (undecompiled slot). ac2-ui pets.rs PetUi::add_pet: row, mode, name through UpdatePetName, Icon image (AddImageToState icon, 0), UpdateState. A pet already listed is skipped (retail replaces its table entry and leaves the old row in the list)
+- [x] `gmPetUI::RequestSetPetMode` · 00419840 · legions 00419680 — ac2-ui pets.rs step_mode: wanted mode and its text; the server mode is not changed (UpdatePetMode is a no-op in Legions)
+- [x] `gmPetUI::RecvNotice_AddPet` · 004199d0 — ac2-ui pets.rs PetUi::add_pet: row, mode, name, Icon image, UpdateState. A pet already listed adds no row, as retail (it only replaces the table entry, the new element is never listed)
 - [x] `gmPetUI::RecvNotice_UpdatePetMode` · 00419b70 · legions 004199b0 — Legions 0x4199B0 (named in the Legions decompile; the notice is a live slot, not a stub). ac2-ui pets.rs PetUi::update_pet_mode
-- [~] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: the buttons, the arrows, a press on a row selecting its pet, and the right press (0x40000005) making the row's Name editable, selected and active; its deactivated asks RequestSetPetName when the text differs (ignoring case) and shows the stored name again (PetAction::Rename -> Command::PetRename). Not ported: the set_show_state / location_changed branches of the panel itself
-- [~] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: the PetPanel root, its list and UpdateState; the notice registration is the HUD's dispatch (ac2-client hud_pets.rs)
+- [x] `gmPetUI::ListenToMessage` · 00419c20 · legions 00419a60 — ac2-ui pets.rs message: buttons, arrows, row press selecting its pet, right press editing the Name, deactivated renaming; location_changed is the generic window-location pass (window_locations.rs), set_show_state with no pets is UpdateState hiding the panel
+- [x] `gmPetUI::gmPetUI` · 0041a040 · legions 00419e80 — ac2-ui pets.rs create: PetPanel root, list, UpdateState; notice registration is the HUD dispatch (ac2-client hud_pets.rs)
 - [x] `gmPetUI::RecvNotice_UpdatePetName` · 0041a3a0 — Legions 0x41A1E0 (undecompiled slot). ac2-ui pets.rs PetUi::update_pet_name: the first (...) (open not first, a close after it) removed from the server's name (PStringBase::replace with L""), stored as PetInfo::name and set on the row's Name
 
 ## `ac2/client/src/ui/gameplay/gmradarui.cpp.c` (29/35)
@@ -447,7 +447,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 
-## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (13/24)
+## `ac2/client/src/ui/gameplay/gmselectionui.cpp.c` (18/24)
 
 ### LandDefs
 - [-] `LandDefs::in_bounds` · 004233a0 · legions 00423170 — Linker-folded copy filed under gmselectionui; only caller is LScapeManager::UpdateBlocks (ac2-world landscape streaming owns block bounds)
@@ -472,16 +472,16 @@ Legend and workflow: [README](README.md).
 - [x] `gmSelectionUI::TargetTypeVsKey` · 00423970 · legions 00423740 — ac2-ui target_cycle.rs type_vs_key(): the type bits against the key ranges
 - [x] `gmSelectionUI::Start3DSelection` · 00423a50 · legions 00423820 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
 - [x] `gmSelectionUI::ListenToMessage` · 00423b20 · legions 004238f0 — ac2-render selection.rs + ac2-ui selection_ui.rs: clicking the world selects
-- [~] `gmSelectionUI::Finish3DSelection` · 00423bb0 · legions 00423980 — ac2-render selection.rs pick_list (drawn-mesh triangles, the potential list nearest first); ac2-ui selection_ui.rs finish: the first entry's 0x270 selectability refused unless the player's 0x14 has the 0x3f bits, the clicks wait; ac2-client target_select.rs pick_targets. Not: CWPhysicsObject::LookAtSelection (physics look-at and ECM_Physics::SendEvt_CLookAt), the double click's own-item check (0x105)
+- [x] `gmSelectionUI::Finish3DSelection` · 00423bb0 · legions 00423980 — ac2-render selection.rs pick_list + ac2-ui selection_ui.rs finish: first entry 0x270 / player 0x14 bits check, clicks wait; SetSelection then CWPhysicsObject::LookAtSelection (hud_request.rs, main.rs: Command::LookAtSelection -> CLookAt); a double click does not use a target the player wields (0x105 == player; selection_ui_tests)
 - [-] `gmSelectionUI::Init` · 00423d20 · legions 00423af0 — notice handlers are registered per object by the session in Rust (no per-object handler table)
-- [~] `gmSelectionUI::Select` · 00423da0 — ac2-ui target_cycle.rs select_target (the cycling keys) and selection_notices.rs direct_key: reselect 0x41000018, last selection 0x41000028, last attacker 0x4100002A, clear 0x4000001E with the ICIDM text-mode check. Not: CanAutoAttackTarget approximated as creature and not a fellow; candidates are the radar blips; LookAtSelection not modelled. Legions FUN_00423b70 has the same key branches
+- [x] `gmSelectionUI::Select` · 00423da0 — ac2-ui target_cycle.rs/target_select.rs: cycling keys over the radar blips; foe keys ask gmCWInterface::CanAutoAttackTarget (IFun 0xB4000A) per candidate through SelectionSource::can_auto_attack (target_select_tests); direct keys in selection_notices.rs; LookAtSelection follows each Select
 - [x] `gmSelectionUI::RecvNotice_Select` · 00424500 — ac2-client target_select.rs + hud_player: the notice's key picks through select_target
-- [~] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
+- [x] `gmSelectionUI::gmSelectionUI` · 00424510 · legions 004242e0 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: ItemSelectionField root made and its mouse_press_top handled (selection_ui.rs); notice registrations are the HUD dispatch (selection_notices.rs)
 - [x] `gmSelectionUI::ListenToMessage` · 00424610 · legions 004243e0 — ac2-ui target_cycle.rs select_key_of/is_select_key; ac2-client hud_player routes the global key press
-- [~] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
-- [~] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs (selectability, being_deleted); ac2-client target_select.rs: clear the selection, auto-target next foe, and StopAttacking now runs gmCWInterface::StopAttacking (IFun 0xB40104 on the VM; combat_7160 stop_attacking_runs_on_the_vm_for_the_target). Not: CWPhysicsObject::LookAtSelection; UnRegisterAllNoticeHandlers is per-object in Rust
+- [x] `gmSelectionUI::RecvNotice_UpdateSelectability` · 00424670 — ac2-ui selection_notices.rs; ac2-client target_select.rs: clear selection, LookAtSelection(none), StopAttacking (IFun 0xB40104), auto-target next foe via Select 0x41000024; UnRegisterAllNoticeHandlers is per-object in Rust
+- [x] `gmSelectionUI::RecvNotice_BeingDeleted` · 00424720 — ac2-ui selection_notices.rs; ac2-client target_select.rs: clear selection, LookAtSelection(none), StopAttacking (IFun 0xB40104), auto-target next foe via Select 0x41000024; UnRegisterAllNoticeHandlers is per-object in Rust
 
-## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (9/11)
+## `ac2/client/src/ui/gameplay/gmshopcatalogui.cpp.c` (10/11)
 
 ### gmShopCatalogUI
 - [x] `gmShopCatalogUI::DestroyManagedElements` · 0041cc80 · legions 0041caa0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
@@ -490,13 +490,13 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopCatalogUI::ListenToMessage` · 0041cda0 · legions 0041cbc0 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::EnterStore` · 0041cde0 · legions 0041cc00 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::gmShopCatalogUI` · 0041ce30 · legions 0041cc50 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-- [~] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
+- [-] `gmShopCatalogUI::~gmShopCatalogUI` · 0041cf10 · legions 0041cd30 — destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the catalog session on the server; no Drop in ac2-ui
 - [x] `gmShopCatalogUI::RecvNotice_LeaveCatalog` · 0041cf80 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
-- [~] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — catalog.rs message: close, enter, consignment and row presses; CatalogHelpButton opens ID_Help_ShopCatalog (hud_help.rs; help_buttons_tests)
+- [x] `gmShopCatalogUI::ListenToMessage` · 0041cff0 · legions 0041ce10 — ac2-ui catalog.rs message: close (RequestLeaveCatalog + LeaveCatalog notice), enter, consignment, SelectionField presses incl. double (enter); help opens ID_Help_ShopCatalog (hud_help.rs)
 - [x] `gmShopCatalogUI::PostShop` · 0041d0f0 · legions 0041cf10 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 - [x] `gmShopCatalogUI::RecvNotice_ViewCatalog` · 0041d230 — ac2-ui catalog.rs (CatalogUi: the Catalog root, the StoreElement rows, select and enter); ac2-client hud_shop.rs catalog_notice; tests ac2-ui catalog_tests.rs and ac2-client tests/catalog_panel_7160.rs
 
-## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (22/28)
+## `ac2/client/src/ui/gameplay/gmshopconsignmentui.cpp.c` (23/28)
 
 ### UIShopSale
 - [-] `UIShopSale::~UIShopSale` · 0041b090 · legions 0041aef0 — C++ destructor of the sale record: ConsignmentUi's rows own their data in Rust
@@ -519,7 +519,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::RecvNotice_CloseConfirmationDialog` · 0041b550 · legions 0041b3b0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::CanStackWith` · 0041b5d0 · legions 0041b430 — ac2-ui consignment.rs can_stack_with (Legions 0x41b430): the item stackable with a max stack over 1, the sale not sold (status 3) and its item DID the item's WInitData::m_did (ac2-client hud_shop.rs item_did -> Client::object_entity)
 - [x] `gmShopConsignmentUI::InitPortrait` · 0041b6a0 · legions 0041b500 — ac2-ui consignment.rs create_managed makes the Portrait root (a scene viewport); ac2-client view.rs/paper_doll_scene.rs draw the player's total appearance in it (the doll's avatar figure) and frame it (portrait_position)
-- [~] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — the portrait follows the appearance each frame (ac2-client paper_doll_scene.rs) and is reframed; not ported: the two physics object calls after SetVisualDesc (vtable +0x110 with 1e-4, +0x114 with the double 1e-4), untraced
+- [-] `gmShopConsignmentUI::UpdatePortrait` · 0041b760 · legions 0041b5c0 — Rust paper_doll_scene.rs follows the appearance each frame and reframes the portrait; the two UI-scene physics object tuning calls after SetVisualDesc (vtable +0x110 float 1e-4, +0x114 double 1e-4) have no counterpart: the avatar is drawn without a physics body (unverified what the slots are)
 - [x] `gmShopConsignmentUI::RecvNotice_LocalVisualDescUpdate` · 0041b7c0 — ac2-ui consignment.rs portrait_held (the mount flag): while mounted the client keeps the avatar's look (ac2-client view.rs hold), else it follows the appearance
 - [x] `gmShopConsignmentUI::UpdatePosition` · 0041b7e0 · legions 0041b640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::CreateManagedElements` · 0041b8b0 · legions 0041b710 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
@@ -530,15 +530,15 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopConsignmentUI::RecvNotice_SelectionChanged` · 0041bd20 — ac2-ui consignment.rs ConsignmentUi::recv_selection_changed: while shown, a selection other than the selected sale's item clears the sale's selection (Select(null)); routed by shop_notices.rs consignment_notice
 - [x] `gmShopConsignmentUI::ListenToMessage` · 0041bd90 · legions 0041bbb0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::HandleListBoxDrop` · 0041bde0 · legions 0041bc00 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+- [-] `gmShopConsignmentUI::~gmShopConsignmentUI` · 0041bff0 · legions 0041be10 — no Drop and no notice registration in ac2-ui: the HUD routes the notices, the panel is created hidden; teardown only at logoff/exit
 - [x] `gmShopConsignmentUI::PostSale` · 0041c0f0 · legions 0041bf10 — ac2-ui consignment.rs post_sale: a sold sale (status 3) shows the ProductIcon's sold_icon, any other its icon description when valid, else its icon id (set_sale_icon); drag source with its own context; consignment_tests
-- [~] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — consignment.rs message: close (ConsignmentCloseButton), new (NewConsignmentButton), collect (CollectConsignmentButton), paging (ConsignmentNext/PrevButton), selection, examination and the drop are modelled, under the layout's retail token names; the help page (ConsignmentHelpButton, KeyStone::OpenHelp) opens ID_Help_ShopConsignment (hud_help.rs)
+- [x] `gmShopConsignmentUI::ListenToMessage` · 0041c480 · legions 0041c2a0 — ac2-ui consignment.rs message: close, new, collect, paging, selection, examination, drop, help (ID_Help_ShopConsignment, hud_help.rs), under the layout token names
 - [x] `gmShopConsignmentUI::UpdateSales` · 0041c820 · legions 0041c640 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
-- [~] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0 — no Drop and no notice registration in ac2-ui; the HUD routes the notices and the panel is created hidden
+- [-] `gmShopConsignmentUI::gmShopConsignmentUI` · 0041c980 · legions 0041c7a0 — no Drop and no notice registration in ac2-ui: the HUD routes the notices, the panel is created hidden; teardown only at logoff/exit
 - [x] `gmShopConsignmentUI::RecvNotice_UpdateConsignment` · 0041cb60 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 - [x] `gmShopConsignmentUI::RecvNotice_ViewConsignment` · 0041cbd0 · legions 0041c9f0 — ac2-ui consignment.rs (ConsignmentUi); tests consignment_tests.rs
 
-## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (11/14)
+## `ac2/client/src/ui/gameplay/gmshopnewsaleui.cpp.c` (13/14)
 
 ### gmShopNewSaleUI
 - [x] `gmShopNewSaleUI::DestroyManagedElements` · 0041a600 · legions 0041a440 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
@@ -551,16 +551,16 @@ Legend and workflow: [README](README.md).
 - [-] `gmShopNewSaleUI_DDCB` · 0041a950 — scalar deleting destructor and MSVC unwind cleanup: Rust owns the value
 
 ### gmShopNewSaleUI
-- [~] `gmShopNewSaleUI::~gmShopNewSaleUI` · 0041a9c0 · legions 0041a820 — ac2-ui newsale.rs: no Drop; the destructor's stack and confirmation closes are the panel's Show(false), its notice unregistration is the HUD's routing
+- [x] `gmShopNewSaleUI::~gmShopNewSaleUI` · 0041a9c0 · legions 0041a820 — ac2-ui newsale.rs NewSaleUi::create/show: hidden with no managed elements; the destructor closes are Show(false); notice registrations are the HUD routing
 - [x] `gmShopNewSaleUI::CreateManagedElements` · 0041aa70 · legions 0041a8d0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [x] `gmShopNewSaleUI::RecvNotice_StackUIDone` · 0041ab00 · legions 0041a960 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [x] `gmShopNewSaleUI::RecvNotice_InitNewSale` · 0041ab40 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [x] `gmShopNewSaleUI::Show` · 0041ab60 · legions 0041a9c0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
-- [~] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create: hidden with no managed elements; the notice registrations are the HUD's routing
+- [x] `gmShopNewSaleUI::gmShopNewSaleUI` · 0041ac00 · legions 0041aa60 — ac2-ui newsale.rs NewSaleUi::create/show: hidden with no managed elements; the destructor closes are Show(false); notice registrations are the HUD routing
 - [x] `gmShopNewSaleUI::AddSale` · 0041ad40 · legions 0041aba0 — ac2-ui newsale.rs (NewSaleUi); tests newsale_tests.rs
 - [x] `gmShopNewSaleUI::ListenToMessage` · 0041af80 · legions 0041ade0 — newsale.rs message: close is NewSaleCloseButton (retail token, was ShopCloseButton); NewSaleHelpButton opens ID_Help_ShopConsignment (hud_help.rs); AddSaleButton; NewSale's mouse_over shows the slot selected while an item (ShortcutType 0x40000002) is dragged and stateless when the pointer leaves; the drop takes the item (newsale_tests.rs)
 
-## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (20/22)
+## `ac2/client/src/ui/gameplay/gmshopui.cpp.c` (21/22)
 
 ### gmShopUI
 - [x] `gmShopUI::CreateManagedElements` · 0041d3d0 · legions 0041d1f0 — ac2-ui shop.rs create_managed: the Shop root and its page buttons (Legions 7160)
@@ -577,10 +577,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmShopUI::RecvNotice_UpdateSale` · 0041d9b0 — ac2-ui shop_rows.rs recv_update_sale: stock text, sold out is unavailable
 - [x] `gmShopUI::ListenToMessage` · 0041dac0 · legions 0041d8e0 — ac2-ui shop.rs tick: dormant destroy after 120 s, sort text page request, page buttons released
 - [x] `gmShopUI::PurchaseItem` · 0041dc40 · legions 0041da60 — ac2-ui shop.rs purchase: refusals to chat, stack for more than one, else one purchase
-- [~] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — no Drop: RequestLeaveStore is not sent when the panel is destroyed
+- [-] `gmShopUI::~gmShopUI` · 0041de50 · legions 0041dc70 — destructor only runs when the gameplay UI is torn down (logoff/exit), where the character logoff ends the store session on the server; no Drop in ac2-ui
 - [x] `gmShopUI::RecvNotice_HandleDragFrom` · 0041df30 — ac2-ui shop.rs recv_handle_drag_from (the shop's context, a listed sale: PurchaseItem into the slot), reached from hud_message.rs on the pack's DragFrom; the shop icons carry Token_ShortcutType 0x40000002 so the pack's drop check takes them
 - [x] `gmShopUI::PostSale` · 0041df90 · legions 0041ddb0 — ac2-ui shop_rows.rs post_sale: the item icon from the sale's icon description when IconDesc::IsValid (SetIconDesc), else its icon id in draw mode 2 (icon_desc.rs set_sale_icon); descriptions, cost, stock; drag context on the icon
-- [~] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close, sort, pages, purchase, select and examine; ShopHelpButton opens ID_Help_Shop (hud_help.rs)
+- [x] `gmShopUI::ListenToMessage` · 0041e2c0 · legions 0041e0e0 — ac2-ui shop.rs message: close (RequestLeaveStore), sort text (3 s wait), next/prev, purchase, Sale press select/examine; help opens ID_Help_Shop (hud_help.rs)
 - [x] `gmShopUI::UpdateSales` · 0041e540 · legions 0041e360 — ac2-ui shop_rows.rs update_sales: page position, list rebuilt in sale order, selection kept
 - [x] `gmShopUI::gmShopUI` · 0041e6a0 · legions 0041e4c0 — ac2-ui shop.rs create: hidden, drag context; notices are routed by the frames
 - [x] `gmShopUI::RecvNotice_UpdateStore` · 0041e8d0 — ac2-ui shop.rs recv_update_store: rebuilds the list while shown
@@ -690,7 +690,7 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
 - [x] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat_window.rs reload_chat_settings: options per type, filter bitfield, empty-filter hint, first-reload greeting
 
-## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (18/22)
+## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (21/22)
 
 ### ContainerDisplay
 - [x] `ContainerDisplay::FinishListBoxDrop` · 0042d910 · legions 0042d6e0 — ac2-ui item_display.rs
@@ -699,8 +699,8 @@ Legend and workflow: [README](README.md).
 - [x] `ContainerDisplay_DDCB` · 0042da30 — ac2-ui drag.rs DragCheck::ContainerDrop on each container list: the coin field or an item
 
 ### ContainerDisplay
-- [~] `ContainerDisplay::Show` · 0042da90 · legions 0042d860 — ac2-ui external_container.rs ContainerDisplay show: the container field's visibility; backpack.rs show_pack for the pages
-- [~] `ContainerDisplay::RequestContext` · 0042dab0 · legions 0042d880 — ac2-ui shop.rs SHOP_CONTEXT is a fixed drag context; retail ContainerDisplay::m_globalContext (++counter shared by every container display) is not modelled, only gmStackUI counter (stack.rs request_stack_context)
+- [x] `ContainerDisplay::Show` · 0042da90 · legions 0042d860 — ac2-ui external_container.rs show: container field visibility; backpack.rs show_pack for the pages
+- [x] `ContainerDisplay::RequestContext` · 0042dab0 · legions 0042d880 — no shared counter: stack dialogs use UiTree::request_stack_context; the shop panel source context is a fixed value no counter reaches (shop.rs SHOP_CONTEXT) and consignment rows take counter values; HandleDragFrom matches by the value, so the contexts stay distinct
 
 ### UIElement_ListBox
 - [x] `UIElement_ListBox::WhatNum` · 0042dac0 · legions 0042d890 — ac2-ui list_box.rs
@@ -721,7 +721,7 @@ Legend and workflow: [README](README.md).
 - [-] `ContainerDisplay::ContainerDisplay` · 0042e3a0 · legions 0042e230 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `ContainerDisplay::Cleanup` · 0042e470 · legions 0042e300 — ac2-ui item_display.rs
 - [x] `ContainerDisplay::GetContents` · 0042e560 · legions 0042e3f0 — ac2-ui item_display.rs / backpack.rs
-- [~] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [x] `ContainerDisplay::Init` · 0042e650 · legions 0042e4e0 — ac2-ui item_display.rs ItemDisplay::new: Token_ShortcutType/Data, FromID, Equipped on the icon, SetItem, layered icon descriptions (icon_desc.rs), drag via the tree; GetContentsInfo asks the VM (ui_inventory.rs contents_info)
 - [x] `ContainerDisplay::RecvNotice_UpdateContainer` · 0042e7b0 — ac2-ui item_display.rs / backpack.rs
 
 ## `ac2/client/src/ui/gameplay/helper/fellowinfo.cpp.c` (14/15)
@@ -789,7 +789,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowshipHelper::RecvNotice_UpdateFellow` · 00430430 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::FellowshipHelper` · 004304a0 · legions 00430260 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (13/15)
+## `ac2/client/src/ui/gameplay/helper/itemdisplay.cpp.c` (14/15)
 
 ### ItemDisplay
 - [x] `ItemDisplay::ItemDisplay` · 0042e900 · legions 0042e7e0 — ac2-ui item_display.rs / backpack.rs
@@ -806,7 +806,7 @@ Legend and workflow: [README](README.md).
 - [x] `ItemDisplay::RecvNotice_ItemUpdate` · 0042ef90 — ac2-ui item_display.rs / backpack.rs
 - [x] `ItemDisplay::RecvNotice_LocalVisualDescUpdate` · 0042efc0 — ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
 - [x] `ItemDisplay::RecvNotice_CreateObject` · 0042eff0 — ac2-ui inventory_notices.rs: CreateObject / LocalVisualDescUpdate of the displayed item runs ItemDisplay::Update (item_changed) in the backpack and container displays (Legions 0x0042EEF0 / 0x0042EEC0 compare the notice's id with the item's, then ItemDisplay::Update 0x0042EBE0, read from the exe); backpack_tests a_waiting_item_fills_in_when_its_object_is_created
-- [~] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — icon descriptions show their first layer; Token_ShortcutData/FromID/Equipped attributes and drag-and-drop not modelled; GetContentsInfo answered from the frame until the client asks the VM
+- [x] `ItemDisplay::Init` · 0042f020 · legions 0042ef20 — ac2-ui item_display.rs ItemDisplay::new: Token_ShortcutType/Data, FromID, Equipped on the icon, SetItem, layered icon descriptions (icon_desc.rs), drag via the tree; GetContentsInfo asks the VM (ui_inventory.rs contents_info)
 
 ## `ac2/client/src/ui/gameplay/helper/optionbase.cpp.c` (6/7)
 
@@ -1016,7 +1016,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
 - [x] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (12/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (13/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
@@ -1028,7 +1028,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::DoBreak` · 004309a0 · legions 004307f0 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::CleanupArray` · 00430a00 · legions 00430850 — ac2-ui examination.rs start_rows: the list flushed, the countdown timers and the row cursor cleared (Update and the destructor use it the same way)
-- [~] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — ac2-client ui_examination.rs: each effect node asks the script (IFun 0xB40123 with context, order, id and an empty profile) and is replaced by the nodes it fills; argument order is from the glue, not checked against a live script. Icon layers and filter tabs not modelled
+- [x] `gmExaminationUI::ProcessEffectIDNode` · 00430a50 · legions 004308e0 — ac2-client ui_examination.rs add_effect_data: IFun 0xB40123 with (context = node appearance, order, EID, empty profile), argument order checked against the glue push order; the nodes replace the effect node, effect nodes in the expansion are skipped (examination_effects.rs)
 - [-] `gmExaminationUI::~gmExaminationUI` · 00430ad0 · legions 004317b0 — C++ destructor: the Rust drop and the tree own the rows, timers and notice handlers
 - [x] `gmExaminationUI::Update` · 00430b60 · legions 004312c0 — ac2-ui examination.rs + ac2-client ui_sources
 - [x] `gmExaminationUI::Show` · 00430c00 · legions 00431880 — ac2-ui examination.rs shown_changed/follow_field: Update then StartExamination when shown, StopExamination then the empty row when hidden (the filter tabs are not part of Show)
@@ -1211,14 +1211,14 @@ Legend and workflow: [README](README.md).
 - [x] `gm3DItemsUI::MidMoneyDrop` · 00440a60 · legions 004412c0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the money up to the coin stack's maximum
 - [x] `gm3DItemsUI::ListenToMessage` · 00440b40 · legions 004413a0 — ac2-ui items_3d.rs; client hud_items_3d.rs and view.rs (the target search is ClientView::pick at the pointer); tested in items_3d_tests.rs and through the HUD (world_drop_7160): the pick answer arrives with the frame's frameworks (the global loop's)
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (5/7)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmbackpackui.cpp.c` (6/7)
 
 ### gmBackpackUI
 - [x] `gmBackpackUI::FinishItemDrop` · 004412f0 · legions 00441b50 — ac2-ui backpack.rs finish_item_drop: MoveItem inside the page's container unless the slot is unchanged; reached by a drop on a page tab (tab_drop) with the stack dialog for a stack
 - [x] `gmBackpackUI::FinishMoneyBagDrop` · 00441390 · legions 00441bf0 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `gmBackpackUI::RecvNotice_StackUIDone` · 00441410 — ac2-ui backpack.rs stack_ui_done: the money bag and item drop answers
 - [x] `gmBackpackUI::ShowPack` · 00441480 · legions 00441d70 — ac2-ui item_display.rs / backpack.rs
-- [~] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — ac2-ui backpack.rs tab_drop: a worn item unequips to the page's end, the coin field asks how much, another item on a tab not shown moves to the page's end (stack dialog first); tested through the HUD (item_drag_7160). Not: icon descriptions' layers, GetContentsInfo from the VM
+- [x] `gmBackpackUI::ListenToMessage` · 004414e0 · legions 00441de0 — ac2-ui backpack.rs tab_drop: worn item unequips to the page end, coin field asks how much, other item on a hidden tab moves to the page end (stack dialog first); item_drag_7160; GetContentsInfo asks the VM, layered icons in icon_desc.rs
 - [-] `gmBackpackUI::~gmBackpackUI` · 00441860 · legions 00442160 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [x] `gmBackpackUI::gmBackpackUI` · 00441950 · legions 00442250 — ac2-ui item_display.rs / backpack.rs
 
@@ -1235,7 +1235,7 @@ Legend and workflow: [README](README.md).
 ### gmInventoryUI
 - [x] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (9/11)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (11/11)
 
 ### gmMoneyBagUI
 - [x] `gmMoneyBagUI::RecvNotice_UpdateMoney` · 00440b70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
@@ -1248,20 +1248,20 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI_DDCB` · 00440d50 — ac2-ui money_bag.rs handle_drop: only an item (Token_ShortcutType 0x40000002) the player has (InventorySource::has_item, DoIHaveItem: any pack) and does not wear (is_on_inventory, IsOnInventory; the copy's Equipped flag too) is taken; checked at the drop, where the player is asked, not as the tree's drag check (money_bag_tests.rs)
 
 ### gmMoneyBagUI
-- [~] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650 — money bag: the coin/melt paths ported, the drop takes an item the player has and does not wear (gmMoneyBagUI_DDCB, money_bag.rs handle_drop); not modelled: the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail, so it never runs)
+- [x] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650 — money_bag.rs: the bag registers gmMoneyBagUI_DDCB as DragCheck::MoneyBagDrop (item type, DoIHaveItem, not IsOnInventory; the HUD tick hands the inventory answer for the dragged copy to the tree), so a refused drop goes back to its source; the coin/melt/stack/confirm paths; not_dragable branch is unreachable (m_curAmount is only 0)
 - [x] `gmMoneyBagUI::RecvNotice_CloseConfirmationDialog` · 00440f70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `gmMoneyBagUI::RecvNotice_StackUIDone` · 00440f90 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-- [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported, the drop takes an item the player has and does not wear (gmMoneyBagUI_DDCB, money_bag.rs handle_drop); not modelled: the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail, so it never runs)
+- [x] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money_bag.rs: the bag registers gmMoneyBagUI_DDCB as DragCheck::MoneyBagDrop (item type, DoIHaveItem, not IsOnInventory; the HUD tick hands the inventory answer for the dragged copy to the tree), so a refused drop goes back to its source; the coin/melt/stack/confirm paths; not_dragable branch is unreachable (m_curAmount is only 0)
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (25/31)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (29/31)
 
 ### gmMiniFellowUI
 - [x] `gmMiniFellowUI::Show` · 00441b40 · legions 00420260 — ac2-ui mini_fellow.rs MiniFellowUi::show: the shown state, the panel follows it (tested: mini_fellow_tests)
 
 ### gmPaperDollUI
-- [~] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490 — hud_ingredient.rs OpenIngredientPanel path into ac2-ui ingredient.rs
-- [~] `gmPaperDollUI::UpdatePaperDollPosition` · 00441ba0 · legions 0041af10 — Legions 7160 (followed): race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height (admin: -0.5, full height). The physobj call before it (vtbl 0x2F4 (1, 0)) is not modelled
+- [x] `gmPaperDollUI::RecvNotice_OpenIngredientPanel` · 00441b70 · legions 00442490 — hud_ingredient.rs OpenIngredientPanel path into ac2-ui ingredient.rs
+- [x] `gmPaperDollUI::UpdatePaperDollPosition` · 00441ba0 · legions 0041af10 — Legions 7160 followed: race 1, 2, 8, 16 x0.9, race 4 x0.75; z = -0.875 x height; camera scale 0.25 x height; the physobj (1, 0) call has no body to act on; framing exception in AGENTS.md
 - [x] `gmPaperDollUI::MeshTypeToInvLoc` · 00441d20 · legions 00442670 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::HandlePaperDollClick` · 00441db0 · legions 00442700 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 
@@ -1272,7 +1272,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmPaperDollUI::RecvNotice_UpdateMountState` · 00441e90 — ac2-ui paper_doll.rs update_mount_state (Legions 0x4427e0 writes m_ignoreVDescChanges, +0xdc): via inventory_notices.rs; ac2-client view.rs/paper_doll_scene.rs keep the last avatar while it is set (RecvNotice_LocalVisualDescUpdate skips UpdatePaperDoll)
 - [x] `gmPaperDollUI::SetDurabilityTooltip` · 00441ea0 · legions 004427f0 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::InitPaperDoll` · 00441f10 · legions 00442860 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
-- [~] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame appearance (remade on change); Legions also calls the physobj with mode 0x38d1b717 (vtbl 0x110) and 0xe0000000/0x3f1a36e2 (vtbl 0x114), and the portrait placement (gmShopConsignmentUI::UpdatePortraitPosition): not modelled
+- [-] `gmPaperDollUI::UpdatePaperDoll` · 00441fd0 · legions 00442920 — the avatar follows the frame appearance (remade on change); the Legions physobj tuning calls (vtable +0x110 / +0x114) and the portrait placement have no counterpart: the doll is drawn without a physics body, framing is the AGENTS.md paper doll exception
 - [x] `gmPaperDollUI::UpdateDurabilityMeter` · 00442030 · legions 00442980 — step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 - [x] `gmPaperDollUI::RecvNotice_LocalVisualDescUpdate` · 004420e0 — step 3: the doll's pick, drag and drops (see paper_doll.rs, paper_doll_scene.rs)
 - [x] `gmPaperDollUI::TokenToInvLoc` · 00442100 · legions 00442a50 — step 2: slot lookup by element (the slots are the containers the layout names); DDCB is is_item_copy
@@ -1295,8 +1295,8 @@ Legend and workflow: [README](README.md).
 - [x] `PHashTable<unsigned_long,InstanceID>::StreamPack` · 004431d0 — unpack is the only direction the client runs (ac2-net protocol::qualities / visual); the client never writes quality tables
 
 ### gmPaperDollUI
-- [~] `gmPaperDollUI::GetInventory` · 00443400 · legions 00443d50 — frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
-- [~] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
+- [x] `gmPaperDollUI::GetInventory` · 00443400 · legions 00443d50 — frame equipment list drives the slots: worn items are added, a list lacking one takes it off (retail does the same through RecvNotice_ItemUpdate/RemoveItem)
+- [x] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — ac2-ui paper_doll.rs create: viewport root, slots, DragCheck::ItemDrop, avatar and worn list; notices come from the frame
 - [x] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670 — step 1: request begun or failed marks the worn item pending
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (6/6)
@@ -1445,7 +1445,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmStoryQuestsUI::ListenToMessage` · 004400d0 · legions 00440930 — ac2-ui story_quests.rs (StoryQuestsUi: RecvNotice, ListenToMessage, the act and scene rows); act list natives in ac2-net act.rs and ac2-script glue/act_info.rs
 - [x] `gmStoryQuestsUI::gmStoryQuestsUI` · 00440110 · legions 00440970 — ac2-ui quests_panel.rs (the Story page's act list under StoryPage, StoryQuestsUi::create); the Quest panel holds it
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (20/22)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmcraftui.cpp.c` (21/22)
 
 ### gmCraftUI
 - [x] `gmCraftUI::SelectElement` · 004494b0 · legions 0044a110 — ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
@@ -1466,7 +1466,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::RefreshCraftSkillCategoryPage` · 0044a550 · legions 0044b1b0 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 - [x] `gmCraftUI::RefreshRecipePage` · 0044a6e0 · legions 0044b340 — ac2-ui craft_pages.rs refresh_skill_page / refresh_category_page / refresh_recipe_page over make_skill, make_category, make_recipe and refresh_skill_display (raise text ID_Craft_CantRaise / ID_Craft_AvailableXPRaise)
 - [x] `gmCraftUI::RefreshCraftPanel` · 0044a8e0 · legions 0044b540 — ac2-ui craft.rs refresh_panel: the recipes of the selected skill, then the view's page (SkillPage, CategoryPage, RecipePage)
-- [~] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: the page and its lists looked up per refresh (GetChildRecursive). Not: the drag field and the notice handlers (per object in Rust)
+- [x] `gmCraftUI::gmCraftUI` · 0044a960 · legions 0044b5c0 — ac2-ui craft.rs CraftUi::create: page and lists looked up per refresh; the drag field is handled (craft_ui_7160 recipe drag); notice handlers are per-object in Rust
 - [x] `gmCraftUI::SetState` · 0044ab30 · legions 0044b790 — ac2-ui craft.rs set_state: the page takes the view, then the panel refreshes
 - [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; the frame pass runs in ac2-ui frame_passes.rs Hud::frame (HudRequest::Craft); ac2-client hud_craft.rs is the CraftSource adapter over the player's queries
 - [x] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened; a recipe row's not_dragable sets DragField's Token_ShortcutData (the DID) and Token_ShortcutType 0x40000006 with the recipe icon (draw mode 2) and drags it (drag_recipe, craft_ui_7160)

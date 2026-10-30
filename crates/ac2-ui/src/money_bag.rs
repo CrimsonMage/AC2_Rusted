@@ -5,10 +5,13 @@
 //! then a confirmation asks (`ID_Inventory_DragToMoney`) unless shift is held or the bypass option
 //! is set (`IsConfirmationDialogAppropriate`). An equipped item is not melted.
 //!
-//! Not modelled: the `not_dragable` branch (retail's `m_curAmount` is only ever 0), and the drop
-//! callback's `IsOnInventory` test (the drop is taken from the item the player has in its pack).
+//! The bag's drop callback (`gmMoneyBagUI_DDCB`) is [`DragCheck::MoneyBagDrop`]: the tree asks it
+//! when the drop lands, so a refused item goes back to where it came from.
+//!
+//! Not modelled: the `not_dragable` branch (retail's `m_curAmount` is only ever 0).
 
 use crate::dialog::{DialogFactory, DialogOutcome, DIALOG_CONFIRMATION};
+use crate::drag::DragCheck;
 use crate::element::UiTree;
 use crate::item_display::{dragged_item, is_item_copy, InventorySource, ItemRequest};
 use crate::mouse::UiMessage;
@@ -44,14 +47,24 @@ pub struct MoneyBagUi {
 impl MoneyBagUi {
     /// `gmMoneyBagUI::gmMoneyBagUI`: the `MoneyBag` element and its `AmountLabel`, found in the
     /// layout's roots (the inventory panel is one of them).
-    pub fn create(tree: &UiTree) -> Self {
+    pub fn create(tree: &mut UiTree) -> Self {
         let bag = crate::backpack::find(tree, "MoneyBag");
+        if let Some(bag) = bag {
+            tree.set_drag_drop_check(bag, Some(DragCheck::MoneyBagDrop));
+        }
         let label = bag.and_then(|b| tree.child_recursive(b, tokenize("AmountLabel")));
         Self {
             bag,
             label,
             ..Self::default()
         }
+    }
+
+    /// `gmMoneyBagUI_DDCB`'s inventory part for the dragged `copy`: an item the player has that
+    /// is not worn (`DoIHaveItem`, `IsOnInventory`). The HUD hands it to the tree every frame.
+    pub fn drag_accepts(tree: &UiTree, s: &dyn InventorySource, copy: usize) -> bool {
+        dragged_item(tree, copy)
+            .is_some_and(|d| s.has_item(d.item) && !s.is_on_inventory(d.item) && !d.equipped)
     }
 
     /// The money the bag shows.

@@ -127,6 +127,13 @@ impl ac2_ui::SelectionSource for ClientPlayer<'_> {
         })
     }
 
+    fn can_auto_attack(&self, id: u64) -> bool {
+        self.client
+            .borrow_mut()
+            .can_auto_attack_target(id)
+            .unwrap_or(false)
+    }
+
     fn is_fellow(&self, id: u64) -> bool {
         self.frame
             .progress

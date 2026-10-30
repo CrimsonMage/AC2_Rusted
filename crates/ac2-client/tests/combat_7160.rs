@@ -698,7 +698,7 @@ fn dismount_runs_on_the_vm() {
 
 /// `gmCWInterface::CanAutoAttackTarget` (IFun 0xB4000A) runs as a query on the VM and answers an
 /// int back with no problem. The double's creature gets "no" (the script reads qualities the double
-/// does not send; not traced), so the cycling keys keep their own rule for now.
+/// does not send); the foe keys of `gmSelectionUI::Select` ask it for each candidate.
 #[test]
 fn can_auto_attack_target_queries_the_script() {
     let Some((mut client, _server)) = with_script() else {

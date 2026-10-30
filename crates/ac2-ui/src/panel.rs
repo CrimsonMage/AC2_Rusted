@@ -38,7 +38,7 @@ impl UiTree {
     }
 
     /// `UIElement::SetAttribute_InstanceID`.
-    pub(crate) fn set_instance_attribute(&mut self, index: usize, id: u32, value: u64) {
+    pub fn set_instance_attribute(&mut self, index: usize, id: u32, value: u64) {
         self.el_mut(index)
             .attributes
             .insert(id, crate::layout::AttributeValue::InstanceId(value));

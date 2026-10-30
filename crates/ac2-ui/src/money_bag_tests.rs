@@ -582,3 +582,29 @@ fn the_bag_takes_an_item_from_a_side_pack_but_not_a_worn_or_foreign_one() {
         "nor one the player does not have"
     );
 }
+
+/// `gmMoneyBagUI_DDCB` is the bag's drop check: a drop it refuses (an item the player does not
+/// have, or wears) is not caught, so the item goes back where it came from.
+#[test]
+fn the_bag_s_drop_check_refuses_what_the_player_does_not_have() {
+    let purse = Purse::default();
+    let Some((mut hud, backpack, _bag)) = setup(&purse) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let bag_element = find(tree, "MoneyBag").unwrap();
+    let potions = slot_copy(&backpack, 0);
+    assert!(MoneyBagUi::drag_accepts(tree, &purse, potions));
+    let check = tree.get(bag_element).unwrap().drag_drop;
+    assert_eq!(check, Some(crate::DragCheck::MoneyBagDrop));
+    tree.set_money_bag_accepts(false);
+    assert!(!tree.run_drag_check(crate::DragCheck::MoneyBagDrop, potions, bag_element));
+    tree.set_money_bag_accepts(true);
+    assert!(tree.run_drag_check(crate::DragCheck::MoneyBagDrop, potions, bag_element));
+    // A worn copy is refused.
+    tree.el_mut(potions).attributes.insert(
+        tokenize("Equipped"),
+        crate::layout::AttributeValue::Bool(true),
+    );
+    assert!(!MoneyBagUi::drag_accepts(tree, &purse, potions));
+}

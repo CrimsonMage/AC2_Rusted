@@ -9,13 +9,13 @@ use crate::client::Client;
 use crate::frame::ClientFrame;
 
 /// The potential list of a 3D selection (nearest first), as `Finish3DSelection` reads its first
-/// entry: each object's `0x270` selectability, and the player's type (`0x14`, 0 without a
-/// player).
+/// entry: each object's `0x270` selectability and wielder (`0x105`), the player's type (`0x14`,
+/// 0 without a player) and the player's id (0 without one).
 pub fn pick_targets(
     client: &Client,
     frame: &ClientFrame,
     potential: &[u64],
-) -> (Vec<PotentialTarget>, u32) {
+) -> (Vec<PotentialTarget>, u32, u64) {
     let objects = client.session().objects();
     let targets = potential
         .iter()
@@ -24,6 +24,10 @@ pub fn pick_targets(
             selectable: objects
                 .get(id)
                 .map(|object| object.qualities.inq_bool(0x270).unwrap_or(0) != 0),
+            wielder: objects
+                .get(id)
+                .and_then(|object| object.qualities.inq_instance_id(0x105))
+                .unwrap_or(0),
         })
         .collect();
     let player_type = frame
@@ -32,5 +36,6 @@ pub fn pick_targets(
         .and_then(|player| objects.get(player.id))
         .and_then(|object| object.qualities.inq_int(0x14))
         .unwrap_or(0) as u32;
-    (targets, player_type)
+    let player_id = frame.player.as_ref().map_or(0, |player| player.id);
+    (targets, player_type, player_id)
 }

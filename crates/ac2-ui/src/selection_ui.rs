@@ -8,8 +8,8 @@
 //! selected (`0x270` false) and the player's type (`0x14`) without the selectable bits (`0x3f`)
 //! ends the pick with nothing selected and the clicks still pending, as retail does.
 //!
-//! Not modelled yet: `CWPhysicsObject::LookAtSelection` (the physics look-at and its `CLookAt`
-//! event), and the double click's check that the target is not the player's own item (`0x105`).
+//! A double click does not use a target the player wields (`0x105` is the player's id).
+//! `CWPhysicsObject::LookAtSelection` follows each `SetSelection` in the client (`CLookAt`).
 
 use crate::mouse::UiMessage;
 use crate::token::{tokenize, MSG_MOUSE_PRESS_TOP};
@@ -37,11 +37,13 @@ pub struct SelectionOutcome {
 }
 
 /// One entry of the potential list, as `Finish3DSelection` reads the object: its `0x270`
-/// selectability, or `None` when the object has no record (the checks are skipped).
+/// selectability, or `None` when the object has no record (the checks are skipped), and the
+/// wielder it records (`0x105`, 0 for none).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct PotentialTarget {
     pub id: u64,
     pub selectable: Option<bool>,
+    pub wielder: u64,
 }
 
 /// `gmSelectionUI`'s state.
@@ -76,12 +78,13 @@ impl SelectionUi {
     }
 
     /// `gmSelectionUI::Finish3DSelection` with the render's potential list (nearest first) and
-    /// the player's type (`0x14`). `None` when the first target cannot be selected: nothing
+    /// the player's type (`0x14`) and id. `None` when the first target cannot be selected: nothing
     /// changes and the clicks stay pending.
     pub fn finish(
         &mut self,
         potential: &[PotentialTarget],
         player_type: u32,
+        player: u64,
     ) -> Option<SelectionOutcome> {
         self.selecting = false;
         let first = potential.first().copied();
@@ -98,7 +101,10 @@ impl SelectionUi {
         let click = std::mem::take(&mut self.click);
         Some(SelectionOutcome {
             select: first.map(|target| target.id),
-            use_selection: click.double_click,
+            // `GetInstanceID(0x105)` of the target is the player: its own wielded item is not used.
+            use_selection: click.double_click
+                && !first
+                    .is_some_and(|target| target.selectable.is_some() && target.wielder == player),
             open_examination: click.right_click && first.is_some(),
         })
     }
