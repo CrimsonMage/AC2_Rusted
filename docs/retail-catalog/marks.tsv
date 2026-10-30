@@ -10251,8 +10251,8 @@ key	status	note
 005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc70	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005fbcb0	_	needs port: UIElement_Field::MouseOverTop puts a container field with drag_rollover into drag_rollover_accept or drag_rollover_reject (reject when disallow_drag_in) while a dragged item is over it, restoring its old state on leave (only lists do this, list_drag.rs)
-005fbdb0	x	ac2-ui drag.rs; shortcut.rs drop
+005fbcb0	x	ac2-ui field_rollover.rs field_mouse_over_top: a drag over a container field with drag_rollover sets drag_rollover_accept / _reject by its drop check and disallow_drag_in, keeping the old state; leaving restores it (drag_tests a_rollover_field_shows_whether_it_takes_the_dragged_item)
+005fbdb0	x	ac2-ui drag.rs catch_dropped_item: the field's rollover state restored (field_end_rollover), then UIElement::CatchDroppedItem
 005fbe20	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fbe40	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
 005fbe60	x	ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing

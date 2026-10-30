@@ -125,6 +125,8 @@ pub struct UiElement {
     /// `m_dragOutCallback` and `m_dragDropCallback`.
     pub(crate) drag_out: Option<crate::drag::DragCheck>,
     pub(crate) drag_drop: Option<crate::drag::DragCheck>,
+    /// `UIElement_Field::m_oldState` while a drag rollover holds the field (`field_rollover.rs`).
+    pub(crate) field_rollover: Option<u32>,
     /// `UIElement_Button::mousePressedOnButton`.
     pub(crate) button_pressed: bool,
     /// `UIElement_Button::hotClickingInProgress` and `nextHotClickTime`.
@@ -553,6 +555,7 @@ impl UiTree {
             mouse_down: Vec::new(),
             drag_out: None,
             drag_drop: None,
+            field_rollover: None,
             button_pressed: false,
             hot_clicking: false,
             next_hot_click: 0.0,

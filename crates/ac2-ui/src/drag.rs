@@ -260,6 +260,7 @@ impl UiTree {
         if element == item {
             return false;
         }
+        self.field_end_rollover(element);
         if self.bool_attribute(element, CONTAINER)
             && !self.bool_attribute(element, DISALLOW_DRAG_IN)
         {

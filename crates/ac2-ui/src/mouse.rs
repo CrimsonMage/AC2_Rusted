@@ -224,6 +224,7 @@ impl UiTree {
             self.button_update_state(index);
             self.panel_page_mouse_over_top(index, is_top);
             self.list_mouse_over_top(index, is_top);
+            self.field_mouse_over_top(index, is_top);
             self.menu_update_state(index);
         }
     }

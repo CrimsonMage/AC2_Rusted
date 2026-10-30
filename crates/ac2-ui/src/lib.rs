@@ -56,6 +56,7 @@ mod fellow_info;
 pub mod fellow_markers;
 mod fellow_rows;
 mod fellowship;
+mod field_rollover;
 mod frame_passes;
 mod glyph_find;
 #[cfg(test)]

@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1357 done, 314 partial, 48 to do, 528 skipped.
+2247 retail functions: 1358 done, 314 partial, 47 to do, 528 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -3172,12 +3172,12 @@ Legend and workflow: [README](README.md).
 - [-] `UIElement_Dragbar::Create` · 005f8e20 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 - [-] `UIElement_Dragbar::Register` · 005f8e50 · legions 005b9980 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/uielement_field.cpp.c` (1/4)
+## `portal/client/src/uielement/types/uielement_field.cpp.c` (2/4)
 
 ### UIElement_Field
 - [-] `UIElement_Field::Create` · 005fbc70 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-- [ ] `UIElement_Field::MouseOverTop` · 005fbcb0 · legions 005bc7e0 — needs port: UIElement_Field::MouseOverTop puts a container field with drag_rollover into drag_rollover_accept or drag_rollover_reject (reject when disallow_drag_in) while a dragged item is over it, restoring its old state on leave (only lists do this, list_drag.rs)
-- [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs; shortcut.rs drop
+- [x] `UIElement_Field::MouseOverTop` · 005fbcb0 · legions 005bc7e0 — ac2-ui field_rollover.rs field_mouse_over_top: a drag over a container field with drag_rollover sets drag_rollover_accept / _reject by its drop check and disallow_drag_in, keeping the old state; leaving restores it (drag_tests a_rollover_field_shows_whether_it_takes_the_dragged_item)
+- [x] `UIElement_Field::CatchDroppedItem` · 005fbdb0 · legions 005bc8e0 — ac2-ui drag.rs catch_dropped_item: the field's rollover state restored (field_end_rollover), then UIElement::CatchDroppedItem
 - [-] `UIElement_Field::Register` · 005fbe20 · legions 005bc950 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `portal/client/src/uielement/types/uielement_listbox.cpp.c` (65/82)

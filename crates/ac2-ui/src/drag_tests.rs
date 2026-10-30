@@ -288,3 +288,45 @@ fn a_transparent_window_does_not_take_an_alt_press_on_its_empty_area() {
     let after = tree.screen_box(root);
     assert_eq!((after.x0 - before.x0, after.y0 - before.y0), (10, 5));
 }
+
+/// `UIElement_Field::MouseOverTop` / `CatchDroppedItem`: a `drag_rollover` container field shows
+/// `drag_rollover_accept` while an item it takes is dragged over it, `drag_rollover_reject` while
+/// it refuses it (`disallow_drag_in`), and its own state again when the pointer leaves or the
+/// item is dropped.
+#[test]
+fn a_rollover_field_shows_whether_it_takes_the_dragged_item() {
+    for disallow in [false, true] {
+        let (mut tree, _, target) = tree();
+        // The target's rollover states, and the flags.
+        {
+            let el = tree.el_mut(target);
+            let mut desc = (*el.desc).clone();
+            for name in ["drag_rollover_accept", "drag_rollover_reject"] {
+                let mut state = desc.states[0].clone();
+                state.id = tokenize(name);
+                state.attributes.clear();
+                desc.states.push(state);
+            }
+            el.desc = Arc::new(desc);
+        }
+        tree.set_bool(target, tokenize("drag_rollover"), true);
+        tree.set_bool(target, tokenize("disallow_drag_in"), disallow);
+        let own = tree.get(target).unwrap().state();
+        point(&mut tree, 15, 15);
+        tree.start_input(LEFT, 1.0);
+        point(&mut tree, 25, 15);
+        assert!(tree.dragged().is_some());
+        point(&mut tree, 120, 20);
+        let shown = if disallow {
+            "drag_rollover_reject"
+        } else {
+            "drag_rollover_accept"
+        };
+        assert_eq!(tree.get(target).unwrap().state(), tokenize(shown));
+        point(&mut tree, 190, 90);
+        assert_eq!(tree.get(target).unwrap().state(), own, "the pointer left");
+        point(&mut tree, 120, 20);
+        tree.stop_input(LEFT);
+        assert_eq!(tree.get(target).unwrap().state(), own, "the item dropped");
+    }
+}
