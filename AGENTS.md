@@ -273,7 +273,7 @@ game rules and server-visible behaviour exactly retail.
   strip, dock; the toolbar's field grows upward as far as the strip or the dock is raised) keep
   an offset from their place (`UiTree::hud_offset`); the chat windows move as windows. Its bar
   locks the whole HUD (`hud_locked`: no window or part moves or resizes; turning the mode on
-  releases it), resets the offsets and the chat windows' choices, or closes the mode. The offsets
+  releases it), resets the offsets and the chat windows' choices and places, or closes the mode. The offsets
   and the lock are kept in the HUD layout (`offset.<part>`, `hud.locked`).
   The loot window is the design's (its variant A, `ac2_ui::modern_loot`): `ExternalContainerField`
   at 214 by 262 with retail's frame (`0x41000D41`) drawn in nine pieces of their own sizes

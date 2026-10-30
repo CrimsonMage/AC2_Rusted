@@ -85,6 +85,8 @@ pub fn message_pass<P: HudSource>(
                 if let Some(chat) = hud.chat.as_mut() {
                     chat.apply_layout(tree, &crate::hud_layout::HudLayout::default());
                 }
+                // The chat windows back at their default places.
+                crate::modern_layout_edit::reset_windows(tree);
             }
             if taken {
                 continue;

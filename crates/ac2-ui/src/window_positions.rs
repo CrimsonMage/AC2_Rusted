@@ -18,7 +18,7 @@ use ac2_prefs::paths;
 
 use crate::HudStyle;
 
-use crate::element::UiTree;
+use crate::element::{UiBox, UiTree};
 use crate::token::ALLOW_RESIZE;
 use crate::window_locations::{clip_to_pixel, pixel_to_clip};
 
@@ -244,6 +244,23 @@ impl UiTree {
         for root in self.roots.clone() {
             self.apply_saved_position(root);
         }
+        self.moved = true;
+        self.changed = true;
+    }
+
+    /// The window `index` back where its layout puts it (as [`Self::create_root`] placed it), its
+    /// saved place forgotten (the modern Edit layout mode's Reset to default).
+    pub fn reset_window_place(&mut self, index: usize) {
+        let (layout, element) = {
+            let el = self.el(index);
+            (el.layout.did, el.id())
+        };
+        self.saved_positions
+            .retain(|p| p.layout != layout || p.element != element);
+        let el = self.el_mut(index);
+        el.rect = UiBox::new(0, 0, -1, -1);
+        el.object = Some((0, 0));
+        self.update_size_and_position(index);
         self.moved = true;
         self.changed = true;
     }

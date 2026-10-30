@@ -47,7 +47,8 @@ struct Mark {
 /// What a press on the bar asks.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum EditAction {
-    /// Reset to default: the offsets cleared here; the chat's choices are the chat's to reset.
+    /// Reset to default: the offsets cleared here; the chat's choices are the chat's to reset, and
+    /// its windows go back to their places (`reset_windows`).
     Reset,
 }
 
@@ -98,6 +99,16 @@ fn make_root(tree: &mut UiTree, window: usize, template: usize, id: &str, z: i32
     tree.set_overlay_root(root);
     tree.set_visible(root, false);
     Some(root)
+}
+
+/// Reset to default for the chat windows: each back at its layout's place, its saved place
+/// forgotten.
+pub(crate) fn reset_windows(tree: &mut UiTree) {
+    for name in WINDOWS {
+        if let Some(root) = root_named(tree, name) {
+            tree.reset_window_place(root);
+        }
+    }
 }
 
 impl EditLayout {

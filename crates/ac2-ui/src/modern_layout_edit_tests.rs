@@ -126,3 +126,23 @@ fn the_targeting_banner_shows_at_the_top_centre_while_the_pointer_is_on() {
     banner.tick(tree);
     assert!(!tree.el(root).visible);
 }
+
+#[test]
+fn reset_to_default_puts_the_chat_windows_back() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let chat = named(tree, "ChatWindow1");
+    let home = tree.screen_box(chat);
+    tree.move_to(chat, home.x0 + 200, home.y0 - 150);
+    let moved = tree.screen_box(chat);
+    assert_ne!(moved, home);
+    tree.set_window_positions(&tree.window_positions());
+    crate::modern_layout_edit::reset_windows(tree);
+    assert_eq!(tree.screen_box(chat), home);
+    // Its saved place is forgotten: a later window position pass leaves it home.
+    let saved = tree.window_positions();
+    tree.set_window_positions(&saved);
+    assert_eq!(tree.screen_box(chat), home);
+}
