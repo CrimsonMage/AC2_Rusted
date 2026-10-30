@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1337 done, 299 partial, 116 to do, 495 skipped.
+2247 retail functions: 1338 done, 298 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1120,7 +1120,7 @@ Legend and workflow: [README](README.md).
 - [x] `ShortcutInfo::SetDataStr` · 004363e0 · legions 00436c30 — ac2-script glue::shortcut / native::shortcut
 
 ### gmShortcutUI
-- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::CheckItem` · 00436440 · legions 00436c90 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 - [x] `gmShortcutUI::FromElement` · 004364f0 · legions 00436d40 — ac2-ui drag.rs; shortcut.rs drop
 
 ### SmartArray<TimeLeftInfo>
@@ -1154,12 +1154,12 @@ Legend and workflow: [README](README.md).
 - [x] `gmShortcutUI::RecvNotice_EndSpecialAttack` · 00437820 — ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 - [x] `gmShortcutUI::ListenToMessage` · 004379a0 · legions 004381f0 — ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 - [x] `gmShortcutUI::UpdatePadding` · 00437d90 · legions 004385e0 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::RefreshShortcutHeight` · 00437e50 · legions 004386a0 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+- [~] `gmShortcutUI::gmShortcutUI` · 00437fb0 · legions 00438800 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+- [~] `gmShortcutUI::ListenToMessage` · 00438270 · legions 00438ac0 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+- [~] `gmShortcutUI::Init` · 004386c0 · legions 00438f10 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 - [x] `gmShortcutUI::RecvNotice_ReloadShortcuts` · 004387f0 — ac2-ui shortcut.rs
-- [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+- [~] `gmShortcutUI::RecvNotice_ReloadOptions` · 00438830 · legions 00439080 — ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 
 ## `ac2/client/src/ui/gameplay/toolbar/gmtoolbarui.cpp.c` (7/16)
 
@@ -1471,7 +1471,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmCraftUI::RecvNotice_UpdateCraftPanel` · 0044ab60 — ac2-ui craft.rs CraftUi::frame_pass refreshes the panel on the notice; the frame pass runs in ac2-ui frame_passes.rs Hud::frame (HudRequest::Craft); ac2-client hud_craft.rs is the CraftSource adapter over the player's queries
 - [x] `gmCraftUI::ListenToMessage` · 0044ab70 · legions 0044b7d0 — ac2-ui craft.rs message: forward, back, the headers, the rows (press and double click), recipe button, raise button, craft tab opened; a recipe row's not_dragable sets DragField's Token_ShortcutData (the DID) and Token_ShortcutType 0x40000006 with the recipe icon (draw mode 2) and drags it (drag_recipe, craft_ui_7160)
 
-## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (21/26)
+## `ac2/client/src/ui/gameplay/toolbar/skill/gmskilltreeui.cpp.c` (22/26)
 
 ### gmSkillTreeUI
 - [x] `gmSkillTreeUI::MakeUntrainCancelDialog` · 00447550 · legions 00448090 — ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
@@ -1510,7 +1510,7 @@ Legend and workflow: [README](README.md).
 - [-] `PHashTable<unsigned_long,SkillUINode>::StreamPack` · 00448eb0 · legions 00449ae0 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### gmSkillTreeUI
-- [~] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+- [x] `gmSkillTreeUI::gmSkillTreeUI` · 00449110 · legions 00449d40 — ac2-ui skill_tree.rs SkillTreeUi::create: the elements, the nodes' and buttons' tooltips, the selected name truncated with ID_Ellipsis, the dialogs as requests (DialogFactory); a trained, active skill's icon is dragable with its Token_ShortcutType/Data, which the shortcut bar's drop takes
 - [-] `gmSkillTreeUI::~gmSkillTreeUI` · 00449370 · legions 00449fc0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
 ## `ac2/client/src/ui/gameplay/toolbar/skill/gmskillui.cpp.c` (3/3)

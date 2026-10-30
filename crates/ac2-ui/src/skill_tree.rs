@@ -17,7 +17,8 @@
 //! hiding the panel closes its dialogs (`Show`). The buttons and nodes carry tooltips, and the
 //! selected name is truncated with an ellipsis (`SetStringAndTruncate`).
 //!
-//! Not modelled yet: dragging a trained skill to the shortcut bar is in `shortcut.rs`.
+//! A trained, active skill's icon drags to the shortcut bar (its `Token_ShortcutType` and data;
+//! the drop is `shortcut.rs`).
 
 use std::collections::HashMap;
 use std::sync::Arc;

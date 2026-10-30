@@ -919,7 +919,7 @@ key	status	note
 00436180	x	ac2-ui shortcut_states.rs update_time_left: the meter fills by 1 - (end - now)/total clamped; the entry goes when full or its slot no longer holds the skill; ac2-client HudView::update runs it per frame
 00436330	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004363e0	x	ac2-script glue::shortcut / native::shortcut
-00436440	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00436440	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 004364f0	x	ac2-ui drag.rs; shortcut.rs drop
 00436660	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004367a0	x	ac2-ui shortcut.rs check_skill_slot, check_all_items/skills, check_skill; ac2-client hud_player.rs ShortcutCheck from the UpdateInventory/UpdateContainer/UpdateSkill/UpdateResetTime notices; ac2-ui shortcut_checks_tests.rs
@@ -945,12 +945,12 @@ key	status	note
 00437820	x	ac2-ui shortcut_states.rs toggle/request/start/end special attack: the maneuver's slots pending, active, toggled or stateless and dragable; ac2-client hud_player routes the notices
 004379a0	x	ac2-ui shortcut.rs message: the double click on a skill, the use/examine presses and stop_drag_item (RemoveShortcut of the source slot, then SetShortcut of the slot under the pointer; a drop outside removes); tested through the HUD (shortcut_drag_7160)
 00437d90	x	ac2-ui shortcut.rs
-00437e50	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-00437fb0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-00438270	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
-004386c0	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00437e50	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+00437fb0	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+00438270	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
+004386c0	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 004387f0	x	ac2-ui shortcut.rs
-00438830	~	ac2-ui shortcut.rs: pending items (check_item) keep a pending state, cleared on reload only: no object-creation notice (RecvNotice_CreateObject, FIXMESetupItemElement icon and tooltip for an item not yet in the client); no drag/drop on the bar edge, rows, special attacks' drag state
+00438830	~	ac2-ui shortcut.rs: an item the client does not hold yet waits pending until its object is created (FIXMESetupItemElement, RecvNotice_CreateObject: create_object); drags in and out of slots, the use/examine presses and the timers are ported. Not modelled: dragging the bar's edge to change its rows (the global loop's resize) and the special attacks' drag state
 00438850	~	ac2-ui indicators.rs: no root element of its own, so only the shown flag is kept; the children show notification (vtable 0x20) is not modelled
 00438860	x	ac2-ui indicators.rs: net, PK and vitae children made in retail order (net_status.rs, pk_status.rs); the child list and the children show notification are not kept
 00438910	~	ac2-ui: the indicators children are fields of GameplayHud and drop with its tree; no per-child teardown call
@@ -1240,7 +1240,7 @@ key	status	note
 00448c70	x	ac2-ui skill_tree.rs: confirmation dialogs, tooltips, truncation, Show closes dialogs on a shown-state change
 00448e50	x	ac2-ui skill_tree.rs
 00448eb0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-00449110	~	ac2-ui skill_tree.rs: no tooltips, dialogs as requests, no truncation
+00449110	x	ac2-ui skill_tree.rs SkillTreeUi::create: the elements, the nodes' and buttons' tooltips, the selected name truncated with ID_Ellipsis, the dialogs as requests (DialogFactory); a trained, active skill's icon is dragable with its Token_ShortcutType/Data, which the shortcut bar's drop takes
 00449370	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 004494b0	x	ac2-ui craft.rs select_element: the previous row returns to its default state, the new one shows selected
 004494f0	x	ac2-ui craft.rs select_category: the category's examination (SetSelection cleared, data_enum); tested through the category row (craft_ui_7160)
