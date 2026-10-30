@@ -3,7 +3,6 @@
 //! Asheron's Call 2 render assets: textures, materials, meshes, visual descriptions, FX and
 //! particle descriptions, decoded on the CPU into backend-neutral products.
 
-pub mod ac1_icons;
 mod ac2_appearance;
 mod ac2_cell_surface;
 #[cfg(test)]

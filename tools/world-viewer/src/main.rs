@@ -11,14 +11,13 @@
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
 //! world-viewer ... --snapshot out.png --fly --look YAW,PITCH [--time SECONDS] [--height Z]
 //! world-viewer ... [--hud-style modern|classic]
-//! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...] [--hud-pointer X,Y]
+//! world-viewer ... --snapshot out.png --hud [--hud-panel NAME ...]
 //! ```
 //! `--hud-style` builds the HUD in that style (default classic, the retail DAT HUD); in the window
 //! F7 switches between the two and rebuilds the HUD. `--hud` logs the snapshot's HUD on to the
 //! in-process server double (the window's session) so its vitals, shortcuts and inventory are
 //! filled, and leaves out the control panel; `--hud-panel NAME` (Inventory, Skill, Quest, Social,
-//! Examination, Navigation, Option; repeatable, implies `--hud`) opens that toolbar panel, and
-//! `--hud-pointer X,Y` puts the pointer there (window pixels; a hover look, implies `--hud`).
+//! Examination, Navigation, Option; repeatable, implies `--hud`) opens that toolbar panel.
 //! `--fly --at X,Y` starts the fly camera 12 m over that point of the block, looking north.
 //! `--look` turns the `--fly` snapshot camera to YAW degrees clockwise from north and PITCH
 //! degrees above the horizon (the sky: `--look 0,60`). `--height Z` puts the `--fly` camera at
@@ -108,8 +107,6 @@ struct Args {
     hud: bool,
     /// The toolbar panels the snapshot opens (`--hud-panel`).
     hud_panels: Vec<ac2_ui::ToolbarChild>,
-    /// The pointer over the snapshot's HUD (`--hud-pointer`, window pixels).
-    hud_pointer: Option<(f32, f32)>,
     /// The start position within the block (default: its centre).
     at: Option<(f32, f32)>,
     /// Server seconds to show (default: the day's brightest daylight); other days bring their
@@ -160,7 +157,6 @@ fn parse_args() -> Result<Args, String> {
         hud_style: ac2_ui::HudStyle::Classic,
         hud: false,
         hud_panels: Vec::new(),
-        hud_pointer: None,
         at: None,
         time: None,
         crowd: 0,
@@ -296,17 +292,6 @@ fn parse_args() -> Result<Args, String> {
                 let child = ac2_ui::ToolbarChild::from_name(&name)
                     .ok_or(format!("--hud-panel: no panel named {name}"))?;
                 args.hud_panels.push(child);
-                args.hud = true;
-            }
-            "--hud-pointer" => {
-                let text = value()?;
-                let (x, y) = text.split_once(',').ok_or("--hud-pointer: X,Y")?;
-                let parse = |v: &str| {
-                    v.trim()
-                        .parse::<f32>()
-                        .map_err(|e| format!("--hud-pointer: {e}"))
-                };
-                args.hud_pointer = Some((parse(x)?, parse(y)?));
                 args.hud = true;
             }
             "--warm-up" => {
@@ -624,13 +609,6 @@ fn hud_session(
     run(view, 90);
     for &child in &args.hud_panels {
         view.show_panel(child, true);
-    }
-    if let Some((x, y)) = args.hud_pointer {
-        let pointer = [
-            (ac2_ui::UI_POINTER_X, x, true),
-            (ac2_ui::UI_POINTER_Y, y, true),
-        ];
-        view.ui_input(&pointer, ac2_ui::Modifiers::default());
     }
     run(view, 30);
 }

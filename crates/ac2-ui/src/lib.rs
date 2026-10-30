@@ -267,7 +267,6 @@ mod text_clipboard;
 mod text_data;
 mod text_edit;
 pub use text_edit::TextPress;
-pub mod ac1_buttons;
 pub mod hud_style;
 mod text_scroll;
 mod token;

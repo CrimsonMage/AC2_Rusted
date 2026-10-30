@@ -154,14 +154,6 @@ game rules and server-visible behaviour exactly retail.
   neither uploads its windows' places to the server nor applies the server's saved locations
   (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in
   the classic style.
-  The modern Social and Skills buttons take Asheron's Call 1's toolbar icons (the user's choice:
-  AC1's Social button `0x10000197` and its Skills and attributes button `0x10000199`, images
-  `0x0600111F` and `0x06001122`), read at run time from the player's own AC1 DATs named by
-  `AC1_DAT_DIR` (`ac2_assets::ac1_icons`, AC1's container read by `ac2_dat`'s retail layout;
-  nothing of AC1 is committed) and remade in AC2's look (`ac2_ui::ac1_buttons`): the AC2 orb's
-  bronze kept, its symbol replaced by AC1's (the bright green of AC1's normal image) in the orb
-  symbols' ivory with a dark rim, the rollover orb brighter. Without AC1 DATs the buttons keep
-  AC2's own icons.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it
