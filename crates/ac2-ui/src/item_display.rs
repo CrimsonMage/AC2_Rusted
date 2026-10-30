@@ -95,6 +95,15 @@ pub trait InventorySource {
     fn bypass_melting_confirmation(&self) -> bool {
         false
     }
+    /// `gmCWInterface::DoIHaveItem`: in a pack the player lists, or worn. By default, an item the
+    /// inventory knows.
+    fn has_item(&self, item: u64) -> bool {
+        self.item(item).is_some()
+    }
+    /// `gmCWInterface::IsOnInventory`: the item is worn. By default, not known to be.
+    fn is_on_inventory(&self, _item: u64) -> bool {
+        false
+    }
 }
 
 /// `ContainerDisplay::s_coinFieldElementName` (`CoinsField`): the money field a drag starts from.

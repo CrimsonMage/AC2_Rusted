@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1333 done, 303 partial, 116 to do, 495 skipped.
+2247 retail functions: 1334 done, 302 partial, 116 to do, 495 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1235,7 +1235,7 @@ Legend and workflow: [README](README.md).
 ### gmInventoryUI
 - [x] `gmInventoryUI::gmInventoryUI` · 00434700 · legions 00434ed0 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
-## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (8/11)
+## `ac2/client/src/ui/gameplay/toolbar/inventory/gmmoneybagui.cpp.c` (9/11)
 
 ### gmMoneyBagUI
 - [x] `gmMoneyBagUI::RecvNotice_UpdateMoney` · 00440b70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
@@ -1245,14 +1245,14 @@ Legend and workflow: [README](README.md).
 - [x] `gmMoneyBagUI::DoDragTo` · 00440cd0 · legions 00441530 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 
 ### (free functions)
-- [~] `gmMoneyBagUI_DDCB` · 00440d50 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
+- [x] `gmMoneyBagUI_DDCB` · 00440d50 — ac2-ui money_bag.rs handle_drop: only an item (Token_ShortcutType 0x40000002) the player has (InventorySource::has_item, DoIHaveItem: any pack) and does not wear (is_on_inventory, IsOnInventory; the copy's Equipped flag too) is taken; checked at the drop, where the player is asked, not as the tree's drag check (money_bag_tests.rs)
 
 ### gmMoneyBagUI
-- [~] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
+- [~] `gmMoneyBagUI::gmMoneyBagUI` · 00440df0 · legions 00441650 — money bag: the coin/melt paths ported, the drop takes an item the player has and does not wear (gmMoneyBagUI_DDCB, money_bag.rs handle_drop); not modelled: the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail, so it never runs)
 - [x] `gmMoneyBagUI::RecvNotice_CloseConfirmationDialog` · 00440f70 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `gmMoneyBagUI::RecvNotice_StackUIDone` · 00440f90 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
 - [x] `gmMoneyBagUI::HandleMoneyBagDrop` · 00440fe0 · legions 00441840 — ac2-ui money_bag.rs / item_display.rs / backpack.rs; ac2-client ui_inventory.rs; ac2-script host/inventory_globals.rs (coin max) and the player's IFUN 0xB400D7 (bypass); Legions 7160 matches admin here (same IFUNs 0xA60001 and 0xB400D7)
-- [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported; not modelled: DDCB's IsOnInventory test (gmMoneyBagUI_DDCB), the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail), the backpack page's item drop (FinishItemDrop) and its ListenToMessage item branch
+- [~] `gmMoneyBagUI::ListenToMessage` · 00441280 · legions 00441ae0 — money bag: the coin/melt paths ported, the drop takes an item the player has and does not wear (gmMoneyBagUI_DDCB, money_bag.rs handle_drop); not modelled: the bag's ctor listeners and the not_dragable branch (m_curAmount is only 0 in retail, so it never runs)
 
 ## `ac2/client/src/ui/gameplay/toolbar/inventory/gmpaperdollui.cpp.c` (24/31)
 

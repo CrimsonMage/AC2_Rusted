@@ -490,3 +490,95 @@ fn a_coin_field_dropped_on_a_page_asks_for_the_page_s_first_slot() {
         })
     );
 }
+
+/// `gmMoneyBagUI_DDCB`: an item the player has (`DoIHaveItem`) and does not wear
+/// (`IsOnInventory`) is taken from any pack, a side pack too; one the player does not have, or
+/// wears, is not.
+#[test]
+fn the_bag_takes_an_item_from_a_side_pack_but_not_a_worn_or_foreign_one() {
+    /// The purse, its potions melting; `worn` is the item `IsOnInventory` reports, `foreign`
+    /// one `DoIHaveItem` denies.
+    struct Packs {
+        purse: Purse,
+        worn: u64,
+        foreign: u64,
+    }
+    impl InventorySource for Packs {
+        fn item(&self, item: u64) -> Option<ItemSlot> {
+            self.purse.item(item)
+        }
+        fn contents_info(&self, container: u64, segment: u32) -> (Vec<u64>, u32, u32) {
+            self.purse.contents_info(container, segment)
+        }
+        fn max_container_size(&self, container: u64) -> u32 {
+            self.purse.max_container_size(container)
+        }
+        fn selection(&self) -> u64 {
+            0
+        }
+        fn player(&self) -> u64 {
+            PLAYER
+        }
+        fn melts_to_money(&self, _: u64) -> bool {
+            true
+        }
+        fn has_item(&self, item: u64) -> bool {
+            item != self.foreign && self.purse.item(item).is_some()
+        }
+        fn is_on_inventory(&self, item: u64) -> bool {
+            item == self.worn
+        }
+    }
+    const SIDE_PACK: u64 = 0x8000_0000_0000_0020;
+    let packs = Packs {
+        purse: Purse::default(),
+        worn: 0,
+        foreign: 0,
+    };
+    let Some((mut hud, backpack, mut bag)) = setup(&packs.purse) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let bag_element = find(tree, "MoneyBag").unwrap();
+    let potions = slot_copy(&backpack, 0);
+    tree.el_mut(potions).attributes.insert(
+        tokenize("FromID"),
+        crate::layout::AttributeValue::InstanceId(SIDE_PACK),
+    );
+    let mut dialogs = DialogFactory::new(None);
+    let mut drop = |tree: &mut UiTree, packs: &Packs| {
+        bag.message(
+            tree,
+            packs,
+            &Strings,
+            &mut dialogs,
+            &bag_drop(bag_element, potions),
+            false,
+        )
+    };
+    assert_eq!(
+        drop(tree, &packs),
+        Some(ItemRequest::DragToMoneyBag {
+            item: POTIONS,
+            quantity: 5,
+            from_slot: 0,
+            from_container: SIDE_PACK,
+        }),
+        "a side pack's item is taken"
+    );
+    let worn = Packs {
+        worn: POTIONS,
+        ..packs
+    };
+    assert_eq!(drop(tree, &worn), None, "a worn item is not");
+    let foreign = Packs {
+        worn: 0,
+        foreign: POTIONS,
+        ..worn
+    };
+    assert_eq!(
+        drop(tree, &foreign),
+        None,
+        "nor one the player does not have"
+    );
+}

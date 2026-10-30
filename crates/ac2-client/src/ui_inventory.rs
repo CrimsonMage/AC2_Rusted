@@ -118,6 +118,26 @@ impl InventorySource for ClientPlayer<'_> {
             .map_or(u32::MAX, |m| m.max(0) as u32)
     }
 
+    /// `gmCWInterface::DoIHaveItem`: the player's script, else the frame's mirror.
+    fn has_item(&self, item: u64) -> bool {
+        self.carries(item)
+    }
+
+    /// `gmCWInterface::IsOnInventory` (the worn test): the player's script, else the frame's worn
+    /// list.
+    fn is_on_inventory(&self, item: u64) -> bool {
+        use ac2_script::host::inventory_queries::InventoryQueries;
+        InventoryQueries::is_on_inventory(&mut **self.client.borrow_mut(), item).unwrap_or_else(
+            || {
+                self.frame
+                    .inventory
+                    .equipped
+                    .iter()
+                    .any(|&(_, i)| i == item)
+            },
+        )
+    }
+
     fn melts_to_money(&self, item: u64) -> bool {
         self.client.borrow().melts_to_money(item)
     }

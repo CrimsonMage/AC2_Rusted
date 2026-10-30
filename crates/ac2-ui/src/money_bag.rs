@@ -109,8 +109,9 @@ impl MoneyBagUi {
         })
     }
 
-    /// `gmMoneyBagUI::HandleMoneyBagDrop`: an item from the player's pack dropped on the bag. An
-    /// equipped item, or one from elsewhere, is not taken; a melting item goes straight in; any
+    /// `gmMoneyBagUI::HandleMoneyBagDrop`: an item dropped on the bag. `gmMoneyBagUI_DDCB` takes
+    /// only an item (`Token_ShortcutType` 0x40000002) the player has (`DoIHaveItem`: a pack's,
+    /// side packs too) that is not worn (`IsOnInventory`); a melting item goes straight in; any
     /// other stack asks how many, then the confirmation asks (or the melt goes at once).
     #[allow(clippy::too_many_arguments)]
     fn handle_drop(
@@ -123,7 +124,13 @@ impl MoneyBagUi {
         shift: bool,
     ) -> Option<ItemRequest> {
         let dragged = dragged_item(tree, copy)?;
-        if dragged.from != s.player() || dragged.equipped {
+        // The copy's `Equipped` flag (a paper doll slot's item) is the worn state as the UI
+        // knows it.
+        if !is_item_copy(tree, copy)
+            || !s.has_item(dragged.item)
+            || s.is_on_inventory(dragged.item)
+            || dragged.equipped
+        {
             return None;
         }
         let slot = s.item(dragged.item)?;
