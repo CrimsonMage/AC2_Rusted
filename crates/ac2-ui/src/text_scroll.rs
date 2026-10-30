@@ -81,7 +81,7 @@ impl UiTree {
     }
 
     /// `UIElement_Text::UpdateScrollbar` (admin 0x005EE550; `UIElement_Text::Initialized` runs it at
-    /// creation, which this does not) for the vertical bar: with the bar's
+    /// creation, [`UiTree::initialized`]) for the vertical bar: with the bar's
     /// layout held (`allow_updating`) and the bar enabled, its widget size is the element's share
     /// of the paper (at most one) and its position the view's share of the scrollable range; the
     /// layout then runs, and the bar is disabled when the paper fits the element (so a

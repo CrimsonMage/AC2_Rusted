@@ -228,6 +228,11 @@ impl UiTree {
                     _ => return,
                 }
                 text.dirty = true;
+                // `SetAtrb_CenterVertically`: `KeepInBounds`, then the bars follow.
+                if id == TEXT_CENTER_VERTICALLY {
+                    self.text_paper_height(index);
+                    self.text_update_scrollbar(index);
+                }
             }
             _ => {}
         }

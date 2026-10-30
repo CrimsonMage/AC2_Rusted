@@ -464,6 +464,8 @@ impl UiTree {
         self.set_bool(index, ROOT_MOVER, true);
         self.update_size_and_position(index);
         self.add_root(index);
+        // `UIElementManager::CreateRootElementByDataID`: the root's `Initialized`.
+        self.initialized(index);
         // A window the player left somewhere else opens there (`window_positions`).
         self.apply_saved_position(index);
         Some(index)
@@ -584,12 +586,27 @@ impl UiTree {
         self.set_state(index, default_state);
         self.update_count += 1;
         self.update_internal(index);
+        // `UIElementManager::CreateElement`: each child's `Initialized` once all exist.
+        for child in self.el(index).children.clone() {
+            if self.get(child).is_some() {
+                self.initialized(child);
+            }
+        }
         self.set_visible(index, true);
         // `UIElement_Menu::Initialized`, once the menu's children exist.
         if self.is_menu(index) {
             self.menu_initialize(index);
         }
         Some(index)
+    }
+
+    /// `UIElement::Initialized` (vtable +0x74): a text sets up its scroll bar
+    /// (`UIElement_Text::Initialized`: `UpdateScrollbar`, so a bar starts disabled while the
+    /// text fits). The menu's and the panels' are run where their children are made.
+    pub(crate) fn initialized(&mut self, index: usize) {
+        if self.el(index).text.is_some() {
+            self.text_update_scrollbar(index);
+        }
     }
 
     /// `UIElement::SetVisible` (`UIRegion::SetVisible`).

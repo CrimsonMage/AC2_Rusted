@@ -475,3 +475,36 @@ fn a_no_ime_field_keeps_the_input_method_off() {
     assert!(tree.text_mode(), "it still takes typing");
     assert!(!tree.ime_allowed());
 }
+
+/// `UIElement_Text::Initialized` on the real HUD (`AC2_DAT_DIR`): once built, each text that
+/// names a vertical scroll bar and fits its element (an empty log, an empty entry) has set
+/// that bar up, disabled.
+#[test]
+fn each_fitting_text_starts_with_its_bar_disabled() {
+    let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+        return;
+    };
+    let store = Arc::new(ac2_db::ResourceStore::new(dataset));
+    let hud = crate::build_gameplay_hud(&store, 1024, 768).unwrap();
+    let tree = &hud.tree;
+    let mut checked = 0;
+    for index in 0..tree.slots.len() {
+        let Some(el) = tree.get(index) else { continue };
+        let Some(text) = el.text.as_ref() else {
+            continue;
+        };
+        let Some(bar) = tree.text_scrollbar(index) else {
+            continue;
+        };
+        if !text.glyphs.is_empty() {
+            continue;
+        }
+        assert!(
+            tree.bool_attribute(bar, crate::token::tokenize("disabled")),
+            "the bar of {:#x}",
+            el.id()
+        );
+        checked += 1;
+    }
+    assert!(checked > 0, "the HUD has empty texts with bars");
+}
