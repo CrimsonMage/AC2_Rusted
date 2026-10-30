@@ -223,3 +223,74 @@ fn a_dynamic_entry_carries_the_blocking_bits_it_is_set_to() {
     world.move_object(id, position(80.2, 84.0, 0.0));
     assert_eq!(world.object_blocking(id), Some((1 << 4) | (1 << 9)));
 }
+
+/// A dynamic mobile pillar at `(80.2, 84)` with the `InstanceID` `id` and blocking mask `bits`.
+fn server_creature(terrain: &mut Terrain, id: u64, bits: u64) {
+    let at = position(80.2, 84.0, 0.0);
+    terrain.insert_object(
+        StaticObject::dynamic(at, Vector::new(1.0, 1.0, 1.0), pillar(), true)
+            .with_instance_id(id)
+            .with_blocking_mask(bits),
+    );
+}
+
+const CREATURE: u64 = 0x5000_0123;
+
+fn blocked(body: &mut PhysicsBody, world: &Terrain) -> bool {
+    // A blocked mover slides around the pillar and never comes within its radius.
+    let path = walk_north(body, world, 3.0);
+    path.iter().all(|p| {
+        let (dx, dy) = (p[0] - 80.2, p[1] - 84.0);
+        (dx * dx + dy * dy).sqrt() >= 0.85
+    })
+}
+
+#[test]
+fn an_object_on_the_movers_temporary_ethereal_list_is_passed_through() {
+    // `CollisionParameters::CheckIfSolid`: the temporary ethereal list (`AddToTempEtherealList`)
+    // makes an object that would block the mover passable.
+    let mut world = flat();
+    server_creature(&mut world, CREATURE, 0);
+    assert!(blocked(&mut walker(80.0, 80.0), &world));
+    let mut body = walker(80.0, 80.0);
+    assert!(body.add_to_temp_ethereal_list(CREATURE));
+    assert!(!blocked(&mut body, &world));
+}
+
+#[test]
+fn the_solid_and_ethereal_lists_name_the_object_by_its_instance_id() {
+    let mut world = flat();
+    server_creature(&mut world, CREATURE, 1 << 4);
+    // The mover is ethereal to the object's type: it passes, unless the object is listed solid.
+    let ethereal_to_type = |body: &mut PhysicsBody| {
+        body.collision_mut().update_movement(4, true, |_| true);
+    };
+    let mut passes = walker(80.0, 80.0);
+    ethereal_to_type(&mut passes);
+    assert!(!blocked(&mut passes, &world));
+    let mut solid = walker(80.0, 80.0);
+    ethereal_to_type(&mut solid);
+    let mut list = crate::WeenieTypes::empty();
+    list.add_to_solid_list(CREATURE);
+    let mut info = crate::CollisionParameters::default();
+    info.set_weenie_movement_type(&list);
+    solid.collision_mut().merge_set_state(&info);
+    assert!(blocked(&mut solid, &world));
+    // An unrelated id in the list changes nothing (the slot index is not the id).
+    let mut other = walker(80.0, 80.0);
+    ethereal_to_type(&mut other);
+    let mut list = crate::WeenieTypes::empty();
+    list.add_to_solid_list(CREATURE + 1);
+    let mut info = crate::CollisionParameters::default();
+    info.set_weenie_movement_type(&list);
+    other.collision_mut().merge_set_state(&info);
+    assert!(!blocked(&mut other, &world));
+    // Without the shared type the object blocks unless its id is on the ethereal list.
+    let mut listed = walker(80.0, 80.0);
+    let mut ethereal = crate::WeenieTypes::empty();
+    ethereal.add_to_ethereal_list(CREATURE);
+    let mut info = crate::CollisionParameters::default();
+    info.set_weenie_movement_type(&ethereal);
+    listed.collision_mut().merge_set_state(&info);
+    assert!(!blocked(&mut listed, &world));
+}

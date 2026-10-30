@@ -365,6 +365,13 @@ game rules and server-visible behaviour exactly retail.
   the two jittered against each other by up to a third of a metre, and a turn reached the camera a
   quantum late. Here the camera updates every frame in every mode against the drawn position
   (`Client::update_camera`, `Player::drawn_camera_subject`).
+- Exception: a body's environment collision response does not wait for a collision manager. Retail's
+  `CPhysicsObj::handle_all_collisions` returns at once for an object that has no
+  `m_pCollisionManager`, which only `CPhysicsObj::SetCollisionState` makes, so such an object never
+  reflects its velocity off a wall or tracks its stationary-fall frames. The client runs that
+  response (`PhysicsObj::handle_all_collisions`) for every body, so an object no script gave a
+  collision state still stops, slides and bounces; the object-table, collide-mask and
+  other-object parts that need the manager (`has_collision_manager`) are gated as retail does.
 - Exception: the player turns responsively. Retail stepped turns in 0.1 s physics quanta and drew
   the body slerped from the previous quantum to the current one, so a turn key showed up to two
   quanta late; and the DAT's air element has no turn acceleration (`MotionValues` 0x40000002), so

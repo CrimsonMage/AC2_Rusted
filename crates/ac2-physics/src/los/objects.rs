@@ -5,6 +5,7 @@
 
 use super::{LosParameters, LosTrace, Ray, RayIntersection};
 use crate::cells::ObjCell;
+use crate::collision_types::is_blocking;
 use crate::fpu::{epsilon_squared, ld, st, F_EPSILON};
 use crate::landdefs::get_block_offset;
 use crate::objects::{StaticObject, HAS_PHYSICS_BSP_PS};
@@ -39,12 +40,21 @@ impl<'a> LosTrace<'a> {
     }
 }
 
-/// `CPhysicsObj::CheckRayIntersect` for a static object (`IsLOSBlocking`: static objects carry
-/// no blocking mask or weenie lists here, so they always block). With the physics
+/// `CPhysicsObj::CheckRayIntersect` for an object in the cell's shadow list (the static ones and
+/// the server objects, both `StaticObject`s; `IsLOSBlocking` first, against the ray's sets). With the physics
 /// representation, an object without spheres or cylinders traces its part BSPs over the ray
 /// shortened to `delta`; otherwise the nearest sphere (or, without spheres, cylinder) in the
 /// object's unscaled frame sets `delta` and the impact normal `-dir`.
 fn check_ray_intersect(object: &StaticObject, params: &mut LosParameters) -> u32 {
+    // `CPhysicsObj::IsLOSBlocking` -> `IsBlocking(m_weenie_LOS, m_physics_LOS)`.
+    if !is_blocking(
+        &params.weenie_los,
+        params.physics_los,
+        object.instance_id.unwrap_or(0),
+        object.blocking,
+    ) {
+        return 0;
+    }
     if params.intersect != RayIntersection::PhysicsRep {
         // `UseExactDrawingRep` traces the drawn parts (`CPhysicsObj::TraceRay`), not ported.
         return 0;

@@ -523,3 +523,163 @@ fn a_changed_ignore_flag_marks_a_reported_entry() {
     m.touch(OBJECT_ID, false, false);
     assert_eq!(m.entry_ignore(OBJECT_ID), Some((false, true)));
 }
+
+#[test]
+fn a_removed_object_ends_at_the_next_report_and_is_dropped() {
+    // `CCollisionManager::RemoveObjectCollision` marks the entry (`m_remove_now`); the report
+    // then ends it if it began, and erases it without waiting for the second.
+    let mut m = manager();
+    assert!(m.is_empty());
+    m.begin_check(10.0);
+    m.touch(OBJECT_ID, false, false);
+    assert!(!m.is_empty());
+    let first = m.report(10.0, no_contact(), &ContactMaterials::default(), plain());
+    assert_eq!(first.objects.len(), 1);
+    assert!(!m.remove_object(OBJECT_ID));
+    let second = m.report(10.1, no_contact(), &ContactMaterials::default(), plain());
+    assert_eq!(second.objects.len(), 1);
+    assert_eq!(second.objects[0].id, OBJECT_ID);
+    assert_eq!(second.objects[0].state, RecordState::End);
+    assert_eq!(second.dropped, vec![OBJECT_ID]);
+    assert!(m.is_empty());
+    // An object that never began just goes.
+    m.touch(OBJECT_ID + 1, false, false);
+    m.remove_object(OBJECT_ID + 1);
+    let third = m.report(
+        10.2,
+        no_contact(),
+        &ContactMaterials::default(),
+        ReportFlags {
+            active: false,
+            ..plain()
+        },
+    );
+    assert!(third.objects.is_empty());
+    assert_eq!(third.dropped, vec![OBJECT_ID + 1]);
+}
+
+#[test]
+fn a_body_that_does_not_report_collisions_begins_nothing_until_it_does() {
+    // `ICPhysicsObj` slot 0x248 is `reports_collisions`: `m_state & REPORT_COLLISIONS_PS`;
+    // `CPhysicsObj::set_report_collisions` flips it and reports.
+    let mut mover = walker(80.0, 80.0);
+    mover.set_instance_id(7);
+    let mut body = managed(OBJECT_ID, 82.0, 80.0);
+    body.set_time(0.5);
+    body.set_physics_state(body.physics_state() & !0x4);
+    assert!(!body.reports_collisions());
+    body.touched_by(&mover.conflict_peer(), false, None);
+    let none = ContactMaterials::default();
+    assert!(body.report_collisions(&none, false).is_none());
+    // Turning reporting on sets the bit and runs a plain report: the object begins.
+    let begun = body.set_report_collisions(true, &none).expect("it begins");
+    assert!(body.reports_collisions());
+    assert_eq!(objects_of(&begun), vec![(7, true)]);
+    // Already reporting: nothing to do.
+    assert!(body.set_report_collisions(true, &none).is_none());
+    // Turning it off ends what was reported and clears the bit.
+    let ended = body.set_report_collisions(false, &none).expect("it ends");
+    assert!(!body.reports_collisions());
+    assert_eq!(objects_of(&ended), vec![(7, false)]);
+}
+
+/// A server object's body, with a collision manager (a script gave it a collision state).
+fn managed(id: u64, x: f32, y: f32) -> PhysicsBody {
+    let mut body = walker(x, y);
+    body.set_instance_id(id);
+    body.set_collision_state(&crate::CollisionParameters::default(), &|_| None);
+    body
+}
+
+#[test]
+fn a_mover_with_a_collision_state_hands_the_objects_it_hit_to_its_owner() {
+    let mut world = flat();
+    let at = position(80.2, 84.0, 0.0);
+    world.insert_object(
+        StaticObject::dynamic(at, Vector::new(1.0, 1.0, 1.0), pillar(), true)
+            .with_instance_id(OBJECT_ID),
+    );
+    let walk = |body: &mut PhysicsBody| {
+        let mats = ContactMaterials::default();
+        let mut now = 0.0;
+        for _ in 0..5 {
+            now += PHYSICS_QUANTUM as f64;
+            step(body, &world, now, &mats);
+        }
+        body.set_input(MovementInput {
+            motion: [0.0, 1.0, 0.0],
+            heading: Some(0.0),
+            turn: 0.0,
+        });
+        let mut hit = Vec::new();
+        for _ in 0..(3.0 / PHYSICS_QUANTUM).round() as usize {
+            now += PHYSICS_QUANTUM as f64;
+            step(body, &world, now, &mats);
+            hit.extend(body.take_collided());
+        }
+        hit
+    };
+    // Without a manager `handle_all_collisions` returns before it tells anyone.
+    assert!(walk(&mut walker(80.0, 80.0)).is_empty());
+    let hit = walk(&mut managed(7, 80.0, 80.0));
+    assert!(hit.iter().any(|c| c.id == OBJECT_ID), "{hit:?}");
+    assert!(
+        hit.iter().any(|c| c.id == OBJECT_ID && c.impact.is_some()),
+        "the last object that stopped the mover carries the contact normal"
+    );
+}
+
+#[test]
+fn the_object_that_was_hit_hears_of_the_mover() {
+    let mover = managed(7, 80.0, 80.0);
+    let mut hit = managed(OBJECT_ID, 82.0, 80.0);
+    hit.set_time(0.5);
+    let peer = mover.conflict_peer();
+    hit.touched_by(&peer, false, None);
+    let report = hit
+        .report_collisions(&ContactMaterials::default(), false)
+        .expect("the touch begins");
+    assert_eq!(report.objects.len(), 1);
+    assert_eq!(report.objects[0].id, 7);
+    assert_eq!(report.objects[0].state, RecordState::Begin);
+    // A body no script gave a collision state has no manager to hear it.
+    let mut bare = walker(82.0, 80.0);
+    bare.set_time(0.5);
+    bare.touched_by(&peer, false, None);
+    assert!(bare.collisions_empty());
+    // The mover's removal ends the record at the next report, and the report drops it.
+    assert!(hit.collision_remove_object(7));
+    assert!(!bare.collision_remove_object(7));
+    hit.set_time(0.6);
+    let end = hit
+        .report_collisions(&ContactMaterials::default(), false)
+        .expect("the removal ends the record");
+    assert_eq!(end.objects[0].state, RecordState::End);
+    assert_eq!(hit.take_dropped(), vec![7]);
+    assert!(hit.collisions_empty());
+}
+
+#[test]
+fn the_movement_set_becomes_the_collide_mask_at_the_end_of_a_pass() {
+    use crate::{CollisionParameters, PhysicsTypeMask};
+    let world = flat();
+    let mut body = walker(80.0, 80.0);
+    // No manager: nothing to update.
+    assert!(!body.update_collide_physics_mask(PhysicsTypeMask::from_bits(0b110)));
+    let mut info = CollisionParameters::default();
+    info.set_physics_movement_type(PhysicsTypeMask::from_bits(0b001));
+    body.set_collision_state(&info, &|_| None);
+    assert!(body.collision_state_ptr().is_some());
+    // The current mask shares no type with `0b110`, so it gains the lowest one.
+    assert!(body.update_collide_physics_mask(PhysicsTypeMask::from_bits(0b110)));
+    // A pass starts the current mask over as the desired one and ends with the movement set
+    // equal to it.
+    step(
+        &mut body,
+        &world,
+        PHYSICS_QUANTUM as f64,
+        &ContactMaterials::default(),
+    );
+    assert_eq!(body.collision_mut().movement_physics().bits(), 0b001);
+    assert!(body.collision_mut().has_movement_physics());
+}

@@ -175,6 +175,18 @@ pub(crate) struct PhysicsObj {
     pub(crate) target_id: u64,
     /// `CCollisionManager::m_desired_physics_mask`: the movement physics mask `SetCollisionState` last named.
     pub(crate) desired_collision_mask: crate::collision_types::PhysicsTypeMask,
+    /// `CCollisionManager::m_current_collide_mask`: starts each collision pass as the desired
+    /// mask and is what the movement set becomes at its end (`handle_all_collisions`).
+    pub(crate) current_collide_mask: crate::collision_types::PhysicsTypeMask,
+    /// `m_pCollisionManager != 0`: only `CPhysicsObj::SetCollisionState` makes the manager, so a
+    /// body no script gave a collision state has none.
+    pub(crate) has_collision_manager: bool,
+    /// The server objects (by `InstanceID`) the last transition collided with, and the one of
+    /// them that was `last_collided_object`, for the owner to tell their bodies
+    /// (`handle_all_collisions`'s second halves). Taken by `PhysicsBody::take_collided`.
+    pub(crate) collided: Vec<crate::collision_report::Collided>,
+    /// The objects the reports erased from the touched table, for the owner to tell.
+    pub(crate) dropped: Vec<u64>,
     /// `CPhysicsObj::m_id`.
     pub(crate) instance_id: u64,
     /// `m_posDrawing` while the body has a parent (`HasParent`), set by the owner of the child graph.
@@ -250,6 +262,10 @@ impl PhysicsObj {
             parent_drawing_position: None,
             part_group: None,
             desired_collision_mask: crate::collision_types::PhysicsTypeMask::default(),
+            current_collide_mask: crate::collision_types::PhysicsTypeMask::default(),
+            has_collision_manager: false,
+            collided: Vec::new(),
+            dropped: Vec::new(),
             instance_id: 0,
             look: LookAtManager::default(),
             look_at_selection: true,

@@ -6,7 +6,7 @@ use std::sync::Arc;
 use ac2_anim::Ac2AnimEvent;
 use ac2_world::Ac2MotionInterpDesc;
 
-use crate::collision_report::{CollisionReport, ContactMaterials};
+use crate::collision_report::{Collided, CollisionReport, ContactMaterials};
 use crate::fpu::{ld, st};
 use crate::heading::Heading;
 use crate::motion_interp::MotionInterp;
@@ -723,19 +723,116 @@ impl PhysicsBody {
         let flags = crate::collision_report::ReportFlags {
             end_reporting,
             end_all,
-            active: true,
+            // `ICPhysicsObj` slot `0x248` is `CPhysicsObj::reports_collisions`: a body that does not
+            // report begins nothing.
+            active: self.reports_collisions(),
         };
         let now = self.object.cur_time;
-        let report = self
+        let mut report = self
             .object
             .collision_manager
             .report(now, contact, materials, flags);
+        // An object erased from the table also leaves the temporary ethereal list
+        // (`CollisionParameters::RemoveFromTempEtherealList`) and is for the owner to tell
+        // (`take_dropped`).
+        for id in std::mem::take(&mut report.dropped) {
+            self.object.collision.remove_from_temp_ethereal_list(id);
+            self.object.dropped.push(id);
+        }
         // `CCollisionManager::SetTerrainType` hands the motion terrain to the body
         // (`CPhysicsObj::SetTerrainType`), whether or not the report lists anything.
         if let Some(terrain) = self.object.collision_manager.take_terrain() {
             self.object.motion.set_terrain_type(terrain as u32);
         }
         (!report.is_empty()).then_some(report)
+    }
+
+    /// The objects the reports erased from the touched table since the last call (expired,
+    /// removed, or ended with everything). Retail tells each one's body to drop this body too
+    /// (`ICPhysicsObj` slot `0x1f8`, `CPhysicsObj::CollisionRemoveObject(this id)`): the owner
+    /// of the other bodies calls [`Self::collision_remove_object`] on them.
+    pub fn take_dropped(&mut self) -> Vec<u64> {
+        std::mem::take(&mut self.object.dropped)
+    }
+
+    /// `CPhysicsObj::set_report_collisions`: turning reporting off ends every record the body
+    /// reported (`ReportCollisions(1)`, returned) and clears `REPORT_COLLISIONS_PS`; turning it
+    /// on sets the bit and runs a plain report (`ReportCollisions(0)`). No change when the body
+    /// is already in that mode.
+    pub fn set_report_collisions(
+        &mut self,
+        on: bool,
+        materials: &ContactMaterials,
+    ) -> Option<CollisionReport> {
+        const REPORT_COLLISIONS_PS: u32 = 0x4;
+        let reporting = self.reports_collisions();
+        if on && !reporting {
+            self.object.state |= REPORT_COLLISIONS_PS;
+            return self.report(materials, false, false);
+        }
+        if !on && reporting {
+            let report = self.report(materials, true, false);
+            self.object.state &= !REPORT_COLLISIONS_PS;
+            return report;
+        }
+        None
+    }
+
+    /// The server objects the last move collided with, taken once, for the owner to tell their
+    /// bodies ([`Self::touched_by`]); empty for a body no script gave a collision state
+    /// (`handle_all_collisions` returns before it for a body without a manager).
+    pub fn take_collided(&mut self) -> Vec<Collided> {
+        let collided = std::mem::take(&mut self.object.collided);
+        if self.object.has_collision_manager {
+            collided
+        } else {
+            Vec::new()
+        }
+    }
+
+    /// `CPhysicsObj::handle_all_collisions` on the object the mover hit: the mover (`mover`,
+    /// whose `ignore_collisions` is `mover_ignores`) joins this body's touched table, and the
+    /// contact normal it recorded against this body (`impact`, from [`Collided::impact`]) is
+    /// checked against this body's vertical minimum. A body without a collision manager hears
+    /// nothing.
+    pub fn touched_by(
+        &mut self,
+        mover: &crate::ConflictPeer,
+        mover_ignores: bool,
+        impact: Option<(crate::vector::Vector, crate::vector::Vector)>,
+    ) {
+        self.object.touched_by(mover, mover_ignores, impact);
+    }
+
+    /// `CPhysicsObj::CollisionRemoveObject`: the object `id` left the world; this body's entry
+    /// for it ends at the next report. Returns whether the body has a collision manager.
+    pub fn collision_remove_object(&mut self, id: u64) -> bool {
+        self.object.collision_remove_object(id)
+    }
+
+    /// `CPhysicsObj::UpdateCollidePhysicsMask`.
+    pub fn update_collide_physics_mask(&mut self, mask: crate::PhysicsTypeMask) -> bool {
+        self.object.update_collide_physics_mask(mask)
+    }
+
+    /// Whether a script gave the body a collision state, which is what makes
+    /// `CPhysicsObj::m_pCollisionManager` (`SetCollisionState` makes it the first time).
+    pub fn has_collision_manager(&self) -> bool {
+        self.object.has_collision_manager
+    }
+
+    /// `CPhysicsObj::GetCollisionStatePtr`: the manager's current collision parameters, `None`
+    /// for a body without a manager (`m_current_info`, here the body's `collision`).
+    pub fn collision_state_ptr(&self) -> Option<&crate::collision_types::CollisionParameters> {
+        self.object
+            .has_collision_manager
+            .then_some(&self.object.collision)
+    }
+
+    /// `CCollisionManager::IsEmpty` (and `CPhysicsObj::misc_can_be_inactive`'s test): nothing is
+    /// touched. True for a body without a manager.
+    pub fn collisions_empty(&self) -> bool {
+        self.object.collision_manager.is_empty()
     }
 
     /// `CCollisionManager::AddPusherProperties`: the touched object `key` pushes the body with

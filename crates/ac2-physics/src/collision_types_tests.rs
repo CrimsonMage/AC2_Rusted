@@ -219,3 +219,51 @@ fn the_current_physics_mask_gains_the_desired_types() {
     params.update_current_physics_mask(PhysicsTypeMask::from_bits(0b110));
     assert_eq!(params.movement_physics.bits(), 0b111);
 }
+
+#[test]
+fn update_ethereality_adds_the_lowest_missing_type_only() {
+    let mut mask = PhysicsTypeMask::from_bits(0b0001);
+    assert!(mask.update_ethereality(PhysicsTypeMask::from_bits(0b1101)));
+    assert_eq!(mask.bits(), 0b0101);
+    assert!(mask.update_ethereality(PhysicsTypeMask::from_bits(0b1101)));
+    assert_eq!(mask.bits(), 0b1101);
+    // Nothing missing: unchanged.
+    assert!(mask.update_ethereality(PhysicsTypeMask::from_bits(0b0100)));
+    assert_eq!(mask.bits(), 0b1101);
+    let mut high = PhysicsTypeMask::default();
+    high.update_ethereality(PhysicsTypeMask::from_bits(1 << 63));
+    assert_eq!(high.bits(), 1 << 63);
+}
+
+#[test]
+fn the_camera_ethereal_mask_holds_only_the_camera_type() {
+    let mut mask = PhysicsTypeMask::from_bits(u64::MAX);
+    mask.set_camera_ethereal(5, |bit| bit == 5);
+    assert_eq!(mask.bits(), 1 << 5);
+    // A property the table does not know leaves the mask empty.
+    mask.set_camera_ethereal(5, |_| false);
+    assert_eq!(mask.bits(), 0);
+}
+
+#[test]
+fn the_water_layer_bit_ends_cleared() {
+    let mut mask = PhysicsTypeMask::from_bits(1 << 7);
+    mask.set_ethereal_to_water_layer(true, 7, |_| true);
+    assert_eq!(mask.bits(), 0);
+    let mut open = PhysicsTypeMask::default();
+    open.set_ethereal_to_water_layer(false, 7, |_| true);
+    assert_eq!(open.bits(), 0);
+}
+
+#[test]
+fn a_weenie_set_needs_a_line_of_sight_check_unless_empty() {
+    let mut types = WeenieTypes::empty();
+    assert!(!types.need_los_check());
+    types.add_to_ethereal_list(9);
+    assert!(!types.need_los_check());
+    types.add_to_solid_list(9);
+    assert!(types.need_los_check());
+    let mut solid = WeenieTypes::empty();
+    solid.set_to_solid();
+    assert!(solid.need_los_check());
+}

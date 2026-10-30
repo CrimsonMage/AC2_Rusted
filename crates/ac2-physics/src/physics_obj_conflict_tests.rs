@@ -96,3 +96,18 @@ fn update_conflict_list_checks_every_touched_object() {
         assert_eq!(effects.len(), 1);
     });
 }
+
+#[test]
+fn a_collision_state_with_a_physics_type_sets_the_blocking_mask() {
+    // `CCollisionManager::SetCollisionState` -> `CPhysicsObj::SetPhysicsCollideMask`.
+    let mut body = body_at(70.0, 70.0, 50.0);
+    assert_eq!(body.blocking_bits(), 0);
+    let mut info = CollisionParameters::default();
+    info.set_physics_type(PhysicsTypeMask::from_bits(0b1010));
+    body.set_collision_state(&info, &|_| None);
+    assert_eq!(body.blocking_bits(), 0b1010);
+    assert!(body.has_collision_manager());
+    // A state that does not name the physics type leaves it alone.
+    body.set_collision_state(&CollisionParameters::default(), &|_| None);
+    assert_eq!(body.blocking_bits(), 0b1010);
+}

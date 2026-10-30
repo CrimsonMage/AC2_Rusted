@@ -334,12 +334,20 @@ impl StaticObject {
         self.state & MOBILE_PS != 0
     }
 
-    /// `CPhysicsObj::IsBlocking` for this object against the mover's sets (`collision`, the
-    /// placement or the movement set): the object is ethereal to the mover when its ETHEREAL
+    /// `CPhysicsObj::Interpermiable` as the transition asks it (`CheckIfSolid` against the
+    /// mover's placement or movement set): the object is ethereal to the mover when its ETHEREAL
     /// state is set (an FX object, `FXManager::DoCreateObjectFX`), or when the mover is not
-    /// blocked by its blocking mask (`CollisionParameters::blocks`).
-    fn is_ethereal_to(&self, id: u32, collision: &CollisionParameters, placement: bool) -> bool {
-        self.ethereal || !collision.blocks(u64::from(id), self.blocking, placement)
+    /// blocked by it (`CollisionParameters::blocks`, with the object's `InstanceID` for the
+    /// solid and ethereal lists), or when the mover has it on its temporary ethereal list
+    /// (`CPhysicsObj::AddToTempEtherealList`, put there when the two stopped being passable).
+    fn is_ethereal_to(&self, collision: &CollisionParameters, placement: bool) -> bool {
+        if self.ethereal {
+            return true;
+        }
+        let id = self.instance_id.unwrap_or(0);
+        let solid = collision.blocks(id, self.blocking, placement)
+            && !(id != 0 && collision.in_temp_ethereal_list(id));
+        !solid
     }
 
     /// `CPhysicsObj::CanCollide`: the mover at `check` (containment `mover`) is within the
@@ -408,12 +416,11 @@ impl Transition {
             return TransitionState::Ok;
         }
         // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
-        // `CPhysicsObj::IsBlocking` against the mover's sets: an object the mover is not blocked by
         // is ethereal to it (`StaticObject::is_ethereal_to`, which also reads the ETHEREAL state).
         // Outside a placement the transition passes through it; a placement keeps the overlap test
         // with the obstruction marked ethereal.
         let placement = self.sphere_path.placement_ethereal;
-        let ethereal = object.is_ethereal_to(id, &self.collision, placement);
+        let ethereal = object.is_ethereal_to(&self.collision, placement);
         if ethereal && !placement {
             return TransitionState::Ok;
         }
@@ -449,7 +456,8 @@ impl Transition {
             }
         }
         if ts != TransitionState::Ok && !self.sphere_path.step_down {
-            self.collision_info.add_object(id);
+            self.collision_info
+                .add_object(id, self.sphere_path.obstruction_ethereal);
         }
         ts
     }

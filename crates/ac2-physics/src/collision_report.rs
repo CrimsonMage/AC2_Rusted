@@ -67,6 +67,18 @@ pub struct ContactMaterials {
     pub environment: Option<Arc<PhysicsMaterial>>,
 }
 
+/// A server object a transition stopped on, for the owner to tell that object's body
+/// (`CPhysicsObj::handle_all_collisions` adds the mover to the other object's collision manager
+/// too, and records the contact normal there for the last object that stopped it).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Collided {
+    /// The object's `InstanceID`.
+    pub id: InstanceId,
+    /// For the transition's `last_collided_object` when it recorded a collision normal: the
+    /// normal and the mover's velocity before the response (`SetCollisionNormal`'s arguments).
+    pub impact: Option<(crate::vector::Vector, crate::vector::Vector)>,
+}
+
 /// What one collision report lists.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct CollisionReport {
@@ -82,6 +94,10 @@ pub struct CollisionReport {
     pub surface: Vec<CollideProperty>,
     /// The water properties (`m_water_properties`).
     pub water: Vec<CollideProperty>,
+    /// The objects the report erased from the table (expired, removed or ended with
+    /// everything). A body takes them out of the report (`PhysicsBody::take_dropped`), so a report it hands out has none; they are
+    /// not part of what the script hears (`CollisionProfile::NonEmpty` ignores them).
+    pub dropped: Vec<InstanceId>,
 }
 
 impl CollisionReport {
@@ -105,10 +121,14 @@ pub(crate) struct BodyContact {
     pub in_environment: bool,
 }
 
-/// One entry in the touched-object table (`ObjCollisionType`).
+/// One entry in the touched-object table (`ObjCollisionType`: `ObjCollisionType::GetID` is `id`,
+/// `SetAsBeginCollide` and `SetAsEndCollide` are the [`RecordState`] a report lists it with).
 #[derive(Debug, Clone, Copy, PartialEq)]
 struct TouchedObject {
     id: InstanceId,
+    /// `m_remove_now`: the object left the world (`CCollisionManager::RemoveObjectCollision`);
+    /// the next report ends and erases the entry.
+    remove_now: bool,
     ethereal: bool,
     /// `m_touched_time`: the check time of the last touch.
     touched: f64,
@@ -287,6 +307,7 @@ impl CollisionManager {
             }
             None => self.objects.push(TouchedObject {
                 id,
+                remove_now: false,
                 ethereal,
                 touched: now,
                 reported: false,
@@ -294,6 +315,23 @@ impl CollisionManager {
                 ignore_changed: false,
             }),
         }
+    }
+
+    /// `CCollisionManager::IsEmpty`: nothing is touched. (The per-object property table is not
+    /// held, so the object table alone decides.)
+    pub(crate) fn is_empty(&self) -> bool {
+        self.objects.is_empty()
+    }
+
+    /// `CCollisionManager::RemoveObjectCollision`: the object `id` left the world; its entry is
+    /// marked (`m_remove_now`) and the next report ends it if it was reported, then erases it.
+    /// Returns whether the profile this fills is non-empty: only the object's property list
+    /// puts anything in it, and that list is not held, so never.
+    pub(crate) fn remove_object(&mut self, id: InstanceId) -> bool {
+        if let Some(entry) = self.objects.iter_mut().find(|o| o.id == id) {
+            entry.remove_now = true;
+        }
+        false
     }
 
     /// The ids of the touched objects (`m_collision_table`), in table order.
@@ -402,14 +440,15 @@ impl CollisionManager {
     }
 
     /// The object table part of `ReportCollision`: an object that expired (untouched for over a
-    /// second in a check after its touch), or that the report ends, is ended if reported and
-    /// dropped when it expired or the report ends everything; an unreported object begins.
+    /// second in a check after its touch), that was removed, or that the report ends, is ended
+    /// if reported and dropped when it expired, was removed or the report ends everything; an
+    /// unreported object begins.
     fn report_objects(&mut self, now: f64, flags: ReportFlags, out: &mut CollisionReport) {
         let check = self.check_time;
         self.objects.retain_mut(|entry| {
             let stale = now - entry.touched > TOUCH_EXPIRY_SECONDS;
             let expired = stale && entry.touched != check;
-            if expired || flags.end_reporting || flags.end_all {
+            if expired || entry.remove_now || flags.end_reporting || flags.end_all {
                 if entry.reported {
                     out.objects.push(ObjectRecord {
                         id: entry.id,
@@ -418,8 +457,12 @@ impl CollisionManager {
                     });
                     entry.reported = false;
                 }
-                // Dropped at once when it expired or the report ends everything.
-                return !(expired || flags.end_all);
+                // Dropped at once when it expired, was removed or the report ends everything.
+                if expired || entry.remove_now || flags.end_all {
+                    out.dropped.push(entry.id);
+                    return false;
+                }
+                return true;
             }
             if !entry.reported && flags.active {
                 out.objects.push(ObjectRecord {

@@ -118,7 +118,7 @@ pub use children::{
 pub use collide_property::{CollideProperty, CollideType, PropertyDescs, TERRAIN_TYPE_PROPERTY};
 pub use collision_impact::ImpactReport;
 pub use collision_report::{
-    CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, RecordState,
+    Collided, CollisionReport, ContactMaterials, ContactRecord, ObjectRecord, RecordState,
 };
 pub use collision_types::{CollisionParameters, InstanceId, PhysicsTypeMask, WeenieTypes};
 pub use detection_volume::{

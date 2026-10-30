@@ -3,6 +3,33 @@
 //! `CollisionParameters` a script sets on a body (`CPhysicsObj::SetCollisionState`).
 //! `CPhysicsObj::IsBlocking` decides, for one object, whether it stops the mover.
 
+/// `CPhysicsObj::IsBlocking(wtype, ptype)` for the object `id` whose blocking mask is
+/// `object_mask`: when the masks share a type the object blocks only if the id is in the solid
+/// list; otherwise it blocks unless the id is in the ethereal list.
+pub fn is_blocking(
+    weenie: &WeenieTypes,
+    ptype: PhysicsTypeMask,
+    id: InstanceId,
+    object_mask: PhysicsTypeMask,
+) -> bool {
+    if object_mask.intersects(ptype) {
+        weenie.in_solid_list(id)
+    } else {
+        !weenie.in_ethereal_list(id)
+    }
+}
+
+/// `MasterProperty::GetPropertyDesc(name, &bit)` for a bool property: the bit
+/// `EtherealPhysicsType::SetProperty` sets. `None` for a name that has no such desc.
+pub fn ethereal_property_bit(name: u32) -> Option<u64> {
+    ac2_db::ac2_property_desc(name)
+        .filter(|desc| desc.value_type == 0x4000_0001)
+        .map(|desc| u64::from(desc.data))
+}
+
+/// The water-layer property `EtherealPhysicsType::SetEtherealToWaterLayer` names.
+pub const WATER_LAYER_PROPERTY: u32 = 0x4000_001C;
+
 /// An `InstanceID` (the 64-bit id a weenie and its lists use).
 pub type InstanceId = u64;
 
@@ -57,6 +84,38 @@ impl PhysicsTypeMask {
         self.0 = u64::from(high) << 32 | (self.0 & 0xFFFF_FFFF);
     }
 
+    /// `EtherealPhysicsType::UpdateEthereality`: the lowest type `mask` has and this lacks is
+    /// added (one type, not all). Returns 1 as retail does.
+    pub fn update_ethereality(&mut self, mask: Self) -> bool {
+        let missing = mask.0 & !self.0;
+        if missing != 0 {
+            self.0 |= missing & missing.wrapping_neg();
+        }
+        true
+    }
+
+    /// `EtherealPhysicsType::SetEtherealToWaterLayer`: an ethereal layer first sets the water
+    /// layer's bit, and the bit is then cleared in either case (`bit`, the water property's, as
+    /// `ethereal_property_bit` gives it).
+    pub fn set_ethereal_to_water_layer(
+        &mut self,
+        ethereal: bool,
+        bit: u64,
+        exists: impl Fn(u64) -> bool,
+    ) {
+        if ethereal {
+            self.set_property(bit, true, &exists);
+        }
+        self.set_property(bit, false, &exists);
+    }
+
+    /// `EtherealPhysicsType::SetCameraEthereal`: the mask empties, then the camera property's bit
+    /// is set (`exists` is `MasterProperty::GetPropertyDesc`, `camera` its bit).
+    pub fn set_camera_ethereal(&mut self, camera: u64, exists: impl Fn(u64) -> bool) {
+        self.0 = 0;
+        self.set_property(camera, true, exists);
+    }
+
     /// Whether the two masks share a bit (`IsBlocking`'s test).
     pub fn intersects(self, other: Self) -> bool {
         self.0 & other.0 != 0
@@ -86,6 +145,16 @@ impl Default for WeenieTypes {
 }
 
 impl WeenieTypes {
+    /// `EtherealWeenieType::EtherealWeenieType`: mask 0 and empty lists (the constructor
+    /// `LOSParameters` runs; `Default` goes on to `SetToSolid`, as `CollisionParameters` does).
+    pub fn empty() -> Self {
+        Self {
+            mask: 0,
+            solid: Vec::new(),
+            ethereal: Vec::new(),
+        }
+    }
+
     /// `EtherealWeenieType::m_wtype_mask`.
     pub fn mask(&self) -> u64 {
         self.mask
@@ -94,6 +163,12 @@ impl WeenieTypes {
     /// `EtherealWeenieType::SetToEthereal`: the mask empties.
     pub fn set_to_ethereal(&mut self) {
         self.mask = 0;
+    }
+
+    /// `EtherealWeenieType::NeedLOSCheck`: a line of sight must be checked against this set
+    /// unless its mask is empty and it names no solid object.
+    pub fn need_los_check(&self) -> bool {
+        self.mask != 0 || !self.solid.is_empty()
     }
 
     /// `EtherealWeenieType::SetToSolid`: the mask fills.
@@ -315,6 +390,11 @@ impl CollisionParameters {
         mask.set_property(name, set, exists)
     }
 
+    /// Whether the body's own physics type is named (`TestBitMask(0x10)`).
+    pub fn has_physics_type(&self) -> bool {
+        self.bitfield & PHYSICS_TYPE_BIT != 0
+    }
+
     /// Whether the movement physics mask is named (`TestBitMask(1)`).
     pub fn has_movement_physics(&self) -> bool {
         self.bitfield & MOVEMENT_PHYSICS_BIT != 0
@@ -421,10 +501,6 @@ impl CollisionParameters {
         } else {
             (&self.movement_weenie, self.movement_physics)
         };
-        if object_mask.intersects(ptype) {
-            weenie.in_solid_list(id)
-        } else {
-            !weenie.in_ethereal_list(id)
-        }
+        is_blocking(weenie, ptype, id, object_mask)
     }
 }

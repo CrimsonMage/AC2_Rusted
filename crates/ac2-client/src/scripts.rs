@@ -342,7 +342,41 @@ impl Client {
             .unwrap_or_default()
     }
 
-    /// `CPhysicsObj::ReportCollisions` -> `CWInterface::HandleCollision`: the object's script
+    /// What the remote bodies' collisions leave for the player's body and the scripts after a
+    /// quantum: a remote mover's touch on the player (`handle_all_collisions` adds the mover to
+    /// the other object's manager), the remotes' erased entries dropping a player entry
+    /// (`CPhysicsObj::CollisionRemoveObject`), and their reports for `collision_reported`.
+    pub(crate) fn remote_collisions(
+        &mut self,
+        reports: &mut Vec<(u64, ac2_physics::CollisionReport)>,
+    ) {
+        let player_id = self.player.as_ref().map(|p| p.id);
+        for touch in self.remotes.take_collision_touches() {
+            if let Some(body) = self
+                .player
+                .as_mut()
+                .filter(|p| Some(p.id) == player_id && p.id == touch.target)
+                .and_then(|p| p.body.as_mut())
+            {
+                body.physics
+                    .touched_by(&touch.mover, touch.ignores, touch.impact);
+            }
+        }
+        for (owner, other) in self.remotes.take_collision_drops() {
+            if let Some(body) = self
+                .player
+                .as_mut()
+                .filter(|p| p.id == other)
+                .and_then(|p| p.body.as_mut())
+            {
+                body.physics.collision_remove_object(owner);
+            }
+        }
+        reports.extend(self.remotes.take_collision_reports());
+    }
+
+    /// `CPhysicsObj::ReportCollisions` -> `CPhysicsObj::HandleCollision` ->
+    /// `CWInterface::HandleCollision`: the object's script
     /// hears the collision report (its impact, contact, objects and materials, as a
     /// `CollisionProfile`). Only an object whose script runs and owns the IFun hears it.
     pub(crate) fn collision_reported(

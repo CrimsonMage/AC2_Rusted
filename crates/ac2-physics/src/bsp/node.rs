@@ -102,6 +102,32 @@ impl BspTree {
         }
     }
 
+    /// `BSPNODE::point_intersects_solid` / `BSPLEAF::point_intersects_solid`: from `node`, a
+    /// point on or in front of a splitting plane goes down the positive child and one behind it
+    /// down the negative child (`Nx*x + Ny*y + Nz*z + d`, taken from the left); a leaf holds the
+    /// point when it has any polygon. A missing child holds nothing.
+    fn point_intersects_solid_from(&self, node: usize, point: Vector) -> bool {
+        match &self.nodes[node] {
+            Node::Leaf { polygons, .. } => !polygons.is_empty(),
+            Node::Internal {
+                plane, pos, neg, ..
+            } => {
+                let n = plane.n;
+                let dist = ((ld(n.x) * ld(point.x) + ld(n.y) * ld(point.y))
+                    + ld(n.z) * ld(point.z))
+                    + ld(plane.d);
+                let child = if 0.0 <= dist { pos } else { neg };
+                child.is_some_and(|c| self.point_intersects_solid_from(c, point))
+            }
+        }
+    }
+
+    /// `BSPNODE::point_intersects_solid` from the root: whether the point (in the mesh's space)
+    /// lies in a leaf that holds polygons.
+    pub fn point_intersects_solid(&self, point: Vector) -> bool {
+        !self.nodes.is_empty() && self.point_intersects_solid_from(0, point)
+    }
+
     /// `BSPNODE::sphere_intersects_solid` / `BSPLEAF::sphere_intersects_solid`: the sphere
     /// overlaps a polygon, or (with `center_check`) its centre lies in a solid leaf. A
     /// straddling sphere checks the centre only on the side it is on.
@@ -333,5 +359,61 @@ impl BspTree {
                 go(second, false, hit)
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::bsp::Polygon;
+
+    /// A wall at x = 2 facing +x: in front of it is open, behind it is a leaf with one polygon.
+    fn wall() -> BspTree {
+        let polygon = Polygon::new(vec![
+            Vector::new(2.0, 0.0, 0.0),
+            Vector::new(2.0, 4.0, 0.0),
+            Vector::new(2.0, 4.0, 4.0),
+            Vector::new(2.0, 0.0, 4.0),
+        ]);
+        let bounds = Sphere::new(Vector::new(2.0, 2.0, 2.0), 10.0);
+        BspTree::new(
+            vec![
+                Node::Internal {
+                    sphere: bounds,
+                    plane: Plane::new(Vector::new(1.0, 0.0, 0.0), -2.0),
+                    pos: Some(1),
+                    neg: Some(2),
+                },
+                Node::Leaf {
+                    sphere: bounds,
+                    solid: false,
+                    polygons: Vec::new(),
+                },
+                Node::Leaf {
+                    sphere: bounds,
+                    solid: true,
+                    polygons: vec![0],
+                },
+            ],
+            vec![polygon],
+        )
+    }
+
+    #[test]
+    fn a_point_behind_the_plane_is_in_the_leaf_with_polygons() {
+        let tree = wall();
+        assert!(tree.point_intersects_solid(Vector::new(1.0, 1.0, 1.0)));
+        assert!(!tree.point_intersects_solid(Vector::new(3.0, 1.0, 1.0)));
+        // On the plane counts as in front.
+        assert!(!tree.point_intersects_solid(Vector::new(2.0, 1.0, 1.0)));
+    }
+
+    #[test]
+    fn a_missing_child_holds_nothing() {
+        let mut tree = wall();
+        if let Node::Internal { neg, .. } = &mut tree.nodes[0] {
+            *neg = None;
+        }
+        assert!(!tree.point_intersects_solid(Vector::new(1.0, 1.0, 1.0)));
     }
 }

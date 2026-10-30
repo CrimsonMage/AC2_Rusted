@@ -700,6 +700,8 @@ impl Client {
             let cur_time = self.session.cur_time();
             // The player's collision reports, one per quantum, in the order they were made.
             let mut reports = Vec::new();
+            let mut remote_reports = Vec::new();
+            let player_id = self.player.as_ref().map_or(0, |p| p.id);
             for _ in 0..quanta {
                 self.track_move_to_target();
                 let player = self
@@ -709,9 +711,29 @@ impl Client {
                     .and_then(|p| p.body.as_mut());
                 if let Some(body) = player {
                     body.physics.step_quantum(&self.terrain);
+                    // `CPhysicsObj::handle_all_collisions`: each object the player hit hears of
+                    // the player too, and the contact normal when it stopped the player last.
+                    let collided = body.physics.take_collided();
+                    let peer = ac2_physics::ConflictPeer {
+                        id: player_id,
+                        ..body.physics.conflict_peer()
+                    };
+                    let ignores = body.physics.ignore_collisions();
+                    for hit in collided {
+                        if let Some(other) = self.remotes.body_mut(hit.id) {
+                            other.touched_by(&peer, ignores, hit.impact);
+                        }
+                    }
                     // `CPhysicsObj::ReportCollisions` with the materials of the body's contact.
                     let materials = body.physics.contact_materials(&self.terrain);
                     reports.extend(body.physics.report_collisions(&materials, false));
+                    // An object the report erased drops the player too
+                    // (`CPhysicsObj::CollisionRemoveObject`).
+                    for other in body.physics.take_dropped() {
+                        if let Some(other) = self.remotes.body_mut(other) {
+                            other.collision_remove_object(player_id);
+                        }
+                    }
                     // `SmartBox::PlayerPhysicsUpdatedCallback`'s camera update runs per frame
                     // instead (`smart_box`).
                 }
@@ -731,12 +753,17 @@ impl Client {
                     &others,
                 );
                 self.missile_events_taken(&missile_events);
+                self.remote_collisions(&mut remote_reports);
             }
             // `CPhysicsObj::ReportCollisions` for the player: its script hears each report.
             if let Some(id) = self.player.as_ref().map(|p| p.id) {
                 for report in reports {
                     self.collision_reported(id, report, &mut events);
                 }
+            }
+            // The same for each remote object whose script gave it a collision state.
+            for (id, report) in remote_reports {
+                self.collision_reported(id, report, &mut events);
             }
         }
         self.render_interpolation = self.physics_clock.render_interpolation(now);

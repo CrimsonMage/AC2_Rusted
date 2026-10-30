@@ -6,6 +6,7 @@ use std::sync::Arc;
 use super::objects::{trace_ray_cylsphere, trace_ray_sphere};
 use super::{LosParameters, Ray, RayIntersection};
 use crate::bsp::{BspTree, Node, Polygon};
+use crate::collision_types::{PhysicsTypeMask, WeenieTypes};
 use crate::envcell::{CellBsp, CellPortal, CellStructure, EnvCell};
 use crate::frame::Frame;
 use crate::landdefs::{lcoord_to_gid, SIDE_VERTEX_COUNT};
@@ -190,6 +191,58 @@ fn objects_block_the_physics_ray_only() {
     assert!(terrain.los_check(&mut params));
     assert_eq!(params.trace_result(), 0);
     assert!(near(params.end_point(), v(70.0, 50.0, 2.0)));
+}
+
+#[test]
+fn an_object_the_ray_is_ethereal_to_does_not_block_it() {
+    // `CPhysicsObj::IsLOSBlocking` is `IsBlocking(m_weenie_LOS, m_physics_LOS)`: a server object
+    // whose blocking type the ray's physics set shares blocks only when it is in the solid list.
+    let shape = Arc::new(ObjectShape::new(
+        Vec::new(),
+        vec![CylSphere {
+            low: Vector::ZERO,
+            height: 4.0,
+            radius: 1.0,
+        }],
+        Vec::new(),
+    ));
+    let at = v(60.0, 50.0, 0.0);
+    let trace = |weenie: &WeenieTypes, physics: PhysicsTypeMask| {
+        let mut terrain = flat();
+        terrain.insert_object(
+            StaticObject::dynamic(
+                Position::new(cell_at(at.x, at.y), Frame::new(at, Quaternion::IDENTITY)),
+                v(1.0, 1.0, 1.0),
+                Arc::clone(&shape),
+                false,
+            )
+            .with_instance_id(0x5000_0001)
+            .with_blocking_mask(0b10),
+        );
+        let mut params = LosParameters::new();
+        params.set_los_params(weenie, physics);
+        params.set_from_position_and_offset(
+            &Position::new(
+                cell_at(50.0, 50.0),
+                Frame::new(v(50.0, 50.0, 2.0), Quaternion::IDENTITY),
+            ),
+            v(20.0, 0.0, 0.0),
+        );
+        assert!(terrain.los_check(&mut params));
+        params.trace_result()
+    };
+    // The default sets name no type: the object blocks.
+    assert_eq!(trace(&WeenieTypes::empty(), PhysicsTypeMask::default()), 1);
+    // The ray is ethereal to the object's type: it passes, unless the object is listed solid.
+    let ethereal = PhysicsTypeMask::from_bits(0b10);
+    assert_eq!(trace(&WeenieTypes::empty(), ethereal), 0);
+    let mut solid = WeenieTypes::empty();
+    solid.add_to_solid_list(0x5000_0001);
+    assert_eq!(trace(&solid, ethereal), 1);
+    // A type the object does not have: it blocks unless it is on the ethereal list.
+    let mut listed = WeenieTypes::empty();
+    listed.add_to_ethereal_list(0x5000_0001);
+    assert_eq!(trace(&listed, PhysicsTypeMask::default()), 0);
 }
 
 #[test]

@@ -9,8 +9,8 @@ use std::sync::Arc;
 use ac2_core::{DataId, QualifiedDataId};
 use ac2_dat::{ArchiveCursor, DatFileKind};
 use ac2_db::{
-    read_ac2_property_groups, Ac2PropertyGroup, ResourceError, ResourcePackedDecode,
-    ResourceResult, ResourceStore, ResourceTypeId, TypedResourceRef,
+    read_ac2_property_groups, Ac2PropertyGroup, Ac2PropertyValue, ResourceError,
+    ResourcePackedDecode, ResourceResult, ResourceStore, ResourceTypeId, TypedResourceRef,
 };
 
 /// A physics material as the collision report uses it: its physics id (the DID, widened to the
@@ -24,6 +24,36 @@ pub struct PhysicsMaterial {
 }
 
 impl PhysicsMaterial {
+    /// `PhysicsMaterial::UpdateCollection` -> `PropertyCollection::UpdateCollection`: each
+    /// group of `update` merges into the group of its name (a property replaces the one of its
+    /// name or is appended); a group not yet present is appended whole.
+    pub fn update_collection(&mut self, update: &[Ac2PropertyGroup]) {
+        ac2_db::update_ac2_property_collection(&mut self.groups, update);
+    }
+
+    /// `PhysicsMaterial::UpdateProperty` -> `PropertyCollection::UpdateProperty`: the property
+    /// replaces the one of its name in `group` (the group `MasterProperty` files it under), or is
+    /// appended; a group the material lacks is made.
+    pub fn update_property(&mut self, group: u32, property: &Ac2PropertyValue) {
+        self.update_collection(&[Ac2PropertyGroup {
+            name: group,
+            properties: vec![property.clone()],
+        }]);
+    }
+
+    /// `PhysicsMaterial::GetProperty` -> `PropertyCollection::GetProperty`: the property of
+    /// `name`, looked up in the group `MasterProperty` files it under; `None` when the name has
+    /// no desc or the material holds no such property.
+    pub fn get_property(&self, name: u32) -> Option<&Ac2PropertyValue> {
+        let group = ac2_db::ac2_property_desc(name)?.group;
+        self.groups
+            .iter()
+            .find(|g| g.name == group)?
+            .properties
+            .iter()
+            .find(|p| p.name == name)
+    }
+
     /// The id with no property groups (a material the DATs do not hold).
     pub fn with_id(id: u64) -> Self {
         Self {
@@ -98,4 +128,63 @@ pub fn load_physics_material(
             groups: record.groups.clone(),
         })
     }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn int(name: u32, value: u32) -> Ac2PropertyValue {
+        Ac2PropertyValue {
+            name,
+            value_type: 0x4000_0002,
+            bytes: value.to_le_bytes().to_vec().into_boxed_slice(),
+        }
+    }
+
+    #[test]
+    fn a_property_replaces_the_one_of_its_name_or_is_appended() {
+        let mut material = PhysicsMaterial::with_id(3);
+        material.update_property(7, &int(0x10, 1));
+        material.update_property(7, &int(0x11, 2));
+        material.update_property(7, &int(0x10, 9));
+        material.update_property(8, &int(0x10, 5));
+        assert_eq!(material.groups.len(), 2);
+        assert_eq!(
+            material.groups[0].properties,
+            vec![int(0x10, 9), int(0x11, 2)]
+        );
+        assert_eq!(material.groups[1].properties, vec![int(0x10, 5)]);
+    }
+
+    #[test]
+    fn a_collection_merges_group_by_group() {
+        let mut material = PhysicsMaterial::with_id(3);
+        material.update_property(7, &int(0x10, 1));
+        material.update_collection(&[
+            Ac2PropertyGroup {
+                name: 7,
+                properties: vec![int(0x12, 4)],
+            },
+            Ac2PropertyGroup {
+                name: 9,
+                properties: vec![int(0x20, 6)],
+            },
+        ]);
+        assert_eq!(material.groups.len(), 2);
+        assert_eq!(
+            material.groups[0].properties,
+            vec![int(0x10, 1), int(0x12, 4)]
+        );
+        assert_eq!(material.groups[1].name, 9);
+    }
+
+    #[test]
+    fn a_name_without_a_desc_has_no_property() {
+        // `GetProperty` files the name under the group `MasterProperty` gives it; with no table
+        // installed, no name has a group.
+        let mut material = PhysicsMaterial::with_id(3);
+        material.update_property(7, &int(0x10, 1));
+        assert!(material.get_property(0x10).is_none());
+    }
 }

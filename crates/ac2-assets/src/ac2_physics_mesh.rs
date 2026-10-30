@@ -300,7 +300,8 @@ fn read_polygons(
     Some(out)
 }
 
-/// `BSPNODE::UnPackChild` for a `PHYSICS_BSP` tree.
+/// `BSPTREE::StreamPack` (the unpack operation) -> `BSPNODE::UnPackChild` for a `PHYSICS_BSP`
+/// tree.
 fn read_node(
     cursor: &mut ArchiveCursor<'_>,
     polygon_count: usize,

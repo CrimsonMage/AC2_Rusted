@@ -12,11 +12,12 @@ use std::sync::Arc;
 use ac2_anim::{Ac2AnimEvent, FxScripts};
 use ac2_core::Random;
 use ac2_physics::{
-    CellSource, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position, SetPositionError,
-    StaticObject, TargetOwner, Terrain, Vector,
+    CellSource, ConflictPeer, FxFollow, LookTarget, ObjectShape, PhysicsBody, Position,
+    SetPositionError, StaticObject, TargetOwner, Terrain, Vector,
 };
 use ac2_world::Ac2MotionInterpDesc;
 
+use crate::collision_traffic::Touch;
 use crate::membership::CellMembership;
 use crate::remote_membership::sync_membership;
 use crate::BodyData;
@@ -267,6 +268,8 @@ pub struct Remotes<B> {
     membership: CellMembership,
     /// The client-made objects' ids (`CObjectMaint::m_used_temporary_ids`).
     temporary_ids: crate::temporary_ids::TemporaryIds,
+    /// What the remotes' collisions left for the client to apply (see `collision_traffic`).
+    traffic: crate::collision_traffic::CollisionTraffic,
 }
 
 impl<B> Default for Remotes<B> {
@@ -282,6 +285,7 @@ impl<B> Default for Remotes<B> {
             masks: HashMap::new(),
             membership: CellMembership::new(),
             temporary_ids: Default::default(),
+            traffic: Default::default(),
         }
     }
 }
@@ -564,24 +568,83 @@ impl<B> Remotes<B> {
             coin: &mut coin,
         };
         let mut events = Vec::new();
+        let mut touches = Vec::new();
         for (&guid, remote) in self.objects.iter_mut() {
             if remote.in_world && remote.active {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);
                     body.step_quantum_in(terrain, &mut env);
-                    if body.has_missile_manager() {
-                        // `CPhysicsObj::ReportCollisions` -> `CMissileManager::HandleCollision`.
+                    // `CPhysicsObj::handle_all_collisions`: each object the body hit hears of it.
+                    let mover = ConflictPeer {
+                        id: guid,
+                        ..body.conflict_peer()
+                    };
+                    for hit in body.take_collided() {
+                        touches.push(Touch {
+                            target: hit.id,
+                            mover: mover.clone(),
+                            ignores: body.ignore_collisions(),
+                            impact: hit.impact,
+                        });
+                    }
+                    let manager = body.has_collision_manager();
+                    let missile = body.has_missile_manager();
+                    if manager || missile {
+                        // `CPhysicsObj::ReportCollisions`: the weenie hears the report
+                        // (`HandleCollision`), then `CMissileManager::HandleCollision`.
                         let materials = body.contact_materials(terrain);
                         if let Some(report) = body.report_collisions(&materials, false) {
-                            body.handle_missile_collision(terrain, &report, &impacts);
+                            if manager {
+                                self.traffic.reports.push((guid, report.clone()));
+                            }
+                            if missile {
+                                body.handle_missile_collision(terrain, &report, &impacts);
+                            }
                         }
                     }
+                    self.traffic
+                        .drops
+                        .extend(body.take_dropped().into_iter().map(|other| (guid, other)));
                     events.extend(body.take_missile_events().into_iter().map(|e| (guid, e)));
                 }
             }
             sync_shadow(guid, remote, terrain, &mut self.membership);
         }
+        // The other remotes hear of the movers; the player's body is the client's.
+        for touch in touches {
+            match self.body_mut(touch.target) {
+                Some(target) => target.touched_by(&touch.mover, touch.ignores, touch.impact),
+                None => self.traffic.touches.push(touch),
+            }
+        }
+        // A remote's erased entry drops the reporting remote too (`CollisionRemoveObject`).
+        let drops = std::mem::take(&mut self.traffic.drops);
+        for (owner, other) in drops {
+            match self.body_mut(other) {
+                Some(body) => {
+                    body.collision_remove_object(owner);
+                }
+                None => self.traffic.drops.push((owner, other)),
+            }
+        }
         events
+    }
+
+    /// The collision reports the remotes with a collision manager made since the last call, by
+    /// object, for each one's script (`CPhysicsObj::ReportCollisions` -> `HandleCollision`).
+    pub fn take_collision_reports(&mut self) -> Vec<(u64, ac2_physics::CollisionReport)> {
+        std::mem::take(&mut self.traffic.reports)
+    }
+
+    /// The touches of remote movers on bodies the remotes do not hold (the player's).
+    pub fn take_collision_touches(&mut self) -> Vec<Touch> {
+        std::mem::take(&mut self.traffic.touches)
+    }
+
+    /// `(owner, other)` pairs where `owner`'s report erased `other`, which is not a remote: the
+    /// client calls `collision_remove_object(owner)` on that body.
+    pub fn take_collision_drops(&mut self) -> Vec<(u64, u64)> {
+        std::mem::take(&mut self.traffic.drops)
     }
 
     /// `CPhysics::UpdateAllAnimation` for the objects.

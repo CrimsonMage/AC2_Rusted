@@ -14,6 +14,9 @@ mod objects;
 mod tests;
 
 use crate::cells::{CellSource, ObjCell};
+use crate::collision_types::{
+    ethereal_property_bit, PhysicsTypeMask, WeenieTypes, WATER_LAYER_PROPERTY,
+};
 use crate::fpu::{ld, st, F_EPSILON};
 use crate::landdefs::{get_block_offset, is_outside};
 use crate::position::{offset_between, Position};
@@ -120,6 +123,10 @@ pub struct LosParameters {
     pub intersect: RayIntersection,
     /// `m_bTraversePortals`.
     pub traverse_portals: bool,
+    /// `m_weenie_LOS` and `m_physics_LOS`: what blocks the ray (`CPhysicsObj::IsLOSBlocking` is
+    /// `IsBlocking` against them). Empty by default, so every object blocks.
+    pub(crate) weenie_los: WeenieTypes,
+    pub(crate) physics_los: PhysicsTypeMask,
     checked_outside: bool,
     initial_cell_id: u32,
     initial_ray: Ray,
@@ -147,6 +154,8 @@ impl LosParameters {
         Self {
             intersect: RayIntersection::PhysicsRep,
             traverse_portals: true,
+            weenie_los: WeenieTypes::empty(),
+            physics_los: PhysicsTypeMask::default(),
             checked_outside: false,
             initial_cell_id: 0,
             initial_ray: Ray::default(),
@@ -161,6 +170,21 @@ impl LosParameters {
             direction: 0,
             next_block_id: 0,
         }
+    }
+
+    /// `LOSParameters::SetLOSParams`: the weenie and physics sets that block the ray
+    /// (`EtherealWeenieType::CopyInto`).
+    pub fn set_los_params(&mut self, weenie: &WeenieTypes, physics: PhysicsTypeMask) {
+        self.weenie_los = weenie.clone();
+        self.physics_los = physics;
+    }
+
+    /// `LOSParameters::SetBlockedByWater`: the water layer is ethereal to the ray unless
+    /// `water` blocks it.
+    pub fn set_blocked_by_water(&mut self, water: bool) {
+        let bit = ethereal_property_bit(WATER_LAYER_PROPERTY).unwrap_or(u64::MAX);
+        self.physics_los
+            .set_ethereal_to_water_layer(!water, bit, |bit| bit != u64::MAX);
     }
 
     /// `LOSParameters::SetRay`: the ray, starting in `cell_id` (its block's frame).

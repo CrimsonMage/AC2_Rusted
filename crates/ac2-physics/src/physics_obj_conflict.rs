@@ -104,11 +104,70 @@ impl PhysicsObj {
         info: &CollisionParameters,
         peer: &dyn Fn(InstanceId) -> Option<ConflictPeer>,
     ) -> Vec<ConflictEffect> {
+        // `CPhysicsObj::SetCollisionState` makes the manager the first time.
+        self.has_collision_manager = true;
         self.collision.merge_set_state(info);
+        if info.has_physics_type() {
+            // `CPhysicsObj::SetPhysicsCollideMask`: the body's blocking mask (`m_blocking_mask`),
+            // which `IsBlocking` and the shadow list read.
+            self.blocking = info.physics_type();
+        }
         if info.has_movement_physics() {
             self.desired_collision_mask = info.movement_physics();
         }
         self.update_conflict_list(peer)
+    }
+
+    /// `CPhysicsObj::handle_all_collisions` on the other object: the mover joins this body's
+    /// touched table (`CCollisionManager::AddObjectCollision`, the entry ethereal when the two
+    /// pass through one another), and the contact normal the mover recorded against this body
+    /// is checked against this body's vertical minimum (`SetCollisionNormal` with the mover's
+    /// velocity). A body without a collision manager hears nothing.
+    pub(crate) fn touched_by(
+        &mut self,
+        mover: &ConflictPeer,
+        mover_ignores: bool,
+        impact: Option<(crate::vector::Vector, crate::vector::Vector)>,
+    ) {
+        if !self.has_collision_manager {
+            return;
+        }
+        let ethereal = self.interpermiable(mover);
+        self.collision_manager
+            .touch(mover.id, ethereal, mover_ignores);
+        if let Some((normal, velocity)) = impact {
+            if let Some(report) =
+                crate::collision_impact::impact(self.impact_minimums.z, normal, velocity)
+            {
+                self.collision_manager.set_impact(report);
+            }
+        }
+    }
+
+    /// `CPhysicsObj::CollisionRemoveObject`: the object `id` left the world; its entry in the
+    /// touched table ends and goes at the next report (`CCollisionManager::RemoveObjectCollision`).
+    /// Returns whether this body has a manager. The profile `RemoveObjectCollision` fills only
+    /// carries the object's property list, which is not held, so there is nothing to hand to
+    /// `HandleCollision` here.
+    pub(crate) fn collision_remove_object(&mut self, id: InstanceId) -> bool {
+        if !self.has_collision_manager {
+            return false;
+        }
+        self.collision_manager.remove_object(id);
+        true
+    }
+
+    /// `CPhysicsObj::UpdateCollidePhysicsMask` -> `CCollisionManager::UpdateCollidePhysicsMask`:
+    /// when the manager's current collide mask shares no type with `mask`, it gains the lowest
+    /// type of `mask` it lacks (`EtherealPhysicsType::UpdateEthereality`). 0 without a manager.
+    pub(crate) fn update_collide_physics_mask(&mut self, mask: PhysicsTypeMask) -> bool {
+        if !self.has_collision_manager {
+            return false;
+        }
+        if !self.current_collide_mask.intersects(mask) {
+            self.current_collide_mask.update_ethereality(mask);
+        }
+        true
     }
 
     /// `CPhysicsObj::AddToTempEtherealList`.

@@ -178,15 +178,26 @@ impl PhysicsObj {
             self.kill_velocity();
         }
         // `CCollisionManager::AddObjectCollision` for each server object the transition hit.
-        for &id in &transition.collision_info.collide_objects {
+        let info = &transition.collision_info;
+        let mut collided = Vec::new();
+        for &id in &info.collide_objects {
             if let Some((instance, ethereal)) = terrain.object_identity(id) {
                 let ignore = terrain.object_ignores_collisions(id);
                 self.collision_manager.touch(instance, ethereal, ignore);
+                // The other object's manager hears of the mover too, and of the contact normal
+                // when this object was the last one that stopped it (the owner applies it).
+                let impact = (info.collision_normal_valid && info.last_collided_object == Some(id))
+                    .then_some((info.collision_normal, self.velocity));
+                collided.push(crate::collision_report::Collided {
+                    id: instance,
+                    impact,
+                });
             }
         }
         if !found {
             return false;
         }
+        self.collided = collided;
         self.set_position_internal(&transition);
         true
     }
@@ -284,15 +295,24 @@ impl PhysicsObj {
         self.motion.leave_ground(local, &mut self.anim);
     }
 
-    /// `CPhysicsObj::handle_all_collisions` for the environment (object collisions and the
-    /// collision manager's sounds and materials are not ported): a body that left or never had
-    /// walkable ground reflects its velocity off the collision normal; falling in place stops
-    /// it, and the stationary state follows the frame count.
+    /// `CPhysicsObj::handle_all_collisions`: the manager's collide mask restarts as the desired
+    /// one and the movement set becomes it at the end; the touched server objects were added to
+    /// the manager by `transition_to` (and are handed to the owner for the other bodies,
+    /// `PhysicsBody::take_collided`); a contact above the vertical minimum records its impact;
+    /// a body that left or never had walkable ground reflects its velocity off the collision
+    /// normal; falling in place stops it, and the stationary state follows the frame count.
+    /// Retail returns at once for a body with no collision manager (one no script ever gave a
+    /// collision state); this port runs the environment response for every body.
     pub(crate) fn handle_all_collisions(
         &mut self,
         collisions: &CollisionInfo,
         prev_on_walkable: bool,
     ) {
+        if self.has_collision_manager {
+            // `m_current_collide_mask = m_desired_physics_mask`; the movement set becomes it at
+            // the end of the pass.
+            self.current_collide_mask = self.desired_collision_mask;
+        }
         // `CCollisionManager::SetCollisionNormal` with the velocity before the response: a
         // contact above the vertical minimum records its impact speed.
         if collisions.collision_normal_valid {
@@ -327,6 +347,11 @@ impl PhysicsObj {
             }
         } else {
             self.velocity = Vector::ZERO;
+        }
+        if self.has_collision_manager {
+            // `m_current_info.m_movement_physics = m_current_collide_mask`, then `SetBit(1)`.
+            *self.collision.movement_physics_mut() = self.current_collide_mask;
+            self.collision.set_bit(1);
         }
         let stationary = STATIONARY_FALL_TS | STATIONARY_STOP_TS | STATIONARY_STUCK_TS;
         match frames {

@@ -12,6 +12,7 @@ pub mod camera_fx;
 mod camera_mouse;
 mod camera_rig;
 pub mod cells;
+mod collision_traffic;
 pub mod fx_manager;
 pub mod fx_objects;
 pub mod membership;
@@ -31,6 +32,7 @@ pub use blocks::{
 };
 pub use camera::{action as camera_action, CameraManager, CameraSubject};
 pub use cells::{block_radius, BlockChange, CellManager, FAR_RADIUS, NEAR_RADIUS};
+pub use collision_traffic::Touch;
 pub use player::{load_body_data, BodyData, PlayerBody, HUMAN_MOTION_INTERP_DESC};
 pub use scene::{frame_is_valid, CameraFrame, SceneCamera};
 pub use target_hub::{TargetHub, TargetNotice, TargetOwners};

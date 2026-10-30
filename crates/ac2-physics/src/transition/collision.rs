@@ -177,6 +177,8 @@ pub(crate) struct CollisionInfo {
     pub collision_normal: Vector,
     /// `collide_object`: the static objects the transition was stopped by, once each.
     pub collide_objects: Vec<u32>,
+    /// `last_collided_object`: the latest object that stopped the transition and was not ethereal.
+    pub last_collided_object: Option<u32>,
     pub collided_with_environment: bool,
     pub frames_stationary_fall: i32,
 }
@@ -189,6 +191,8 @@ impl CollisionInfo {
         self.sliding_normal_valid = false;
         self.collision_normal_valid = false;
         self.collided_with_environment = false;
+        self.collide_objects.clear();
+        self.last_collided_object = None;
         self.contact_plane_cell_id = 0;
         self.frames_stationary_fall = 0;
         self.contact_plane_is_water = false;
@@ -196,11 +200,15 @@ impl CollisionInfo {
         self.contact_plane_is_environment = false;
     }
 
-    /// `COLLISIONINFO::AddObject` (static objects are never ethereal, so each is also the last
-    /// collided object).
-    pub(crate) fn add_object(&mut self, id: u32) {
-        if !self.collide_objects.contains(&id) {
-            self.collide_objects.push(id);
+    /// `COLLISIONINFO::AddObject`: each object once; one that is not ethereal is also the last
+    /// collided object (a repeat returns before it is recorded again).
+    pub(crate) fn add_object(&mut self, id: u32, ethereal: bool) {
+        if self.collide_objects.contains(&id) {
+            return;
+        }
+        self.collide_objects.push(id);
+        if !ethereal {
+            self.last_collided_object = Some(id);
         }
     }
 
