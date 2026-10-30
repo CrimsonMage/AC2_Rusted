@@ -21,6 +21,8 @@ const MIN_RADIUS: f32 = 6.0;
 const SPACING: f32 = 4.0;
 /// The line-up's spacing in metres.
 const LINEUP_SPACING: f32 = 3.0;
+/// How far north of the anchor the line-up stands.
+const LINEUP_AHEAD: f32 = 6.0;
 
 /// The creatures and where they stand.
 pub struct Ac1Showcase {
@@ -29,7 +31,8 @@ pub struct Ac1Showcase {
     players: Vec<Option<IdlePlayer>>,
     /// `--ac1-heartbeat`: the heartbeat interval in place of the weenies'.
     pub heartbeat: Option<f64>,
-    /// `--ac1-lineup`: a row through the anchor, west to east, every creature facing south.
+    /// `--ac1-lineup`: a row west to east, `LINEUP_AHEAD` north of the anchor, every creature
+    /// facing south towards it.
     pub lineup: bool,
     models: Arc<Ac1Models>,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
@@ -121,7 +124,7 @@ impl Ac1Showcase {
             .map(|(index, (creature, player))| {
                 let (x, y, heading) = if lineup {
                     let offset = (index as f32 - (count as f32 - 1.0) / 2.0) * LINEUP_SPACING;
-                    (centre[0] + offset, centre[1], 180.0)
+                    (centre[0] + offset, centre[1] + LINEUP_AHEAD, 180.0)
                 } else {
                     let angle = index as f32 / count as f32 * 360.0;
                     let (sin, cos) = angle.to_radians().sin_cos();

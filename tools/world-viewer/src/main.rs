@@ -43,7 +43,7 @@
 //! DATs (`--ac1-dat-dir`, else `AC1_DAT_DIR`), in a ring around where the player first stands,
 //! each idling through its motion table's default cycle and its weenie's HeartBeat emote actions
 //! (`ac1.rs`); `--ac1-heartbeat` rolls those every SECONDS instead of the weenie's interval, and
-//! `--ac1-lineup` stands them in a row facing south instead (6 m ahead of a `--fly` camera).
+//! `--ac1-lineup` stands them in a row 6 m north of the player (or a `--fly` camera) facing it.
 //! The player walks the world with collision (`ac2-physics`) under the player camera
 //! (`ac2-smartbox`); an egui panel swaps the race and sex, teleports and speeds the player up.
 //! Walk: W/S, A/D turn, Q/E strafe, Space jump, hold the right button to look, wheel to zoom,
@@ -537,7 +537,8 @@ fn snapshot(
         if frame.player.is_none() {
             // `--fly`: the ring stands 12 m ahead of the camera, at the ground under it.
             let size = world.block_size();
-            let reach = if showcase.lineup { 6.0 } else { 12.0 };
+            // The line-up stands 6 m north of its anchor itself.
+            let reach = if showcase.lineup { 0.0 } else { 12.0 };
             let ahead = fly.position + fly.forward() * reach;
             let (bx, by) = ((ahead.x / size).floor(), (ahead.y / size).floor());
             let cell = ((bx as u32) << 24) | ((by as u32) << 16) | 1;
