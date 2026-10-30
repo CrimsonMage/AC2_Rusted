@@ -82,6 +82,9 @@ pub struct PaperDollUi {
     /// (`RecvNotice_UpdateMountState`), so the figure keeps its look
     /// (`RecvNotice_LocalVisualDescUpdate` updates it only when clear).
     ignore_vdesc_changes: bool,
+    /// The modern style's doll frame (`modern_inventory`), which the viewport fills instead of
+    /// sitting at its layout offset.
+    frame: Option<usize>,
 }
 
 fn find(tree: &UiTree, name: &str) -> Option<usize> {
@@ -118,6 +121,7 @@ impl PaperDollUi {
             pick: None,
             last_location: 0,
             ignore_vdesc_changes: false,
+            frame: None,
         };
         ui.init_slots(tree);
         ui.get_inventory(tree, s, equipped);
@@ -471,9 +475,25 @@ impl PaperDollUi {
         }
     }
 
+    /// The modern style's doll frame: the viewport fills it (inset 2 pixels) wherever the drawer
+    /// puts it.
+    pub fn dock_to(&mut self, frame: usize) {
+        self.frame = Some(frame);
+    }
+
     /// The viewport's screen place: the docking window's screen origin plus the layout offset
     /// between the viewport and that window.
     fn dock_viewport(&self, tree: &mut UiTree, viewport: usize) {
+        if let Some(frame) = self.frame.filter(|&f| tree.get(f).is_some()) {
+            let at = tree.screen_box(frame);
+            let (w, h) = (at.width() - 4, at.height() - 4);
+            let now = tree.el(viewport).rect;
+            if (now.width(), now.height()) != (w, h) {
+                tree.resize_to(viewport, w, h);
+            }
+            tree.set_object_position(viewport, at.x0 + 2, at.y0 + 2);
+            return;
+        }
         let Some(window) = self.docking_window(tree) else {
             return;
         };

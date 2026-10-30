@@ -145,6 +145,8 @@ pub struct GameplayHud {
     /// The toolbar layout, for the frameworks made once the player is in the world
     /// (`gmInventoryUI`'s backpack).
     pub toolbar_layout: Option<Arc<LayoutDesc>>,
+    /// The modern style's toolbar layout for the backpack (`modern_inventory::restyle`).
+    pub inventory_layout: Option<Arc<LayoutDesc>>,
     /// `gmStatusbarUI`'s `gmVitalsUI` and `gmEffectsUI`.
     pub vitals: VitalsUi,
     pub effects: Option<EffectsUi>,
@@ -373,7 +375,10 @@ pub fn build_styled_hud(
         }
         _ => None,
     };
-    let toolbar = ToolbarUi::create_styled(&mut tree, style);
+    let mut toolbar = ToolbarUi::create_styled(&mut tree, style);
+    if style == HudStyle::Modern {
+        toolbar.set_drawer(crate::modern_inventory::Drawer::adopt(&mut tree));
+    }
     let radar = RadarUi::create(&tree);
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
@@ -467,6 +472,12 @@ pub fn build_styled_hud(
         vitals,
         effects,
         indicators,
+        inventory_layout: match style {
+            HudStyle::Modern => layouts[&LAYOUT_TOOLBAR]
+                .as_deref()
+                .map(|l| Arc::new(crate::modern_inventory::restyle(l))),
+            HudStyle::Classic => None,
+        },
         toolbar_layout: layouts[&LAYOUT_TOOLBAR].clone(),
         dialogs,
         stack,

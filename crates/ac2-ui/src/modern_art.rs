@@ -190,6 +190,17 @@ pub const ARROW_DOWN: u32 = 0x7E01_0041;
 pub const BADGE: u32 = 0x7E01_0042;
 /// The strip's fade (`fade(height)`, made for the strip's height when it is laid out).
 pub const STRIP_FADE: u32 = 0x7E01_0050;
+/// The drawers' parts: the header, the gold row, the doll's frame, a header button's backing and
+/// an item slot's well (the DAT slot at 36 pixels and the 4-pixel gap after it).
+pub const DRAWER_HEADER: u32 = 0x7E01_0060;
+pub const MONEY_ROW: u32 = 0x7E01_0061;
+pub const DOLL_FRAME: u32 = 0x7E01_0062;
+pub const HEADER_BUTTON: u32 = 0x7E01_0063;
+pub const ITEM_WELL: u32 = 0x7E01_0064;
+/// The DAT item slot the item well is made of.
+pub const ITEM_SLOT: u32 = 0x4100_02BC;
+/// An item slot's pitch (36 and the gap).
+pub const ITEM_PITCH: i32 = 40;
 
 /// The design's colours.
 const GOLD: u32 = 0xD9C27A;
@@ -454,6 +465,83 @@ fn badge() -> UiPixels {
     c.finish()
 }
 
+/// A drawer's header: a dark bronze fall with a light line along its top and a black one under it
+/// (nine pieces).
+fn drawer_header() -> UiPixels {
+    let (w, h) = (32usize, 30usize);
+    let mut c = Canvas::new(w, h);
+    c.paint(
+        |_, _| -1.0,
+        |_, y, _| {
+            let t = (y / (0.7 * h as f32)).min(1.0);
+            (mix(rgb(0x3B382D, 1.0), rgb(0x16150F, 1.0), t), 1.0)
+        },
+    );
+    c.paint(
+        |_, y| if y < 1.0 { -1.0 } else { 1.0 },
+        |_, _, d| (rgb(0xCFC8AC, 1.0), inside(d)),
+    );
+    c.paint(
+        |_, y| if y > h as f32 - 1.0 { -1.0 } else { 1.0 },
+        |_, _, d| (rgb(0x000000, 1.0), inside(d)),
+    );
+    c.finish()
+}
+
+/// The gold row's backing: dark glass in a fine bronze line, corners 5 round (nine pieces).
+fn money_row() -> UiPixels {
+    let (w, h) = (32usize, 32usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 5.0);
+    c.paint(&shape, |_, _, d| (rgb(0x00110F, 0.63), inside(d)));
+    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
+/// The paper doll's frame: a teal glow behind the figure in a fine bronze line, corners 8 round.
+fn doll_frame() -> UiPixels {
+    let (w, h) = (132usize, 196usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32, 8.0);
+    let (cx, cy) = (w as f32 / 2.0, 0.6 * h as f32);
+    c.paint(&shape, |x, y, d| {
+        let t =
+            (((x - cx) / (w as f32 / 2.0)).powi(2) + ((y - cy) / (h as f32 / 2.0)).powi(2)).sqrt();
+        let color = if t < 0.62 {
+            mix(rgb(0x0F4D45, 1.0), rgb(0x032622, 1.0), t / 0.62)
+        } else {
+            mix(rgb(0x032622, 1.0), rgb(0x011513, 1.0), (t - 0.62) / 0.38)
+        };
+        (color, inside(d))
+    });
+    c.paint(&shape, |_, _, d| (rgb(0x6F6957, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
+/// A header button's backing: a dark bronze square in a light line and a black rim, corners 3.
+fn header_button() -> UiPixels {
+    let n = 20usize;
+    let mut c = Canvas::new(n, n);
+    let shape = round_rect(1.0, 1.0, n as f32 - 1.0, n as f32 - 1.0, 3.0);
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, -1.0, 0.0)));
+    c.paint(&shape, |_, y, d| {
+        (
+            mix(rgb(0x58544A, 1.0), rgb(0x242219, 1.0), y / n as f32),
+            inside(d),
+        )
+    });
+    c.paint(&shape, |_, _, d| (rgb(0xB8B19B, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
+/// An item slot's well: the DAT slot at its 36 pixels in the corner of the pitch square.
+fn item_well(slot: &UiPixels) -> UiPixels {
+    let n = ITEM_PITCH as usize;
+    let mut c = Canvas::new(n, n);
+    c.image(slot, (0.0, 0.0, 36.0, 36.0), 1.0);
+    c.finish()
+}
+
 /// The fan's separator: a fine line 26 pixels tall.
 fn separator() -> UiPixels {
     let mut c = Canvas::new(1, 26);
@@ -508,8 +596,19 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (ARROW_DOWN, arrow(false)),
         (BADGE, badge()),
         (STRIP_FADE, fade(48)),
+        (DRAWER_HEADER, drawer_header()),
+        (MONEY_ROW, money_row()),
+        (DOLL_FRAME, doll_frame()),
+        (HEADER_BUTTON, header_button()),
     ] {
         images.insert(id, image);
+    }
+    if let Some(slot) = icons
+        .get(&ITEM_SLOT)
+        .or_else(|| images.get(&ITEM_SLOT))
+        .cloned()
+    {
+        images.insert(ITEM_WELL, item_well(&slot));
     }
     // The slots' DAT frame gives way to the wells' own line; pressed, a gold ring.
     images.insert(SLOT_FRAME, slot(SLOT_CLEAR));
@@ -574,7 +673,7 @@ fn chip_down() -> UiPixels {
 
 /// The DAT icons [`bake`] sets in wells from their normal images: load them when the HUD does not
 /// show them yet.
-pub const SOURCE_ICONS: [u32; 2] = [START_ATTACK[0], STOP_ATTACK[0]];
+pub const SOURCE_ICONS: [u32; 3] = [START_ATTACK[0], STOP_ATTACK[0], ITEM_SLOT];
 
 /// The set chip's halves' images (normal and pressed): the upper and the lower.
 pub const SET_UP: [u32; 2] = [0x4100_1D50, 0x4100_1D51];

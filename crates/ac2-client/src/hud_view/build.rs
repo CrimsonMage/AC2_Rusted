@@ -179,6 +179,7 @@ impl HudView {
                     effects,
                     indicators,
                     toolbar_layout,
+                    inventory_layout,
                     dialogs,
                     stack,
                     external_container,
@@ -251,6 +252,7 @@ impl HudView {
                 self.panels.vitae = Some(indicators.vitae);
                 self.panels.pk = Some(indicators.pk);
                 self.panels.toolbar_layout = toolbar_layout;
+                self.panels.inventory_layout = inventory_layout;
                 self.panels.dialogs = Some(dialogs);
                 self.panels.stack = stack;
                 self.panels.external_container = external_container;

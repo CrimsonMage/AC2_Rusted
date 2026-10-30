@@ -111,6 +111,8 @@ pub struct ToolbarUi {
     /// The modern style's layout of the same elements (`modern_toolbar.rs`), and what it was last
     /// laid out for.
     dock: Option<crate::modern_toolbar::Dock>,
+    /// The modern inventory drawer (`modern_inventory`), laid out by the display.
+    drawer: Option<crate::modern_inventory::Drawer>,
     laid_out: Cell<Option<Layout>>,
 }
 
@@ -164,6 +166,7 @@ impl ToolbarUi {
             consignments: button("ConsignmentsButton"),
             tooltip_shown: Cell::new([None; 7]),
             dock: None,
+            drawer: None,
             laid_out: Cell::new(None),
         };
         for child in ToolbarChild::ALL {
@@ -181,6 +184,9 @@ impl ToolbarUi {
     /// hidden, the fan opened or folded, the display resized, the shortcut bar moved, a status
     /// button shown or hidden). Run every frame; nothing in the classic style.
     pub fn follow(&self, tree: &mut UiTree) {
+        if let Some(drawer) = &self.drawer {
+            drawer.follow(tree);
+        }
         let Some(dock) = &self.dock else {
             return;
         };
@@ -218,6 +224,11 @@ impl ToolbarUi {
                 .map(|r| tree.screen_box(r));
             self.laid_out.set(Some((now.0, now.1, now.2, bar, now.4)));
         }
+    }
+
+    /// The modern inventory drawer, laid out with the toolbar.
+    pub(crate) fn set_drawer(&mut self, drawer: Option<crate::modern_inventory::Drawer>) {
+        self.drawer = drawer;
     }
 
     fn get(&self, child: ToolbarChild) -> &Child {

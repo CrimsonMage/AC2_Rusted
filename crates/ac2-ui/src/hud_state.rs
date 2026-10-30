@@ -145,6 +145,9 @@ pub struct Hud {
     pub shortcuts: Option<ShortcutUi>,
     /// The toolbar's layout, read once with the toolbar.
     pub toolbar_layout: Option<Arc<LayoutDesc>>,
+    /// The modern style's toolbar layout for the backpack (`modern_inventory::restyle`); `None`
+    /// in the classic style, where the backpack takes `toolbar_layout`.
+    pub inventory_layout: Option<Arc<LayoutDesc>>,
     /// The player's race (int 290) as the frameworks last read it (the doll's height).
     pub player_race: Option<i32>,
     /// The selection the item slots last saw.

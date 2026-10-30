@@ -162,6 +162,16 @@ game rules and server-visible behaviour exactly retail.
   neither uploads its windows' places to the server nor applies the server's saved locations
   (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in the
   classic style.
+  The inventory is the design's drawer (`ac2_ui::modern_inventory`): `RightSidePanel` is laid
+  out by the display's edges, 316 pixels wide on the right edge from under the radar to over the
+  strip, on bevelled glass. Retail's stone frames (`0x41007118`, `0x41007119`) are gone; the
+  header is a bronze fall with the help button at its left and the close button at its right on
+  round backings, the gold row is dark glass, the equipment's ten slots stand in two columns of
+  five either side of the doll's frame (the 3D viewport fills it, where retail's
+  `gmPaperDollUI` sat at its layout offset), and under retail's rail the pack buttons are a row of
+  tabs over the page's grid, seven slots wide (`max_columns` 7, retail 6) of 36-pixel slots 4
+  apart in glass wells (the backpack's `ItemBackground`, from a restyled copy of the toolbar
+  layout so other containers keep retail's slot), the scroll bar at its right.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

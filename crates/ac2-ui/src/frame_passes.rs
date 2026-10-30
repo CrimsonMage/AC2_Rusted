@@ -527,14 +527,19 @@ impl Hud {
         // `gmInventoryUI::SetupChildren`'s backpack over the player.
         if let (Some(layout), Some(id)) = (self.toolbar_layout.as_ref(), input.player) {
             self.item_selection = InventorySource::selection(player);
-            self.backpack = Some(BackpackUi::create(tree, layout, player, id));
+            // The modern drawer's grid takes its own item slots (`modern_inventory::restyle`).
+            let items = self.inventory_layout.as_ref().unwrap_or(layout);
+            self.backpack = Some(BackpackUi::create(tree, items, player, id));
             self.items_3d = Some(Items3dUi::create(tree, id));
             // `gmMoneyBagUI::gmMoneyBagUI` and its amount (`RecvNotice_UpdateMoney`).
             let mut bag = MoneyBagUi::create(tree);
             bag.set_money(tree, player, input.money);
             self.money = Some(bag);
             let equipped = player.worn_items();
-            let doll = PaperDollUi::create(tree, layout, player, id, &equipped);
+            let mut doll = PaperDollUi::create(tree, layout, player, id, &equipped);
+            if let Some(frame) = crate::modern_inventory::doll_frame(tree) {
+                doll.dock_to(frame);
+            }
             doll.follow_panel(tree);
             self.paper_doll = Some(doll);
         }
