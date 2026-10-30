@@ -40,6 +40,7 @@ mod chat_window;
 mod client_options_page;
 mod client_page;
 mod compose;
+mod compose_filter;
 mod controls;
 mod craft;
 mod craft_pages;

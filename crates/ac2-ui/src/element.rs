@@ -232,6 +232,8 @@ pub struct UiTree {
     pub(crate) display: (i32, i32),
     /// `gmStackUI::m_globalContext`.
     pub(crate) stack_context: u32,
+    /// Scaled images are filtered (the modern style, `compose_filter`); else nearest pixel.
+    pub(crate) smooth_scaling: bool,
     /// Fonts and strings for text elements.
     pub(crate) text_data: Option<Arc<dyn UiTextData>>,
     /// Messages broadcast and not yet taken.
@@ -334,6 +336,7 @@ impl UiTree {
             update_count: 0,
             display: (width, height),
             stack_context: 0,
+            smooth_scaling: false,
             text_data: None,
             messages: Vec::new(),
             pointer: (0, 0),

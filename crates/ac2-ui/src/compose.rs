@@ -9,7 +9,7 @@
 //! otherwise. `SurfaceWindow::Blit` copies the pixels (alpha included) for draw mode 0; modes 1
 //! and 2 blend by the source alpha into the colour while the surface keeps its alpha; mode 3
 //! copies with the alpha scaled by the element's `alpha_value`. Scaling picks the nearest source
-//! pixel.
+//! pixel, as retail's; the modern style filters it instead (`compose_filter`).
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -44,6 +44,53 @@ pub struct UiSurface {
 }
 
 impl UiSurface {
+    /// `full_src` of `image` drawn over `full_dst`, filtered (`compose_filter`), the part inside
+    /// `clip` only; blended as `blit` blends `op`.
+    fn blit_filtered(
+        &mut self,
+        image: &UiPixels,
+        full_src: UiBox,
+        full_dst: UiBox,
+        clip: UiBox,
+        op: BlitOp,
+    ) {
+        let Some(clip) = clip.intersection(&self.bounds()) else {
+            return;
+        };
+        let (src_w, src_h) = (full_src.width(), full_src.height());
+        let (dst_w, dst_h) = (full_dst.width(), full_dst.height());
+        if src_w <= 0 || src_h <= 0 || dst_w <= 0 || dst_h <= 0 {
+            return;
+        }
+        let (iw, ih) = (image.width as i32, image.height as i32);
+        if full_src.x0 < 0 || full_src.y0 < 0 || full_src.x1 >= iw || full_src.y1 >= ih {
+            return;
+        }
+        let xs = crate::compose_filter::taps(
+            full_src.x0,
+            src_w,
+            dst_w,
+            clip.x0 - full_dst.x0,
+            clip.width(),
+        );
+        let ys = crate::compose_filter::taps(
+            full_src.y0,
+            src_h,
+            dst_h,
+            clip.y0 - full_dst.y0,
+            clip.height(),
+        );
+        for (row, y_taps) in ys.iter().enumerate() {
+            let ty = clip.y0 + row as i32;
+            for (col, x_taps) in xs.iter().enumerate() {
+                let tx = clip.x0 + col as i32;
+                let source = crate::compose_filter::sample(image, x_taps, y_taps);
+                let d = (ty as usize * self.width as usize + tx as usize) * 4;
+                blend(&mut self.rgba[d..d + 4], &source, op);
+            }
+        }
+    }
+
     fn bounds(&self) -> UiBox {
         UiBox::new(0, 0, self.width as i32 - 1, self.height as i32 - 1)
     }
@@ -70,26 +117,7 @@ impl UiSurface {
                 }
                 let s = (sy as usize * image.width as usize + sx as usize) * 4;
                 let d = (ty as usize * self.width as usize + tx as usize) * 4;
-                let source = &image.rgba[s..s + 4];
-                let dest = &mut self.rgba[d..d + 4];
-                let alpha = i32::from(source[3]);
-                match op {
-                    BlitOp::Copy => dest.copy_from_slice(source),
-                    BlitOp::Value(value) => {
-                        // Copied, then the alpha byte times the value (`_ftol2`: truncated).
-                        dest.copy_from_slice(source);
-                        dest[3] = (f64::from(dest[3]) * f64::from(value)) as u8;
-                    }
-                    BlitOp::Channel if alpha == 0 => {}
-                    BlitOp::Channel if alpha == 255 => dest.copy_from_slice(source),
-                    BlitOp::Channel => {
-                        for c in 0..3 {
-                            let d = i32::from(dest[c]);
-                            // `(x + (x >> 31 & 0xff)) >> 8`: x / 256 truncated toward zero.
-                            dest[c] = (d - (d - i32::from(source[c])) * alpha / 256) as u8;
-                        }
-                    }
-                }
+                blend(&mut self.rgba[d..d + 4], &image.rgba[s..s + 4], op);
             }
         }
     }
@@ -105,6 +133,7 @@ impl UiSurface {
         image: &UiPixels,
         mode: UiImage,
         scale: bool,
+        smooth: bool,
         alpha_value: f32,
         me: UiBox,
         dirty: UiBox,
@@ -122,6 +151,8 @@ impl UiSurface {
         let local = dirty.offset(-me.x0, -me.y0);
         if w == iw && h == ih {
             self.blit(image, local, dirty, op);
+        } else if scale && smooth {
+            self.blit_filtered(image, UiBox::new(0, 0, iw - 1, ih - 1), me, dirty, op);
         } else if scale {
             let sx = f64::from(iw) / f64::from(w);
             let sy = f64::from(ih) / f64::from(h);
@@ -170,6 +201,7 @@ impl UiSurface {
         image: &UiPixels,
         mode: UiImage,
         border: i32,
+        smooth: bool,
         alpha_value: f32,
         me: UiBox,
         dirty: UiBox,
@@ -209,6 +241,11 @@ impl UiSurface {
                 let map = |v: i32, d0: i32, d1: i32, s0: i32, s1: i32| {
                     s0 + ((i64::from(v - d0) * i64::from(s1 - s0)) / i64::from(d1 - d0)) as i32
                 };
+                if smooth && (s1x - s0x != d1x - d0x || s1y - s0y != d1y - d0y) {
+                    let full = UiBox::new(s0x, s0y, s1x - 1, s1y - 1);
+                    self.blit_filtered(image, full, piece, clip, op);
+                    continue;
+                }
                 let src = UiBox::new(
                     map(clip.x0, d0x, d1x, s0x, s1x),
                     map(clip.y0, d0y, d1y, s0y, s1y),
@@ -218,6 +255,28 @@ impl UiSurface {
                         .max(map(clip.y0, d0y, d1y, s0y, s1y)),
                 );
                 self.blit(image, src, clip, op);
+            }
+        }
+    }
+}
+
+/// One pixel of `SurfaceWindow::Blit`: `source` onto `dest` by `op`.
+fn blend(dest: &mut [u8], source: &[u8], op: BlitOp) {
+    let alpha = i32::from(source[3]);
+    match op {
+        BlitOp::Copy => dest.copy_from_slice(source),
+        BlitOp::Value(value) => {
+            // Copied, then the alpha byte times the value (`_ftol2`: truncated).
+            dest.copy_from_slice(source);
+            dest[3] = (f64::from(dest[3]) * f64::from(value)) as u8;
+        }
+        BlitOp::Channel if alpha == 0 => {}
+        BlitOp::Channel if alpha == 255 => dest.copy_from_slice(source),
+        BlitOp::Channel => {
+            for c in 0..3 {
+                let d = i32::from(dest[c]);
+                // `(x + (x >> 31 & 0xff)) >> 8`: x / 256 truncated toward zero.
+                dest[c] = (d - (d - i32::from(source[c])) * alpha / 256) as u8;
             }
         }
     }
@@ -253,20 +312,21 @@ impl UiTree {
             return;
         };
         if let Some(mode) = el.image {
+            let smooth = self.smooth_scaling;
             let scale = matches!(
                 el.attributes.get(&crate::token::SIZE_IMAGE_TO_OWNER),
                 Some(crate::layout::AttributeValue::Bool(true))
             );
             if let Some(layers) = &el.icon_layers {
                 if let Some(icon) = crate::icon_desc::composite(layers, images) {
-                    surface.draw_graphic(&icon, mode, scale, el.alpha_value, me, clip);
+                    surface.draw_graphic(&icon, mode, scale, smooth, el.alpha_value, me, clip);
                 }
             } else if let Some(image) = images.get(&mode.file) {
                 match el.attributes.get(&NINE_SLICE) {
                     Some(crate::layout::AttributeValue::Int(border)) => {
-                        surface.draw_nine(image, mode, *border, el.alpha_value, me, clip)
+                        surface.draw_nine(image, mode, *border, smooth, el.alpha_value, me, clip)
                     }
-                    _ => surface.draw_graphic(image, mode, scale, el.alpha_value, me, clip),
+                    _ => surface.draw_graphic(image, mode, scale, smooth, el.alpha_value, me, clip),
                 }
             }
         }
@@ -292,6 +352,11 @@ impl UiTree {
                 );
             }
         }
+    }
+
+    /// Whether scaled images are filtered (the modern style) or take the nearest pixel (retail).
+    pub fn set_smooth_scaling(&mut self, smooth: bool) {
+        self.smooth_scaling = smooth;
     }
 
     /// Every visible root drawn into its own surface, in the order they go over the scene

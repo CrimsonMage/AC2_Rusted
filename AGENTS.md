@@ -137,6 +137,9 @@ game rules and server-visible behaviour exactly retail.
   (`ClientView::set_hud_style`), whose panels come back from the player as after a relog. The
   world viewer takes `--hud-style modern|classic` and switches with F7. The default stays classic
   until the modern style is complete. Each modern change is listed here as it lands.
+  Modern changes so far: scaled UI art is filtered (`ac2_ui` `compose_filter`: a box filter where
+  it shrinks, bilinear where it grows, mixed in premultiplied alpha), where retail's
+  `SurfaceWindow::Blit` took the nearest pixel (classic still does).
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it
