@@ -86,6 +86,8 @@ pub struct RadarUi {
     /// The objects the Tracker found (`ac2_macro::tracker`, a modern addition): their blips get
     /// green corner brackets, four pixels out (outside retail's selection box).
     tracked: Vec<u64>,
+    /// The modern style's radar (`modern_radar`); `None` in the classic style.
+    modern: Option<crate::modern_radar::ModernRadar>,
 }
 
 fn int_attr(tree: &UiTree, index: usize, name: &str) -> i32 {
@@ -128,6 +130,20 @@ impl RadarUi {
             last_under_mouse: 0,
             tracked: Vec::new(),
             pixels: Vec::new(),
+            modern: None,
+        }
+    }
+
+    /// The modern style's radar (`modern_radar`), laid out before [`Self::create`] read the
+    /// geometry.
+    pub fn set_modern(&mut self, modern: Option<crate::modern_radar::ModernRadar>) {
+        self.modern = modern;
+    }
+
+    /// The modern style's Tracker eye in its well (the eye is made after the radar).
+    pub fn place_eye(&self, tree: &mut UiTree, eye: Option<usize>) {
+        if let Some(modern) = &self.modern {
+            modern.place_eye(tree, eye);
         }
     }
 
@@ -171,6 +187,10 @@ impl RadarUi {
             if let Some(text) = tree.child_recursive(field, id("CoordinatesText")) {
                 tree.set_text(text, view.coordinates.as_deref().unwrap_or_default());
             }
+        }
+        // The modern pill and range chip follow the coordinates and the range.
+        if let Some(modern) = &self.modern {
+            modern.update(tree, view.range);
         }
         if let Some(heading) = self.heading {
             // The ring's corner is `BaseField`'s corner on the display, so the ring moves with the

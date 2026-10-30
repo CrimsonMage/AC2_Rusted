@@ -209,6 +209,14 @@ game rules and server-visible behaviour exactly retail.
   indicators and the screen's edge glows red (a full-display overlay root whose surface opacity
   pulses); while every vital is full and no PK damage shows, a veil dims the bars until the
   pointer comes over the panel. Retail had neither.
+  The radar is the design's (`ac2_ui::modern_radar`): the blips on a dark teal disc 92 pixels
+  across in a fine stone ring with the player's arrow at its centre (`RadarCenter` and
+  `RadarRadius` set to the disc, so the blips' scale is the disc's; retail's ring was 120 pixels),
+  the heading ring the four letters around it (still the turning `HeadingField`), the
+  coordinates a pill under the disc, the Tracker eye and the coordinates button in round wells at
+  the disc's lower left and right, and a chip at its upper right giving the range in metres
+  (retail showed none). The art is restyled in the gameplay layout before the radar is made, as
+  `BaseField`'s state changes make its children anew; the places are set again each update.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

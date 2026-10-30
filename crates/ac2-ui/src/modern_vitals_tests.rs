@@ -156,3 +156,36 @@ fn full_vitals_are_veiled_until_the_pointer_comes_over() {
     hud.vitals.modern_tick(tree);
     assert!(!tree.el(veil).visible);
 }
+
+/// The modern radar: the blips' geometry is the design's disc, the disc and the range chip are
+/// made, the coordinates button stands at the disc's lower right, and the heading ring and the
+/// coordinates' box draw the design's art; the classic radar keeps retail's.
+#[test]
+fn the_radar_is_the_designs_disc() {
+    let Some(hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &hud.tree;
+    let root = named(tree, "RadarField");
+    let int = |name: &str| match tree.el(root).attribute(tokenize(name)) {
+        Some(crate::layout::AttributeValue::Int(v)) => *v,
+        other => panic!("{name}: {other:?}"),
+    };
+    let (cx, cy) = crate::modern_art::RADAR_CENTER;
+    assert_eq!((int("RadarCenter_X"), int("RadarCenter_Y")), (cx, cy));
+    assert_eq!(int("RadarRadius"), crate::modern_art::RADAR_RADIUS);
+    let disc = tree.screen_box(named(tree, "ModernRadarDisc"));
+    let button = tree.screen_box(named(tree, "CoordBoxButton"));
+    assert!(button.x0 > disc.x0 + disc.width() / 2 && button.y0 > disc.y0 + disc.height() / 2);
+    let heading = named(tree, "HeadingField");
+    assert_eq!(
+        tree.el(heading).image().unwrap().file,
+        crate::modern_art::HEADING_RING
+    );
+    let classic = self::hud(HudStyle::Classic).unwrap();
+    let tree = &classic.tree;
+    assert_eq!(
+        tree.el(named(tree, "HeadingField")).image().unwrap().file,
+        0x4110_0000
+    );
+}

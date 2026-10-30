@@ -423,7 +423,7 @@ fn layout_switch(lit: bool) -> UiPixels {
 }
 
 /// The ring icons' strokes in the design's 24-unit box (its SVG paths as polylines and circles).
-enum Stroke {
+pub(crate) enum Stroke {
     Line(&'static [(f32, f32)]),
     Ring(f32, f32, f32),
 }
@@ -502,7 +502,7 @@ const NO_SHIRT: [Stroke; 3] = [
 const RING_ICONS: [&[Stroke]; RING_ACTIONS] = [&HAND, &LENS, &FORK, &COIN, &SHIRT, &NO_SHIRT];
 
 /// The distance from `(x, y)` to the strokes.
-fn stroke_distance(strokes: &[Stroke], x: f32, y: f32) -> f32 {
+pub(crate) fn stroke_distance(strokes: &[Stroke], x: f32, y: f32) -> f32 {
     let segment = |(ax, ay): (f32, f32), (bx, by): (f32, f32)| {
         let (dx, dy) = (bx - ax, by - ay);
         let t = (((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy).max(1e-6)).clamp(0.0, 1.0);

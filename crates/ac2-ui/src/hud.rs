@@ -223,6 +223,11 @@ pub fn build_styled_hud(
     tree.set_text_data(text_data.clone());
     let mut layouts = HashMap::new();
     let gameplay = load_layout_by_enum(store, LAYOUT_GAMEPLAY)?;
+    // The modern radar's art (`modern_radar::restyle`), before the radar's roots are made.
+    let gameplay = match style {
+        HudStyle::Modern => gameplay.map(|g| Arc::new(crate::modern_radar::restyle(&g))),
+        HudStyle::Classic => gameplay,
+    };
     let mut reticle = gameplay
         .as_ref()
         .and_then(|layout| Reticle::create(&mut tree, layout));
@@ -394,7 +399,16 @@ pub fn build_styled_hud(
             &mut tree, gameplay, &entries,
         ));
     }
-    let radar = RadarUi::create(&tree);
+    // The modern radar's geometry is set before `gmRadarUI` reads it.
+    let modern_radar = (style == HudStyle::Modern)
+        .then(|| {
+            let fonts: Vec<&Arc<LayoutDesc>> =
+                [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();
+            crate::modern_radar::ModernRadar::adopt(&mut tree, &fonts)
+        })
+        .flatten();
+    let mut radar = RadarUi::create(&tree);
+    radar.set_modern(modern_radar);
     let secure_trade = layouts[&LAYOUT_GAMEPLAY]
         .as_ref()
         .map(SecureTradeUi::create);
@@ -453,6 +467,7 @@ pub fn build_styled_hud(
     let tracker = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
         crate::tracker_ui::TrackerUi::create(&mut tree, gameplay, &all_layouts, radar_top)
     });
+    radar.place_eye(&mut tree, tracker.as_ref().and_then(|t| t.button()));
     let guide = layouts[&LAYOUT_GAMEPLAY].as_ref().and_then(|gameplay| {
         crate::guide_window::GuideWindow::create(&mut tree, gameplay, &all_layouts)
     });

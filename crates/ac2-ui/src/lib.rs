@@ -271,11 +271,13 @@ pub mod hud_style;
 mod modern_all_view;
 pub mod modern_art;
 mod modern_art_drawer;
+mod modern_art_radar;
 mod modern_drawer_bar;
 mod modern_inventory;
 #[cfg(test)]
 mod modern_inventory_tests;
 mod modern_item_ring;
+mod modern_radar;
 mod modern_stack;
 mod modern_strip;
 mod modern_toolbar;
