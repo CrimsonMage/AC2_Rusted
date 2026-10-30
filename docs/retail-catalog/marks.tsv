@@ -4745,7 +4745,7 @@ key	status	note
 004e44e0	x	
 004e4580	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e4590	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
-004e45b0	~	ac2-physics part_load::rebuild_part_group_tree follows the body tree to the object total description (CompareAndModify on a loader thread); ac2-client client_part_trees.rs refresh_part_trees requests it when the drawn description changes what the groups are (ignoring FX scalar ramps) and part_tree_loaded installs the tree. Tested on the real DATs (physics a_changed_visual_description_rebuilds_the_part_tree, client tests/part_tree_7160.rs)
+004e45b0	x	ac2-physics part_load::rebuild_part_group_tree follows the body tree to the object total description (CompareAndModify on a loader thread); ac2-client client_part_trees.rs refresh_part_trees requests it when the drawn description changes what the groups are (ignoring FX scalar ramps) and part_tree_loaded installs the tree. Tested on the real DATs (physics a_changed_visual_description_rebuilds_the_part_tree, client tests/part_tree_7160.rs)
 004e4640	x	ac2-physics PhysicsBody::own_total_scale x ChildGraph::total_scale / scaled_by_parent (parent chain and m_fChildScale = 1.0); the client view scales a held object by its holder's total scale
 004e4730	x	ac2-physics PhysicsBody::set_scale / set_uniform_scale (SetScaleInternal: the scaled-BSP state bit from the total scale's x and y; the containment radius follows the scale)
 004e47d0	x	ac2-physics physics_obj_state.rs clear_transient_states (contact, water, walkable + LeaveGround, sliding, stationary, activity, landscape contact)
@@ -4825,7 +4825,7 @@ key	status	note
 004e8a40	x	ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 004e8ac0	x	PhysicsBody::set_motion_desc (SetMIDESC) over the loader-decoded description
 004e8ae0	x	ObjectVisualDesc (ac2-physics object_visual.rs): apply_additive_visual_desc, apply_subtractive_visual_desc, set_vdesc_scale, local, combine_and_apply_visual_desc (DAT description + effects + the total description's global tables); GetTotalVisualDesc is ac2_assets::total_visual_desc; tested
-004e8b00	x	Unreachable in 7160: CPhysicsObj/PHYSICSOBJREP::SetChildrenOpacity have no direct callers (the PHYSICSOBJREP vtable slot 0x94 is called by no PHYSICSOBJREP user in the exported pseudocode); ac2-smartbox Remotes::set_children_opacity (slider 0x40000015 per child, tested) is kept as the equivalent
+004e8b00	-	Unreachable in 7160: CPhysicsObj/PHYSICSOBJREP::SetChildrenOpacity have no direct callers (the PHYSICSOBJREP vtable slot 0x94 is called by no PHYSICSOBJREP user in the exported pseudocode); ac2-smartbox Remotes::set_children_opacity (slider 0x40000015 per child, tested) is kept as the equivalent
 004e8b60	x	ac2-smartbox Remotes::do_slider_on_child, called by ac2-client apply_slider_fx for a propagating slider node (and by DoColorFX in retail; the client colour ramp does not propagate to children, see DoColorFX)
 004e8bc0	x	LookAt chain: ac2-physics look_at.rs (LookAtManager), physics_obj_look.rs (CPhysicsObj::LookAt/LookAtDir), ac2-script efun 0x0080002A, ac2-client motion.rs
 004e8d10	x	StoryManager in ac2-physics story.rs, driven by client_story.rs
@@ -4944,7 +4944,7 @@ key	status	note
 004ec400	~	the bookie part only
 004ec4a0	-	STL/MSVC or archive template helper; Rust collections replace it
 004ec4f0	-	admin/debug or text-file tooling
-004ec520	x	ICPhysicsObj::makeObject(EntityDesc) body (makeObjectInternal): Setup/VisualDesc DIDs and the EntityDesc template visual are followed (resolve_ac2_entity_visual); not checked: EntityDesc property 0x4000006B (present and false: no object is made), the template scale times the object scale, and the property collection applied on the new object
+004ec520	~	ICPhysicsObj::makeObject(EntityDesc) body (makeObjectInternal): Setup/VisualDesc DIDs and the EntityDesc template visual are followed (resolve_ac2_entity_visual); not checked: EntityDesc property 0x4000006B (present and false: no object is made), the template scale times the object scale, and the property collection applied on the new object
 004ec680	x	ac2-client client_objects.rs apply_remote: the weenie emote gate (answer_weenie_emote); the copy with context 1 is motion.rs behavior()
 004ec730	~	ac2-physics PhysicsBody::place: no scatter (SCATTER/RANDOMSCATTER), no SetPlacementPosition
 004ec7d0	~	ac2-client remote.rs
@@ -5251,7 +5251,7 @@ key	status	note
 004f52b0	x	ac2-physics part_group.rs (CPartGroup tree in an arena) find_matrix_for_bone_type (first group in search order; the bone's matrix in its own group)
 004f5320	x	ObjectSkeleton::named_bones (ac2-render object/skeleton.rs): every part group's bones by name in CPartGroup::FindBoneType order (own bones, then each child group's search), the first match wins; scene/particles.rs attaches a bone node to it (Bones::named). Real-data test object/fx_bone_tests.rs
 004f53a0	x	ac2-render scene/particles.rs destroys an object's systems by handle; CPartArray::DestroyParticleSystem port in ac2-physics part_array.rs
-004f5400	~	Opacity atoms: none in the DATs (checked by the earlier port); mesh and material atoms are applied by ac2-render model.rs
+004f5400	-	Opacity atoms: none in the DATs (checked by the earlier port); mesh and material atoms are applied by ac2-render model.rs
 004f5540	x	ac2-physics part_group.rs (CPartGroup tree in an arena) update_part_group
 004f5590	x	ac2-physics part_group.rs (CPartGroup tree in an arena) reset_parent_connection
 004f5660	x	ac2-render object/skeleton.rs (render-side bones)
@@ -5261,8 +5261,8 @@ key	status	note
 004f5980	x	ac2-render object/model.rs load_object_model_with
 004f59f0	x	ac2-render object/model.rs load_object_model_with
 004f5aa0	x	ac2-render object/model.rs load_object_model_with
-004f5ac0	~	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
-004f5b80	~	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
+004f5ac0	x	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
+004f5b80	x	PartGroupTree::compare_and_modify[_children] now run for a changed description (rebuild_part_group_tree, client_part_trees.rs); the atom collection (meshes, materials) is the renderer's
 004f5c30	-	C++ constructor/destructor; Rust constructor and Drop replace it
 004f5c90	x	ac2-physics part_array.rs PartInfo::has_matrix_weights / has_physics_bsp (cached into the array state)
 004f5cb0	-	render plumbing
@@ -5434,7 +5434,7 @@ key	status	note
 00504940	-	C++ assignment/allocation/teardown plumbing; Rust ownership replaces it
 005051c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 00505210	x	ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
-005052d0	~	ac2-smartbox fx_objects.rs start queues a SliderMove per slider node (m_slider, m_intensity, m_prop_color, ramp); ac2-client client_fx_objects.rs apply_slider_fx moves the emitter body (DoSlider 0) and, propagated, each held child (do_slider_on_child). ac2-assets decodes Ac2FxSlider; 27 DAT nodes use it (alpha slider 0x4000001A, the fade FX 0x8100028D/E). Tested end to end on the real DATs (tests/slider_fx_7160.rs)
+005052d0	x	ac2-smartbox fx_objects.rs start queues a SliderMove per slider node (m_slider, m_intensity, m_prop_color, ramp); ac2-client client_fx_objects.rs apply_slider_fx moves the emitter body (DoSlider 0) and, propagated, each held child (do_slider_on_child). ac2-assets decodes Ac2FxSlider; 27 DAT nodes use it (alpha slider 0x4000001A, the fade FX 0x8100028D/E). Tested end to end on the real DATs (tests/slider_fx_7160.rs)
 00505310	~	RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
 00505340	x	ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 00505380	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)

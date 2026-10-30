@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 use super::super::PhysicsBody;
 
-const REPORT_COLLISIONS_PS: u32 = 0x4;
 const IGNORE_COLLISIONS_PS: u32 = 0x8;
 const LIGHTS_PS: u32 = 0x400;
 const INIT_BEGIN_PS: u32 = 0x8_0000;
