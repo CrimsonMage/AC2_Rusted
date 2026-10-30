@@ -45,7 +45,7 @@ const MAIN_TAB: (i32, i32) = (46, 36);
 const TAB: (i32, i32) = (38, 26);
 const TAB_GAP: i32 = 2;
 /// The grid's columns and its scroll bar's width.
-const COLUMNS: i32 = 7;
+pub(crate) const COLUMNS: i32 = 7;
 /// The footer's height and the search field's size.
 const FOOT: i32 = 18;
 const SEARCH: (i32, i32) = (90, 20);
@@ -169,6 +169,10 @@ pub(crate) struct Drawer {
     pub(crate) doll: Option<usize>,
     /// The drawer's own parts: tab counts, search, footer (`modern_drawer_bar`).
     bar: Option<crate::modern_drawer_bar::DrawerBar>,
+    /// The All view (`modern_all_view`).
+    all: Option<crate::modern_all_view::AllView>,
+    /// The pages' slot counts, as the backpack last had them.
+    sizes: std::cell::Cell<[u32; 4]>,
     /// The display the drawer was last laid out for.
     laid_out: std::cell::Cell<Option<(i32, i32)>>,
 }
@@ -334,6 +338,8 @@ impl Drawer {
             money_row: None,
             doll: None,
             bar: None,
+            all: None,
+            sizes: std::cell::Cell::new([0; 4]),
             laid_out: std::cell::Cell::new(None),
         };
         // Every element the drawer places keeps where it is put; the frames lose their stone art.
@@ -422,6 +428,15 @@ impl Drawer {
             PART_Z,
         );
         drawer.doll = part(tree, "ModernDrawerDoll", art::DOLL_FRAME, None, PART_Z);
+        if let Some(area) = drawer.pack_area {
+            drawer.all = Some(crate::modern_all_view::AllView::make(
+                tree,
+                layouts,
+                area,
+                drawer.pages.len(),
+                template,
+            ));
+        }
         if let (Some(gameplay), Some(area)) = (gameplay, drawer.pack_area) {
             drawer.bar = Some(crate::modern_drawer_bar::DrawerBar::make(
                 tree,
@@ -531,10 +546,18 @@ impl Drawer {
             put(tree, *button, tab);
             tabs.push(tab);
             tab_x += size.0 + TAB_GAP;
+            // In the All view the pages are the view's (`modern_all_view`).
+            if self.all.as_ref().is_some_and(|a| a.is_on()) {
+                continue;
+            }
             put(tree, *container, grid);
             if let Some(container) = container {
                 self.place_page(tree, *container, grid);
             }
+        }
+        if let Some(all) = &self.all {
+            all.place_tab(tree, (tab_x + TAB_GAP, MAIN_TAB.1 - 26));
+            all.lay_out(tree, &self.page_sizes(), grid);
         }
         if let Some(bar) = &self.bar {
             // The search field at the tabs' right, level with their lower edge.
@@ -543,9 +566,55 @@ impl Drawer {
         }
     }
 
-    /// A press on one of the drawer's own parts; whether it took it.
-    pub(crate) fn press(&self, element: usize) -> bool {
-        self.bar.as_ref().is_some_and(|bar| bar.press(element))
+    /// The pages' containers with their slot counts.
+    fn page_sizes(&self) -> Vec<(Option<usize>, u32)> {
+        let sizes = self.sizes.get();
+        self.pages
+            .iter()
+            .enumerate()
+            .map(|(i, (container, _))| (*container, sizes.get(i).copied().unwrap_or(0)))
+            .collect()
+    }
+
+    fn containers(&self) -> Vec<Option<usize>> {
+        self.pages.iter().map(|(c, _)| *c).collect()
+    }
+
+    /// A press on one of the drawer's own parts (a filter chip, the All tab); whether it took it.
+    pub(crate) fn press(&self, tree: &mut UiTree, element: usize) -> bool {
+        if self.bar.as_ref().is_some_and(|bar| bar.press(element)) {
+            return true;
+        }
+        if let Some(all) = &self.all {
+            if all.press(tree, element, &self.containers()) {
+                self.arrange(tree);
+                return true;
+            }
+        }
+        false
+    }
+
+    /// A wheel turn over the All view scrolls it; whether it took the turn.
+    pub(crate) fn wheel(&self, tree: &mut UiTree, action: u32) -> bool {
+        let Some(all) = &self.all else {
+            return false;
+        };
+        if all.wheel(tree, action) {
+            all.lay_out(tree, &self.page_sizes(), self.grid(tree));
+            return true;
+        }
+        false
+    }
+
+    /// The grid's box in the pack area, as the last layout put it.
+    fn grid(&self, tree: &UiTree) -> UiBox {
+        let (_, height) = tree.display;
+        let h = (height - TOP - BOTTOM).max(400);
+        let equipment_y = HEADER + GAP + MONEY + GAP;
+        let rail_y = equipment_y + DOLL.1 + 2;
+        let area_h = h - (rail_y + RAIL - TAB_OVERLAP) - PAD;
+        let grid_y = MAIN_TAB.1 + 3 + CHIPS;
+        sized(PAD, grid_y, (WIDTH - 2 * PAD, area_h - grid_y - FOOT - 2))
     }
 
     /// The drawer's own parts set for the backpack as it is (every frame).
@@ -555,8 +624,21 @@ impl Drawer {
         backpack: &crate::BackpackUi,
         source: &dyn crate::item_display::InventorySource,
     ) {
+        let mut sizes = [0; 4];
+        for (size, page) in sizes.iter_mut().zip(&backpack.packs) {
+            *size = page.max_size();
+        }
+        let all_on = self.all.as_ref().is_some_and(|a| a.is_on());
+        let left = self
+            .all
+            .as_ref()
+            .is_some_and(|a| a.follow(tree, &self.containers()));
+        if left || sizes != self.sizes.get() {
+            self.sizes.set(sizes);
+            self.arrange(tree);
+        }
         if let Some(bar) = &self.bar {
-            bar.tick(tree, backpack, source);
+            bar.tick(tree, backpack, source, all_on && !left);
         }
     }
 

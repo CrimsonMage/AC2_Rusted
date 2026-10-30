@@ -379,6 +379,14 @@ impl ToolbarUi {
     /// `ListenToMessage` for its buttons.
     pub fn message(&self, tree: &mut UiTree, message: &UiMessage) {
         if message.element.is_none() {
+            // A wheel turn over the modern drawer's All view scrolls it.
+            if message.message == GLOBAL_MOUSE_DOWN {
+                if let Some(drawer) = &self.drawer {
+                    if drawer.wheel(tree, message.data as u32) {
+                        return;
+                    }
+                }
+            }
             // The modern dock's fan follows the pointer; a press on its orb pins it.
             if let Some(dock) = &self.dock {
                 let pressed = message.message == GLOBAL_MOUSE_DOWN;
@@ -403,7 +411,7 @@ impl ToolbarUi {
         // A press on the modern drawer's own parts (its filter chips).
         if message.message == crate::token::MSG_MOUSE_PRESS_TOP {
             if let (Some(drawer), Some(element)) = (&self.drawer, message.element) {
-                if drawer.press(element) {
+                if drawer.press(tree, element) {
                     return;
                 }
             }

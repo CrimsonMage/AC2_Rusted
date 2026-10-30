@@ -180,7 +180,10 @@ game rules and server-visible behaviour exactly retail.
   preferred equip location, the `*_InvLoc` bits, as retail has no item category; the user chose
   these over the design's Use and Parts) that veil the slots the chip leaves out (both view only:
   the slots, their order and drops are unchanged), and a footer naming the page shown with its
-  count; retail showed none of these.
+  count; retail showed none of these. An All tab after the pack tabs (`ac2_ui::modern_all_view`)
+  shows the four pages at once, each under a heading with its slot numbers, in one view the
+  wheel scrolls: the pages are retail's containers moved under that view and shown whole, so
+  their slots, drops and messages stay retail's; a pack tab (`gmBackpackUI::ShowPack`) leaves it.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

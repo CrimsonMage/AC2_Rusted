@@ -72,7 +72,7 @@ pub(crate) struct DrawerBar {
 /// A count label under `parent` named `id`: a copy of the shortcut slot's number
 /// (`NumberDisplay`, the layouts' small outlined digits), justified by `justification`, taking no
 /// pointer.
-fn count_label(
+pub(crate) fn count_label(
     tree: &mut UiTree,
     layouts: &[&Arc<LayoutDesc>],
     parent: usize,
@@ -103,7 +103,7 @@ fn set_label(tree: &mut UiTree, label: Option<usize>, text: &str) {
 }
 
 /// `label` put at `at`.
-fn place_label(tree: &mut UiTree, label: Option<usize>, at: UiBox) {
+pub(crate) fn place_label(tree: &mut UiTree, label: Option<usize>, at: UiBox) {
     let Some(label) = label else {
         return;
     };
@@ -306,6 +306,7 @@ impl DrawerBar {
         tree: &mut UiTree,
         backpack: &BackpackUi,
         source: &dyn InventorySource,
+        all: bool,
     ) {
         let query = self.query(tree);
         // The hint shows while the field is empty and not being typed in.
@@ -335,7 +336,7 @@ impl DrawerBar {
         let key = {
             use std::hash::{Hash, Hasher};
             let mut h = std::collections::hash_map::DefaultHasher::new();
-            (&query, shown, &used, self.filter.get()).hash(&mut h);
+            (&query, shown, &used, self.filter.get(), all).hash(&mut h);
             for pack in &backpack.packs {
                 pack.max_size().hash(&mut h);
                 for d in &pack.items {
@@ -362,7 +363,11 @@ impl DrawerBar {
             let text = format!("{}/{}", used[i], pack.max_size());
             set_label(tree, self.counts.get(i).copied().flatten(), &text);
         }
-        if let Some(pack) = backpack.packs.get(shown) {
+        if all {
+            let used: usize = used.iter().sum();
+            let size: u32 = backpack.packs.iter().map(|p| p.max_size()).sum();
+            set_label(tree, self.foot, &format!("All packs \u{b7} {used}/{size}"));
+        } else if let Some(pack) = backpack.packs.get(shown) {
             let name = PAGE_NAMES.get(shown).copied().unwrap_or("Pack");
             let text = format!("{name} \u{b7} {}/{}", used[shown], pack.max_size());
             set_label(tree, self.foot, &text);
@@ -374,7 +379,7 @@ impl DrawerBar {
                         .item(d.item)
                         .is_some_and(|slot| slot.name.to_lowercase().contains(&query));
                 let kept = passes(self.filter.get(), source.preferred_location(d.item));
-                let veiled = i == shown && d.item != 0 && !(named && kept);
+                let veiled = (all || i == shown) && d.item != 0 && !(named && kept);
                 self.veil(tree, d.background, d.icon, veiled);
             }
         }

@@ -212,6 +212,11 @@ pub const SCROLL_UP_LIT: u32 = 0x7E01_0075;
 pub const SCROLL_DOWN: u32 = 0x7E01_0076;
 pub const SCROLL_DOWN_LIT: u32 = 0x7E01_0077;
 pub const SCROLL_WIDTH: i32 = 10;
+/// The drawer's All tab, off and on, its corners, and the rule under a section's heading.
+pub const ALL_TAB: u32 = 0x7E01_0078;
+pub const ALL_TAB_ON: u32 = 0x7E01_0079;
+pub const ALL_TAB_BORDER: i32 = 6;
+pub const SECTION_RULE: u32 = 0x7E01_007A;
 /// The drawer's filter chips, off and on.
 pub const CHIP: u32 = 0x7E01_0067;
 pub const CHIP_ON: u32 = 0x7E01_0068;
@@ -587,6 +592,31 @@ fn scroll_arrow(up: bool, lit: bool) -> UiPixels {
     c.finish()
 }
 
+/// The All tab: bronze shaded top to bottom in a fine line, its top corners round; brighter on.
+fn all_tab(on: bool) -> UiPixels {
+    let (w, h) = (16usize, 26usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32 + 6.0, 5.0);
+    let (top, bottom) = if on {
+        (rgb(0x6B5C2E, 1.0), rgb(0x2C2511, 1.0))
+    } else {
+        (rgb(0x3B382D, 1.0), rgb(0x16150F, 1.0))
+    };
+    c.paint(&shape, |_, y, d| {
+        (mix(top, bottom, y / h as f32), inside(d))
+    });
+    c.paint(&shape, |_, _, d| (rgb(0x8B846C, 1.0), band(d, 0.0, 1.0)));
+    c.finish()
+}
+
+/// The rule under a section's heading: the design's bronze at a quarter (`#8b846c44`).
+fn section_rule() -> UiPixels {
+    let mut c = Canvas::new(4, 1);
+    let shape = round_rect(-1.0, -1.0, 5.0, 2.0, 0.0);
+    c.paint(&shape, |_, _, d| (rgb(0x8B846C, 0.27), inside(d)));
+    c.finish()
+}
+
 /// A filter chip: a dark pill in a fine bronze line, or (on) filled bronze.
 fn chip(on: bool) -> UiPixels {
     let (w, h) = (24usize, 16usize);
@@ -714,6 +744,9 @@ pub fn bake(images: &mut HashMap<u32, UiPixels>, icons: &HashMap<u32, UiPixels>)
         (SEARCH_PILL, search_pill()),
         (SLOT_VEIL, slot_veil()),
         (CHIP, chip(false)),
+        (ALL_TAB, all_tab(false)),
+        (ALL_TAB_ON, all_tab(true)),
+        (SECTION_RULE, section_rule()),
         (SCROLL_TRACK, scroll_track()),
         (THUMB_TOP, thumb(0)),
         (THUMB_MID, thumb(1)),

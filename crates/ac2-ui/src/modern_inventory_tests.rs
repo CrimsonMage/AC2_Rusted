@@ -243,3 +243,79 @@ fn a_filter_chip_veils_the_items_that_do_not_equip_where_it_says() {
     hud.toolbar.drawer_tick(tree, &pack, &Pack);
     assert!(!veiled(tree, POTIONS) && !veiled(tree, SWORD));
 }
+
+fn press(tree: &mut UiTree, toolbar: &crate::ToolbarUi, name: &str) {
+    let element = named(tree, name).unwrap();
+    toolbar.message(
+        tree,
+        &crate::mouse::UiMessage {
+            element_id: tokenize(name),
+            element: Some(element),
+            message: crate::token::MSG_MOUSE_PRESS_TOP,
+            data: 0,
+            item: None,
+        },
+    );
+}
+
+/// The All tab shows the four pages at once, stacked under their headings in the view; a pack
+/// tab's `ShowPack` leaves it, the pages back in the pack area.
+#[test]
+fn the_all_tab_shows_every_page_until_a_pack_tab_is_pressed() {
+    let Some((mut hud, pack)) = with_backpack() else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    press(tree, &hud.toolbar, "ModernAllTab");
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    let view = named(tree, "ModernAllView").unwrap();
+    let pages: Vec<usize> = [
+        "PackMainContainer",
+        "PackOneContainer",
+        "PackTwoContainer",
+        "PackThreeContainer",
+    ]
+    .iter()
+    .map(|n| named(tree, n).unwrap())
+    .collect();
+    assert!(tree.el(view).visible);
+    let mut last = i32::MIN;
+    for &page in &pages {
+        let el = tree.el(page);
+        assert!(el.visible && el.parent_index() == Some(view));
+        assert!(el.rect.y0 > last, "stacked in order");
+        last = el.rect.y0;
+    }
+    let foot = tree
+        .el(named(tree, "ModernDrawerFoot").unwrap())
+        .text()
+        .unwrap();
+    assert!(foot.starts_with("All packs"), "{foot}");
+    if let Ok(out) = std::env::var("ZZ_OUT") {
+        let dataset = ac2_dat::test_support::env_dataset().unwrap();
+        let store = Arc::new(ResourceStore::new(dataset));
+        let mut images = crate::load_ui_images(&store, tree).unwrap();
+        let icons = crate::load_images(&store, &art::SOURCE_ICONS).unwrap();
+        art::bake(&mut images, &icons);
+        let panel = named(tree, "RightSidePanel").unwrap();
+        tree.set_visible(panel, true);
+        let field = named(tree, "InventoryField").unwrap();
+        tree.set_visible(field, true);
+        let _ = tree.compose(&images);
+        let s = tree.compose_root(panel, &images);
+        let f = std::fs::File::create(out).unwrap();
+        let mut e = png::Encoder::new(std::io::BufWriter::new(f), s.width, s.height);
+        e.set_color(png::ColorType::Rgba);
+        e.set_depth(png::BitDepth::Eight);
+        e.write_header().unwrap().write_image_data(&s.rgba).unwrap();
+    }
+    // A pack tab (`ShowPack`) leaves the view.
+    pack.show_pack(tree, 1);
+    hud.toolbar.drawer_tick(tree, &pack, &Pack);
+    assert!(!tree.el(view).visible);
+    let area = tree.el(pages[0]).parent_index();
+    assert!(pages
+        .iter()
+        .all(|&p| tree.el(p).parent_index() == area && area != Some(view)));
+    assert!(tree.el(pages[1]).visible && !tree.el(pages[0]).visible);
+}
