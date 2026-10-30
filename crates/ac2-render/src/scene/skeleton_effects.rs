@@ -156,6 +156,7 @@ mod tests {
             bones: vec![bone(1.0), bone(1.6), bone(0.0)],
             named_bones: Vec::new(),
             parents: std::sync::Arc::from(vec![None, Some(0), Some(0)]),
+            speed: 0.0,
         }
     }
 

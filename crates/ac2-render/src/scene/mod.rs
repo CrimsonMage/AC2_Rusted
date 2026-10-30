@@ -91,6 +91,9 @@ pub struct ObjectPlacement {
     /// Each of `bones`' parent (`CSetup`'s), for the body's skeleton points
     /// (`CPartArray::CalculateSkeletonPoints`).
     pub parents: Arc<[Option<usize>]>,
+    /// The physics object's speed (`CPhysicsObj::GetVelocity`'s length), which a particle
+    /// repulsor's minimum velocity reads (`PHYSICSOBJREP::Draw`).
+    pub speed: f32,
 }
 
 /// What one frame draws, in order.
@@ -309,6 +312,7 @@ impl WorldScene {
     pub fn set_options(&mut self, options: SceneOptions) {
         self.frill = options.frill;
         self.light_source_effects = options.light_source_effects;
+        self.particles.set_fog_effects(options.volumetric_fog);
         self.water_reflections = options.water_reflections;
         self.shore_effects = options.shore_effects;
         self.degrades.options = options.degrade;
@@ -632,6 +636,27 @@ impl WorldScene {
     /// `CPartArray`'s destructor: the emitter left the world, so its streaks are destroyed.
     pub fn remove_object_streaks(&mut self, emitter: u64) {
         self.object_streaks.remove_emitter(emitter);
+    }
+
+    /// `FXManager::DoRepulseFX`: a particle repulsor on `emitter` (`CPartArray::CreateRepulsorEffect`),
+    /// placed where the object draws from the next frame.
+    pub fn start_object_repulsor(&mut self, emitter: u64, spec: crate::particles::RepulsorSpec) {
+        self.particles.create_repulsor(emitter, spec);
+    }
+
+    /// `CPartArray`'s destructor: the emitter left the world, so its repulsors are destroyed.
+    pub fn remove_object_repulsors(&mut self, emitter: u64) {
+        self.particles.remove_repulsors(emitter);
+    }
+
+    /// How many repulsors the emitter holds.
+    pub fn object_repulsor_count(&self, emitter: u64) -> usize {
+        self.particles.repulsor_count(emitter)
+    }
+
+    /// The repulsors in the world (`PSManager::s_Repulsors`).
+    pub fn repulsors(&self) -> &crate::particles::Repulsors {
+        self.particles.repulsors()
     }
 
     /// How many streaks the emitter holds.

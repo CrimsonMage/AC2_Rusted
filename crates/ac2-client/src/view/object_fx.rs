@@ -3,6 +3,7 @@
 
 use ac2_render::decal::DecalSpec;
 use ac2_render::fx_particles::{ObjectLightStart, ObjectParticleStart};
+use ac2_render::fx_repulsors::ObjectRepulsorCall;
 use ac2_render::fx_streaks::ObjectStreakCall;
 use ac2_render::object_fx;
 
@@ -25,6 +26,12 @@ impl ClientView {
     /// [`ac2_render::object_fx::apply_streaks`].
     pub fn set_object_streaks(&mut self, calls: &[ObjectStreakCall], visible: bool) {
         object_fx::apply_streaks(&mut self.scene, calls, visible);
+    }
+
+    /// The particle repulsors the objects' FX made and those of the objects that left, see
+    /// [`ac2_render::object_fx::apply_repulsors`].
+    pub fn set_object_repulsors(&mut self, calls: &[ObjectRepulsorCall]) {
+        object_fx::apply_repulsors(&mut self.scene, calls);
     }
 
     /// The decals the objects' FX projected, see [`ac2_render::object_fx::apply_decals`].

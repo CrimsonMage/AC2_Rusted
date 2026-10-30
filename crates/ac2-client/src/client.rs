@@ -175,6 +175,8 @@ pub struct Client {
     pub(crate) fx_streaks: ac2_render::fx_streaks::FxStreaks,
     /// The decals the FX project (`FXManager::DoDecalFX`).
     pub(crate) fx_decals: ac2_render::fx_decals::FxDecals,
+    /// The particle repulsors the objects' FX make (`FXManager::DoRepulseFX`).
+    pub(crate) fx_repulsors: ac2_render::fx_repulsors::FxRepulsors,
     /// The radar (`gmRadarUI`) and the map notes (`gmNavigationUI`).
     pub(crate) radar: ac2_ui::RadarState,
     /// The GUN list and status events for the friends page (`gmFriendsUI`), in order.
@@ -285,6 +287,7 @@ impl Client {
             fx_objects: ac2_smartbox::fx_objects::FxObjects::default(),
             fx_streaks: Default::default(),
             fx_decals: Default::default(),
+            fx_repulsors: Default::default(),
             radar: Default::default(),
             friend_events: Vec::new(),
             portal: PortalSpace::new(),

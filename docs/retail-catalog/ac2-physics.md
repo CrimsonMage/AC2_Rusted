@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1056 done, 59 partial, 19 to do, 990 skipped.
+2124 retail functions: 1063 done, 53 partial, 19 to do, 989 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (7/9)
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (16/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (18/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1250,7 +1250,7 @@ Legend and workflow: [README](README.md).
 ### FXManager
 - [x] `FXManager::DoColorFX` · 00505210 · legions 004f3550 — ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 - [x] `FXManager::DoSliderFX` · 005052d0 · legions 004f3610 — ac2-smartbox fx_objects.rs start queues a SliderMove per slider node (m_slider, m_intensity, m_prop_color, ramp); ac2-client client_fx_objects.rs apply_slider_fx moves the emitter body (DoSlider 0) and, propagated, each held child (do_slider_on_child). ac2-assets decodes Ac2FxSlider; 27 DAT nodes use it (alpha slider 0x4000001A, the fade FX 0x8100028D/E). Tested end to end on the real DATs (tests/slider_fx_7160.rs)
-- [~] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
+- [x] `FXManager::DoRepulseFX` · 00505310 · legions 004f3650 — ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 - [x] `FXManager::DoStreakFX` · 00505340 · legions 004f3680 — ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `FXManager::DoCameraFX` · 00505380 · legions 004f36c0 — ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 - [x] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
@@ -1268,7 +1268,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXState::FXState` · 005058b0 · legions 004f3b80 — C++ constructor/destructor; Rust constructor and Drop replace it
 
 ### FXManager
-- [~] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
+- [x] `FXManager::DoDecalFX` · 00505960 · legions 004f3c30 — DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. Dungeon cells are DecalEffect::ConstructDungeonDecal (tracked there)
 - [x] `FXManager::DoAppearanceFX` · 00505c30 · legions 004f3f00 — ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: a new FX applies each node's appearance at its starting scalar (0 for a ramping node), a running one at the current scalar after an instant node's jump (DoTargettedFX), startup FX at full scalar (DoStartupFX); UseTime re-applies it as the scalar ramps; removed by StopFX and expiry
 
 ### DBObjGrabber<FxScript>
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (44/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (45/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2059,7 +2059,7 @@ Legend and workflow: [README](README.md).
 
 ### CPartArray
 - [x] `CPartArray::CreateParticleSystem` · 004f0260 · legions 004e2ba0 — CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-- [~] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40 — RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
+- [x] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40 — ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 - [x] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 - [-] `CPartArray::GetAnimator` · 004f0500 · legions 004e2e40 — render plumbing
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (351/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (353/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2564,8 +2564,8 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::RecvEvt_Contain` · 004e6890 — ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 - [x] `CPhysicsObj::DoAppearanceFX` · 004e6920 · legions 004d9370 — ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
 - [x] `CPhysicsObj::RemoveAppearanceFX` · 004e6990 · legions 004d93e0 — ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
-- [~] `CPhysicsObj::StartStreak` · 004e6a30 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
-- [~] `CPhysicsObj::StopStreak` · 004e6aa0 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
+- [x] `CPhysicsObj::StartStreak` · 004e6a30 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all when zero), recursively; held objects are drawn (view/held.rs) and placed with their id, so a held child ribbon follows its bone (streak_objects.rs place)
+- [x] `CPhysicsObj::StopStreak` · 004e6aa0 — ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all when zero), recursively; held objects are drawn (view/held.rs) and placed with their id, so a held child ribbon follows its bone (streak_objects.rs place)
 - [~] `CPhysicsObj::InitVisualDesc` · 004e6b10 — ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 - [x] `CPhysicsObj::SetLocalVisualDesc` · 004e6bd0 — ac2-weenie Appearance::from_delta (the effects description is empty)
 - [x] `CPhysicsObj::ApplyAdditiveVisualDesc` · 004e6c30 — ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (140/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (142/171)
 
 ### BehaviorTable
 - [x] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2848,7 +2848,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::GetEffectsScale` · 004f1f60 — ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 - [x] `PHYSICSOBJREP::GetVdescScale` · 004f1f90 — ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 - [x] `PHYSICSOBJREP::SetPlacementFrame` · 004f1fb0 · legions 004e48b0 — ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
-- [~] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+- [x] `PHYSICSOBJREP::Draw` · 004f1fe0 · legions 004e48e0 — ac2-render: streak ribbons placed each draw (scene place_objects -> ObjectStreaks::place), repulsors placed with the object speed and destroyed when ready to die (SceneParticles::place_repulsors), particle systems and lights placed; the colour scale is applied to object tints (ObjectFrame::anim_scale)
 - [x] `PHYSICSOBJREP::StartStreakInternal` · 004f20f0 · legions 004e49f0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `PHYSICSOBJREP::StopStreakInternal` · 004f2100 · legions 004e4a00 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `PHYSICSOBJREP::StartStreak` · 004f2110 · legions 004e4a10 — ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
@@ -2856,7 +2856,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::DoAppearanceFX` · 004f2170 · legions 004e4a70 — ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 - [x] `PHYSICSOBJREP::RemoveAppearanceFX` · 004f2180 · legions 004e4a80 — ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 - [x] `PHYSICSOBJREP::CreateStreakEffect` · 004f2190 · legions 004e4a90 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [-] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — repulsors are not modelled (ParticleEmitter::DoRepulse is skipped: placed systems never move)
+- [x] `PHYSICSOBJREP::CreateParticleRepulsor` · 004f21a0 · legions 004e4aa0 — PHYSICSOBJREP::CreateParticleRepulsor forwards to CPartArray::CreateRepulsorEffect: ac2-render scene start_object_repulsor via fx_repulsors.rs
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f21b0 · legions 004e4ab0 — PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 - [x] `PHYSICSOBJREP::CreateParticleSystem` · 004f22c0 · legions 004e4bc0 — fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 - [x] `PHYSICSOBJREP::DestroyParticleSystem` · 004f2410 · legions 004e4d10 — ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)

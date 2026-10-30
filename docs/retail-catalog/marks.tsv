@@ -4790,8 +4790,8 @@ key	status	note
 004e6890	x	ac2-weenie ObjectTable::apply_contain, ac2-client remote.rs
 004e6920	x	ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
 004e6990	x	ac2-physics appearance_ops.rs do_appearance_fx / remove_appearance_fx (the effects description's global key, merged additively onto the local one); ac2-smartbox fx_objects.rs keeps each emitter's m_effects_vdesc and ac2-client drawn_appearance draws the object with it (LocalVisualDescUpdate is not raised for it); appearance_fx_7160
-004e6a30	~	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
-004e6aa0	~	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all at zero), recursively. Held objects are not drawn by the view, so a held child's ribbon has no placement yet
+004e6a30	x	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all when zero), recursively; held objects are drawn (view/held.rs) and placed with their id, so a held child ribbon follows its bone (streak_objects.rs place)
+004e6aa0	x	ac2-render fx_streaks.rs activate_tree: own streaks, then holding-point children at the holding location (all when zero), recursively; held objects are drawn (view/held.rs) and placed with their id, so a held child ribbon follows its bone (streak_objects.rs place)
 004e6b10	~	ethereal bits from the EntityDesc's own properties on player and remote bodies; dynamic transition does not read the body mask yet
 004e6bd0	x	ac2-weenie Appearance::from_delta (the effects description is empty)
 004e6c30	x	ObjectVisualDesc (object_visual.rs) over Appearance; reached by the scripts: ac2-script host/interface.rs efuns gCWPhysicsObject ApplyAdditive/ApplySubtractive/CombineAndApplyVisualDesc (0x80005D/5E/5B, the only 7160 callers) edit the weenie local description, ac2-client set_object_appearance gives it to the object, and the part tree follows. Tested (ac2-script visual_desc_tests, ac2-weenie world_tests)
@@ -5034,7 +5034,7 @@ key	status	note
 004f0190	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f01f0	-	STL/SmartArray/HashTable container internals; Rust Vec/HashMap replaces it
 004f0260	x	CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
-004f0300	~	RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
+004f0300	x	ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 004f0380	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f0410	~	ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time; the light is an Ac2LightSource subset, not a full LightSource copy
 004f0500	-	render plumbing
@@ -5149,7 +5149,7 @@ key	status	note
 004f1f60	x	ac2-physics body_access.rs PhysicsBody::contact_plane / anim_velocity / effects_scale / vector_heading / heading; body.rs position
 004f1f90	x	ac2-physics objects.rs: static-object collision dispatch, containment radius, shadow box
 004f1fb0	x	ac2-render skeleton: pose_placed selects placement frame id over the whole part tree (retail falls back to frame 0 when the Setup lacks it); held objects take their holder's orientation_id (view.rs placed)
-004f1fe0	~	streak ribbon built and tested in ac2-render, not yet placed or drawn from live FX: the FX node's start/stop/create and the emitter placement are not wired into the scene; PHYSICSOBJREP::Draw's colour scale is applied to object tints (ObjectFrame::anim_scale)
+004f1fe0	x	ac2-render: streak ribbons placed each draw (scene place_objects -> ObjectStreaks::place), repulsors placed with the object speed and destroyed when ready to die (SceneParticles::place_repulsors), particle systems and lights placed; the colour scale is applied to object tints (ObjectFrame::anim_scale)
 004f20f0	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f2100	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 004f2110	x	ac2-render fx_streaks.rs: forwards to CPhysicsObj::StartStreak/StopStreak (the holding-point walk); Legions 004e4a10/4a40 call the same vtable slot
@@ -5157,7 +5157,7 @@ key	status	note
 004f2170	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 004f2180	x	ac2-smartbox fx_objects.rs appearance_fx / remove_appearance on the emitter (PHYSICSOBJREP forwards to CPhysicsObj)
 004f2190	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-004f21a0	-	repulsors are not modelled (ParticleEmitter::DoRepulse is skipped: placed systems never move)
+004f21a0	x	PHYSICSOBJREP::CreateParticleRepulsor forwards to CPartArray::CreateRepulsorEffect: ac2-render scene start_object_repulsor via fx_repulsors.rs
 004f21b0	x	PHYSICSOBJREP::CreateParticleSystem - PHYSICSOBJREP method cited in ac2-physics motion_interp.rs, body.rs, ac2-assets visual particles, loader_anim.rs
 004f22c0	x	fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 004f2410	x	ac2-render scene particles destroy (CPartArray::DestroyParticleSystem)
@@ -5435,7 +5435,7 @@ key	status	note
 005051c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 00505210	x	ac2-smartbox fx_objects.rs set_colour: the emitter colour ramps over the node ramp time (PHYSICSOBJREP property ramp); drawn through FxLooks tints; restored by StopFX (node restore, 0.1 s) and by the colour lifetime
 005052d0	x	ac2-smartbox fx_objects.rs start queues a SliderMove per slider node (m_slider, m_intensity, m_prop_color, ramp); ac2-client client_fx_objects.rs apply_slider_fx moves the emitter body (DoSlider 0) and, propagated, each held child (do_slider_on_child). ac2-assets decodes Ac2FxSlider; 27 DAT nodes use it (alpha slider 0x4000001A, the fade FX 0x8100028D/E). Tested end to end on the real DATs (tests/slider_fx_7160.rs)
-00505310	~	RepulsorFX is decoded (ac2-assets Ac2RepulsorFx; 6 DAT FX entries use it, in table 0x1E000057) but nothing consumes it: ParticleEmitter::DoRepulse and PSManager repulsors are not in ac2-render (systems that respond to repulsors are held off), so a repulsor has no effect to create
+00505310	x	ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 00505340	x	ac2-render fx_streaks.rs (FxStreaks: DoStreakFX, DoTargettedFX start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 00505380	x	ac2-smartbox camera_rig.rs / targeting.rs (any object, bone types, camera dummies on the player's bones 0x40000004/5); ac2-client client_camera.rs; camera FX read on a loader thread (Request::CameraFx); StopAllCameraFX efun queued to the client (player only)
 005053b0	x	ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
@@ -5443,7 +5443,7 @@ key	status	note
 00505850	x	ac2-assets Ac2FxNode::appearance_key (m_apr_key: key and scalar) read where FXManager::DoAppearanceFX applies the node
 00505870	x	ac2-audio/ac2-client: 3D emitters and FX sounds
 005058b0	-	C++ constructor/destructor; Rust constructor and Drop replace it
-00505960	~	DoDecalFX: gate, position, radius, rotation, geometry port; start vector read past Position is not resolved (x axis used); dungeon cells not made
+00505960	x	DoDecalFX ported in ac2-render fx_decals.rs: the start vector read past Position (offset 0x30 = Frame::fl2gv row 1) is the emitter forward (local y in global axes), turned about z by the rotation and normalised; client emitter_place passes it. Dungeon cells are DecalEffect::ConstructDungeonDecal (tracked there)
 00505c30	x	ac2-smartbox fx_manager.rs appearance_fx_step and fx_objects.rs appearance_fx: a new FX applies each node's appearance at its starting scalar (0 for a ramping node), a running one at the current scalar after an instant node's jump (DoTargettedFX), startup FX at full scalar (DoStartupFX); UseTime re-applies it as the scalar ramps; removed by StopFX and expiry
 00505ca0	x	ac2-anim fxscript.rs load_ac2_fx_script (the 0x57 DBO read)
 00505ce0	-	STL/MSVC or archive template helper; Rust collections replace it
@@ -9147,7 +9147,7 @@ key	status	note
 005bf7a0	-	writer for DAT/pack output; the client only reads (tool-only)
 005c0540	_	needs port: particle system manager (register/create/destroy systems and repulsors)
 005c0670	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005c0700	_	needs port: particle system manager (register/create/destroy systems and repulsors)
+005c0700	x	ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 005c0760	_	needs port: particle system manager (register/create/destroy systems and repulsors)
 005c0850	_	needs port: particle system manager (register/create/destroy systems and repulsors)
 005c0890	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -9155,20 +9155,20 @@ key	status	note
 005c0ae0	_	needs port: particle system manager (register/create/destroy systems and repulsors)
 005c0b70	-	SmartArray/STL container internals; Vec replaces
 005c0c00	_	needs port: particle system manager (register/create/destroy systems and repulsors)
-005c0d20	_	needs port: particle system manager (register/create/destroy systems and repulsors)
+005c0d20	x	ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 005c0db0	x	PSManager::RenderParticleSystems cited in ac2-render scene/mod.rs:83 (particles merged per material)
 005c0e60	_	needs port: particle system manager (register/create/destroy systems and repulsors)
 005c0ec0	x	PSManager::RegisterAutonomousSystem cited in ac2-render scene/particles.rs:6 (keep last place until ready to die)
 005c0f80	~	ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 005c1040	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
-005c10d0	_	needs port: streak effect (streak segments, fade, geometry)
+005c10d0	x	ac2-render streak.rs StreakEffects: destroy (also from ObjectStreaks::remove_emitter) and default construction
 005c1150	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c11a0	x	ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 005c1240	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
-005c12d0	_	needs port: streak effect manager init
+005c12d0	x	ac2-render streak.rs StreakEffects: destroy (also from ObjectStreaks::remove_emitter) and default construction
 005c13d0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c13f0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
-005c1410	~	emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+005c1410	x	ac2-render fx_streaks.rs + streak_objects.rs: the emitter streaks start/stop/draw, holding-point children walked (CPhysicsObj::StartStreak recursion), node gate (day/night/player/channel) applied; the ribbon draws as a triangle list through the particle material path
 005c1560	-	SmartArray/STL container internals; Vec replaces
 005c15e0	x	ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 005c1850	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -9185,23 +9185,23 @@ key	status	note
 005c25b0	_	needs port: shared particle system check
 005c25f0	x	ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 005c2680	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-005c2700	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005c2770	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c2700	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005c2770	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005c28b0	_	needs port: particle system (lifecycle, lighting origin, shared/queue behaviour)
 005c2910	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005c2a40	_	needs port: particle system (lifecycle, lighting origin, shared/queue behaviour)
 005c2ad0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005c2b30	-	retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-005c2bf0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005c2e80	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005c3250	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005c2bf0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005c2e80	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005c3250	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005c3450	-	SmartArray/STL container internals; Vec replaces
-005c34e0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005c3600	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005c3790	_	needs port: particle repulsor (push-away field, active state, position)
+005c34e0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005c3600	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005c3790	x	ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 005c37f0	-	trivial accessor of plain particle/record field; Rust struct field replaces it
 005c3820	-	trivial accessor of plain particle/record field; Rust struct field replaces it
-005c3870	_	needs port: particle repulsor (push-away field, active state, position)
+005c3870	x	ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 005c38c0	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 005c3900	-	plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
 005c3920	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
@@ -9363,7 +9363,7 @@ key	status	note
 005d07f0	x	ac2-render particles
 005d0840	x	ac2-render particles
 005d0880	x	ac2-render particles
-005d0940	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d0940	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d0f50	x	ac2-render particles
 005d1000	-	D3D device/resource plumbing; wgpu replaces
 005d1060	x	ParticleEmitter::ParticleEmitter cited in ac2-render particles/emitter.rs:41 (Emitter::new: keys, flags, max, zeroed timers)
@@ -9376,7 +9376,7 @@ key	status	note
 005d1850	x	ac2-render particles
 005d1980	x	ac2-render particles
 005d1a20	x	ac2-render particles
-005d1cb0	-	placed systems never move; repulsors are not modelled
+005d1cb0	x	ac2-render particles/controllers.rs do_repulse (x87 order kept in f64, rounded at float stores); nearby repulsors per scene stamp (Repulsors::nearby); VolumetricFogEffects off holds repulse systems back as ParticleSystem::Think/Render do
 005d2150	x	ac2-render particles
 005d2290	x	ac2-render particles
 005d2550	x	ac2-render particles
@@ -9384,20 +9384,20 @@ key	status	note
 005d2600	x	ac2-render particles
 005d2620	x	ac2-render particles
 005d2640	x	ac2-render particles
-005d26d0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005d28a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d26d0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005d28a0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d3690	_	needs port: particle emitter (position, desc)
-005d3850	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d3850	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d3d10	x	ac2-render particles
-005d3de0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005d40a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005d42a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d3de0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005d40a0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005d42a0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d4bb0	x	ac2-render particles
-005d4e30	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d4e30	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d4ed0	x	ac2-render particles
-005d4f00	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-005d5280	-	placed systems never move; repulsors are not modelled
-005d58a0	~	ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+005d4f00	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+005d5280	-	placed systems never move: emission by distance travelled needs a moving system
+005d58a0	~	ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 005d5a80	-	ctor/dtor of plain data; Rust constructs and drops values
 005d5b50	-	ctor/dtor of plain data; Rust constructs and drops values
 005d5c20	-	accessor of a Rust typed field
@@ -9597,7 +9597,7 @@ key	status	note
 005de7b0	-	plain data ctor/dtor/operator=; Rust struct or Drop replaces
 005de7e0	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005dee50	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
-005df1e0	~	dungeon decal needs CEnvCell::GetNearbyGeometry; not ported, such nodes make no decal
+005df1e0	~	dungeon decals not ported: needs the emitter cell id carried through DecalSpec, the visible env cell (CObjCell::GetVisible) and its mesh triangles plus portal neighbours on the CPU (CEnvCell::GetNearbyGeometry), which the scene only holds as GPU models; such nodes make no decal
 005df350	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005df410	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df4a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs

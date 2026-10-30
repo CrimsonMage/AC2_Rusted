@@ -40,6 +40,8 @@ pub const LIGHT_SOURCE_EFFECTS: u32 = 0x4000_0061;
 /// `StreakEffects` (`Render::m_Prefs.StreakEffects`): `FXManager::DoStreakFX` makes no streak and
 /// `StreakEffectManager::RenderStreakEffects` draws none while it is off.
 pub const STREAK_EFFECTS: u32 = 0x4000_0063;
+/// `VolumetricFogEffects` (`Render::m_Prefs.VolumetricFogEffects`).
+pub const VOLUMETRIC_FOG_EFFECTS: u32 = 0x4000_0074;
 /// `ID_Avatar_VisibleInFirstPerson`.
 pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
 /// `ID_Rendering_FullScreen`.
@@ -439,6 +441,9 @@ pub struct SceneOptions {
     pub cloud_shadows: bool,
     /// FX lights and the light pools on the ground (`LightSourceEffects`).
     pub light_source_effects: bool,
+    /// `VolumetricFogEffects`: off holds back the particle systems that respond to repulsors
+    /// (`ParticleSystem::Think` and `Render`).
+    pub volumetric_fog: bool,
     /// `WaterReflections`: 0 none, 1 the reflection, 2 rippled as well.
     pub water_reflections: u8,
     /// `LandscapeShoreEffects`: 2 draws the breaking water on the shores.
@@ -467,6 +472,7 @@ impl Default for SceneOptions {
             static_shadows: true,
             cloud_shadows: false,
             light_source_effects: true,
+            volumetric_fog: true,
             water_reflections: 2,
             shore_effects: 2,
             brightness: 0.0,
@@ -533,6 +539,7 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
         ),
         cloud_shadows: flag(bank, LANDSCAPE_CLOUD_SHADOWS, defaults.cloud_shadows),
         light_source_effects: light_source_effects(bank),
+        volumetric_fog: flag(bank, VOLUMETRIC_FOG_EFFECTS, defaults.volumetric_fog),
         water_reflections: match bank.find(WATER_REFLECTIONS).map(|pref| &pref.value) {
             Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
             _ => defaults.water_reflections,

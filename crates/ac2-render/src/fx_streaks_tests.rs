@@ -199,6 +199,7 @@ fn an_object_streak_is_created_moves_with_its_emitter_and_is_removed() {
         bones: Vec::new(),
         named_bones: Vec::new(),
         parents: std::sync::Arc::from(Vec::new()),
+        speed: 0.0,
     };
     let mut time = 0.0;
     let mut ribbon = Vec::new();
@@ -404,6 +405,7 @@ fn a_hidden_streak_keeps_thinking_and_resumes_at_the_emitter() {
         bones: Vec::new(),
         named_bones: Vec::new(),
         parents: std::sync::Arc::from(Vec::new()),
+        speed: 0.0,
     };
     let mut time = 0.0;
     for step in 0..20 {

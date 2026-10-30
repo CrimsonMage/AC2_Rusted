@@ -29,6 +29,7 @@ fn a_landblock_decal_lands_at_the_emitter_plus_the_node_origin() {
         &decal(0.0, 0.0),
         0x0102_0001,
         Vec3::new(10.0, 20.0, 3.0),
+        Vec3::Y,
         BLOCK,
         0.0,
         &mut random,
@@ -44,12 +45,22 @@ fn a_landblock_decal_lands_at_the_emitter_plus_the_node_origin() {
 fn a_dungeon_or_cellless_decal_is_not_made() {
     let mut random = Random::default();
     let origin = Vec3::new(1.0, 1.0, 1.0);
-    assert!(decal_spec(&decal(0.0, 0.0), 0, origin, BLOCK, 0.0, &mut random).is_none());
+    assert!(decal_spec(
+        &decal(0.0, 0.0),
+        0,
+        origin,
+        Vec3::Y,
+        BLOCK,
+        0.0,
+        &mut random
+    )
+    .is_none());
     // An environment cell (id 0x0102_0100 and up).
     assert!(decal_spec(
         &decal(0.0, 0.0),
         0x0102_0100,
         origin,
+        Vec3::Y,
         BLOCK,
         0.0,
         &mut random
@@ -64,13 +75,45 @@ fn rotation_turns_the_decal_about_the_vertical_axis() {
         &decal(90.0, 0.0),
         0x0102_0001,
         Vec3::ZERO,
+        Vec3::Y,
         BLOCK,
         0.0,
         &mut random,
     )
     .unwrap();
-    assert!(spec.direction.x.abs() < 1e-6 && (spec.direction.y - 1.0).abs() < 1e-6);
+    // The emitter's forward (+y) turned a quarter about z points along -x.
+    assert!((spec.direction.x + 1.0).abs() < 1e-6 && spec.direction.y.abs() < 1e-6);
     assert_eq!(spec.direction.z, 0.0);
+}
+
+/// `DoDecalFX` turns the emitter's forward vector (`fl2gv[3..6]`), not a fixed axis: a decal
+/// with no rotation points where the emitter faces, and the result is a unit vector.
+#[test]
+fn the_decal_starts_from_the_emitters_heading() {
+    let mut random = Random::default();
+    let forward = Vec3::new(3.0, 0.0, 4.0) / 5.0;
+    let spec = decal_spec(
+        &decal(0.0, 0.0),
+        0x0102_0001,
+        Vec3::ZERO,
+        forward,
+        BLOCK,
+        0.0,
+        &mut random,
+    )
+    .unwrap();
+    assert!((spec.direction - forward).length() < 1e-6);
+    let turned = decal_spec(
+        &decal(180.0, 0.0),
+        0x0102_0001,
+        Vec3::ZERO,
+        forward,
+        BLOCK,
+        0.0,
+        &mut random,
+    )
+    .unwrap();
+    assert!((turned.direction - Vec3::new(-0.6, 0.0, 0.8)).length() < 1e-6);
 }
 
 #[test]
@@ -81,6 +124,7 @@ fn a_radius_scatters_the_origin_within_it() {
             &decal(0.0, 4.0),
             0x0102_0001,
             Vec3::ZERO,
+            Vec3::Y,
             BLOCK,
             0.0,
             &mut random,

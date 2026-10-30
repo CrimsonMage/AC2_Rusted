@@ -9,6 +9,15 @@ use super::emitter::{vec_value, Emitter};
 use super::keyframes::{flag, Particle};
 use super::{SystemContext, EPSILON};
 
+/// `scale * vector`, each component evaluated in f64 and stored as the float retail keeps.
+fn scaled(vector: Vec3, scale: f64) -> Vec3 {
+    Vec3::new(
+        (scale * f64::from(vector.x)) as f32,
+        (scale * f64::from(vector.y)) as f32,
+        (scale * f64::from(vector.z)) as f32,
+    )
+}
+
 impl Emitter {
     /// `ParticleEmitter::DoPhysics`: the start origin plus the displacement under the forces the
     /// particle's keyframe flags enable, `relative` seconds after its controller key.
@@ -33,6 +42,81 @@ impl Emitter {
         if self.flags & flag::STREAK_ORIGIN != 0 {
             let behind = (relative - p.streak).max(0.0);
             p.streak_origin = p.start_origin + displacement(behind);
+        }
+    }
+
+    /// `ParticleEmitter::DoRepulse`: the particle is stepped in physics-time-step slices from the
+    /// emitter's last think (at most a quarter second back) to `now`. Each slice takes the
+    /// forces its keyframe flags enable (gravity, wind), the push of every nearby repulsor whose
+    /// range holds the particle (the acceleration at the centre, falling linearly to nothing at
+    /// the range; reversed for an attractor; constrained axes zeroed), then moves the particle by
+    /// its velocity and the acceleration, snaps it back toward its start origin by the emitter's
+    /// `ParticleSnap` waveform, and keeps 95 percent of the step's velocity.
+    pub(crate) fn do_repulse(&self, context: &SystemContext<'_>, now: f64, p: &mut Particle) {
+        let desc = &context.desc.emitters[self.index];
+        let time_alive = (now - p.time_created) as f32;
+        let mass = f64::from(self.mass(desc, time_alive, p));
+        let step = context.desc.physics_time_step;
+        let step64 = f64::from(step);
+        let inverse = (1.0 / step64) as f32;
+        let mut last = self.last_think;
+        if now - last > 0.25 {
+            last = now - 0.25;
+        }
+        while step64 <= now - last {
+            last += step64;
+            let mut origin = p.origin;
+            let mut acceleration = Vec3::ZERO;
+            if p.keyframe_flags & 1 != 0 {
+                acceleration += scaled(self.gravity, mass);
+            }
+            if p.keyframe_flags & 2 != 0 {
+                acceleration += scaled(self.wind, mass);
+            }
+            for repulsor in context.repulsors {
+                let from = origin - repulsor.position;
+                let distance = (f64::from(from.x) * f64::from(from.x)
+                    + f64::from(from.y) * f64::from(from.y)
+                    + f64::from(from.z) * f64::from(from.z))
+                .sqrt() as f32;
+                if distance >= repulsor.range {
+                    continue;
+                }
+                let mut push = if distance.abs() < EPSILON {
+                    Vec3::ZERO
+                } else {
+                    let scale = ((1.0 / f64::from(distance))
+                        * (1.0 - f64::from(distance) / f64::from(repulsor.range))
+                        * f64::from(repulsor.acceleration)) as f32;
+                    from * scale
+                };
+                if repulsor.attractor {
+                    push = -push;
+                }
+                for (axis, constrained) in desc.constrain_axes.iter().enumerate() {
+                    if *constrained {
+                        push[axis] = 0.0;
+                    }
+                }
+                acceleration += push;
+            }
+            let moved = |a: f32, v: f32| (f64::from(a) * step64 + step64 * f64::from(v)) as f32;
+            let delta = Vec3::new(
+                moved(acceleration.x, p.velocity.x),
+                moved(acceleration.y, p.velocity.y),
+                moved(acceleration.z, p.velocity.z),
+            );
+            let to_start = p.start_origin - origin;
+            let snap = (f64::from(desc.particle_snap.value(f64::from(time_alive))) * step64) as f32;
+            let snap64 = f64::from(snap);
+            origin = Vec3::new(
+                (f64::from(to_start.x) * snap64 + f64::from(delta.x) + f64::from(origin.x)) as f32,
+                (f64::from(to_start.y) * snap64 + f64::from(delta.y) + f64::from(origin.y)) as f32,
+                (f64::from(to_start.z) * snap64 + f64::from(delta.z) + f64::from(origin.z)) as f32,
+            );
+            p.origin = origin;
+            let keep = |d: f32| (f64::from(d) * f64::from(inverse) * 0.95) as f32;
+            p.velocity = Vec3::new(keep(delta.x), keep(delta.y), keep(delta.z));
         }
     }
 

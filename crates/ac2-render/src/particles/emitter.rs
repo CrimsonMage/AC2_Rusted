@@ -430,8 +430,7 @@ impl Emitter {
         match controller {
             CONTROLLER_PHYSICS => self.do_physics(desc, relative, now, p),
             CONTROLLER_WAVEFORM => self.do_waveform(relative, p),
-            // Repulsors are not modelled: a repulse particle stays where it was.
-            CONTROLLER_REPULSE => {}
+            CONTROLLER_REPULSE => self.do_repulse(context, now, p),
             CONTROLLER_POINT_FILE => self.do_point_file(context, p),
             CONTROLLER_POINT_FILE_LERP => {
                 self.point_file_lerp(context, p, (now - self.last_think) as f32)

@@ -15,6 +15,7 @@ use ac2_world::{land_block_size, GameClock};
 use crate::client::Client;
 use crate::frame::FxFollow;
 use crate::remote::{Context, RemoteCalls};
+use ac2_render::fx_decals::EmitterPlace;
 use ac2_render::fx_particles::startup_light_starts;
 
 impl Client {
@@ -80,6 +81,7 @@ impl Client {
                             );
                             self.apply_slider_fx();
                             self.fx_streaks.start_streaks(*id, fx, table, &streak_ctx);
+                            self.fx_repulsors.start(*id, fx, table, &streak_ctx);
                             let at = self.emitter_place(*id);
                             self.fx_decals.start(
                                 *id,
@@ -99,6 +101,7 @@ impl Client {
                             .unwrap_or_default();
                         self.fx_objects.stop(*id, fx, &nodes, now);
                         self.fx_streaks.stop_streaks(*id, fx);
+                        self.fx_repulsors.stop(*id, fx);
                         self.fx_decals.stop(*id, fx);
                     }
                     _ => {}
@@ -204,6 +207,7 @@ impl Client {
             if is_gone(id) {
                 self.fx_objects.remove_emitter(id, now);
                 self.fx_streaks.forget_emitter(id);
+                self.fx_repulsors.forget_emitter(id);
                 self.fx_decals.forget_emitter(id);
             }
         }
@@ -211,6 +215,12 @@ impl Client {
         for id in self.fx_streaks.streaked_emitters() {
             if is_gone(id) {
                 self.fx_streaks.remove_streaks(id);
+            }
+        }
+        // The same for a repulsor's emitter (`CPartArray`'s destructor).
+        for id in self.fx_repulsors.repulsed_emitters() {
+            if is_gone(id) {
+                self.fx_repulsors.remove_repulsors(id);
             }
         }
     }
@@ -267,9 +277,9 @@ impl Client {
 }
 
 impl Client {
-    /// The emitter's place for an FX decal: its cell and block-local origin, `None` while it has no
+    /// The emitter's place for an FX decal: its cell, block-local origin and heading, `None` while it has no
     /// body (`DoDecalFX` needs the physics rep).
-    fn emitter_place(&self, id: u64) -> Option<(u32, Vec3)> {
+    fn emitter_place(&self, id: u64) -> Option<EmitterPlace> {
         let is_player = self.player.as_ref().is_some_and(|p| p.id == id);
         let at = if is_player {
             self.player
@@ -281,7 +291,17 @@ impl Client {
         };
         at.map(|p| {
             let o = p.frame.origin;
-            (p.cell_id, Vec3::new(o.x, o.y, o.z))
+            EmitterPlace {
+                cell: p.cell_id,
+                origin: Vec3::new(o.x, o.y, o.z),
+                // `Frame::fl2gv`'s second row: the local y axis in global axes.
+                forward: {
+                    let f = p
+                        .frame
+                        .local_to_global_vec(ac2_physics::Vector::new(0.0, 1.0, 0.0));
+                    Vec3::new(f.x, f.y, f.z)
+                },
+            }
         })
     }
 
@@ -294,6 +314,13 @@ impl Client {
     pub fn apply_decal_preferences(&mut self, bank: &ac2_prefs::PreferenceBank) {
         self.fx_decals
             .set_enabled(ac2_render::prefs::decal_effects(bank));
+    }
+
+    /// The repulsor calls the FX made since the renderer last took them, in order.
+    pub fn take_object_repulsor_calls(
+        &mut self,
+    ) -> Vec<ac2_render::fx_repulsors::ObjectRepulsorCall> {
+        self.fx_repulsors.take_calls()
     }
 
     /// The streak calls the FX started since the renderer last took them, in order.

@@ -8,8 +8,7 @@
 //! ([`FxDecals::take_calls`]).
 //!
 //! Not ported here: a decal on a dungeon cell (`DecalEffect::ConstructDungeonDecal` needs the cell's
-//! polygons; such a node makes no decal), and the direction's start vector, which retail reads from
-//! the emitter's place past its `Position` (see [`decal_spec`]).
+//! polygons; such a node makes no decal).
 
 use std::collections::BTreeSet;
 
@@ -32,21 +31,30 @@ fn block_origin(cell: u32, block_size: f32) -> [f32; 2] {
     ]
 }
 
+/// Where an emitter stands for a decal: its cell, its block-local origin and the world heading
+/// of its local y axis (`Frame::fl2gv`'s second row, the vector `DoDecalFX` turns).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EmitterPlace {
+    pub cell: u32,
+    pub origin: Vec3,
+    pub forward: Vec3,
+}
+
 /// The decal `DoDecalFX` makes for `decal` at an emitter in `cell` standing at `origin` (its
-/// block-local position), at client time `time`; `None` where retail makes none (a dungeon
-/// cell, or no cell at all).
+/// block-local position) heading `forward`, at client time `time`; `None` where retail makes
+/// none (a dungeon cell, or no cell at all).
 ///
 /// The order of the work follows `FXManager::DoDecalFX`: the waveforms are read at `time`;
 /// the position is the emitter's plus the node's origin; with a radius the decal is scattered
 /// in the horizontal plane (two `RollDice(-1, 1)` for the direction, then `RollDice(0, 1)` for
-/// its distance); the direction is the start vector turned by the rotation about the vertical
-/// axis. Retail's start vector is read from the emitter's place past its `Position`, which this
-/// port does not resolve, so it uses the x axis; a rotation waveform then turns the decal from
-/// that fixed start.
+/// its distance); the direction is the emitter's forward vector (`fl2gv[3..6]`, the y axis of its
+/// frame, which retail reads at offset 0x30 of the `Position` copy) turned by the rotation about
+/// the vertical axis, and normalised.
 pub fn decal_spec(
     decal: &Ac2DecalFx,
     cell: u32,
     origin: Vec3,
+    forward: Vec3,
     block_size: f32,
     time: f64,
     random: &mut Random,
@@ -78,7 +86,19 @@ pub fn decal_spec(
 
     let [east, north] = block_origin(cell, block_size);
     let world = Vec3::new(east + local[0], north + local[1], local[2]);
-    let direction = Vec3::new(angle.cos() as f32, angle.sin() as f32, 0.0);
+    // `Quaternion::RotationAxis(z, angle)` applied to the forward vector, evaluated in f64.
+    let (sin, cos) = angle.sin_cos();
+    let (fx, fy, fz) = (
+        f64::from(forward.x),
+        f64::from(forward.y),
+        f64::from(forward.z),
+    );
+    let turned = Vec3::new(
+        (fx * cos - fy * sin) as f32,
+        (fx * sin + fy * cos) as f32,
+        fz as f32,
+    );
+    let direction = turned.normalize_or_zero();
     Some(DecalSpec {
         material: DataId::new(decal.material),
         lifespan: decal.lifespan,
@@ -103,14 +123,14 @@ pub struct FxDecals {
 
 impl FxDecals {
     /// `FXManager::DoTargettedFX`'s decal part for an FX starting on `emitter`, standing in
-    /// `at` (the emitter's cell and block-local origin). Each node that plays (the same gate as
+    /// `at` (the emitter's cell, block-local origin and heading). Each node that plays (the same gate as
     /// the streak part) with a decal makes it, in order. A running FX starts nothing again.
     pub fn start(
         &mut self,
         emitter: u64,
         fx: u32,
         table: &Ac2VisualFxParticles,
-        at: Option<(u32, Vec3)>,
+        at: Option<EmitterPlace>,
         ctx: &StreakContext<'_>,
         block_size: f32,
         time: f64,
@@ -136,7 +156,7 @@ impl FxDecals {
     pub fn start_startup(
         &mut self,
         nodes: &[Ac2ParticleAttachment],
-        at: Option<(u32, Vec3)>,
+        at: Option<EmitterPlace>,
         block_size: f32,
         time: f64,
         random: &mut Random,
@@ -149,7 +169,7 @@ impl FxDecals {
     fn make(
         &mut self,
         object: &Ac2FxObject,
-        at: Option<(u32, Vec3)>,
+        at: Option<EmitterPlace>,
         block_size: f32,
         time: f64,
         random: &mut Random,
@@ -157,10 +177,19 @@ impl FxDecals {
         if self.disabled {
             return;
         }
-        let (Some(decal), Some((cell, origin))) = (object.decal.as_ref(), at) else {
+        let (Some(decal), Some(place)) = (object.decal.as_ref(), at) else {
             return;
         };
-        if let Some(spec) = decal_spec(decal, cell, origin, block_size, time, random) {
+        let spec = decal_spec(
+            decal,
+            place.cell,
+            place.origin,
+            place.forward,
+            block_size,
+            time,
+            random,
+        );
+        if let Some(spec) = spec {
             self.calls.push(spec);
         }
     }

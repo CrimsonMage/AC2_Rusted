@@ -69,6 +69,8 @@ struct Drawn<'a> {
     /// `CPhysicsObj::Draw`'s `_bUseAdaptiveDegrade` (`ObjectFrame::adaptive_degrade`; the player
     /// is a mobile server object).
     adaptive: bool,
+    /// The body's speed (`CPhysicsObj::GetVelocity`'s length), which a particle repulsor reads.
+    speed: f32,
 }
 
 /// The view's state.
@@ -134,6 +136,7 @@ fn fx_slots(drawn: &[Drawn<'_>]) -> Vec<FxSlot> {
             cell: drawn.cell,
             follow: drawn.follow,
             body_scale: drawn.body_scale,
+            speed: drawn.speed,
         })
         .collect()
 }
@@ -179,6 +182,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
             held: None,
             placement: None,
             adaptive: true,
+            speed: Vec3::from(p.velocity).length(),
         })
     });
     let others = frame
@@ -216,6 +220,7 @@ fn drawn_objects(frame: &ClientFrame) -> Vec<Drawn<'_>> {
                     .and_then(|holder| Some((holder.id, holder.point?, holder.offset))),
                 placement: o.holder.and_then(|holder| holder.orientation),
                 adaptive: o.adaptive_degrade,
+                speed: Vec3::from(o.velocity).length(),
             })
         });
     player.chain(others).collect()

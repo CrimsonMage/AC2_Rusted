@@ -16,7 +16,9 @@ use ac2_math::{Frame, Quat, Vec3};
 
 use super::loader::{BlockKey, ParticleSource};
 use super::ObjectPlacement;
-use crate::particles::{CameraBasis, ParticleGeometry, ParticleSystem};
+use crate::particles::{
+    CameraBasis, NearbyRepulsor, ParticleGeometry, ParticleSystem, RepulsorSpec, Repulsors,
+};
 use crate::Camera;
 
 /// One material's particles of the frame, in world space.
@@ -63,6 +65,12 @@ pub(super) struct SceneParticles {
     placed: HashMap<u64, PlacedObject>,
     /// The particles alive in the last frame's drawn systems.
     alive: usize,
+    /// `PSManager::s_Repulsors` and each emitter's own (`CPartArray::m_PRepulsorInstances`).
+    repulsors: Repulsors,
+    object_repulsors: HashMap<u64, Vec<u64>>,
+    /// `Render::m_Prefs.VolumetricFogEffects`: while it is off, a system with a repulse emitter
+    /// neither thinks nor draws (`ParticleSystem::Think` and `Render` return first).
+    fog_effects: bool,
 }
 
 /// An object's frame, scale and bones this frame (see [`ObjectPlacement`]).
@@ -197,7 +205,42 @@ impl SceneParticles {
             objects: HashMap::new(),
             placed: HashMap::new(),
             alive: 0,
+            repulsors: Repulsors::default(),
+            object_repulsors: HashMap::new(),
+            fog_effects: true,
         }
+    }
+
+    /// `VolumetricFogEffects` for the repulse systems.
+    pub(super) fn set_fog_effects(&mut self, on: bool) {
+        self.fog_effects = on;
+    }
+
+    /// `CPartArray::CreateRepulsorEffect`: a repulsor on `emitter`.
+    pub(super) fn create_repulsor(&mut self, emitter: u64, spec: RepulsorSpec) {
+        let now = self.now();
+        let handle = self.repulsors.create(spec, now);
+        self.object_repulsors
+            .entry(emitter)
+            .or_default()
+            .push(handle);
+    }
+
+    /// `CPartArray`'s destructor: the emitter's repulsors are destroyed.
+    pub(super) fn remove_repulsors(&mut self, emitter: u64) {
+        for handle in self.object_repulsors.remove(&emitter).into_iter().flatten() {
+            self.repulsors.destroy(handle);
+        }
+    }
+
+    /// How many repulsors the emitter holds.
+    pub(super) fn repulsor_count(&self, emitter: u64) -> usize {
+        self.object_repulsors.get(&emitter).map_or(0, Vec::len)
+    }
+
+    /// The repulsors in the world.
+    pub(super) fn repulsors(&self) -> &Repulsors {
+        &self.repulsors
     }
 
     /// Client time for the systems (`Timer::local_time`).
@@ -306,6 +349,7 @@ impl SceneParticles {
 
     /// The frame's object placements (`CPartArray::QueueParticleSystems`' object frames).
     pub(super) fn place_objects(&mut self, placements: &[ObjectPlacement]) {
+        self.place_repulsors(placements);
         self.placed.clear();
         self.placed.extend(placements.iter().map(|p| {
             (
@@ -320,6 +364,30 @@ impl SceneParticles {
         }));
     }
 
+    /// `PHYSICSOBJREP::Draw`'s repulsors: each of a drawn object's repulsors that is ready to die
+    /// is destroyed, the others take the object's place, this scene stamp and its speed.
+    fn place_repulsors(&mut self, placements: &[ObjectPlacement]) {
+        let now = self.now();
+        let stamp = self.repulsors.next_stamp();
+        for placement in placements {
+            let Some(handles) = self.object_repulsors.get_mut(&placement.emitter) else {
+                continue;
+            };
+            let repulsors = &mut self.repulsors;
+            handles.retain(|handle| {
+                let Some(repulsor) = repulsors.get_mut(*handle) else {
+                    return false;
+                };
+                if repulsor.is_ready_to_die(now) {
+                    repulsors.destroy(*handle);
+                    return false;
+                }
+                repulsor.place(placement.frame.origin, stamp, placement.speed);
+                true
+            });
+        }
+    }
+
     pub(super) fn alive(&self) -> usize {
         self.alive
     }
@@ -330,13 +398,22 @@ impl SceneParticles {
             return Vec::new();
         };
         let now = self.now();
+        let nearby = self.repulsors.nearby(now);
+        let fog = self.fog_effects;
         let mut batches: Vec<ParticleBatch> = Vec::new();
         let mut alive = 0;
         let mut keys: Vec<BlockKey> = self.systems.keys().copied().collect();
         keys.sort_unstable();
         for key in keys {
             for system in self.systems.get_mut(&key).into_iter().flatten() {
-                draw(system, camera, &basis, now, &mut batches, &mut alive);
+                draw(
+                    system,
+                    camera,
+                    &basis,
+                    (now, &nearby, fog),
+                    &mut batches,
+                    &mut alive,
+                );
             }
         }
         let mut handles: Vec<u64> = self.objects.keys().copied().collect();
@@ -364,7 +441,14 @@ impl SceneParticles {
                 };
                 system.place(frame, placed.scale, 1.0);
             }
-            draw(system, camera, &basis, now, &mut batches, &mut alive);
+            draw(
+                system,
+                camera,
+                &basis,
+                (now, &nearby, fog),
+                &mut batches,
+                &mut alive,
+            );
             if system.ready_to_die(now) {
                 retired.push(handle);
             }
@@ -384,7 +468,7 @@ fn draw(
     system: &mut ParticleSystem,
     camera: &Camera,
     basis: &CameraBasis,
-    now: f64,
+    (now, repulsors, fog): (f64, &[NearbyRepulsor], bool),
     batches: &mut Vec<ParticleBatch>,
     alive: &mut usize,
 ) {
@@ -397,10 +481,12 @@ fn draw(
         return;
     };
     system.set_disabled(false);
-    if system.needs_repulsors() {
+    // `ParticleSystem::Think` and `Render` return first for a repulse system while
+    // `VolumetricFogEffects` is off.
+    if system.needs_repulsors() && !fog {
         return;
     }
-    system.think(now);
+    system.think_with(now, repulsors);
     *alive += system.alive();
     let index = match batches.iter().position(|b| b.material == material) {
         Some(index) => index,

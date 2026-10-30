@@ -8,14 +8,20 @@
 //! stays the identity for it and `RenderAtPosition` places it by translation and scale alone. A
 //! world-space system's particles are placed by the system's frame when they are discharged.
 //!
-//! Not modelled: repulsors (`ParticleRepulsor`, controller 3), emission by distance travelled
-//! (`EmitDistanceParticles`: a placed system never moves), particle lighting
-//! (`GetLighting`: particles draw unlit) and shared systems (each source runs its own).
+//! Repulsors (`ParticleRepulsor`, controller 3) push the particles of repulse emitters
+//! ([`repulsor`]): a system's [`ParticleSystem::think_with`] is given the ones placed this frame.
+//!
+//! Not modelled: emission by distance travelled (`EmitDistanceParticles`: a placed system never
+//! moves), particle lighting (`GetLighting`: particles draw unlit) and shared systems (each
+//! source runs its own).
 
 mod controllers;
 mod emitter;
 mod fill;
 mod keyframes;
+#[cfg(test)]
+mod repulse_tests;
+pub mod repulsor;
 #[cfg(test)]
 mod tests;
 
@@ -26,6 +32,7 @@ use ac2_core::{DataId, Random};
 use ac2_math::{Frame, Vec3};
 
 pub use fill::{CameraBasis, ParticleGeometry};
+pub use repulsor::{NearbyRepulsor, ParticleRepulsor, RepulsorSpec, Repulsors};
 
 use emitter::Emitter;
 
@@ -45,6 +52,9 @@ pub(crate) struct SystemContext<'a> {
     /// `m_worldPosition`'s frame: the placed frame for a world-space system, else the identity.
     pub frame: Frame,
     pub rng: &'a mut Random,
+    /// The repulsors `ParticleEmitter::Think` collected (`nearbyRepulsors`), in the space the
+    /// system's particles are in.
+    pub repulsors: &'a [NearbyRepulsor],
 }
 
 /// A generator for the system with `seed`: the client's one stream, wound on by the seed so that
@@ -141,8 +151,15 @@ impl ParticleSystem {
         self.emitters.iter().map(Emitter::len).sum()
     }
 
-    /// `ParticleSystem::Think` at client time `now`.
+    /// `ParticleSystem::Think` at client time `now`, with no repulsors in the world.
     pub fn think(&mut self, now: f64) {
+        self.think_with(now, &[]);
+    }
+
+    /// `ParticleSystem::Think` at client time `now`, with the `repulsors` of the scene (in scene
+    /// axes) that act on repulse emitters. A system whose particles are relative to its origin
+    /// (not world space) takes them relative to it.
+    pub fn think_with(&mut self, now: f64, repulsors: &[NearbyRepulsor]) {
         if self.disabled {
             return;
         }
@@ -151,11 +168,25 @@ impl ParticleSystem {
         if duration != 0.0 && now - self.start_time > f64::from(duration) {
             return;
         }
+        let local: Vec<NearbyRepulsor>;
+        let repulsors = if self.desc.world_space || repulsors.is_empty() {
+            repulsors
+        } else {
+            local = repulsors
+                .iter()
+                .map(|r| NearbyRepulsor {
+                    position: r.position - self.frame.origin,
+                    ..*r
+                })
+                .collect();
+            &local
+        };
         let mut context = SystemContext {
             desc: &self.desc,
             start_time: self.start_time,
             frame: self.context_frame(),
             rng: &mut self.rng,
+            repulsors,
         };
         for emitter in &mut self.emitters {
             emitter.emit_particles(&mut context, now);
@@ -199,6 +230,7 @@ impl ParticleSystem {
             start_time: self.start_time,
             frame: self.context_frame(),
             rng: &mut self.rng,
+            repulsors: &[],
         };
         if let Some(emitter) = self.emitters.first_mut() {
             emitter.discharge_at(&mut context, now, now, offset);
@@ -240,6 +272,7 @@ impl ParticleSystem {
                 Frame::IDENTITY
             },
             rng: &mut self.rng,
+            repulsors: &[],
         };
         if let Some(emitter) = self.emitters.get_mut(emitter) {
             emitter.discharge(&mut context, now, offset);

@@ -9,6 +9,7 @@ pub mod frill;
 pub mod frustum;
 pub mod fx_decals;
 pub mod fx_particles;
+pub mod fx_repulsors;
 pub mod fx_streaks;
 mod image;
 pub mod interior_cull;

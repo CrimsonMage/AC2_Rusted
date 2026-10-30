@@ -296,6 +296,7 @@ fn an_fx_light_over_the_ground_pools_its_light_there_for_one_frame() {
         bones: Vec::new(),
         named_bones: Vec::new(),
         parents: std::sync::Arc::from(Vec::new()),
+        speed: 0.0,
     }]);
     let camera = Camera {
         eye: Vec3::new(x, y - 10.0, ground + 5.0),

@@ -185,6 +185,8 @@ fn the_scene_options_read_the_draw_distance_and_the_frill_distance() {
         SceneOptions {
             object_shadows: crate::prefs::ObjectShadows::Off,
             light_coronas: false,
+            // `VolumetricFogEffects` registers off.
+            volumetric_fog: false,
             static_shadows: false,
             cloud_shadows: false,
             water_reflections: 0,

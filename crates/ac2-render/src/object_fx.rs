@@ -11,6 +11,7 @@ use ac2_physics::{follow_frame, FxFollow};
 
 use crate::decal::DecalSpec;
 use crate::fx_particles::{ObjectLightStart, ObjectParticleStart};
+use crate::fx_repulsors::ObjectRepulsorCall;
 use crate::fx_streaks::ObjectStreakCall;
 use crate::object::ObjectPose;
 use crate::scene::{ObjectPlacement, WorldScene};
@@ -26,6 +27,8 @@ pub struct FxSlot {
     pub follow: Option<FxFollow>,
     /// The body's own scale over the model's (`CPhysicsObj::GetScale`).
     pub body_scale: Vec3,
+    /// The body's speed (`CPhysicsObj::GetVelocity`'s length).
+    pub speed: f32,
 }
 
 /// An object's model-to-world matrix: its total scale, then its place.
@@ -78,6 +81,19 @@ pub fn apply_streaks(scene: &mut WorldScene, calls: &[ObjectStreakCall], visible
         }
     }
     scene.set_streaks_visible(visible);
+}
+
+/// The particle repulsors the objects' FX made (`FXManager::DoRepulseFX`) and those of the
+/// objects that left the world, in order.
+pub fn apply_repulsors(scene: &mut WorldScene, calls: &[ObjectRepulsorCall]) {
+    for call in calls {
+        match *call {
+            ObjectRepulsorCall::Create { emitter, spec } => {
+                scene.start_object_repulsor(emitter, spec);
+            }
+            ObjectRepulsorCall::Gone { emitter } => scene.remove_object_repulsors(emitter),
+        }
+    }
 }
 
 /// The decals the objects' FX projected (`FXManager::DoDecalFX`), in order: each one takes the
@@ -164,6 +180,7 @@ pub fn object_placements(
                 bones,
                 named_bones,
                 parents: rig.skeleton.root_parents(),
+                speed: slot.speed,
             })
         })
         .collect()

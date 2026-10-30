@@ -290,6 +290,8 @@ fn the_scene_takes_the_draw_and_frill_distances_the_page_sets() {
             object_shadows: ac2_render::prefs::ObjectShadows::Off,
             // `LightCoronas` registers off as well.
             light_coronas: false,
+            // `VolumetricFogEffects` registers off.
+            volumetric_fog: false,
             // So do `LandscapeStaticObjectShadows` and `LandscapeCloudShadows`.
             static_shadows: false,
             cloud_shadows: false,

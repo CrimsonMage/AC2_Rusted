@@ -249,6 +249,7 @@ fn a_do_fx_script_particle_system_is_drawn_on_its_object_until_it_ends() {
         bones: posed.bones,
         named_bones: posed.named_bones,
         parents: std::sync::Arc::from(Vec::new()),
+        speed: 0.0,
     }];
     let camera = Camera {
         eye: at + Vec3::new(0.0, -4.0, 1.0),

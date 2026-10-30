@@ -108,6 +108,12 @@ game rules and server-visible behaviour exactly retail.
   ray through the world's depth (`ac2_gpu` `water_reflection.rs`): what it meets on the screen,
   else the world's colour where the mirrored direction reaches the screen, blended in by a Fresnel
   weight, with procedural ripples at level 2. What is off the screen is not reflected.
+- Exception: a particle repulsor acts in the space of the system's particles. Retail's
+  `ParticleEmitter::DoRepulse` subtracted the repulsor's `Position` origin (the object's frame
+  origin) from each particle's origin as they stood, which only agrees for a world-space system;
+  a system whose particles are relative to its own origin was compared against an unrelated
+  origin. Here the repulsor's place is taken relative to the system's origin for such a system
+  (`ParticleSystem::think_with`), so a repulsor pushes it as it does a world-space one.
 - Exception: the portal space is a scene. Retail's `PortalSpace::Effect::Render` drew the fader, the
   background mesh, the tunnel rings and the cloud particles straight into the back buffer. Here
   they draw in retail's order into the `Rgba16Float` scene target from the portal camera over a

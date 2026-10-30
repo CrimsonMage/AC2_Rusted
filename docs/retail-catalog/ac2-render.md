@@ -1,6 +1,6 @@
 # ac2-render: Scene and world rendering
 
-781 retail functions: 179 done, 54 partial, 188 to do, 360 skipped.
+781 retail functions: 187 done, 53 partial, 182 to do, 359 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/ctrilist/ctrianglelist.cpp.c` (0/12)
@@ -463,7 +463,7 @@ Legend and workflow: [README](README.md).
 - [-] `DecalEffect::~DecalEffect` · 005de7b0 · legions 0059f540 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [x] `DecalEffect::ConstructDecal` · 005de7e0 · legions 0059f570 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 - [x] `DecalEffect::ConstructLandscapeDecal` · 005dee50 · legions 0059fbe0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
-- [~] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — dungeon decal needs CEnvCell::GetNearbyGeometry; not ported, such nodes make no decal
+- [~] `DecalEffect::ConstructDungeonDecal` · 005df1e0 · legions 0059ff70 — dungeon decals not ported: needs the emitter cell id carried through DecalSpec, the visible env cell (CObjCell::GetVisible) and its mesh triangles plus portal neighbours on the CPU (CEnvCell::GetNearbyGeometry), which the scene only holds as GPU models; such nodes make no decal
 - [x] `DecalEffect::Init` · 005df350 · legions 005a00e0 — decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 
 ## `portal/client/src/render/decal/decaleffectgroup.cpp.c` (3/5)
@@ -564,7 +564,7 @@ Legend and workflow: [README](README.md).
 - [-] `ParticleWrapper::GetPointSpeed` · 005dcf90 · legions 0059dc80 — trivial accessor of plain particle/record field; Rust struct field replaces it
 - [-] `ParticleWrapper::SetPointSpeed` · 005dcfa0 · legions 0059dc90 — trivial accessor of plain particle/record field; Rust struct field replaces it
 
-## `portal/client/src/render/particle/particleemitter.cpp.c` (24/40)
+## `portal/client/src/render/particle/particleemitter.cpp.c` (25/40)
 
 ### ParticleEmitter
 - [x] `ParticleEmitter::SetLastDischargeTime` · 005d07a0 · legions 00593e90 — ac2-render particles
@@ -574,7 +574,7 @@ Legend and workflow: [README](README.md).
 - [x] `FillVerts::GetWorldRotationMatrix` · 005d07f0 — ac2-render particles
 - [x] `FillVerts::GetRotationMatrix` · 005d0840 — ac2-render particles
 - [x] `FillVerts::GetVertexPositions` · 005d0880 · legions 00593f70 — ac2-render particles
-- [~] `FillVerts::GetStreakedVertexPositions` · 005d0940 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `FillVerts::GetStreakedVertexPositions` · 005d0940 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [x] `FillVerts::RotateVertex` · 005d0f50 — ac2-render particles
 
 ### ParticleBuffer
@@ -591,7 +591,7 @@ Legend and workflow: [README](README.md).
 - [x] `ParticleEmitter::DoWaveform` · 005d1850 · legions 00594f40 — ac2-render particles
 - [x] `ParticleEmitter::GetMass` · 005d1980 · legions 00595070 — ac2-render particles
 - [x] `ParticleEmitter::DoPhysics` · 005d1a20 · legions 00595110 — ac2-render particles
-- [-] `ParticleEmitter::DoRepulse` · 005d1cb0 · legions 005953a0 — placed systems never move; repulsors are not modelled
+- [x] `ParticleEmitter::DoRepulse` · 005d1cb0 · legions 005953a0 — ac2-render particles/controllers.rs do_repulse (x87 order kept in f64, rounded at float stores); nearby repulsors per scene stamp (Repulsors::nearby); VolumetricFogEffects off holds repulse systems back as ParticleSystem::Think/Render do
 - [x] `ParticleEmitter::DoPointFile` · 005d2150 · legions 00595840 — ac2-render particles
 - [x] `ParticleEmitter::DoPointFileLerp` · 005d2290 · legions 00595980 — ac2-render particles
 
@@ -601,30 +601,30 @@ Legend and workflow: [README](README.md).
 - [x] `FillVerts::GetNullStreakOrigin` · 005d2600 — ac2-render particles
 - [x] `FillVerts::GetStreakOrigin` · 005d2620 — ac2-render particles
 - [x] `FillVerts::GetBlendedStreakOrigin` · 005d2640 — ac2-render particles
-- [~] `FillVerts::GetLighting` · 005d26d0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `FillVerts::GetLighting` · 005d26d0 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 
 ### ParticleEmitter
-- [~] `ParticleEmitter::FillVertexBuffer` · 005d28a0 · legions 00595f90 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::FillVertexBuffer` · 005d28a0 · legions 00595f90 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [ ] `ParticleEmitter::SetPosition` · 005d3690 · legions 00596d80 — needs port: particle emitter (position, desc)
-- [~] `ParticleEmitter::ApplyKeyframe` · 005d3850 · legions 00596f40 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::ApplyKeyframe` · 005d3850 · legions 00596f40 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [x] `ParticleEmitter::ApplyKeyframes` · 005d3d10 · legions 00597400 — ac2-render particles
-- [~] `ParticleEmitter::ParticleThink` · 005d3de0 · legions 005974d0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleEmitter::Think` · 005d40a0 · legions 00597790 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleEmitter::DischargeParticle` · 005d42a0 · legions 00597990 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::ParticleThink` · 005d3de0 · legions 005974d0 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::Think` · 005d40a0 · legions 00597790 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::DischargeParticle` · 005d42a0 · legions 00597990 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [x] `ParticleEmitter::SetupKeyframes` · 005d4bb0 · legions 005982a0 — ac2-render particles
-- [~] `ParticleEmitter::Initialize` · 005d4e30 · legions 00598520 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::Initialize` · 005d4e30 · legions 00598520 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [x] `ParticleEmitter::Reset` · 005d4ed0 · legions 005985c0 — ac2-render particles
-- [~] `ParticleEmitter::EmitTimedParticles` · 005d4f00 · legions 005985f0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [-] `ParticleEmitter::EmitDistanceParticles` · 005d5280 · legions 00598970 — placed systems never move; repulsors are not modelled
-- [~] `ParticleEmitter::EmitParticles` · 005d58a0 · legions 00598f90 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleEmitter::EmitTimedParticles` · 005d4f00 · legions 005985f0 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [-] `ParticleEmitter::EmitDistanceParticles` · 005d5280 · legions 00598970 — placed systems never move: emission by distance travelled needs a moving system
+- [~] `ParticleEmitter::EmitParticles` · 005d58a0 · legions 00598f90 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 
-## `portal/client/src/render/particle/particlerepulsor.cpp.c` (0/4)
+## `portal/client/src/render/particle/particlerepulsor.cpp.c` (2/4)
 
 ### ParticleRepulsor
-- [ ] `ParticleRepulsor::ParticleRepulsor` · 005c3790 · legions 0058a8a0 — needs port: particle repulsor (push-away field, active state, position)
+- [x] `ParticleRepulsor::ParticleRepulsor` · 005c3790 · legions 0058a8a0 — ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 - [-] `ParticleRepulsor::GetIsReadyToDie` · 005c37f0 · legions 0058a900 — trivial accessor of plain particle/record field; Rust struct field replaces it
 - [-] `ParticleRepulsor::GetIsActive` · 005c3820 · legions 0058a930 — trivial accessor of plain particle/record field; Rust struct field replaces it
-- [ ] `ParticleRepulsor::SetPosition` · 005c3870 · legions 0058a980 — needs port: particle repulsor (push-away field, active state, position)
+- [x] `ParticleRepulsor::SetPosition` · 005c3870 · legions 0058a980 — ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 
 ## `portal/client/src/render/particle/particlesystem.cpp.c` (3/22)
 
@@ -642,8 +642,8 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleSystem::CanBeShared` · 005c25b0 · legions 005897b0 — needs port: shared particle system check
 - [x] `ParticleSystem::GetReadyToDie` · 005c25f0 · legions 005897f0 — ac2-render particles/emitter.rs ready_to_die and particles/mod.rs ready_to_die: the emitter's inactive, time-limit and emission-limit tests and the system's ten-thousand second wait, checked against the decompile
 - [-] `ParticleSystem::Destroy` · 005c2680 · legions 00589880 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-- [~] `ParticleSystem::Start` · 005c2700 · legions 00589900 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleSystem::Think` · 005c2770 · legions 00589970 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Start` · 005c2700 · legions 00589900 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Think` · 005c2770 · legions 00589970 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 - [ ] `ParticleSystem::GetLightingOrigin` · 005c28b0 · legions 00589a80 — needs port: particle system (lifecycle, lighting origin, shared/queue behaviour)
 
 ### ParticleSystem::ParticleRenderPos
@@ -653,18 +653,18 @@ Legend and workflow: [README](README.md).
 - [ ] `ParticleSystem::ParticleSystem` · 005c2a40 · legions 00589c10 — needs port: particle system (lifecycle, lighting origin, shared/queue behaviour)
 - [-] `ParticleSystem::~ParticleSystem` · 005c2ad0 · legions 00589ca0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 - [-] `ParticleSystem::Release` · 005c2b30 · legions 00589d00 — retail DB object cache handle/release; Arc per DID replaces (AGENTS.md exception)
-- [~] `ParticleSystem::FillVertexBuffer` · 005c2bf0 · legions 00589dc0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleSystem::RenderAtPosition` · 005c2e80 · legions 0058a050 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleSystem::Render` · 005c3250 · legions 0058a420 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::FillVertexBuffer` · 005c2bf0 · legions 00589dc0 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::RenderAtPosition` · 005c2e80 · legions 0058a050 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Render` · 005c3250 · legions 0058a420 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 
 ### SmartArray<ParticleSystem::ParticleRenderPos>
 - [-] `SmartArray<ParticleSystem::ParticleRenderPos>::AddToEnd` · 005c3450 · legions 0058a560 — SmartArray/STL container internals; Vec replaces
 
 ### ParticleSystem
-- [~] `ParticleSystem::Create` · 005c34e0 · legions 0058a5f0 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
-- [~] `ParticleSystem::Queue` · 005c3600 · legions 0058a710 — ac2-render particles: unlit, no repulsors, no shared systems; the rotation carried across controller keys and the streak's diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Create` · 005c34e0 · legions 0058a5f0 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
+- [~] `ParticleSystem::Queue` · 005c3600 · legions 0058a710 — ac2-render particles: repulsors act (do_repulse, think_with); unlit, no shared systems; the rotation carried across controller keys and the streak diagonal branch are read from the decompile, not checked against retail output
 
-## `portal/client/src/render/particle/psmanager.cpp.c` (2/15)
+## `portal/client/src/render/particle/psmanager.cpp.c` (4/15)
 
 ### PSManager
 - [ ] `PSManager::Startup` · 005c0540 · legions 005877e0 — needs port: particle system manager (register/create/destroy systems and repulsors)
@@ -673,7 +673,7 @@ Legend and workflow: [README](README.md).
 - [-] `PSManager::AutonomousSystemInfo::AutonomousSystemInfo` · 005c0670 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
 
 ### PSManager
-- [ ] `PSManager::DestroyRepulsor` · 005c0700 · legions 005879a0 — needs port: particle system manager (register/create/destroy systems and repulsors)
+- [x] `PSManager::DestroyRepulsor` · 005c0700 · legions 005879a0 — ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 - [ ] `PSManager::CreateParticleSystem` · 005c0760 · legions 00587a00 — needs port: particle system manager (register/create/destroy systems and repulsors)
 - [ ] `PSManager::UnregisterSystem` · 005c0850 · legions 00587ae0 — needs port: particle system manager (register/create/destroy systems and repulsors)
 
@@ -691,18 +691,18 @@ Legend and workflow: [README](README.md).
 
 ### PSManager
 - [ ] `PSManager::Shutdown` · 005c0c00 · legions 00587e90 — needs port: particle system manager (register/create/destroy systems and repulsors)
-- [ ] `PSManager::CreateRepulsor` · 005c0d20 · legions 00587fb0 — needs port: particle system manager (register/create/destroy systems and repulsors)
+- [x] `PSManager::CreateRepulsor` · 005c0d20 · legions 00587fb0 — ac2-render particles/repulsor.rs: ParticleRepulsor (new, place = SetPosition + stamp + speed, is_active, is_ready_to_die) and Repulsors (PSManager::CreateRepulsor/DestroyRepulsor, s_Repulsors)
 - [x] `PSManager::RenderParticleSystems` · 005c0db0 · legions 00588040 — PSManager::RenderParticleSystems cited in ac2-render scene/mod.rs:83 (particles merged per material)
 - [ ] `PSManager::RegisterSystem` · 005c0e60 · legions 005880f0 — needs port: particle system manager (register/create/destroy systems and repulsors)
 - [x] `PSManager::RegisterAutonomousSystem` · 005c0ec0 · legions 00588150 — PSManager::RegisterAutonomousSystem cited in ac2-render scene/particles.rs:6 (keep last place until ready to die)
 - [~] `PSManager::CreateAutonomousParticleSystem` · 005c0f80 · legions 00588210 — ac2-render scene/particles.rs follow=false path: a system placed once at the object's frame when first drawn; the autonomous registry and the water-plane frame are not ported
 
-## `portal/client/src/render/streak/streakeffect.cpp.c` (6/10)
+## `portal/client/src/render/streak/streakeffect.cpp.c` (7/10)
 
 ### StreakEffect
 - [x] `StreakEffect::Activate` · 005c13d0 · legions 00588640 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [x] `StreakEffect::Deactivate` · 005c13f0 · legions 00588660 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
-- [~] `StreakEffect::Render` · 005c1410 · legions 00588680 — emitter's own streaks start/stop/draw; holding-point child objects (CPhysicsObj children by holding id) not walked; ribbon drawn as a triangle list through the particle material path (not a strip draw); channel and day/night filters of DoTargettedFX not applied to streak nodes
+- [x] `StreakEffect::Render` · 005c1410 · legions 00588680 — ac2-render fx_streaks.rs + streak_objects.rs: the emitter streaks start/stop/draw, holding-point children walked (CPhysicsObj::StartStreak recursion), node gate (day/night/player/channel) applied; the ribbon draws as a triangle list through the particle material path
 
 ### SmartArray<StreakSegment>
 - [-] `SmartArray<StreakSegment>::RemoveOrderedByIndex` · 005c1560 · legions 005887c0 — SmartArray/STL container internals; Vec replaces
@@ -719,15 +719,15 @@ Legend and workflow: [README](README.md).
 ### StreakEffect
 - [x] `StreakEffect::Think` · 005c1f90 · legions 005891d0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 
-## `portal/client/src/render/streak/streakeffectmanager.cpp.c` (3/6)
+## `portal/client/src/render/streak/streakeffectmanager.cpp.c` (5/6)
 
 ### StreakEffectManager
 - [-] `StreakEffectManager::~StreakEffectManager` · 005c1040 · legions 005882b0 — plain data ctor/dtor/operator=; Rust struct or Drop replaces
-- [ ] `StreakEffectManager::DestroyStreakEffect` · 005c10d0 · legions 00588340 — needs port: streak effect (streak segments, fade, geometry)
+- [x] `StreakEffectManager::DestroyStreakEffect` · 005c10d0 · legions 00588340 — ac2-render streak.rs StreakEffects: destroy (also from ObjectStreaks::remove_emitter) and default construction
 - [x] `StreakEffectManager::UpdateStreakEffects` · 005c1150 · legions 005883c0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
 - [x] `StreakEffectManager::RenderStreakEffects` · 005c11a0 · legions 00588410 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
 - [x] `StreakEffectManager::CreateStreakEffect` · 005c1240 · legions 005884b0 — ac2-render streak.rs: StreakEffect state (Activate/Deactivate, SetPosition stamps, Think cut/merge/fade, CreateGeometry ribbon strip) and the manager's create/think/geometry; StreakFX stream decode in ac2-assets ac2_fx.rs (real-data test pending the visual override scan)
-- [ ] `StreakEffectManager::StreakEffectManager` · 005c12d0 · legions 00588540 — needs port: streak effect manager init
+- [x] `StreakEffectManager::StreakEffectManager` · 005c12d0 · legions 00588540 — ac2-render streak.rs StreakEffects: destroy (also from ObjectStreaks::remove_emitter) and default construction
 
 ## `portal/client/src/scenerender/frustum.cpp.c` (3/7)
 
