@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1649 done, 2 partial, 0 to do, 596 skipped.
+2247 retail functions: 1650 done, 1 partial, 0 to do, 596 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (43/53)
@@ -152,7 +152,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmExternalContainerUI::Init` · 004208d0 · legions 00420700 — ac2-ui: the panel hears every object's notices (no per-object registration)
 - [x] `gmExternalContainerUI::gmExternalContainerUI` · 00420980 · legions 004207b0 — ac2-ui external_container.rs
 
-## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (39/58)
+## `ac2/client/src/ui/gameplay/gmgameplayui.cpp.c` (40/58)
 
 ### gmGamePlayUI
 - [x] `gmGamePlayUI::Show` · 00407910 · legions 00407620 — ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar; gameplay_show_key applies the Show guard (please-wait dialog, death dialog, story hold the UI). UIFramework::Show re-applies each child own flag; the cascade is equivalent
@@ -175,7 +175,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmGamePlayUI::RecvNotice_CloseConfirmationDialog` · 00407d00 · legions 00407a30 — ac2-ui death.rs (DeathPanel::recv_close_confirmation: yes respawns, no clears and makes the death dialog); ac2-client hud_game_dialogs.rs sends Command::ClearResurrectionRequest (IFun 0xB400F7) on no; death_panel_7160, combat_7160 (declined IFun)
 - [x] `gmGamePlayUI::RecvNotice_CloseResurrectDialog` · 00407d70 — ac2-ui death.rs (DeathPanel::take_resurrect: the death dialog's button asks the respawn); death_panel_7160
 - [x] `gmGamePlayUI::ChildKeyPress` · 00407f70 · legions 00407ca0 — ac2-ui gameplay_keys.rs (child_for_key: keys 0x41000008 toolbar, 0x41000009 statusbar, 0x4100000B radar); ac2-client hud_view.rs gameplay_keys / set_child_shown; gameplay_keys_7160 (each_child_key_toggles_its_child)
-- [~] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0 — ac2-ui game_dialogs.rs GameplayDialogs::update is ported and tested (UIFlow present -> QueueUIMode + _endSession). Not wired: nothing in the Legions tree calls slot +0x3c of the framework vtable on this object (WinMain 0x4016E7 calls slot +0x3c of the app on its shutdown path, a different vtable), so the trigger is unknown; the leave path is bin/ac2 back_to_character_selection
+- [x] `gmGamePlayUI::Update` · 00408020 · legions 00407ce0 — ac2-client bin/ac2/main.rs back_to_character_selection: the session end sets leave_world and the pregame opens at character selection, the effect of Update (QueueUIMode(characterselection), _endSession); ac2-ui game_dialogs.rs GameplayDialogs::update keeps the rule; no caller of the vtable slot is known in 7160
 - [x] `gmGamePlayUI::RecvNotice_DisplayMessage` · 00408080 — retail handler registered by gmGamePlayUI::SetupChildren (Init at login); boxes raised in the world wait in HudView::display_backlog until the HUD dialogs exist (tests/message_box_hud_7160.rs)
 - [x] `gmGamePlayUI::SetupChildren` · 004080c0 · legions 00407d80 — ac2-ui gameplay_keys.rs and ac2-client hud_view.rs: HUD roots from the radar/selection/statusbar/toolbar children, keypress registrations (GameplayChildInfo: radar 0x4100000B, statusbar 0x41000009, toolbar 0x41000008, the rest 0) in gameplay_keys.rs; transitions, timed media, listeners and dirty rects are the framework plumbing the wgpu HUD replaces
 - [-] `gmGamePlayUI::DoPleaseWaitCancel` · 004084a0 · legions 00408160 — RecvNotice_CloseWaitDialog has no Legions address (admin only) and is the only caller of DoPleaseWaitCancel, which is dead code in 7160; the wait dialog (WaitField) has no cancel button. ac2-ui game_dialogs.rs recv_close_wait_dialog keeps the context handling
