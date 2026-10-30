@@ -1,6 +1,6 @@
-//! The Asheron's Call 1 toolbar icons the modern HUD's Social and Skills buttons take (a modern
-//! addition, AGENTS.md: the HUD's two styles). They are read at run time from the player's own AC1
-//! DATs (`AC1_DAT_DIR`); nothing of them is in the port. AC1's DATs share the retail container
+//! Asheron's Call 1's toolbar images, read from the player's own AC1 DATs (`AC1_DAT_DIR`) by the
+//! tool that makes the modern HUD's panel icons (`ac2-ui`'s `bake_panel_icons` example; AGENTS.md:
+//! the HUD's two styles). AC1's DATs share the retail container
 //! (`ac2_dat`'s `Retail` layout), and its toolbar buttons' images are `RenderSurface`s in 24-bit
 //! B, G, R order (pixel format `0x14`, `PFID_R8G8B8`).
 
@@ -61,6 +61,27 @@ pub fn decode_ac1_surface(bytes: &[u8]) -> Option<Ac1Image> {
         height,
         rgba,
     })
+}
+
+/// The AC1 images `dids` from the AC1 DATs in `dir`, in order.
+pub fn load_ac1_images(dir: &Path, dids: &[u32]) -> Result<Vec<Ac1Image>, String> {
+    let mut options = ac2_dat::DatOpenOptions::new(dir);
+    options.portal_dat_file_name = "client_portal.dat".into();
+    options.cell_dat_file_name = "client_cell_1.dat".into();
+    options.local_dat_file_name = "client_local_English.dat".into();
+    let dataset = ac2_dat::DatDataset::open(options).map_err(|e| e.to_string())?;
+    dids.iter()
+        .map(|&did| {
+            let bytes = dataset
+                .read_packed(ac2_dat::DatFileKind::Portal, did)
+                .map_err(|e| e.to_string())?
+                .ok_or(format!("AC1 image {did:08X} is not in the DAT"))?;
+            decode_ac1_surface(&bytes).ok_or(format!(
+                "AC1 image {did:08X}: unsupported format {:?}",
+                bytes.get(16..20)
+            ))
+        })
+        .collect()
 }
 
 /// The Social and Skills icons from the AC1 DATs in `dir`.

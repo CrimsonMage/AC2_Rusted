@@ -159,12 +159,15 @@ game rules and server-visible behaviour exactly retail.
   neither uploads its windows' places to the server nor applies the server's saved locations
   (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in the
   classic style.
-  The Social and Skills buttons take Asheron's Call 1's toolbar icons (the user's choice: AC1's
-  Social button `0x10000197` and its Skills and attributes button `0x10000199`, images
-  `0x0600111F` and `0x06001122`), read at run time from the player's own AC1 DATs named by
-  `AC1_DAT_DIR` (`ac2_assets::ac1_icons`, AC1's container read by `ac2_dat`'s retail layout;
-  nothing of AC1 is committed) and drawn in AC2's look (`ac2_ui::ac1_buttons`: the AC2 orb's
-  bronze kept, AC1's symbol in the orb symbols' ivory). Without AC1 DATs they keep AC2's own.
+  The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
+  choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
+  Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its
+  figures) drawn in AC2's colours, ivory on AC2's bronze orb, with a brighter rollover. Exception to
+  "never commit game data", at the user's explicit request: these redrawn icons ship as PNGs in
+  `crates/ac2-ui/assets/hud/` (`ac2_ui::ac1_buttons::shipped_icons`). They are not the DATs'
+  images but new art made from them; regenerate them with `cargo run -p ac2-ui --example
+  bake_panel_icons -- AC2_DAT_DIR AC1_DAT_DIR` (`ac2_assets::ac1_icons` reads AC1's container
+  through `ac2_dat`'s retail layout).
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

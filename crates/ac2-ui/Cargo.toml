@@ -26,6 +26,7 @@ ac2-macro = { path = "../ac2-macro" }
 ac2-guide = { path = "../ac2-guide" }
 ac2-weenie = { path = "../ac2-weenie" }
 ac2-world = { path = "../ac2-world" }
+png = "0.18"
 
 [dev-dependencies]
 ac2-dat = { path = "../ac2-dat", features = ["test-support"] }

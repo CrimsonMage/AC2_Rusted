@@ -97,18 +97,10 @@ impl HudView {
                         let mut images = ac2_ui::load_ui_images(&store, &hud.tree)?;
                         // The Tracker button's round eye, made from the loaded icon.
                         ac2_ui::tracker_ui::bake_eye(&mut hud.tree, &mut images);
-                        // The modern style's art (`modern_art`): the Social and Skills icons from
-                        // the player's AC1 DATs first (`AC1_DAT_DIR`, else AC2's own), then every
-                        // panel and attack icon set in its well.
+                        // The modern style's art (`modern_art`): the shipped panel icons,
+                        // then every panel and attack icon set in its well.
                         if hud.style == ac2_ui::HudStyle::Modern {
-                            if let Some(dir) = ac2_assets::ac1_icons::ac1_dat_dir() {
-                                match ac2_assets::ac1_icons::load_ac1_toolbar_icons(&dir) {
-                                    Ok(icons) => {
-                                        ac2_ui::ac1_buttons::bake(&mut images, &icons);
-                                    }
-                                    Err(error) => eprintln!("ac2: AC1 icons: {error}"),
-                                }
-                            }
+                            images.extend(ac2_ui::ac1_buttons::shipped_icons());
                             let icons =
                                 ac2_ui::load_images(&store, &ac2_ui::modern_art::SOURCE_ICONS)?;
                             ac2_ui::modern_art::bake(&mut images, &icons);
