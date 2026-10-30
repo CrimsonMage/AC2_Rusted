@@ -226,6 +226,13 @@ impl HudView {
         self.hud.as_ref().is_some_and(|(tree, _)| tree.text_mode())
     }
 
+    /// Whether the active text takes the OS input method (`UiTree::ime_allowed`).
+    pub(crate) fn ime_allowed(&self) -> bool {
+        self.hud
+            .as_ref()
+            .is_some_and(|(tree, _)| tree.ime_allowed())
+    }
+
     /// Whether a read-only text holds the copy focus (typed characters reach it, not the game).
     pub(crate) fn text_copy_focus(&self) -> bool {
         self.hud

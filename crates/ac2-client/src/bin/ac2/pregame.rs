@@ -33,6 +33,7 @@ impl App {
             state
                 .controls
                 .set_text_mode(pregame.text_mode(), stamp, now);
+            state.controls.set_ime_allowed(pregame.ime_allowed());
             state.controls.set_copy_text(pregame.text_copy_focus());
         }
         state.controls.ui_messages(&messages, now);

@@ -458,3 +458,20 @@ fn scrolling_to_a_position_puts_its_line_at_the_top() {
     tree.scroll_to_home(entry);
     assert_eq!(view(&tree), 0);
 }
+
+/// `UIElement_Text::IMETurnOn`: an active editable text takes the OS input method unless its
+/// layout marks it `no_IME`.
+#[test]
+fn a_no_ime_field_keeps_the_input_method_off() {
+    let (tree, _) = editable_entry();
+    assert!(tree.text_mode() && tree.ime_allowed());
+    let (tree, _) = entry_with(&[
+        "editable",
+        "selectable",
+        "activatable",
+        "one_line",
+        "no_IME",
+    ]);
+    assert!(tree.text_mode(), "it still takes typing");
+    assert!(!tree.ime_allowed());
+}

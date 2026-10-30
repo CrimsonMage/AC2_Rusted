@@ -84,6 +84,16 @@ impl UiTree {
             .is_some_and(|e| e.text.is_some() || e.list.is_some())
     }
 
+    /// `UIElement_Text::IMETurnOn`'s test: the active element takes typing and is not marked
+    /// `no_IME` (`m_bitField & 0x10`; the login and character-creation layouts mark five fields),
+    /// so the OS input method may compose into it.
+    pub fn ime_allowed(&self) -> bool {
+        self.text_mode()
+            && self
+                .active
+                .is_some_and(|index| !self.bool_attribute(index, crate::token::tokenize("no_IME")))
+    }
+
     /// Whether the active element takes typing (the input manager's text mode).
     pub fn text_mode(&self) -> bool {
         self.active.is_some_and(|index| {

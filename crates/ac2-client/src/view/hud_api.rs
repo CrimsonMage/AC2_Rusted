@@ -329,6 +329,11 @@ impl ClientView {
         self.hud.text_mode()
     }
 
+    /// Whether the HUD's active text takes the OS input method (`UIElement_Text::IMETurnOn`).
+    pub fn ime_allowed(&self) -> bool {
+        self.hud.ime_allowed()
+    }
+
     /// Whether a read-only HUD text holds the copy focus (Ctrl+A / Ctrl+C reach it).
     pub fn text_copy_focus(&self) -> bool {
         self.hud.text_copy_focus()

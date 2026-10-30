@@ -56,6 +56,8 @@ pub struct Controls {
     /// `gmCameraUI::SendKey`'s guard: the UI's active element takes the arrows, so the camera's
     /// turn and move keys are dropped ([`Controls::set_camera_keys_blocked`]).
     camera_keys_blocked: bool,
+    /// Whether the active text lets the OS input method compose ([`Controls::set_ime_allowed`]).
+    ime_allowed: bool,
     /// A UI element tree takes the UI actions (`IUIManager` start / stop): they wait in
     /// [`Controls::take_ui_input`] and come back as [`Controls::ui_messages`]. Without one the
     /// camera UI handles them directly.
@@ -146,6 +148,7 @@ impl Controls {
             interpreter,
             camera_ui: CameraUi::default(),
             camera_keys_blocked: false,
+            ime_allowed: false,
             ui_attached: false,
             ui_input: Vec::new(),
             text_actions: Vec::new(),
@@ -254,6 +257,17 @@ impl Controls {
         for action in releases {
             self.action(action.action, action.extent, action.key, action.device, now);
         }
+    }
+
+    /// `UIElement_Text::IMETurnOn` / `Deactivate` for the frame: the UI's active text takes the
+    /// OS input method ([`crate::UiTree::ime_allowed`]).
+    pub fn set_ime_allowed(&mut self, allowed: bool) {
+        self.ime_allowed = allowed;
+    }
+
+    /// Whether the OS input method is wanted (see [`Controls::set_ime_allowed`]).
+    pub fn ime_allowed(&self) -> bool {
+        self.ime_allowed
     }
 
     /// `gmCameraUI::SendKey`'s guard for the frame: while the UI's active element is a text or

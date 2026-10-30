@@ -187,6 +187,11 @@ impl PregameView {
         self.ui.as_ref().is_some_and(|ui| ui.tree().text_mode())
     }
 
+    /// Whether the active text takes the OS input method (`UiTree::ime_allowed`).
+    pub fn ime_allowed(&self) -> bool {
+        self.ui.as_ref().is_some_and(|ui| ui.tree().ime_allowed())
+    }
+
     /// Whether a read-only text on the active pregame screen holds the copy focus (Ctrl+A and
     /// Ctrl+C reach it, as in the world HUD).
     pub fn text_copy_focus(&self) -> bool {

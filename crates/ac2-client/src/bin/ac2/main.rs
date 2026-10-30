@@ -194,10 +194,10 @@ impl State {
     }
 
     /// `CIme::Activate` / `CIme::Deactivate`: the OS input method is on while the keyboard types
-    /// into a text element (`set_ime_allowed`), so composed text reaches the window
-    /// (`UIElement_Text::IMETurnOn` without its candidate-window box and font).
+    /// into a text element not marked `no_IME` (`set_ime_allowed`), so composed text reaches the
+    /// window (`UIElement_Text::IMETurnOn`; the OS draws its own candidates).
     fn sync_ime(&mut self) {
-        let on = self.controls.input.text_mode();
+        let on = self.controls.input.text_mode() && self.controls.ime_allowed();
         if on != self.ime_allowed {
             self.window.set_ime_allowed(on);
             self.ime_allowed = on;
@@ -394,6 +394,7 @@ impl App {
         }
         let (stamp, now) = state.now();
         state.controls.set_text_mode(view.text_mode(), stamp, now);
+        state.controls.set_ime_allowed(view.ime_allowed());
         state.controls.set_copy_text(view.text_copy_focus());
         state
             .controls

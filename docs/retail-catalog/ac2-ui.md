@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1374 done, 297 partial, 33 to do, 543 skipped.
+2247 retail functions: 1378 done, 293 partial, 32 to do, 544 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -1992,7 +1992,7 @@ Legend and workflow: [README](README.md).
 - [x] `WaitDialog::SetText` · 0042d4e0 · legions 0042d2b0 — ac2-ui dialog.rs
 - [x] `WaitDialog::WaitDialog` · 0042d500 · legions 0042d2d0 — ac2-ui dialog.rs
 
-## `portal/client/src/cimelib/cime.cpp.c` (0/23)
+## `portal/client/src/cimelib/cime.cpp.c` (3/23)
 
 ### MultibyteProcessor
 - [-] `MultibyteProcessor::MultibyteProcessor` · 004bd3b0 · legions 004b16d0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
@@ -2010,15 +2010,15 @@ Legend and workflow: [README](README.md).
 - [-] `CImeFontWrapper::SetFont` · 004bd760 · legions 004b1a80 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
 ### CIme
-- [~] `CIme::Deactivate` · 004bd790 · legions 004b1ab0 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [x] `CIme::Deactivate` · 004bd790 · legions 004b1ab0 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). The preedit and candidate drawing are left to the OS input method (Korean and Japanese support is not carried past the font fallback)
 - [-] `CIme::Render` · 004bd810 · legions 004b1b30 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 - [-] `CIme::IsImeEnabled` · 004bd860 · legions 004b1b80 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 - [-] `CIme::IgnoreHotKey` · 004bd870 · legions 004b1b90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
-- [~] `CIme::ProcessMessage` · 004bd880 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [x] `CIme::ProcessMessage` · 004bd880 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). The preedit and candidate drawing are left to the OS input method (Korean and Japanese support is not carried past the font fallback)
 - [-] `CIme::SetCaretPosition` · 004bd890 · legions 004b1bb0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 - [-] `CIme::ToggleLanguageBar` · 004bd8e0 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 - [-] `CIme::IsSendingKeyMessage` · 004bd8f0 · legions 004b1c10 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
-- [~] `CIme::Activate` · 004bd900 · legions 004b1c20 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). Not: the preedit composition is not drawn in the entry line; no candidate list (the OS draws it)
+- [x] `CIme::Activate` · 004bd900 · legions 004b1c20 — ac2-ui input.rs typed_text + ac2-client bin/ac2/main.rs: winit Ime::Commit types into text elements (UTF-16 units); set_ime_allowed follows text mode (sync_ime). The preedit and candidate drawing are left to the OS input method (Korean and Japanese support is not carried past the font fallback)
 - [-] `CIme::SetAppearanceToDefault` · 004bdb70 · legions 004b1e90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 - [-] `CIme::Init` · 004bdc70 · legions 004b1f90 — Win32 IME plumbing (TSF/IMM32 language bar, caret, hot keys, composition drawing, ANSI codepage conversion). winit delivers the OS IME's committed text and the OS draws its own candidates; Rust strings are UTF-8 so no multibyte processor is needed
 
@@ -2732,7 +2732,7 @@ Legend and workflow: [README](README.md).
 - [-] `UIRegion::ForceDraw` · 005e2930 · legions 005a36f0 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 - [~] `UIRegion::SetParent_Internal` · 005e2980 · legions 005a3740 — ac2-ui element.rs set_parent: the parent link only; retail also invalidates the old and new object boxes (IUIManager) and clears m_object, which the Rust compositor does not need
 - [x] `UIRegion::GetClipBox` · 005e2a30 · legions 005a37f0 — ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-- [ ] `UIRegion::GetScreenClipBox` · 005e2b50 · legions 005a3910 — needs port: UIRegion::GetScreenClipBox = GetClipBox (own box clipped by every ancestor, in root-surface coords) shifted to the screen position of the root surface; only caller is the IME candidate box
+- [-] `UIRegion::GetScreenClipBox` · 005e2b50 · legions 005a3910 — Only caller is the IME candidate box (IMETurnOn to CIme::Activate); Korean and Japanese input is not carried past the font fallback (DetermineFont), the OS input method draws its own candidates
 - [x] `UIRegion::SetVisible` · 005e2c30 · legions 005a39f0 — UIRegion::SetVisible done: element.rs set_visible
 - [-] `UIRegion::SetImage` · 005e2cc0 · legions 005a3a80 — Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 - [x] `UIRegion::ClearImage` · 005e2d30 · legions 005a3af0 — UIRegion::ClearImage done: element.rs clear_image
@@ -3034,7 +3034,7 @@ Legend and workflow: [README](README.md).
 - [-] `StringDownload::OnTopLevelRequestFinished` · 005fd150 — StringDownload async prefetch callback; Rust loads text data up front (text_data.rs)
 - [-] `StringDownload::StringDownload` · 005fd210 · legions 005bdd40 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 
-## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (60/92)
+## `portal/client/src/uielement/types/text/uielement_text.cpp.c` (61/92)
 
 ### (free functions)
 - [x] `NumberInputFilter` · 005ed7c0 — ac2-ui stack.rs
@@ -3043,7 +3043,7 @@ Legend and workflow: [README](README.md).
 - [x] `UIElement_Text::GetScrollbar` · 005ed7d0 · legions 005ae3a0 — named_scrollbar (scrollbar.rs): GetElement without unique_msg finds a scroll bar in any root, GetUniqueMatchElement with it in the owner's root; text_scroll.rs, list_scroll.rs and tree_scroll.rs bind through it. Real data: scroll_coverage_tests.rs
 - [x] `UIElement_Text::HandleMouseWheel` · 005ed840 · legions 005ae410 — wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 - [x] `UIElement_Text::CalcJustification` · 005ed8b0 · legions 005ae480 — ac2-ui text.rs / text_attr.rs: UIElement_Text layout and drawing
-- [~] `UIElement_Text::IMETurnOn` · 005ed950 · legions 005ae540 — ac2-client bin/ac2/main.rs sync_ime: the OS input method follows the text mode (winit set_ime_allowed); missing: the m_bitField & 0x10 test, the candidate-window box (GetScreenClipBox) and font/colour handed to CIme::Activate
+- [x] `UIElement_Text::IMETurnOn` · 005ed950 · legions 005ae540 — ac2-ui text_edit.rs UiTree::ime_allowed (text mode and not no_IME, m_bitField & 0x10; 5 Legions fields: 4 on 0x22000005, 1 on 0x22000001, scanned 2026-10-29) -> Controls::set_ime_allowed -> ac2-client bin/ac2 sync_ime (winit set_ime_allowed). The candidate box (GetScreenClipBox) and font handed to CIme::Activate are not carried: the OS input method draws its own candidates; text_tests.rs
 - [~] `UIElement_Text::Activate` · 005ed9a0 · legions 005ae590 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [~] `UIElement_Text::Deactivate` · 005eda10 · legions 005ae600 — ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
 - [-] `UIElement_Text::CleanupStringDownloads` · 005eda80 · legions 005ae670 — frees the pending StringDownload queue; Rust has no per-element async downloads
