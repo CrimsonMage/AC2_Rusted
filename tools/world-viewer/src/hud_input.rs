@@ -28,7 +28,10 @@ impl HudInput {
     /// `None` when the DATs hold no action map.
     pub fn load(store: &ac2_db::ResourceStore) -> Option<Self> {
         let files = ac2_ui::keymap_file::KeymapFiles::user();
-        let controls = Controls::load_with(store, Some(&files)).ok().flatten()?;
+        let mut controls = Controls::load_with(store, Some(&files)).ok().flatten()?;
+        // The HUD's tree takes the UI actions (the toolbar's panel keys, clicks over panels, the
+        // wheel over one), as `bin/ac2` attaches it; unattached, the camera UI would take them.
+        controls.ui_attached = true;
         Some(Self {
             controls,
             wheel: WheelAccumulator::default(),
@@ -154,5 +157,77 @@ impl HudInput {
                 walk.camera_action(action, start);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::sync::Arc;
+    use std::time::Duration;
+
+    use ac2_client::view::ClientView;
+    use ac2_client::ClientFrame;
+    use ac2_db::ResourceStore;
+    use ac2_ui::{InputEvent, ToolbarChild};
+    use ac2_world::Ac2WorldSource;
+
+    use super::HudInput;
+    use crate::session::Session;
+    use crate::walk::{Landing, Walk};
+
+    /// `DIK_I`, the inventory's key in the DATs' main key map.
+    const DIK_I: u32 = 0x17;
+
+    /// On the real DATs (`AC2_DAT_DIR`): the inventory key, through the viewer's HUD input,
+    /// opens the inventory panel of the session's HUD.
+    #[test]
+    fn the_inventory_key_opens_the_inventory() {
+        let Some(dataset) = ac2_dat::test_support::env_dataset() else {
+            return;
+        };
+        let Ok(gpu) = ac2_gpu::Gpu::headless() else {
+            return;
+        };
+        let store = Arc::new(ResourceStore::new(dataset));
+        let world = Ac2WorldSource::open(Arc::clone(&store)).unwrap().unwrap();
+        let landing = Landing {
+            block: (0x7F, 0x7F),
+            x: 80.0,
+            y: 80.0,
+        };
+        let mut session = Session::start(&store, &world, landing).expect("the session starts");
+        let mut walk = Walk::new(&world, Arc::clone(&store), 0.0);
+        let mut view = ClientView::new(world, &gpu, ac2_gpu::COLOR_FORMAT, 1, (1280, 720));
+        let mut hud = HudInput::load(&store).expect("the DATs' key maps");
+        let mut step = |view: &mut ClientView, hud: &mut HudInput| {
+            let mut frame = ClientFrame {
+                in_world: true,
+                cell_id: Some(landing.cell()),
+                ..ClientFrame::default()
+            };
+            assert!(!session.frame(view, &mut frame, 1.0 / 64.0));
+            view.update(&gpu, &frame, Duration::ZERO);
+            hud.frame(view, &mut walk);
+        };
+        let started = std::time::Instant::now();
+        while view.shortcut_slots() == 0 {
+            assert!(
+                started.elapsed() < Duration::from_secs(60),
+                "the HUD is built"
+            );
+            step(&mut view, &mut hud);
+            std::thread::sleep(Duration::from_millis(5));
+        }
+        assert!(!view.panel_shown(ToolbarChild::Inventory));
+        for pressed in [true, false] {
+            hud.input(InputEvent::Key {
+                scan: DIK_I,
+                pressed,
+            });
+            for _ in 0..2 {
+                step(&mut view, &mut hud);
+            }
+        }
+        assert!(view.panel_shown(ToolbarChild::Inventory));
     }
 }
