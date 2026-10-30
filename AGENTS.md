@@ -316,6 +316,11 @@ game rules and server-visible behaviour exactly retail.
   empty. A window's title (the text, or retail's reference to its shared title text, in the
   header) is drawn in the design's gold (`#d9c27a`; retail's cream). The inventory drawer, the
   loot window and the stack dialog keep their own design.
+  The dialogs (`ConfirmationField`, `MessageField`, `WaitField`, `ResurrectField`, made by
+  `DialogFactory`) get the design's header (`ac2_ui::modern_dialog`): a dark stone band across
+  their top with a gold title centred (CONFIRM, MESSAGE, PLEASE WAIT, RESURRECTION), the body
+  text moved down clear of it; retail's dialogs had no title band. The answers and messages are
+  retail's.
   The pet panel is the design's, expanded or compact (`ac2_ui::modern_pets`, the user's choice):
   retail's `PetPanel` put its title and the four command buttons in a block over the list of
   pets, at one size; here the title and a fold chevron head the panel, the rows follow in their

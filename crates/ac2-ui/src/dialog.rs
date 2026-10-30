@@ -77,6 +77,8 @@ pub struct DialogFactory {
     outcomes: Vec<DialogOutcome>,
     /// The `CM_UI::SendNotice_UpdateCanMouseLook` arguments sent since the last take.
     mouse_look_notices: Vec<bool>,
+    /// The modern style: each dialog gets a header band and title (`modern_dialog`).
+    modern: bool,
 }
 
 impl DialogFactory {
@@ -89,7 +91,13 @@ impl DialogFactory {
             queue: VecDeque::new(),
             outcomes: Vec::new(),
             mouse_look_notices: Vec::new(),
+            modern: false,
         }
+    }
+
+    /// The modern style's header band and title on each dialog made from now on.
+    pub fn set_modern(&mut self, modern: bool) {
+        self.modern = modern;
     }
 
     /// `DialogFactory::MakeDialog`: the new dialog's context.
@@ -208,8 +216,12 @@ impl DialogFactory {
             .as_ref()
             .and_then(|layout| tree.create_root(Arc::clone(layout), tokenize(field)));
         if let Some(root) = root {
-            if let Some(text_element) = tree.child_recursive(root, tokenize(text)) {
+            let text_element = tree.child_recursive(root, tokenize(text));
+            if let Some(text_element) = text_element {
                 tree.set_text(text_element, &info.text);
+            }
+            if let (true, Some(layout)) = (self.modern, self.layout.as_ref()) {
+                crate::modern_dialog::dress(tree, layout, root, text_element, info.kind);
             }
         }
         Shown {

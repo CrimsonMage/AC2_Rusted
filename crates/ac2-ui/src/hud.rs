@@ -405,7 +405,8 @@ pub fn build_styled_hud(
     if let Some(reticle) = reticle.as_mut() {
         reticle.precluded_top = top;
     }
-    let dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
+    let mut dialogs = DialogFactory::new(layouts[&LAYOUT_GAMEPLAY].clone());
+    dialogs.set_modern(style == HudStyle::Modern);
     let stack = layouts[&LAYOUT_GAMEPLAY].as_ref().map(|gameplay| {
         let fonts: Vec<&Arc<LayoutDesc>> =
             [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();

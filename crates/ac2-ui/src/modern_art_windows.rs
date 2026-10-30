@@ -107,6 +107,10 @@ pub const WIN_BORDER: [u32; 9] = [
     0x7E01_0119,
     0x7E01_011A,
 ];
+/// The dialogs' header band (40 by 26, nine-slice border 12): dark stone shaded down over a black
+/// line, its top corners round, drawn inside the dialog's bevel.
+pub const DIALOG_HEAD: u32 = 0x7E01_0141;
+pub const DIALOG_HEAD_BORDER: i32 = 12;
 /// The nine-slice borders of the button and the rule.
 /// The window's header height (retail's frames' top) and its side and foot borders.
 pub const WIN_HEADER_HEIGHT: u8 = 31;
@@ -159,6 +163,22 @@ fn panel() -> UiPixels {
     c.paint(&shape, |_, _, d| (rgb(0x002623, 0.95), inside(d)));
     c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, -1.0, 0.0)));
     c.paint(&shape, |_, _, d| (rgb(0x545346, 1.0), band(d, -2.0, -1.0)));
+    c.finish()
+}
+
+/// The dialogs' header band: the header's stone shaded down, a black line at its foot.
+fn dialog_head() -> UiPixels {
+    let (w, h) = (40usize, 26usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(0.0, 0.0, w as f32, h as f32 + 12.0, 4.0);
+    c.paint(&shape, |_, y, d| {
+        let colour = if y >= h as f32 - 1.0 {
+            rgb(0x000000, 1.0)
+        } else {
+            mix(rgb(0x38352B, 1.0), rgb(0x16150F, 1.0), y / h as f32)
+        };
+        (colour, inside(d))
+    });
     c.finish()
 }
 
@@ -659,6 +679,7 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>) {
         (WIN_BOOK_FOOT, book_foot()),
         (WIN_PRICE, price()),
         (WIN_FILL, fill()),
+        (DIALOG_HEAD, dialog_head()),
     ] {
         images.insert(id, image);
     }
