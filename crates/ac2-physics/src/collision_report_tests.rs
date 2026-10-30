@@ -572,13 +572,13 @@ fn a_body_that_does_not_report_collisions_begins_nothing_until_it_does() {
     let none = ContactMaterials::default();
     assert!(body.report_collisions(&none, false).is_none());
     // Turning reporting on sets the bit and runs a plain report: the object begins.
-    let begun = body.set_reporting(true, &none).expect("it begins");
+    let begun = body.set_report_collisions(true, &none).expect("it begins");
     assert!(body.reports_collisions());
     assert_eq!(objects_of(&begun), vec![(7, true)]);
     // Already reporting: nothing to do.
-    assert!(body.set_reporting(true, &none).is_none());
+    assert!(body.set_report_collisions(true, &none).is_none());
     // Turning it off ends what was reported and clears the bit.
-    let ended = body.set_reporting(false, &none).expect("it ends");
+    let ended = body.set_report_collisions(false, &none).expect("it ends");
     assert!(!body.reports_collisions());
     assert_eq!(objects_of(&ended), vec![(7, false)]);
 }

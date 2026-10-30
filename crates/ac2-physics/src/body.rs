@@ -789,7 +789,7 @@ impl PhysicsBody {
     /// reported (`ReportCollisions(1)`, returned) and clears `REPORT_COLLISIONS_PS`; turning it
     /// on sets the bit and runs a plain report (`ReportCollisions(0)`). No change when the body
     /// is already in that mode.
-    pub fn set_reporting(
+    pub fn set_report_collisions(
         &mut self,
         on: bool,
         materials: &ContactMaterials,
