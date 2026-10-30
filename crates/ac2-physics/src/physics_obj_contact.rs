@@ -3,7 +3,7 @@
 //! `set_on_walkable` and `HandleHitGround`.
 
 use crate::cells::ObjCell;
-use crate::fpu::{ld, st, F_EPSILON};
+use crate::fpu::{ld, st};
 use crate::motion_interp::{ELEMENT_AIR, ELEMENT_GROUND, ELEMENT_SEA_FLOOR, ELEMENT_WATER};
 use crate::motion_interp_behaviors::BEHAVIOR_NEAR_LANDING;
 use crate::physics_obj::{
@@ -14,7 +14,7 @@ use crate::position::Position;
 use crate::terrain::Terrain;
 use crate::transition::collision::{
     CollisionInfo, ObjectInfo, CONTACT_OI, EDGE_SLIDE_OI, FREE_ROTATE_OI, ON_WALKABLE_OI,
-    PREDETERMINED_TRANSITION_OI,
+    PATH_CLIPPED_OI, PREDETERMINED_TRANSITION_OI,
 };
 use crate::transition::{Transition, TransitionObject};
 use crate::vector::Vector;
@@ -101,8 +101,9 @@ impl PhysicsObj {
         self.times_jumped += 1;
     }
 
-    /// `CPhysicsObj::get_object_info` (no admin move, no missile).
-    fn object_info_state(&self) -> u32 {
+    /// `CPhysicsObj::get_object_info` (no admin move: the client has none). A body with a
+    /// missile manager moves with its path clipped (`PATH_CLIPPED_OI`).
+    pub(crate) fn object_info_state(&self) -> u32 {
         let mut state = if self.state & SYNC_TRANSIT_PS != 0 {
             PREDETERMINED_TRANSITION_OI
         } else if self.state & EDGE_SLIDE_PS != 0 {
@@ -118,6 +119,9 @@ impl PhysicsObj {
         }
         if self.shape.allow_free_heading {
             state |= FREE_ROTATE_OI;
+        }
+        if self.has_missile_manager() {
+            state |= PATH_CLIPPED_OI;
         }
         state
     }
@@ -205,13 +209,7 @@ impl PhysicsObj {
     /// `OBJECTINFO::kill_velocity` -> `CPhysicsObj::set_velocity(0)`: only a velocity that
     /// differs from zero by `F_EPSILON` on some axis is replaced.
     fn kill_velocity(&mut self) {
-        let v = self.velocity;
-        if ld(v.x).abs() >= ld(F_EPSILON)
-            || ld(v.y).abs() >= ld(F_EPSILON)
-            || ld(v.z).abs() >= ld(F_EPSILON)
-        {
-            self.velocity = Vector::ZERO;
-        }
+        self.set_velocity_culled(Vector::ZERO);
     }
 
     /// `CPhysicsObj::SetPositionInternal(CTransition*)`.

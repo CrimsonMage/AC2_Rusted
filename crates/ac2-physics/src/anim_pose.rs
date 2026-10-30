@@ -92,11 +92,12 @@ impl PhysicsObj {
         step
     }
 
-    /// `CPhysicsObj::UpdateAnimation` (look-at and the FX manager are not modelled). Unless
-    /// animation is frozen: an update frame comes once the update step has passed since the last
-    /// one while the body is within its minimum visible distance (always the first call); it
-    /// advances the sliders and the FX scripts by the time since the last update frame and
-    /// refreshes the bones. Every call adds the half-step of local acceleration to the animation
+    /// `CPhysicsObj::UpdateAnimation`. Unless animation is frozen: an update frame comes once
+    /// the update step has passed since the last one while the body is within its minimum
+    /// visible distance (always the first call); it runs the look-at manager, advances the
+    /// sliders and the FX scripts by the time since the last update frame and refreshes the
+    /// bones (`PHYSICSOBJREP::UpdateFX`, the FX manager's `UseTime`, is the client's own step).
+    /// Every call adds the half-step of local acceleration to the animation
     /// velocity and runs `ModeTracker::Update`, whose `DoAnimation` collects the tracks'
     /// triggers; then the `TriggerUpdate` fires (FX and weenie hooks become events, impulses
     /// move the body), its effect rolls drawn from `random`.
@@ -116,6 +117,8 @@ impl PhysicsObj {
             || self.last_animation_update_time == 0.0;
         if refresh {
             self.last_animation_update_time = local_time;
+            // `LookAtManager::Update` runs in the update frame, before the slider tracker.
+            self.update_look_at(elapsed);
             self.anim.update_sliders(elapsed, self.wind_magnitude);
             self.anim.update_fx_scripts(elapsed);
         }
@@ -138,8 +141,6 @@ impl PhysicsObj {
             self.anim.modes.add_triggers();
             self.sync_mode();
         }
-        // `LookAtManager::Update` (`CPhysicsObj::UpdateAnimation`, before the slider tracker).
-        self.update_look_at(quantum);
         for action in self.anim.modes.triggers_mut().fire(random) {
             match action {
                 Ac2TriggerAction::Event(event) => self.anim.push_events([event]),
@@ -160,12 +161,7 @@ impl PhysicsObj {
         self.do_element(crate::motion_interp::ELEMENT_AIR);
         let [x, y, z] = impulse.impulse;
         let v = Vector::new(x, y, z);
-        let current = self.velocity;
-        let moved = |a: f32, b: f32| (ld(a) - ld(b)).abs() >= ld(crate::fpu::F_EPSILON);
-        if moved(v.x, current.x) || moved(v.y, current.y) || moved(v.z, current.z) {
-            self.velocity = v;
-            self.cull_velocity();
-        }
+        self.set_velocity_culled(v);
         self.anim_velocity = v;
     }
 
@@ -216,6 +212,7 @@ impl PhysicsObj {
                 .iter()
                 .map(|bone| bone.parent.is_none())
                 .collect();
+            // `PHYSICSOBJREP::SetupCompositor`: the table's layer count and tweak layers.
             let input = Ac2PoseInput {
                 layers: table.layer_count(),
                 tweak_layers: &table.tweak_layers,

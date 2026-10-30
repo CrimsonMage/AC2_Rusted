@@ -159,3 +159,14 @@ fn a_detonation_through_the_body_queues_the_delete() {
         delay: 0.0
     }));
 }
+
+#[test]
+fn a_missile_body_moves_with_its_path_clipped() {
+    // `CPhysicsObj::get_object_info`: `PATH_CLIPPED_OI` for a body with a missile manager.
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 70.0, 80.0);
+    body.with_object(|o| assert_eq!(o.object_info_state() & 0x8, 0));
+    let target = target_at(&body, 60.0);
+    body.recv_initialize_missile(&ground, [0.0, 20.0, 0.0], &target);
+    body.with_object(|o| assert_eq!(o.object_info_state() & 0x8, 0x8));
+}

@@ -179,7 +179,9 @@ impl Ac2ModeTracker {
             .is_some_and(Ac2BehaviorTracker::check_active_behaviors_for_dynamic_fp_camera)
     }
 
-    /// The body's `TriggerUpdate`, which `CPhysicsObj::UpdateAnimation` fires.
+    /// The body's `TriggerUpdate`, which `CPhysicsObj::UpdateAnimation` fires
+    /// (`CPhysicsObj::GetTriggerUpdate` and `PHYSICSOBJREP::GetTriggerUpdate` make it lazily; here
+    /// the tracker owns it).
     pub fn triggers_mut(&mut self) -> &mut Ac2TriggerUpdate {
         &mut self.triggers
     }
@@ -360,6 +362,8 @@ impl Ac2ModeTracker {
         }
         self.desired_element = element;
         self.desired_mode = mode;
+        // `PHYSICSOBJREP::GetTransitionCVel`: the reciprocal of the transition's ramp time (its
+        // part-group transition time is computed and dropped).
         let ramp = table.mode_transition_ramp_time(&key);
         self.transition_cvel = (1.0 / f64::from(ramp)) as f32;
         let mut to = Ac2BehaviorTracker::new();

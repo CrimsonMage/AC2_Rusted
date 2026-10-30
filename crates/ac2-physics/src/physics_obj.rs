@@ -85,6 +85,8 @@ pub(crate) struct PhysicsObj {
     pub omega_acceleration: Vector,
     pub local_gravity: Vector,
     pub distance_cap_2d: f32,
+    /// `m_bVelocityRailed` with `m_v2DVelocityRail`: `SetVelocityRail` sets it,
+    /// `DisableVelocityRail` clears it.
     pub velocity_rail: Option<Vector>,
     pub clamp_heading: Option<Heading>,
     pub clamp_omega: Option<f32>,
@@ -363,7 +365,11 @@ impl PhysicsObj {
         st(ld(self.shape.height) * ld(self.shape.scale) * ld(self.scale.z))
     }
 
-    /// `CPhysicsObj::UpdateMovement` for an object in the world, mobile and not frozen.
+    /// `CPhysicsObj::UpdateMovement` for an object in the world, mobile and not frozen. Its
+    /// player-distance range check (`m_fPlayerDistance`, `HandleOutOfPhysicsRange` past 96 m,
+    /// `HandleInPhysicsRange`) needs the player's position, so the objects' owner makes it before
+    /// stepping (`Remotes::step_quantum`, `Remote::update_physics_range`). A body with a parent
+    /// is moved by its holder; its own children's places are the parent's.
     pub(crate) fn update_movement(&mut self, quantum: f32, terrain: &Terrain) {
         let mut coin = |_: f32| false;
         let mut env = MissileEnv {
@@ -390,7 +396,9 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::UpdateMovementInternal(float)`: a missile's `CMissileManager::Update` first,
     /// then integrate a frame offset and move there (rotation only when the origin moved less than
-    /// `F_EPSILON` on every axis; a path-aligned body turns to face its velocity).
+    /// `F_EPSILON` on every axis; a path-aligned body turns to face its velocity). The tail's
+    /// `TargetManager::HandleTargetting` runs for every object in the world from
+    /// `TargetHub::handle_targetting` (ac2-smartbox).
     fn update_movement_internal(
         &mut self,
         quantum: f32,
@@ -612,7 +620,8 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::CalcElement`: ground or air by contact, water and sea floor by the depth
-    /// of the body under its cell's water plane.
+    /// of the body under its cell's water plane. Retail's no-cell `DoElement(GROUND)` is never
+    /// reached: its callers, `UpdateMovementInternal` and `HandleEnterWorld`, run in the world.
     fn calc_element(&mut self, terrain: &Terrain) {
         if !self.is_mobile() {
             return;

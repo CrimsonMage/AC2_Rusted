@@ -189,6 +189,9 @@ impl PhysicsBody {
         Self { object, turn: 0.0 }
     }
 
+    /// `CPhysicsObj::GetPosition` (`m_position`); `CPhysicsObj::GetFrame` is its `frame`. The
+    /// body has no id of its own (`CPhysicsObj::GetID`): its owner, the object table or the
+    /// remotes, keys it by the instance id.
     pub fn position(&self) -> Position {
         self.object.position
     }
@@ -516,10 +519,15 @@ impl PhysicsBody {
         self.object.setup_radius = radius;
     }
 
-    /// `CMotionInterp::MoveToEvent`: walk to the parameters' target (or waypoints) and/or turn
-    /// to its heading. Returns whether it started.
+    /// `CPhysicsObj::MoveTo` -> `CMotionInterp::MoveToEvent`: walk to the parameters' target (or
+    /// waypoints) and/or turn to its heading; a move that started makes the body's movement
+    /// active. Returns whether it started.
     pub fn move_to(&mut self, params: crate::moveto::MovementParameters) -> bool {
-        self.object.move_to_event(params)
+        let started = self.object.move_to_event(params);
+        if started {
+            self.object.set_movement_active(true);
+        }
+        started
     }
 
     /// `CMotionInterp::UpdateTargetInfo`: where an object target is now, and its size.
@@ -567,12 +575,21 @@ impl PhysicsBody {
         }
     }
 
-    /// `CPhysicsObj::IsInterpolating`.
+    /// `CPhysicsObj::IsInterpolating` (`CMotionInterp::IsInterpolating`).
     pub fn is_interpolating(&self) -> bool {
         self.object
             .interp
             .as_ref()
             .is_some_and(|interp| interp.active)
+    }
+
+    /// `CPhysicsObj::GetRemoteDoMotionValues` (`CMotionInterp::GetRemoteDoMotionValues`): the
+    /// do-motion the server last sent while the body interpolates, else zero.
+    pub fn remote_do_motion_values(&self) -> Vector {
+        self.object
+            .interp
+            .as_ref()
+            .map_or(Vector::ZERO, |interp| interp.last_received_motion())
     }
 
     /// `CPhysicsObj::JumpLogic`: when `can_jump`, `Jump` (or, standing with a behaviour table,
@@ -609,9 +626,12 @@ impl PhysicsBody {
         self.object.state = state;
     }
 
-    /// `CPhysicsObj::set_velocity` (a jump or a server velocity).
+    /// `CPhysicsObj::set_velocity(v, 1)` (a jump or a server velocity): a velocity that differs
+    /// from the body's by `F_EPSILON` on any axis is culled to the terminal velocity and taken,
+    /// and the body's movement becomes active.
     pub fn set_velocity(&mut self, velocity: [f32; 3]) {
-        self.object.velocity = Vector::new(velocity[0], velocity[1], velocity[2]);
+        self.object
+            .set_velocity_culled(Vector::new(velocity[0], velocity[1], velocity[2]));
     }
 
     /// `ECM_Physics::RecvEvt_AddImpulse` -> `CPhysicsObj::AddImpulse`: a world-axis velocity
@@ -619,6 +639,12 @@ impl PhysicsBody {
     pub fn add_impulse(&mut self, direction: [f32; 3]) {
         let [x, y, z] = direction;
         self.object.add_impulse(Vector::new(x, y, z));
+    }
+
+    /// `CPhysicsObj::AddImpulseLocal`: [`Self::add_impulse`] of a vector in the body's own axes.
+    pub fn add_impulse_local(&mut self, direction: [f32; 3]) {
+        let [x, y, z] = direction;
+        self.object.add_impulse_local(Vector::new(x, y, z));
     }
 
     /// `ECM_Physics::RecvEvt_AddTargetedImpulse` -> `CPhysicsObj::AddTargetedImpulse`: pushes
@@ -635,8 +661,10 @@ impl PhysicsBody {
             .add_targeted_impulse(source, magnitude, falloff, vertical);
     }
 
-    /// `CPhysicsObj::RecvEvt_SetMIDESC` -> `PHYSICSOBJREP::SetMIDESC` -> `CMotionInterp::SetMIDESC`
-    /// with a description the client already loaded (`None` keeps the table).
+    /// `CPhysicsObj::RecvEvt_SetMIDESC` -> `CPhysicsObj::SetMIDESC` -> `PHYSICSOBJREP::SetMIDESC`
+    /// (`SetMotionInterpreter`, and `CompareAndModify` on a changed description) ->
+    /// `CMotionInterp::SetMIDESC` with a description the client already loaded (`None` keeps
+    /// the table).
     pub fn set_motion_desc(&mut self, desc: Option<Arc<Ac2MotionInterpDesc>>) -> bool {
         self.object.motion.set_desc(desc)
     }
@@ -657,7 +685,8 @@ impl PhysicsBody {
         self.object.impact_speed
     }
 
-    /// `CPhysicsObj::ReportCollisions`: the collision report at the body's clock
+    /// `CPhysicsObj::ReportCollisions`, which is all of `CPhysicsObj::UpdateMisc` once the
+    /// detection manager (never made in 7160) is out: the collision report at the body's clock
     /// (`CCollisionManager::ReportCollision`). `force_end` ends every reported record. Returns
     /// the report only when it lists something (`CollisionProfile::NonEmpty`).
     pub fn report_collisions(
@@ -1047,6 +1076,10 @@ mod parts;
 #[path = "body_profile.rs"]
 mod profile;
 pub use profile::PhysObjProfile;
+
+#[path = "physics_obj_desc.rs"]
+mod desc;
+pub use desc::DescPhysics;
 
 #[path = "body_drawn.rs"]
 mod drawn;

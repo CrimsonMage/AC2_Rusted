@@ -53,11 +53,13 @@ fn record(session: &OnlineSession, id: u64) -> Option<ObjectRecord> {
     })
 }
 
-/// The `PhysicsDesc` of object `id` (`CPhysicsObj::set_description`): its mode, behaviours and
-/// sliders from the session, applied to its new body.
+/// The `PhysicsDesc` of object `id` (`CPhysicsObj::set_description`): its velocity, spin, scales
+/// and head direction, then its mode, behaviours and sliders from the session, applied to its
+/// new body.
 fn describer(session: &OnlineSession) -> impl Fn(&mut PhysicsBody, u64) + '_ {
     move |body, id| {
         if let Some(object) = session.objects().get(id) {
+            body.set_description_physics(&object.physics);
             crate::motion::describe(
                 body,
                 object.mode.unwrap_or(0),

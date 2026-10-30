@@ -425,6 +425,20 @@ fn an_impulse_adds_to_the_velocity_and_leaves_contact() {
     assert!(!state.contact, "{state:?}");
 }
 
+/// `CPhysicsObj::AddImpulseLocal`: the vector is in the body's axes, so facing east a forward
+/// push goes east.
+#[test]
+fn a_local_impulse_is_turned_by_the_bodys_frame() {
+    let mut body = body_at(70.0, 70.0, 50.0);
+    body.set_heading(90.0);
+    body.add_impulse_local([0.0, 2.0, 1.0]);
+    let v = body.movement_state().velocity;
+    assert!(
+        (v[0] - 2.0).abs() < 0.01 && v[1].abs() < 0.1 && v[2] == 1.0,
+        "{v:?}"
+    );
+}
+
 /// `CPhysicsObj::AddTargetedImpulse`: the push points from the source to the body, `magnitude`
 /// long, with `vertical` added upward.
 #[test]

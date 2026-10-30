@@ -1,8 +1,9 @@
 //! `CPhysicsObj`'s animation entry points over `PHYSICSOBJREP`'s mode and slider trackers:
 //! `DoMode`, `SetMode`, `DoBehavior`, `ReleaseBehavior`, the `Stop*` family, `DoSlider`,
-//! `RecvEvt_DoSlider` and the animation half of `set_description`. The weenie's mode hook
-//! (`CWeenieObject` on a mode change), child propagation and the story manager are not
-//! modelled.
+//! `RecvEvt_DoSlider` and the animation half of `set_description` (its physics half is
+//! `PhysicsBody::set_description_physics`). The weenie's mode hook is
+//! `CWPhysicsObject::Notify_DoMode`; the children's propagation of a mode or behaviour is the
+//! object table's.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -42,7 +43,9 @@ impl PhysicsObj {
     }
 
     /// `CPhysicsObj::DoMode`: unless animation is frozen, `ModeTracker::DoMode` (the mode
-    /// callback reports reaching it to `context`). Always true, as retail returns.
+    /// callback reports reaching it to `context`). Always true, as retail returns. The tail that
+    /// passes the mode to the children is the object table's (`Client::children_follow_mode`);
+    /// the weenie hook is `CWPhysicsObject::Notify_DoMode`.
     pub(crate) fn do_mode(&mut self, context: u32, mode: u32) -> bool {
         if self.is_animation_frozen() {
             return true;
@@ -66,7 +69,10 @@ impl PhysicsObj {
 
     /// `CPhysicsObj::DoBehavior(BehaviorParams&)`: unless animation is frozen, the params' mode
     /// first (`PHYSICSOBJREP::DoMode(0, mode)`), then `ModeTracker::DoBehavior`. Returns whether
-    /// the tracker started it (retail returns 1 regardless).
+    /// the tracker started it (retail returns 1 regardless). `mPropagate` to the children is the
+    /// object table's (`Client::children_follow_behavior`); a frozen body's story answer
+    /// (`StoryManager::HandleBehaviorDone`) is `CPhysicsObj::HandleBehaviorDone`'s route. The
+    /// params' FX target and cloned appearance (`m_iidFXTarget`, `mVDescToClone`) are not carried.
     pub(crate) fn do_behavior(&mut self, params: &Ac2BehaviorParams) -> bool {
         if self.is_animation_frozen() {
             return false;

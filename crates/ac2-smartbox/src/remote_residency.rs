@@ -49,11 +49,7 @@ impl<B> Remotes<B> {
         }
         let mut out_of_range = false;
         if let Some(player) = player {
-            let d = player.offset_to(&received);
-            let (x, y, z) = (f64::from(d.x), f64::from(d.y), f64::from(d.z));
-            remote.player_distance = (z * z + y * y + x * x).sqrt() as f32;
-            // `HandleInPhysicsRange` / `HandleOutOfPhysicsRange`.
-            remote.active = remote.player_distance <= PHYSICS_RANGE;
+            remote.update_physics_range(&player, &received);
             out_of_range = !remote.active;
         }
         if teleported || out_of_range || !remote.in_world {
@@ -214,9 +210,25 @@ impl<B> Remotes<B> {
         };
         if remote.in_world {
             remote.in_world = false;
+            if let Some(body) = &mut remote.body {
+                body.leave_world();
+            }
         } else {
             self.remove_from_lost_cell(id);
         }
         effects.push(ResidencyEffect::QueueDestroy(id));
+    }
+}
+
+impl Remote {
+    /// `m_fPlayerDistance` and the range test shared by `CPhysicsObj::RecvEvt_Position` and
+    /// `CPhysicsObj::UpdateMovement` (every quantum): the distance from the player to the
+    /// object's `at` position, beyond `PHYSICS_RANGE` `HandleOutOfPhysicsRange` (movement and
+    /// animation stop, transient bit `0x2000`), otherwise `HandleInPhysicsRange`.
+    pub(crate) fn update_physics_range(&mut self, player: &Position, at: &Position) {
+        let d = player.offset_to(at);
+        let (x, y, z) = (f64::from(d.x), f64::from(d.y), f64::from(d.z));
+        self.player_distance = (z * z + y * y + x * x).sqrt() as f32;
+        self.active = self.player_distance <= PHYSICS_RANGE;
     }
 }

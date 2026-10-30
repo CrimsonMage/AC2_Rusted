@@ -22,6 +22,13 @@ impl PhysicsObj {
         );
     }
 
+    /// `CPhysicsObj::AddImpulseLocal(impulse, contact)`: the impulse in the body's own axes,
+    /// turned by its frame (`Frame::localtoglobalvec`) and added by `AddImpulse`.
+    pub(crate) fn add_impulse_local(&mut self, impulse: Vector) {
+        let global = self.position.frame.local_to_global_vec(impulse);
+        self.add_impulse(global);
+    }
+
     /// `CPhysicsObj::AddTargetedImpulse(target, magnitude, falloff, vertical)` with the target's
     /// position as `source`: the impulse points from the source to this body (`GetOffset` from
     /// this body to the source, negated), normalised to `magnitude`. With `falloff` the

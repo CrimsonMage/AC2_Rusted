@@ -499,7 +499,10 @@ impl<B> Remotes<B> {
     }
 
     /// `CPhysics::UpdateAllPhysics` for the objects: each one in the world and in physics range
-    /// runs the quantum. `cur_time` is the server clock the positions were stamped on. A missile
+    /// runs the quantum, its range from the player (`others`' first entry, the player's id and
+    /// body from `ICPhysicsObj::player_id`, `SetPlayerID`) checked first as
+    /// `CPhysicsObj::UpdateMovement` does. `cur_time` is the server clock the positions were
+    /// stamped on. A missile
     /// reads the other objects (`ICPhysicsObj::GetObjectA`: these remotes and `others`, the
     /// player) and rolls on `random`; what the missiles told the weenie and the streaks comes
     /// back with the object's id.
@@ -569,7 +572,14 @@ impl<B> Remotes<B> {
         };
         let mut events = Vec::new();
         let mut touches = Vec::new();
+        // `CPhysicsObj::UpdateMovement`: the range check against the player runs each quantum.
+        let player = others.first().map(|(_, view)| view.position);
         for (&guid, remote) in self.objects.iter_mut() {
+            if let (true, Some(player)) = (remote.in_world, player) {
+                if let Some(position) = remote.body.as_ref().map(PhysicsBody::position) {
+                    remote.update_physics_range(&player, &position);
+                }
+            }
             if remote.in_world && remote.active {
                 if let Some(body) = &mut remote.body {
                     body.set_time(cur_time);

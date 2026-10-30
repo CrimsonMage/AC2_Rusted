@@ -230,6 +230,16 @@ impl PhysicsBody {
             .constrain_to(position);
     }
 
+    /// `CPhysicsObj::LeaveWorld`'s in-world branch for the motion state: `HandleLeaveWorld`
+    /// (`CMotionInterp::HandleLeaveWorld`: the move-to is interrupted, interpolation stopped and
+    /// the constraint dropped), then `clear_transient_states`.
+    pub fn leave_world(&mut self) {
+        self.object.interrupt_move_to();
+        self.stop_interpolating();
+        self.unconstrain();
+        self.object.clear_transient_states();
+    }
+
     /// `CMotionInterp::UnConstrain` (`CPhysicsObj::HandleTeleportStart`, leaving the world).
     pub fn unconstrain(&mut self) {
         if let Some(constraint) = self.object.constraint.as_mut() {

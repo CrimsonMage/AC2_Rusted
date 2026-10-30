@@ -212,6 +212,8 @@ impl AnimRep {
         self.player = player;
     }
 
+    /// `CMotionInterp::mCanAnimate`, set by `CMotionInterp::Init` when the representation has a
+    /// behaviour table (`GetBehaviorTableID`).
     pub(crate) fn can_animate(&self) -> bool {
         self.modes.can_animate()
     }
@@ -329,7 +331,9 @@ impl MotionRep for AnimRep {
         self.modes.desired_mode()
     }
 
-    /// `PHYSICSOBJREP::DoFX`: queued for the FX manager.
+    /// `PHYSICSOBJREP::DoFX`: queued for the FX manager (`PHYSICSOBJREP::GetFXManager`,
+    /// `UpdateFX` and `DeleteSelf` are the client's FX objects; `CreateParticleSystem` and
+    /// `DestroyParticleSystem` its particle scene).
     fn do_fx(&mut self, fx: u32, intensity: f32) {
         self.events.push(Ac2AnimEvent::StartFx { fx, intensity });
     }

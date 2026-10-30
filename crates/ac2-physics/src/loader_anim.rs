@@ -26,7 +26,8 @@ fn load<T: ResourcePackedDecode + Send + Sync + Clone + 'static>(
         .map(|cached| Arc::new((*cached).clone())))
 }
 
-/// What the body `visual` places animates with: its behaviour table, the `CharTemplate`, the
+/// What the body `visual` places animates with: its behaviour table (`BehaviorTable::Get`, a
+/// `DBObj::Get` of type `0x40000040`), the `CharTemplate`, the
 /// animator of every anim key the table's combos name, its root Setup and its `VisualDesc`
 /// scale. `None` without a behaviour table or `AnimMap`.
 pub fn load_body_animation(

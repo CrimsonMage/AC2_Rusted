@@ -96,3 +96,28 @@ fn a_queued_jump_is_taken_where_the_sender_jumped() {
     run(&mut body, &ground, now, 0.3);
     assert_eq!(body.movement_state().times_jumped, 1);
 }
+
+#[test]
+fn the_last_received_do_motion_is_the_newest_queued_one_while_interpolating() {
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    assert_eq!(body.remote_do_motion_values(), Vector::ZERO);
+    let now = run(&mut body, &ground, 0.0, 0.5);
+    let target = at(&body, 70.0, 32.0);
+    body.interpolate_to(now, target, 0.0, [0.0, 1.0, 0.0], true, &ground);
+    assert_eq!(body.remote_do_motion_values(), Vector::new(0.0, 1.0, 0.0));
+}
+
+#[test]
+fn leaving_the_world_stops_interpolating_and_drops_contact() {
+    // `CPhysicsObj::LeaveWorld` -> `CMotionInterp::HandleLeaveWorld`, `clear_transient_states`.
+    let ground = terrain(|_, _| 50.0);
+    let mut body = body_at(70.0, 30.0, 50.0);
+    let now = run(&mut body, &ground, 0.0, 0.5);
+    let target = at(&body, 70.0, 32.0);
+    body.interpolate_to(now, target, 0.0, [0.0, 1.0, 0.0], true, &ground);
+    assert!(body.is_interpolating());
+    body.leave_world();
+    assert!(!body.is_interpolating());
+    assert!(!body.has_contact());
+}

@@ -130,3 +130,21 @@ fn a_rescaled_body_is_listed_again_at_its_new_scale() {
     let two = ac2_physics::Vector::new(2.0, 2.0, 2.0);
     assert_eq!(terrain.object_scale(again), Some(two));
 }
+
+#[test]
+fn the_player_distance_sets_physics_range_each_time_it_is_checked() {
+    // `CPhysicsObj::UpdateMovement`: within 96 the object is in range, beyond it out.
+    let at = |x: f32| {
+        let mut frame = ac2_physics::Frame::IDENTITY;
+        frame.origin = ac2_physics::Vector::new(x, 0.0, 0.0);
+        ac2_physics::Position::new(0xA9B4_0001, frame)
+    };
+    let mut remote = in_world_remote(None);
+    remote.update_physics_range(&at(0.0), &at(95.0));
+    assert!(remote.active);
+    assert_eq!(remote.player_distance, 95.0);
+    remote.update_physics_range(&at(0.0), &at(97.0));
+    assert!(!remote.active);
+    remote.update_physics_range(&at(50.0), &at(97.0));
+    assert!(remote.active);
+}

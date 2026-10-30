@@ -440,8 +440,19 @@ impl Client {
 
     /// `PlayerMovementModule::LockActions` (`m_lock_actions`): the player's movement keys do
     /// nothing while a behaviour that locks actions plays. The animation's `LockActions` and
-    /// `UnlockActions` events for the player set it (`client_audio`).
+    /// `UnlockActions` events for the player set it (`client_audio`; `CPhysicsObj::LockActions`,
+    /// `UnLockActions`, `PHYSICSOBJREP::LockActions` and `UnlockActions`).
+    ///
+    /// `CPhysicsObj::LockActions` first stops the player where it stands:
+    /// `PHYSICSOBJREP::DoMotion` with no motion and the current heading.
     pub(crate) fn lock_player_actions(&mut self, locked: bool) {
+        if locked {
+            if let Some(body) = self.player.as_mut().and_then(|p| p.body.as_mut()) {
+                let heading = body.physics.heading();
+                body.physics.do_motion([0.0; 3]);
+                body.physics.turn_to(heading.degrees());
+            }
+        }
         self.module.locked = locked;
     }
 
@@ -734,8 +745,9 @@ impl Client {
                             other.collision_remove_object(player_id);
                         }
                     }
-                    // `SmartBox::PlayerPhysicsUpdatedCallback`'s camera update runs per frame
-                    // instead (`smart_box`).
+                    // `SmartBox::PlayerPhysicsUpdatedCallback` (the handler
+                    // `ICPhysicsObj::SetPlayerPhysicsEventHandler` installs): its camera
+                    // update runs per frame instead (`smart_box`).
                 }
                 // `CPhysics::UpdateAllPhysics`: the other objects.
                 let others: Vec<_> = self

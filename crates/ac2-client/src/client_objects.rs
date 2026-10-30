@@ -370,12 +370,88 @@ impl Client {
                 }
             }
         }
+        if let SessionEvent::ObjectAction {
+            object,
+            action: ObjectAction::DoMode(mode),
+        } = event
+        {
+            if !emote_refused {
+                self.children_follow_mode(*object, *mode);
+            }
+        }
+        if let SessionEvent::ObjectAction {
+            object,
+            action: ObjectAction::DoBehavior(params),
+        } = event
+        {
+            // `mPropagate` (bit `0x400`): the holder's behaviour runs on its children too.
+            if !emote_refused && params.bitfield & 0x400 != 0 && params.propagate != 0 {
+                self.children_follow_behavior(*object, params);
+            }
+        }
         self.request_remote_bodies();
     }
 
+    /// The tail of `CPhysicsObj::DoMode`: when the holder's animation is not frozen, each child
+    /// with a physics representation takes the mode too (`DoMode(0, mode)`).
+    fn children_follow_mode(&mut self, holder: u64, mode: u32) {
+        if self
+            .holder_body(holder)
+            .is_none_or(ac2_physics::PhysicsBody::is_animation_frozen)
+        {
+            return;
+        }
+        let children: Vec<u64> = self
+            .session
+            .objects()
+            .links()
+            .children_of(holder)
+            .map(|info| info.id)
+            .collect();
+        for child in children {
+            if let Some(body) = self.remotes.body_mut(child) {
+                body.do_mode(0, mode);
+            }
+        }
+    }
+
+    /// The propagation in `CPhysicsObj::DoBehavior`: when the holder's animation is not frozen,
+    /// each child with a physics representation runs the same behaviour at the same time scale,
+    /// without locking actions and with its own children fading.
+    fn children_follow_behavior(
+        &mut self,
+        holder: u64,
+        params: &ac2_net::protocol::BehaviorParams,
+    ) {
+        if self
+            .holder_body(holder)
+            .is_none_or(ac2_physics::PhysicsBody::is_animation_frozen)
+        {
+            return;
+        }
+        let own = crate::motion::behavior(params);
+        let children: Vec<u64> = self
+            .session
+            .objects()
+            .links()
+            .children_of(holder)
+            .map(|info| info.id)
+            .collect();
+        for child in children {
+            if let Some(body) = self.remotes.body_mut(child) {
+                let mut propagated = ac2_anim::Ac2BehaviorParams::new(own.behavior);
+                propagated.time_scale = own.time_scale;
+                propagated.lock_actions = false;
+                propagated.fade_children = true;
+                body.do_behavior(&propagated);
+            }
+        }
+    }
+
     /// `TargetManager` for the player's move-to an object: each physics quantum the target's
-    /// position and size (`MoveToManager::HandleUpdateTarget`); a target no longer in the world
-    /// is lost. Ended move-tos are let go: the weenie's move-to callback is not modelled.
+    /// position and size (`MoveToManager::HandleUpdateTarget`, the target being
+    /// `MoveToManager::GetTargetObj`'s top-level object); a target no longer in the world is
+    /// lost. Ended move-tos are let go: the weenie's move-to callback is not modelled.
     pub(crate) fn track_move_to_target(&mut self) {
         let Some(player) = self.player.as_mut() else {
             return;
@@ -391,7 +467,9 @@ impl Client {
             player.move_to_target = None;
             return;
         }
-        match self.remotes.target_info(id) {
+        // `MoveToManager::GetTargetObj`: the target's top-level object, when it is in the world.
+        let top = self.session.objects().links().top_parent(id).unwrap_or(id);
+        match self.remotes.target_info(top) {
             Some((position, radius, height)) => {
                 body.physics.update_move_to_target(position, radius, height)
             }

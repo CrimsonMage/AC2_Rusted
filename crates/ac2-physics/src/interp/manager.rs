@@ -57,6 +57,17 @@ impl InterpolationManager {
         }
     }
 
+    /// `InterpolationManager::GetLastReceivedMotionVector`: the do-motion of the newest queued
+    /// position while a path is active, else zero.
+    pub(crate) fn last_received_motion(&self) -> Vector {
+        if !self.active {
+            return Vector::ZERO;
+        }
+        self.path
+            .last()
+            .map_or(Vector::ZERO, |node| node.local_motion)
+    }
+
     /// `InterpolationManager::StopInterpolating`.
     pub(crate) fn stop(&mut self) {
         self.active = false;
@@ -132,6 +143,7 @@ impl PhysicsObj {
         terrain: &Terrain,
     ) {
         if position.distance_squared(&self.position) <= 225.0 {
+            // `CMotionInterp::MakeInterpolationManager`: the manager is made on first use.
             self.interp
                 .get_or_insert_with(InterpolationManager::default)
                 .add_event(time_sent, position, heading, motion, has_contact);

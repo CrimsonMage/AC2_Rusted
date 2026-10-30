@@ -85,7 +85,11 @@ pub struct MotionInterp {
 
 impl MotionInterp {
     /// `CMotionInterp::CMotionInterp` over a `MotionInterpDesc` (`Init`/`SetMIDESC`); without one
-    /// every lookup yields the default `MotionValues`.
+    /// every lookup yields the default `MotionValues`. `CMotionInterpFactory::Create` is this
+    /// constructor, with the description decoded by the loader (`ac2-world`); `Init` takes the
+    /// heading from the body and the `MoveToManager` and `InterpolationManager` live in
+    /// `PhysicsObj`, which is also the `PHYSICSOBJREP` the interpreter is bound to
+    /// (`SetPhysobjRep`, `GetPhysObj`).
     pub fn new(desc: Option<Arc<Ac2MotionInterpDesc>>) -> Self {
         Self {
             desc,
@@ -107,6 +111,12 @@ impl MotionInterp {
             timers: BehaviorTimers::default(),
             turn_in_air: false,
         }
+    }
+
+    /// Whether a `MotionInterpDesc` is set (`CMotionInterp::Init`/`SetMIDESC` ran): the body
+    /// has a motion interpreter (`PHYSICSOBJREP::m_motionInterp`).
+    pub(crate) fn has_desc(&self) -> bool {
+        self.desc.is_some()
     }
 
     pub(crate) fn mode(&self) -> u32 {
@@ -133,7 +143,8 @@ impl MotionInterp {
         &mut self.timers
     }
 
-    /// `CMotionInterp::mLocalDesiredVel`.
+    /// `CMotionInterp::mLocalDesiredVel` (`SetLocalDesiredVelocity` is the assignment
+    /// `update_movement` makes).
     pub(crate) fn local_desired_velocity(&self) -> Vector {
         self.local_desired_vel
     }
@@ -153,9 +164,6 @@ impl MotionInterp {
         self.omega_acl
     }
 
-    /// `CMotionInterp::SetVelocityScale` (`mVelScale`), reached from the server's
-    /// `ECM_Physics::RecvEvt_SetVelocityScale` through `CPhysicsObj::SetVelocityScale` and
-    /// `PHYSICSOBJREP::SetVelocityScale`.
     /// `CMotionInterp::SetMIDESC`: the body moves by `desc` from now on (the motion table the
     /// lookups read). The client loads the description on a loader thread and hands it here;
     /// `None` (the DBObj is missing) keeps the current table and returns false, as retail's
@@ -170,6 +178,9 @@ impl MotionInterp {
         }
     }
 
+    /// `CMotionInterp::SetVelocityScale` (`mVelScale`), reached from the server's
+    /// `ECM_Physics::RecvEvt_SetVelocityScale` through `CPhysicsObj::SetVelocityScale` and
+    /// `PHYSICSOBJREP::SetVelocityScale`.
     pub fn set_velocity_scale(&mut self, scale: f32) {
         self.vel_scale = scale;
     }
@@ -184,6 +195,7 @@ impl MotionInterp {
         self.vel_scale
     }
 
+    /// `CMotionInterp::GetAccelerationScale` (`mAclScale`).
     pub(crate) fn acceleration_scale(&self) -> f32 {
         self.acl_scale
     }
@@ -283,7 +295,8 @@ impl MotionInterp {
     }
 
     /// `PHYSICSOBJREP::GetStandardMotionValues`: the peace-on-earth values (element and mode
-    /// `0x40000001`), else the static default.
+    /// `0x40000001`), else the static default. Its `max_forward_velocity` is
+    /// `CMotionInterp::GetMaxSpeed`.
     pub(crate) fn standard_motion_values(&self) -> Ac2MotionValues {
         self.find_motion_values(ELEMENT_GROUND, MODE_DEFAULT)
             .unwrap_or_default()
@@ -480,7 +493,8 @@ impl MotionInterp {
         out
     }
 
-    /// `CMotionInterp::UpdateMovement` (without the interpolation and move-to managers): the
+    /// `CMotionInterp::UpdateMovement` after its managers: `PhysicsObj::update_movement_offset`
+    /// runs the interpolation manager and the player's `MoveToManager` first (`managed`). The
     /// behaviours on `rep`, the local acceleration toward `mLocalDesiredVel` for each axis, the
     /// hover/ground vertical acceleration, then `CalculateOmegaAcceleration`.
     pub(crate) fn update_movement(

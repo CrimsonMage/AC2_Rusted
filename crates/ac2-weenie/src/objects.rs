@@ -36,6 +36,9 @@ pub struct RemoteObject {
     pub behaviors: Vec<ac2_net::protocol::BehaviorParams>,
     /// `PhysicsDesc::m_sliders`: slider, desired value and velocity (`SliderData`).
     pub sliders: Vec<(u32, f32, f32)>,
+    /// `PhysicsDesc`'s velocity, spin, external acceleration, scales and head direction, with
+    /// the constructor's defaults for what the description leaves out.
+    pub physics: ac2_physics::DescPhysics,
     /// Holder and location when the object is parented (a held item).
     pub parent: Option<(u64, u32)>,
     /// `PhysicsDesc::orientation_id` / `RecvEvt_Parent`'s orientation: the placement frame the
@@ -51,6 +54,27 @@ pub struct RemoteObject {
     pub update_times: [u16; 4],
     /// `CWRepository::m_qualities`.
     pub qualities: WeenieQualities,
+}
+
+/// The motion fields of `desc`, `PhysicsDesc::PhysicsDesc`'s defaults where it has none.
+fn desc_physics(desc: &ac2_net::protocol::PhysicsDesc) -> ac2_physics::DescPhysics {
+    let default = ac2_physics::DescPhysics::default();
+    ac2_physics::DescPhysics {
+        velocity: desc.velocity.unwrap_or(default.velocity),
+        omega: desc.omega.unwrap_or(default.omega),
+        external_acceleration: desc
+            .external_acceleration
+            .unwrap_or(default.external_acceleration),
+        velocity_scale: desc.velocity_scale.unwrap_or(default.velocity_scale),
+        jump_scale: desc.jump_scale.unwrap_or(default.jump_scale),
+        head_x: desc.head_x.unwrap_or(default.head_x),
+        head_z: desc.head_z.unwrap_or(default.head_z),
+        fx: desc
+            .fx
+            .iter()
+            .map(|&(fx, scalar, _)| (fx, scalar))
+            .collect(),
+    }
 }
 
 /// What an accepted position update did to the stamps (`CPhysicsObj::RecvEvt_Position`'s
@@ -114,6 +138,7 @@ impl RemoteObject {
             mode: object.physics.mode,
             behaviors: object.physics.behaviors.clone(),
             sliders: object.physics.sliders.clone(),
+            physics: desc_physics(&object.physics),
             parent: object
                 .physics
                 .parent
@@ -368,6 +393,7 @@ mod tests {
             mode: None,
             behaviors: Vec::new(),
             sliders: Vec::new(),
+            physics: Default::default(),
             parent: None,
             orientation: None,
             contained: false,
