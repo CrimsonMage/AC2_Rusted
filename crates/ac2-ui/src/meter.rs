@@ -297,6 +297,11 @@ pub struct VitalDisplay {
 pub type VitalText<'a> = &'a dyn Fn(u64, u64) -> String;
 
 impl VitalDisplay {
+    /// The current and maximum values shown.
+    pub fn values(&self) -> (u64, u64) {
+        (self.cur, self.max)
+    }
+
     /// `VitalDisplay::VitalDisplay`.
     pub fn new(tree: &UiTree, meter: Option<usize>, text: Option<usize>) -> Self {
         Self {

@@ -7,13 +7,23 @@
 //! while the pointer is over it, changes the layout. The fields are retail's (`gmVitalsUI`'s
 //! meters and texts, `gmEffectsUI`'s list, the indicators' fields), so what they show and their
 //! presses stay retail's; only their places change.
+//!
+//! At low health (30% or less) the health bar grows, its well pulses red, a LOW tag shows under
+//! the indicators and the screen's edge glows red, pulsing (a full-display overlay whose
+//! surface opacity pulses, so it is drawn once). While every vital is full and no PK damage
+//! shows, a veil dims the bars until the pointer comes over the panel.
 
 use std::cell::Cell;
+use std::sync::Arc;
+use std::time::Instant;
 
 use crate::element::{UiBox, UiTree};
+use crate::layout::LayoutDesc;
 use crate::modern_art as art;
+use crate::modern_drawer_bar::{count_label, place_label};
 use crate::modern_inventory::{keep, make_part};
 use crate::mouse::UiMessage;
+use crate::text::Justification;
 use crate::token::{tokenize, MOUSE_INVISIBLE, MSG_MOUSE_PRESS_TOP};
 
 /// The panel's padding (left and right, top, bottom) and the gaps between its parts.
@@ -24,6 +34,12 @@ const GAP: i32 = 3;
 const SIDE_WIDTH: i32 = 272;
 const STACKED_WIDTH: i32 = 212;
 const HEALTH: i32 = 11;
+/// The health bar's height at low health, and what low is.
+const HEALTH_LOW: i32 = 17;
+const LOW_SHARE: f64 = 0.3;
+/// The pulses' periods, seconds: the well's, the screen edge's (each way).
+const WELL_PULSE: f64 = 0.8;
+const EDGE_PULSE: f64 = 1.0;
 const BAR: i32 = 9;
 const EXPERIENCE: i32 = 5;
 /// The indicators' column: its gap from the bars and each field's size.
@@ -42,6 +58,29 @@ const FRAME_OVERLAY: u32 = 0x25C8_20CE;
 const EFFECTS_AREA: u32 = 0x61C4_B08F;
 /// The vitals' block holding the frame (`0x8264CFD6`).
 const VITALS_BLOCK: u32 = 0x8264_CFD6;
+
+/// What the panel shows from the vitals: (current, max) of health, vigor and focus, whether the
+/// player is a hero (has focus), and whether PK damage or vigor loss shows.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct VitalsShown {
+    pub health: (u64, u64),
+    pub vigor: (u64, u64),
+    pub focus: (u64, u64),
+    pub hero: bool,
+    pub pk: bool,
+}
+
+impl VitalsShown {
+    fn low(&self) -> bool {
+        let (cur, max) = self.health;
+        max > 0 && (cur as f64) <= LOW_SHARE * max as f64
+    }
+
+    fn full(&self) -> bool {
+        let full = |(cur, max): (u64, u64)| cur >= max;
+        full(self.health) && full(self.vigor) && (!self.hero || full(self.focus)) && !self.pk
+    }
+}
 
 /// The vitals' layouts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -71,6 +110,37 @@ pub struct ModernVitals {
     layout: Cell<VitalsLayout>,
     laid_out: Cell<Option<VitalsLayout>>,
     lit: Cell<Option<bool>>,
+    /// The screen's red edge (its own root), the LOW tag, the idle veil.
+    edge: Option<usize>,
+    low_tag: Option<usize>,
+    veil: Option<usize>,
+    low: Cell<bool>,
+    idle: Cell<bool>,
+    /// The display the edge was sized for.
+    edge_display: Cell<(i32, i32)>,
+    start: Instant,
+}
+
+/// The screen's red edge at low health: its own root, a copy of `template` (a plain field of the
+/// status bar's layout) drawing `LOW_VIGNETTE` scaled to the display, behind every window, taking
+/// no pointer, hidden.
+fn low_edge(tree: &mut UiTree, root: usize, template: usize) -> Option<usize> {
+    let layout = Arc::clone(&tree.el(root).layout);
+    let mut desc = (*tree.el(template).reference).clone();
+    desc.id = tokenize("ModernLowHealthEdge");
+    desc.states.clear();
+    desc.edges = [0; 4];
+    // The deepest root (a higher z draws further back).
+    desc.z_level = 0xFFFE;
+    let edge = tree.create_element(layout, Arc::new(desc), true)?;
+    tree.set_z_level(edge, 0xFFFE);
+    tree.add_root(edge);
+    tree.set_overlay_root(edge);
+    tree.set_image(edge, art::LOW_VIGNETTE, crate::compose::DRAW_OVER);
+    tree.set_bool(edge, crate::token::SIZE_IMAGE_TO_OWNER, true);
+    tree.set_bool(edge, MOUSE_INVISIBLE, true);
+    tree.set_visible(edge, false);
+    Some(edge)
 }
 
 /// Whether `element` shows and draws something: its own image, or a shown child that does.
@@ -95,7 +165,7 @@ fn place(tree: &mut UiTree, element: Option<usize>, (x, y, w, h): (i32, i32, i32
 impl ModernVitals {
     /// The status bar laid out as the panel: its frame art cleared, its fields kept where they
     /// are put, the glass, the wells and the switch made. `None` without the status bar.
-    pub fn adopt(tree: &mut UiTree) -> Option<Self> {
+    pub fn adopt(tree: &mut UiTree, layouts: &[&Arc<LayoutDesc>]) -> Option<Self> {
         let root = tree
             .roots()
             .iter()
@@ -172,7 +242,30 @@ impl ModernVitals {
             tree.set_bool(switch, MOUSE_INVISIBLE, false);
             tree.set_visible(switch, false);
         }
-        // The frame's own fields hide (their art is gone; the fields are moved out of them).
+        let veil = part(tree, "ModernVitalsVeil", art::VITALS_VEIL, Some(1), 1);
+        if let Some(veil) = veil {
+            tree.set_visible(veil, false);
+        }
+        let low_tag = count_label(
+            tree,
+            layouts,
+            root,
+            "ModernVitalsLow",
+            Justification::Center,
+        );
+        if let Some(tag) = low_tag {
+            keep(tree, tag);
+            for (channel, value) in [("red", 0xFF), ("green", 0xB0), ("blue", 0xA4)] {
+                let _ = tree.set_float(
+                    tag,
+                    tokenize(&format!("font_color1_{channel}")),
+                    value as f32 / 255.0,
+                );
+            }
+            tree.set_text_with_font(tag, "LOW", 0, 1);
+            tree.set_visible(tag, false);
+        }
+        let edge = template.and_then(|t| low_edge(tree, root, t));
         let vitals = Self {
             root,
             fields,
@@ -187,6 +280,13 @@ impl ModernVitals {
             layout: Cell::new(VitalsLayout::default()),
             laid_out: Cell::new(None),
             lit: Cell::new(None),
+            edge,
+            low_tag,
+            veil,
+            low: Cell::new(false),
+            idle: Cell::new(false),
+            edge_display: Cell::new((0, 0)),
+            start: Instant::now(),
         };
         vitals.arrange(tree);
         Some(vitals)
@@ -208,14 +308,15 @@ impl ModernVitals {
         let layout = self.layout.get();
         self.laid_out.set(Some(layout));
         let (x0, y0) = (PAD.0, PAD.1);
+        let health = if self.low.get() { HEALTH_LOW } else { HEALTH };
         let (width, bars): (i32, [(i32, i32, i32, i32); 4]) = match layout {
             VitalsLayout::SideBySide => {
                 let w = (SIDE_WIDTH - 2 * 4) / 3;
-                let row = HEALTH + GAP;
+                let row = health + GAP;
                 (
                     SIDE_WIDTH,
                     [
-                        (x0, y0, w, HEALTH),
+                        (x0, y0, w, health),
                         (x0 + w + 4, y0, w, BAR),
                         (x0 + 2 * (w + 4), y0, w, BAR),
                         (x0, y0 + row, SIDE_WIDTH, EXPERIENCE),
@@ -224,12 +325,12 @@ impl ModernVitals {
             }
             VitalsLayout::Stacked => {
                 let w = STACKED_WIDTH;
-                let v = y0 + HEALTH + GAP;
+                let v = y0 + health + GAP;
                 let f = v + BAR + GAP;
                 (
                     w,
                     [
-                        (x0, y0, w, HEALTH),
+                        (x0, y0, w, health),
                         (x0, v, w, BAR),
                         (x0, f, w, BAR),
                         (x0, f + BAR + GAP, w, EXPERIENCE),
@@ -260,6 +361,25 @@ impl ModernVitals {
             }
         }
         let column = (y - GAP).max(0);
+        // The LOW tag under the indicators.
+        place_label(
+            tree,
+            self.low_tag,
+            UiBox::new(
+                x0 + width + INDICATOR_GAP - 6,
+                y0 + column + 2,
+                x0 + width + INDICATOR_GAP + INDICATOR.0 + 5,
+                y0 + column + 13,
+            ),
+        );
+        let column = column + if self.low.get() { 14 } else { 0 };
+        // The veil over the bars.
+        let bars_bottom = bars[3].1 + EXPERIENCE;
+        place(
+            tree,
+            self.veil,
+            (x0 - 1, y0 - 1, width + 2, bars_bottom - y0 + 2),
+        );
         place(tree, self.indicators, (ix, y0, INDICATOR.0, column.max(1)));
         let w = ix + INDICATOR.0 + PAD.0;
         let h = (bottom + effects).max(y0 + column) + PAD.2;
@@ -294,8 +414,51 @@ impl ModernVitals {
     }
 
     /// The switch shown while the pointer is over the panel, lit while it is over the switch;
-    /// the panel laid out again when its effects or indicators change.
-    pub fn tick(&self, tree: &mut UiTree) {
+    /// the panel laid out again when its effects or indicators change; low health and idle bars
+    /// shown for `vitals`.
+    pub fn tick(&self, tree: &mut UiTree, vitals: &VitalsShown) {
+        let now = self.start.elapsed().as_secs_f64();
+        let shown_panel = tree.el(self.root).visible;
+        let low = shown_panel && vitals.low();
+        if low != self.low.get() {
+            self.low.set(low);
+            if let Some(tag) = self.low_tag {
+                tree.set_visible(tag, low);
+            }
+            if let Some(edge) = self.edge {
+                tree.set_visible(edge, low);
+            }
+            if !low {
+                if let Some(well) = self.wells[0] {
+                    tree.set_image(well, art::BAR_WELL, crate::compose::DRAW_OVER);
+                    tree.set_int(well, crate::compose::NINE_SLICE, art::WELL_BORDER);
+                }
+            }
+            self.arrange(tree);
+        }
+        if low {
+            // The well pulses between its two looks; the edge's opacity between 1 and 0.55.
+            if let Some(well) = self.wells[0] {
+                let look = art::BAR_WELL_LOW[((now / WELL_PULSE) as u64 % 2) as usize];
+                if tree.el(well).image().map(|i| i.file) != Some(look) {
+                    tree.set_image(well, look, crate::compose::DRAW_OVER);
+                    tree.set_int(well, crate::compose::NINE_SLICE, 4);
+                }
+            }
+            if let Some(edge) = self.edge {
+                let display = tree.display;
+                if self.edge_display.get() != display {
+                    self.edge_display.set(display);
+                    tree.resize_to(edge, display.0, display.1);
+                    tree.set_object_position(edge, 0, 0);
+                }
+                let phase = (now / EDGE_PULSE) % 2.0;
+                let t = if phase < 1.0 { phase } else { 2.0 - phase };
+                let opacity = (1.0 - 0.45 * t) as f32;
+                // Steps of a twentieth, so the surface object changes only that often.
+                tree.set_object_opacity(edge, (opacity * 20.0).round() / 20.0);
+            }
+        }
         let content = self.content(tree);
         if self.content.borrow().as_ref() != Some(&content) {
             *self.content.borrow_mut() = Some(content);
@@ -310,6 +473,14 @@ impl ModernVitals {
             x >= at.x0 && x <= at.x1 && y >= at.y0 && y <= at.y1
         };
         let shown = tree.el(self.root).visible && over(tree, self.root);
+        // Idle bars are veiled until the pointer comes over the panel.
+        let idle = vitals.full() && !low && !shown;
+        if idle != self.idle.get() {
+            self.idle.set(idle);
+            if let Some(veil) = self.veil {
+                tree.set_visible(veil, idle);
+            }
+        }
         if tree.el(switch).visible != shown {
             tree.set_visible(switch, shown);
         }

@@ -205,6 +205,10 @@ game rules and server-visible behaviour exactly retail.
   a block left of the bars. A switch at the panel's corner, shown while the pointer is over the
   panel, changes the layout (not yet saved). The fields are retail's, moved up to the panel (the
   frame's own fields would clip them), so what they show and their presses stay retail's.
+  At 30% health or less the health bar grows, its well pulses red, a LOW tag shows under the
+  indicators and the screen's edge glows red (a full-display overlay root whose surface opacity
+  pulses); while every vital is full and no PK damage shows, a veil dims the bars until the
+  pointer comes over the panel. Retail had neither.
   The seven panel buttons' icons are one matching set in Asheron's Call 1's look (the user's
   choice): each panel's AC1 toolbar symbol (Examination its magnifier, Navigation its compass,
   Option its checklist, Inventory its backpack, Quest its leaf, Skill its flexed arm, Social its

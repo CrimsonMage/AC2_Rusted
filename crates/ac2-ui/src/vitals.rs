@@ -72,8 +72,12 @@ pub struct VitalsUi {
 
 impl VitalsUi {
     /// The modern style's panel laid over the status bar (`modern_vitals`).
-    pub fn set_modern(&mut self, tree: &mut UiTree) {
-        self.modern = crate::modern_vitals::ModernVitals::adopt(tree);
+    pub fn set_modern(
+        &mut self,
+        tree: &mut UiTree,
+        layouts: &[&std::sync::Arc<crate::layout::LayoutDesc>],
+    ) {
+        self.modern = crate::modern_vitals::ModernVitals::adopt(tree, layouts);
     }
 
     /// The modern style's panel, if this is the modern style.
@@ -85,7 +89,16 @@ impl VitalsUi {
     /// The modern panel's switch follows the pointer (every frame; nothing in classic).
     pub fn modern_tick(&self, tree: &mut UiTree) {
         if let Some(modern) = &self.modern {
-            modern.tick(tree);
+            let values = |d: &Option<VitalDisplay>| d.as_ref().map_or((0, 0), |d| d.values());
+            let pk = |d: &Option<VitalDisplay>| values(d).0 > 0;
+            let shown = crate::modern_vitals::VitalsShown {
+                health: values(&self.health),
+                vigor: values(&self.vigor),
+                focus: values(&self.focus),
+                hero: self.hero,
+                pk: pk(&self.pk_damage) || pk(&self.pk_vigor_loss),
+            };
+            modern.tick(tree, &shown);
         }
     }
 

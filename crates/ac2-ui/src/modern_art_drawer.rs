@@ -59,6 +59,11 @@ pub const VITALS_GLASS: u32 = 0x7E01_00A0;
 pub const BAR_WELL: u32 = 0x7E01_00A1;
 pub const LAYOUT_SWITCH: u32 = 0x7E01_00A2;
 pub const LAYOUT_SWITCH_LIT: u32 = 0x7E01_00A3;
+/// Low health: the health well's two pulse looks, the screen's red edge (scaled to the display),
+/// and the veil over idle bars.
+pub const BAR_WELL_LOW: [u32; 2] = [0x7E01_00A4, 0x7E01_00A5];
+pub const LOW_VIGNETTE: u32 = 0x7E01_00A6;
+pub const VITALS_VEIL: u32 = 0x7E01_00A7;
 pub const VITALS_BORDER: i32 = 12;
 pub const WELL_BORDER: i32 = 2;
 pub const SWITCH: i32 = 13;
@@ -343,6 +348,57 @@ fn bar_well() -> UiPixels {
     c.finish()
 }
 
+/// The health well at low health: the design's red line and glow (`#ff6a58`, `#ff3a2a`), or at
+/// the pulse's height a white line and a stronger glow.
+fn bar_well_low(peak: bool) -> UiPixels {
+    let (w, h) = (16usize, 16usize);
+    let mut c = Canvas::new(w, h);
+    let shape = round_rect(3.0, 3.0, w as f32 - 3.0, h as f32 - 3.0, 0.0);
+    let (line, glow, width) = if peak {
+        (rgb(0xFFFFFF, 1.0), rgb(0xFF2A1A, 0.8), 2.0)
+    } else {
+        (rgb(0xFF6A58, 1.0), rgb(0xFF3A2A, 0.6), 1.0)
+    };
+    c.paint(&shape, |_, _, d| {
+        (
+            glow,
+            if d > 0.0 {
+                (1.0 - d / 3.0).max(0.0)
+            } else {
+                0.0
+            },
+        )
+    });
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 0.73), inside(d)));
+    c.paint(&shape, |_, _, d| (line, band(d, -width - 1.0, -1.0)));
+    c.paint(&shape, |_, _, d| (rgb(0x000000, 1.0), band(d, -1.0, 0.0)));
+    c.finish()
+}
+
+/// The screen's red edge at low health: clear inside 45% of the way out, then the design's
+/// `#d41818` at 60% at the edge (an ellipse over the display's shape).
+fn low_vignette() -> UiPixels {
+    let (w, h) = (320usize, 180usize);
+    let mut c = Canvas::new(w, h);
+    let (cx, cy) = (w as f32 / 2.0, h as f32 / 2.0);
+    c.paint(
+        |_, _| -1.0,
+        |x, y, _| {
+            let t = (((x - cx) / cx).powi(2) + ((y - cy) / cy).powi(2)).sqrt() / 2f32.sqrt();
+            let a = ((t - 0.45) / 0.55).clamp(0.0, 1.0);
+            (rgb(0xD41818, 0.6), a)
+        },
+    );
+    c.finish()
+}
+
+/// The veil over idle bars: the panel's glass at 68%, so the bars show at about the design's 32%.
+fn vitals_veil() -> UiPixels {
+    let mut c = Canvas::new(4, 4);
+    c.paint(|_, _| -1.0, |_, _, _| (rgb(0x00201E, 0.68), 1.0));
+    c.finish()
+}
+
 /// The vitals layout switch: a dark square in a bronze line with two gold arrows (`&#8646;`).
 fn layout_switch(lit: bool) -> UiPixels {
     let side = SWITCH as usize;
@@ -531,6 +587,10 @@ pub(crate) fn bake(images: &mut HashMap<u32, UiPixels>, item_slot: Option<&UiPix
         images.insert(ITEM_WELL, item_well(slot));
     }
     images.insert(VITALS_GLASS, vitals_glass());
+    images.insert(BAR_WELL_LOW[0], bar_well_low(false));
+    images.insert(BAR_WELL_LOW[1], bar_well_low(true));
+    images.insert(LOW_VIGNETTE, low_vignette());
+    images.insert(VITALS_VEIL, vitals_veil());
     images.insert(BAR_WELL, bar_well());
     images.insert(LAYOUT_SWITCH, layout_switch(false));
     images.insert(LAYOUT_SWITCH_LIT, layout_switch(true));

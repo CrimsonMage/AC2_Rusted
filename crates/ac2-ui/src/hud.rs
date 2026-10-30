@@ -356,7 +356,9 @@ pub fn build_styled_hud(
         .map(|toolbar| QuestsUi::create(&tree, toolbar));
     let mut vitals = VitalsUi::create(&mut tree);
     if style == HudStyle::Modern {
-        vitals.set_modern(&mut tree);
+        let fonts: Vec<&Arc<LayoutDesc>> =
+            [&layouts[&LAYOUT_TOOLBAR]].into_iter().flatten().collect();
+        vitals.set_modern(&mut tree, &fonts);
     }
     let effects = layouts[&LAYOUT_STATUSBAR]
         .as_ref()

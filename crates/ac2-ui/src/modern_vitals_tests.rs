@@ -86,3 +86,73 @@ fn the_classic_style_keeps_retails_status_bar() {
         .child_recursive(r, tokenize("ModernVitalsGlass"))
         .is_none()));
 }
+
+fn named(tree: &UiTree, name: &str) -> usize {
+    let id = tokenize(name);
+    tree.roots()
+        .iter()
+        .find_map(|&r| {
+            if tree.el(r).id() == id {
+                Some(r)
+            } else {
+                tree.child_recursive(r, id)
+            }
+        })
+        .unwrap_or_else(|| panic!("{name}"))
+}
+
+/// At 30% health or less the health bar grows, the LOW tag and the screen's red edge show, and
+/// the edge covers the display; back above, they go.
+#[test]
+fn low_health_grows_the_bar_and_shows_the_red_edge() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let text = |c: u64, m: u64| format!("{c} / {m}");
+    hud.vitals
+        .update_vital(tree, crate::vitals::VITAL_HEALTH, 100, 100, &text);
+    hud.vitals.modern_tick(tree);
+    let before = at(tree, "HealthField").height();
+    let edge = named(tree, "ModernLowHealthEdge");
+    let tag = named(tree, "ModernVitalsLow");
+    assert!(!tree.el(edge).visible && !tree.el(tag).visible);
+    hud.vitals
+        .update_vital(tree, crate::vitals::VITAL_HEALTH, 25, 100, &text);
+    hud.vitals.modern_tick(tree);
+    assert!(tree.el(edge).visible && tree.el(tag).visible);
+    assert!(at(tree, "HealthField").height() > before);
+    assert_eq!(tree.el(edge).rect.width(), 1365);
+    hud.vitals
+        .update_vital(tree, crate::vitals::VITAL_HEALTH, 80, 100, &text);
+    hud.vitals.modern_tick(tree);
+    assert!(!tree.el(edge).visible && !tree.el(tag).visible);
+    assert_eq!(at(tree, "HealthField").height(), before);
+}
+
+/// Every vital full: the veil dims the bars until the pointer is over the panel.
+#[test]
+fn full_vitals_are_veiled_until_the_pointer_comes_over() {
+    let Some(mut hud) = hud(HudStyle::Modern) else {
+        return;
+    };
+    let tree = &mut hud.tree;
+    let text = |c: u64, m: u64| format!("{c} / {m}");
+    for vital in [crate::vitals::VITAL_HEALTH, crate::vitals::VITAL_VIGOR] {
+        hud.vitals.update_vital(tree, vital, 50, 50, &text);
+    }
+    tree.pointer = (900, 600);
+    hud.vitals.modern_tick(tree);
+    let veil = named(tree, "ModernVitalsVeil");
+    assert!(tree.el(veil).visible);
+    let health = at(tree, "HealthField");
+    tree.pointer = (health.x0 + 2, health.y0 + 2);
+    hud.vitals.modern_tick(tree);
+    assert!(!tree.el(veil).visible);
+    // Hurt: no veil even away from the panel.
+    tree.pointer = (900, 600);
+    hud.vitals
+        .update_vital(tree, crate::vitals::VITAL_HEALTH, 40, 50, &text);
+    hud.vitals.modern_tick(tree);
+    assert!(!tree.el(veil).visible);
+}
