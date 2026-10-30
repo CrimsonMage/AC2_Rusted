@@ -56,6 +56,8 @@ impl TargetBanner {
             "",
             (0, 0, 300),
         )?;
+        // Kept where it is put: the copied button's edges would re-place it as the display grows.
+        crate::modern_inventory::keep(tree, label);
         tree.clear_image(label);
         tree.set_bool(label, MOUSE_INVISIBLE, true);
         let text = tree
@@ -72,6 +74,7 @@ impl TargetBanner {
         tree.resize_to(label, width - 2 * PAD, 20);
         set_button_label(tree, label, TEXT);
         if let Some(t) = text {
+            crate::modern_inventory::keep(tree, t);
             tree.set_bool(t, MOUSE_INVISIBLE, true);
             // The design's dark text on the gold.
             if let Some(state) = tree.el_mut(t).text.as_mut() {
