@@ -8,8 +8,9 @@
 //!
 //! The panel's location is the window location mechanism's: a move raises the location change
 //! the client saves (`CM_UI::SendNotice_SaveLocationsChanged`), and a load applies the saved
-//! location before the shown state (`gmMiniFellowUI::LocationApplied`). Not modelled yet: the
-//! per-object notice that removes a member being deleted.
+//! location before the shown state (`gmMiniFellowUI::LocationApplied`). The panel registers no
+//! per-object notices here, so `gmMiniFellowUI::RecvNotice_BeingDeleted` (which only unregisters
+//! the object's handlers) has nothing to do.
 
 use std::sync::Arc;
 

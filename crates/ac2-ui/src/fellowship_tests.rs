@@ -176,6 +176,10 @@ fn the_looting_drop_down_holds_five_methods_and_create_sends_the_chosen_one() {
         .unwrap();
     assert_eq!(tree.menu_items(menu).len(), 5);
     assert_eq!(tree.menu_selected_index(menu), Some(1));
+    // Each item has its tooltip, switched on.
+    for item in tree.menu_items(menu) {
+        assert!(tree.tooltip_text(*item).is_some_and(|t| !t.is_empty()));
+    }
 
     // The drop-down's choice is not a request of its own: the page's Create carries it.
     tree.menu_set_selected_index(menu, Some(3));

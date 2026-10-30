@@ -1,6 +1,6 @@
 # ac2-ui: UI framework, input maps, IME, game panels, maps
 
-2247 retail functions: 1498 done, 163 partial, 0 to do, 586 skipped.
+2247 retail functions: 1527 done, 134 partial, 0 to do, 586 skipped.
 Legend and workflow: [README](README.md).
 
 ## `ac2/client/src/ui/gameplay/gm3dtextui.cpp.c` (39/53)
@@ -412,7 +412,7 @@ Legend and workflow: [README](README.md).
 - [~] `gmRadarUI::gmRadarUI` · 00426450 · legions 00426240 — ac2-ui hud.rs + ac2-gpu ui.rs + ac2-client hud_view.rs: HUD roots made and drawn; no framework behaviour beyond hiding the toolbar's dismount/consignment buttons
 - [x] `gmRadarUI::RecvNotice_ReloadOptions` · 00426710 — ac2-client client_radar.rs + ac2-script host/radar.rs (InqRadarLook), ac2-weenie notice.rs (ChangeRadarLook(obj))
 
-## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (25/27)
+## `ac2/client/src/ui/gameplay/gmsecuretradeui.cpp.c` (26/27)
 
 ### gmSecureTradeUI
 - [x] `gmSecureTradeUI::Show` · 00420a90 · legions 004208c0 — ac2-ui secure_trade.rs: SecureTradeUi (Show, CloseTrade, FinishListBoxDrop, UpdateButton, HandleItemRemoval, the DDCB as the list's item check in message())
@@ -442,7 +442,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSecureTradeUI::RemoveItem` · 00421590 · legions 004213c0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeRevoked` · 00421690 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::ResetInternal` · 004216b0 · legions 00421520 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
-- [~] `gmSecureTradeUI::gmSecureTradeUI` · 004217a0 · legions 00421610 — ac2-ui SecureTradeUi::create (hidden, no field); the notice registrations are the client's (hud_player), the player is set_player
+- [x] `gmSecureTradeUI::gmSecureTradeUI` · 004217a0 · legions 00421610 — ac2-ui secure_trade.rs SecureTradeUi::create: hidden, no field, ids invalid; notice registrations are the client (hud_player), player set by set_player
 - [-] `gmSecureTradeUI::~gmSecureTradeUI` · 004219d0 · legions 00421840 — C++ destructors: the Rust state drops
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeClosed` · 00421a90 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
 - [x] `gmSecureTradeUI::RecvNotice_Trade_BeReset` · 00421bf0 — ac2-ui secure_trade.rs: recv_trade_be_offered / remove_item / recv_trade_be_revoked / reset_side / List::remove (Vec position) / recv_trade_be_closed (delay from the field) / recv_trade_be_reset
@@ -632,14 +632,14 @@ Legend and workflow: [README](README.md).
 ### gmStoryUI
 - [~] `gmStoryUI::gmStoryUI` · 0042c7f0 · legions 0042c5b0 — begin event (StoryEvent::Begin) starts the background's fade; HUD panels hidden while a story plays and restored after (hud_story.rs), a modern addition: the decompile shows no Show(0) at story start
 
-## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (17/32)
+## `ac2/client/src/ui/gameplay/helper/chatwindow.cpp.c` (27/32)
 
 ### ChatWindow
 - [x] `ChatWindow::IsActiveRoot` · 0044afd0 · legions 0044bc30 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::IsActive` · 0044b000 · legions 0044bc60 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::HandleActivation` · 0044b030 · legions 0044bcd0 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::Show` · 0044b090 · legions 0044bd30 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
-- [~] `ChatWindow::LocationApplied` · 0044b120 · legions 0044bdc0 — window positions are applied by the client's window-position code (AGENTS exception: saved per character, save_loc to the server); the chat has no separate LocationApplied
+- [x] `ChatWindow::Show` · 0044b090 · legions 0044bd30 — ac2-ui chat_window.rs ChatWindow::show: the root (m_chatArea) shown or hidden, entry deactivated, toggle button unchanged
+- [x] `ChatWindow::LocationApplied` · 0044b120 · legions 0044bdc0 — window locations are the client window-position code (AGENTS exception: saved per character, SaveLocationsChanged on a move); the chat area is the root, so no separate LocationApplied
 - [x] `ChatWindow::SetZLevel` · 0044b140 · legions 0044bde0 — ac2-ui chat.rs / chat_window.rs
 
 ### gmChatUI
@@ -650,14 +650,14 @@ Legend and workflow: [README](README.md).
 
 ### ChatWindow
 - [x] `ChatWindow::SetOpacity` · 0044b1b0 · legions 0044be20 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-- [~] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
-- [~] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
+- [x] `ChatWindow::SetActiveWindow` · 0044b1f0 · legions 0044be60 — ac2-ui chat_window.rs ChatWindow::set_active_window: MoveBarField state active/inactive; ChatUi::set_active_window runs it over the four windows (gmChatUI::SetActiveWindow); chat_tests.rs
+- [x] `ChatWindow::ListenToMessage` · 0044b220 · legions 0044c570 — ac2-ui chat.rs ChatUi::window_message (ChatWindow::ListenToMessage): last focus, toggle, move bar active look, options toggle, activation (HandleActivation: clear or SelectAll), log scroll lock, opacity slider; location_changed = the client window-position save (AGENTS exception); the global loop half is ChatWindow::global_loop
 
 ### PStringBaseIter_Common<unsigned_short>
 - [-] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b5b0 · legions 0044c090 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### ChatWindow
-- [~] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [x] `ChatWindow::ProcessCommand` · 0044b650 · legions 0044da90 — ac2-ui chat_window.rs process_command: entry text taken and cleared, sent as ChatRequest::Line
 
 ### PStringBaseIter_Common<unsigned_short>
 - [-] `PStringBaseIter_Common<unsigned_short>::FindChar` · 0044b730 · legions 0044c130 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -671,7 +671,7 @@ Legend and workflow: [README](README.md).
 ### ChatWindow
 - [x] `ChatWindow::RecvNotice_DisplayStringInfo` · 0044b8e0 — ac2-ui chat.rs / chat_window.rs
 - [x] `ChatWindow::GetChatMessageInfo` · 0044ba70 · legions 0044c790 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [x] `ChatWindow::DoAssistedTell` · 0044bad0 · legions 0044c7f0 — ac2-ui chat.rs ChatUi::assisted_tell: ID_Chat_AssistedTell line in the chat-entry font, selected (SelectAll) and activated; chat_tests.rs
 
 ### PSUtils
 - [x] `PSUtils::FindAllWords` · 0044bc80 · legions 0044c990 — ac2-script glue/string_utils.rs is_word_in_string (also vm/mod.rs ShellTable::add, ac2-weenie shell is_word_in): split at the separators, keep only non-empty pieces
@@ -684,11 +684,11 @@ Legend and workflow: [README](README.md).
 - [x] `ChatWindow::DisplayRetellHistory` · 0044c1f0 · legions 0044cf10 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::DisplayReplyHistory` · 0044c2a0 · legions 0044cfc0 — ac2-ui chat + ac2-client chat_text
 - [x] `ChatWindow::HandleReplyKey` · 0044c400 · legions 0044d120 — ac2-ui chat.rs / chat_window.rs
-- [~] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat.rs: log scroll bar lock (ChatLogScrollbar widget_press locks, widget_release unlocks; AllTextToLog skips the scroll); remaining: save loc (save_loc window), selection, Legions routes the lock on the root element
-- [~] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
-- [~] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [x] `ChatWindow::ListenToMessage` · 0044c5b0 · legions 0044d2d0 — ac2-ui chat.rs ChatUi::window_message (ChatWindow::ListenToMessage): last focus, toggle, move bar active look, options toggle, activation (HandleActivation: clear or SelectAll), log scroll lock, opacity slider; location_changed = the client window-position save (AGENTS exception); the global loop half is ChatWindow::global_loop
+- [x] `ChatWindow::KeyPress` · 0044c5f0 · legions 0044d310 — ac2-ui chat.rs window_key_press / key_press: history, paging and Escape keys; DisplayCmdHistory selects the line (set_entry_text, EntrySelection::All), command/alias key deselects
+- [x] `ChatWindow::ChatWindow` · 0044c7d0 · legions 0044d700 — ac2-ui chat_window.rs ChatWindow::create: root and parts from the toolbar layout (incl. MoveBarField), options field hidden, hidden at first; message registrations are the frame event list; IME font (kanjifont) not extended
 - [x] `ChatWindow::RecvNotice_ReloadOptions` · 0044cb10 — ac2-client: Command::SetChatOption / SetWindowOpacity (IFuns 0xB400D3/D4/DD/83, DF; SetWindowOpacity then UploadUISettings), UploadChatOptions (IFun 0xB400D5, WM_Player 0x2E asserted in chat_options_7160), InqGameplayOptions = GetGameplayOptions IFun 0xB400DE (scripts_queries gameplay_options); ac2-ui chat_window.rs opacity slider, apply_opacity, reload (window_locations_tests.rs, window_locations_7160.rs a_window_opacity...)
-- [~] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat: opacity, scroll lock and the spew box are ported; save loc and selection are still open (remaining gaps in the chat's notes)
+- [x] `ChatWindow::RecvNotice_ReloadChatSettings` · 0044cbc0 — ac2-ui chat_window.rs reload_chat_settings: options per type, filter bitfield, empty-filter hint, first-reload greeting
 
 ## `ac2/client/src/ui/gameplay/helper/containerdisplay.cpp.c` (18/22)
 
@@ -743,7 +743,7 @@ Legend and workflow: [README](README.md).
 - [x] `FellowInfo::FellowInfo` · 0043a200 · legions 0043aa50 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowInfo::UpdateInfo` · 0043a4d0 · legions 0043ad20 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (19/24)
+## `ac2/client/src/ui/gameplay/helper/fellowshiphelper.cpp.c` (20/24)
 
 ### FellowshipHelper
 - [x] `FellowshipHelper::SelectFellowByIdx` · 0042f0f0 · legions 0042eff0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -776,7 +776,7 @@ Legend and workflow: [README](README.md).
 - [-] `STREAMPACK` · 0042fb10 · legions 0042f9d0 — STREAMPACK template wrappers with no call site in the Legions wlib (host::tests::efun_coverage); the records they pack are read directly
 
 ### FellowshipHelper
-- [~] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — GetFellowXPHash needs the host to return the script-filled LAHash
+- [x] `FellowshipHelper::UpdateXP` · 0042fca0 · legions 0042fa60 — ac2-ui fellow_rows.rs FellowRows::update_xp over FellowshipSource::fellow_xp; the client answers from the script (ac2-script social_queries.rs fellow_xp_hash, GetFellowXPHash LAHash) in ui_social.rs
 - [x] `FellowshipHelper::RecvNotice_UpdateFellowLevel` · 0042fdc0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `FellowshipHelper::RemoveFellow` · 0042fdd0 · legions 0042fb90 — ac2-ui fellow_rows.rs clear_fellow (the row) and fellow_markers.rs notice: the listed member's RemoveMarker(4, id), unless the player or fellows hidden
 - [x] `FellowshipHelper::RemoveAllFellows` · 0042feb0 · legions 0042fc70 — ac2-ui fellow_rows.rs remove_all (the list flushed) and fellow_markers.rs notice: ClearMarkers(4) when fellows were listed and are shown on the map (fellow_markers_7160)
@@ -980,10 +980,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmNetStatusUI::ListenToMessage` · 0044da90 · legions 0044ec60 — ac2-ui net_status.rs draw_bandwidth_graph (GraphTool bars, unit-tested); ac2-client hud_view/compose.rs paints it on each status bar compose; the latency-graph option from hud_player reload
 - [~] `gmNetStatusUI::gmNetStatusUI` · 0044dab0 · legions 0044ec80 — ac2-ui net_status.rs create; client routes LinkHeartbeat (hud_player). Not modelled: CWeenieObject notice registrations (0x46d, 0x417) and the CLinkStatusPlugin registration
 
-## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (1/2)
+## `ac2/client/src/ui/gameplay/statusbar/indicators/gmpkstatusui.cpp.c` (2/2)
 
 ### gmPKStatusUI
-- [~] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210 — ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup. Not modelled: the two CWeenieObject notice registrations (0x460 is the faction notice, RecvNotice_UpdateFactionStatus; 0x1040c not traced)
+- [x] `gmPKStatusUI::gmPKStatusUI` · 0044d040 · legions 0044e210 — ac2-ui pk_status.rs PkStatusUi::create: PKStatusField lookup; the notice registrations (0x460 faction status = update_faction_status, 0x1040c = BeingDeleted unregistration) are the client's routing
 - [x] `gmPKStatusUI::RecvNotice_UpdateFactionStatus` · 0044d0c0 — PK field fed: Legions 0x0044E290 is gmPKStatusUI::RecvNotice_UpdateFactionStatus (the index missed its match; 1 peace, 2 control, 3 factional, 4 ffa, else stateless), raised by CM_Character::SendNotice_UpdateFactionStatus; routed through ac2-client hud_status::pk_notice
 
 ## `ac2/client/src/ui/gameplay/statusbar/indicators/gmvitaestatusui.cpp.c` (4/4)
@@ -994,7 +994,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmVitaeStatusUI::RecvNotice_UpdateVitae` · 0044ce90 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 - [x] `gmVitaeStatusUI::ListenToMessage` · 0044cfc0 — ac2-ui vitae.rs (update_vitae, examination_request_changed, message); wired in ac2-client hud_status.rs; ctor notice handlers 0x45d, 0x461, 0x1040c
 
-## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (8/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmchatui.cpp.c` (12/14)
 
 ### gmChatUI
 - [x] `gmChatUI::SetLastFocus` · 004351c0 · legions 00435990 — ac2-ui chat.rs / chat_window.rs
@@ -1009,20 +1009,20 @@ Legend and workflow: [README](README.md).
 - [-] `SmartArray<StringInfo>::AddToEnd` · 004355d0 · legions 00435e70 — container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 
 ### gmChatUI
-- [~] `gmChatUI::Init` · 00435620 · legions 00435ec0 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [x] `gmChatUI::Init` · 00435620 · legions 00435ec0 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
 - [x] `gmChatUI::RecvNotice_DisplayStringInfo` · 004357d0 — ac2-ui chat.rs display: the error bit (type & 1) queues the spew box line; admin 7148 body (Legions handler unmatched in the index)
-- [~] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080 — ac2-ui chat_spew.rs: the spew list is found by id over the tree (GetElement); it sits in the status bar root through a reference child (holder 0x10059476), mouse-invisible, at the reference rect (314,0); Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [x] `gmChatUI::gmChatUI` · 004357f0 · legions 00436080 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
 - [x] `gmChatUI::Update` · 004358d0 · legions 00436160 — ac2-ui chat_spew.rs: expired lines leave, pending lines show with decay_time from SpewBoxMessage (6 s in the DAT); tested on the real chat layout (chat_tests)
-- [~] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
-- [~] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs/chat_spew.rs: spew list made from the layout (0x4100000f) and global loop Update done; Show's Update on first show not modelled (chat always shown); object notice registration (0x419/0x1040c) is routed by the client
+- [x] `gmChatUI::Show` · 00435b80 · legions 00436410 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
+- [x] `gmChatUI::ListenToMessage` · 00435bc0 · legions 00436450 — ac2-ui chat.rs ChatUi::create/global_loop/message + chat_spew.rs: windows and spew list from the layout; the chat is always shown so Show's Update on first show equals the per-frame global loop Update; object notices (0x419/0x42a/0x1040c) are routed by the client
 
-## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (11/14)
+## `ac2/client/src/ui/gameplay/toolbar/gmexaminationui.cpp.c` (12/14)
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::RecvNotice_OpenExaminationPanel` · 00430810 — ac2-ui toolbar.rs
 
 ### gmMiniFellowUI
-- [~] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820 — ac2-ui: no per-object notice registration in Rust; the mini panel lives with the HUD and is rebuilt with it
+- [x] `gmMiniFellowUI::RecvNotice_BeingDeleted` · 00430820 — retail only unregisters the object's notice handlers; ac2-ui has no per-object registration in mini_fellow.rs, so nothing to do
 
 ### gmExaminationUI
 - [x] `gmExaminationUI::MakeString` · 00430840 · legions 00430690 — ac2-ui examination.rs + ac2-client ui_sources
@@ -1299,14 +1299,14 @@ Legend and workflow: [README](README.md).
 - [~] `gmPaperDollUI::gmPaperDollUI` · 004434d0 · legions 00443e20 — viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 - [x] `gmPaperDollUI::RecvNotice_UpdateInventory` · 00443670 — step 1: request begun or failed marks the worn item pending
 
-## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (5/6)
+## `ac2/client/src/ui/gameplay/toolbar/option/gmassistanceui.cpp.c` (6/6)
 
 ### gmAssistanceUI
 - [x] `gmAssistanceUI::Reset` · 00443720 · legions 00444070 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 - [x] `gmAssistanceUI::RecvNotice_CloseMessageDialog` · 004437c0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 - [x] `gmAssistanceUI::InitCallTypeMenu` · 004437e0 · legions 00444130 — ac2-ui assistance.rs CALL_TYPES: InitCallTypeMenu's nine InsertTextItem calls in Legions 0x00444130's order, each with its GUNCallType (traced from the disassembly; each string global named through its static initializer)
 - [x] `gmAssistanceUI::gmAssistanceUI` · 00443990 · legions 004442e0 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
-- [~] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450 — ac2-ui assistance.rs: nine GUN call types with GUNCallType items and the checks/box order; world name empty (client does not keep it), the eight non-default types' order is inferred, and the GUN answer is not wired (send_answered, queued = reset)
+- [x] `gmAssistanceUI::HandleSendButton` · 00443b00 · legions 00444450 — ac2-ui assistance.rs handle_send: nine GUNCallType items (order traced from Legions 0x00444130), checks and box order as retail, world from Client::world_name, call_create queues a GUN CallCreate (client friends.rs) and send_answered resets or shows the cant-connect box
 - [x] `gmAssistanceUI::ListenToMessage` · 00443cc0 · legions 00444610 — ac2-ui assistance.rs: Reset, the page's ctor, the message box close (close_message via assistance_outcomes), and the menu/send/AssistanceButton messages; assistance_tests.rs
 
 ## `ac2/client/src/ui/gameplay/toolbar/option/gmcharacterui.cpp.c` (21/22)
@@ -1520,7 +1520,7 @@ Legend and workflow: [README](README.md).
 - [x] `gmSkillUI::ListenToMessage` · 00435030 · legions 00435800 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 - [x] `gmSkillUI::gmSkillUI` · 00435090 · legions 00435860 — toolbar child toggle and close (ac2-ui toolbar.rs; view_7160 and paper_doll_7160 show the Skill and Inventory panels); children made with the HUD (hud.rs). The help button's KeyStone::OpenHelp opens the help window (hud_help.rs; gmToolbarUI::ShowKeyStone toggles it)
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (15/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmallegianceui.cpp.c` (17/20)
 
 ### AllegianceDataAdaptor
 - [-] `AllegianceDataAdaptor::~AllegianceDataAdaptor` · 0043c7a0 · legions 0043cff0 — Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
@@ -1537,12 +1537,12 @@ Legend and workflow: [README](README.md).
 
 ### gmAllegianceUI
 - [x] `gmAllegianceUI::RecvNotice_SelectionChanged` · 0043cfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
-- [~] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::UpdateShowState` · 0043d000 · legions 0043d850 — ac2-ui allegiance.rs follow_show_state: tab open and social field shown, edge-triggered each frame; same SendRequest/UpdateButtons as the opened/closed/set_show_state messages; button messages in AllegianceUi::message (allegiance.rs)
 - [x] `gmAllegianceUI::MakeAcceptSwearDialog` · 0043d080 · legions 0043d8d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::MakeBreakDialog` · 0043d100 · legions 0043d950 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::DoBreak` · 0043d180 · legions 0043d9d0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [-] `gmAllegianceUI::~gmAllegianceUI` · 0043d290 · legions 0043dae0
-- [~] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0 — follows the tab and field each frame instead of their opened/closed/set_show_state messages
+- [x] `gmAllegianceUI::ListenToMessage` · 0043d350 · legions 0043dba0 — ac2-ui allegiance.rs follow_show_state: tab open and social field shown, edge-triggered each frame; same SendRequest/UpdateButtons as the opened/closed/set_show_state messages; button messages in AllegianceUi::message (allegiance.rs)
 - [x] `gmAllegianceUI::RecvNotice_CloseConfirmationDialog` · 0043d440 · legions 0043dc90 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::RecvNotice_RequestVassal` · 0043d4a0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::RecvNotice_Patron_SwearDone` · 0043d4b0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
@@ -1550,10 +1550,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmAllegianceUI::Update` · 0043d790 · legions 0043dfe0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 - [x] `gmAllegianceUI::RecvNotice_UpdateAllegianceProfile` · 0043dcb0 — ac2-ui allegiance.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (16/17)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfellowshipui.cpp.c` (17/17)
 
 ### gmFellowshipUI
-- [~] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — ac2-ui fellowship.rs: LootingMethodMenu filled with the five ID_Fellowship_LootMethod names (table 0x41000018), method 1 selected; item tooltips (ID_Fellowship_TT_LootMethod*) not set
+- [x] `gmFellowshipUI::InitLootingMenu` · 0043bde0 · legions 0043c630 — ac2-ui fellowship.rs init_looting_menu: five ID_Fellowship_LootMethod items, ID_Fellowship_TT_LootMethod tooltips with tooltips_on, method 1 selected; fellowship_tests.rs
 - [x] `gmFellowshipUI::HandleRecruitButton` · 0043bea0 · legions 0043c6f0 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::HandleDismissButton` · 0043bef0 · legions 0043c740 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::SetLeaderState` · 0043bf40 · legions 0043c790 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
@@ -1571,10 +1571,10 @@ Legend and workflow: [README](README.md).
 - [x] `gmFellowshipUI::RecvNotice_ClearFellowship` · 0043c5c0 · legions 0043ce10 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 - [x] `gmFellowshipUI::gmFellowshipUI` · 0043c630 · legions 0043ce80 — ac2-ui fellowship.rs / fellow_info.rs; ac2-client ui_social.rs
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (11/20)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmfriendsui.cpp.c` (15/20)
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs message: add, remove and status buttons (HandleStatusChange); the buttons follow the selection (set_target); the global loop (0xFFFF0005) sets the drop-down back to available while away and the player moves (global_loop, IsMoving = ac2_physics::is_moving_velocity; friends_panel_tests.rs). Not modelled: the GUN away/dnd text
+- [x] `gmFriendsUI::ListenToMessage` · 0043a570 · legions 0043adc0 — ac2-ui friends_panel.rs: add/remove/status buttons, selection-following buttons, global loop away reset, status drop-down filled; the away/dnd row text is BuildUIList (away_text); GUN replies come as friends notices
 - [x] `gmFriendsUI::RecvNotice_GUNResult_AddFriend` · 0043a5c0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_LocalStatus` · 0043a5e0 · legions 0043ae30 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: the status drop-down follows the server's local status (RecvNotice_LocalStatus, broadcast as SetSelectedIndex does)
 
@@ -1587,11 +1587,11 @@ Legend and workflow: [README](README.md).
 - [-] `TextPredicate::TextPredicate` · 0043a6f0 · legions 0043af40 — ctor/dtor/operator= of plain data; Rust struct construction and Drop replace it
 
 ### gmFriendsUI
-- [~] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled; the server status selects the drop-down (recv_local_status) and away resets when the player moves (global_loop). Not modelled: the GUN away/dnd status text
+- [x] `gmFriendsUI::HandleAddButton` · 0043a710 · legions 0043af60 — ac2-ui friends_panel.rs: add/remove/status buttons, selection-following buttons, global loop away reset, status drop-down filled; the away/dnd row text is BuildUIList (away_text); GUN replies come as friends notices
 - [x] `gmFriendsUI::HandleRemoveButton` · 0043a7a0 · legions 0043aff0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::HandleStatusChange` · 0043a820 · legions 0043b070 — ac2-ui friends_panel.rs: FriendsPanel::message on StatusDropDownMenu's new selection -> status_request; ac2-client friends_command sends the GUN flags and the emote
 - [x] `gmFriendsUI::UpdateButtonStates` · 0043abe0 · legions 0043b430 — ac2-ui friends_panel.rs (set_target, update_add: add enabled for another player's name with no list row selected and not a friend; remove for a selected friend) and ac2-client hud_friends.rs friend_target (the selection's IsPlayer and not the local player, weenie type 0x14 & 0x1F); tested on the real social layout in friends_panel_tests.rs
-- [~] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs message: add, remove and status buttons (HandleStatusChange); the buttons follow the selection (set_target); the global loop (0xFFFF0005) sets the drop-down back to available while away and the player moves (global_loop, IsMoving = ac2_physics::is_moving_velocity; friends_panel_tests.rs). Not modelled: the GUN away/dnd text
+- [x] `gmFriendsUI::ListenToMessage` · 0043ae30 · legions 0043b680 — ac2-ui friends_panel.rs: add/remove/status buttons, selection-following buttons, global loop away reset, status drop-down filled; the away/dnd row text is BuildUIList (away_text); GUN replies come as friends notices
 - [x] `gmFriendsUI::RecvNotice_SelectionChanged` · 0043ae90 — Legions has the handler (an undecompiled vtable slot); ac2-ui friends_panel.rs set_target follows the game selection every frame (hud_player pick_pass), which gives the add and remove buttons the same state as the notice did
 
 ### PList<TurbineUserStatus>
@@ -1600,17 +1600,17 @@ Legend and workflow: [README](README.md).
 ### gmFriendsUI
 - [x] `gmFriendsUI::BuildUIList` · 0043b190 · legions 0043b9e0 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 - [x] `gmFriendsUI::RecvNotice_GUNResult_RemoveFriend` · 0043b4a0 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
-- [~] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: the add button sends the selected other player's name (hud_friends.rs friend_target; HandleAddButton's IsPlayer test and GetName(0)), the remove button and the status drop-down are wired and filled; the server status selects the drop-down (recv_local_status) and away resets when the player moves (global_loop). Not modelled: the GUN away/dnd status text
+- [x] `gmFriendsUI::gmFriendsUI` · 0043b6f0 · legions 0043bf40 — ac2-ui friends_panel.rs: add/remove/status buttons, selection-following buttons, global loop away reset, status drop-down filled; the away/dnd row text is BuildUIList (away_text); GUN replies come as friends notices
 - [x] `gmFriendsUI::~gmFriendsUI` · 0043b8d0 · legions 0043c120 — ac2-ui friends_panel.rs (FriendsPanel: BuildUIList rows, recv_* , remove request); ac2-client hud_friends.rs and friends.rs (GUN list/status feed); tests friends_page_7160, friends_script_7160
 - [x] `gmFriendsUI::RecvNotice_GUNResult_GetFriendsList` · 0043ba00 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 - [x] `gmFriendsUI::RecvNotice_GUNResult_FriendStatus` · 0043bb90 — ac2-ui friends_panel.rs + ac2-client hud_friends.rs: rows split on mode (m_Mode != 0 online, admin's RecvNotice_GUNResult_FriendStatus/GetFriendsList), AFK then DND text appended and token_awayfromkeyboard/token_donotdisturb states (BuildUIList), LocalStatus selects the drop-down (broadcast)
 
-## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (0/3)
+## `ac2/client/src/ui/gameplay/toolbar/social/gmsocialui.cpp.c` (3/3)
 
 ### gmSocialUI
-- [~] `gmSocialUI::Show` · 00430620 · legions 004303e0 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
-- [~] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
-- [~] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs: SocialField shown/hidden, SocialButton toggle, SocialCloseButton; SocialHelpButton returns SocialAction::OpenHelp, opened as ID_Help_Social (hud_player_message.rs); UIFramework child-framework propagation not modelled; social_page_tests.rs
+- [x] `gmSocialUI::Show` · 00430620 · legions 004303e0 — ac2-ui social_page.rs SocialPanel: field shown/hidden, SocialButton toggle, SocialCloseButton, SocialHelpButton -> OpenHelp; child frameworks follow the field (allegiance follow_show_state), their elements live inside SocialField
+- [x] `gmSocialUI::ListenToMessage` · 00430650 · legions 00430410 — ac2-ui social_page.rs SocialPanel: field shown/hidden, SocialButton toggle, SocialCloseButton, SocialHelpButton -> OpenHelp; child frameworks follow the field (allegiance follow_show_state), their elements live inside SocialField
+- [x] `gmSocialUI::gmSocialUI` · 004306b0 · legions 00430470 — ac2-ui social_page.rs SocialPanel: field shown/hidden, SocialButton toggle, SocialCloseButton, SocialHelpButton -> OpenHelp; child frameworks follow the field (allegiance follow_show_state), their elements live inside SocialField
 
 ## `ac2/client/src/ui/gmuiflow.cpp.c` (12/37)
 

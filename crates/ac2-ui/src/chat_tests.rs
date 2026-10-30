@@ -209,3 +209,39 @@ fn a_press_on_the_log_scroll_bar_holds_the_log_until_release() {
     chat.global_loop(&mut tree, 0.0);
     assert!(view(&tree) > 0, "the release unlocks the log");
 }
+
+#[test]
+fn the_move_bar_field_shows_which_window_is_active() {
+    let Some((tree, chat)) = hud() else {
+        return;
+    };
+    // `ChatWindow::SetActiveWindow`: the first window starts active, the rest inactive.
+    let states: Vec<u32> = chat
+        .roots()
+        .iter()
+        .map(|&root| {
+            let field = tree
+                .child_recursive(root, tokenize("MoveBarField"))
+                .unwrap();
+            tree.get(field).unwrap().state()
+        })
+        .collect();
+    assert_eq!(states[0], tokenize("active"));
+    assert_eq!(states[1], tokenize("inactive"));
+}
+
+#[test]
+fn history_and_assisted_tell_select_the_line_and_the_command_key_does_not() {
+    let Some((mut tree, mut chat)) = hud() else {
+        return;
+    };
+    let entry = chat.entries()[0].unwrap();
+    let units = |s: &str| s.encode_utf16().collect::<Vec<u16>>();
+    key(&mut tree, &mut chat, ENTER);
+    chat.set_entry_text(&mut tree, "/tell bob hi");
+    assert_eq!(tree.selected_text(entry), units("/tell bob hi"));
+    chat.assisted_tell(&mut tree, "Bob");
+    assert!(!tree.selected_text(entry).is_empty());
+    key(&mut tree, &mut chat, 0x4100_0010);
+    assert!(tree.selected_text(entry).is_empty());
+}

@@ -12,13 +12,30 @@
 //! (`ChatWindow::ListenToMessage`'s `m_lockScroll`): a new line then does not scroll the log to
 //! its end (`AllTextToLog`).
 //!
-//! Not modelled yet: the move bar's active look (`SetActiveWindow`), selection in the entry
-//! line (`SelectAll` / `Deselect`) and the IME font (`kanjifont`).
+//! The move bar's field shows the window's active look (`SetActiveWindow`: state `active` or
+//! `inactive`). The entry line selects its text where retail does (`SelectAll` in
+//! `HandleActivation` of a used line, `DoAssistedTell`, `DisplayCmdHistory`; `Deselect` in
+//! `HandleCommandOrAliasKey`). A window's location is saved by the client's window-position code
+//! (AGENTS.md: window positions), which stands in for `ChatWindow::LocationApplied` and the
+//! `location_changed` listener (`SaveLocationsChanged`).
+//!
+//! Not modelled: the IME font (`kanjifont`, Japanese/Korean IME is not extended).
 
 use std::collections::HashMap;
 
 use crate::element::UiTree;
 use crate::token::tokenize;
+
+/// What the entry line does with its selection when a line is put in it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum EntrySelection {
+    /// Leave it (a reply or the guide's share).
+    Keep,
+    /// `UIElement_Text::SelectAll` (`DoAssistedTell`, `DisplayCmdHistory`).
+    All,
+    /// `UIElement_Text::Deselect` (`HandleCommandOrAliasKey`).
+    None,
+}
 
 /// The chat options of one text type (`ChatWindow::ChatMessageInfo`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -100,6 +117,8 @@ pub(crate) struct ChatWindow {
     /// `m_textBox`: the log.
     pub log: Option<usize>,
     pub move_bar: Option<usize>,
+    /// `m_moveBarField`: the move bar's active look.
+    pub move_bar_field: Option<usize>,
     pub options_field: Option<usize>,
     pub options_button: Option<usize>,
     /// `m_toggleButton`: the id of the button that shows and hides the window.
@@ -145,6 +164,7 @@ impl ChatWindow {
             entry: child(tree, "ChatEntry"),
             log: child(tree, "ChatLog"),
             move_bar: child(tree, "MoveBar"),
+            move_bar_field: child(tree, "MoveBarField"),
             options_field: child(tree, "OptionsField"),
             options_button: child(tree, "OptionsButton"),
             toggle_button: tokenize(&format!("ChatButtonToggle{number}")),
@@ -206,6 +226,13 @@ impl ChatWindow {
             self.deactivate_pending = false;
         } else if let Some(button) = self.button(tree) {
             tree.set_state(button, tokenize("unchanged"));
+        }
+    }
+
+    /// `ChatWindow::SetActiveWindow`: the move bar's field takes the state `active` or `inactive`.
+    pub(crate) fn set_active_window(&self, tree: &mut UiTree, active: bool) {
+        if let Some(field) = self.move_bar_field {
+            tree.set_state(field, tokenize(if active { "active" } else { "inactive" }));
         }
     }
 
@@ -294,7 +321,12 @@ impl ChatWindow {
 
     /// `UIElement_Text::SetStringInfo` / `SetText` on the entry line in the chat-entry font,
     /// then `Activate`.
-    pub(crate) fn prefill_entry(&mut self, tree: &mut UiTree, text: &[u16]) {
+    pub(crate) fn prefill_entry(
+        &mut self,
+        tree: &mut UiTree,
+        text: &[u16],
+        selection: EntrySelection,
+    ) {
         self.prepopulated = false;
         let Some(entry) = self.entry else {
             return;
@@ -302,15 +334,25 @@ impl ChatWindow {
         let info = self.chat_message_info(TEXT_TYPE_CHAT_ENTRY);
         tree.clear_text(entry);
         tree.add_text_with_font(entry, text, info.size, info.color);
+        match selection {
+            EntrySelection::Keep => {}
+            EntrySelection::All => tree.select_all(entry),
+            EntrySelection::None => tree.deselect(entry),
+        }
         tree.activate(entry);
     }
 
     /// `ChatWindow::HandleActivation`: the window comes to the front and becomes the active
-    /// one; a prepopulated entry line is cleared.
+    /// one; a prepopulated entry line is cleared, a used one is selected.
     pub(crate) fn handle_activation(&mut self, tree: &mut UiTree) {
-        if let (Some(entry), true) = (self.entry, self.prepopulated) {
+        let Some(entry) = self.entry else {
+            return;
+        };
+        if self.prepopulated {
             tree.clear_text(entry);
             self.prepopulated = false;
+        } else {
+            tree.select_all(entry);
         }
     }
 

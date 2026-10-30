@@ -13,9 +13,9 @@
 //! selected. Retail's ListenToMessage takes no choice from it: the chosen method goes out with
 //! Create (`HandleCreateButton` reads the selected index).
 //!
-//! The members' map markers are `fellow_markers.rs`. Not modelled yet: the looting items'
-//! tooltips (`ID_Fellowship_TT_LootMethod*`). The radar's mini panel is
-//! `mini_fellow.rs`.
+//! Each item has its tooltip (`ID_Fellowship_TT_LootMethod*`, `tooltips_on`).
+//!
+//! The members' map markers are `fellow_markers.rs`. The radar's mini panel is `mini_fellow.rs`.
 
 use crate::dialog::{DialogFactory, DIALOG_CONFIRMATION};
 use crate::element::UiTree;
@@ -100,6 +100,15 @@ const LOOTING_METHODS: [&str; 5] = [
     "ID_Fellowship_LootMethod4",
 ];
 
+/// `LootingTooltips`: each item's tooltip string, in the same order.
+const LOOTING_TOOLTIPS: [&str; 5] = [
+    "ID_Fellowship_TT_LootMethod0",
+    "ID_Fellowship_TT_LootMethod1",
+    "ID_Fellowship_TT_LootMethod2",
+    "ID_Fellowship_TT_LootMethod3",
+    "ID_Fellowship_TT_LootMethod4",
+];
+
 /// The looting drop-down's default selection (`InitLootingMenu`: `SetSelectedIndex(1)`).
 const DEFAULT_LOOTING_INDEX: usize = 1;
 
@@ -168,6 +177,12 @@ impl FellowshipUi {
                 return;
             };
             tree.set_bool(item, id("selectable"), true);
+            // `SetTooltip` with `LootingTooltips[i]`, then `tooltips_on`.
+            let tip = tree.text_data().and_then(|data| {
+                data.string(self.layout.string_table, id(LOOTING_TOOLTIPS[index]))
+            });
+            tree.set_tooltip(item, tip.map(|t| String::from_utf16_lossy(&t)));
+            tree.set_bool(item, id("tooltips_on"), true);
         }
         tree.menu_set_selected_index(menu, Some(DEFAULT_LOOTING_INDEX));
         tree.menu_drop_selection_messages(menu);

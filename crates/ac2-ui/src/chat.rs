@@ -19,8 +19,8 @@ use std::sync::Arc;
 
 use crate::chat_spew::SpewBox;
 use crate::chat_window::{
-    ChatMessageInfo, ChatWindow, CHAT_TEXT_TYPES, MSG_WIDGET_PRESS, MSG_WIDGET_RELEASE,
-    TEXT_TYPE_ERROR,
+    ChatMessageInfo, ChatWindow, EntrySelection, CHAT_TEXT_TYPES, MSG_WIDGET_PRESS,
+    MSG_WIDGET_RELEASE, TEXT_TYPE_ERROR,
 };
 use crate::element::UiTree;
 use crate::layout::LayoutDesc;
@@ -175,7 +175,7 @@ impl ChatUi {
         };
         if !chat.windows.is_empty() {
             chat.windows[0].show(tree, true);
-            chat.set_active_window(0);
+            chat.set_active_window(tree, 0);
         }
         chat
     }
@@ -207,7 +207,10 @@ impl ChatUi {
     }
 
     /// `gmChatUI::SetActiveWindow`.
-    fn set_active_window(&mut self, window: usize) {
+    fn set_active_window(&mut self, tree: &mut UiTree, window: usize) {
+        for (i, w) in self.windows.iter().enumerate() {
+            w.set_active_window(tree, i == window);
+        }
         self.last_focus = Some(window);
     }
 
@@ -299,7 +302,7 @@ impl ChatUi {
             && message.element == window.move_bar
             && message.message == MSG_MOUSE_PRESS
         {
-            self.set_active_window(i);
+            self.set_active_window(tree, i);
             return;
         }
         if message.element.is_some() && message.element == window.options_button {
@@ -316,7 +319,7 @@ impl ChatUi {
             window.handle_activation(tree);
             let top = window.zlevel_front;
             self.update_z_levels(tree, top);
-            self.set_active_window(i);
+            self.set_active_window(tree, i);
         }
     }
 
@@ -343,7 +346,7 @@ impl ChatUi {
                     &self.strings.alias_prefix
                 };
                 let prefix = prefix.clone().unwrap_or_default();
-                self.windows[i].prefill_entry(tree, &prefix);
+                self.windows[i].prefill_entry(tree, &prefix, EntrySelection::None);
             }
             ENTER => {
                 if let Some(line) = self.windows[i].handle_enter_key(tree) {
@@ -370,7 +373,7 @@ impl ChatUi {
         let mut line = vec![u16::from(b'/')];
         line.extend(word);
         line.push(u16::from(b' '));
-        self.windows[i].prefill_entry(tree, &line);
+        self.windows[i].prefill_entry(tree, &line, EntrySelection::Keep);
     }
 
     /// `ChatWindow::KeyPress`.
@@ -412,7 +415,7 @@ impl ChatUi {
             return;
         }
         let units: Vec<u16> = text.encode_utf16().collect();
-        self.windows[i].prefill_entry(tree, &units);
+        self.windows[i].prefill_entry(tree, &units, EntrySelection::All);
     }
 
     /// The entry line of the window chat would send from shows `text`, ready to send or edit (the
@@ -421,7 +424,7 @@ impl ChatUi {
         let Some(i) = self.determine_target_window(tree, false) else {
             return;
         };
-        self.windows[i].prefill_entry(tree, &utf16(text));
+        self.windows[i].prefill_entry(tree, &utf16(text), EntrySelection::Keep);
     }
 
     /// `gmChatUI::RecvNotice_DoAssistedTell` / `ChatWindow::DoAssistedTell`: the entry line
@@ -441,7 +444,7 @@ impl ChatUi {
                 (tokenize("target"), &utf16(target)),
             ],
         );
-        self.windows[i].prefill_entry(tree, &line);
+        self.windows[i].prefill_entry(tree, &line, EntrySelection::All);
     }
 
     /// `RecvNotice_DisplayStringInfo` to every window; the error-type lines (`type & 1`) also
