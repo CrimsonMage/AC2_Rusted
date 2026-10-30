@@ -468,6 +468,7 @@ impl App {
         };
         let target = output.texture.create_view(&Default::default());
         let aspect = state.config.width as f32 / state.config.height as f32;
+        view.update_player_hover(&frame, (state.config.width, state.config.height), time);
         let drawn = view.prepare(&state.gpu, &frame, aspect, time);
         state
             .cursor

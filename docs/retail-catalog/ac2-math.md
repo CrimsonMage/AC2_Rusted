@@ -1,6 +1,6 @@
 # ac2-math: Math and geometry
 
-426 retail functions: 154 done, 13 partial, 106 to do, 153 skipped.
+426 retail functions: 156 done, 13 partial, 104 to do, 153 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/shared/src/geometry/aframe.cpp.c` (2/5)
@@ -246,12 +246,12 @@ Legend and workflow: [README](README.md).
 - [-] `LandscapeDefs::LoadHeightList` · 0062a2f0 — text source loader, admin build only
 - [-] `LandscapeDefs::FromFileNode` · 0062a430 — text source format (admin tools)
 
-## `portal/shared/src/geometry/lightsource.cpp.c` (3/12)
+## `portal/shared/src/geometry/lightsource.cpp.c` (5/12)
 
 ### LightSource
 - [-] `LightSource::operator=` · 00621cd0 · legions 005dd0b0 — operator=: Rust value semantics (glam/ac2-math provides it)
-- [ ] `LightSource::GetIsRangeAnimating` · 00621eb0 · legions 005dd290 — needs port: light range animation state and animated range
-- [ ] `LightSource::GetAnimatedRange` · 00621ed0 · legions 005dd2b0 — needs port: light range animation state and animated range
+- [x] `LightSource::GetIsRangeAnimating` · 00621eb0 · legions 005dd290 — ac2-assets ac2_light_source.rs (FX lights) and ac2-world ac2_light_info.rs (cell lights) keep m_wRange as a Waveform: range_at(time) is GetAnimatedRange, is_range_animating is GetIsRangeAnimating; sampled each frame by ac2-render scene/object_lights.rs and the cell light pools (light_decals.rs)
+- [x] `LightSource::GetAnimatedRange` · 00621ed0 · legions 005dd2b0 — ac2-assets ac2_light_source.rs (FX lights) and ac2-world ac2_light_info.rs (cell lights) keep m_wRange as a Waveform: range_at(time) is GetAnimatedRange, is_range_animating is GetIsRangeAnimating; sampled each frame by ac2-render scene/object_lights.rs and the cell light pools (light_decals.rs)
 - [x] `LightSource::RefreshMaxRange` · 00621ef0 · legions 005dd2d0 — ac2-render object::cell / point_lights
 - [x] `LightSource::CalculateAttenuation` · 00621f30 · legions 005dd310 — ac2-world ac2_light_info.rs (LightSource::CalculateAttenuation formula)
 - [~] `LightSource::ApplyProperty` · 00621fb0 — pregame 3D scenes: no orthographic cameras, volumetric shadows or coronas; avatars without gmCharGenResult::InqAppliedAppearanceVDesc; no tooltips

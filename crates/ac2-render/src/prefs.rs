@@ -42,6 +42,8 @@ pub const LIGHT_SOURCE_EFFECTS: u32 = 0x4000_0061;
 pub const STREAK_EFFECTS: u32 = 0x4000_0063;
 /// `VolumetricFogEffects` (`Render::m_Prefs.VolumetricFogEffects`).
 pub const VOLUMETRIC_FOG_EFFECTS: u32 = 0x4000_0074;
+/// `ID_Avatar_MouseHoverTransparency` (`Render::m_Prefs.AvatarMouseHoverTransparency`).
+pub const AVATAR_MOUSE_HOVER_TRANSPARENCY: u32 = 0x4000_006D;
 /// `ID_Avatar_VisibleInFirstPerson`.
 pub const AVATAR_VISIBLE_IN_FIRST_PERSON: u32 = 0x4000_006C;
 /// `ID_Rendering_FullScreen`.
@@ -283,7 +285,11 @@ pub fn register_graphics(bank: &mut PreferenceBank, names: &dyn NameTable) -> us
                 .collect(),
             2,
         ),
-        Some(Pref::boolean(AVATAR_SECTION, 0x4000_006D, true)),
+        Some(Pref::boolean(
+            AVATAR_SECTION,
+            AVATAR_MOUSE_HOVER_TRANSPARENCY,
+            true,
+        )),
     ];
     registered += register_all(bank, names, avatar.into_iter().flatten(), "Render");
     registered
@@ -453,6 +459,9 @@ pub struct SceneOptions {
     /// `AvatarVisibleInFirstPerson`: 0 never, 1 always, 2 (the default) except while the player is
     /// in mode `0x40000001` (`CPhysicsObj`'s draw and `CameraManager::UpdateCamera`).
     pub avatar_first_person: u8,
+    /// `AvatarMouseHoverTransparency` (`ID_Avatar_MouseHoverTransparency`, default on): the third
+    /// person avatar fades while the pointer is over it ([`crate::hover_fade::MouseHoverFade`]).
+    pub avatar_hover_transparency: bool,
 }
 
 impl Default for SceneOptions {
@@ -477,6 +486,7 @@ impl Default for SceneOptions {
             shore_effects: 2,
             brightness: 0.0,
             avatar_first_person: 2,
+            avatar_hover_transparency: true,
         }
     }
 }
@@ -559,6 +569,11 @@ pub fn scene_options(bank: &PreferenceBank) -> SceneOptions {
             Some(Value::Int(level)) => (*level).clamp(0, 2) as u8,
             _ => defaults.avatar_first_person,
         },
+        avatar_hover_transparency: flag(
+            bank,
+            AVATAR_MOUSE_HOVER_TRANSPARENCY,
+            defaults.avatar_hover_transparency,
+        ),
     }
 }
 

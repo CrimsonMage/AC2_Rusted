@@ -89,6 +89,10 @@ pub struct ClientView {
     presenter: ac2_gpu::ScenePresenter,
     /// `ScreenBrightness`, applied to the world's tone map each frame.
     brightness: f32,
+    /// The avatar's mouse-hover fade (`CPhysicsObj::m_fMouseHoverOpacity`) and whether the
+    /// `AvatarMouseHoverTransparency` preference is on.
+    player_hover: ac2_render::hover_fade::MouseHoverFade,
+    hover_transparency: bool,
     /// `WorldRender::Render`'s gate for the frame: the world is drawn (not in portal space, or
     /// the effect draws it).
     world_drawn: bool,
@@ -111,6 +115,9 @@ fn portal_draw(gpu: &Gpu, store: &ac2_db::ResourceStore) -> ac2_gpu::PortalDraw 
     );
     portal
 }
+
+/// `LandDefs::first_envcell_id`: the cells from here up are interior ones.
+const FIRST_ENV_CELL: u32 = 0x100;
 
 /// The landblock (x, y) of a cell id.
 fn block_of(cell: u32) -> (u8, u8) {
@@ -268,6 +275,8 @@ impl ClientView {
             portal: portal_draw(gpu, &store),
             presenter: ac2_gpu::ScenePresenter::new(gpu, format),
             brightness: 0.0,
+            player_hover: ac2_render::hover_fade::MouseHoverFade::default(),
+            hover_transparency: true,
             world_drawn: true,
         }
     }
@@ -281,6 +290,7 @@ impl ClientView {
         self.renderer
             .set_landscape_shadows(options.static_shadows, options.cloud_shadows);
         self.brightness = options.brightness;
+        self.hover_transparency = options.avatar_hover_transparency;
         self.scene.set_options(options);
     }
 
@@ -436,6 +446,18 @@ impl ClientView {
         self.update_doll(gpu, frame, true);
     }
 
+    /// `CPhysicsObj::Draw`'s mouse-hover step for the player's avatar at client time `time`, on a
+    /// `screen`-sized window: the avatar fades while the pointer is over it in third person
+    /// (`AvatarMouseHoverTransparency`), and recovers when it leaves. Run before [`Self::prepare`].
+    pub fn update_player_hover(&mut self, frame: &ClientFrame, screen: (u32, u32), time: f64) {
+        let player = frame.player.as_ref().map(|p| p.id);
+        let first_person = frame.camera.is_some_and(|c| c.first_person);
+        let hovered = self.hover_transparency
+            && !first_person
+            && player.is_some_and(|id| self.pick_list(frame, screen, self.pointer()).contains(&id));
+        self.player_hover.step(time, hovered);
+    }
+
     /// Lays out the frame; `false` while there is no camera (before world entry).
     pub fn prepare(&mut self, gpu: &Gpu, frame: &ClientFrame, aspect: f32, time: f64) -> bool {
         profile_scope!("view.prepare");
@@ -478,6 +500,8 @@ impl ClientView {
         self.scene.place_objects(&placements);
         let scene_frame = self.scene.frame(&camera, aspect);
         let distances = viewer_distances(&drawn, &frames, camera.eye);
+        let hover_opacity = self.player_hover.opacity();
+        let player_id = frame.player.as_ref().map(|p| p.id);
         let objects = drawn
             .iter()
             .zip(frames)
@@ -491,12 +515,25 @@ impl ClientView {
                     .object_detail(key, distance, drawn.adaptive, drawn.player)?;
                 let mut tint = drawn.tint;
                 tint[3] = (f64::from(tint[3]) * f64::from(lod.alpha)) as f32;
+                // `CPhysicsObj::Draw` multiplies the alpha by the root parent's hover opacity: the
+                // avatar and what it holds fade together.
+                if drawn.player
+                    || drawn
+                        .held
+                        .is_some_and(|(holder, ..)| Some(holder) == player_id)
+                {
+                    tint[3] *= hover_opacity;
+                }
                 Some(SceneObject {
                     key,
                     world,
                     pose,
                     tint,
-                    point_lights: self.scene.object_point_lights(at.origin, 0.0),
+                    point_lights: self.scene.object_lit_by(
+                        at.origin,
+                        0.0,
+                        drawn.cell & 0xFFFF >= FIRST_ENV_CELL,
+                    ),
                     detail: lod.detail,
                 })
             })

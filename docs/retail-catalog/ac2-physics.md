@@ -1,6 +1,6 @@
 # ac2-physics: Physics objects, collision, motion, paths, BSP
 
-2124 retail functions: 1120 done, 12 partial, 0 to do, 992 skipped.
+2124 retail functions: 1130 done, 5 partial, 0 to do, 989 skipped.
 Legend and workflow: [README](README.md).
 
 ## `portal/client/src/physics/cphysics.cpp.c` (7/9)
@@ -1223,7 +1223,7 @@ Legend and workflow: [README](README.md).
 - [-] `FXMap_GetSubDataIDs` · 006a6ce0 · legions 00642be0 — admin FXMap text tool, not used by the client
 
 ### FXData
-- [x] `FXData::GetData` · 006a6d80 · legions 00642c80 — FXData::GetData - DBFXTable/FXNode/FXData decode and defaults, ac2-assets ac2_fx.rs, ac2-world ac2_particle_sources.rs
+- [x] `FXData::GetData` · 006a6d80 · legions 00642c80 — FXData::GetData - DBFXTable/FXNode/FXData decode and defaults, ac2-assets ac2_fx.rs (the terrain-keyed FXNodes are kept: FxDataParts, Ac2FxTerrainSet) and the per-terrain lists in ac2_visual_fx_particles.rs/ac2_visual_fx_sounds.rs get_on; ac2-world ac2_particle_sources.rs
 
 ### FXNode
 - [-] `FXNode::ParseChannel` · 006a6dd0 — admin/debug or text-file tooling
@@ -1242,7 +1242,7 @@ Legend and workflow: [README](README.md).
 ### (free functions)
 - [-] `FXMap_FromFileNode` · 006a8b00 — admin FXMap text tool, not used by the client
 
-## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (24/44)
+## `portal/shared/src/physobj/fx/fxmanager.cpp.c` (30/44)
 
 ### DecalEffectDesc
 - [-] `DecalEffectDesc::DecalEffectDesc` · 005051c0 · legions 004f3500 — plain data defaults, container growth or render vertex buffer; Rust structs and Vec replace them
@@ -1256,7 +1256,7 @@ Legend and workflow: [README](README.md).
 - [x] `FXManager::DestroyObject` · 005053b0 · legions 004f36f0 — ac2-smartbox fx_objects.rs FxObjects::destroy_object: a temporary id (the caller's ac2_net::iid::id_type answer) fades over 0.5 s and is destroyed 3 s on (fade_and_destroy); CObjectMaint::is_active is not modelled
 
 ### ChannelPrefs
-- [-] `ChannelPrefs::LoadChannelPrefs` · 005053f0 · legions 004f3730 — admin/debug or text-file tooling
+- [x] `ChannelPrefs::LoadChannelPrefs` · 005053f0 · legions 004f3730 — ac2-smartbox fx_prefs.rs register: the gore amount 0x40000035, gore hue 0x40000036 (choices up to the StringState top gore and blood levels, defaults those) and foot step particles 0x40000039 in section 0x40000009, linked to ChannelPrefs together with 0x40000037 (nothing registered for it in 7160); ClientPrefs::load reads the top levels; the options page lists them (pref_labels.rs)
 
 ### FXNode
 - [x] `FXNode::GetAppearanceKey` · 00505850 · legions 004f3b20 — ac2-assets Ac2FxNode::appearance_key (m_apr_key: key and scalar) read where FXManager::DoAppearanceFX applies the node
@@ -1298,11 +1298,11 @@ Legend and workflow: [README](README.md).
 
 ### FXManager
 - [x] `FXManager::DoTargetAndCloningFXs` · 00506680 · legions 004f48a0 — ac2-smartbox fx_objects.rs FxObjects::target_and_cloning (start_targeted): target hide (unhidden on stop), retargeting node clones the emitters vdesc_to_clone with its cloned appearance (made as a PendingObject, placed only by m_parent at the holding point, kept on the FX; m_conditional acts on the target itself), target FX (TargetCall::DoFx with the FX current scalar), parent/unparent (TargetCall, client sets Remote.fx_follow), destroy only for temporary ids. Tested. Clone has no collision flags (client-made objects have none)
-- [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — ac2-render fx_streaks.rs node_plays: no channel preferences are loaded (ChannelPrefs skipped), so no node mismatches
+- [x] `FXManager::ChannelMissmatch` · 005069b0 · legions 004f4bd0 — ac2-assets ac2_fx.rs Ac2FxNodeGate::channel_missmatch (explicit table) and missmatches (shared table): a node with channel keys mismatches when a key the table holds has another value on the node; used by gate.plays (new FX), gate.updates (running FX) and the sound UseTime steps
 
 ### ChannelPrefs
-- [-] `ChannelPrefs::HandleApply` · 00506b00 — admin/debug or text-file tooling
-- [-] `ChannelPrefs::HandleChange` · 00506be0 — admin/debug or text-file tooling
+- [x] `ChannelPrefs::HandleApply` · 00506b00 — ac2-smartbox fx_prefs.rs apply/channel_prefs: each registered preference value (enum choice, bool as 1/0) goes under its channel key into the table ac2-assets keeps (set_fx_channel_prefs); the client calls it at startup and with every applied option (Client::apply_live_preferences), the bank apply being the handler
+- [x] `ChannelPrefs::HandleChange` · 00506be0 — ac2-smartbox fx_prefs.rs apply/channel_prefs: each registered preference value (enum choice, bool as 1/0) goes under its channel key into the table ac2-assets keeps (set_fx_channel_prefs); the client calls it at startup and with every applied option (Client::apply_live_preferences), the bank apply being the handler
 
 ### FXManager
 - [~] `FXManager::DoCreateObjectFX` · 00507010 · legions 004f5230 — object created on the emitter and attached by its node (Ac2FxObjectAttach, re-placed each frame; ac2-physics fx_follow.rs); it becomes the FX target and the emitters (FxObjects new_targets -> PhysicsBody::set_fx_target); slot 0x9c is DoSlider on 0x4000001a (create_alpha_moves); the water-plane branch stands at the emitter; a node naming a bone the emitter lacks is dropped (retail leaves the matrix unset: undefined). Not ported: a node behaviour (m_behavior) run on the created object with mDestroyOnCompletion, so the object destroys itself when it ends (needs Ac2BehaviorParams.destroy_on_completion, a DeleteSelf event and a pending behaviour on the local Remote, in shared remotes.rs)
@@ -1326,9 +1326,9 @@ Legend and workflow: [README](README.md).
 - [-] `_STL::map<unsigned_long,FXState,_STL::less<unsigned_long>,_STL::allocator<_STL::pair<unsigned_long_const_,FXState>_>_>::operator[]` · 00508860 · legions 004f6990 — STL/MSVC or archive template helper; Rust collections replace it
 
 ### FXManager
-- [~] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-smartbox/ac2-client run the per-node gates (player only, day/night: gated_nodes; the sound, particle and light branches take the same gate), slider, colour, appearance, camera, FX end time, and now the target, retarget clone, parent/unparent and target FX (DoTargetAndCloningFXs row). Not ported: ChannelMissmatch: the FX channel preferences (ChannelPrefs: gore amount 0x40000035, gore hue 0x40000036, foot step particles 0x40000039; none are registered in the options bank and FXNode channel keys are skipped by the parser). Streak/decal/repulsor as in their rows
-- [~] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — ac2-client client_fx_objects.rs start_startup_fx drives ac2-smartbox fx_objects start_startup (objects made without a sound device, recorded as startup, appearances at full scalar); node sounds (DoSoundFX, no day/night filter) and lights (DoLightSourceFX, LightSourceEffects gated) play with a sound device; decal startup nodes as in the decal row. Not ported: streak (PHYSICSOBJREP::CreateStreakEffect) and repulsor (CreateParticleRepulsor) startup nodes, which belong to the streak and repulsor rows (other agent); the shared-rep particle branch (ApplyStartupFX with no object) is UI scenes only
-- [~] `FXManager::DoFX` · 00509440 · legions 004f7490 — DoFX is DoTargettedFX with INVALID_IID: StartFx with target 0 runs the sound branch (new FX take the day/night and player gates, a running FX takes the new scalar), the particle and light branches (same gates), and the object part (appearances, colour, camera, slider). DirectSound 3D pan law and doppler approximated. Not ported: ChannelMissmatch (FX channel preferences, see DoTargettedFX)
+- [x] `FXManager::DoTargettedFX` · 005089d0 · legions 004f6b00 — ac2-smartbox/ac2-client run the per-node gates (gate.plays: channels, player only, day/night), slider, colour, appearance, camera, FX end time, target, clone, parent/unparent and target FX. FXManager::ChannelMissmatch: ac2-assets ac2_fx.rs Ac2FxNodeGate::channel_missmatch/updates/plays against the shared ChannelPrefs table (set_fx_channel_prefs), with the node channel keys parsed by read_fx_node (the keys are the channel enum: gore 0x40000001, BloodColor 0x40000007, FootStepSounds 0x40000005, FootStepParticles 0x40000008; the preferences 0x40000035/36/39 supply the values); ac2-smartbox fx_prefs.rs registers the three preferences in section 0x40000009 as LoadChannelPrefs does and applies them (HandleApply); the options page lists them. FXData::GetData(m_terrain): the loader keeps the terrain-keyed FXNodes (FxDataParts/Ac2FxTerrainSet), the resolved tables answer get_on(fx, terrain) and the client passes each body terrain (PhysicsBody::fx_terrain_type). Streak, decal and repulsor parts as in their rows (same StreakContext terrain)
+- [x] `FXManager::DoStartupFX` · 00509220 · legions 004f7270 — client_fx_objects.rs start_startup_fx: objects (no sound device needed), appearances at full scalar, sounds (DoSoundFX, no day/night gate), lights (DoLightSourceFX under LightSourceEffects), decals, and now the streak nodes (FxStreaks::start_startup, StreakEffects on) and repulsor nodes (FxRepulsors::start_startup), none gated; startup uses terrain 0 (a new manager, GetData(0)). The shared-rep particle branch (ApplyStartupFX with no object) is UI scenes only
+- [x] `FXManager::DoFX` · 00509440 · legions 004f7490 — DoFX is DoTargettedFX with INVALID_IID: client_audio.rs FxSounds::do_fx (sound branch: gate.plays for a new FX, gate.updates incl. ChannelMissmatch for a running one, terrain list via get_on) plus the particle, light and object parts through the same gates. DirectSound 3D pan law and doppler approximated in ac2-audio
 
 ## `portal/shared/src/physobj/fx/fxtable.cpp.c` (4/8)
 
@@ -1988,7 +1988,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPositionPack::CPositionPack` · 0069bfd0 · legions 0063a9f0
 - [x] `CPositionPack::StreamPack` · 0069c060 · legions 0063aa80
 
-## `portal/shared/src/physobj/partarray.cpp.c` (47/72)
+## `portal/shared/src/physobj/partarray.cpp.c` (48/72)
 
 ### CPartArray
 - [-] `CPartArray::SetOwnerID` · 004edfc0 · legions 004e0930 — render plumbing
@@ -2061,7 +2061,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPartArray::CreateParticleSystem` · 004f0260 · legions 004e2ba0 — CPartArray::CreateParticleSystem - CPartArray particle systems, draw and setup id, ac2-render scene/particles.rs and model.rs
 - [x] `CPartArray::CreateRepulsorEffect` · 004f0300 · legions 004e2c40 — ac2-render fx_repulsors.rs FxRepulsors (DoTargettedFX repulsor part: node gate, once per running FX, Create/Gone calls) -> scene start_object_repulsor (CPartArray::CreateRepulsorEffect, PSManager::CreateRepulsor); particles/repulsor.rs (ParticleRepulsor, s_Repulsors); driven from client_fx_objects.rs; tests fx_repulsors_tests, repulse_tests
 - [x] `CPartArray::CreateStreakEffect` · 004f0380 · legions 004e2cc0 — ac2-render fx_streaks.rs (DoStreakFX, DoTargettedFX's start/stop flags, running-FX guard, pref); ac2-render streak_objects.rs (emitter store, placement, think); drawn in the one particle pass
-- [~] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-render scene/object_lights.rs: instance keeps the offset, lifespan, fade time and creation time. The light is an Ac2LightSource subset: kind, direction, base range and intensity, colours; retail copies the whole LightSource, whose m_wRange and m_wDiffuseIntensity are animated Waveforms (GetAnimatedRange). Waveform animation is shared with cell lights (ac2-world ac2_light_info, ui_scene) and not ported anywhere yet
+- [x] `CPartArray::CreateLightSource` · 004f0410 · legions 004e2d50 — ac2-assets ac2_light_source.rs keeps m_wRange and m_wDiffuseIntensity as full Waveforms (range_wave/intensity_wave, range_at/intensity_at, is_range_animating = GetIsRangeAnimating); ac2-render scene/object_lights.rs fill() samples them at the scene clock each frame (FillRenderLight, GetAnimatedRange; 24 of the 38 FX lights in the DAT animate). Cell lights share it: ac2-world ac2_light_info.rs Ac2StaticLight carries the waveforms, and the cell lights that pool on the ground (light_decals.rs, static_point_light_at) sample them; the lights cached per interior object and the interior vertex bake (CEnvCell::LightIndices) stay at the waveform start like the one-time flush_cells bake
 - [-] `CPartArray::GetAnimator` · 004f0500 · legions 004e2e40 — render plumbing
 - [-] `CPartArray::ClearUnusedAnimations` · 004f05b0 · legions 004e2ee0 — render plumbing
 - [-] `CPartArray::DestroyAnimCache` · 004f0710 · legions 004e3040 — render plumbing
@@ -2160,7 +2160,7 @@ Legend and workflow: [README](README.md).
 - [x] `TurnModule::set_desired_heading` · 006abf00 · legions 00644e20 — ac2-physics moveto (slice 3)
 - [-] `TurnModule::StreamPack` · 006abf60 — DBO/archive serialisation of runtime state; the client does not read it from the DAT
 
-## `portal/shared/src/physobj/physicsobj.cpp.c` (399/526)
+## `portal/shared/src/physobj/physicsobj.cpp.c` (401/526)
 
 ### Quaternion
 - [x] `Quaternion::multiply` · 004dddc0 · legions 004d0820
@@ -2587,7 +2587,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::AlwaysPrepareObject` · 004e7a60 — Traced: forces an object to be prepared when a particle system force-draws, the first-person player, or a child does. The client has no per-view prepare list: every body within PHYSICS_RANGE animates (Remote::active) and particles are not culled by view, so every object is always prepared
 - [x] `CPhysicsObj::UpdateViewerDistance` · 004e7af0 — PhysicsBody::set_view_distance + ac2-client view::viewer_distances (|eye - origin|, negative = 0, held objects take the holder distance as the parent passes it to its children); the SceneTool scene-stamp skip is a per-render-pass dedupe: the single render path computes it once per frame
 - [x] `CPhysicsObj::PrepareObjectForDrawing` · 004e7c80 — PhysicsBody::drawing_position (Position::slerp of previous and current by the render interpolation, a static body draws where it is); ac2-client draws the player and every remote at it and runs UpdateChild plus the m_bElementChanged clear in update_held_children; the pose blend is the AGENTS.md display-rate improvement; the scene-stamp skip is the per-pass dedupe
-- [~] `CPhysicsObj::Draw` · 004e7db0 — adaptive degrade and HACK_bDrawingPlayer feed WorldScene::object_detail; AvatarVisibleInFirstPerson hides the player and what it holds (PlayerFrame::hidden). Not ported (ac2-render/ac2-client, not physics): the AvatarMouseHoverTransparency fade of the player (m_fMouseHoverOpacity), per-object static light caching (SceneTool::CacheStaticLights/ApplyLights) and marker objects; the cached shadow colour (LScapeRender::CalculateShadowColor) is replaced by the sun-shadow exception
+- [x] `CPhysicsObj::Draw` · 004e7db0 — adaptive degrade, HACK_bDrawingPlayer and AvatarVisibleInFirstPerson as before. Now also: the player mouse-hover fade (ac2-render hover_fade.rs MouseHoverFade, step = elapsed*opacity*10 down to 0.3 while the pointer is over the avatar in third person, AvatarMouseHoverTransparency in SceneOptions; ac2-client view.rs update_player_hover, applied to the avatar and what it holds); the lights an object is lit by (WorldScene::object_lit_by: the resident blocks static point lights on the object side in range plus the FX lights, sorted by weight, at most four = SceneTool::CacheStaticLights + ApplyLights; retail keeps the pick until the object moved 10 cm, the port re-picks per frame so no per-object cache is kept); marker objects are the debug TogglePlaceMarkerObjects aid (skipped in that row); the cached shadow colour (LScapeRender::CalculateShadowColor) is replaced by the sun-shadow exception
 - [x] `CPhysicsObj::AddChildInternal` · 004e86c0 · legions 004db0a0 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
 - [x] `CPhysicsObj::StickySetParent` · 004e8750 — Legions 0x4db130. ac2-physics body_parts.rs sticky_attachment (nearest bone of the root part array, rotation relative to it, offset origin zeroed as CalculateBoneIndexAndOffset does) + children.rs ChildGraph::sticky_set_parent for server objects; a story missile keeps its sticky parent in ac2-client client_story_missiles.rs (Stories::stick) and is drawn on that bone
 - [x] `CPhysicsObj::unset_parent` · 004e8850 · legions 004db230 — ac2-physics children.rs ChildGraph (CHILDLIST/CHILDINFO, parent link by id; RemoveChild swaps the last entry in); ac2-weenie ObjectTable owns the graph and keeps it in step with RecvEvt_Parent/DeParent/LeaveWorld/Contain
@@ -2694,7 +2694,7 @@ Legend and workflow: [README](README.md).
 - [x] `CPhysicsObj::inc_update_time` · 004eb1c0 — teleport start: StopInterpolating, UnConstrain, inc_update_time(TELEPORT) on the player (client_teleport.rs, ac2-weenie inc_player_update_time)
 - [x] `CPhysicsObj::GetPosition` · 004eb1d0 — CPhysicsObj::GetPosition - CPhysicsObj method cited in ac2-physics body.rs, frame.rs, objects.rs, movement_module.rs, selection.rs, client_audio.rs
 - [x] `CPhysicsObj::GetDrawingPosition` · 004eb1e0 — ac2-physics PhysicsBody::{drawing_position, set_mobile, is_mobile}
-- [~] `CPhysicsObj::SetTerrainType` · 004eb1f0 — ported: the motion terrain (CMotionInterp::SetTerrainType), terrain property, reports. Not ported: FXManager::m_terrain (the DAT FX loader, ac2-assets ac2_fx.rs read_fx_data, drops the terrain-keyed FXNodes so FXData::GetData has nothing to select), and the per-object CollidePropertyList (needs the gBaseProperty native)
+- [x] `CPhysicsObj::SetTerrainType` · 004eb1f0 — ported: the motion terrain (CMotionInterp::SetTerrainType), terrain property, reports (collision_report.rs, body.rs) and FXManager::m_terrain (PhysicsBody::fx_terrain_type, zero until set); the DAT FX loader keeps the terrain-keyed FXNodes (ac2_fx.rs read_fx_data/FxDataParts) so FXData::GetData selects per terrain (get_on in the resolved particle and sound tables, used by client_audio and client_fx_objects). The per-object CollidePropertyList belongs to the CCollisionManager rows
 - [-] `CPhysicsObj::GetWorldMatrix` · 004eb210 · legions 004ddb50 — no cached world matrix: the renderer builds the model matrix from the drawn position (PhysicsBody::drawing_position) each frame
 - [x] `CPhysicsObj::GetNumShadowObjects` · 004eb220 — ac2-physics Terrain: insert_object / move_object / remove_object keep the shadow lists (superset by the cover margin for movers, later-resident cells pick objects up); shadow_object_count and shadow_objects_complete answer GetNumShadowObjects and AreShadowObjectsComplete
 - [x] `CPhysicsObj::SetPhysicsCollideMask` · 004eb230 — ac2-physics PhysicsObj::set_collision_state: info.physics_type replaces the body blocking mask (m_blocking_mask, read by IsBlocking, the conflict checks and the shadow list); the desired movement mask is kept (desired_collision_mask) and the temporary ethereal lists live in CollisionParameters; tested
@@ -2742,7 +2742,7 @@ Legend and workflow: [README](README.md).
 - [-] `CPhysicsObj::PlaceMarkerObject` · 004ed2e0 · legions 004dfc40 — admin/debug or text-file tooling
 - [x] `CPhysicsObj::RecvEvt_Position` · 004ed470 — the non-player branch over PhysicsBody::interpolate_to / interpolate_and_impulse (ac2-client remote.rs)
 
-## `portal/shared/src/physobj/physicsobjrep.cpp.c` (145/171)
+## `portal/shared/src/physobj/physicsobjrep.cpp.c` (146/171)
 
 ### BehaviorTable
 - [x] `BehaviorTable::Get` · 004f10c0 · legions 004e39f0 — BehaviorTable decode through the resource store (loader_anim.rs load::<Ac2BehaviorTable>)
@@ -2821,7 +2821,7 @@ Legend and workflow: [README](README.md).
 - [x] `PHYSICSOBJREP::SetupSliderTracker` · 004f1c40 · legions 004e4540 — Matches: the Legions functions do not recurse into part groups (one SliderTracker per PHYSICSOBJREP, AnimRep::new / update_sliders); every group animator reads the same sliders (PoseContext, SliderView), so child groups follow them without a tracker of their own.
 - [x] `PHYSICSOBJREP::SetupFXScriptTracker` · 004f1cb0 · legions 004e45b0 — ac2-client motion.rs DoFxScript -> ac2-physics body do_fx_script; the tracker in ac2-anim fxscript_tracker.rs; client test fx_effects_tests.rs (sound and particle ids); rain: client rain_sounds.rs (tests rain_sounds_tests.rs)
 - [x] `PHYSICSOBJREP::SetupModeTracker` · 004f1d10 · legions 004e4610 — ac2-physics anim_rep / motion_interp_behaviors (slice 3)
-- [~] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — ported: the motion terrain (CMotionInterp::SetTerrainType), terrain property, reports. Not ported: FXManager::m_terrain (the DAT FX loader, ac2-assets ac2_fx.rs read_fx_data, drops the terrain-keyed FXNodes so FXData::GetData has nothing to select), and the per-object CollidePropertyList (needs the gBaseProperty native)
+- [x] `PHYSICSOBJREP::SetTerrainType` · 004f1d70 · legions 004e4670 — ported: the motion terrain (CMotionInterp::SetTerrainType), terrain property, reports (collision_report.rs, body.rs) and FXManager::m_terrain (PhysicsBody::fx_terrain_type, zero until set); the DAT FX loader keeps the terrain-keyed FXNodes (ac2_fx.rs read_fx_data/FxDataParts) so FXData::GetData selects per terrain (get_on in the resolved particle and sound tables, used by client_audio and client_fx_objects). The per-object CollidePropertyList belongs to the CCollisionManager rows
 - [x] `PHYSICSOBJREP::GetBoneTypeMatrix` · 004f1da0 · legions 004e46a0 — fx_follow.rs follow_frame over the emitter posed named bones; a missing bone starts no system / keeps the last place
 - [x] `PHYSICSOBJREP::HasBoneType` · 004f1db0 — ac2-physics body_parts.rs (PhysicsBody over its part-group tree) has_bone_type (FindMatrixForBoneType into a temporary)
 - [x] `PHYSICSOBJREP::HasHoldingLocation` · 004f1dd0 · legions 004e46d0 — ac2-physics held.rs has_holding_location / find_holding_point over GroupHolding in ac2_assets::holding_search_order (a group's own list, then each child group depth first)

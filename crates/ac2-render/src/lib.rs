@@ -11,6 +11,7 @@ pub mod fx_decals;
 pub mod fx_particles;
 pub mod fx_repulsors;
 pub mod fx_streaks;
+pub mod hover_fade;
 mod image;
 pub mod interior_cull;
 mod landscape_lighting;
