@@ -501,6 +501,9 @@ impl State {
             });
             frame.objects.extend(creatures);
             showcase.weapons.hold(&mut frame);
+            if let Some(model) = self.panel.models.get(self.panel.model) {
+                showcase.wear(&mut frame, model.race, model.sex);
+            }
             let block_size = self.walk.block_size();
             showcase
                 .fx

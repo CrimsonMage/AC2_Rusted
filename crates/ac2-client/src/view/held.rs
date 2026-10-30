@@ -33,9 +33,14 @@ impl ClientView {
             .collect();
         // `CPhysicsObj::GetTotalScale`: a held object's scale carries its holder's total scale
         // (and the holder representation's `m_fChildScale`, 1.0 as `PHYSICSOBJREP` makes it).
+        // An object's own scale is its model's times its body's (`m_scale`), as `placed` draws it.
         let mut totals: Vec<Option<ac2_math::Vec3>> = drawn
             .iter()
-            .map(|d| self.scene.object_rig(d.key).map(|(_, scale)| *scale))
+            .map(|d| {
+                self.scene
+                    .object_rig(d.key)
+                    .map(|(_, scale)| *scale * d.body_scale)
+            })
             .collect();
         for i in placement_order(&holder_of) {
             let child = &drawn[i];

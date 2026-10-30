@@ -584,11 +584,17 @@ impl Worker {
                     .as_ref()
                     .and_then(|models| models.object_model(visual, &self.settings))
                 {
-                    let images = foreign
+                    let mut images: Images = foreign
                         .images
                         .into_iter()
                         .filter(|(key, _)| self.images.insert(*key))
                         .collect();
+                    // A foreign model may draw DAT textures too (an AC2 body under a foreign
+                    // visual): those load from the DATs as a DAT model's do.
+                    if let Some(model) = &foreign.model {
+                        let dat_images = self.images(model.texture_keys());
+                        images.extend(dat_images);
+                    }
                     let pick = foreign.model.as_ref().map(|model| {
                         std::sync::Arc::new(crate::selection::PickMesh::from_model(model))
                     });

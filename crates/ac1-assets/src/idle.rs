@@ -48,6 +48,11 @@ impl MotionClip {
         self.length
     }
 
+    /// Each frame's poses, in order.
+    pub fn poses(&self) -> impl Iterator<Item = &[PartPose]> {
+        self.frames.iter().map(|(pose, _)| pose.as_slice())
+    }
+
     pub fn frame_count(&self) -> usize {
         self.frames.len()
     }

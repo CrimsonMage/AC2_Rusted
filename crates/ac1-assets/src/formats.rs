@@ -49,11 +49,11 @@ impl<'a> Reader<'a> {
         self.cursor.read_f64().map_err(|_| self.err(context))
     }
 
-    fn u8(&mut self, context: &'static str) -> Ac1Result<u8> {
+    pub(crate) fn u8(&mut self, context: &'static str) -> Ac1Result<u8> {
         self.cursor.read_u8().map_err(|_| self.err(context))
     }
 
-    fn u16(&mut self, context: &'static str) -> Ac1Result<u16> {
+    pub(crate) fn u16(&mut self, context: &'static str) -> Ac1Result<u16> {
         self.cursor.read_u16().map_err(|_| self.err(context))
     }
 
@@ -100,18 +100,18 @@ impl<'a> Reader<'a> {
         self.count(raw, item, context)
     }
 
-    fn skip(&mut self, len: usize, context: &'static str) -> Ac1Result<()> {
+    pub(crate) fn skip(&mut self, len: usize, context: &'static str) -> Ac1Result<()> {
         self.cursor
             .read_bytes(len)
             .map(|_| ())
             .map_err(|_| self.err(context))
     }
 
-    fn bytes(&mut self, len: usize, context: &'static str) -> Ac1Result<&'a [u8]> {
+    pub(crate) fn bytes(&mut self, len: usize, context: &'static str) -> Ac1Result<&'a [u8]> {
         self.cursor.read_bytes(len).map_err(|_| self.err(context))
     }
 
-    fn align4(&mut self, context: &'static str) -> Ac1Result<()> {
+    pub(crate) fn align4(&mut self, context: &'static str) -> Ac1Result<()> {
         self.cursor.align_to(4).map_err(|_| self.err(context))
     }
 

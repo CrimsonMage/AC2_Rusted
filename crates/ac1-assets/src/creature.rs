@@ -76,6 +76,17 @@ pub struct Ac1Creature {
     pub icon: u32,
 }
 
+/// One piece of a worn AC1 item (`Ac1Dats::worn_pieces`): the body part it replaces and its
+/// model.
+#[derive(Debug, Clone)]
+pub struct Ac1WornPiece {
+    /// The wearer Setup's part index.
+    pub part: usize,
+    pub visual: DataId,
+    pub model: ObjectModel,
+    pub images: Images,
+}
+
 /// The part changes and palette an `ObjDesc` makes of a weenie.
 struct Appearance {
     parts: Vec<u32>,
@@ -93,7 +104,7 @@ impl Ac1Dats {
     /// Builds `weenie` drawn under `visual`.
     pub fn creature(&self, weenie: &AceWeenie, visual: DataId) -> Ac1Result<Ac1Creature> {
         let setup = self.decode(weenie.setup, Setup::decode)?;
-        let appearance = self.appearance(weenie, &setup)?;
+        let appearance = self.appearance(weenie, weenie.setup, &setup)?;
         let mut builder = ModelBuilder {
             dats: self,
             palette: appearance.palette.as_deref(),
@@ -174,6 +185,29 @@ impl Ac1Dats {
             .collect())
     }
 
+    /// Setup `setup`'s bare parts' vertices in their own frames, scaled by its part scales
+    /// (empty for a part without a GfxObj): the shapes `Retarget::new` places AC1's joints by.
+    pub fn part_shapes(&self, setup: u32) -> Ac1Result<Vec<Vec<Vec3>>> {
+        let setup = self.decode(setup, Setup::decode)?;
+        setup
+            .parts
+            .iter()
+            .enumerate()
+            .map(|(index, &gfx)| {
+                if gfx == 0 {
+                    return Ok(Vec::new());
+                }
+                let scale = Vec3::from(setup.scales.get(index).copied().unwrap_or([1.0; 3]));
+                let obj = self.decode(gfx, GfxObj::decode)?;
+                Ok(obj
+                    .vertices
+                    .values()
+                    .map(|v| Vec3::from(v.origin) * scale)
+                    .collect())
+            })
+            .collect()
+    }
+
     /// A particle's GfxObj `gfx` as a model drawn under `visual`: one part at the origin, its
     /// surfaces' own palettes.
     pub fn particle_model(&self, gfx: u32, visual: DataId) -> Ac1Result<(ObjectModel, Images)> {
@@ -192,18 +226,98 @@ impl Ac1Dats {
         Ok((model, builder.images))
     }
 
+    /// The pieces `weenie` (a worn item) gives body Setup `wearer`: each part its ClothingBase
+    /// replaces for that Setup (`CloObjectEffect`, as `CPartArray::SetPart` swaps the body's
+    /// part for the armoured one) as a one-part model at the part's origin, scaled by the body's
+    /// part scale, through the item's `ObjDesc` palette. Piece `n` is drawn under visual
+    /// `first_visual + n`. A Setup the ClothingBase has no entry for gives none.
+    pub fn worn_pieces(
+        &self,
+        weenie: &AceWeenie,
+        wearer: u32,
+        first_visual: u32,
+    ) -> Ac1Result<Vec<Ac1WornPiece>> {
+        self.pieces(weenie, wearer, first_visual, |_, own, worn| {
+            own != Some(worn)
+        })
+    }
+
+    /// Parts `parts` of body Setup `wearer` bare, as pieces like `worn_pieces`': a player body
+    /// as `CharGen` makes it (`CgSex::default_look`: its head, face and skin, hair and eye
+    /// colours), else the Setup's own parts and palettes.
+    pub fn body_pieces(
+        &self,
+        wearer: u32,
+        parts: &[usize],
+        first_visual: u32,
+    ) -> Ac1Result<Vec<Ac1WornPiece>> {
+        let look = match self.char_gen_sex(wearer)? {
+            Some(sex) => sex.default_look(),
+            None => AceWeenie {
+                setup: wearer,
+                scale: 1.0,
+                ..Default::default()
+            },
+        };
+        self.pieces(&look, wearer, first_visual, |index, _, _| {
+            parts.contains(&index)
+        })
+    }
+
+    /// The parts of `wearer` dressed in `weenie` that `wanted` (part index, the body's own
+    /// GfxObj, the dressed one) picks, one model each.
+    fn pieces(
+        &self,
+        weenie: &AceWeenie,
+        wearer: u32,
+        first_visual: u32,
+        wanted: impl Fn(usize, Option<u32>, u32) -> bool,
+    ) -> Ac1Result<Vec<Ac1WornPiece>> {
+        let setup = self.decode(wearer, Setup::decode)?;
+        let appearance = self.appearance(weenie, wearer, &setup)?;
+        let mut pieces = Vec::new();
+        for (index, gfx) in appearance.parts.iter().enumerate() {
+            if !wanted(index, setup.parts.get(index).copied(), *gfx) {
+                continue;
+            }
+            let visual = DataId::new(first_visual + pieces.len() as u32);
+            let mut builder = ModelBuilder {
+                dats: self,
+                palette: appearance.palette.as_deref(),
+                materials: HashMap::new(),
+                images: Vec::new(),
+                next_texture: AC1_TEXTURE_BASE | ((visual.raw() & 0xFFF) << 11),
+            };
+            let scale = setup.scales.get(index).copied().unwrap_or([1.0; 3]);
+            let Some(part) =
+                builder.part(0, *gfx, scale, Frame::IDENTITY, &appearance.textures[index])?
+            else {
+                continue;
+            };
+            pieces.push(Ac1WornPiece {
+                part: index,
+                visual,
+                model: rigid_model(visual, vec![part], 1, &[(0, &[Frame::IDENTITY][..])]),
+                images: builder.images,
+            });
+        }
+        Ok(pieces)
+    }
+
     /// `WorldObject.CalculateObjDesc` (ACE) as the client applies it: the ClothingBase's
     /// object effects for this Setup, the PaletteTemplate's sub-palettes at the weenie's shade,
     /// then the weenie's own anim parts, texture maps and palettes; the `ObjDesc` palette is the
     /// weenie's `PaletteBase` with every sub-palette's ranges copied over it, in order.
-    fn appearance(&self, weenie: &AceWeenie, setup: &Setup) -> Ac1Result<Appearance> {
+    /// `wearer` is the Setup the ClothingBase is looked up for: the weenie's own, or the body
+    /// that wears it.
+    fn appearance(&self, weenie: &AceWeenie, wearer: u32, setup: &Setup) -> Ac1Result<Appearance> {
         let mut parts = setup.parts.clone();
         let mut textures = vec![HashMap::new(); parts.len()];
         let mut subpalettes = Vec::new();
         let mut icon = None;
         if weenie.clothing_base != 0 {
             let table = self.decode(weenie.clothing_base, ClothingTable::decode)?;
-            for effect in table.bases.get(&weenie.setup).into_iter().flatten() {
+            for effect in table.bases.get(&wearer).into_iter().flatten() {
                 let part = effect.part as usize;
                 if let Some(slot) = parts.get_mut(part) {
                     *slot = effect.gfx_obj;
@@ -668,6 +782,11 @@ impl Ac1Models {
         self.models.insert(visual, (model, Vec3::ONE, images));
     }
 
+    /// A model drawn under `visual` at `scale` (an AC2 body's `VisualDesc` scale).
+    pub fn insert_scaled(&mut self, visual: DataId, model: ObjectModel, scale: Vec3) {
+        self.models.insert(visual, (model, scale, Vec::new()));
+    }
+
     pub fn insert(&mut self, creature: &Ac1Creature) {
         self.models.insert(
             creature.visual,
@@ -724,5 +843,39 @@ mod tests {
     #[test]
     fn an_identity_frame_places_a_part_at_the_origin() {
         assert_eq!(origin(&transform(Frame::IDENTITY).to_mat4()), Vec3::ZERO);
+    }
+}
+
+#[cfg(test)]
+mod worn_tests {
+    use super::*;
+
+    /// The Amuli coat's ClothingBase (`0x100001A1`) gives the AC1 human male (`0x02000001`) its
+    /// chest and both arms' upper and lower parts; the abdomen, hands and legs stay the body's.
+    #[test]
+    fn the_amuli_coat_covers_the_human_torso_and_arms() {
+        let Some(dats) = Ac1Dats::from_env() else {
+            return;
+        };
+        let dats = dats.expect("AC1 DATs mount");
+        let coat = AceWeenie {
+            setup: 0x0200_01A6,
+            clothing_base: 0x1000_01A1,
+            palette_base: 0x0400_007E,
+            palette_template: Some(21),
+            shade: 0.3,
+            has_shade: true,
+            ..Default::default()
+        };
+        let pieces = dats
+            .worn_pieces(&coat, 0x0200_0001, AC1_VISUAL_BASE)
+            .expect("pieces");
+        let parts: Vec<usize> = pieces.iter().map(|p| p.part).collect();
+        assert_eq!(parts, vec![9, 10, 11, 13, 14]);
+        // One model each, under consecutive visuals.
+        for (n, piece) in pieces.iter().enumerate() {
+            assert_eq!(piece.visual.raw(), AC1_VISUAL_BASE + n as u32);
+            assert_eq!(piece.model.parts.len(), 1);
+        }
     }
 }

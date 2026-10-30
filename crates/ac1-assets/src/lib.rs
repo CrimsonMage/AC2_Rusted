@@ -9,16 +9,18 @@
 //! own, and [`IdlePlayer`] poses them with the motion table's idle cycle and the weenie's
 //! heartbeat actions ([`idle`]).
 
+pub mod chargen;
 pub mod creature;
 mod dats;
 pub mod formats;
 pub mod idle;
 mod image;
+pub mod joints;
 pub mod particles;
 pub mod retarget;
 pub mod weenie;
 
-pub use creature::{Ac1Creature, Ac1Models};
+pub use creature::{Ac1Creature, Ac1Models, Ac1WornPiece};
 pub use dats::Ac1Dats;
 pub use formats::{Ac1Error, Ac1Result};
 pub use idle::{IdleBehaviour, IdlePlayer, MotionClip};

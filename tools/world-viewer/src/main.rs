@@ -8,6 +8,7 @@
 //! world-viewer ... --snapshot out.png --crowd N   (or --bench N --crowd N)
 //! world-viewer ... --ace-weenies DIR [--ac1-dat-dir DIR] [--ac1-heartbeat SECONDS] [--ac1-lineup]
 //! world-viewer ... --ac1-weapons DIR [--ac1-weapon N] [--ac1-weapon-placement P] [--ac1-weapon-scale S] [--orbit SECONDS]
+//! world-viewer ... --ac1-armor DIR
 //! world-viewer ... [--model-detail 0|1|2] [--scenery-distance 0|1|2] [--object-shadows 0|1|2|3]
 //! [--light-coronas 0|1] [--static-shadows 0|1] [--cloud-shadows 0|1] [--water-reflections 0|1|2]
 //! [--shore-effects 0|1|2] [--flash R,G,B,A] [--grass-copies N] [--size WIDTHxHEIGHT]
@@ -52,6 +53,8 @@
 //! `--hud-panel NAME` logs the snapshot's HUD on to the session (as the window's) and opens that
 //! toolbar panel (`inventory`, `skill`, `quest`, ...); `--equip N` then equips AC1 weapon N in
 //! the primary hand as the paper doll does (the session's server wields it).
+//! `--ac1-armor DIR` dresses the player in the ACE armour of DIR (`ac1_worn.rs`): each part its
+//! ClothingBase gives the race's AC1 body hangs from the AC2 bone that part is paired with.
 //! `--ac1-motion MOVE` (`ready`, `run`, `back`, `strafe`, `turn`) poses the snapshot's player
 //! with that movement's AC1 cycle, retargeted (`ac1_motion.rs`; the window's panel toggle), at
 //! `--ac1-motion-time` seconds (default 0.3).
@@ -74,6 +77,7 @@ mod ac1;
 mod ac1_fx;
 mod ac1_held;
 mod ac1_motion;
+mod ac1_worn;
 mod bench;
 mod crowd;
 mod fly;
@@ -154,6 +158,8 @@ struct Args {
     /// ACE weapon patch files for the player's right hand, the one in hand first, and the AC1
     /// placement frame it takes there.
     ac1_weapons: Option<PathBuf>,
+    /// `--ac1-armor DIR`: ACE armour weenies the player wears.
+    ac1_armor: Option<PathBuf>,
     ac1_weapon: usize,
     ac1_weapon_placement: Option<u32>,
     /// `--ac1-weapon-scale S`: the held weapons' scale over their weenies' (default 0.75).
@@ -206,6 +212,7 @@ fn parse_args() -> Result<Args, String> {
         ac1_heartbeat: None,
         ac1_lineup: false,
         ac1_weapons: None,
+        ac1_armor: None,
         ac1_weapon: 0,
         ac1_weapon_placement: None,
         ac1_weapon_scale: None,
@@ -315,6 +322,7 @@ fn parse_args() -> Result<Args, String> {
             "--equip" => args.equip = Some(value()?.parse().map_err(|e| format!("--equip: {e}"))?),
             "--orbit" => args.orbit = value()?.parse().map_err(|e| format!("--orbit: {e}"))?,
             "--ac1-weapons" => args.ac1_weapons = Some(value()?.into()),
+            "--ac1-armor" => args.ac1_armor = Some(value()?.into()),
             "--ac1-weapon" => {
                 args.ac1_weapon = value()?.parse().map_err(|e| format!("--ac1-weapon: {e}"))?;
             }
@@ -394,8 +402,12 @@ fn parse_args() -> Result<Args, String> {
     if args.crowd > 0 && args.snapshot.is_none() && args.bench == 0 {
         return Err("--crowd needs --snapshot or --bench".into());
     }
-    if (args.ace_weenies.is_some() || args.ac1_weapons.is_some()) && args.ac1_dat_dir.is_none() {
-        return Err("--ace-weenies and --ac1-weapons need --ac1-dat-dir or AC1_DAT_DIR".into());
+    let ac1_wanted =
+        args.ace_weenies.is_some() || args.ac1_weapons.is_some() || args.ac1_armor.is_some();
+    if ac1_wanted && args.ac1_dat_dir.is_none() {
+        return Err(
+            "--ace-weenies, --ac1-weapons and --ac1-armor need --ac1-dat-dir or AC1_DAT_DIR".into(),
+        );
     }
     Ok(args)
 }
@@ -418,12 +430,18 @@ fn main() {
         Ok(models) => (models, None),
         Err(error) => (Vec::new(), Some(error)),
     };
-    let wanted = args.ace_weenies.is_some() || args.ac1_weapons.is_some();
+    let wanted =
+        args.ace_weenies.is_some() || args.ac1_weapons.is_some() || args.ac1_armor.is_some();
     let ac1 = match (&args.ac1_dat_dir, wanted) {
         (Some(dats), true) => match ac1::Ac1Showcase::load(
             dats,
             args.ace_weenies.as_deref(),
             args.ac1_weapons.as_deref(),
+            args.ac1_armor.as_deref(),
+            &models
+                .iter()
+                .map(|m| (m.visual, m.race, m.sex))
+                .collect::<Vec<_>>(),
             args.ac1_weapon_scale,
             Arc::clone(&store),
         ) {
@@ -679,6 +697,10 @@ fn snapshot(
                 "ac1 motion: {}",
                 if applied { "retargeted" } else { "no AC1 body" }
             );
+        }
+        // After the motion: the dressed body is drawn under a visual of its own.
+        if let Some(model) = model {
+            showcase.wear(&mut frame, model.race, model.sex);
         }
     }
     if let Some(camera) = frame.camera.as_mut() {

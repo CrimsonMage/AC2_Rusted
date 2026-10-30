@@ -40,9 +40,19 @@ struct Body {
 /// Lugians, Tumeroks and Empyreans all share the human's part layout, and AC2's humans, Lugians
 /// and Tumeroks share its bone names, so one pairing serves them all.
 fn body_for(race: u32, sex: u32) -> Option<Body> {
+    let (setup, motion_table) = ac1_body(race, sex)?;
+    Some(Body {
+        setup,
+        motion_table,
+        pairs: HUMAN,
+    })
+}
+
+/// The AC1 body Setup and motion table of AC2 race `race` and sex `sex` (`body_for`).
+pub fn ac1_body(race: u32, sex: u32) -> Option<(u32, u32)> {
     const MALE: u32 = 0x1000;
     let male = sex == MALE;
-    let (setup, motion_table) = match (race, male) {
+    Some(match (race, male) {
         // Human (Aluvian and the other human heritages).
         (0x1, true) => (0x0200_0001, 0x0900_0001),
         (0x1, false) => (0x0200_004E, 0x0900_0001),
@@ -56,11 +66,6 @@ fn body_for(race: u32, sex: u32) -> Option<Body> {
         (0xA, true) => (0x0200_1A16, 0x0900_020B),
         (0xA, false) => (0x0200_1A10, 0x0900_020A),
         _ => return None,
-    };
-    Some(Body {
-        setup,
-        motion_table,
-        pairs: HUMAN,
     })
 }
 
@@ -105,6 +110,11 @@ impl Ac1Motion {
         self.rigs.get_mut(&visual)?.as_mut()
     }
 
+    /// The AC1 body of `race` and `sex` retargeted onto AC2 visual `visual`'s root skeleton.
+    pub fn retarget(&mut self, visual: u32, race: u32, sex: u32) -> Option<&Retarget> {
+        self.rig(visual, race, sex).map(|rig| &rig.retarget)
+    }
+
     /// The race's AC1 body retargeted onto the root skeleton of the AC2 visual.
     fn build(&self, visual: u32, race: u32, sex: u32) -> Option<Rig> {
         let body = body_for(race, sex)?;
@@ -120,7 +130,11 @@ impl Ac1Motion {
             .load_cached_packed::<Ac2Setup>(TypedResourceRef::new(DatFileKind::Portal, group, 0))
             .ok()??;
         let ac1_ref = self.dats.rest_pose(body.setup).ok()?;
-        let retarget = Retarget::new(&setup, &ac1_ref, body.pairs)?;
+        let joints = self
+            .dats
+            .limb_joints(body.setup, body.motion_table, body.pairs, &ac1_ref)
+            .unwrap_or_default();
+        let retarget = Retarget::new(&setup, &ac1_ref, body.pairs, &joints)?;
         Some(Rig {
             retarget,
             motion_table: body.motion_table,

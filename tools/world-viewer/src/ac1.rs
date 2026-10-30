@@ -81,6 +81,8 @@ pub struct Ac1Showcase {
     pub fx: crate::ac1_fx::Ac1Fx,
     /// The player's AC1 motion (the panel's toggle).
     pub motion: crate::ac1_motion::Ac1Motion,
+    /// `--ac1-armor`: the AC1 armour the player wears.
+    pub worn: Option<crate::ac1_worn::Ac1Worn>,
     /// The ring's centre: the cell and block-relative origin the player first stood at.
     anchor: Option<(u32, [f32; 3])>,
 }
@@ -92,6 +94,8 @@ impl Ac1Showcase {
         dat_dir: &Path,
         weenies: Option<&Path>,
         weapons: Option<&Path>,
+        armor: Option<&Path>,
+        players: &[(DataId, u32, u32)],
         held_scale: Option<f32>,
         store: Arc<ac2_db::ResourceStore>,
     ) -> Result<Self, String> {
@@ -105,6 +109,19 @@ impl Ac1Showcase {
             Some(dir) => build_dir(&dats, dir, WEAPON_VISUALS, &mut models)?,
             None => Vec::new(),
         };
+        let mut motion = crate::ac1_motion::Ac1Motion::new(dats.clone(), Arc::clone(&store));
+        let worn = armor
+            .map(|dir| {
+                crate::ac1_worn::Ac1Worn::load(
+                    &dats,
+                    dir,
+                    players,
+                    &store,
+                    &mut motion,
+                    &mut models,
+                )
+            })
+            .transpose()?;
         // The weapons' AC1 icons, served to the HUD before it is built.
         let icons = Arc::new(crate::ac1_held::Ac1Icons::load(&dats, &weapons));
         ac2_ui::set_foreign_ui_images(Arc::clone(&icons) as Arc<dyn ac2_ui::ForeignUiImages>);
@@ -148,8 +165,9 @@ impl Ac1Showcase {
             lineup: false,
             creatures,
             models: Arc::new(models),
-            motion: crate::ac1_motion::Ac1Motion::new(dats.clone(), Arc::clone(&store)),
+            motion,
             weapons: crate::ac1_held::Ac1Weapons::new(weapons, &icons, store),
+            worn,
             fx,
             anchor: None,
         })
@@ -158,6 +176,13 @@ impl Ac1Showcase {
     /// Centres the ring on `origin` (block-relative) in `cell` instead of the player's place.
     pub fn set_anchor(&mut self, cell: u32, origin: [f32; 3]) {
         self.anchor = Some((cell, origin));
+    }
+
+    /// Dresses `frame`'s player (AC2 race `race`, sex `sex`) in the `--ac1-armor` pieces.
+    pub fn wear(&mut self, frame: &mut ac2_client::ClientFrame, race: u32, sex: u32) {
+        if let Some(worn) = &self.worn {
+            worn.wear(frame, &mut self.motion, race, sex);
+        }
     }
 
     /// What the view asks for the creatures' models.
