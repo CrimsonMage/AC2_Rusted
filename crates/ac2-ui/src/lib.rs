@@ -189,7 +189,6 @@ mod shop_rows;
 #[cfg(test)]
 mod shop_tests;
 mod shortcut;
-mod shortcut_look;
 mod shortcut_notices;
 mod shortcut_states;
 mod skill_tree;
@@ -271,7 +270,6 @@ pub mod hud_style;
 mod text_scroll;
 mod token;
 mod toolbar;
-mod toolbar_cluster;
 mod tooltip;
 pub use hud_style::HudStyle;
 pub mod tooltip_prefs;
@@ -522,8 +520,6 @@ mod secure_trade_tests;
 #[cfg(test)]
 mod shortcut_checks_tests;
 #[cfg(test)]
-mod shortcut_look_tests;
-#[cfg(test)]
 mod shortcut_states_tests;
 #[cfg(test)]
 mod shortcut_tests;
@@ -543,8 +539,6 @@ mod text_bar_tests;
 mod text_clip_tests;
 #[cfg(test)]
 mod text_tests;
-#[cfg(test)]
-mod toolbar_cluster_tests;
 #[cfg(test)]
 mod toolbar_tests;
 #[cfg(test)]

@@ -302,38 +302,3 @@ fn a_moved_window_keeps_its_place_across_display_changes() {
     tree.set_display(1024, 768);
     assert_eq!(tree.screen_box(root), moved);
 }
-
-/// Each HUD style keeps its own file: the modern style's windows never take the classic ones'
-/// sizes, and the classic file keeps its name.
-#[test]
-fn each_hud_style_keeps_its_own_positions_file() {
-    let dir = std::env::temp_dir().join(format!("ac2-positions-style-{}", std::process::id()));
-    let _ = std::fs::remove_dir_all(&dir);
-    std::fs::create_dir_all(&dir).unwrap();
-    let classic = crate::window_positions_file(&dir, 0x2000_0001, crate::HudStyle::Classic);
-    let modern = crate::window_positions_file(&dir, 0x2000_0001, crate::HudStyle::Modern);
-    assert_eq!(
-        classic.file_name().unwrap(),
-        "WindowPositions-0000000020000001.txt"
-    );
-    assert_ne!(classic, modern);
-    let saved = vec![crate::WindowPosition {
-        layout: 0x2200_0001,
-        element: 0x9877_4723,
-        x0: -0.3,
-        y0: -0.7,
-        x1: 0.3,
-        y1: -1.0,
-    }];
-    crate::write_window_positions(&dir, 0x2000_0001, crate::HudStyle::Classic, &saved).unwrap();
-    assert_eq!(
-        crate::read_window_positions(&dir, 0x2000_0001, crate::HudStyle::Classic).unwrap(),
-        saved
-    );
-    assert!(
-        crate::read_window_positions(&dir, 0x2000_0001, crate::HudStyle::Modern)
-            .unwrap()
-            .is_empty()
-    );
-    let _ = std::fs::remove_dir_all(&dir);
-}

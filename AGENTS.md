@@ -140,20 +140,6 @@ game rules and server-visible behaviour exactly retail.
   Modern changes so far: scaled UI art is filtered (`ac2_ui` `compose_filter`: a box filter where
   it shrinks, bilinear where it grows, mixed in premultiplied alpha), where retail's
   `SurfaceWindow::Blit` took the nearest pixel (classic still does).
-  The toolbar is a corner cluster (`ac2_ui::toolbar_cluster`): retail's 798-pixel bar art is gone
-  and its field spans the bottom edge without taking the pointer; the panel buttons rest as two
-  stacks (left panel's, right panel's, retail order) on a nine-slice plate in the bottom-right
-  corner and fan out under the pointer; a shown panel's button is lit in its rollover art; the
-  dismount and consignments buttons join the plate only while shown; a side panel that would
-  cover the plate rests on it; the attack buttons sit side by side left of the shortcut bar and
-  the set disc on its right, following the bar when it moves. The shortcut bar's layout
-  descriptions are restyled (`ac2_ui::shortcut_look`): 38-pixel framed wells with the icons at
-  their native 32 pixels, the key digit in each slot's corner, a hover frame, and a dark veil
-  for a skill on reset where retail drew a checkered fill. Window places are kept per style
-  (`WindowPositions-<character>-modern.txt` beside the classic file), and the modern style
-  neither uploads its windows' places to the server nor applies the server's saved locations
-  (their boxes are the classic layout's), so `gmCWInterface::SetUISaveLocations` runs only in
-  the classic style.
 - Exception: the radar shows the player's map coordinates under the compass by default.
   Retail's `gmRadarUI::ReloadOptions` opened `BaseField`'s coordinates box only while the options
   profile's `PROFILE_SHOW_RADAR_COORDS` bit (0x10) was set, and a new character's profile has it

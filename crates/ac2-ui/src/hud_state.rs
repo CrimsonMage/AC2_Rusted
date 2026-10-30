@@ -29,8 +29,6 @@ use crate::{
 /// The HUD's panel state (`gmGamePlayUI`'s children that the client drives each frame).
 #[derive(Debug, Default)]
 pub struct Hud {
-    /// The style the HUD was built in (set when the build arrives).
-    pub style: crate::HudStyle,
     reticle: Option<Reticle>,
     names: Option<NamePlates>,
     damage: Option<DamageTexts>,

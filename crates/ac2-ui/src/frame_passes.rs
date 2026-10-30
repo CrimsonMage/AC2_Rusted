@@ -14,7 +14,6 @@ use ac2_world::GameDateTime;
 use crate::element::UiTree;
 use crate::friends_panel::{friend_event, FriendEvent};
 use crate::gameplay_story::StoryEvent;
-use crate::hud_style::HudStyle;
 use crate::target_select::frame_selection_calls;
 use crate::token::tokenize;
 use crate::{
@@ -39,20 +38,10 @@ pub trait HudHost {
     fn options_settings(&self) -> Option<OptionsSettings>;
     /// The server's saved window locations (`gmGamePlayUI::RecvNotice_ReloadOptions`).
     fn saved_window_locations(&self) -> Result<Vec<SavedWindow>, String>;
-    /// The player's own window places, kept on this machine for the character and the HUD's
-    /// style.
-    fn local_window_positions(
-        &self,
-        player: u64,
-        style: HudStyle,
-    ) -> Result<Vec<WindowPosition>, String>;
+    /// The player's own window places, kept on this machine for the character.
+    fn local_window_positions(&self, player: u64) -> Result<Vec<WindowPosition>, String>;
     /// Saves the player's window places on this machine.
-    fn save_local_window_positions(
-        &self,
-        player: u64,
-        style: HudStyle,
-        positions: &[WindowPosition],
-    );
+    fn save_local_window_positions(&self, player: u64, positions: &[WindowPosition]);
     /// The player's race (int 290) from the object table.
     fn player_race(&self, player: u64) -> Option<i32>;
     /// The GUN friend events taken since the last call (`FriendStart`, `FriendStatus`).
@@ -315,16 +304,14 @@ impl Hud {
     ) -> (Vec<HudRequest>, Reloads) {
         let mut requests = Vec::new();
         // `gmGamePlayUI::RecvNotice_SaveLocationsChanged`: a window moved since the last frame.
-        // The modern style's windows are kept on this machine only: their places are not
-        // retail's, so they are neither uploaded nor taken from the server (`AGENTS.md`).
-        if tree.take_locations_changed() && self.style == HudStyle::Classic {
+        if tree.take_locations_changed() {
             requests.push(HudRequest::SaveWindowLocations(tree.inq_locations()));
         }
         // The window exception (`AGENTS.md`): a window moved and its drag ended, so every
         // window's place is kept on this machine for the character.
         if tree.take_positions_changed() {
             if let Some(player) = input.player {
-                host.save_local_window_positions(player, self.style, &tree.window_positions());
+                host.save_local_window_positions(player, &tree.window_positions());
             }
         }
         // `gmChatOptionsUI`'s Apply sent the reload notice; its values refresh on the options'
@@ -365,10 +352,7 @@ impl Hud {
         // `gmGamePlayUI::RecvNotice_ReloadOptions` (and the refresh at login, `ListenToMessage`
         // 0xffff0007): the player's saved window locations apply to the windows.
         if reload_radar {
-            if let Some(saved) = (self.style == HudStyle::Classic)
-                .then(|| host.saved_window_locations().ok())
-                .flatten()
-            {
+            if let Ok(saved) = host.saved_window_locations() {
                 tree.apply_locations(&saved);
                 if let Some(radar) = self.radar.as_ref() {
                     radar.location_applied(tree);
@@ -376,7 +360,7 @@ impl Hud {
             }
             // The player's own places, per character, override the server's (`AGENTS.md`).
             if let Some(player) = input.player {
-                match host.local_window_positions(player, self.style) {
+                match host.local_window_positions(player) {
                     Ok(local) => tree.set_window_positions(&local),
                     Err(error) => eprintln!("ac2: window positions: {error}"),
                 }

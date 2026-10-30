@@ -147,7 +147,7 @@ impl HudView {
             Ok((
                 GameplayHud {
                     mut tree,
-                    style,
+                    style: _,
                     reticle,
                     names,
                     damage,
@@ -199,9 +199,6 @@ impl HudView {
                 images,
             )) => {
                 tree.set_display(self.scale.display.0 as i32, self.scale.display.1 as i32);
-                self.panels.style = style;
-                // The toolbar's corner cluster laid out for the display.
-                toolbar.arrange(&mut tree);
                 if let Some(chat) = &mut chat {
                     // The player's options are not read yet: the chat starts on
                     // `GameplayOptionsProfile::Clear`'s (no filters, default fonts).
