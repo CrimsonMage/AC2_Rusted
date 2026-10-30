@@ -706,6 +706,7 @@ impl UiTree {
             self.list_attribute(index, id);
             self.button_attribute(index, id, value);
             self.menu_attribute(index, id, value);
+            self.scrollbar_attribute(index, id);
         }
         self.text_attribute(index, id, &AttributeValue::Bool(value), changed);
     }
@@ -812,6 +813,7 @@ impl UiTree {
         let value = AttributeValue::Int(value);
         if self.el_mut(index).attributes.insert(id, value.clone()) != Some(value) {
             self.list_attribute(index, id);
+            self.scrollbar_attribute(index, id);
         }
     }
 

@@ -225,3 +225,24 @@ fn a_held_hot_button_repeats_its_click() {
         "released: no more clicks"
     );
 }
+
+/// `SetAttribute_Bool` / `_Float` run `UpdateLayout`: a bar set `disabled` with
+/// `hide_when_disabled` hides, enabled again it shows; a `proportional` bar's widget follows a
+/// new `x_widget_size`.
+#[test]
+fn a_changed_layout_attribute_lays_the_bar_out_again() {
+    let (mut tree, slider) = tree();
+    let widget = tree.child_recursive(slider, tokenize("widget")).unwrap();
+    tree.set_bool(slider, tokenize("hide_when_disabled"), true);
+    tree.set_bool(slider, tokenize("disabled"), true);
+    assert!(!tree.get(slider).unwrap().visible);
+    tree.set_bool(slider, tokenize("disabled"), false);
+    assert!(tree.get(slider).unwrap().visible);
+    tree.set_bool(slider, tokenize("proportional"), true);
+    tree.set_float(slider, tokenize("x_widget_size"), 0.5);
+    let rect = tree.get(widget).unwrap().rect;
+    assert_eq!(rect.x1 - rect.x0 + 1, 50);
+    tree.set_int(slider, tokenize("min_widget_width"), 70);
+    let rect = tree.get(widget).unwrap().rect;
+    assert_eq!(rect.x1 - rect.x0 + 1, 70);
+}

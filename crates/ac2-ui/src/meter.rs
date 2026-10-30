@@ -86,6 +86,9 @@ impl UiTree {
         if changed {
             self.changed = true;
         }
+        if changed {
+            self.scrollbar_attribute(index, id);
+        }
         if !self.is_meter(index) {
             return changed;
         }

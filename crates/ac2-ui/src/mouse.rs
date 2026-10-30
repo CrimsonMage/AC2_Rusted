@@ -14,7 +14,8 @@
 //! Each event also goes out as a global message (`0xFFFF0000` down, `0xFFFF0001` up,
 //! `0xFFFF0002` move).
 //!
-//! Not modelled yet: tooltips, cursors, drag and drop, moving and resizing elements, activation.
+//! Drag and drop is `drag.rs`, moving and resizing windows `window_locations.rs` and `resize.rs`,
+//! activation `activation.rs`.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;

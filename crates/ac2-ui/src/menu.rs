@@ -12,7 +12,8 @@
 //! `text_item` template and inserted in the list). The menu defines no key handling in retail.
 //!
 //! Not modelled yet: the popup's z order against the other roots (it keeps the z of its layout
-//! element), `m_moving` and `m_resizing` (the press is taken while the menu is not being moved).
+//! element). A menu is never a window's drag bar or grip, so
+//! `MouseDown`'s `m_moving` / `m_resizing` test (`UiTree::movement`, `resizing`) never fails.
 
 use crate::element::UiTree;
 use crate::layout::{AttributeValue, ElementDesc, LayoutDesc};

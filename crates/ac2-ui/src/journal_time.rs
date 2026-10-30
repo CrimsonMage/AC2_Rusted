@@ -7,9 +7,8 @@
 //! The words: `ComputeTimeLeft` picks months (`ID_Time_Months`, months and days), days
 //! (`ID_Time_Days`, days and hours), hours (`ID_Time_Hours`, hours and minutes) or minutes
 //! (`ID_Time_Minutes`, minutes and seconds) by the thresholds `m_monthTimeMin`, `m_dayTimeMin`
-//! and `m_minuteTimeMin` (the journal sets 1, 1 and 60). The minute and second fields are shown
-//! two digits wide; the admin decompile's `sprintf` format for them is not recovered, so that
-//! width is an assumption.
+//! and `m_minuteTimeMin` (the journal sets 1, 1 and 60). The minute and second fields are
+//! formatted `%02d` (the format string read from the admin build).
 
 use crate::element::UiTree;
 use crate::skill_tree::SkillVar;

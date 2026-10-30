@@ -10,7 +10,9 @@
 //! The wheel steps a stop-located bar, or moves the lists and texts it drives a line
 //! (`HandleMouseWheel`). A disabled bar takes nothing; with `hide_when_disabled` it hides with its
 //! buttons. A `proportional` widget is sized to its share of the track (`UpdateLayout`). Not
-//! modelled yet: the fill children and smooth movement (`goal_x_position`).
+//! modelled: the fill children (`left_fill` ... `bottom_fill`) and smooth movement
+//! (`StartAnimation`): no local layout authors a fill, and nothing sets `goal_x_position` /
+//! `goal_y_position` (no layout, no retail caller), so neither is reachable.
 
 use crate::element::UiTree;
 use crate::layout::AttributeValue;
@@ -124,6 +126,29 @@ impl UiTree {
         match self.el(index).attributes.get(&id) {
             Some(AttributeValue::Int(value)) => Some(*value),
             _ => None,
+        }
+    }
+
+    /// `UIElement_Scrollbar::SetAttribute_Bool` / `_Float` / `_Int`: a changed `disabled`,
+    /// `hide_when_disabled`, `proportional`, `horizontal`, `vertical`, `x_widget_size`,
+    /// `y_widget_size`, `x_position`, `y_position`, `min_widget_width` or `min_widget_height` runs
+    /// `UpdateLayout`.
+    pub(crate) fn scrollbar_attribute(&mut self, index: usize, id: u32) {
+        const LAYOUT: [u32; 11] = [
+            tokenize("disabled"),
+            tokenize("hide_when_disabled"),
+            tokenize("proportional"),
+            tokenize("horizontal"),
+            tokenize("vertical"),
+            tokenize("x_widget_size"),
+            tokenize("y_widget_size"),
+            X_POSITION,
+            Y_POSITION,
+            tokenize("min_widget_width"),
+            tokenize("min_widget_height"),
+        ];
+        if LAYOUT.contains(&id) {
+            self.scrollbar_update_layout(index);
         }
     }
 

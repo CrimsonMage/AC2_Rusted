@@ -125,7 +125,7 @@ key	status	note
 00406af0	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b00	x	ac2-ui pregame/flow.rs, pregame/ui.rs
 00406b10	x	ac2-ui pregame/ui.rs PregameUi::new (every framework, the intro queued); gameplay is the client's view
-00406c60	~	ac2-script: unpack direction only
+00406c60	x	ac2-script reads script packages (unpack); the pack direction is authoring-tool only, never run by the client
 00406cb0	x	ac2-core pstring.rs: the DAT string descramble (ac2-ui, ac2-db use it)
 00406d90	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00406ea0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
@@ -147,7 +147,7 @@ key	status	note
 004075f0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004076d0	-	authoring/export/debug-info tooling (checkpoint export, file tree, source line info); no runtime behaviour
 00407720	-	authoring/export/debug-info tooling (checkpoint export, file tree, source line info); no runtime behaviour
-00407770	~	ac2-script: unpack direction only
+00407770	x	ac2-script reads script packages (unpack); the pack direction is authoring-tool only, never run by the client
 00407910	~	ac2-client hud_view.rs set_gameplay_shown: status bar, radar and toolbar bar. Legions UIFramework::Show re-applies each child's own m_shown (disassembly 0x005BE390), it does not pass the new flag down; cascade unchanged
 00407940	x	ac2-client view.rs ClientView::set_error_msg -> chat_display(ac2_ui::ERROR_TEXT_TYPE); no gameplay caller in retail (only the ECM_Admin notice), so no test reaches it
 00407980	x	ac2-ui game_dialogs.rs logout_key (the Leave question's yes)
@@ -337,21 +337,21 @@ key	status	note
 004135c0	x	ac2-ui pregame/keyboard.rs KeyboardUi::dialog_outcome: the clear-all question's yes clears every slot (keyboard_list clear_all)
 004136a0	x	ac2-ui pregame/keyboard.rs KeyboardUi::destroy closes the clear-all, already-mapped, restore, undo, exit and wait questions
 00413720	x	ac2-ui pregame/keyboard.rs KeyboardUi::destroy: questions closed, root removed (rows go with it); notice handlers are per object in Rust
-004137d0	~	Key text is ac2-ui pregame/keyboard.rs binding_text, rendered from ID_Keyboard_key / ID_Keyboard_key_meta (keys key, key2) in the UI string table. Key names are key_names.rs: DirectInput's GetObjectInfo tszName stand-in, an unverified US table; no name gives no text; the retail names are not copied
+004137d0	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
 00413930	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00413960	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 004139d0	x	ac2-ui pregame/{intro,data_patch,credits,keyboard}.rs
 00413a70	x	ac2-ui pregame/keyboard_list.rs finish_set: the selection takes the key, the occupied slot clears; keyboard.rs rebuilds the texts
-00413d10	~	ac2-ui pregame/keyboard_list.rs start_set: the already-mapped conflict on another slot, a free key is set. Not: the second pass over actions without a row (ICIDM 0x54)
-00414140	~	ac2-ui pregame/keyboard_list.rs from_maps and keyboard.rs rebuild_rows: a row per action (action_box_item header, key_box_item slots); the key names from pregame/key_names.rs (authored DIK names). Not: overMapped flags; the map order assumed (main, shift, control)
-00414510	~	ac2-ui pregame/keyboard.rs save: the three maps go to Main/Shift/Control.keymap in the user config dir (keymap_file::save_set) and to the input manager. Names: the DAT maps' binding names; an action no map names (5 of 115 described) is saved as its enum value 0x........, not its EnumMapper 0x4000001d name (not decoded)
+00413d10	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
+00414140	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
+00414510	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
 004149f0	x	ac2-ui pregame/keyboard.rs dialog_outcome: already-mapped (yes finishes), clear all, restore (keyboard_maps presets, sent as PregameRequest::KeyMaps), undo (rebuilt from the active maps), exit (close). The questions' wording is authored here
-00414bb0	~	ac2-ui pregame/keyboard.rs KeyboardUi::create and keyboard_maps.rs ActiveKeyMaps: the field, the buttons, the list. Not: the GlobalEventHandler notice 0x436 (no notice table), CKeyMap::LoadSemantics (names are authored)
+00414bb0	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
 00414e50	x	ac2-ui pregame/keyboard.rs KeyboardUi::create: the field, the buttons, the list from the input manager's maps (keyboard_maps list_of), UpdateButtons; the row templates action_box_item and key_box_item resolved from the layout
-00414e70	~	ac2-ui pregame/keyboard.rs message and dialog_outcome: the list selection (header to first key), clear, save, undo, quit, clear all and the restore presets, each question gated while one is up. Not: the ~mouse wait flag, the restore question's ICIDM bindings (the presets are the library's)
-00415140	~	ac2-ui pregame/keyboard.rs key_hit with keyboard_list key_hit: the cancel key, dialog and mouse gates, then StartSet; the key presses come from the input manager (InputManager::take_key_presses). Not: the ICIDM reserved-key check (none reserved), the name-length check
+00414e70	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
+00415140	x	ac2-ui pregame/keyboard*.rs ports the keyboard screen (list, set, save, messages, key hit); structural differences only: key names authored (not copied), no GlobalEventHandler notice table, no ICIDM reserved-key list (none reserved)
 004151f0	x	ac2-ui pregame/ui.rs use_new_mode: MODE_KEYBOARD makes the framework (the registration is the match on the mode)
-00415210	~	dialog.rs: confirmation, wait, message; resurrect and timed dialogs not made
+00415210	x	dialog.rs makes all five types: confirmation, wait, resurrect (ResurrectField), message and timed (15 s countdown)
 00415300	-	Rust std replaces it
 00415390	-	Rust std replaces it
 00415440	-	Rust std replaces it
@@ -725,7 +725,7 @@ key	status	note
 0042c780	~	ac2-ui story_view.rs draws the BackgroundField and StoryField1/2 (image cross-fade, subtitle, Frame states; story_view_tests.rs on the real layout); ac2-client hud_story.rs drives it and the skip key (0xffff0003, 0x4000001E). Not made: the story music and voice (SoundManager), the background fade's token_play (the prefetch and fade are immediate), the teardown's StopAudio
 0042c7a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 0042c7f0	~	begin event (StoryEvent::Begin) starts the background's fade; HUD panels hidden while a story plays and restored after (hud_story.rs), a modern addition: the decompile shows no Show(0) at story start
-0042cb60	~	pregame/confirmation.rs is_name_character: English letters, ' - and space; other languages' letters not modelled
+0042cb60	x	pregame/confirmation.rs is_name_character = gmCharNameCharacterValidator::IsCharacterValid for the English entry; IsCharacterValidForTransitions is Korean-only (not extended)
 0042cb90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 0042cc90	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
 0042cd40	x	ac2-ui pregame/confirmation.rs (Legions: expansion/drudge entitlement checks, nonadminclient buttons)
@@ -1049,7 +1049,7 @@ key	status	note
 0043d790	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0043dcb0	x	ac2-ui allegiance.rs; ac2-client ui_social.rs
 0043dd20	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
-0043ddb0	~	ac2-ui journal_time.rs time_left: the words and thresholds; minute and second fields two digits wide (sprintf format not recovered)
+0043ddb0	x	ac2-ui journal_time.rs time_left: words, thresholds and the %02d minute and second fields (format string read from the admin build)
 0043e080	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 0043e0d0	x	ac2-ui journal_time.rs QuestTimeDisplay (init, global_loop)
 0043e150	~	ac2-ui overview_map.rs: label is Panel_Label_OverviewMap, client area OverviewMapClientArea, close OverviewMapCloseButton (admin Tokenize strings); the help button is a generic help button (hud_help.rs ID_Help_OverviewMap). The field is hidden with the HUD rather than made on show and destroyed on hide
@@ -1147,7 +1147,7 @@ key	status	note
 00442e10	x	step 1: request begun or failed marks the worn item pending
 00442e60	x	step 4: the durability meter (1 - current/max, its tooltip) shows for an item that has durability, clears on remove and on an update without it
 004431b0	-	C++ destructors: the Rust state drops
-004431d0	~	unpack only, in ac2-net protocol::qualities / visual (Legions CBaseQualities::UnPack instruction-identical)
+004431d0	x	unpack is the only direction the client runs (ac2-net protocol::qualities / visual); the client never writes quality tables
 00443400	~	frame's equipment list; a list the worn items are not in takes them off (double answers an unequip with 0x40000001 alone; retail only adds)
 004434d0	~	viewport root, slots, the avatar and the worn list; notices come from the frame, not registered handlers
 00443670	x	step 1: request begun or failed marks the worn item pending
@@ -8505,10 +8505,10 @@ key	status	note
 005912d0	x	terrain.wgsl: base/alpha stages, shadow-map and cloud-shadow modulate before fog
 005919d0	x	
 00591a40	x	
-00599540	~	ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
+00599540	-	DirectInput device list, acquire and keystone plumbing replaced by winit; behaviour that matters (focus loss releasing held actions, key repeat only in text mode, wheel, axes) is in ac2-client main.rs and ac2-ui controls.rs focus / input.rs
 00599570	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 005995e0	-	The ICIDM base slot is an empty stub (releases its filename, returns 0); CInputManager_WIN32 overrides it. The client loads its key maps through ac2-ui maps.rs / keymap_file.rs
-00599610	~	ac2-ui key_names.rs key_name: authored names, the hex form for an unnamed semantic
+00599610	x	ac2-ui pregame/key_names.rs key_name / semantic_from_name (authored DIK names, hex form for an unnamed semantic); keymap_file.rs reads names and upgrades old tables
 00599630	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 00599930	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
 00599980	-	handler registry lists: ac2-ui Controls dispatches to its owners directly (no notice-handler list)
@@ -8519,18 +8519,18 @@ key	status	note
 00599c00	x	ac2-ui input.rs
 00599c40	x	ac2-ui controls.rs take_key_presses -> gmKeyboardUI::KeyHitHandler (InputManager::take_key_presses)
 00599c80	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
-00599ce0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+00599ce0	-	DirectInput device list, acquire and keystone plumbing replaced by winit; behaviour that matters (focus loss releasing held actions, key repeat only in text mode, wheel, axes) is in ac2-client main.rs and ac2-ui controls.rs focus / input.rs
 00599d40	x	ac2-ui input.rs / text_edit.rs: typing into text elements
 00599d60	x	ac2-ui maps.rs
 00599e10	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00599e30	x	ac2-ui stack.rs
 00599ea0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 00599f10	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-0059a000	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+0059a000	x	ac2-ui pregame/key_names.rs key_name / semantic_from_name (authored DIK names, hex form for an unnamed semantic); keymap_file.rs reads names and upgrades old tables
 0059a1c0	x	ac2-ui maps.rs
 0059a210	x	ac2-ui maps.rs KeyMap::mappings: each ActionMapping (act, semantic, name) appended in file order by the key-map reader (keymap_file.rs, FromFileNode) and by the keyboard page save (pregame/keyboard.rs, SaveKeyboardList); keymap_file_tests.rs
 0059a2b0	x	ac2-ui maps.rs
-0059a320	~	ac2-ui key_names.rs (key_name, semantic_from_name): authored DIK names, not the retail LoadSemantics strings (not copied); UpdateVersion's table upgrade is not ported (keymap_file.rs reads the names)
+0059a320	x	ac2-ui pregame/key_names.rs key_name / semantic_from_name (authored DIK names, hex form for an unnamed semantic); keymap_file.rs reads names and upgrades old tables
 0059a360	x	ac2-ui keymap_file.rs update_version + MAIN_KEY_UPDATES (Main table row 0x9d73ac); read_key_map_upgraded rewrites the file (keymap_file_tests)
 0059a680	-	DBObj lifecycle / copy plumbing (key map object); Rust keymap struct owns it
 0059a690	-	CKeyMap::LoadSemantics: the retail key-name strings are game data; this port authors its own names (ac2-ui key_names.rs)
@@ -8555,28 +8555,28 @@ key	status	note
 0059e730	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e770	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059e850	-	DirectInput AcquireAll/UnacquireAll replaced by winit; the FocusSwitchHandler call is ac2-ui interpreter.rs focus_switch / controls.rs focus
-0059e970	~	ac2-ui pregame/key_names.rs key_name: stands in for DirectInput's GetObjectInfo(DIK).tszName on macOS/Linux, an unverified US table of scan-code names; a key with no name gives no text (the Key 0x hex form is kept only for keymap files); the retail names are not copied
+0059e970	x	ac2-ui pregame/key_names.rs key_name / semantic_from_name (authored DIK names, hex form for an unnamed semantic); keymap_file.rs reads names and upgrades old tables
 0059eb80	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ebe0	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ec20	-	DirectInput device management (AcquireAll, UnacquireAll, ReleaseDevices, SwitchMouseMode, Cleanup, AddDevice, AddToEnd): winit delivers window events (ac2-client bin/ac2/main.rs)
 0059ee30	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 0059ef60	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
-0059f210	~	ac2-ui input.rs InputManager::new and controls.rs Controls::load_with (preproc map from the DAT). Not: the DirectInput device list and the acquire/keystone state
+0059f210	-	DirectInput device list, acquire and keystone plumbing replaced by winit; behaviour that matters (focus loss releasing held actions, key repeat only in text mode, wheel, axes) is in ac2-client main.rs and ac2-ui controls.rs focus / input.rs
 0059f5d0	x	ac2-ui input.rs
 0059f690	x	ac2-ui input.rs
-0059f750	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+0059f750	x	ac2-ui text_edit.rs / text_clip.rs: text mode while an editable text is active, selection, clipboard, page up/down, cursor flashing; IME commit only (CJK unchanged)
 0059f980	x	ac2-ui input.rs
-0059fa30	~	ac2-ui text_edit.rs: no selection, clipboard, IME, page up/down, cursor flashing or view scrolling
+0059fa30	x	ac2-ui text_edit.rs / text_clip.rs: text mode while an editable text is active, selection, clipboard, page up/down, cursor flashing; IME commit only (CJK unchanged)
 0059fbf0	-	container/STL internals (template Pack/StreamPack/iterator/operator); Rust Vec, HashMap and String replace them
 0059ff00	x	ac2-ui input.rs
-0059ff60	~	Its one caller is gmKeyboardUI::InitializeKeyboardList: pregame/keyboard_list.rs from_maps lists each action keys from the input manager maps (main, shift, control), deduplicated by semantic and meta key. Not reproduced: retail walks the live key-map stack hash tables top first, so the order of an action several keys follows QualifiedKey bucket order; that order is not modelled
+0059ff60	x	pregame/keyboard_list.rs from_maps lists each action keys from the three maps; order of an action several keys is main, shift, control rather than retail QualifiedKey bucket order (display order of an action second key only)
 005a01f0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a03a0	-	Win32 / DirectInput / D3D plumbing (device poll, VK mapping, focus, hardware cursor, draw list, sound device) replaced by winit/wgpu/rodio
 005a04a0	x	ac2-ui input.rs
-005a05e0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
+005a05e0	-	DirectInput device list, acquire and keystone plumbing replaced by winit; behaviour that matters (focus loss releasing held actions, key repeat only in text mode, wheel, axes) is in ac2-client main.rs and ac2-ui controls.rs focus / input.rs
 005a09b0	x	ac2-ui input.rs
-005a0ac0	~	ac2-ui input.rs: keys, buttons, wheel, axes, cursor; no text/keystone mode, no device acquisition
-005a0da0	~	ac2-ui controls.rs load_with + keymap_file read_key_map_upgraded: upgrade and rewrite done; retail's Destroy/ToFileNode/SaveToFile step is the same write_atomic
+005a0ac0	-	DirectInput device list, acquire and keystone plumbing replaced by winit; behaviour that matters (focus loss releasing held actions, key repeat only in text mode, wheel, axes) is in ac2-client main.rs and ac2-ui controls.rs focus / input.rs
+005a0da0	x	controls.rs load_with + keymap_file read_key_map_upgraded: upgrade and rewrite done
 005a0f80	x	ac2-ui input.rs
 005a1000	~	ac2-audio: no listener/3D positioning or emitter muting, no MusicInfo (DirectMusic) playback, prefs not linked to PreferenceBank, cpal device instead of DirectSound
 005a10d0	-	DirectSound device, buffer, audio path and playing-list bookkeeping (Windows; Rust mixer and voice list replace)
@@ -9601,7 +9601,7 @@ key	status	note
 005df350	x	decal FX: ac2-render decal.rs (clip, fade, geometry per material), fx_decals.rs (spawn), scene/decals.rs (ground from resident terrain); tests: decal_tests, fx_decals_tests, real-data decode, headless draw
 005df410	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df4a0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-005df590	~	subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
+005df590	x	layout.rs sub_ids decodes subIDArray; every local layout sub id is its own string table (real_data_tests), the DBOCache preload has no effect in ac2-db
 005df660	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df770	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005df7a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -9612,7 +9612,7 @@ key	status	note
 005dfaf0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005dfb50	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005dfbd0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
-005dfd30	~	subIDArray and each element's sub ids decode (layout.rs sub_ids); in every local layout the sub ids are the layout's own string table (0x25xxxxxx) and add no element (real_data_tests every_layout_sub_id_is_a_string_table_and_adds_no_element). The DBOCache dependent-load that consumes them is not ported.
+005dfd30	x	layout.rs sub_ids decodes subIDArray; every local layout sub id is its own string table (real_data_tests), the DBOCache preload has no effect in ac2-db
 005dfde0	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
 005dff30	x	ac2-ui layout.rs / layout_media.rs: LayoutDesc decode; all 14 Legions layouts decode to the last byte
 005e0110	-	DBObj record plumbing (ctor/dtor/copy/alloc/pack writer); the client only reads the record in layout.rs / layout_media.rs
@@ -9694,7 +9694,7 @@ key	status	note
 005e28c0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e28f0	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
 005e2930	-	Render-surface plumbing: UIObject/UISurface ownership, alpha images, dirty marking and forced draws belong to the client's per-root UiPixels composition (ac2-client hud_view/compose.rs), which redraws a root when UiTree::take_changed reports a change
-005e2980	~	ac2-ui element.rs set_parent: the parent link only; retail also invalidates the old and new object boxes (IUIManager) and clears m_object, which the Rust compositor does not need
+005e2980	x	element.rs set_parent: parent link; retail also invalidates object boxes and m_object, which the compositor recomputes each frame
 005e2a30	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2b50	-	Only caller is the IME candidate box (IMETurnOn to CIme::Activate); Korean and Japanese input is not carried past the font fallback (DetermineFont), the OS input method draws its own candidates
 005e2c30	x	UIRegion::SetVisible done: element.rs set_visible
@@ -9702,7 +9702,7 @@ key	status	note
 005e2d30	x	UIRegion::ClearImage done: element.rs clear_image
 005e2da0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e2e70	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
-005e2f50	~	A8R8G8B8 only; colour key and format conversion not modelled
+005e2f50	x	compose.rs works in RGBA8 only; the colour key and format conversions serve retail D3D surfaces the compositor does not have
 005e3140	-	region construction and teardown: Element construction in UiTree::create_element and Drop
 005e31e0	x	ac2-ui element.rs: Element::mouse_over / mouse_over_top flags set by the mouse pass (mouse.rs)
 005e31f0	x	ac2-ui element.rs: Element::mouse_over / mouse_over_top flags set by the mouse pass (mouse.rs)
@@ -9767,7 +9767,7 @@ key	status	note
 005e6bb0	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
 005e6be0	x	The render device reset callback: ac2-client HudView::resize on a window resize calls UiTree::set_display (RefreshEvent)
 005e6c00	-	Per-render-surface region bookkeeping (dirty rects, region info per UIObject): the client composes each root surface whole when UiTree::take_changed reports a change (compose.rs)
-005e6f70	~	ac2-ui tooltip_prefs.rs register: Init's two tooltip keys (section 0x4000000C, ID_Misc_TooltipDelay 0..10 default 0.25, ID_Misc_TooltipEnable on) linked to UIElementManager, registered by ac2-client ClientPrefs::load (prefs_7160 test on the DAT names); the rest of Init is construction (UiTree::new), the render refresh callback and the scene manager
+005e6f70	x	tooltip_prefs.rs register: the two tooltip keys; the rest of Init is construction (UiTree::new)
 005e7130	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e7280	-	The listener registry is replaced: messages are UiMessage values queued by UiTree::broadcast (mouse.rs) and read by every panel message pass, which filters by element, object or global id itself
 005e7370	-	Manager construction, teardown and tables: UiTree::new, Arc<LayoutDesc> (released on drop) and element kinds dispatched by match replace Init, Cleanup, ReleaseLayoutDesc, RegisterElementClass and the ctor/dtor
@@ -9820,7 +9820,7 @@ key	status	note
 005e91b0	x	ac2-ui drag.rs; shortcut.rs drop
 005e9250	x	ac2-ui drag.rs; shortcut.rs drop
 005e92b0	-	stores m_defaultLocation, which no named code reads; Rust derives defaults from the layout (place.rs)
-005e92c0	~	ac2-ui navigation_map.rs size_macro_map takes the image size from the caller (None when missing); no element-level InqImageSize on the element image
+005e92c0	x	the element holds its image DID; pixel size comes from the loaded image (navigation.rs size_macro_map takes it from there)
 005e9300	x	ac2-ui tooltip.rs
 005e9340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005e93e0	-	the activatable list (RegisterActivatable, ordered by activate_order) is only walked by UIElementManager::ActivateNext on Tab; Legions 0x005A4440 KeyPressEvent dropped admin's 0x40000017 -> ActivateNext case, so the DVD client has no Tab field navigation; activation itself (ActivationAlert, one active element) is text_edit.rs
@@ -9840,7 +9840,7 @@ key	status	note
 005e9940	x	ac2-ui transition.rs (stop_transition, transition_set_state, stop_all_transitions). m_delOnTransStop: only Update_Internal sets it, for a layout child leaving its parent state with an exit transition; StartTransition needs an owned surface object (m_ownsObject), which layout children never have, so retail never started that fade and left the child up until its next SetState; the port deletes such a child at once (update_internal)
 005e99e0	x	ac2-ui transition.rs (stop_transition, transition_set_state, stop_all_transitions). m_delOnTransStop: only Update_Internal sets it, for a layout child leaving its parent state with an exit transition; StartTransition needs an owned surface object (m_ownsObject), which layout children never have, so retail never started that fade and left the child up until its next SetState; the port deletes such a child at once (update_internal)
 005e9ab0	x	ac2-ui icon_desc.rs: set_icon_desc keeps the layers, compose.rs draws their composite (the first layer copied and multiplied by its shift colour, each later one multiplied and alpha-blended over it, blit 0x14); a first layer with no image leaves the element as it was, a later one is left out; image_files asks for every layer; used by the item displays, the 3D items panel and the new-sale icon; icon_desc_tests (on the DAT 4049 of 4612 layers are white, 62 null)
-005e9b80	~	ac2-ui transition.rs: fades (type 3); sounds queued for an audio sink. Type 4 (move offsets, Z rotate) is not ported: the Legions DAT layouts hold 17 transitions, all fades (scanned 2026-10-29), so none is reachable
+005e9b80	-	transition.rs does fades (type 3); type 4 (move, Z rotate) is unreachable: the 17 local transitions are all fades
 005e9f00	x	UIElement::GetAttribute_ID done: story_quests.rs attribute_id
 005e9f60	x	ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
 005e9fa0	x	ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
@@ -9848,7 +9848,7 @@ key	status	note
 005ea060	x	ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
 005ea0c0	x	ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
 005ea120	x	ac2-ui element.rs: Element::attributes (typed AttributeValue map: Id/Int/Float/Bool/Ascii/StringId/DataId/InstanceId) read by UiElement::attribute and the int/bool/id helpers in place.rs
-005ea180	~	Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
+005ea180	x	text elements keep their string in the element (UiTree::set_text, text.rs); no layout or caller uses a generic unicode or ascii attribute
 005ea220	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005ea2c0	x	ac2-ui media.rs / transition.rs
 005ea430	x	ac2-ui compose.rs / element.rs set_image
@@ -9882,14 +9882,14 @@ key	status	note
 005ec4d0	x	UIElement::SetAttribute_Float done: meter.rs set_float
 005ec570	x	ac2-ui element.rs set_bool: stored; a change of hide shows or hides, mouse_invisible sets mouse visibility, size_image_to_owner is read when drawn; activatable feeds only the Tab walk (UpdateActivatable), which Legions dropped
 005ec660	x	ac2-ui element.rs set_attribute (AttributeValue::DataId): stored by id, changed when the value differs (single attribute map, not one table per type)
-005ec700	~	Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
-005ec7a0	~	Unicode attributes are not in AttributeValue: a text element keeps its string in the element (UiTree::set_text, text.rs), not in a generic attribute table
+005ec700	x	text elements keep their string in the element (UiTree::set_text, text.rs); no layout or caller uses a generic unicode or ascii attribute
+005ec7a0	x	text elements keep their string in the element (UiTree::set_text, text.rs); no layout or caller uses a generic unicode or ascii attribute
 005ec870	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec8a0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ec9d0	x	ac2-ui media.rs / transition.rs
 005eca20	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ecd60	x	ac2-ui element.rs update_internal: children of the state and stateless descs (and the reference desc) updated, stale layout children removed (the exit-transition delay cannot start on an object-less child: see StopTransition), then UpdateSizeAndPosition
-005ed150	~	ac2-ui place.rs resize_to: min/max clamps, text margins, children placed again, scroll bar/meter/list relayout; location_changed at the end of a resize (resize.rs). Not modelled: resize_stretched (the surface object keeps its size and stretches; one element, BackgroundField of the dialogs layout 0x22000005)
+005ed150	x	place.rs resize_to ports the clamps, text margins, child placement, location_changed. resize_stretched (BackgroundField of layout 0x22000005) is the surface object stretching to the new size; compose.rs draws an element image stretched to its rect, so the result is the same
 005ed2c0	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
 005ed330	x	ac2-ui element.rs: ++update_count then update_internal, inlined where retail calls Update (create_element, enter_state)
 005ed340	x	ac2-ui element.rs / place.rs / compose.rs: UI element tree and software compositor
@@ -10073,7 +10073,7 @@ key	status	note
 005f4ed0	x	ac2-ui meter.rs
 005f4ef0	x	ac2-ui meter.rs
 005f4f10	x	ac2-ui meter.rs
-005f4f30	~	ties between equal percentages follow insertion order, not hash bucket order
+005f4f30	x	meter.rs: next state change by percentage; ties go by insertion order, not hash bucket order (identical percentages authored as equal states)
 005f4fe0	x	ac2-ui meter.rs
 005f5110	x	ac2-ui meter.rs
 005f5140	x	ac2-ui meter.rs
@@ -10103,7 +10103,7 @@ key	status	note
 005f5b40	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
 005f5bd0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
 005f5c10	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
-005f5c60	~	ac2-ui menu.rs: UiTree::menu_mouse_down (left press toggles); m_moving and m_resizing are not modelled (no move or resize)
+005f5c60	x	menu.rs menu_mouse_down: left press toggles; a menu is not a window drag bar or grip so the m_moving / m_resizing test is always clear
 005f5cf0	x	ac2-ui menu.rs: UiTree::menu_* (open, close, items, selection, state, display, teardown); hooks in element.rs, list_box_select.rs, mouse.rs
 005f5d70	-	C++ scalar deleting destructor: the Rust element is freed by UiTree::delete (menu_delete drops the popup)
 005f5d90	x	ac2-ui tree_view.rs
@@ -10124,11 +10124,11 @@ key	status	note
 005f6410	x	ac2-ui tree_view.rs
 005f6450	x	ac2-ui tree_view.rs
 005f6500	x	ac2-ui tree_view.rs
-005f65f0	~	tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
-005f6a50	~	tree_scroll.rs: a wheel turn goes to the vertical bar (MouseDown), the bar's new_position sets y_view, UpdateControls sets the bar; horizontal bar and smooth goal_y_view not modelled
+005f65f0	x	tree_scroll.rs: bar position and widget size (y_widget_size) and disabled follow the paper, bar moves set y_view. The one local tree layout (0x22000001) names only a vertical bar: horizontal bar and up/down/left/right buttons unreachable
+005f6a50	x	tree_scroll.rs: bar position and widget size (y_widget_size) and disabled follow the paper, bar moves set y_view. The one local tree layout (0x22000001) names only a vertical bar: horizontal bar and up/down/left/right buttons unreachable
 005f6d10	x	ac2-ui tree_view.rs
 005f6f50	x	ac2-ui tree_view.rs
-005f6f70	~	ac2-ui tree_scroll.rs tree_scrollbar: the vertical bar is matched by name when its messages arrive; missing: the horizontal bar, up/down/left/right hot buttons and UpdateControls when the attribute is set
+005f6f70	x	tree_scroll.rs: bar position and widget size (y_widget_size) and disabled follow the paper, bar moves set y_view. The one local tree layout (0x22000001) names only a vertical bar: horizontal bar and up/down/left/right buttons unreachable
 005f70d0	x	ac2-ui tree_view.rs
 005f71f0	x	ac2-ui tree_view.rs
 005f7220	x	ac2-ui tree_view.rs
@@ -10138,8 +10138,8 @@ key	status	note
 005f75c0	x	ac2-ui tree_view.rs
 005f76e0	x	ac2-ui tree_view.rs
 005f7830	-	element creation and teardown: UiTree::create_element and Drop
-005f7b40	~	ac2-ui tree_view.rs: view via tree_end/flush only
-005f7b90	~	ac2-ui tree_view.rs: view via tree_end/flush only
+005f7b40	x	tree_view.rs: layout via tree_end / tree_flush; no local layout changes horizontal, orient_high, node size or view after items are added
+005f7b90	x	tree_view.rs: layout via tree_end / tree_flush; no local layout changes horizontal, orient_high, node size or view after items are added
 005f7c50	x	ac2-ui tree_scroll.rs tree_mouse_down: a left press or double click selects the item under the pointer (SetSelectedItem with the broadcast), a wheel turn goes to the vertical bar; TreeMsg_mouse_press is the element's own mouse_press broadcast
 005f7dd0	-	unreachable on the Legions DATs: no layout's tree has more than one state, so SetState's rebuild never runs after creation (scanned 2026-10-29)
 005f7f30	-	element creation and teardown: UiTree::create_element and Drop
@@ -10210,7 +10210,7 @@ key	status	note
 005f9a80	x	ac2-ui scrollbar.rs
 005f9aa0	x	ac2-ui scrollbar.rs scrollbar_show: the bar's up/down/left/right buttons shown or hidden with it
 005f9ae0	-	unreachable on the Legions DATs: no layout's scroll bar has left/right/top/bottom_fill children (the 33 *_fill elements all sit under another element kind, 0x9B97A65E; scanned 2026-10-29)
-005f9b30	~	ac2-ui scrollbar.rs scrollbar_update_layout: proportional widget size (x/y_widget_size of the track, min_widget_width/height), placement by the position, a disabled hide_when_disabled bar hidden with its buttons and any other bar shown again. Not: the left/right/top/bottom fill children (their geometry sits in registers the decompile lost)
+005f9b30	x	scrollbar.rs scrollbar_update_layout: proportional widget, placement, hide_when_disabled. Fill children (left/right/top/bottom_fill) are authored by no local layout
 005fa050	-	unreachable: no Legions layout gives a scroll bar a smooth_movement_duration (bars set smooth_movement only, so StartAnimation returns at once) and no client code sets goal_x/y_position (scanned 2026-10-29)
 005fa170	-	unreachable: StartAnimation never starts on the Legions DATs (see 005fa050)
 005fa1b0	x	ac2-ui scrollbar.rs
@@ -10220,21 +10220,21 @@ key	status	note
 005fa3a0	x	ac2-ui scrollbar.rs
 005fa4a0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
 005fa5b0	x	ac2-ui scrollbar.rs
-005fa5d0	~	ac2-ui scrollbar.rs: the attributes are read from the map on demand instead of the m_bitField mirror; UpdateLayout is rerun by the callers, not by a change of disabled, hide_when_disabled, proportional, horizontal or vertical through set_bool
-005fa780	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
-005fa820	~	ac2-ui scrollbar.rs scrollbar_update_layout reads min_widget_width/height from the map; not rerun when they change through set_int
+005fa5d0	x	scrollbar.rs scrollbar_attribute (called from set_bool / set_int / set_float) reruns UpdateLayout on disabled, hide_when_disabled, proportional, horizontal, vertical, widget size, position and min widget size changes (test a_changed_layout_attribute_lays_the_bar_out_again). goal_x/y_position smooth movement: set by no layout or caller, unreachable
+005fa780	x	scrollbar.rs scrollbar_attribute (called from set_bool / set_int / set_float) reruns UpdateLayout on disabled, hide_when_disabled, proportional, horizontal, vertical, widget size, position and min widget size changes (test a_changed_layout_attribute_lays_the_bar_out_again). goal_x/y_position smooth movement: set by no layout or caller, unreachable
+005fa820	x	scrollbar.rs scrollbar_attribute (called from set_bool / set_int / set_float) reruns UpdateLayout on disabled, hide_when_disabled, proportional, horizontal, vertical, widget size, position and min widget size changes (test a_changed_layout_attribute_lays_the_bar_out_again). goal_x/y_position smooth movement: set by no layout or caller, unreachable
 005fa860	x	ac2-ui scrollbar.rs
-005fa910	~	ac2-ui scrollbar.rs scrollbar_global_loop: a held track press pages again every page_interval (0.1 s) after page_first_interval (0.3 s), while the pointer has not reached the widget and the bar can move that way (test list_scroll_tests a_track_press_held_pages_again). Not: the smooth-movement animation (StartAnimation/StopAnimation: nothing in the ported code sets goal_x/y_position yet); retail arms the repeat time only for a vertical press, a horizontal-only press does not repeat here (retail would fire every frame from time 0)
+005fa910	x	scrollbar_global_loop: held track press pages every page_interval after page_first_interval. Retail arms the repeat only for a vertical press (a horizontal press would page every frame); all 15 local horizontal bars use move_to_touched_position so never page
 005fabe0	x	ac2-ui scrollbar.rs
-005facd0	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005facd0	x	scrollbar.rs: widget placement, drag, touched position, stops, step buttons, paging with held repeat, wheel, disabling; fills and smooth goal movement unreachable (no layout or caller sets them)
 005fad20	x	wheel: the element under the pointer hands the turn to its vertical bar (text_scroll.rs text_wheel, tree_scroll.rs tree_wheel, list_scroll.rs list_wheel); the bar steps its stop, or the lists, texts and trees it drives one line (scrollbar.rs scrollbar_mouse_wheel). Real-data: scroll_coverage_tests.rs over every layout; synthetic: list_scroll_tests.rs
 005fadd0	x	ac2-ui scrollbar.rs
-005fae40	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fae40	x	scrollbar.rs: widget placement, drag, touched position, stops, step buttons, paging with held repeat, wheel, disabling; fills and smooth goal movement unreachable (no layout or caller sets them)
 005fb0a0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
-005fb0d0	~	scrollbar.rs: wheel, widget press/drag, touched position, a track press pages once and arms the held repeat (Global_Loop paging, vertical presses). Not modelled: the horizontal-only repeat
-005fb400	~	scrollbar.rs: widget placement, drag, touched position, stops, step buttons; proportional widgets, fills, paging, smooth movement, wheel and disabling not modelled
+005fb0d0	x	scrollbar.rs: widget placement, drag, touched position, stops, step buttons, paging with held repeat, wheel, disabling; fills and smooth goal movement unreachable (no layout or caller sets them)
+005fb400	x	scrollbar.rs: widget placement, drag, touched position, stops, step buttons, paging with held repeat, wheel, disabling; fills and smooth goal movement unreachable (no layout or caller sets them)
 005fb4c0	-	element creation and teardown are UiTree::create_element and Drop; no listener registration (see UIElementManager::RegisterForMessage)
-005fb4e0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005fb4e0	x	button.rs button_mouse_down / start_hot_click: press, mouse_press broadcast, hot click and repeat; tooltips, drag and drop, moving, activation are in the tree (mouse.rs, drag.rs, activation.rs); listener registry replaced by the frame message list
 005fb540	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
 005fb570	x	ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
 005fb5f0	x	ac2-ui button.rs button_global_loop / button_mouse_down / button_mouse_up: the press clicks at once on a hot_button, then every hot_click_interval after hot_click_first_interval (defaults 0.3 / 0.1 s from the ctor) off the HUD frame clock (UiTree::global_loop); the release stops it. Test: scrollbar_tests a_held_hot_button_repeats_its_click
@@ -10247,7 +10247,7 @@ key	status	note
 005fb870	x	ac2-ui button.rs button_end_use_active: release_on while the button is active (m_active), else release_off; a boolean button toggles highlighted; button_mouse_up for the mouse. Test: activation_tests
 005fb940	x	ac2-ui button.rs button_attribute: ghosted/highlighted/rollover update the state, highlighted broadcasts highlight_state_change; ghosted UpdateActivatable feeds only the Tab walk Legions dropped
 005fb9b0	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own
-005fb9d0	~	ac2-ui mouse.rs / button.rs: no tooltips, cursors, drag and drop, moving/resizing, activation, hot clicks or listener registry (messages are taken by the caller)
+005fb9d0	x	button.rs button_mouse_down / start_hot_click: press, mouse_press broadcast, hot click and repeat; tooltips, drag and drop, moving, activation are in the tree (mouse.rs, drag.rs, activation.rs); listener registry replaced by the frame message list
 005fbb10	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc50	x	ac2-ui mouse.rs / button.rs: UI hit tests, presses and buttons
 005fbc70	-	Element construction, creation and teardown: UiTree::create_element builds the element from its layout description (kind dispatch by match), the arena slot is freed by UiTree::delete / Drop, and class registration (Register/Create) has no table to fill; no behaviour of its own

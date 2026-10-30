@@ -9,7 +9,8 @@
 //! as for texts (`text_scroll.rs`): `UIElement_Tree::GetPercentageV` (admin 7148 0x005F5E50,
 //! Legions 0x005B6980) divides by `m_paperHeight - (y1 - y0 + 1)`.
 //!
-//! Not modelled yet: the horizontal bar, and the smooth move to `goal_y_view`. The page steps
+//! Not modelled: the horizontal bar, the up/down/left/right hot buttons and the smooth move to
+//! `goal_y_view` (the one layout with a tree, 0x22000001, names only a vertical bar). The page steps
 //! (`VerticalPageIncrement` ...) are `tree_goal_step`, reached by the bar's page messages.
 
 use crate::element::UiTree;
@@ -84,10 +85,19 @@ impl UiTree {
         } else {
             (f64::from(view) / f64::from(range)).clamp(0.0, 1.0)
         };
+        // A bar the paper overflows gets a widget of the visible share of the paper; one it
+        // fits is disabled.
+        let paper = self.el(tree).tree.as_ref().map_or(0, |s| s.paper.1);
+        let height = self.el(tree).rect.height();
+        if height < paper {
+            self.set_float(
+                bar,
+                tokenize("y_widget_size"),
+                (height as f32 / paper as f32).min(1.0),
+            );
+        }
         self.scrollbar_set_position(bar, share as f32);
-        self.el_mut(bar)
-            .attributes
-            .insert(tokenize("disabled"), AttributeValue::Bool(range <= 0));
+        self.set_bool(bar, tokenize("disabled"), range <= 0);
     }
 
     /// The node size along an axis: `node_height` (vertical) or `node_width`.
